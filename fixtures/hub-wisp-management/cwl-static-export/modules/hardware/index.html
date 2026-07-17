@@ -53,7 +53,23 @@
         <button class="btn-primary dropdown-toggle">
           ➕ Add Hardware ▼
         </button>
-        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAddMenu"><div class="dropdown-menu">
+            <button class="dropdown-item">
+              📡 EPC/SNMP Server
+            </button>
+            <button class="dropdown-item">
+              📶 Sector/Antenna
+            </button>
+            <button class="dropdown-item">
+              📻 Radio/eNB
+            </button>
+            <button class="dropdown-item">
+              🌐 Router/Switch
+            </button>
+            <button class="dropdown-item">
+              🔧 Other Hardware
+            </button>
+          </div></div>
       </div>
     </div>
   </div>
@@ -206,11 +222,458 @@
 </div>
 
 <!-- Scan Modal -->
-
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showScanModal"><div class="cwl-modal-shell" data-cwl-modal-shell="ScanModal" aria-hidden="true" role="dialog"></div></div>
 
 <!-- EPC Deployment Wizard -->
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showEPCWizard"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content epc-deployment-modal">
+      <div class="modal-header">
+        <h2>🚀 Server Deployment</h2>
+        <button class="close-btn">✕</button>
+      </div>
 
+      
+
+      
+
+      <div class="modal-body">
+        <!-- Step Progress Indicator -->
+        <div class="step-indicator">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Array(totalSteps) as _, i">
+            <div class="step-indicator-item">
+              <div class="step-indicator-number"></div>
+              <div class="step-indicator-line"></div>
+            </div></div>
+        </div>
+
+        <!-- Step Content -->
+        <div class="step-content">
+          <!-- Step 1: Deployment Type -->
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1"><div class="step-panel">
+              <h3>Step 1: Select Deployment Type</h3>
+              <p class="step-description">Choose what components to deploy on the server</p>
+              <div class="deployment-type-options">
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="epc" />
+                  <div class="option-content">
+                    <div class="option-icon">📡</div>
+                    <div class="option-info">
+                      <strong>EPC Core Only</strong>
+                      <p>Deploy Open5GS EPC components (MME, SGW, PGW, PCRF)</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="snmp" />
+                  <div class="option-content">
+                    <div class="option-icon">📊</div>
+                    <div class="option-info">
+                      <strong>SNMP/Mikrotik Agent Only</strong>
+                      <p>Deploy SNMP agent and Mikrotik monitoring modules</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="both" />
+                  <div class="option-content">
+                    <div class="option-icon">🔄</div>
+                    <div class="option-info">
+                      <strong>Both EPC + SNMP</strong>
+                      <p>Deploy both EPC Core and SNMP/Mikrotik monitoring agents</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          <!-- Step 2: Site Information -->
+          
+            <div class="step-panel">
+              <h3>Step 2: Site Information</h3>
+              <p class="step-description">Select a site to deploy the remote EPC/SNMP agent. Site selection is required to link device codes.</p>
+              <div class="form-section">
+                <div class="form-group">
+                  <label for="siteSelect">Select Site *</label>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingSites"><select id="siteSelect" disabled>
+                      <option>Loading sites...</option>
+                    </select>
+                  
+                    <select id="siteSelect" disabled>
+                      <option>No sites available. Please create a site first.</option>
+                    </select>
+                    <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                      You need to create a site in the Coverage Map module before deploying remotes.
+                    </p></div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedSiteId && selectedSite"><div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" readonly />
+                  </div>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.contact.name || epcConfig.contact.email"><div class="form-group">
+                      <label>Contact</label>
+                      <input type="text" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label>Email</label>
+                      <input type="text" readonly />
+                    </div></div></div>
+              </div>
+            </div>
+
+          <!-- Step 3: EPC Network Configuration (if EPC selected) -->
+          
+            <div class="step-panel">
+              <h3>Step 3: EPC Network Configuration</h3>
+              <p class="step-description">Configure network parameters for EPC</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="mcc">MCC *</label>
+                    <input id="mcc" type="text" placeholder="001" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="mnc">MNC *</label>
+                    <input id="mnc" type="text" placeholder="01" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="tac">TAC *</label>
+                    <input id="tac" type="text" placeholder="1" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Step 4: HSS Configuration (if EPC selected) -->
+          
+            <div class="step-panel">
+              <h3>Step 4: HSS Configuration</h3>
+              <p class="step-description">Configure HSS connection settings</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="hssHost">HSS Host</label>
+                    <input id="hssHost" type="text" placeholder="HSS host" />
+                  </div>
+                  <div class="form-group">
+                    <label for="hssPort">HSS Port</label>
+                    <input id="hssPort" type="text" placeholder="3868" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="diameterRealm">Diameter Realm</label>
+                  <input id="diameterRealm" type="text" placeholder="example.com" />
+                </div>
+              </div>
+            </div>
+
+          <!-- SNMP Configuration (if SNMP selected) -->
+          
+            <div class="step-panel">
+              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: SNMP/Mikrotik Configuration</h3>
+              <p class="step-description">Configure SNMP agent and monitoring</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpVersion">SNMP Version</label>
+                    <select id="snmpVersion">
+                      <option value="2c">SNMPv2c (Recommended)</option>
+                      <option value="1">SNMPv1</option>
+                      <option value="3">SNMPv3 (Secure)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCommunity">Community String</label>
+                    <input id="snmpCommunity" type="text" placeholder="public" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpPort">SNMP Port</label>
+                    <input id="snmpPort" type="number" placeholder="161" />
+                  </div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.snmpConfig.version === '3'"><div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpUsername">SNMPv3 Username</label>
+                      <input id="snmpUsername" type="text" placeholder="Enter username" />
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthProtocol">Auth Protocol</label>
+                      <select id="snmpAuthProtocol">
+                        <option value="SHA">SHA</option>
+                        <option value="MD5">MD5</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthKey">Auth Key</label>
+                      <input id="snmpAuthKey" type="password" placeholder="Enter auth key" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpPrivProtocol">Privacy Protocol</label>
+                      <select id="snmpPrivProtocol">
+                        <option value="AES">AES</option>
+                        <option value="DES">DES</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpPrivKey">Privacy Key</label>
+                      <input id="snmpPrivKey" type="password" placeholder="Enter privacy key" />
+                    </div>
+                  </div></div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpReportingInterval">Reporting Interval (seconds)</label>
+                    <input id="snmpReportingInterval" type="number" placeholder="60" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCloudApiUrl">Cloud API URL</label>
+                    <input id="snmpCloudApiUrl" type="text" placeholder="https://hss.wisptools.io:3003" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable SNMP Traps
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- APT Repository Configuration -->
+          
+            <div class="step-panel">
+              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: APT Repository Configuration</h3>
+              <p class="step-description">Configure remote updates repository</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="aptRepositoryUrl">Repository URL</label>
+                    <input id="aptRepositoryUrl" type="text" placeholder="https://hss.wisptools.io/apt" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable APT Repository
+                    </label>
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Auto-update Enabled
+                    </label>
+                  </div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.aptConfig.autoUpdate"><div class="form-row">
+                    <div class="form-group">
+                      <label for="aptUpdateSchedule">Update Schedule</label>
+                      <select id="aptUpdateSchedule">
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="aptUpdateTime">Update Time (HH:MM)</label>
+                      <input id="aptUpdateTime" type="text" placeholder="02:00" pattern="[0-9]:[0-9]" />
+                    </div>
+                    <div class="form-group checkbox-group">
+                      <label>
+                        <input type="checkbox" />
+                        Security Updates Only
+                      </label>
+                    </div>
+                  </div></div>
+              </div>
+            </div>
+
+          <!-- Review Step -->
+          
+            <div class="step-panel">
+              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: Review Configuration</h3>
+              <p class="step-description">Review your deployment configuration</p>
+              <div class="review-section">
+                <div class="review-item">
+                  <strong>Deployment Type:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deploymentType === 'both' ? 'EPC + SNMP' : deploymentType.toUpperCase()"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Site Name:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.siteName"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Device Code:</strong>
+                  <span style="color: #999; font-style: italic;">Will be entered in device configuration after hardware boots</span>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deploymentType === 'epc' || deploymentType === 'both'"><div class="review-item">
+                    <strong>EPC Network:</strong>
+                    <span>MCC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.mcc"></span>, MNC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.mnc"></span>, TAC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.tac"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>HSS:</strong>
+                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.hssConfig.hssHost"></span>:<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.hssConfig.hssPort"></span></span>
+                  </div></div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deploymentType === 'snmp' || deploymentType === 'both'"><div class="review-item">
+                    <strong>SNMP Version:</strong>
+                    <span>SNMPv<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.snmpConfig.version"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>SNMP Community:</strong>
+                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.snmpConfig.community"></span></span>
+                  </div></div>
+                <div class="review-item">
+                  <strong>Location:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.address"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.city"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.state"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Contact:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.contact.name"></span> (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.contact.email"></span>)</span>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.aptConfig.enabled"><div class="review-item">
+                    <strong>APT Repository:</strong>
+                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.aptConfig.repositoryUrl"></span></span>
+                  </div></div>
+              </div>
+            </div>
+
+          <!-- Final Step: Download (Script/ISO Selection) --></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="modal-actions">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 1"><button class="btn btn-secondary">
+              ← Previous
+            </button></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep < totalSteps"><button class="btn btn-primary">
+              
+                Next →
+              
+            </button></div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
 
 <!-- EPC Edit Modal -->
-
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showEPCEditModal && selectedEPCDevice"><div class="modal-overlay">
+    <div class="modal-content" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>✏️ Edit EPC/SNMP Device</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="device-info-banner">
+          <strong>Current EPC ID:</strong> <code><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedEPCDevice.epc_id || selectedEPCDevice.epcId"></span></code>
+        </div>
+        
+        <!-- EPC ID Section -->
+        <div class="config-section">
+          <h4>🆔 EPC Identification</h4>
+          <div class="form-group">
+            <label>EPC ID</label>
+            <input type="text" readonly disabled placeholder="EPC-XXXX" style="background-color: #f5f5f5; cursor: not-allowed;" />
+            <small class="hint">EPC ID is auto-generated and cannot be changed</small>
+          </div>
+        </div>
+        
+        <!-- Site Name Section -->
+        <div class="config-section">
+          <h4>📍 Site Information</h4>
+          <div class="form-group">
+            <label>Site</label>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingSites"><select disabled>
+                <option>Loading sites...</option>
+              </select></div>
+            <small class="hint">Select a deployed site from the list</small>
+          </div>
+          <div class="form-group">
+            <label>Site Name</label>
+            <input type="text" placeholder="Site name (auto-filled from selected site)" />
+            <small class="hint">Will be auto-generated with suffix if multiple EPCs on same site</small>
+          </div>
+        </div>
+        
+        <!-- Device Code Section -->
+        <div class="config-section">
+          <h4>🔗 Device Linking</h4>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedEPCDevice.device_code"><p class="linked-info">✅ Linked: <code class="device-code"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedEPCDevice.device_code"></span></code></p></div>
+        </div>
+        
+        <div class="form-group">
+          <label>Deployment Type</label>
+          <select>
+            <option value="epc">📡 EPC Only</option>
+            <option value="snmp">📊 SNMP Only</option>
+            <option value="both">📡📊 EPC + SNMP</option>
+          </select>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcEditForm.deployment_type === 'epc' || epcEditForm.deployment_type === 'both'"><div class="config-section">
+            <h4>📡 EPC Configuration</h4>
+            <div class="form-row">
+              <div class="form-group"><label>MCC</label><input type="text" /></div>
+              <div class="form-group"><label>MNC</label><input type="text" /></div>
+              <div class="form-group"><label>TAC</label><input type="text" /></div>
+            </div>
+            <div class="form-group"><label>APN Name</label><input type="text" /></div>
+            <div class="form-row">
+              <div class="form-group"><label>Primary DNS</label><input type="text" /></div>
+              <div class="form-group"><label>Secondary DNS</label><input type="text" /></div>
+            </div>
+          </div></div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcEditForm.deployment_type === 'snmp' || epcEditForm.deployment_type === 'both'"><div class="config-section">
+            <h4>📊 SNMP Configuration</h4>
+            <div class="checkbox-row">
+              <label><input type="checkbox" /> Enabled</label>
+              <label><input type="checkbox" /> Auto-Discovery</label>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Version</label>
+                <select>
+                  <option value="1">v1</option>
+                  <option value="2c">v2c</option>
+                  <option value="3">v3</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Polling Interval (sec)</label><input type="number" min="10" max="3600" /></div>
+            </div>
+            
+            <div class="form-group">
+              <label>Community Strings (one per line)</label>
+              <textarea
+                placeholder="public
+private
+readonly"
+                rows="4"
+              ></textarea>
+              <small class="hint">Enter each community string on a new line</small>
+            </div>
+            
+            <div class="form-group">
+              <label>Subnets to Scan (CIDR format, one per line)</label>
+              <textarea
+                placeholder="192.168.1.0/24
+10.0.0.0/24"
+                rows="4"
+              ></textarea>
+              <small class="hint">Enter each subnet in CIDR format (e.g., 192.168.1.0/24) on a new line</small>
+            </div>
+          </div></div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-secondary">Cancel</button>
+        <button class="btn-primary">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSavingEPC ? 'Saving...' : '💾 Save Changes'"></span>
+        </button>
+      </div>
+    </div>
+  </div></div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"hardware"}</script>

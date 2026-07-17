@@ -2047,6 +2047,19 @@
           openLiftedModal("SiteEditModal", prefer ? { siteId: prefer.id, site: prefer } : {});
           return;
         }
+        if (
+          (t.indexOf("deploy") >= 0 && t.indexOf("hardware") >= 0) ||
+          t.indexOf("hardware deployment") >= 0 ||
+          (t.indexOf("deploy") >= 0 && name === "TowerActionsMenu" && t.indexOf("epc") < 0)
+        ) {
+          ev.preventDefault();
+          var towerHw = (dataCache.towers || [])[0];
+          openLiftedModal(
+            "HardwareDeploymentModal",
+            towerHw ? { siteId: towerHw.id, site: towerHw } : {},
+          );
+          return;
+        }
         if (t.indexOf("edit") >= 0 && name === "SectorActionsMenu") {
           ev.preventDefault();
           var sec = (dataCache.sectors || [])[0];

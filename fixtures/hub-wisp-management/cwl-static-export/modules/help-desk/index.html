@@ -6,7 +6,7 @@
     
     <div class="title-section">
       <h1>🎧 Help Desk</h1>
-      <p class="subtitle">Customer support and ticket management for your organization</p>
+      <p class="subtitle">Customer support and ticket management for <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant?.name || 'your organization'"></span></p>
     </div>
     
     <div class="header-actions">
@@ -142,7 +142,344 @@
   
 </div>
 
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showDetailsModal && selectedTicket"><div data-cwl-component="TicketDetailsModal" data-cwl-lifted-component="TicketDetailsModal"><div
+  class="modal-backdrop"
+  role="presentation"
+>
+  <div
+    class="modal-content"
+    data-size="lg"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ticket-details-heading"
+    on:click|stopPropagation
+  >
+    <header class="modal-header">
+      <div>
+        <p class="modal-eyebrow">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getCategoryLabel(ticketData.ticketCategory)"></span> Ticket
+        </p>
+        <h2 id="ticket-details-heading">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.ticketNumber || ticketData._id"></span>
+        </h2>
+      </div>
+      <button
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close ticket details"
+      >
+        ✕
+      </button>
+    </header>
 
+    <section class="modal-body">
+      
+      
+      
+      
+      <div class="ticket-header">
+        <h3 class="ticket-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.title || 'Untitled ticket'"></span></h3>
+        <div class="badges">
+          <span class="badge">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.priority"></span>
+          </span>
+          <span class="badge">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.status"></span>
+          </span>
+        </div>
+      </div>
+      
+      <div class="tabs">
+        <button
+          class="tab"
+        >
+          Details
+        </button>
+        <button
+          class="tab"
+        >
+          Work Log (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.workPerformed?.length || 0"></span>)
+        </button>
+        <button
+          class="tab"
+        >
+          Resolution
+        </button>
+      </div>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'details'"><div class="details-section">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Category</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getCategoryLabel(ticketData.ticketCategory)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Type</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.type"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Priority</label>
+              <select>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="info-item">
+              <label>Status</label>
+              <select>
+                <option value="open">Open</option>
+                <option value="assigned">Assigned</option>
+                <option value="in-progress">In Progress</option>
+                <option value="waiting-parts">Waiting Parts</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div class="info-item">
+              <label>Created</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(ticketData.createdAt)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Created By</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.createdByName || ticketData.createdBy || 'Unknown'"></span></span>
+            </div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.assignedToName"><div class="info-item">
+                <label>Assigned To</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.assignedToName"></span></span>
+              </div></div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.completedAt"><div class="info-item">
+                <label>Completed</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(ticketData.completedAt)"></span></span>
+              </div></div>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.description"><div class="info-block">
+              <label>Description</label>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.description"></span></p>
+            </div></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.affectedCustomers && ticketData.affectedCustomers.length > 0"><div class="info-block">
+              <label>Affected Customers</label>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ticketData.affectedCustomers as customer"><div class="customer-item">
+                  <strong></strong>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.phoneNumber"><span></span></div>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress"><span class="address"></span></div>
+                </div></div>
+            </div></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.affectedSites && ticketData.affectedSites.length > 0"><div class="info-block">
+              <label>Affected Sites</label>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ticketData.affectedSites as site"><div class="site-item">
+                  <strong></strong>
+                  <span></span>
+                </div></div>
+            </div></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canEdit && ticketData.status !== 'closed' && ticketData.status !== 'resolved'"><div class="actions">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!ticketData.assignedTo"><button class="btn btn-primary">
+                  Assign Ticket
+                </button></div>
+              
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.status === 'resolved'"><button class="btn btn-primary">
+                  Close Ticket
+                </button></div>
+            </div></div>
+        </div></div>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'work'"><div class="work-section">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.workPerformed && ticketData.workPerformed.length > 0"><div class="work-logs">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ticketData.workPerformed as log"><div class="work-log-item">
+                  <div class="work-log-header">
+                    <strong></strong>
+                    <span class="work-log-date"></span>
+                  </div>
+                  <div class="work-log-meta">
+                    By: 
+                  </div>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="log.notes"><p class="work-log-notes"></p></div>
+                </div></div>
+            </div></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canEdit && ticketData.status !== 'closed'"><div class="add-work-log">
+              <h4>Add Work Log</h4>
+              <div class="form-group">
+                <label>Action</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Replaced equipment, Updated configuration"
+                />
+              </div>
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea
+                  placeholder="Additional details..."
+                  rows="3"
+                ></textarea>
+              </div>
+              <button class="btn btn-primary">
+                Add Log Entry
+              </button>
+            </div></div>
+        </div></div>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'resolution'"><div class="resolution-section">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.resolution"><div class="info-block">
+              <label>Resolution</label>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.resolution"></span></p>
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.rootCause"><div class="info-block">
+                <label>Root Cause</label>
+                <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.rootCause"></span></p>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticketData.preventiveMeasures"><div class="info-block">
+                <label>Preventive Measures</label>
+                <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticketData.preventiveMeasures"></span></p>
+              </div></div>
+          
+            <div class="resolution-form">
+              <div class="form-group">
+                <label>Resolution *</label>
+                <textarea
+                  placeholder="Describe how the issue was resolved..."
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>Root Cause (Optional)</label>
+                <textarea
+                  placeholder="What was the root cause of the issue?"
+                  rows="3"
+                ></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>Preventive Measures (Optional)</label>
+                <textarea
+                  placeholder="What steps can be taken to prevent this issue in the future?"
+                  rows="3"
+                ></textarea>
+              </div>
+              
+              <button class="btn btn-primary">
+                Mark as Resolved
+              </button>
+            </div></div>
+        </div></div>
+    </section>
+  </div>
+</div>
 
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAssignModal"><div class="assign-modal-overlay">
+    <div class="assign-modal" on:click|stopPropagation>
+      <h3>Assign Ticket</h3>
+      <div class="form-group">
+        <label>Select User</label>
+        <select>
+          <option>-- Select User --</option>
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="users as user"><option> ()</option></div>
+        </select>
+      </div>
+      <div class="assign-modal-actions">
+        <button class="btn btn-secondary">
+          Cancel
+        </button>
+        <button class="btn btn-primary">
+          Assign
+        </button>
+      </div>
+    </div>
+  </div></div></div></div>
 
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCustomerLookup"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
+  class="modal-backdrop"
+  role="presentation"
+>
+  <div
+    class="modal-content"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="customer-lookup-heading"
+    on:click|stopPropagation
+  >
+    <header class="modal-header">
+      <div>
+        <p class="modal-eyebrow">Customers</p>
+        <h2 id="customer-lookup-heading">Customer Lookup</h2>
+      </div>
+      <button
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close customer lookup"
+      >
+        ✕
+      </button>
+    </header>
+    
+    <section class="modal-body">
+      <div class="search-section">
+        <input
+          type="text"
+          placeholder="Search by name, phone, email, or customer ID..."
+          class="search-input"
+        />
+      </div>
+      
+      
+      
+      
+        <div class="customer-list" role="listbox" aria-label="Customer results">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)"><button
+              class="customer-item"
+              type="button"
+              role="option">
+              <div class="customer-header">
+                <div class="customer-name">
+                  <strong> $`}</strong>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.customerId"><span class="customer-id">#</span></div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceStatus"><span class="status-badge status-">
+                    
+                  </span></div>
+              </div>
+              
+              <div class="customer-details">
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.primaryPhone"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📞</span>
+                    
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.email"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📧</span>
+                    
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress?.street"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📍</span>
+                    
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.city">,</div>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.networkInfo?.imsi"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📡</span>
+                    IMSI: 
+                  </div></div>
+              </div>
+              
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan?.planName"><div class="customer-plan">
+                  Plan: 
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan.downloadMbps">(/ Mbps)</div>
+                </div></div>
+            </button></div>
+        </div>
+      
+    </section>
+  </div>
+</div></div></div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"help-desk"}</script>

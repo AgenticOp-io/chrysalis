@@ -220,7 +220,97 @@
     </div></div>
 
 <!-- Mikrotik Credentials Modal -->
-<div data-cwl-component="MikrotikCredentialsModal" data-cwl-lifted-component="MikrotikCredentialsModal"></div>
+<div data-cwl-component="MikrotikCredentialsModal" data-cwl-lifted-component="MikrotikCredentialsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open && device"><div class="modal-overlay">
+  <div class="modal-content" on:click|stopPropagation>
+    <div class="modal-header">
+      <h2>🔐 Mikrotik Device Credentials</h2>
+      <button class="close-button">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="device-info">
+        <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.name || device.ipAddress || 'Unknown Device'"></span></h3>
+        <p class="device-details">
+          <span>IP: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.ipAddress || 'Unknown'"></span></span>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.model"><span>Model: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.model"></span></span></div>
+        </p>
+      </div>
+      
+      
+      
+      
+      
+      <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saveCredentials"></span>>
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input
+            id="username"
+            type="text"
+            placeholder="admin"
+            required
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Leave blank to keep current password"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="port">RouterOS API Port</label>
+          <input
+            id="port"
+            type="number"
+            min="1"
+            max="65535"
+          />
+          <small>Default: 8728 (non-SSL) or 8729 (SSL)</small>
+        </div>
+        
+        <div class="form-group checkbox-group">
+          <label>
+            <input
+              type="checkbox"
+            />
+            Use SSL (RouterOS API SSL port 8729)
+          </label>
+        </div>
+        
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+          >
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="testingConnection ? '🔌 Testing...' : '🔌 Test Connection'"></span>
+          </button>
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+            >
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loading ? '💾 Saving...' : '💾 Save Credentials'"></span>
+            </button>
+          </div>
+        </div>
+      </form>
+      
+      <div class="info-box">
+        <p><strong>Note:</strong> Credentials are used by the SNMP monitoring agent to connect to this Mikrotik device via RouterOS API.</p>
+        <p>After saving, the agent will automatically use these credentials on the next network scan.</p>
+      </div>
+    </div>
+  </div>
+</div></div></div>
 
   <!-- Help Modal -->
   <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
@@ -237,7 +327,38 @@
   </div></div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTip.icon"><span class="tip-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.icon"></span></span></div>
+          <h2 id="tips-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="tips-body">
+        <div class="tip-content">
+          
+        </div>
+      </div>
+      
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" type="button">Close</button>
+      </div>
+    </div>
+  </div></div></div>
 
 
 <!-- SNMP Configuration Modal -->
@@ -630,7 +751,10 @@
         </div></div>
       
       <!-- Test Results -->
-      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="testResults"><div class="test-results">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="testResults.success">✅ Connection successful
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="testResults.systemDescription"><br><small>System: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="testResults.systemDescription"></span></small></div></div>
+        </div></div>
     </div>
     
     <div class="modal-footer">
@@ -970,19 +1094,190 @@
               ← Previous
             </button></div>
           
-          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep < totalSteps"><button class="btn btn-primary">
+              
+                Next →
+              
+            </button></div>
         </div>
       </div>
     </div>
   </div></div>
 
 <!-- Alert Details Modal -->
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAlertDetailsModal && selectedAlert"><div class="modal-overlay">
+    <div class="modal-content alert-details-modal">
+      <div class="modal-header">
+        <h3>🚨 Alert Details</h3>
+        <button class="modal-close">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="alert-detail-section">
+          <h4>Alert Information</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Severity:</label>
+              <span class="alert-severity"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedAlert.severity"></span></span>
+            </div>
+            <div class="detail-item">
+              <label>Timestamp:</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatInTenantTimezone(selectedAlert.timestamp)"></span></span>
+            </div>
+            <div class="detail-item">
+              <label>Message:</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedAlert.message"></span></span>
+            </div>
+            <div class="detail-item">
+              <label>Alert ID:</label>
+              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedAlert.id"></span></span>
+            </div>
+          </div>
+        </div>
 
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedAlert.deviceId"><div class="alert-detail-section">
+            <h4>Affected Device</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Device ID:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedAlert.deviceId"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Device Type:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedAlert.deviceType || 'Unknown'"></span></span>
+              </div>
+            </div>
+          </div></div>
+
+        <div class="alert-detail-section">
+          <h4>Actions</h4>
+          <div class="alert-actions-grid">
+            <button class="btn btn-primary">
+              🎫 Create Ticket
+            </button>
+            <button class="btn btn-secondary">
+              ✓ Acknowledge
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
 
 <!-- Create Ticket from Alert Modal -->
-
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCreateTicketModal && selectedAlert"><div class="modal-overlay">
+    <div class="modal-content create-ticket-modal">
+      <div class="modal-header">
+        <h3>🎫 Create Ticket from Alert</h3>
+        <button class="modal-close">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Ticket Title:</label>
+            <input 
+              type="text" 
+              value="Alert:"
+              class="form-input"
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Priority:</label>
+            <select class="form-select" required>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Category:</label>
+            <select class="form-select" required>
+              <option value="infrastructure">Infrastructure</option>
+              <option value="network">Network</option>
+              <option value="monitoring">Monitoring</option>
+              <option value="hardware">Hardware</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Description:</label>
+            <textarea 
+              class="form-textarea"
+              rows="4"
+              placeholder="Alert Details:&#10;Severity: &#10;Time: &#10;Message:"
+              required
+            ></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Ticket</button>
+            <button type="button" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div></div>
 
 <!-- Monitoring Site Details Modal (right-click on sites) -->
 <!-- Monitoring Site Details Modal (right-click on sites) -->
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showMonitoringSiteDetailsModal && selectedSiteForDetails"><div data-cwl-component="MonitoringSiteDetailsModal" data-cwl-lifted-component="MonitoringSiteDetailsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h2>📋 Site Details: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.name"></span></h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      
+      
+      <!-- Site Info -->
+      <div class="site-info">
+        <div class="info-row">
+          <span class="label">Type:</span>
+          <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.type || 'tower'"></span></span>
+        </div>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.address"><div class="info-row">
+            <span class="label">Address:</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.location.address"></span></span>
+          </div></div>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.latitude && site.location?.longitude"><div class="info-row">
+            <span class="label">Coordinates:</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.location.latitude.toFixed(6)"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.location.longitude.toFixed(6)"></span></span>
+          </div></div>
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <span class="value status-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getSiteStatus()"></span></span>
+        </div>
+      </div>
 
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn">
+          📊 Devices (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getSiteDevices().length"></span>)
+        </button>
+        <button class="tab-btn">
+          🔧 Hardware (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="hardwareDeployments.length"></span>)
+        </button>
+        <button class="tab-btn">
+          📦 Equipment (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="equipment.length"></span>)
+        </button>
+        <button class="tab-btn">
+          📶 Sectors (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sectors.length"></span>)
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        
+          <!-- Sectors -->
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="sectors.length === 0"><div class="empty-state">
+              <p>No sectors found at this site</p>
+            </div></div>
+        
+      </div>
+    </div>
+  </div></div></div></div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"monitoring"}</script>

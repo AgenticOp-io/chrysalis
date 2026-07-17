@@ -155,23 +155,289 @@
           </tr>
         </thead>
         <tbody>
-          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="items.length === 0"><tr>
+              <td colspan="11" class="empty-state">
+                <div>
+                  <p>📦 No inventory items found</p>
+                  <button class="btn-primary">
+                    Add Your First Item
+                  </button>
+                </div>
+              </td>
+            </tr></div>
         </tbody>
       </table>
     </div>
     
     <!-- Pagination -->
-    
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="pagination.pages > 1"><div class="pagination">
+        <button 
+          class="btn-secondary"
+        >
+          ← Previous
+        </button>
+        
+        <span class="pagination-info">
+          Page <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="pagination.page"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="pagination.pages"></span> 
+          (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="pagination.total"></span> items)
+        </span>
+        
+        <button 
+          class="btn-secondary"
+        >
+          Next →
+        </button>
+      </div></div>
   
   
   <!-- Manual Barcode Entry Modal -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showManualEntry"><div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔍 Manual Equipment Lookup</h3>
+        <button class="close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">
+          Enter a barcode, QR code, asset tag, or serial number to find equipment.
+          <br><small>For camera scanning, use the mobile app.</small>
+        </p>
+        <div class="form-group">
+          <label for="manualBarcode">Search Value</label>
+          <input 
+            id="manualBarcode"
+            type="text" 
+            placeholder="Enter barcode, asset tag, or serial number..."
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary">
+          Cancel
+        </button>
+        <button class="btn btn-primary">
+          Lookup Equipment
+        </button>
+      </div>
+    </div>
+  </div></div>
 
   <!-- Asset Tag Viewer -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedItemForTag"><div data-cwl-component="AssetTagViewer" data-cwl-lifted-component="AssetTagViewer"><div class="modal-overlay" hidden aria-hidden="true">
+  <div class="modal-content" on:click|stopPropagation>
+    <div class="modal-header">
+      <h2>🏷️ Asset Tag</h2>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isGenerating"><div class="loading">
+          <div class="spinner"></div>
+          <p>Generating QR code...</p>
+        </div></div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary">Close</button>
+      <button class="btn-primary">
+        🖨️ Print Label
+      </button>
+    </div>
+  </div>
+</div></div></div>
   
   <!-- Scan Modal -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showScanModal"><div data-cwl-component="ScanModal" data-cwl-lifted-component="ScanModal"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'check-in'">📥 Check In Item
+          
+            📤 Check Out Item</div>
+        </h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        
+        
+        
+        
+        <!-- Scanner Section -->
+        <div class="scanner-section">
+          <div class="input-group">
+            <label>Scan or Enter Identifier</label>
+            <div class="input-with-buttons">
+              <input
+                type="text"
+                placeholder="Barcode, QR Code, Asset Tag, or Serial Number"
+              />
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="barcodeDetector"><button 
+                  class="btn btn-icon"
+                >
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="usingCamera">📹</div>
+                </button></div>
+              <button 
+                class="btn btn-icon"
+              >
+                🔍
+              </button>
+            </div>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="usingCamera && videoElement"><div class="video-container">
+              <video
+                autoplay
+                playsinline
+                class="scanner-video"
+              >
+                <track kind="captions" srclang="en" label="No captions available" />
+              </video>
+            </div></div>
+        </div>
+        
+        
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="scannedItem"><div class="item-details">
+            <h3>Item Details</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Asset Tag:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.assetTag || 'N/A'"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Serial Number:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.serialNumber"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Category:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.category"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Type:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.equipmentType"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Manufacturer:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.manufacturer || 'N/A'"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Model:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.model || 'N/A'"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Status:</label>
+                <span class="badge badge-"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.status"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Current Location:</label>
+                <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="scannedItem.currentLocation?.type || 'N/A'"></span></span>
+              </div>
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode !== 'lookup'"><div class="location-section">
+                <h3>New Location</h3>
+                
+                <div class="form-group">
+                  <label>Location Type</label>
+                  <select>
+                    <option value="warehouse">Warehouse</option>
+                    <option value="tower">Tower Site</option>
+                    <option value="noc">NOC</option>
+                    <option value="vehicle">Vehicle</option>
+                    <option value="customer">Customer</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="locationType === 'warehouse'"><div class="form-group">
+                    <label>Warehouse Name</label>
+                    <input 
+                      type="text"
+                      placeholder="Main Warehouse"
+                    />
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="locationType === 'tower' || locationType === 'noc'"><div class="form-group">
+                    <label>Site ID</label>
+                    <input 
+                      type="text"
+                      placeholder="Site ID"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Rack</label>
+                    <input 
+                      type="text"
+                      placeholder="Rack Number"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Rack Unit</label>
+                    <input 
+                      type="text"
+                      placeholder="RU (e.g., 10-15)"
+                    />
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="locationType === 'vehicle'"><div class="form-group">
+                    <label>Vehicle ID</label>
+                    <input 
+                      type="text"
+                      placeholder="Vehicle ID"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Vehicle Name</label>
+                    <input 
+                      type="text"
+                      placeholder="Vehicle Name"
+                    />
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="locationType === 'customer'"><div class="form-group">
+                    <label>Customer ID</label>
+                    <input 
+                      type="text"
+                      placeholder="Customer ID"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Customer Name</label>
+                    <input 
+                      type="text"
+                      placeholder="Customer Name"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Service Address</label>
+                    <input 
+                      type="text"
+                      placeholder="Service Address"
+                    />
+                  </div></div>
+                
+                <div class="form-group">
+                  <label>Notes (optional)</label>
+                  <textarea
+                    placeholder="Additional notes about this check-in/out"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+              
+              <div class="modal-actions">
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'check-in'"><button 
+                    class="btn btn-primary"
+                  >
+                    ✓ Check In
+                  </button></div>
+                <button class="btn btn-secondary">Cancel</button>
+              </div></div>
+          </div></div>
+      </div>
+    </div>
+  </div></div></div>
   
   <!-- Check-in Wizard -->
   <div data-cwl-component="InventoryCheckInWizard" data-cwl-lifted-component="InventoryCheckInWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
@@ -297,7 +563,7 @@
             <button 
               class="wizard-btn-primary"
             >
-              Lookup Item →
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Looking up...' : 'Lookup Item →'"></span>
             </button>
           </div></div>
       </div>
@@ -492,7 +758,7 @@
         <button 
           class="wizard-btn-primary"
         >
-          ✅ Complete Check-in
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Checking in...' : '✅ Complete Check-in'"></span>
         </button>
       
         <button class="wizard-btn-primary">
@@ -616,7 +882,38 @@
 </button>
 
 <!-- Help Modal -->
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTip.icon"><span class="tip-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.icon"></span></span></div>
+          <h2 id="tips-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="tips-body">
+        <div class="tip-content">
+          
+        </div>
+      </div>
+      
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" type="button">Close</button>
+      </div>
+    </div>
+  </div></div></div>
 
 <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
@@ -627,6 +924,580 @@
       
       <div class="help-body">
         
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="TransferModal" data-cwl-lifted-component="TransferModal" data-cwl-orphan-modal="1"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && item" hidden aria-hidden="true"><div
+  class="modal-overlay"
+  role="presentation"
+  aria-hidden="true"
+  tabindex="-1"
+>
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Transfer equipment"
+    tabindex="0"
+  >
+    <div class="modal-header">
+      <h3>📦 Transfer Equipment</h3>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Item Info -->
+      <div class="item-info">
+        <h4>Item Details</h4>
+        <div class="item-details">
+          <span class="item-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.manufacturer"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.model"></span></span>
+          <span class="item-serial">SN: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.serialNumber"></span></span>
+          <span class="item-location">📍 Currently at: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation?.siteName || item.currentLocation?.type"></span></span>
+        </div>
+      </div>
+
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error"><div class="error-banner">
+          <span>⚠️</span>
+          <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="error"></span></span>
+        </div></div>
+
+      <!-- Transfer Form -->
+      <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleTransfer"></span>>
+        <!-- New Location -->
+        <div class="form-section">
+          <h4>📍 New Location</h4>
+          
+          <div class="form-group">
+            <label>Location Type *</label>
+            <select
+            >
+              <option value="warehouse">Warehouse</option>
+              <option value="tower">Tower Site</option>
+              <option value="noc">NOC</option>
+              <option value="vehicle">Vehicle</option>
+              <option value="customer">Customer Site</option>
+              <option value="rma">RMA</option>
+              <option value="vendor">Vendor</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="transferData.newLocation.type === 'tower'"><div class="form-group">
+              <label>Site</label>
+              <select>
+                <option>Select site...</option>
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option> ()</option></div>
+              </select>
+            </div></div>
+
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="transferData.newLocation.type === 'warehouse'"><div class="form-grid">
+              <div class="form-group">
+                <label>Warehouse Name</label>
+                <input type="text" placeholder="Main Warehouse" />
+              </div>
+              <div class="form-group">
+                <label>Section</label>
+                <input type="text" placeholder="A" />
+              </div>
+              <div class="form-group">
+                <label>Aisle</label>
+                <input type="text" placeholder="1" />
+              </div>
+              <div class="form-group">
+                <label>Shelf</label>
+                <input type="text" placeholder="B" />
+              </div>
+              <div class="form-group">
+                <label>Bin</label>
+                <input type="text" placeholder="1" />
+              </div>
+            </div></div>
+
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="transferData.newLocation.type === 'tower'"><div class="form-grid">
+              <div class="form-group">
+                <label>Rack</label>
+                <input type="text" placeholder="Rack-01" />
+              </div>
+              <div class="form-group">
+                <label>Rack Unit</label>
+                <input type="text" placeholder="U10" />
+              </div>
+              <div class="form-group">
+                <label>Cabinet</label>
+                <input type="text" placeholder="Cab-01" />
+              </div>
+              <div class="form-group">
+                <label>Position</label>
+                <input type="text" placeholder="Top" />
+              </div>
+            </div></div>
+        </div>
+
+        <!-- Transfer Details -->
+        <div class="form-section">
+          <h4>📋 Transfer Details</h4>
+          
+          <div class="form-group">
+            <label>Reason for Transfer *</label>
+            <select>
+              <option>Select reason...</option>
+              <option value="deployment">Deployment to Site</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="repair">Repair</option>
+              <option value="upgrade">Upgrade</option>
+              <option value="relocation">Site Relocation</option>
+              <option value="storage">Storage</option>
+              <option value="rma">RMA Return</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Moved By</label>
+            <input type="text" placeholder="Your name" />
+          </div>
+
+          <div class="form-group">
+            <label>Additional Notes</label>
+            <textarea 
+              placeholder="Any additional notes about this transfer..."
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary">
+        Cancel
+      </button>
+      <button class="btn btn-primary">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Transferring...' : 'Transfer Item'"></span>
+      </button>
+    </div>
+  </div>
+</div></div></div>
+<div data-cwl-component="BundleDetailsModal" data-cwl-lifted-component="BundleDetailsModal" data-cwl-orphan-modal="1"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content" on:click|stopPropagation>
+      <div class="modal-header">
+        <div class="header-left">
+          <span class="bundle-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getBundleTypeEmoji(bundle.bundleType)"></span></span>
+          <div>
+            <h2><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.name"></span></h2>
+            <p class="bundle-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getBundleTypeLabel(bundle.bundleType)"></span></p>
+          </div>
+        </div>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error"><div class="alert alert-error">
+            <span>❌</span>
+            <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="error"></span></span>
+          </div></div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="bundle.description"><div class="section">
+            <h3>Description</h3>
+            <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.description"></span></p>
+          </div></div>
+        
+        <div class="section">
+          <h3>Bundle Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="stat-label">Items</span>
+              <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.items?.length || 0"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Total Cost</span>
+              <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(bundle.estimatedTotalCost)"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Status</span>
+              <span class="stat-value badge badge-"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.status"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Used</span>
+              <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.usageCount || 0"></span> times</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Last Used</span>
+              <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(bundle.lastUsedAt)"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Updated</span>
+              <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(bundle.updatedAt)"></span></span>
+            </div>
+          </div>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="bundle.items && bundle.items.length > 0"><div class="section">
+            <h3>Bundle Items (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.items.length"></span>)</h3>
+            <div class="items-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Equipment Type</th>
+                    <th>Qty</th>
+                    <th>Manufacturer</th>
+                    <th>Model</th>
+                    <th>Cost per Unit</th>
+                    <th>Total Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bundle.items as item"><tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr></div>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" style="text-align: right; font-weight: 600;">Total:</td>
+                    <td style="font-weight: 600;"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(bundle.estimatedTotalCost)"></span></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div></div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="bundle.tags && bundle.tags.length > 0"><div class="section">
+            <h3>Tags</h3>
+            <div class="tags-list">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bundle.tags as tag"><span class="tag"></span></div>
+            </div>
+          </div></div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="bundle.notes"><div class="section">
+            <h3>Notes</h3>
+            <p class="notes"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bundle.notes"></span></p>
+          </div></div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-secondary">
+          Close
+        </button>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="bundle.status === 'active'"><button class="btn-primary">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loading ? 'Using...' : '✓ Use Bundle'"></span>
+          </button></div>
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="CreateBundleModal" data-cwl-lifted-component="CreateBundleModal" data-cwl-orphan-modal="1"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>➕ Create Hardware Bundle</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error"><div class="alert alert-error">
+            <span>❌</span>
+            <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="error"></span></span>
+          </div></div>
+        
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          
+          <div class="form-group">
+            <label>Bundle Name *</label>
+            <input 
+              type="text"
+              placeholder="e.g., Standard Site Deployment Kit"
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              placeholder="Describe this bundle and when to use it..."
+              rows="3"
+            ></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Bundle Type</label>
+            <select>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bundleTypes as type"><option> </option></div>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Tags</label>
+            <div class="tag-input-group">
+              <input 
+                id="tag-input"
+                type="text" 
+                placeholder="Add a tag..."
+              />
+              <button class="btn-sm">Add</button>
+            </div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.tags && formData.tags.length > 0"><div class="tags-list">
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="formData.tags as tag"><span class="tag">
+                    
+                    <button class="tag-remove">✕</button>
+                  </span></div>
+              </div></div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h3>Bundle Items</h3>
+          
+          <div class="add-item-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Category</label>
+                <select>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="categoryList as category"><option></option></div>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label>Equipment Type *</label>
+                <select required>
+                  <option>Select type...</option>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableTypes as type"><option></option></div>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Quantity *</label>
+                <input 
+                  type="number"
+                  min="1"
+                  required
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Manufacturer</label>
+                <input 
+                  type="text"
+                  placeholder="e.g., Ubiquiti"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Model</label>
+                <input 
+                  type="text"
+                  placeholder="e.g., AirFiber 5X"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>Estimated Cost per Unit</label>
+                <input 
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+            
+            <button class="btn-add" type="button">
+              ➕ Add Item
+            </button>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.items && formData.items.length > 0"><div class="items-list">
+              <h4>Bundle Items (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formData.items.length"></span>)</h4>
+              <div class="items-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Type</th>
+                      <th>Qty</th>
+                      <th>Manufacturer</th>
+                      <th>Model</th>
+                      <th>Cost</th>
+                      <th>Total</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="formData.items as item, index"><tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>$<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="(item.estimatedCost || 0).toFixed(2)"></span></td>
+                        <td>$<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="((item.estimatedCost || 0) * (item.quantity || 1)).toFixed(2)"></span></td>
+                        <td>
+                          <button class="btn-remove">
+                            🗑️
+                          </button>
+                        </td>
+                      </tr></div>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="6" style="text-align: right; font-weight: 600;">Total:</td>
+                      <td style="font-weight: 600;">$<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="totalCost.toFixed(2)"></span></td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div></div>
+        </div>
+        
+        <div class="form-section">
+          <h3>Notes</h3>
+          <textarea
+            placeholder="Additional notes about this bundle..."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-secondary">
+          Cancel
+        </button>
+        <button class="btn-primary">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loading ? 'Creating...' : 'Create Bundle'"></span>
+        </button>
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div 
+    class="auth-overlay" 
+    role="presentation"
+   hidden aria-hidden="true">
+    <div 
+      class="auth-modal" 
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'signin'">Sign In to PCI Mapper
+          
+            Create Account</div>
+        </h2>
+        <button class="close-btn">×</button>
+      </div>
+      
+      <div class="auth-body">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error"><div class="error-message"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="error"></span></div></div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'signin'"><form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSignIn"></span>>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input 
+                type="email" 
+                id="email" 
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+            
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input 
+                type="password" 
+                id="password" 
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            
+            <button type="submit" class="auth-btn primary">
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Signing In...' : 'Sign In'"></span>
+            </button>
+          </form>
+          
+          <div class="divider">or</div>
+          
+          <button class="auth-btn google">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+          
+          <div class="auth-footer">
+            <button class="link-btn">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn">
+              Create account
+            </button>
+          </div>
+        
+          <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSignUp"></span>>
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input 
+                type="text" 
+                id="displayName" 
+                placeholder="John Doe"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input 
+                type="email" 
+                id="email" 
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+            
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input 
+                type="password" 
+                id="password" 
+                placeholder="At least 6 characters"
+                required
+              />
+            </div>
+            
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input 
+                type="password" 
+                id="confirmPassword" 
+                placeholder="Re-enter password"
+                required
+              />
+            </div>
+            
+            <button type="submit" class="auth-btn primary">
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Creating Account...' : 'Create Account'"></span>
+            </button>
+          </form>
+          
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn">
+              Sign in
+            </button>
+          </div></div>
       </div>
     </div>
   </div></div>

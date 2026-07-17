@@ -1,5 +1,7 @@
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { describe, expect, test } from "vitest";
 import {
   liftStaticSveltePageHtml,
@@ -76,6 +78,31 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
     expect(r?.html).not.toMatch(/\n\s*\/>/);
   });
 
+  test("apostrophe in // comment does not break Pascal tag end (D6443 HardwareDeployment)", () => {
+    const src = `<HardwareDeploymentModal
+  show={show}
+  on:view-inventory={(e) => {
+    // Check if we're in embedded mode
+    const x = 'ok';
+    goto(\`/modules/inventory?siteId=\${tower.id}\`);
+  }}
+/>
+<main class="after">x</main>`;
+    const r = liftStructuralSveltePageHtml(src, {
+      structuralInlineComponents: new Set(["HardwareDeploymentModal"]),
+      componentSources: new Map([
+        [
+          "HardwareDeploymentModal",
+          // inline via temporary — use empty structural fail path: without sources it shells/holes
+          join(FIXTURE, "does-not-exist.svelte"),
+        ],
+      ]),
+    });
+    // Tag must be consumed (not left raw) even when inline file missing → component hole or empty
+    expect(r?.html ?? "").not.toMatch(/<HardwareDeploymentModal\b/);
+    expect(r?.html ?? "").toContain('class="after"');
+  });
+
   test("widget shells collapse without component holes (G9730)", () => {
     const w = liftStructuralSveltePageHtml(`<DeviceList />`);
     expect(w?.html).toContain('data-cwl-widget-shell="DeviceList"');
@@ -123,8 +150,39 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
       `{#if customFlag}<div class="spin">wait</div>{/if}<main class="ok">done</main>`,
       { applyShowcaseLoadBools: false },
     );
+    expect(r?.html).toContain("spin");
     expect(r?.html).toContain('data-cwl-hole="legacy:markup-lift-svelte-if"');
-    expect(r?.html).toContain('class="ok"');
+  });
+
+  test("UI toggle overlays stamp hidden instead of deleting (D6442)", () => {
+    const r = liftStructuralSveltePageHtml(
+      `{#if showFilters && !isDeployMode}<div class="modal-overlay" onclick={() => showFilters = false}><div class="filters-modal">filters</div></div>{/if}<main class="ok">done</main>`,
+      { applyShowcaseLoadBools: false },
+    );
+    expect(r?.html).toContain("filters-modal");
+    expect(r?.html).toMatch(/modal-overlay[^>]*\bhidden\b/);
+    expect(r?.html).not.toContain('data-cwl-hole-detail="showFilters');
+  });
+
+  test("structural-inline FilterPanel lifts filter-panel class (D6442)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-filter-"));
+    try {
+      writeFileSync(
+        join(dir, "FilterPanel.svelte"),
+        `<div class="filter-panel"><label class="filter-checkbox">Towers</label></div>`,
+        "utf8",
+      );
+      const sources = new Map([["FilterPanel", join(dir, "FilterPanel.svelte")]]);
+      const r = liftStructuralSveltePageHtml(`<main><FilterPanel /></main>`, {
+        applyShowcaseLoadBools: false,
+        componentSources: sources,
+      });
+      expect(r?.html).toContain("filter-panel");
+      expect(r?.html).toContain('data-cwl-lifted-component="FilterPanel"');
+      expect(r?.html).not.toContain('data-cwl-nav-shell="FilterPanel"');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   test("does not inject hole markers into class attributes", () => {

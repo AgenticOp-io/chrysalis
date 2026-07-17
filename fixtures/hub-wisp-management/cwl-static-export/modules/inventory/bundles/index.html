@@ -5,7 +5,7 @@
         ← Back to Inventory
       </button>
       <h1>📦 Equipment Details</h1>
-      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item"><p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.manufacturer"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.model"></span> - <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.serialNumber"></span></p></div>
     </div>
 
     <div class="header-actions">
@@ -32,7 +32,7 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Asset Tag</label>
-            <span class="value">N/A</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.assetTag || 'N/A'"></span></span>
           </div>
           <div class="info-item">
             <label>Serial Number</label>
@@ -48,11 +48,11 @@
           </div>
           <div class="info-item">
             <label>Manufacturer</label>
-            <span class="value">N/A</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.manufacturer || 'N/A'"></span></span>
           </div>
           <div class="info-item">
             <label>Model</label>
-            <span class="value">N/A</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.model || 'N/A'"></span></span>
           </div>
           <div class="info-item">
             <label>Status</label>
@@ -78,31 +78,31 @@
             </div></div>
           <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.warehouse"><div class="info-item">
               <label>Warehouse</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.name || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Section</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.section || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Aisle</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.aisle || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Shelf</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.shelf || 'N/A'"></span></span>
             </div></div>
           <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.tower"><div class="info-item">
               <label>Rack</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.tower.rack || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Rack Unit</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.tower.rackUnit || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Cabinet</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.tower.cabinet || 'N/A'"></span></span>
             </div></div>
         </div>
       </div>
@@ -113,7 +113,7 @@
           <div class="info-grid">
             <div class="info-item">
               <label>Vendor</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.purchaseInfo.vendor || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Purchase Date</label>
@@ -125,7 +125,7 @@
             </div>
             <div class="info-item">
               <label>PO Number</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.purchaseInfo.purchaseOrderNumber || 'N/A'"></span></span>
             </div>
           </div>
         </div></div>
@@ -136,7 +136,7 @@
           <div class="info-grid">
             <div class="info-item">
               <label>Provider</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.warranty.provider || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Start Date</label>
@@ -148,7 +148,7 @@
             </div>
             <div class="info-item">
               <label>Type</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.warranty.type || 'N/A'"></span></span>
             </div>
           </div>
         </div></div>
@@ -159,15 +159,15 @@
           <div class="info-grid">
             <div class="info-item">
               <label>Power Requirements</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.technicalSpecs.powerRequirements || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>IP Address</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.technicalSpecs.ipAddress || 'N/A'"></span></span>
             </div>
             <div class="info-item">
               <label>Management URL</label>
-              <span class="value">N/A</span>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.technicalSpecs.managementUrl || 'N/A'"></span></span>
             </div>
           </div>
         </div></div>
@@ -230,5 +230,18 @@
 </div>
 
 <!-- QR Code Modal -->
-</div>
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showQRCode && item"><div class="modal-overlay">
+  <div class="modal-content" on:click|stopPropagation>
+    <div class="modal-header">
+      <h3>📱 QR Code - <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.assetTag || item.serialNumber"></span></h3>
+      <button class="close-btn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="qrCodeDataURL"><div class="qr-container">
+          <img alt="QR Code" class="qr-image" />
+          <p class="qr-info">Scan with mobile app to view equipment details</p>
+        </div></div>
+    </div>
+  </div>
+</div></div></div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id"}</script>

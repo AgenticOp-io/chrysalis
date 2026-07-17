@@ -79,6 +79,105 @@ export const DEFAULT_STATIC_INLINE_COMPONENTS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Coverage-map (and similar) interactive panels inlined with holes allowed (D6442).
+ * Prefer real lifted markup + `hidden` closed state over empty shells.
+ */
+export const DEFAULT_STRUCTURAL_INLINE_COMPONENTS: ReadonlySet<string> = new Set([
+  "FilterPanel",
+  "HelpModal",
+  "TipsModal",
+  "DeviceManagementPanel",
+  "MapContextMenu",
+  "TowerActionsMenu",
+  "SectorActionsMenu",
+  "BackhaulActionsMenu",
+  // Coverage-map Add*/edit modals — lift closed chrome (D6443/D6444), not empty shells that block the map.
+  "AddSiteModal",
+  "AddNOCModal",
+  "AddWarehouseModal",
+  "AddVehicleModal",
+  "AddRMAModal",
+  "AddSectorModal",
+  "AddCPEModal",
+  "AddBackhaulLinkModal",
+  "AddBackhaulModal",
+  "AddInventoryModal",
+  "EPCDeploymentModal",
+  "HSSRegistrationModal",
+  "HardwareDeploymentModal",
+  "SiteEditModal",
+  "UnifiedDeviceDetailsModal",
+  // Inventory / customers — origin modal chrome (D6443), not invented substitutes
+  "TransferModal",
+  "CustomerBillingModal",
+  "AddEditCustomerModal",
+]);
+
+/** Page-local UI toggles whose closed chrome must remain in the DOM (hidden), not deleted. */
+const UI_TOGGLE_OVERLAY_RE =
+  /\b(showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu|showAddSiteModal|showAddNOCModal|showAddWarehouseModal|showAddVehicleModal|showAddRMAModal|showAddSectorModal|showAddCPEModal|showAddBackhaulModal|showAddInventoryModal|showEPCDeploymentModal|showHSSRegistrationModal|showHardwareDeploymentModal|showSiteEditModal|showUnifiedDeviceModal)\b/;
+
+export function isUiToggleOverlayIfHeader(header: string): boolean {
+  return UI_TOGGLE_OVERLAY_RE.test(header);
+}
+
+/** Stamp closed-state attributes on the first element root (translate closed, do not invent). */
+export function stampClosedUiChrome(html: string): string {
+  const lead = html.match(/^\s*/)?.[0] ?? "";
+  const trimmed = html.slice(lead.length);
+  if (trimmed.length === 0) return html;
+  const nameMatch = /^<(div|nav|aside|section)\b/i.exec(trimmed);
+  if (nameMatch === null) {
+    return `${lead}<div hidden aria-hidden="true">${trimmed}</div>`;
+  }
+  // Brace/quote-aware open-tag end — naive [^>] breaks on onclick={() => …}.
+  let i = nameMatch[0].length;
+  let brace = 0;
+  let quote: '"' | "'" | null = null;
+  while (i < trimmed.length) {
+    const ch = trimmed[i]!;
+    if (quote !== null) {
+      if (ch === "\\") {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      i++;
+      continue;
+    }
+    if (ch === "{") {
+      brace++;
+      i++;
+      continue;
+    }
+    if (ch === "}") {
+      brace = Math.max(0, brace - 1);
+      i++;
+      continue;
+    }
+    if (brace === 0 && ch === ">") {
+      i++;
+      break;
+    }
+    i++;
+  }
+  const open = trimmed.slice(0, i);
+  const rest = trimmed.slice(i);
+  if (/\bhidden\b/i.test(open)) {
+    if (!/\baria-hidden\b/i.test(open)) {
+      return `${lead}${open.replace(/>$/, ' aria-hidden="true">')}${rest}`;
+    }
+    return html;
+  }
+  return `${lead}${open.replace(/>$/, ' hidden aria-hidden="true">')}${rest}`;
+}
+
+/**
  * Modal wrappers collapsed to inert shells (G9660 / D6383; expanded G9690 / D6388).
  * Showcase-only: aria-hidden dialog placeholder; live behavior stays a hole elsewhere.
  */
@@ -94,6 +193,7 @@ export const DEFAULT_MODAL_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
   "AddSectorModal",
   "AddCPEModal",
   "AddBackhaulLinkModal",
+  "AddBackhaulModal",
   "AddInventoryModal",
   "ScanModal",
   "TicketDetailsModal",
@@ -207,6 +307,7 @@ export const DEFAULT_WIDGET_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
   "GrantStatus",
   "UserIDSelector",
   "DeviceManagementPanel",
+  "ModalManager",
   "StripeCardForm",
   "SNMPDevicesPanel",
   "HSSStats",
@@ -265,14 +366,126 @@ export function findPascalComponentTagEnd(source: string, start: number): number
   let j = start + nameMatch[0].length;
   let brace = 0;
   let quote: '"' | "'" | null = null;
+  let tick = false;
+  /** `${...}` nesting depth while inside a template literal. */
+  let tickExpr = 0;
   while (j < source.length) {
     const ch = source[j]!;
+
+    // Comments — only when not inside a string / template
+    if (quote === null && !tick && ch === "/" && source[j + 1] === "/") {
+      j += 2;
+      while (j < source.length && source[j] !== "\n" && source[j] !== "\r") j++;
+      continue;
+    }
+    if (quote === null && !tick && ch === "/" && source[j + 1] === "*") {
+      j += 2;
+      while (j < source.length && !(source[j] === "*" && source[j + 1] === "/")) j++;
+      j = Math.min(source.length, j + 2);
+      continue;
+    }
+
     if (quote !== null) {
       if (ch === "\\") {
         j += 2;
         continue;
       }
       if (ch === quote) quote = null;
+      j++;
+      continue;
+    }
+
+    if (tick) {
+      if (ch === "\\") {
+        j += 2;
+        continue;
+      }
+      if (tickExpr > 0) {
+        if (ch === "'" || ch === '"') {
+          quote = ch;
+          j++;
+          continue;
+        }
+        if (ch === "`") {
+          // Nested template literal inside ${}
+          tickExpr++; // treat as nested tick via brace-like counter? simpler: scan nested tick
+          // Actually nested ticks are rare; use recursive-ish skip:
+          j++;
+          let nestedExpr = 0;
+          while (j < source.length) {
+            const nc = source[j]!;
+            if (nc === "\\") {
+              j += 2;
+              continue;
+            }
+            if (nestedExpr === 0 && nc === "`") {
+              j++;
+              break;
+            }
+            if (nc === "$" && source[j + 1] === "{") {
+              nestedExpr++;
+              j += 2;
+              continue;
+            }
+            if (nestedExpr > 0 && nc === "{") {
+              nestedExpr++;
+              j++;
+              continue;
+            }
+            if (nestedExpr > 0 && nc === "}") {
+              nestedExpr--;
+              j++;
+              continue;
+            }
+            if (nestedExpr > 0 && (nc === "'" || nc === '"')) {
+              const nq = nc;
+              j++;
+              while (j < source.length) {
+                if (source[j] === "\\") {
+                  j += 2;
+                  continue;
+                }
+                if (source[j] === nq) {
+                  j++;
+                  break;
+                }
+                j++;
+              }
+              continue;
+            }
+            j++;
+          }
+          continue;
+        }
+        if (ch === "{") {
+          tickExpr++;
+          j++;
+          continue;
+        }
+        if (ch === "}") {
+          tickExpr--;
+          j++;
+          continue;
+        }
+        j++;
+        continue;
+      }
+      if (ch === "`") {
+        tick = false;
+        j++;
+        continue;
+      }
+      if (ch === "$" && source[j + 1] === "{") {
+        tickExpr = 1;
+        j += 2;
+        continue;
+      }
+      j++;
+      continue;
+    }
+
+    if (ch === "`") {
+      tick = true;
       j++;
       continue;
     }
@@ -295,6 +508,11 @@ export function findPascalComponentTagEnd(source: string, start: number): number
       return j + 2;
     }
     if (brace === 0 && ch === ">") {
+      if (j > 0 && source[j - 1] === "=") {
+        // `=>` arrow — not a tag closer
+        j++;
+        continue;
+      }
       return j + 1;
     }
     j++;
@@ -359,6 +577,11 @@ export interface LiftStructuralSvelteOptions {
   readonly componentSources?: ReadonlyMap<string, string>;
   /** Names eligible for static inline when liftMode is static. */
   readonly staticInlineComponents?: ReadonlySet<string>;
+  /**
+   * Names eligible for structural inline (holes allowed) — used for coverage-map
+   * panels so original CSS classes exist in the DOM (D6442).
+   */
+  readonly structuralInlineComponents?: ReadonlySet<string>;
   readonly modalShellComponents?: ReadonlySet<string>;
   readonly mapShellComponents?: ReadonlySet<string>;
   readonly chartShellComponents?: ReadonlySet<string>;
@@ -578,6 +801,16 @@ function expandControlFlow(
         replacement = block.trueBody;
       } else if (/^false$/i.test(block.header)) {
         replacement = block.elseBody ?? "";
+      } else if (isUiToggleOverlayIfHeader(block.header)) {
+        // Closed UI chrome: keep markup, stamp hidden — do not drop for forceSettle (D6442).
+        const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
+        if (simple && Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)) {
+          replacement = loadBools[simple[1]!]
+            ? block.trueBody
+            : stampClosedUiChrome(block.trueBody);
+        } else {
+          replacement = stampClosedUiChrome(block.trueBody);
+        }
       } else {
         const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
         if (simple && Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)) {
@@ -630,6 +863,52 @@ function tryInlineStaticComponent(
 }
 
 /**
+ * Inline panel markup allowing holes; wrap closed with hidden (D6442 / coverage-map).
+ */
+function tryInlineStructuralComponent(
+  name: string,
+  componentSources: ReadonlyMap<string, string> | undefined,
+  structuralInline: ReadonlySet<string>,
+  opts: LiftStructuralSvelteOptions & { _inlineDepth?: number },
+  loadBools: Readonly<Record<string, boolean>>,
+  passthrough: ReadonlySet<string>,
+  depth: number,
+): string | null {
+  if (depth > 6) return null;
+  if (!structuralInline.has(name) || !componentSources?.has(name)) return null;
+  const path = componentSources.get(name)!;
+  try {
+    if (!existsSync(path) || !statSync(path).isFile()) return null;
+    const raw = readFileSync(path, "utf8");
+    // Open `{#if show}` chrome so closed-source panels still lift into the DOM.
+    const inlineBools = { ...loadBools, show: true };
+    const lifted = liftStructuralSveltePageHtml(raw, {
+      ...opts,
+      loadBools: inlineBools,
+      applyShowcaseLoadBools: false,
+      passthroughComponents: passthrough,
+      componentSources,
+      structuralInlineComponents: structuralInline,
+      _inlineDepth: depth + 1,
+    } as LiftStructuralSvelteOptions & { _inlineDepth?: number });
+    if (lifted === null || typeof lifted.html !== "string" || lifted.html.trim().length < 8) {
+      return null;
+    }
+    const safe = name.replace(/"/g, "'");
+    // Only stamp closed when the component itself gates chrome with `show`
+    // (AddSiteModal, HelpModal, …). Nested panels like FilterPanel sit under a
+    // page-level `{#if showFilters}` that already stamps the overlay — double
+    // `hidden` would leave an empty open modal (D6443).
+    const selfGated =
+      /\bexport\s+let\s+show\b/.test(raw) || /\{#if\s+show(?:\s|&&|\})/.test(raw);
+    const body = selfGated ? stampClosedUiChrome(lifted.html) : lifted.html;
+    return `<div data-cwl-component="${safe}" data-cwl-lifted-component="${safe}">${body}</div>`;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Apply the same literal expansions as static lift, then replace remaining
  * dynamic constructs with explicit hole markers.
  */
@@ -645,6 +924,7 @@ export function liftStructuralSveltePageHtml(
       "applyShowcaseLoadBools" in loadBoolsOrOpts ||
       "componentSources" in loadBoolsOrOpts ||
       "staticInlineComponents" in loadBoolsOrOpts ||
+      "structuralInlineComponents" in loadBoolsOrOpts ||
       "_inlineDepth" in loadBoolsOrOpts)
       ? (loadBoolsOrOpts as LiftStructuralSvelteOptions & { _inlineDepth?: number })
       : { loadBools: loadBoolsOrOpts as Readonly<Record<string, boolean>> };
@@ -656,6 +936,7 @@ export function liftStructuralSveltePageHtml(
   const loadBools = { ...showcase, ...(opts.loadBools ?? {}) };
   const passthrough = opts.passthroughComponents ?? DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS;
   const staticInline = opts.staticInlineComponents ?? DEFAULT_STATIC_INLINE_COMPONENTS;
+  const structuralInline = opts.structuralInlineComponents ?? DEFAULT_STRUCTURAL_INLINE_COMPONENTS;
   const modalShell = opts.modalShellComponents ?? DEFAULT_MODAL_SHELL_COMPONENTS;
   const mapShell = opts.mapShellComponents ?? DEFAULT_MAP_SHELL_COMPONENTS;
   const chartShell = opts.chartShellComponents ?? DEFAULT_CHART_SHELL_COMPONENTS;
@@ -710,27 +991,40 @@ export function liftStructuralSveltePageHtml(
           if (passthrough.has(n)) {
             out += "";
           } else {
-            const shell = shellMarkupFor(n);
-            if (shell !== null) {
-              out += shell;
+            const structural = tryInlineStructuralComponent(
+              n,
+              opts.componentSources,
+              structuralInline,
+              opts,
+              loadBools,
+              passthrough,
+              inlineDepth,
+            );
+            if (structural !== null) {
+              out += structural;
             } else {
-              const inlined = tryInlineStaticComponent(
-                n,
-                opts.componentSources,
-                staticInline,
-                loadBools,
-                passthrough,
-                inlineDepth,
-              );
-              if (inlined !== null) {
-                out += inlined;
+              const shell = shellMarkupFor(n);
+              if (shell !== null) {
+                out += shell;
               } else {
-                pushHole(holes, HOLE_COMPONENT, n);
-                if (selfClosing) {
-                  out += holeMarker(HOLE_COMPONENT, n);
+                const inlined = tryInlineStaticComponent(
+                  n,
+                  opts.componentSources,
+                  staticInline,
+                  loadBools,
+                  passthrough,
+                  inlineDepth,
+                );
+                if (inlined !== null) {
+                  out += inlined;
                 } else {
-                  const safe = n.replace(/"/g, "'");
-                  out += `<div data-cwl-hole="${HOLE_COMPONENT}" data-cwl-hole-detail="${safe}" data-cwl-component="${safe}">`;
+                  pushHole(holes, HOLE_COMPONENT, n);
+                  if (selfClosing) {
+                    out += holeMarker(HOLE_COMPONENT, n);
+                  } else {
+                    const safe = n.replace(/"/g, "'");
+                    out += `<div data-cwl-hole="${HOLE_COMPONENT}" data-cwl-hole-detail="${safe}" data-cwl-component="${safe}">`;
+                  }
                 }
               }
             }

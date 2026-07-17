@@ -123,7 +123,7 @@
     <div class="header-left">
       <span class="priority-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getPriorityIcon(workOrder.priority)"></span></span>
       <div class="title-group">
-        <h3 class="ticket-number">TKT-NEW</h3>
+        <h3 class="ticket-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.ticketNumber || 'TKT-NEW'"></span></h3>
         <span class="ticket-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.type"></span></span>
       </div>
     </div>
@@ -335,13 +335,13 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        ✅ Create Work Order
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Creating...' : '✅ Create Work Order'"></span>
       </button>
     </div>
   </div>
 </div>
 
-</div>
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCustomerLookup"><div class="cwl-modal-shell" data-cwl-modal-shell="CustomerLookupModal" aria-hidden="true" role="dialog"></div></div></div>
   
   <!-- Work Order Creation Wizard -->
   <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
@@ -688,7 +688,7 @@
         </div>
         
         <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="assignedTo"><div class="info-box success">
-            <p>Work order will be assigned to: Unknown</p>
+            <p>Work order will be assigned to: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="availableTechnicians.find(t => t.id === assignedTo)?.name || 'Unknown'"></span></p>
           </div></div>
       </div></div>
   </div>
@@ -702,7 +702,7 @@
       <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 5"><button 
           class="wizard-btn-primary"
         >
-          ✅ Create Work Order
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Creating...' : '✅ Create Work Order'"></span>
         </button>
       
         <button class="wizard-btn-primary">
@@ -712,6 +712,6 @@
   </div>
 </div>
 
-</div>
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCustomerLookup"><div class="cwl-modal-shell" data-cwl-modal-shell="CustomerLookupModal" aria-hidden="true" role="dialog"></div></div></div>
 </div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"work-orders"}</script>

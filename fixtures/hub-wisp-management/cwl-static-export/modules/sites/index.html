@@ -165,7 +165,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h2>
-        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site">✏️ Edit Site: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.name"></span></div>
       </h2>
       <button class="close-btn">✕</button>
     </div>
@@ -184,7 +184,7 @@
           <button 
             class="btn-secondary"
           >
-            Search
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSearching ? '...' : 'Search'"></span>
           </button>
         </div>
         <p class="help-text">Or enter GPS coordinates below</p>
@@ -446,17 +446,1058 @@
 </div></div>
   
   <!-- EPC Deployment Modal -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showDeployModal && selectedSiteForEPC"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content epc-deployment-modal">
+      <div class="modal-header">
+        <h2>🚀 Server Deployment</h2>
+        <button class="close-btn">✕</button>
+      </div>
+
+      
+
+      
+
+      <div class="modal-body">
+        <!-- Step Progress Indicator -->
+        <div class="step-indicator">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Array(totalSteps) as _, i">
+            <div class="step-indicator-item">
+              <div class="step-indicator-number"></div>
+              <div class="step-indicator-line"></div>
+            </div></div>
+        </div>
+
+        <!-- Step Content -->
+        <div class="step-content">
+          <!-- Step 1: Deployment Type -->
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1"><div class="step-panel">
+              <h3>Step 1: Select Deployment Type</h3>
+              <p class="step-description">Choose what components to deploy on the server</p>
+              <div class="deployment-type-options">
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="epc" />
+                  <div class="option-content">
+                    <div class="option-icon">📡</div>
+                    <div class="option-info">
+                      <strong>EPC Core Only</strong>
+                      <p>Deploy Open5GS EPC components (MME, SGW, PGW, PCRF)</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="snmp" />
+                  <div class="option-content">
+                    <div class="option-icon">📊</div>
+                    <div class="option-info">
+                      <strong>SNMP/Mikrotik Agent Only</strong>
+                      <p>Deploy SNMP agent and Mikrotik monitoring modules</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="both" />
+                  <div class="option-content">
+                    <div class="option-icon">🔄</div>
+                    <div class="option-info">
+                      <strong>Both EPC + SNMP</strong>
+                      <p>Deploy both EPC Core and SNMP/Mikrotik monitoring agents</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          <!-- Step 2: Site Information -->
+          
+            <div class="step-panel">
+              <h3>Step 2: Site Information</h3>
+              <p class="step-description">Select a site to deploy the remote EPC/SNMP agent. Site selection is required to link device codes.</p>
+              <div class="form-section">
+                <div class="form-group">
+                  <label for="siteSelect">Select Site *</label>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingSites"><select id="siteSelect" disabled>
+                      <option>Loading sites...</option>
+                    </select>
+                  
+                    <select id="siteSelect" disabled>
+                      <option>No sites available. Please create a site first.</option>
+                    </select>
+                    <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                      You need to create a site in the Coverage Map module before deploying remotes.
+                    </p></div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedSiteId && selectedSite"><div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" readonly />
+                  </div>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.contact.name || epcConfig.contact.email"><div class="form-group">
+                      <label>Contact</label>
+                      <input type="text" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label>Email</label>
+                      <input type="text" readonly />
+                    </div></div></div>
+              </div>
+            </div>
+
+          <!-- Step 3: EPC Network Configuration (if EPC selected) -->
+          
+            <div class="step-panel">
+              <h3>Step 3: EPC Network Configuration</h3>
+              <p class="step-description">Configure network parameters for EPC</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="mcc">MCC *</label>
+                    <input id="mcc" type="text" placeholder="001" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="mnc">MNC *</label>
+                    <input id="mnc" type="text" placeholder="01" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="tac">TAC *</label>
+                    <input id="tac" type="text" placeholder="1" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Step 4: HSS Configuration (if EPC selected) -->
+          
+            <div class="step-panel">
+              <h3>Step 4: HSS Configuration</h3>
+              <p class="step-description">Configure HSS connection settings</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="hssHost">HSS Host</label>
+                    <input id="hssHost" type="text" placeholder="HSS host" />
+                  </div>
+                  <div class="form-group">
+                    <label for="hssPort">HSS Port</label>
+                    <input id="hssPort" type="text" placeholder="3868" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="diameterRealm">Diameter Realm</label>
+                  <input id="diameterRealm" type="text" placeholder="example.com" />
+                </div>
+              </div>
+            </div>
+
+          <!-- SNMP Configuration (if SNMP selected) -->
+          
+            <div class="step-panel">
+              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: SNMP/Mikrotik Configuration</h3>
+              <p class="step-description">Configure SNMP agent and monitoring</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpVersion">SNMP Version</label>
+                    <select id="snmpVersion">
+                      <option value="2c">SNMPv2c (Recommended)</option>
+                      <option value="1">SNMPv1</option>
+                      <option value="3">SNMPv3 (Secure)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCommunity">Community String</label>
+                    <input id="snmpCommunity" type="text" placeholder="public" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpPort">SNMP Port</label>
+                    <input id="snmpPort" type="number" placeholder="161" />
+                  </div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.snmpConfig.version === '3'"><div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpUsername">SNMPv3 Username</label>
+                      <input id="snmpUsername" type="text" placeholder="Enter username" />
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthProtocol">Auth Protocol</label>
+                      <select id="snmpAuthProtocol">
+                        <option value="SHA">SHA</option>
+                        <option value="MD5">MD5</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthKey">Auth Key</label>
+                      <input id="snmpAuthKey" type="password" placeholder="Enter auth key" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpPrivProtocol">Privacy Protocol</label>
+                      <select id="snmpPrivProtocol">
+                        <option value="AES">AES</option>
+                        <option value="DES">DES</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpPrivKey">Privacy Key</label>
+                      <input id="snmpPrivKey" type="password" placeholder="Enter privacy key" />
+                    </div>
+                  </div></div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpReportingInterval">Reporting Interval (seconds)</label>
+                    <input id="snmpReportingInterval" type="number" placeholder="60" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCloudApiUrl">Cloud API URL</label>
+                    <input id="snmpCloudApiUrl" type="text" placeholder="https://hss.wisptools.io:3003" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable SNMP Traps
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- APT Repository Configuration -->
+          
+            <div class="step-panel">
+              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: APT Repository Configuration</h3>
+              <p class="step-description">Configure remote updates repository</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="aptRepositoryUrl">Repository URL</label>
+                    <input id="aptRepositoryUrl" type="text" placeholder="https://hss.wisptools.io/apt" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable APT Repository
+                    </label>
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Auto-update Enabled
+                    </label>
+                  </div>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.aptConfig.autoUpdate"><div class="form-row">
+                    <div class="form-group">
+                      <label for="aptUpdateSchedule">Update Schedule</label>
+                      <select id="aptUpdateSchedule">
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="aptUpdateTime">Update Time (HH:MM)</label>
+                      <input id="aptUpdateTime" type="text" placeholder="02:00" pattern="[0-9]:[0-9]" />
+                    </div>
+                    <div class="form-group checkbox-group">
+                      <label>
+                        <input type="checkbox" />
+                        Security Updates Only
+                      </label>
+                    </div>
+                  </div></div>
+              </div>
+            </div>
+
+          <!-- Review Step -->
+          
+            <div class="step-panel">
+              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: Review Configuration</h3>
+              <p class="step-description">Review your deployment configuration</p>
+              <div class="review-section">
+                <div class="review-item">
+                  <strong>Deployment Type:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deploymentType === 'both' ? 'EPC + SNMP' : deploymentType.toUpperCase()"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Site Name:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.siteName"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Device Code:</strong>
+                  <span style="color: #999; font-style: italic;">Will be entered in device configuration after hardware boots</span>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deploymentType === 'epc' || deploymentType === 'both'"><div class="review-item">
+                    <strong>EPC Network:</strong>
+                    <span>MCC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.mcc"></span>, MNC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.mnc"></span>, TAC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.tac"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>HSS:</strong>
+                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.hssConfig.hssHost"></span>:<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.hssConfig.hssPort"></span></span>
+                  </div></div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deploymentType === 'snmp' || deploymentType === 'both'"><div class="review-item">
+                    <strong>SNMP Version:</strong>
+                    <span>SNMPv<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.snmpConfig.version"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>SNMP Community:</strong>
+                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.snmpConfig.community"></span></span>
+                  </div></div>
+                <div class="review-item">
+                  <strong>Location:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.address"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.city"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.state"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Contact:</strong>
+                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.contact.name"></span> (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.contact.email"></span>)</span>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.aptConfig.enabled"><div class="review-item">
+                    <strong>APT Repository:</strong>
+                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.aptConfig.repositoryUrl"></span></span>
+                  </div></div>
+              </div>
+            </div>
+
+          <!-- Final Step: Download (Script/ISO Selection) --></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="modal-actions">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 1"><button class="btn btn-secondary">
+              ← Previous
+            </button></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep < totalSteps"><button class="btn btn-primary">
+              
+                Next →
+              
+            </button></div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
   
   <!-- Sector Deployment Modal -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showSectorModal && selectedSiteForSector"><div data-cwl-component="AddSectorModal" data-cwl-lifted-component="AddSectorModal"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content">
+    <div class="modal-header">
+      <h2>📶 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sectorToEdit ? 'Edit Sector' : 'Add Sector'"></span></h2>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    
+    
+    <div class="modal-body">
+      <!-- Site Selection -->
+      <div class="section">
+        <h3>📡 Tower Site</h3>
+        <div class="form-group">
+          <label>Select Site *</label>
+          <select>
+            <option>-- Select a tower site --</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option> ()</option></div>
+          </select>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="sectorToEdit"><p class="help-text">⚠️ Site cannot be changed when editing</p></div>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedSiteData"><p class="help-text">
+              📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedSiteData.location.latitude.toFixed(4)"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedSiteData.location.longitude.toFixed(4)"></span>
+            </p></div>
+        </div>
+      </div>
+      
+      <!-- Basic Info -->
+      <div class="section">
+        <h3>📋 Sector Configuration</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Sector Name *</label>
+            <input type="text" placeholder="Alpha Sector" />
+          </div>
+          
+          <div class="form-group">
+            <label>Technology *</label>
+            <select>
+              <option value="LTE">LTE</option>
+              <option value="CBRS">CBRS</option>
+              <option value="FWA">Fixed Wireless (FWA)</option>
+              <option value="5G">5G NR</option>
+              <option value="WiFi">WiFi</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Status</label>
+            <select>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="planned">Planned</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RF Configuration -->
+      <div class="section">
+        <h3>📡 RF Configuration</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Azimuth (degrees) *</label>
+            <input type="number" min="0" max="360" />
+            <p class="help-text">0° = North, 90° = East, 180° = South, 270° = West</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Beamwidth (degrees) *</label>
+            <input type="number" min="0" max="360" />
+            <p class="help-text">Typical: 65° (LTE), 90° (CBRS), 30° (FWA)</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Mechanical Tilt (degrees)</label>
+            <input type="number" min="-90" max="90" />
+            <p class="help-text">Downtilt angle (negative = down)</p>
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Band / Frequency Name</label>
+            <input type="text" placeholder="Band 71 (600MHz)" />
+          </div>
+          
+          <div class="form-group">
+            <label>Center Frequency (MHz)</label>
+            <input type="number" placeholder="617" />
+          </div>
+          
+          <div class="form-group">
+            <label>Bandwidth (MHz)</label>
+            <input type="number" placeholder="10" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Equipment -->
+      <div class="section">
+        <h3>📻 Equipment Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Antenna Manufacturer</label>
+            <input type="text" placeholder="Commscope" />
+          </div>
+          
+          <div class="form-group">
+            <label>Antenna Model</label>
+            <input type="text" placeholder="SBNHH-1D65C" />
+          </div>
+          
+          <div class="form-group">
+            <label>Antenna Serial Number</label>
+            <input type="text" placeholder="SN123456" />
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Radio Manufacturer</label>
+            <input type="text" placeholder="Nokia" />
+          </div>
+          
+          <div class="form-group">
+            <label>Radio Model</label>
+            <input type="text" placeholder="AEQE" />
+          </div>
+          
+          <div class="form-group">
+            <label>Radio Serial Number</label>
+            <input type="text" placeholder="RN789012" />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary">Cancel</button>
+      <button 
+        class="btn-primary");
+          e.preventDefault();
+          e.stopPropagation();
+          handleSave();
+        }}
+      >
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (sectorToEdit ? '✅ Save Changes' : '✅ Create Sector')"></span>
+      </button>
+    </div>
+  </div>
+</div></div></div>
   
   <!-- CPE/FWA Deployment Modal -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCPEModal && selectedSiteForCPE"><div data-cwl-component="AddCPEModal" data-cwl-lifted-component="AddCPEModal"><div class="modal-overlay" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>📱 Add CPE Device</h2>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    
+    
+    <div class="modal-body">
+      <!-- Address Search -->
+      <div class="section">
+        <h3>🔍 Customer Location</h3>
+        <div class="search-group">
+          <input
+            type="text"
+            placeholder="Enter customer address..."
+          />
+          <button class="btn-secondary">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSearching ? '...' : 'Search'"></span>
+          </button>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Latitude *</label>
+            <input type="number" step="0.000001" />
+          </div>
+          
+          <div class="form-group">
+            <label>Longitude *</label>
+            <input type="number" step="0.000001" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" placeholder="123 Main St, City, State" />
+        </div>
+      </div>
+      
+      <!-- Basic Info -->
+      <div class="section">
+        <h3>📋 Equipment Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Device Name *</label>
+            <input type="text" placeholder="Smith Residence FWA" />
+          </div>
+          
+          <div class="form-group">
+            <label>Manufacturer *</label>
+            <input type="text" placeholder="Telrad" />
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Model *</label>
+            <input type="text" placeholder="CPE7000" />
+          </div>
+          
+          <div class="form-group">
+            <label>Serial Number *</label>
+            <input type="text" placeholder="CPE-123456" />
+          </div>
+          
+          <div class="form-group">
+            <label>MAC Address</label>
+            <input type="text" placeholder="00:11:22:33:44:55" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Installation -->
+      <div class="section">
+        <h3>📡 Installation Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pointing Azimuth (degrees) *</label>
+            <input type="number" min="0" max="360" />
+            <p class="help-text">Direction CPE antenna is pointed</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Beamwidth (degrees)</label>
+            <input type="number" />
+            <p class="help-text">Default: 30° for FWA CPE</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Height Above Ground (feet)</label>
+            <input type="number" placeholder="25" />
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Technology</label>
+            <select>
+              <option value="FWA">Fixed Wireless (FWA)</option>
+              <option value="LTE">LTE</option>
+              <option value="CBRS">CBRS</option>
+              <option value="5G">5G NR</option>
+              <option value="WiFi">WiFi</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Band / Frequency</label>
+            <input type="text" placeholder="5GHz" />
+          </div>
+          
+          <div class="form-group">
+            <label>Connected to Site</label>
+            <select>
+              <option>None / Unknown</option>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option></option></div>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Subscriber Info -->
+      <div class="section">
+        <h3>👤 Subscriber Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Subscriber Name</label>
+            <input type="text" placeholder="John Smith" />
+          </div>
+          
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-1234" />
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="customer@example.com" />
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" placeholder="ACCT-1001" />
+          </div>
+          
+          <div class="form-group">
+            <label>Service Type</label>
+            <select>
+              <option value="residential">Residential</option>
+              <option value="business">Business</option>
+              <option value="temporary">Temporary</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Status</label>
+            <select>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="inventory">Inventory</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-primary">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create CPE'"></span>
+      </button>
+    </div>
+  </div>
+</div></div></div>
   
   <!-- Backhaul Deployment Modal -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showBackhaulModal && selectedSiteForBackhaul"><div data-cwl-component="AddBackhaulLinkModal" data-cwl-lifted-component="AddBackhaulLinkModal"><div class="modal-overlay" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🔗 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="backhaulToEdit ? 'Edit Backhaul Link' : 'Add Backhaul Link'"></span></h2>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    
+    
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!canCreateBackhaul"><div class="warning-banner">
+        ⚠️ Need at least 2 sites to create backhaul. Add more tower sites or NOC first.
+      </div></div>
+    
+    <div class="modal-body">
+      <!-- Link Endpoints -->
+      <div class="section">
+        <h3>🔗 Link Endpoints</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>From Site (A) *</label>
+            <select>
+              <option>-- Select site --</option>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option> ()</option></div>
+            </select>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="backhaulToEdit"><p class="help-text">⚠️ Sites cannot be changed when editing</p></div>
+          </div>
+          
+          <div class="form-group">
+            <label>To Site (B) *</label>
+            <select>
+              <option>-- Select site --</option>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableToSites as site"><option> ()</option></div>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Link Name *</label>
+          <input 
+            type="text" 
+            placeholder="↔"
+          />
+        </div>
+      </div>
+      
+      <!-- Backhaul Type -->
+      <div class="section">
+        <h3>📡 Backhaul Type</h3>
+        <div class="form-group">
+          <select>
+            <option value="fiber">🌐 Fiber Optic</option>
+            <option value="fixed-wireless-licensed">📡 Fixed Wireless (Licensed Spectrum)</option>
+            <option value="fixed-wireless-unlicensed">📡 Fixed Wireless (Unlicensed WiFi/60GHz)</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Wireless Configuration -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isWireless && canCreateBackhaul"><div class="section wireless-section">
+          <h3>📡 Fixed Wireless Configuration</h3>
+          
+          <!-- Site A Configuration -->
+          <div class="site-config">
+            <h4>📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="fromSiteName"></span> (Site A)</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Azimuth (auto-calculated)</label>
+                <input type="number" min="0" max="360" />
+                <p class="help-text">Pointing toward <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="toSiteName"></span></p>
+              </div>
+              
+              <div class="form-group">
+                <label>Antenna Height (feet)</label>
+                <input type="number" placeholder="150" />
+              </div>
+              
+              <div class="form-group">
+                <label>Antenna Gain (dBi)</label>
+                <input type="number" placeholder="23" />
+              </div>
+              
+              <div class="form-group">
+                <label>TX Power (dBm)</label>
+                <input type="number" placeholder="20" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Site B Configuration -->
+          <div class="site-config">
+            <h4>📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="toSiteName"></span> (Site B)</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Azimuth (auto-calculated)</label>
+                <input type="number" min="0" max="360" />
+                <p class="help-text">Pointing toward <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="fromSiteName"></span></p>
+              </div>
+              
+              <div class="form-group">
+                <label>Antenna Height (feet)</label>
+                <input type="number" placeholder="150" />
+              </div>
+              
+              <div class="form-group">
+                <label>Antenna Gain (dBi)</label>
+                <input type="number" placeholder="23" />
+              </div>
+              
+              <div class="form-group">
+                <label>TX Power (dBm)</label>
+                <input type="number" placeholder="20" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- RF Parameters -->
+          <h4>📻 RF Parameters</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Frequency (MHz) *</label>
+              <input type="number" placeholder="5800" />
+              <p class="help-text">
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-unlicensed'">WiFi: 5150-5850 | 60GHz: 57000-71000</div>
+              </p>
+            </div>
+            
+            <div class="form-group">
+              <label>Channel Bandwidth (MHz)</label>
+              <input type="number" placeholder="80" />
+            </div>
+            
+            <div class="form-group">
+              <label>Beamwidth (degrees)</label>
+              <input type="number" placeholder="10" />
+              <p class="help-text">Antenna beamwidth (5-15° typical)</p>
+            </div>
+          </div>
+          
+          <!-- Licensed Spectrum -->
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-licensed'"><div class="license-section">
+              <h4>📜 FCC Licensing Information</h4>
+              <p class="section-help">Required FCC licensing details for licensed wireless backhaul links</p>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>License Type *</label>
+                  <select>
+                    <option>-- Select --</option>
+                    <option value="point-to-point">Point-to-Point</option>
+                    <option value="point-to-multipoint">Point-to-Multipoint</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>FCC Call Sign *</label>
+                  <input type="text" placeholder="WXYZ123" />
+                  <p class="help-text">FCC-assigned call sign</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>FCC License Number</label>
+                  <input type="text" placeholder="Additional license identifier" />
+                  <p class="help-text">Additional license number if different from call sign</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>FCC File Number</label>
+                  <input type="text" placeholder="0000123456" />
+                  <p class="help-text">FCC application/file number</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>License Status</label>
+                  <select>
+                    <option value="active">✅ Active</option>
+                    <option value="pending">⏳ Pending</option>
+                    <option value="expired">❌ Expired</option>
+                    <option value="suspended">⚠️ Suspended</option>
+                    <option value="revoked">🚫 Revoked</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Part Number</label>
+                  <select>
+                    <option>-- Select --</option>
+                    <option value="Part 101">Part 101 - Fixed Microwave Services</option>
+                    <option value="Part 90">Part 90 - Private Land Mobile Radio</option>
+                    <option value="Part 22">Part 22 - Public Mobile Services</option>
+                    <option value="Part 24">Part 24 - Personal Communications Services</option>
+                    <option value="Part 27">Part 27 - Miscellaneous Wireless Services</option>
+                    <option value="Part 94">Part 94 - Private Operational-Fixed Microwave Service</option>
+                    <option value="Part 97">Part 97 - Amateur Radio Service</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Frequency Band</label>
+                  <input type="text" placeholder="6 GHz, 11 GHz, 18 GHz, 23 GHz, 80 GHz" />
+                  <p class="help-text">Authorized frequency band (e.g., "6 GHz", "18-23 GHz")</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>Authorized Bandwidth</label>
+                  <input type="text" placeholder="50 MHz, 100 MHz" />
+                  <p class="help-text">Total authorized bandwidth for this license</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>Emission Designator</label>
+                  <input type="text" placeholder="8K00F1D" />
+                  <p class="help-text">FCC emission designator code</p>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>License Holder Name *</label>
+                <input type="text" placeholder="Company Name" />
+              </div>
+              
+              <div class="form-group">
+                <label>License Holder Address</label>
+                <textarea 
+                  placeholder="123 Business St, City, State ZIP"
+                  rows="2"
+                ></textarea>
+                <p class="help-text">Full address of license holder as registered with FCC</p>
+              </div>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>License Expiration Date</label>
+                  <input type="date" />
+                  <p class="help-text">When the license expires</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>Renewal Date</label>
+                  <input type="date" />
+                  <p class="help-text">Recommended renewal date (before expiration)</p>
+                </div>
+              </div>
+            </div></div>
+        </div></div>
+      
+      <!-- Fiber Configuration -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isFiber && canCreateBackhaul"><div class="section fiber-section">
+          <h3>🌐 Fiber Optic Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Provider *</label>
+              <input type="text" placeholder="AT&T, Verizon, Zayo" />
+            </div>
+            
+            <div class="form-group">
+              <label>Circuit ID</label>
+              <input type="text" placeholder="CIRCUIT-123456" />
+            </div>
+            
+            <div class="form-group">
+              <label>Speed</label>
+              <select>
+                <option value="100M">100 Mbps</option>
+                <option value="1G">1 Gbps</option>
+                <option value="10G">10 Gbps</option>
+                <option value="100G">100 Gbps</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Handoff Type</label>
+              <select>
+                <option value="single-mode">Single-Mode Fiber</option>
+                <option value="multi-mode">Multi-Mode Fiber</option>
+                <option value="ethernet">Ethernet</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Connector</label>
+              <select>
+                <option value="LC">LC</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+                <option value="RJ45">RJ45</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Fiber Count</label>
+              <input type="number" placeholder="2" />
+            </div>
+          </div>
+        </div></div>
+      
+      <!-- Common Fields -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canCreateBackhaul"><div class="section">
+          <h3>⚙️ Link Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Capacity (Mbps) *</label>
+              <input type="number" placeholder="1000" />
+            </div>
+            
+            <div class="form-group">
+              <label>Equipment Manufacturer</label>
+              <input type="text" placeholder="Cisco, Ubiquiti" />
+            </div>
+            
+            <div class="form-group">
+              <label>Equipment Model</label>
+              <input type="text" placeholder="ASR9000, AirFiber60" />
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Monthly Cost ($)</label>
+              <input type="number" />
+            </div>
+            
+            <div class="form-group">
+              <label>Contract (months)</label>
+              <input type="number" />
+            </div>
+            
+            <div class="form-group">
+              <label>Status</label>
+              <select>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="planned">Planned</option>
+              </select>
+            </div>
+          </div>
+        </div></div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-primary">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (backhaulToEdit ? '✅ Save Changes' : '✅ Create Backhaul"></span>
+      </button>
+    </div>
+  </div>
+</div></div></div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div></div>
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTip.icon"><span class="tip-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.icon"></span></span></div>
+          <h2 id="tips-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="tips-body">
+        <div class="tip-content">
+          
+        </div>
+      </div>
+      
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" type="button">Close</button>
+      </div>
+    </div>
+  </div></div></div></div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/sites"}</script>

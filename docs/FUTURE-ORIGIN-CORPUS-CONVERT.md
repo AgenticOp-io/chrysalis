@@ -187,7 +187,8 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **D6445 stop-rule fix:** auto continues across **param GET + golden-backed mutations**; **only** stop after **3 consecutive** no-improvement rounds (empty queue increments streak, does not early-exit) | **done** |
 | 2026-07-17 | **Auto-exhaust re-run (passes 306–382):** n11f–n11m param-GET (+ golden-mut) then **3×** `no-fresh-routes` → `stopReason: no-fresh-routes-x3`. Catalog `closedThroughPass: 382` | **done** |
 | 2026-07-17 | **Auto-exhaust continue (skip-unburn + list overrides):** n11n–n11u — retry prior skip-no-id param GETs; stop only after **3×** no-fresh (`no-fresh-routes-x3`) | **done** |
-| — | Natural stop hit under current discovery. More greens need richer mutation harvest (template-literal bodies) or held-residual source-doc work | **open** |
+| 2026-07-17 | **UI deep-lift resume (D6443/D6444):** fixed `findPascalComponentTagEnd` (apostrophe-in-`//` comment + backticks) so **HardwareDeploymentModal** inlines; orphan module modals (**TransferModal**, **CustomerBillingModal**, …); map/client openers prefer lifted chrome; Firebase management redeploy | **done** |
+| — | Continue deep-lift remaining modules (sites/WO/help-desk modal trees) + hole force-settle; visual parity still incomplete vs full SvelteKit SPA | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

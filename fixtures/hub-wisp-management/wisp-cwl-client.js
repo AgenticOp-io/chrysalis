@@ -6020,6 +6020,63 @@ function initModuleDemos() {
   }
 
   function openInventoryTransferModal(demo) {
+    var lifted =
+      document.querySelector('[data-cwl-lifted-component="TransferModal"]') ||
+      document.querySelector('[data-cwl-modal-shell="TransferModal"]');
+    if (lifted) {
+      var overlay = lifted.querySelector(".modal-overlay") || lifted;
+      lifted.hidden = false;
+      lifted.removeAttribute("hidden");
+      lifted.setAttribute("aria-hidden", "false");
+      if (overlay && overlay !== lifted) {
+        overlay.hidden = false;
+        overlay.removeAttribute("hidden");
+        overlay.setAttribute("aria-hidden", "false");
+      }
+      var form =
+        lifted.querySelector("form") ||
+        lifted.querySelector("#wisp-transfer-form") ||
+        overlay.querySelector("form");
+      if (form && form.getAttribute("data-wisp-transfer-wired") !== "1") {
+        form.setAttribute("data-wisp-transfer-wired", "1");
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!window.WispCwlApi) return;
+          var fd = new FormData(form);
+          var itemId = String(
+            fd.get("id") || fd.get("itemId") || (demo && demo.getAttribute("data-item-id")) || "",
+          ).trim();
+          var statusEl = lifted.querySelector(".wisp-wizard-status, .error, .form-error");
+          if (!itemId) {
+            if (statusEl) statusEl.textContent = "Item id required";
+            return;
+          }
+          window.WispCwlApi
+            .fetch("/api/inventory/" + encodeURIComponent(itemId) + "/transfer", {
+              method: "POST",
+              body: JSON.stringify({
+                reason: fd.get("reason") || fd.get("transferReason") || "transfer",
+                notes: fd.get("notes") || fd.get("transferNotes") || "chrysalis-lifted-transfer",
+                movedBy: fd.get("movedBy") || "cwl-demo",
+                newLocation: {
+                  type: fd.get("locationType") || fd.get("type") || "warehouse",
+                  name: fd.get("locationName") || fd.get("warehouseName") || "Main",
+                  siteId: fd.get("siteId") || undefined,
+                },
+              }),
+            })
+            .then(function (r) {
+              if (!r.ok) throw new Error("Transfer failed (" + r.status + ")");
+              if (statusEl) statusEl.textContent = "Transferred.";
+              if (demo) loadDemo(demo);
+            })
+            .catch(function (err) {
+              if (statusEl) statusEl.textContent = (err && err.message) || "Transfer failed";
+            });
+        });
+      }
+      return;
+    }
     var html =
       '<form id="wisp-transfer-form" class="wisp-wizard-form">' +
       '<div class="form-group"><label>Item id *</label><input name="id" required /></div>' +
@@ -6032,9 +6089,9 @@ function initModuleDemos() {
       '<div class="form-group"><label>Notes</label><input name="notes" /></div>' +
       '<div class="wisp-wizard-status" hidden></div>' +
       '<button type="submit" class="wisp-demo-btn primary">Transfer</button></form>';
-    var overlay = openShellModal("Inventory transfer", html);
-    var form = overlay.querySelector("#wisp-transfer-form");
-    var status = overlay.querySelector(".wisp-wizard-status");
+    var shellOverlay = openShellModal("Inventory transfer", html);
+    var form = shellOverlay.querySelector("#wisp-transfer-form");
+    var status = shellOverlay.querySelector(".wisp-wizard-status");
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       if (!window.WispCwlApi) return;
