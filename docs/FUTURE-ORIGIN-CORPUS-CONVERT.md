@@ -186,7 +186,8 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **Auto-exhaust run (passes 253–305):** batches n10z–n11e — **22** newly green static GETs across 6 rounds; earlier stop on empty static-GET queue (too early) | **superseded** |
 | 2026-07-17 | **D6445 stop-rule fix:** auto continues across **param GET + golden-backed mutations**; **only** stop after **3 consecutive** no-improvement rounds (empty queue increments streak, does not early-exit) | **done** |
 | 2026-07-17 | **Auto-exhaust re-run (passes 306–382):** n11f–n11m param-GET (+ golden-mut) then **3×** `no-fresh-routes` → `stopReason: no-fresh-routes-x3`. Catalog `closedThroughPass: 382` | **done** |
-| — | Auto queue drained under current discovery (static/param GET + golden mut). Further greens need richer mutation/source-doc discovery or held-residual work | **open** |
+| 2026-07-17 | **Auto-exhaust continue (skip-unburn + list overrides):** n11n–n11u — retry prior skip-no-id param GETs; stop only after **3×** no-fresh (`no-fresh-routes-x3`) | **done** |
+| — | Natural stop hit under current discovery. More greens need richer mutation harvest (template-literal bodies) or held-residual source-doc work | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

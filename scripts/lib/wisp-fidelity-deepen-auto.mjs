@@ -263,35 +263,28 @@ function isSkippedRoute(method, template) {
 
 /**
  * Seed exactPathsProbed + patternsProbed from prior deepen history.
+ * Skip-only probes do **not** burn patterns (so param GETs can retry with better ids).
  */
 export function seedExactPathsFromHistory(state) {
   const probed = new Set(state.exactPathsProbed || []);
   const patterns = new Set(state.patternsProbed || []);
+  /** @type {Set<string>} */
+  const skippedPatterns = new Set();
   const batchesDir = join(scriptRoot, "scripts/lib/wisp-fidelity-deepen-batches");
   if (existsSync(batchesDir)) {
     for (const name of readdirSync(batchesDir)) {
       if (!name.endsWith(".mjs") || name === "index.mjs") continue;
       try {
         const text = readFileSync(join(batchesDir, name), "utf8");
-        for (const m of text.matchAll(/"path":\s*"([^"]+)"/g)) {
-          probed.add(exactKey("GET", m[1]));
-          patterns.add(patternKey("GET", m[1]));
-        }
-        for (const m of text.matchAll(/"template":\s*"([^"]+)"/g)) {
-          patterns.add(patternKey("GET", m[1]));
+        for (const m of text.matchAll(
+          /"method":\s*"(GET|POST|PUT|PATCH|DELETE)"\s*,\s*\n\s*"template":\s*"([^"]+)"/g,
+        )) {
+          patterns.add(patternKey(m[1], m[2]));
         }
         for (const m of text.matchAll(
-          /probeDemo\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']\s*,\s*[`'"]([^`'"]+)[`'"]/g,
+          /probeDemo\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']\s*,\s*["']([^"'${}]+)["']/g,
         )) {
-          const path = m[2];
-          if (!path.includes("${")) {
-            probed.add(exactKey(m[1], path));
-            patterns.add(patternKey(m[1], path));
-          }
-        }
-        for (const m of text.matchAll(
-          /"method":\s*"(GET|POST|PUT|PATCH|DELETE)"[\s\S]*?"template":\s*"([^"]+)"/g,
-        )) {
+          probed.add(exactKey(m[1], m[2]));
           patterns.add(patternKey(m[1], m[2]));
         }
       } catch {
@@ -306,12 +299,20 @@ export function seedExactPathsFromHistory(state) {
       try {
         const j = JSON.parse(readFileSync(join(reportsDir, name), "utf8"));
         for (const p of j.probes || []) {
-          if (!p.path) continue;
+          if (!p.path && !p.template) continue;
           const method = p.method || "GET";
-          if (p.ok === true || (p.status >= 200 && p.status < 300)) {
-            probed.add(exactKey(method, p.path));
+          const tmpl = p.template || p.path;
+          if (String(p.action || "").startsWith("skip")) {
+            skippedPatterns.add(patternKey(method, tmpl));
+            continue;
           }
-          patterns.add(patternKey(method, p.template || p.path));
+          if (p.ok === true || (p.status >= 200 && p.status < 300)) {
+            if (p.path) probed.add(exactKey(method, p.path));
+          }
+          if (p.path && !String(p.path).includes(":")) {
+            patterns.add(patternKey(method, p.path));
+          }
+          if (tmpl) patterns.add(patternKey(method, tmpl));
         }
       } catch {
         /* ignore */
@@ -320,17 +321,121 @@ export function seedExactPathsFromHistory(state) {
   }
   const catalog = loadCatalog();
   for (const p of catalog?.passes || []) {
-    if (p.exactPath) {
+    if (p.exactPath && p.status === "done") {
       probed.add(exactKey("GET", p.exactPath));
       patterns.add(patternKey("GET", p.exactPath));
     }
-    if (p.pattern) patterns.add(String(p.pattern));
+    if (p.pattern && p.status === "done") patterns.add(String(p.pattern));
+    // Do not burn honest/skip catalog entries as patterns forever
   }
+  // Unburn patterns that were only ever skipped
+  for (const sk of skippedPatterns) {
+    // keep burned only if also seen as a real HTTP attempt (already in patterns from non-skip)
+    // if pattern exists solely from skip, remove it
+  }
+  // Rebuild: start from patterns, then remove pure-skips that never had a non-skip probe
+  // Simpler: remove all skippedPatterns from the set so they can be retried once
+  for (const sk of skippedPatterns) patterns.delete(sk);
+
+  // Also ignore skip-status catalog patterns so retries can proceed
+  for (const p of catalog?.passes || []) {
+    if (p.pattern && p.status === "skip") {
+      patterns.delete(String(p.pattern));
+    }
+  }
+
   return {
     exactPathsProbed: [...probed].sort(),
     patternsProbed: [...patterns].sort(),
   };
 }
+
+/**
+ * Harvest POST/PUT/PATCH bodies from hand-written deepen batches (D6442 — already sourced).
+ * @returns {Array<{ method: string, path: string, template: string, body: object, source: string, hasParams: boolean }>}
+ */
+export function harvestBatchMutationTargets() {
+  const batchesDir = join(scriptRoot, "scripts/lib/wisp-fidelity-deepen-batches");
+  /** @type {Array<object>} */
+  const out = [];
+  if (!existsSync(batchesDir)) return out;
+  for (const name of readdirSync(batchesDir)) {
+    if (!name.endsWith(".mjs") || name === "index.mjs") continue;
+    // Prefer hand-authored n10* / deepen*; auto modules rarely embed bodies
+    let text;
+    try {
+      text = readFileSync(join(batchesDir, name), "utf8");
+    } catch {
+      continue;
+    }
+    for (const m of text.matchAll(
+      /probeDemo\(\s*["'](POST|PUT|PATCH)["']\s*,\s*["']([^"'${}]+)["']\s*,\s*(\{[\s\S]*?\})\s*\)/g,
+    )) {
+      const method = m[1];
+      const path = m[2];
+      let body;
+      try {
+        body = Function(`"use strict"; return (${m[3]});`)();
+      } catch {
+        try {
+          body = JSON.parse(m[3]);
+        } catch {
+          continue;
+        }
+      }
+      if (!body || typeof body !== "object") continue;
+      out.push({
+        method,
+        path,
+        template: path,
+        body,
+        source: `batches/${name}`,
+        hasParams: false,
+        tier: "batch-mut",
+      });
+    }
+  }
+  // Dedupe by method+path
+  const seen = new Set();
+  return out.filter((t) => {
+    const k = exactKey(t.method, t.path);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+/** Literal fillers for non-id path params (not secrets). */
+const LITERAL_PARAM_FILL = {
+  query: "radio",
+  bundletype: "standard",
+  type: "standard",
+  category: "Radio Equipment",
+  status: "active",
+  email: "demo@wisptools.io",
+};
+
+/** Extra list endpoints when stripping the last :param is wrong. */
+const LIST_PATH_OVERRIDES = {
+  "/api/users/:userId": "/api/users",
+  "/api/users/:userId/activity": "/api/users",
+  "/api/network/sites/:id/sectors": "/api/network/sites",
+  "/api/network/cpe/:id": "/api/network/cpe",
+  "/api/network/sectors/:id": "/api/network/sectors",
+  "/api/network/equipment/:id": "/api/network/equipment",
+  "/api/network/hardware-deployments/:id": "/api/network/hardware-deployments",
+  "/api/customers/:id": "/api/customers",
+  "/api/inventory/:id": "/api/inventory",
+  "/api/plans/:id": "/api/plans",
+  "/api/plans/:id/features": "/api/plans",
+  "/api/bundles/:id": "/api/bundles",
+  "/api/work-orders/:id": "/api/work-orders",
+  "/api/incidents/:id": "/api/incidents",
+  "/api/notifications/:id": "/api/notifications",
+  "/api/help-desk/:id": "/api/help-desk",
+  "/api/installation-documentation/:id": "/api/installation-documentation",
+  "/api/equipment-pricing/:id": "/api/equipment-pricing",
+};
 
 /**
  * Advance batch id: n10z → n11a → n11b … n11z → n12a
@@ -349,7 +454,7 @@ export function bumpBatchId(id) {
 }
 
 /**
- * Pick next ×10 targets: static GET → param GET → golden-backed mutations.
+ * Pick next ×10 targets: static GET → param GET → golden-mut → batch-mut.
  * @param {object} opts
  */
 export function selectAutoTargets(opts = {}) {
@@ -397,17 +502,33 @@ export function selectAutoTargets(opts = {}) {
     const body =
       goldens.get(patternKey(r.method, r.template)) ??
       [...goldens.entries()].find(([k]) => {
-        // golden concrete path vs express template
         const [m, p] = k.split(" ");
         if (m !== r.method) return false;
         const asPattern = p.replace(/\/[a-f0-9]{24}(?=\/|$)/gi, "/:id");
         return asPattern === r.template || p === r.template;
       })?.[1];
-    if (body === undefined) continue; // no golden body — do not invent
+    if (body === undefined) continue;
     pushIfFresh("golden-mut", r, { body });
   }
+  // Tier 4 — bodies harvested from prior hand-written deepen batches
+  for (const h of harvestBatchMutationTargets()) {
+    if (probedExact.has(exactKey(h.method, h.path))) continue;
+    const pk = patternKey(h.method, h.path);
+    if (probedPatterns.has(pk)) continue;
+    if (isSkippedRoute(h.method, h.path)) continue;
+    const risks = deps ? externalRiskForApiPath(h.path, deps) : [];
+    fresh.push({
+      tier: "batch-mut",
+      method: h.method,
+      path: h.path,
+      template: h.path,
+      source: h.source,
+      hasParams: false,
+      body: h.body,
+      risks,
+    });
+  }
 
-  // Prefer lower tiers first (already ordered)
   const limit = opts.limit ?? BATCH_SIZE;
   const chosen = fresh.slice(0, limit);
   return {
@@ -419,6 +540,7 @@ export function selectAutoTargets(opts = {}) {
       "static-get": fresh.filter((c) => c.tier === "static-get").length,
       "param-get": fresh.filter((c) => c.tier === "param-get").length,
       "golden-mut": fresh.filter((c) => c.tier === "golden-mut").length,
+      "batch-mut": fresh.filter((c) => c.tier === "batch-mut").length,
     },
   };
 }
@@ -483,7 +605,11 @@ export function updateCatalogAfterAutoRound(opts) {
 }
 
 export function listPathForTemplate(template, tenantId) {
-  let t = String(template).replace(/:tenantId\b|:tenant\b/gi, tenantId);
+  const raw = String(template);
+  if (LIST_PATH_OVERRIDES[raw]) {
+    return LIST_PATH_OVERRIDES[raw].replace(/:tenantId\b|:tenant\b/gi, tenantId);
+  }
+  let t = raw.replace(/:tenantId\b|:tenant\b/gi, tenantId);
   const parts = t.split("/");
   while (parts.length && parts[parts.length - 1].startsWith(":")) parts.pop();
   return parts.join("/") || "/";
@@ -493,7 +619,7 @@ export function fillRouteTemplate(template, tenantId, ids = {}) {
   return String(template).replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, (_, name) => {
     const lower = name.toLowerCase();
     if (lower.includes("tenant")) return tenantId;
-    if (lower === "email") return "demo@wisptools.io";
+    if (LITERAL_PARAM_FILL[lower] != null) return LITERAL_PARAM_FILL[lower];
     if (ids[name] != null) return String(ids[name]);
     if (ids.id != null) return String(ids.id);
     return `missing-${name}`;
@@ -504,7 +630,7 @@ function templateNeedsNonTenantId(template) {
   const params = [...String(template).matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) =>
     m[1].toLowerCase(),
   );
-  return params.some((p) => !p.includes("tenant"));
+  return params.some((p) => !p.includes("tenant") && LITERAL_PARAM_FILL[p] == null);
 }
 
 /**
@@ -521,7 +647,7 @@ export async function runAutoProbes(ctx, targets) {
     let path = t.template;
     if (t.hasParams) {
       const listGuess = listPathForTemplate(t.template, tid);
-      const hit = await firstIdDemo(listGuess, [
+      const listKeys = [
         "data",
         "items",
         "results",
@@ -541,7 +667,19 @@ export async function runAutoProbes(ctx, targets) {
         "cpe",
         "subscribers",
         "groups",
-      ]);
+      ];
+      let hit = await firstIdDemo(listGuess, listKeys);
+      // Fallbacks for common mounts
+      if (!hit?.id) {
+        for (const alt of [
+          listGuess.replace(/\/$/, ""),
+          `/${listGuess.split("/").filter(Boolean).slice(0, 2).join("/")}`,
+        ]) {
+          if (!alt || alt === listGuess) continue;
+          hit = await firstIdDemo(alt, listKeys);
+          if (hit?.id) break;
+        }
+      }
       if (!hit?.id && templateNeedsNonTenantId(t.template)) {
         probes.push({
           pass: t.pass,
@@ -728,12 +866,21 @@ export async function runAutoRound(opts = {}) {
   const { newlyGreen, newlyTried, improvement } = countImprovements(report, priorProbed);
 
   const exactPathsProbed = [...new Set([...(state.exactPathsProbed || []), ...newlyTried])];
-  const patternsProbed = [
-    ...new Set([
-      ...(state.patternsProbed || []),
-      ...targets.map((t) => patternKey(t.method, t.template)),
-    ]),
-  ];
+  const priorSkip = new Set(state.skipPatternsAttempted || []);
+  const patternsProbed = new Set(state.patternsProbed || []);
+  const skipPatternsAttempted = new Set(priorSkip);
+  for (let i = 0; i < targets.length; i++) {
+    const t = targets[i];
+    const pr = report.probes?.[i];
+    const pk = patternKey(t.method, t.template);
+    const skipped = String(pr?.action || "").startsWith("skip");
+    if (skipped) {
+      if (priorSkip.has(pk)) patternsProbed.add(pk); // second skip → burn
+      else skipPatternsAttempted.add(pk);
+    } else {
+      patternsProbed.add(pk);
+    }
+  }
   const consecutiveNoImprovement =
     improvement > 0 ? 0 : (state.consecutiveNoImprovement || 0) + 1;
 
@@ -781,7 +928,8 @@ export async function runAutoRound(opts = {}) {
     stopAfterNoImprovement: STOP_AFTER_NO_IMPROVEMENT,
     consecutiveNoImprovement,
     exactPathsProbed,
-    patternsProbed,
+    patternsProbed: [...patternsProbed],
+    skipPatternsAttempted: [...skipPatternsAttempted],
     rounds: [...(state.rounds || []), round].slice(-80),
     lastRound: round,
   });
