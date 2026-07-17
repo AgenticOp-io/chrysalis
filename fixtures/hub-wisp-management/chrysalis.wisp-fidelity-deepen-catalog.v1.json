@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 182,
-  "nextBatchId": "n10s",
-  "nextPassRange": [183, 192],
+  "closedThroughPass": 192,
+  "nextBatchId": "n10t",
+  "nextPassRange": [193, 202],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -37,7 +37,8 @@
     { "id": "n10o", "passRange": [143, 152], "status": "closed-harness" },
     { "id": "n10p", "passRange": [153, 162], "status": "closed-harness" },
     { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" },
-    { "id": "n10r", "passRange": [173, 182], "status": "closed-harness" }
+    { "id": "n10r", "passRange": [173, 182], "status": "closed-harness" },
+    { "id": "n10s", "passRange": [183, 192], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -159,7 +160,17 @@
     { "id": 179, "batch": "n10r", "title": "Bundles search GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
     { "id": 180, "batch": "n10r", "title": "Inventory stats GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
     { "id": 181, "batch": "n10r", "title": "Customers complaints PUT", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 182, "batch": "n10r", "title": "Branding GET by tenant", "status": "done", "apiPaths": ["/api/branding"], "source": "backend-services/routes/branding-api.js" }
+    { "id": 182, "batch": "n10r", "title": "Branding GET by tenant", "status": "done", "apiPaths": ["/api/branding"], "source": "backend-services/routes/branding-api.js" },
+    { "id": 183, "batch": "n10s", "title": "Portal-content alerts GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 184, "batch": "n10s", "title": "Portal-content FAQ GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 185, "batch": "n10s", "title": "Portal-content knowledge-base GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 186, "batch": "n10s", "title": "Portal-content chat-settings GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 187, "batch": "n10s", "title": "Voice emergency-addresses GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 188, "batch": "n10s", "title": "Voice port-orders GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 189, "batch": "n10s", "title": "SNMP configuration GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-status.js" },
+    { "id": 190, "batch": "n10s", "title": "SNMP devices GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-devices.js" },
+    { "id": 191, "batch": "n10s", "title": "Voice provider-accounts POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 192, "batch": "n10s", "title": "Equipment-pricing import-from-inventory", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },
@@ -175,7 +186,8 @@
     { "pass": null, "title": "CPE PUT foreign ownership", "blocker": "403 unless creator (ownership check in route)", "source": "backend-services/routes/network.js" },
     { "pass": null, "title": "Install submit without photos", "blocker": "Requires min 3 photos; storageBucket blocks uploads", "source": "backend-services/routes/installation-documentation.js" },
     { "pass": null, "title": "Bundle items require category enum", "blocker": "HardwareBundle items require category from model enum (e.g. Radio Equipment)", "source": "backend-services/models/hardwareBundle.js" },
-    { "pass": 161, "title": "Customer GET /:id/subscriber after create", "blocker": "POST create-subscriber 201 but GET returns No HSS subscriber (hssSubscriberId not visible)", "source": "backend-services/routes/customers.js" }
+    { "pass": 161, "title": "Customer GET /:id/subscriber after create", "blocker": "POST create-subscriber 201 but GET returns No HSS subscriber (hssSubscriberId not visible)", "source": "backend-services/routes/customers.js" },
+    { "pass": null, "title": "SNMP status GET", "blocker": "HSS 500: Cannot find module '../models/snmp-metrics-schema' (wrong relative require in snmp-status.js line 46; top-level import uses ../../models)", "source": "backend-services/routes/snmp-routes/snmp-status.js" }
   ],
   "candidateHints": [
     { "title": "Retry held residuals after HSS fix", "api": "held", "note": "Re-probe heldResiduals after reading backend-services source" },

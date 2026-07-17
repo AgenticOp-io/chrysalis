@@ -27,6 +27,114 @@
       "enabled": true,
       "accountStatus": "pending"
     },
+    "_id": "6a59773ead923e3601e0383a",
+    "tenantId": "6a166eb07089304417ec967a",
+    "customerId": "CUST-2026-0041",
+    "isLead": false,
+    "leadStatus": "new",
+    "firstName": "CWL",
+    "lastName": "Trace1784248112698",
+    "fullName": "CWL Trace1784248112698",
+    "primaryPhone": "555-0100",
+    "email": "cwl-trace-1784248112698@example.com",
+    "serviceStatus": "active",
+    "notes": "chrysalis-live-mutate-trace",
+    "tags": [],
+    "accountStatus": "good-standing",
+    "isActive": true,
+    "serviceHistory": [],
+    "complaints": [],
+    "createdAt": "2026-07-17T00:28:46.573Z",
+    "updatedAt": "2026-07-17T00:28:46.574Z",
+    "__v": 0
+  },
+  {
+    "serviceAddress": {
+      "country": "USA"
+    },
+    "billingAddress": {
+      "country": "USA",
+      "sameAsService": true
+    },
+    "servicePlan": {
+      "currency": "USD",
+      "qci": 9,
+      "priorityLevel": "medium"
+    },
+    "lteAuth": {
+      "sqn": 0
+    },
+    "installation": {
+      "status": "not-scheduled",
+      "otherEquipment": []
+    },
+    "billingInfo": {
+      "accountBalance": 0,
+      "autopay": false
+    },
+    "portalAccess": {
+      "enabled": true,
+      "accountStatus": "pending"
+    },
+    "_id": "6a5976daad923e3601e0378b",
+    "tenantId": "6a166eb07089304417ec967a",
+    "customerId": "CUST-2026-0040",
+    "isLead": false,
+    "leadStatus": "new",
+    "firstName": "CWL",
+    "lastName": "Trace1784248013357",
+    "fullName": "CWL Trace1784248013357",
+    "primaryPhone": "555-0100",
+    "email": "cwl-trace-1784248013357@example.com",
+    "serviceStatus": "active",
+    "notes": "chrysalis-live-mutate-trace",
+    "tags": [],
+    "accountStatus": "good-standing",
+    "isActive": true,
+    "serviceHistory": [],
+    "complaints": [
+      {
+        "category": "other",
+        "description": "chrysalis-n10r-resolved-1784248028601",
+        "priority": "low",
+        "status": "resolved",
+        "resolution": "fidelity-deepen",
+        "_id": "6a5976ddad923e3601e037cb",
+        "date": "2026-07-17T00:27:09.935Z"
+      }
+    ],
+    "createdAt": "2026-07-17T00:27:06.624Z",
+    "updatedAt": "2026-07-17T00:27:09.934Z",
+    "__v": 0
+  },
+  {
+    "serviceAddress": {
+      "country": "USA"
+    },
+    "billingAddress": {
+      "country": "USA",
+      "sameAsService": true
+    },
+    "servicePlan": {
+      "currency": "USD",
+      "qci": 9,
+      "priorityLevel": "medium"
+    },
+    "lteAuth": {
+      "sqn": 0
+    },
+    "installation": {
+      "status": "not-scheduled",
+      "otherEquipment": []
+    },
+    "billingInfo": {
+      "accountBalance": 0,
+      "autopay": false
+    },
+    "portalAccess": {
+      "enabled": true,
+      "accountStatus": "pending"
+    },
     "_id": "6a59764bad923e3601e036cf",
     "tenantId": "6a166eb07089304417ec967a",
     "customerId": "CUST-2026-0039",

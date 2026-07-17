@@ -1,6 +1,38 @@
 {
   "bundles": [
     {
+      "_id": "6a59773ead923e3601e03835",
+      "tenantId": "6a166eb07089304417ec967a",
+      "name": "CWL Bundle 1784248112698",
+      "bundleType": "standard",
+      "tags": [],
+      "status": "active",
+      "usageCount": 0,
+      "items": [],
+      "images": [],
+      "createdAt": "2026-07-17T00:28:46.355Z",
+      "updatedAt": "2026-07-17T00:28:47.501Z",
+      "estimatedTotalCost": 0,
+      "__v": 0,
+      "notes": "chrysalis-live-mutate-put-1784248126567"
+    },
+    {
+      "_id": "6a5976daad923e3601e03786",
+      "tenantId": "6a166eb07089304417ec967a",
+      "name": "CWL Bundle 1784248013356",
+      "bundleType": "standard",
+      "tags": [],
+      "status": "active",
+      "usageCount": 0,
+      "items": [],
+      "images": [],
+      "createdAt": "2026-07-17T00:27:06.401Z",
+      "updatedAt": "2026-07-17T00:27:07.514Z",
+      "estimatedTotalCost": 0,
+      "__v": 0,
+      "notes": "chrysalis-live-mutate-put-1784248026627"
+    },
+    {
       "_id": "6a59764bad923e3601e036ca",
       "tenantId": "6a166eb07089304417ec967a",
       "name": "CWL Bundle 1784247869413",
@@ -704,7 +736,7 @@
   "pagination": {
     "page": 1,
     "limit": 50,
-    "total": 41,
+    "total": 43,
     "pages": 1
   }
 }

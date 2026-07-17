@@ -2108,6 +2108,53 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10pSurfaces();
   initDeepenN10qSurfaces();
   initDeepenN10rSurfaces();
+  initDeepenN10sSurfaces();
+
+  function initDeepenN10sSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10s="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10s", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var tid = "6a166eb07089304417ec967a";
+    var portalHost =
+      document.querySelector(".customers-portal-page .page-header") ||
+      document.querySelector('[data-wisp-page="customers-portal"] .page-header') ||
+      document.querySelector(".customers-page .page-header");
+    addGet(portalHost, "pc-alerts", "/api/portal-content/" + tid + "/alerts", "Portal alerts");
+    addGet(portalHost, "pc-faq", "/api/portal-content/" + tid + "/faq", "Portal FAQ");
+    var monHost =
+      document.querySelector(".monitoring-page .page-header") ||
+      document.querySelector('[data-wisp-page="monitoring"] .page-header') ||
+      document.querySelector(".monitor-page .page-header");
+    addGet(monHost, "snmp-config", "/api/snmp/configuration", "SNMP config");
+    addGet(monHost, "snmp-devices", "/api/snmp/devices", "SNMP devices");
+  }
 
   function initDeepenN10rSurfaces() {
     if (!window.WispCwlApi) return;

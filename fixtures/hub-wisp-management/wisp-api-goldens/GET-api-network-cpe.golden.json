@@ -10,7 +10,7 @@
     "siteId": null,
     "tenantId": "6a166eb07089304417ec967a",
     "createdAt": "2026-07-17T00:02:36.794Z",
-    "updatedAt": "2026-07-17T00:24:44.657Z",
+    "updatedAt": "2026-07-17T00:28:47.968Z",
     "__v": 0,
     "updatedBy": "System"
   },
@@ -1390,6 +1390,72 @@
     "createdBy": "System",
     "createdAt": "2026-07-17T00:24:42.542Z",
     "updatedAt": "2026-07-17T00:24:42.543Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a5976d9ad923e3601e0377d",
+    "name": "CWL Trace CPE 1784248013356",
+    "status": "active",
+    "technology": "LTE",
+    "manufacturer": "Trace",
+    "model": "CWL",
+    "serialNumber": "CPE-1784248013356",
+    "location": {
+      "latitude": 39.75,
+      "longitude": -104.98,
+      "country": "US",
+      "_id": "6a5976d9ad923e3601e0377e"
+    },
+    "siteId": {
+      "_id": "6a596f4dad923e3601e03063",
+      "name": "Bulk 1784246090538",
+      "type": [
+        "tower"
+      ],
+      "location": {
+        "latitude": 39.7,
+        "longitude": -105,
+        "country": "US",
+        "_id": "6a596f4dad923e3601e03064"
+      }
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:27:05.940Z",
+    "updatedAt": "2026-07-17T00:27:05.940Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a59773dad923e3601e0382c",
+    "name": "CWL Trace CPE 1784248112698",
+    "status": "active",
+    "technology": "LTE",
+    "manufacturer": "Trace",
+    "model": "CWL",
+    "serialNumber": "CPE-1784248112698",
+    "location": {
+      "latitude": 39.75,
+      "longitude": -104.98,
+      "country": "US",
+      "_id": "6a59773dad923e3601e0382d"
+    },
+    "siteId": {
+      "_id": "6a596f4dad923e3601e03063",
+      "name": "Bulk 1784246090538",
+      "type": [
+        "tower"
+      ],
+      "location": {
+        "latitude": 39.7,
+        "longitude": -105,
+        "country": "US",
+        "_id": "6a596f4dad923e3601e03064"
+      }
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:28:45.873Z",
+    "updatedAt": "2026-07-17T00:28:45.874Z",
     "__v": 0
   },
   {

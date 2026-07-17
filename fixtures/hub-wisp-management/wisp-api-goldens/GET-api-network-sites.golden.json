@@ -892,6 +892,46 @@
     "__v": 0
   },
   {
+    "_id": "6a5976d9ad923e3601e03776",
+    "name": "CWL Trace Site 1784248013356",
+    "type": [
+      "tower"
+    ],
+    "status": "active",
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a5976d9ad923e3601e03777",
+      "address": ""
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:27:05.716Z",
+    "updatedAt": "2026-07-17T00:27:05.717Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a59773dad923e3601e03825",
+    "name": "CWL Trace Site 1784248112697",
+    "type": [
+      "tower"
+    ],
+    "status": "active",
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a59773dad923e3601e03826",
+      "address": ""
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:28:45.653Z",
+    "updatedAt": "2026-07-17T00:28:45.654Z",
+    "__v": 0
+  },
+  {
     "_id": "6a19005c704d495832750c00",
     "name": "Demo Tower East",
     "type": [

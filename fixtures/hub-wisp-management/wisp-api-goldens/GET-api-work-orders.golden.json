@@ -1,5 +1,57 @@
 [
   {
+    "_id": "6a59773dad923e3601e0382f",
+    "tenantId": "6a166eb07089304417ec967a",
+    "ticketNumber": "TKT-CWL-1784248112698",
+    "type": "installation",
+    "ticketCategory": "customer-facing",
+    "priority": "medium",
+    "status": "open",
+    "requiresApproval": false,
+    "approvalStatus": "not-required",
+    "title": "CWL WO 1784248112698",
+    "description": "chrysalis-live-mutate-trace",
+    "sla": {
+      "breached": false
+    },
+    "photos": [],
+    "attachments": [],
+    "affectedEquipment": [],
+    "affectedSites": [],
+    "affectedCustomers": [],
+    "workPerformed": [],
+    "partsUsed": [],
+    "createdAt": "2026-07-17T00:28:45.980Z",
+    "updatedAt": "2026-07-17T00:28:47.029Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a5976daad923e3601e03780",
+    "tenantId": "6a166eb07089304417ec967a",
+    "ticketNumber": "TKT-CWL-1784248013356",
+    "type": "installation",
+    "ticketCategory": "customer-facing",
+    "priority": "medium",
+    "status": "open",
+    "requiresApproval": false,
+    "approvalStatus": "not-required",
+    "title": "CWL WO 1784248013356",
+    "description": "chrysalis-live-mutate-trace",
+    "sla": {
+      "breached": false
+    },
+    "photos": [],
+    "attachments": [],
+    "affectedEquipment": [],
+    "affectedSites": [],
+    "affectedCustomers": [],
+    "workPerformed": [],
+    "partsUsed": [],
+    "createdAt": "2026-07-17T00:27:06.041Z",
+    "updatedAt": "2026-07-17T00:27:07.081Z",
+    "__v": 0
+  },
+  {
     "_id": "6a59764aad923e3601e036c4",
     "tenantId": "6a166eb07089304417ec967a",
     "ticketNumber": "TKT-CWL-1784247869413",
