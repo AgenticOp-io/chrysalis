@@ -1,0 +1,16 @@
+{
+  "acsSettings": {
+    "username": "",
+    "password": "",
+    "url": ""
+  },
+  "companyInfo": {
+    "name": "CWL Trace Co",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "phone": "555-0199",
+    "email": "cwl-settings-1784247490736@example.com"
+  }
+}

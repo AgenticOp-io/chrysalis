@@ -1,0 +1,107 @@
+[
+  {
+    "_id": "6a166eb07089304417ec967a",
+    "name": "Demo WISP",
+    "displayName": "WISPTools Demo ISP",
+    "subdomain": "wisptools-demo",
+    "contactEmail": "demo@wisptools.io",
+    "cwmpUrl": "https://wisptools-demo.wisptools.io/cwmp",
+    "primaryLocation": {
+      "siteId": null,
+      "siteName": null
+    },
+    "status": "active",
+    "settings": {
+      "allowSelfRegistration": false,
+      "requireEmailVerification": false,
+      "maxUsers": 100,
+      "maxDevices": 5000,
+      "features": {
+        "acs": true,
+        "hss": true,
+        "pci": true,
+        "helpDesk": true,
+        "userManagement": true,
+        "customerManagement": true
+      }
+    },
+    "limits": {
+      "maxUsers": 50,
+      "maxDevices": 1000,
+      "maxNetworks": 10,
+      "maxTowerSites": 100
+    },
+    "branding": {
+      "logo": {
+        "altText": "Company Logo"
+      },
+      "colors": {
+        "primary": "#3b82f6",
+        "secondary": "#64748b",
+        "accent": "#10b981",
+        "background": "#ffffff",
+        "text": "#111827",
+        "textSecondary": "#6b7280"
+      },
+      "company": {
+        "supportHours": "Mon-Fri 8am-5pm"
+      },
+      "portal": {
+        "welcomeMessage": "Welcome to our Customer Portal",
+        "enableCustomDomain": false
+      },
+      "features": {
+        "enableFAQ": true,
+        "enableServiceStatus": true,
+        "enableBilling": true,
+        "enableLiveChat": false,
+        "enableKnowledgeBase": false
+      }
+    },
+    "createdBy": "demo-seed-script",
+    "deletedAt": null,
+    "deletedBy": null,
+    "createdAt": "2026-05-27T04:10:24.491Z",
+    "updatedAt": "2026-05-27T04:10:24.498Z",
+    "__v": 0,
+    "id": "6a166eb07089304417ec967a",
+    "userCount": 2
+  },
+  {
+    "_id": "68f86bf494a05a3e5dd7004d",
+    "name": "peterson",
+    "displayName": "peterson",
+    "subdomain": "peterson",
+    "contactEmail": "david@tenant.com",
+    "cwmpUrl": "https://peterson.lte-pci-mapper-65450042-bbf71.us-east4.hosted.app",
+    "status": "active",
+    "settings": {
+      "allowSelfRegistration": false,
+      "requireEmailVerification": true,
+      "maxUsers": 50,
+      "maxDevices": 1000,
+      "features": {
+        "acs": true,
+        "hss": true,
+        "pci": true,
+        "helpDesk": true,
+        "userManagement": true,
+        "customerManagement": true
+      }
+    },
+    "limits": {
+      "maxUsers": 50,
+      "maxDevices": 1000,
+      "maxNetworks": 10,
+      "maxTowerSites": 100
+    },
+    "createdBy": "zijIWMdwJybWPovECvY834mh0fv1",
+    "deletedAt": null,
+    "deletedBy": null,
+    "createdAt": "2025-10-22T05:30:28.209Z",
+    "updatedAt": "2025-10-22T05:30:28.210Z",
+    "__v": 0,
+    "id": "68f86bf494a05a3e5dd7004d",
+    "userCount": 1
+  }
+]

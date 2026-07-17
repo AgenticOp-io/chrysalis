@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "epc-snmp",
+  "op": "create",
+  "seeded": "contract-mutate"
+}

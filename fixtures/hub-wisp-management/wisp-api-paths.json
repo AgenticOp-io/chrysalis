@@ -1,52 +1,700 @@
 {
   "kind": "chrysalis.wisp.api-paths",
   "schemaVersion": 1,
-  "source": "Module_Manager/src/lib/config/api.ts",
+  "source": "Module_Manager/src/lib/config/api.ts + backend-services/server.js mounts",
   "basePath": "/api",
   "paths": [
-    { "id": "PLANS", "path": "/api/plans", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "NETWORK", "path": "/api/network", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "NETWORK_SITES", "path": "/api/network/sites", "methods": ["GET"], "note": "Module_Manager coverageMapService sites (G9951)" },
-    { "id": "NETWORK_SECTORS", "path": "/api/network/sectors", "methods": ["GET"], "note": "Module_Manager coverageMapService sectors (G9951)" },
-    { "id": "NETWORK_CPE", "path": "/api/network/cpe", "methods": ["GET"], "note": "Module_Manager CPE list (G9951)" },
-    { "id": "NETWORK_EQUIPMENT", "path": "/api/network/equipment", "methods": ["GET"], "note": "Module_Manager equipment (G9951)" },
-    { "id": "NETWORK_IMPORT_CBRS", "path": "/api/network/import/cbrs", "methods": ["POST"], "note": "CBRS import stub (G9951)" },
-    { "id": "PLANS_MARKETING_DISCOVER", "path": "/api/plans/marketing/discover", "methods": ["POST"], "note": "Marketing discover (planId in body; G9951)" },
-    { "id": "INVENTORY_SCAN_LOOKUP", "path": "/api/inventory/scan/lookup", "methods": ["POST"], "note": "Scan lookup (G9951)" },
-    { "id": "INVENTORY_SCAN_CHECKIN", "path": "/api/inventory/scan/check-in", "methods": ["POST"], "note": "Scan check-in (G9951)" },
-    { "id": "INVENTORY_SCAN_CHECKOUT", "path": "/api/inventory/scan/check-out", "methods": ["POST"], "note": "Scan check-out (G9951)" },
-    { "id": "INVENTORY_TRANSFER", "path": "/api/inventory/transfer", "methods": ["POST"], "note": "Inventory transfer (id in body; G9951)" },
-    { "id": "COVERAGE", "path": "/api/coverage", "methods": ["GET"], "note": "Coverage sectors with lat/lng for ArcGIS overlay (G9947)" },
-    { "id": "MODULE_ACCESS", "path": "/api/module-access", "methods": ["GET"], "note": "Module×role access matrix listing (G9948) — empty-honest when stub" },
-    { "id": "CUSTOMERS", "path": "/api/customers", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "CUSTOMER_BILLING", "path": "/api/customer-billing", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "INVENTORY", "path": "/api/inventory", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "HARDWARE", "path": "/api/hardware", "methods": ["GET"], "note": "Alias of inventory for demo UI" },
-    { "id": "BILLING_ALIAS", "path": "/api/billing", "methods": ["GET"], "note": "Alias of customer-billing for demo UI" },
-    { "id": "ME", "path": "/api/me", "methods": ["GET"], "note": "Session me — also chimera special-case" },
-    { "id": "BUNDLES", "path": "/api/bundles", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "DEPLOY", "path": "/api/deploy", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "HSS", "path": "/api/hss", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "MONITORING", "path": "/api/monitoring", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "MAINTAIN", "path": "/api/maintain", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "TENANTS", "path": "/api/tenants", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "USERS", "path": "/api/users", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "WORK_ORDERS", "path": "/api/work-orders", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "PERMISSIONS", "path": "/api/permissions", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "MIKROTIK", "path": "/api/mikrotik", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "EPC_UPDATES", "path": "/api/epc-updates", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "SNMP_MONITORING", "path": "/api/snmp", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "MONITORING_GRAPHS", "path": "/api/monitoring/graphs", "methods": ["GET", "POST"] },
-    { "id": "DEVICE_ASSIGNMENT", "path": "/api/device-assignment", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "NOTIFICATIONS", "path": "/api/notifications", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "VOICE", "path": "/api/voice", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-    { "id": "ADMIN_PREFIX", "path": "/api/admin", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"], "note": "Platform admin via getAdminApiRequest" },
-    { "id": "INTERNAL", "path": "/api/internal", "methods": ["GET", "POST"], "note": "INTERNAL_API_KEY on backend" }
+    {
+      "id": "ADMIN",
+      "path": "/admin",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/admin/general",
+      "note": "synced from server.js → routes/admin/general"
+    },
+    {
+      "id": "ADMIN_TENANTS",
+      "path": "/admin/tenants",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/admin/tenants",
+      "note": "synced from server.js → routes/admin/tenants"
+    },
+    {
+      "id": "ADMIN_PREFIX",
+      "path": "/api/admin",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "note": "Platform admin via getAdminApiRequest"
+    },
+    {
+      "id": "AGENT",
+      "path": "/api/agent",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/agent",
+      "note": "synced from server.js → routes/agent"
+    },
+    {
+      "id": "AUTH",
+      "path": "/api/auth",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/auth",
+      "note": "synced from server.js → routes/auth"
+    },
+    {
+      "id": "BILLING_ALIAS",
+      "path": "/api/billing",
+      "methods": [
+        "GET"
+      ],
+      "note": "Alias of customer-billing for demo UI",
+      "sourceFile": "billing-api"
+    },
+    {
+      "id": "BRANDING",
+      "path": "/api/branding",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/branding-api.js",
+      "note": "synced from server.js → routes/branding-api.js"
+    },
+    {
+      "id": "BUNDLES",
+      "path": "/api/bundles",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/hardwareBundles",
+      "note": "backend routes/hardwareBundles"
+    },
+    {
+      "id": "COVERAGE",
+      "path": "/api/coverage",
+      "methods": [
+        "GET"
+      ],
+      "note": "Coverage sectors with lat/lng for ArcGIS overlay (G9947)"
+    },
+    {
+      "id": "CUSTOMER_BILLING",
+      "path": "/api/customer-billing",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/customer-billing",
+      "note": "backend routes/customer-billing"
+    },
+    {
+      "id": "CUSTOMER_PORTAL",
+      "path": "/api/customer-portal",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/customer-portal-api",
+      "note": "synced from server.js → routes/customer-portal-api"
+    },
+    {
+      "id": "CUSTOMERS",
+      "path": "/api/customers",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/customers",
+      "note": "backend routes/customers"
+    },
+    {
+      "id": "DEPLOY",
+      "path": "/api/deploy",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/deployment/epc-management",
+      "note": "backend routes/epc-deployment"
+    },
+    {
+      "id": "DEVICE_ASSIGNMENT",
+      "path": "/api/device-assignment",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/device-assignment",
+      "note": "backend routes/device-assignment"
+    },
+    {
+      "id": "EPC",
+      "path": "/api/epc",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/epc-logs",
+      "note": "synced from server.js → routes/epc-checkin"
+    },
+    {
+      "id": "EPC_MANAGEMENT",
+      "path": "/api/epc-management",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/epc-management",
+      "note": "synced from server.js → routes/epc-management"
+    },
+    {
+      "id": "EPC_UPDATES",
+      "path": "/api/epc-updates",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "id": "EPC_SNMP",
+      "path": "/api/epc/snmp",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/epc-snmp",
+      "note": "synced from server.js → routes/epc-snmp"
+    },
+    {
+      "id": "EQUIPMENT_PRICING",
+      "path": "/api/equipment-pricing",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/equipment-pricing",
+      "note": "synced from server.js → routes/equipment-pricing"
+    },
+    {
+      "id": "HARDWARE",
+      "path": "/api/hardware",
+      "methods": [
+        "GET"
+      ],
+      "note": "Alias of inventory for demo UI"
+    },
+    {
+      "id": "HSS",
+      "path": "/api/hss",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/hss-management",
+      "note": "backend routes/hss-management"
+    },
+    {
+      "id": "INCIDENTS",
+      "path": "/api/incidents",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/incidents",
+      "note": "synced from server.js → routes/incidents"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION",
+      "path": "/api/installation-documentation",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/installation-documentation",
+      "note": "synced from server.js → routes/installation-documentation"
+    },
+    {
+      "id": "INTERNAL",
+      "path": "/api/internal",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "note": "INTERNAL_API_KEY on backend",
+      "sourceFile": "routes/internal"
+    },
+    {
+      "id": "INVENTORY",
+      "path": "/api/inventory",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/inventory",
+      "note": "backend routes/inventory"
+    },
+    {
+      "id": "INVENTORY_SCAN_CHECKIN",
+      "path": "/api/inventory/scan/check-in",
+      "methods": [
+        "POST"
+      ],
+      "note": "Scan check-in (G9951)"
+    },
+    {
+      "id": "INVENTORY_SCAN_CHECKOUT",
+      "path": "/api/inventory/scan/check-out",
+      "methods": [
+        "POST"
+      ],
+      "note": "Scan check-out (G9951)"
+    },
+    {
+      "id": "INVENTORY_SCAN_LOOKUP",
+      "path": "/api/inventory/scan/lookup",
+      "methods": [
+        "POST"
+      ],
+      "note": "Scan lookup (G9951)"
+    },
+    {
+      "id": "INVENTORY_TRANSFER",
+      "path": "/api/inventory/transfer",
+      "methods": [
+        "POST"
+      ],
+      "note": "Inventory transfer (id in body; G9951)"
+    },
+    {
+      "id": "MAINTAIN",
+      "path": "/api/maintain",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/maintain",
+      "note": "backend routes/maintain"
+    },
+    {
+      "id": "ME",
+      "path": "/api/me",
+      "methods": [
+        "GET"
+      ],
+      "note": "Session me — also chimera special-case"
+    },
+    {
+      "id": "MIKROTIK",
+      "path": "/api/mikrotik",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/mikrotik",
+      "note": "backend routes/mikrotik"
+    },
+    {
+      "id": "MME",
+      "path": "/api/mme",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/mme-status",
+      "note": "synced from server.js → routes/mme-status"
+    },
+    {
+      "id": "MOBILE",
+      "path": "/api/mobile",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/mobile-tasks",
+      "note": "synced from server.js → routes/mobile-tasks"
+    },
+    {
+      "id": "MODULE_ACCESS",
+      "path": "/api/module-access",
+      "methods": [
+        "GET"
+      ],
+      "note": "Module×role access matrix listing (G9948) — empty-honest when stub"
+    },
+    {
+      "id": "MONITORING",
+      "path": "/api/monitoring",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/monitoring",
+      "note": "backend routes/monitoring"
+    },
+    {
+      "id": "MONITORING_GRAPHS",
+      "path": "/api/monitoring/graphs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/monitoring-graphs",
+      "note": "backend routes/monitoring-graphs"
+    },
+    {
+      "id": "NETWORK",
+      "path": "/api/network",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/network",
+      "note": "backend routes/network"
+    },
+    {
+      "id": "NETWORK_CPE",
+      "path": "/api/network/cpe",
+      "methods": [
+        "GET"
+      ],
+      "note": "Module_Manager CPE list (G9951)"
+    },
+    {
+      "id": "NETWORK_EQUIPMENT",
+      "path": "/api/network/equipment",
+      "methods": [
+        "GET"
+      ],
+      "note": "Module_Manager equipment (G9951)"
+    },
+    {
+      "id": "NETWORK_IMPORT_CBRS",
+      "path": "/api/network/import/cbrs",
+      "methods": [
+        "POST"
+      ],
+      "note": "CBRS import stub (G9951)"
+    },
+    {
+      "id": "NETWORK_SECTORS",
+      "path": "/api/network/sectors",
+      "methods": [
+        "GET"
+      ],
+      "note": "Module_Manager coverageMapService sectors (G9951)"
+    },
+    {
+      "id": "NETWORK_SITES",
+      "path": "/api/network/sites",
+      "methods": [
+        "GET"
+      ],
+      "note": "Module_Manager coverageMapService sites (G9951)"
+    },
+    {
+      "id": "NOTIFICATIONS",
+      "path": "/api/notifications",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/notifications",
+      "note": "backend routes/notifications"
+    },
+    {
+      "id": "PERMISSIONS",
+      "path": "/api/permissions",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/permissions",
+      "note": "backend routes/permissions"
+    },
+    {
+      "id": "PLANS",
+      "path": "/api/plans",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/plans",
+      "note": "backend routes/plans"
+    },
+    {
+      "id": "PLANS_MARKETING_DISCOVER",
+      "path": "/api/plans/marketing/discover",
+      "methods": [
+        "POST"
+      ],
+      "note": "Marketing discover (planId in body; G9951)"
+    },
+    {
+      "id": "PORTAL",
+      "path": "/api/portal",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/portal-domain",
+      "note": "synced from server.js → routes/portal-domain"
+    },
+    {
+      "id": "PORTAL_CONTENT",
+      "path": "/api/portal-content",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/portal-content",
+      "note": "synced from server.js → routes/portal-content"
+    },
+    {
+      "id": "REMOTE_AGENTS",
+      "path": "/api/remote-agents",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/remote-agents-status",
+      "note": "synced from server.js → routes/remote-agents-status"
+    },
+    {
+      "id": "SNMP_MONITORING",
+      "path": "/api/snmp",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/snmp",
+      "note": "backend routes/snmp"
+    },
+    {
+      "id": "SUBCONTRACTORS",
+      "path": "/api/subcontractors",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/subcontractors",
+      "note": "synced from server.js → routes/subcontractors"
+    },
+    {
+      "id": "SYSTEM",
+      "path": "/api/system",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/system",
+      "note": "synced from server.js → routes/system"
+    },
+    {
+      "id": "TENANT_SETTINGS",
+      "path": "/api/tenant-settings",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/tenant-settings",
+      "note": "synced from server.js → routes/tenant-settings"
+    },
+    {
+      "id": "TENANTS",
+      "path": "/api/tenants",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/tenants",
+      "note": "backend routes/tenants"
+    },
+    {
+      "id": "USERS",
+      "path": "/api/users",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/users",
+      "note": "backend routes/users"
+    },
+    {
+      "id": "VOICE",
+      "path": "/api/voice",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/voice-sip",
+      "note": "backend routes/voice-sip"
+    },
+    {
+      "id": "WORK_ORDERS",
+      "path": "/api/work-orders",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/work-orders",
+      "note": "backend routes/work-orders"
+    },
+    {
+      "id": "SETUP_ADMIN",
+      "path": "/setup-admin",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "sourceFile": "routes/setup",
+      "note": "synced from server.js → routes/setup"
+    }
   ],
   "externalBases": {
     "HSS_MANAGEMENT": "https://hss.wisptools.io:3001/api/hss",
     "BACKEND_DEFAULT": "https://hss.wisptools.io:3001/api",
     "API_PROXY_CF": "https://us-central1-wisptools-production.cloudfunctions.net/apiProxy",
     "USER_TENANTS_CF": "https://usertenants-nxulhoqnyq-uc.a.run.app"
-  }
+  },
+  "syncedAt": "2026-07-15T13:04:16.289Z",
+  "backendRoot": "C:/Users/david/AgenticOps/products/wisptools/backend-services"
 }

@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "agent",
+  "op": "delete",
+  "seeded": "contract-mutate"
+}

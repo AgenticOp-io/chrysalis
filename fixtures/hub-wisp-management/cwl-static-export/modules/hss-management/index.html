@@ -1,20 +1,835 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_hss_management" data-wisp-path="/modules/hss-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/hss">
-  <header class="wisp-demo-header">
-    <h1>Hss Management</h1>
-    <p class="wisp-demo-desc">Operational workspace for Hss Management — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/hss-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>120</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>110</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>19</strong><span>Pending tasks</span></article>
+<div class="hss-management">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-main">
+        <div class="header-row">
+          <button class="back-button">
+            ← Back to Dashboard
+          </button>
+          <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger"
+      class:open
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div></div>
+  </div></div></div>
+        </div>
+        <div>
+          <h1>🔐 HSS & Subscriber Management</h1>
+          <p class="subtitle">Home Subscriber Server - Authentication & User Management</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Help Button - Fixed Position -->
+  <button class="help-button" aria-label="Open Help" title="Help">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+  </button>
+  
+  
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button
+      >
+        📊 Dashboard
+      </button>
+      <button
+      >
+        📦 Groups
+      </button>
+      <button
+      >
+        🚀 Bandwidth Plans
+      </button>
+      <button
+      >
+        🌐 MME Connections
+      </button>
+      <button
+      >
+        📥 Bulk Import
+      </button>
+      <button
+      >
+        🌐 Remote EPCs
+      </button>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'dashboard'"><div data-cwl-component="HSSStats" data-cwl-lifted-component="HSSStats"><div class="hss-stats">
+  <div class="stats-header">
+    <h2>Dashboard Overview</h2>
+    <button class="refresh-btn">
+      🔄 Refresh
+    </button>
+  </div>
+  
+  <div class="stats-grid">
+    <!-- Subscriber Stats -->
+    <div class="stat-card primary">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="subscribers.total_active || 0"></span></div>
+        <div class="stat-label">Active Subscribers</div>
+      </div>
+    </div>
+    
+    <div class="stat-card danger">
+      <div class="stat-icon">🚫</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="subscribers.total_inactive || 0"></span></div>
+        <div class="stat-label">Inactive Subscribers</div>
+      </div>
+    </div>
+    
+    <div class="stat-card warning">
+      <div class="stat-icon">⏸️</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="subscribers.total_suspended || 0"></span></div>
+        <div class="stat-label">Suspended</div>
+      </div>
+    </div>
+    
+    <div class="stat-card info">
+      <div class="stat-icon">📱</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="subscribers.total_with_acs || 0"></span></div>
+        <div class="stat-label">With CPE Device</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- CPE Correlation -->
+  <div class="section">
+    <h3>CPE Device Correlation</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpe.subscribers_with_cpe || 0"></span></div>
+          <div class="stat-label">Subscribers with CPE</div>
+        </div>
+      </div>
+      
+      <div class="stat-card success">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpe.cpe_online || 0"></span></div>
+          <div class="stat-label">CPE Online</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpe.cpe_offline || 0"></span></div>
+          <div class="stat-label">CPE Offline</div>
+        </div>
+      </div>
+      
+      <div class="stat-card warning">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpe.subscribers_without_cpe || 0"></span></div>
+          <div class="stat-label">No CPE Detected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Health Indicators -->
+  <div class="section">
+    <h3>System Health</h3>
+    <div class="health-grid">
+      <div class="health-item">
+        <span class="health-label">Active & Online:</span>
+        <span class="health-value success"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="health.active_and_online || 0"></span></span>
+      </div>
+      <div class="health-item">
+        <span class="health-label">Subscribers without CPE:</span>
+        <span class="health-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="health.subscribers_without_cpe || 0"></span>
+        </span>
+      </div>
+      <div class="health-item">
+        <span class="health-label">CPE Offline:</span>
+        <span class="health-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="health.cpe_offline || 0"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="action-buttons">
+      <button class="action-btn primary">
+        ➕ Add Subscriber
+      </button>
+      <button class="action-btn">
+        📥 Bulk Import
+      </button>
+      <button class="action-btn">
+        📦 Create Group
+      </button>
+      <button class="action-btn">
+        🚀 New Plan
+      </button>
+    </div>
+  </div>
+</div></div>
+      
+        <div data-cwl-component="GroupManagement" data-cwl-lifted-component="GroupManagement"><div class="group-management">
+  <div class="header">
+    <h2>Subscriber Groups</h2>
+    <div style="display: flex; gap: 0.5rem;">
+      <button class="btn-secondary" title="Refresh groups and customers">
+        🔄 Refresh
+      </button>
+      <button class="btn-primary">
+        + Add Group
+      </button>
+    </div>
+  </div>
+
+  
+    <div class="groups-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="groups as group">
+        <div class="group-card">
+          <div class="group-header">
+            <h3></h3>
+            <span class="customer-count"> </span>
+          </div>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="group.description"><p class="description"></p></div>
+          <div class="group-info">
+            <div class="info-item">
+              <span class="label">Bandwidth Plan</span>
+              <span class="value"></span>
+            </div>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="groupCustomers.length > 0"><div class="customers-list">
+              <h4>Customers in this group:</h4>
+              <ul>
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="groupCustomers as customer"><li>
+                    <span class="customer-name"> $`}</span>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.primaryPhone"><span class="customer-phone"></span></div>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceStatus"><span class="customer-status status-"></span></div>
+                  </li></div>
+              </ul>
+            </div></div>
+          
+          <div class="group-actions">
+            <button class="btn-edit">Edit</button>
+            <button class="btn-delete">Delete</button>
+          </div>
+        </div></div>
+    </div>
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Hss Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>g1</td><td>Default</td><td>active</td><td></td></tr><tr><td>g2</td><td>VIP</td><td>active</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAddModal"><div class="modal-overlay">
+    <div class="modal" on:click|stopPropagation>
+      <div class="modal-header">
+        <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingGroup ? 'Edit' : 'Add'"></span> Subscriber Group</h3>
+        <button class="close-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Group Name</label>
+          <input 
+            type="text" 
+            placeholder="Residential Users"
+          />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea
+            placeholder="Group description..."
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label>Bandwidth Plan</label>
+          <select>
+            <option>No plan</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bandwidthPlans as plan"><option> (/ Mbps)</option></div>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingGroup ? 'Update' : 'Create'"></span> Group
+        </button>
+      </div>
+    </div>
+  </div></div></div>
+      
+        <div data-cwl-component="BandwidthPlans" data-cwl-lifted-component="BandwidthPlans"><div class="bandwidth-plans">
+  <div class="header">
+    <h2>Bandwidth Plans</h2>
+    <button class="btn-primary">
+      + Add Bandwidth Plan
+    </button>
+  </div>
+
+  
+    <div class="plans-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plans as plan"><div class="plan-card">
+          <div class="plan-header">
+            <h3></h3>
+          </div>
+          <div class="plan-speeds">
+            <div class="speed">
+              <span class="label">DOWNLOAD</span>
+              <span class="value"> Mbps</span>
+            </div>
+            <div class="speed">
+              <span class="label">UPLOAD</span>
+              <span class="value"> Mbps</span>
+            </div>
+          </div>
+          <div class="plan-actions">
+            <button class="btn-edit">Edit</button>
+            <button class="btn-delete">Delete</button>
+          </div>
+        </div></div>
+    </div>
+  
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/hss-management","apiPath":"/api/hss","api_ok":true,"api_surface":"wisp-api-native","api_resource":"hss","api_op":"list","tracedApiStatus":200}</script>
+
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAddModal"><div class="modal-overlay">
+    <div class="modal" on:click|stopPropagation>
+      <div class="modal-header">
+        <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingPlan ? 'Edit' : 'Add'"></span> Bandwidth Plan</h3>
+        <button class="close-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Plan Name</label>
+          <input 
+            type="text" 
+            placeholder="Gold Plan"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Download Speed (Mbps)</label>
+            <input 
+              type="number"
+              min="1"
+              placeholder="100"
+            />
+          </div>
+          <div class="form-group">
+            <label>Upload Speed (Mbps)</label>
+            <input 
+              type="number"
+              min="1"
+              placeholder="50"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingPlan ? 'Update' : 'Create'"></span> Plan
+        </button>
+      </div>
+    </div>
+  </div></div></div>
+      
+        <div data-cwl-component="MMEConnections" data-cwl-lifted-component="MMEConnections"><div class="mme-connections">
+  <div class="header">
+    <div>
+      <h2>MME Connections</h2>
+      <p class="subtitle">Remote EPC agents reporting subscriber status</p>
+    </div>
+    <button class="btn-secondary">
+      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loading ? 'Refreshing...' : 'Refresh'"></span>
+    </button>
+  </div>
+
+  
+
+  
+    <div class="connections-table">
+      <div class="table-row table-header">
+        <span>EPC ID</span>
+        <span>Status</span>
+        <span>Check-in</span>
+        <span>Site</span>
+        <span>Customers</span>
+      </div>
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="connections as connection"><div class="table-row">
+          <span class="mono"></span>
+          <span>
+            
+          </span>
+          <span>
+            <span data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="connection.last_checkin"></span>
+          </span>
+          <span></span>
+          <span>
+             /
+            
+          </span>
+        </div></div>
+    </div>
+  
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="lastUpdated"><p class="timestamp">Last updated <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="lastUpdated.toLocaleString()"></span></p></div>
+</div></div>
+      
+        <div data-cwl-component="BulkImport" data-cwl-lifted-component="BulkImport"><div class="bulk-import">
+  <div class="header">
+    <h2>Bulk Import Subscribers</h2>
+    <button class="btn-template">
+      📥 Download CSV Template
+    </button>
+  </div>
+
+  <div class="upload-section">
+    <div class="instructions">
+      <h3>Import Instructions:</h3>
+      <ol>
+        <li>Download the CSV template above</li>
+        <li>Fill in subscriber details (IMSI, Ki, OPc are required)</li>
+        <li>Upload the CSV file below</li>
+        <li>Review the preview and confirm import</li>
+      </ol>
+      
+      <div class="field-guide">
+        <h4>Required Fields:</h4>
+        <ul>
+          <li><strong>imsi</strong>: 15-digit IMSI (e.g., 310150123456789)</li>
+          <li><strong>ki</strong>: 32-character hex key (e.g., 00112233...EEFF)</li>
+          <li><strong>opc</strong>: 32-character hex OP/OPc key</li>
+        </ul>
+        <h4>Optional Fields:</h4>
+        <ul>
+          <li><strong>msisdn</strong>: Phone number</li>
+          <li><strong>full_name</strong>: Subscriber name</li>
+          <li><strong>qci</strong>: QoS Class Identifier (default: 9)</li>
+          <li><strong>group_id</strong>: Subscriber group</li>
+          <li><strong>bandwidth_plan_id</strong>: Bandwidth plan</li>
+        </ul>
+      </div>
+    </div>
+
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!showPreview"><div class="dropzone">
+        <div class="dropzone-content">
+          <div class="icon">📄</div>
+          <p>Click to select CSV file</p>
+          <p class="hint">or drag and drop</p>
+        </div>
+      </div>
+      <input 
+        type="file"
+        accept=".csv"
+        style="display: none;"
+      /></div>
+  </div>
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showPreview && csvData.length > 0"><div class="preview-section">
+      <div class="preview-header">
+        <h3>Preview: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="csvData.length"></span> subscribers</h3>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+
+      <div class="preview-table">
+        <table>
+          <thead>
+            <tr>
+              <th>IMSI</th>
+              <th>MSISDN</th>
+              <th>Name</th>
+              <th>QCI</th>
+              <th>Group</th>
+              <th>Plan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="csvData.slice(0, 10) as subscriber"><tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr></div>
+          </tbody>
+        </table>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="csvData.length > 10"><p class="more-rows">... and <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="csvData.length - 10"></span> more rows</p></div>
+      </div>
+
+      <button 
+        class="btn-upload"
+      >
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="uploading ? 'Uploading...' : `Import $ Subscribers`"></span>
+      </button>
+    </div></div>
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="uploadResult"><div class="result">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="uploadResult.success === false"><h3>❌ Import Failed</h3>
+        <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="uploadResult.error"></span></p></div>
+    </div></div>
+</div></div></div>
+    </div>
+  
+  
+  <!-- Help Modal -->
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="help-body">
+        
+      </div>
+    </div>
+  </div></div>
+
+  <!-- Subscriber Creation Wizard -->
+  <div data-cwl-component="SubscriberCreationWizard" data-cwl-lifted-component="SubscriberCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Add HSS Subscriber</h3>
+        <p>Create a new LTE/5G subscriber with IMSI, authentication keys, and service plan.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter IMSI and subscriber name</li>
+            <li>Set Ki and OPc (or generate)</li>
+            <li>Assign group and bandwidth plan</li>
+          </ul>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Identity</h3>
+        <div class="form-group">
+          <label>IMSI <span class="required">*</span></label>
+          <input type="text" placeholder="15 digits, e.g. 001010000000001" maxlength="15" pattern="[0-9]" />
+          <small>15-digit International Mobile Subscriber Identity</small>
+        </div>
+        <div class="form-group">
+          <label>Subscriber name <span class="required">*</span></label>
+          <input type="text" placeholder="Display name" />
+        </div>
+        <div class="form-group">
+          <label>MSISDN (phone number)</label>
+          <input type="text" placeholder="Optional" />
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Authentication (Ki, OPc)</h3>
+        <div class="form-group">
+          <label>Ki <span class="required">*</span></label>
+          <div class="input-row">
+            <input type="text" placeholder="32 hex characters" maxlength="32" />
+            <button type="button" class="btn-small">Generate</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>OPc <span class="required">*</span></label>
+          <div class="input-row">
+            <input type="text" placeholder="32 hex characters" maxlength="32" />
+            <button type="button" class="btn-small">Generate</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>APN</label>
+          <input type="text" />
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Group & Bandwidth Plan</h3>
+        <button type="button" class="btn-small">Load groups & plans</button>
+        <div class="form-group">
+          <label>Group <span class="required">*</span></label>
+          <select>
+            <option>-- Select group --</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="groups as g"><option></option></div>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bandwidth plan <span class="required">*</span></label>
+          <select>
+            <option>-- Select plan --</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bandwidthPlans as p"><option></option></div>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Max UL (Mbps)</label>
+            <input type="number" min="1" max="1000" />
+          </div>
+          <div class="form-group">
+            <label>Max DL (Mbps)</label>
+            <input type="number" min="1" max="1000" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" /> Enabled</label>
+        </div>
+      </div></div>
+  </div>
+
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary">← Previous</button></div>
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 3"><button class="wizard-btn-primary">Next →</button>
+      
+        <button class="wizard-btn-primary">Done</button></div>
+    </div>
+  </div>
+</div></div>
+  <div data-cwl-component="BandwidthPlanWizard" data-cwl-lifted-component="BandwidthPlanWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Create a Bandwidth Plan</h3>
+        <p>Define download and upload limits (Mbps) for subscriber groups. Groups can then be assigned to this plan.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter a plan name</li>
+            <li>Set download and upload bandwidth (Mbps)</li>
+            <li>Optionally add a description</li>
+          </ul>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Plan Details</h3>
+        <div class="form-group">
+          <label>Plan Name <span class="required">*</span></label>
+          <input type="text" placeholder="e.g. Standard 100/50" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" placeholder="Optional description" />
+        </div>
+        <div class="form-group">
+          <label>Download (Mbps)</label>
+          <input type="number" min="0" step="1" />
+        </div>
+        <div class="form-group">
+          <label>Upload (Mbps)</label>
+          <input type="number" min="0" step="1" />
+        </div>
+      </div></div>
+  </div>
+
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary">← Previous</button></div>
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1"><button class="wizard-btn-primary">Next →</button>
+      
+        <button class="wizard-btn-primary">Done</button></div>
+    </div>
+  </div>
+</div></div>
+  <div data-cwl-component="SubscriberGroupWizard" data-cwl-lifted-component="SubscriberGroupWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Create a Subscriber Group</h3>
+        <p>Groups organize subscribers and can be linked to a bandwidth plan. New subscribers can be assigned to this group.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter a group name and optional description</li>
+            <li>Optionally assign a bandwidth plan</li>
+            <li>Set default APN and QCI for the group</li>
+          </ul>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Group Details</h3>
+        <div class="form-group">
+          <label>Group Name <span class="required">*</span></label>
+          <input type="text" placeholder="e.g. Residential Standard" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" placeholder="Optional description" />
+        </div>
+        <div class="form-group">
+          <label>Bandwidth Plan</label>
+          <select>
+            <option>— None —</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bandwidthPlans as plan"><option></option></div>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Default APN</label>
+          <input type="text" placeholder="internet" />
+        </div>
+        <div class="form-group">
+          <label>Default QCI</label>
+          <input type="number" min="1" max="9" step="1" />
+        </div>
+      </div></div>
+  </div>
+
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary">← Previous</button></div>
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1"><button class="wizard-btn-primary">Next →</button>
+      
+        <button class="wizard-btn-primary">Done</button></div>
+    </div>
+  </div>
+</div></div>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"hss-management"}</script>

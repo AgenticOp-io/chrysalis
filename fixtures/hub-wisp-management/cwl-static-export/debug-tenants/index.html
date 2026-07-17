@@ -1,20 +1,27 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="debug_tenants" data-wisp-path="/debug-tenants" data-cwl-island="client" data-wisp-layout="list">
-  <header class="wisp-demo-header">
-    <h1>Debug Tenants</h1>
-    <p class="wisp-demo-desc">Operational workspace for Debug Tenants — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/debug-tenants/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>10</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>16</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Debug Tenants data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/debug-tenants"}</script>
+<div class="wisp-app-surface" data-wisp-page="debug-tenants" data-wisp-path="/debug-tenants" data-cwl-island="client"><div class="debug-container">
+  <h1>Tenant Debug Information</h1>
+  
+  <div class="debug-section">
+    <h2>Authentication Status</h2>
+    <p><strong>Is Authenticated:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.isAuthenticated"></span></p>
+    <p><strong>User Email:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.currentUser?.email || 'None'"></span></p>
+    <p><strong>User UID:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.currentUser?.uid || 'None'"></span></p>
+  </div>
+
+  <div class="debug-section">
+    <h2>Tenant Store State</h2>
+    <pre><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="JSON.stringify(debugInfo.tenantState, null, 2)"></span></pre>
+  </div>
+
+  <div class="debug-section">
+    <h2>User Tenants (Direct API Call)</h2>
+    <p><strong>Count:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.userTenants.length"></span></p>
+    <pre><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="JSON.stringify(debugInfo.userTenants, null, 2)"></span></pre>
+  </div>
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="debugInfo.error"><div class="debug-section error">
+      <h2>Error</h2>
+      <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.error"></span></p>
+    </div></div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/debug-tenants"}</script>

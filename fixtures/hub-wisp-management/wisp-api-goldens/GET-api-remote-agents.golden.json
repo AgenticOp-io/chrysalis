@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "remote-agents",
+  "op": "list",
+  "seeded": "contract-empty",
+  "items": []
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "_id": "6a5970d4ad923e3601e032d9",
+    "tenantId": "6a166eb07089304417ec967a",
+    "installationType": "cpe",
+    "siteId": "6a596f4dad923e3601e03063",
+    "installationDate": "2026-07-17T00:01:24.302Z",
+    "installedBy": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "installedByName": "demo@wisptools.io",
+    "isSubcontractor": false,
+    "requiredPhotos": {
+      "minCount": 3,
+      "requiredCategories": []
+    },
+    "photoCount": 0,
+    "documentation": {
+      "safetyCompliance": {
+        "ppeUsed": []
+      },
+      "equipmentList": [],
+      "issuesEncountered": [],
+      "notes": "n10n-1784246500047"
+    },
+    "approvalStatus": "pending",
+    "paymentApproval": {
+      "required": false,
+      "status": "not-required"
+    },
+    "qaReview": {
+      "issues": []
+    },
+    "createdBy": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "photos": [],
+    "createdAt": "2026-07-17T00:01:24.303Z",
+    "updatedAt": "2026-07-17T00:01:44.646Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a59704dad923e3601e031db",
+    "tenantId": "6a166eb07089304417ec967a",
+    "installationType": "cpe",
+    "siteId": "6a596f4dad923e3601e03063",
+    "installationDate": "2026-07-16T23:59:09.898Z",
+    "installedBy": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "installedByName": "demo@wisptools.io",
+    "isSubcontractor": false,
+    "requiredPhotos": {
+      "minCount": 3,
+      "requiredCategories": []
+    },
+    "photoCount": 0,
+    "documentation": {
+      "safetyCompliance": {
+        "ppeUsed": []
+      },
+      "equipmentList": [],
+      "issuesEncountered": []
+    },
+    "approvalStatus": "pending",
+    "paymentApproval": {
+      "required": false,
+      "status": "not-required"
+    },
+    "qaReview": {
+      "issues": []
+    },
+    "createdBy": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "photos": [],
+    "createdAt": "2026-07-16T23:59:09.899Z",
+    "updatedAt": "2026-07-16T23:59:09.899Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a58ea64ad923e3601dfd766",
+    "tenantId": "6a166eb07089304417ec967a",
+    "installationType": "cpe",
+    "siteId": "6a585d6ec38e0189a0244744",
+    "siteName": "CWL Trace Site 1784175980977",
+    "installationDate": "2026-07-16T14:27:48.406Z",
+    "installedBy": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "installedByName": "demo@wisptools.io",
+    "isSubcontractor": false,
+    "requiredPhotos": {
+      "minCount": 3,
+      "requiredCategories": []
+    },
+    "photoCount": 0,
+    "documentation": {
+      "safetyCompliance": {
+        "ppeUsed": []
+      },
+      "equipmentList": [],
+      "issuesEncountered": [],
+      "notes": "chrysalis-install-put-1784245369687"
+    },
+    "approvalStatus": "pending",
+    "paymentApproval": {
+      "required": false,
+      "status": "not-required"
+    },
+    "qaReview": {
+      "issues": []
+    },
+    "createdBy": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "photos": [],
+    "createdAt": "2026-07-16T14:27:48.449Z",
+    "updatedAt": "2026-07-16T23:42:50.750Z",
+    "__v": 0
+  }
+]

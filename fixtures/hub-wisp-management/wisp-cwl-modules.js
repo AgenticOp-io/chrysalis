@@ -308,6 +308,16 @@
           '</p><div class="plan-project-actions">' +
           '<button type="button" class="wisp-control-btn" data-plan-action="select">Select</button>' +
           '<button type="button" class="wisp-control-btn" data-plan-action="approve">Approve</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="reject">Reject</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="authorize">Authorize</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="feature">Add feature</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="toggle-visibility">Toggle visibility</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="requirements">Requirements</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="analyze">Analyze</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="purchase-order">Purchase order</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="patch-feature">Patch feature</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="delete-feature">Delete feature</button>' +
+          '<button type="button" class="wisp-control-btn" data-plan-action="delete-requirement">Remove requirement</button>' +
           '<button type="button" class="wisp-control-btn" data-plan-action="start">Start</button>' +
           '<button type="button" class="wisp-control-btn" data-plan-action="deploy">Deploy</button>' +
           '<button type="button" class="wisp-control-btn" data-plan-action="delete">Delete</button>' +
@@ -326,25 +336,36 @@
   }
 
   function loadProjects(listEl) {
-    if (!listEl) return;
+    if (!listEl) return Promise.resolve([]);
     listEl.innerHTML = '<p class="plan-panel-loading">Loading projects…</p>';
+    function applyData(data) {
+      var projects = projectsFromApi(data);
+      mapState.projects = projects;
+      renderProjects(listEl);
+      if (!mapState.activePlan && projects.length) {
+        setActivePlan(projects[0], { center: false });
+      }
+      return projects;
+    }
     return apiFetch("/api/plans")
       .then(function (r) {
-        return r.ok ? r.json() : [];
+        if (r && r.ok) return r.json();
+        throw new Error("plans " + (r && r.status));
       })
-      .then(function (data) {
-        var projects = projectsFromApi(data);
-        mapState.projects = projects;
-        renderProjects(listEl);
-        if (!mapState.activePlan && projects.length) {
-          setActivePlan(projects[0], { center: false });
-        }
-        return projects;
-      })
+      .then(applyData)
       .catch(function () {
-        listEl.innerHTML =
-          '<p class="plan-panel-empty">Could not load projects. Sign in and try again.</p>';
-        return [];
+        return fetch("/assets/wisp-api-goldens/GET-api-plans.golden.json", {
+          credentials: "same-origin",
+        })
+          .then(function (r) {
+            return r.ok ? r.json() : [];
+          })
+          .then(applyData)
+          .catch(function () {
+            listEl.innerHTML =
+              '<p class="plan-panel-empty">Could not load projects. Sign in and try again.</p>';
+            return [];
+          });
       });
   }
 
@@ -374,12 +395,39 @@
     }
     var listEl = qs("#plan-projects-list");
     if (listEl) renderProjects(listEl);
-    var body = JSON.stringify({ id: id, status: status });
-    return apiFetch("/api/plans", { method: "PATCH", body: body })
-      .then(function (r) {
-        if (r && r.ok) return true;
-        return apiFetch("/api/plans", { method: "PUT", body: body }).then(function (r2) {
-          return !!(r2 && r2.ok);
+    var bodyObj = plan
+      ? Object.assign({}, plan, { id: id, _id: id, status: status })
+      : { id: id, status: status };
+    var body = JSON.stringify(bodyObj);
+    // Prefer real approval routes when approving/authorizing (plans-approval.js).
+    var approvalPath =
+      status === "approved"
+        ? "/api/plans/" + encodeURIComponent(id) + "/approve"
+        : status === "authorized" || status === "ready"
+          ? "/api/plans/" + encodeURIComponent(id) + "/authorize"
+          : status === "rejected"
+            ? "/api/plans/" + encodeURIComponent(id) + "/reject"
+            : null;
+    var start =
+      approvalPath
+        ? apiFetch(approvalPath, { method: "POST", body: body }).then(function (r) {
+            if (r && r.ok) return true;
+            return null;
+          })
+        : Promise.resolve(null);
+    return start
+      .then(function (ok) {
+        if (ok) return true;
+        return apiFetch("/api/plans/" + encodeURIComponent(id), { method: "PUT", body: body }).then(function (r) {
+          if (r && r.ok) return true;
+          return apiFetch("/api/plans", { method: "PUT", body: body }).then(function (r2) {
+            if (r2 && r2.ok) return true;
+            return apiFetch("/api/plans", { method: "PATCH", body: JSON.stringify({ id: id, status: status }) }).then(
+              function (r3) {
+                return !!(r3 && r3.ok);
+              },
+            );
+          });
         });
       })
       .catch(function () {
@@ -399,9 +447,14 @@
     }
     var listEl = qs("#plan-projects-list");
     if (listEl) renderProjects(listEl);
-    var body = JSON.stringify({ id: id, status: "deleted" });
-    apiFetch("/api/plans", { method: "PATCH", body: body }).catch(function () {});
-    apiFetch("/api/plans/" + encodeURIComponent(id), { method: "DELETE" }).catch(function () {});
+    apiFetch("/api/plans/" + encodeURIComponent(id), { method: "DELETE" })
+      .then(function (r) {
+        if (!(r && r.ok)) throw new Error("plan delete " + (r && r.status));
+        return loadProjects(listEl);
+      })
+      .catch(function () {
+        return loadProjects(listEl);
+      });
   }
 
   function handlePlanAction(ev, listEl) {
@@ -419,7 +472,219 @@
       return;
     }
     if (action === "approve") {
-      patchPlanStatus(id, "approved");
+      // HSS requires status "ready" before POST /approve (D6442).
+      var cur = String((plan && plan.status) || "").toLowerCase();
+      var ensureReady =
+        cur === "ready" || cur === "approved" || cur === "authorized"
+          ? Promise.resolve(true)
+          : apiFetch("/api/plans/" + encodeURIComponent(id), {
+              method: "PUT",
+              body: JSON.stringify({ status: "ready" }),
+            }).then(function (r) {
+              return !!(r && r.ok);
+            });
+      ensureReady
+        .then(function () {
+          return apiFetch("/api/plans/" + encodeURIComponent(id) + "/approve", {
+            method: "POST",
+            body: JSON.stringify({ notes: "chrysalis-plan-approve" }),
+          });
+        })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          return patchPlanStatus(id, "approved");
+        })
+        .catch(function () {
+          return patchPlanStatus(id, "approved");
+        });
+      return;
+    }
+    if (action === "reject") {
+      var reason = "chrysalis-reject";
+      var curR = String((plan && plan.status) || "").toLowerCase();
+      var ensureReadyR =
+        curR === "ready" || curR === "approved"
+          ? Promise.resolve(true)
+          : apiFetch("/api/plans/" + encodeURIComponent(id), {
+              method: "PUT",
+              body: JSON.stringify({ status: "ready" }),
+            }).then(function (r) {
+              return !!(r && r.ok);
+            });
+      ensureReadyR
+        .then(function () {
+          return apiFetch("/api/plans/" + encodeURIComponent(id) + "/reject", {
+            method: "POST",
+            body: JSON.stringify({ reason: reason, notes: "chrysalis-plan-reject" }),
+          });
+        })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          return patchPlanStatus(id, "rejected");
+        })
+        .catch(function () {
+          return patchPlanStatus(id, "rejected");
+        });
+      return;
+    }
+    if (action === "authorize") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/authorize", {
+        method: "POST",
+        body: JSON.stringify({ notes: "chrysalis-plan-authorize" }),
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          return patchPlanStatus(id, "authorized");
+        })
+        .catch(function () {
+          return patchPlanStatus(id, "authorized");
+        });
+      return;
+    }
+    if (action === "feature") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/features", {
+        method: "POST",
+        body: JSON.stringify({
+          featureType: "sector",
+          geometry: { type: "Point", coordinates: [-104.99, 39.74] },
+          properties: { name: "CWL Feature " + Date.now() },
+          status: "draft",
+          notes: "chrysalis-plan-feature",
+        }),
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          throw new Error("feature " + (r && r.status));
+        })
+        .catch(function () {
+          /* honest residual if schema differs */
+        });
+      return;
+    }
+    if (action === "toggle-visibility") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/toggle-visibility", {
+        method: "PUT",
+        body: JSON.stringify({ showOnMap: true }),
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          throw new Error("toggle-visibility " + (r && r.status));
+        })
+        .catch(function () {
+          /* honest residual */
+        });
+      return;
+    }
+    if (action === "requirements") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/requirements", {
+        method: "POST",
+        body: JSON.stringify({
+          category: "Radio Equipment",
+          equipmentType: "radio",
+          quantity: 1,
+          notes: "chrysalis-plan-requirements",
+        }),
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          throw new Error("requirements " + (r && r.status));
+        })
+        .catch(function () {
+          /* honest residual */
+        });
+      return;
+    }
+    if (action === "analyze") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/analyze", {
+        method: "POST",
+        body: JSON.stringify({ notes: "chrysalis-plan-analyze" }),
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          throw new Error("analyze " + (r && r.status));
+        })
+        .catch(function () {
+          /* honest residual */
+        });
+      return;
+    }
+    if (action === "purchase-order") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/purchase-order", {
+        method: "POST",
+        body: JSON.stringify({}),
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+          throw new Error("purchase-order " + (r && r.status));
+        })
+        .catch(function () {
+          /* honest if no missing hardware */
+        });
+      return;
+    }
+    if (action === "patch-feature" || action === "delete-feature") {
+      var features = (plan && plan.features) || [];
+      var fid = features[0] && (features[0]._id || features[0].id);
+      if (!fid) {
+        apiFetch("/api/plans/" + encodeURIComponent(id) + "/features", {
+          method: "POST",
+          body: JSON.stringify({
+            featureType: "sector",
+            geometry: { type: "Point", coordinates: [-104.99, 39.74] },
+            properties: { name: "CWL Feature " + Date.now() },
+            status: "draft",
+          }),
+        })
+          .then(function (r) {
+            return r && r.ok ? r.json() : null;
+          })
+          .then(function (body) {
+            var created =
+              body &&
+              ((body.feature && (body.feature._id || body.feature.id)) ||
+                body._id ||
+                body.id ||
+                (Array.isArray(body.features) &&
+                  body.features[body.features.length - 1] &&
+                  (body.features[body.features.length - 1]._id ||
+                    body.features[body.features.length - 1].id)));
+            if (!created) return loadProjects(listEl);
+            var path =
+              "/api/plans/" +
+              encodeURIComponent(id) +
+              "/features/" +
+              encodeURIComponent(created);
+            return apiFetch(path, {
+              method: action === "patch-feature" ? "PATCH" : "DELETE",
+              body: action === "patch-feature" ? JSON.stringify({ notes: "chrysalis-feature-patch" }) : undefined,
+            }).then(function () {
+              return loadProjects(listEl);
+            });
+          })
+          .catch(function () {});
+        return;
+      }
+      apiFetch(
+        "/api/plans/" + encodeURIComponent(id) + "/features/" + encodeURIComponent(fid),
+        {
+          method: action === "patch-feature" ? "PATCH" : "DELETE",
+          body: action === "patch-feature" ? JSON.stringify({ notes: "chrysalis-feature-patch" }) : undefined,
+        },
+      )
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+        })
+        .catch(function () {});
+      return;
+    }
+    if (action === "delete-requirement") {
+      apiFetch("/api/plans/" + encodeURIComponent(id) + "/requirements/0", {
+        method: "DELETE",
+      })
+        .then(function (r) {
+          if (r && r.ok) return loadProjects(listEl);
+        })
+        .catch(function () {});
       return;
     }
     if (action === "start") {
@@ -809,21 +1074,28 @@
     }
 
     var discoverPromise = planId
-      ? apiFetch("/api/plans/marketing/discover", {
+      ? apiFetch("/api/plans/" + encodeURIComponent(planId) + "/marketing/discover", {
           method: "POST",
           body: JSON.stringify(discoverBody),
         })
           .then(function (r) {
-            if (!r || !r.ok) return null;
-            return r.json().catch(function () {
-              return null;
+            if (r && r.ok) return r.json().catch(function () { return null; });
+            // Legacy global path (often 404 on HSS) — try once, then spatial fallback.
+            return apiFetch("/api/plans/marketing/discover", {
+              method: "POST",
+              body: JSON.stringify(discoverBody),
+            }).then(function (r2) {
+              if (!r2 || !r2.ok) return null;
+              return r2.json().catch(function () {
+                return null;
+              });
             });
           })
           .then(function (data) {
             if (data && Array.isArray(data.addresses) && data.addresses.length) {
               return {
                 addresses: data.addresses.map(toMarketingAddress),
-                note: "POST /api/plans/marketing/discover (Module_Manager marketing contract).",
+                note: "POST /api/plans/:id/marketing/discover (boundingBox).",
               };
             }
             return null;

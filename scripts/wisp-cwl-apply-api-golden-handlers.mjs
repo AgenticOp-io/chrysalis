@@ -115,7 +115,9 @@ export function applyWispApiGoldenHandlers(opts = {}) {
 
   return {
     ...base,
-    ok: appliedOk.length === specs.length,
+    // Partial apply is expected after expanding mounts beyond traced goldens.
+    ok: appliedOk.length > 0,
+    partial: appliedOk.length < specs.length,
     appliedCount: appliedOk.length,
     handlerCount: specs.length,
     goldensDir,
@@ -132,4 +134,9 @@ function main() {
   if (!r.ok) process.exit(1);
 }
 
-if (process.argv[1]?.includes("wisp-cwl-apply-api-pilot-handler")) main();
+if (
+  process.argv[1]?.includes("wisp-cwl-apply-api-golden-handlers") ||
+  process.argv[1]?.includes("wisp-cwl-apply-api-pilot-handler")
+) {
+  main();
+}

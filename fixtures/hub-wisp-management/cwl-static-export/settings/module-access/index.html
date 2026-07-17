@@ -1,20 +1,108 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="settings_module_access" data-wisp-path="/settings/module-access" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/module-access">
-  <header class="wisp-demo-header">
-    <h1>Module Access</h1>
-    <p class="wisp-demo-desc">Operational workspace for Module Access — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/settings/module-access/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>7</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>19</strong><span>Pending tasks</span></article>
+<div class="wisp-app-surface" data-wisp-page="settings-module-access" data-wisp-path="/settings/module-access" data-cwl-island="client"><div class="module-access-container">
+  <div class="header">
+    <div class="title-section">
+      <h1>⚙️ Module Access Configuration</h1>
+      <p class="subtitle">Configure which modules each role can access in <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant?.name || 'your organization'"></span></p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn btn-secondary">
+        🔄 Reset All to Defaults
+      </button>
+      
+      <button class="btn btn-primary">
+        
+          💾 Save Configuration
+        
+      </button>
+    </div>
+  </div>
+  
+  
+  
+  
+  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="hasChanges"><div class="alert alert-warning">
+      <span>⚠️</span>
+      <span>You have unsaved changes. Click "Save Configuration" to apply them.</span>
+    </div></div>
+  
+  
+    <div class="config-table-container">
+      <table class="config-table">
+        <thead>
+          <tr>
+            <th class="module-column">Module</th>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="roles as role"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="role !== 'platform_admin'"><th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name"></div>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isRoleLocked(role)"><span class="lock-badge">🔒</span></div>
+                  </div>
+                </th></div></div>
+          </tr>
+        </thead>
+        <tbody>
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="modules as module"><tr>
+              <td class="module-name">
+                <span class="module-icon"></span>
+                
+              </td>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="roles as role"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="role !== 'platform_admin'"><td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox"/>
+                      <span class="checkmark"></span>
+                    </label>
+                  </td></div></div>
+            </tr></div>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="legend">
+      <h3>Legend:</h3>
+      <ul>
+        <li>✅ <strong>Checked</strong> = Role can access this module</li>
+        <li>❌ <strong>Unchecked</strong> = Role cannot access this module</li>
+        <li>🔒 <strong>Locked</strong> = Owner role always has full access (cannot be changed)</li>
+        <li>🔄 <strong>Reset</strong> = Reset individual role to default permissions</li>
+      </ul>
+    </div>
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Module Access data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>plan</td><td>Plan</td><td>configured</td><td></td></tr><tr><td>deploy</td><td>Deploy</td><td>configured</td><td></td></tr><tr><td>billing</td><td>Billing</td><td>configured</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/settings/module-access","apiPath":"/api/module-access"}</script>
+
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showResetConfirm"><div
+    class="modal-backdrop"
+    role="presentation"
+    aria-hidden="true"
+    tabindex="-1"
+  >
+    <div
+      class="modal-content"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Reset module access confirmation dialog"
+      tabindex="0"
+      on:click|stopPropagation
+    >
+      <div class="modal-header">
+        <h2>Reset All to Defaults?</h2>
+        <button class="close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>This will reset module access for all roles to their default configurations.</p>
+        <p class="warning-text">Any custom changes will be lost. This cannot be undone.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary">
+          Cancel
+        </button>
+        <button class="btn btn-danger">
+          
+            Yes, Reset All
+          
+        </button>
+      </div>
+    </div>
+  </div></div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/settings/module-access"}</script>

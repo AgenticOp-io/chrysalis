@@ -87,6 +87,8 @@ packages/parser-bridge/composer-setup.php
 packages/ingest/tests/ingest-checkpoint-resume-tmp.json
 
 # Local scratch probes and hub-emitted controllers (reproduced by hub/probe scripts; not fixtures)
+.tmp-*
+.tmp-*/
 scripts/_probe-*
 scripts/fixtures/
 generated/_probe-*/
@@ -96,6 +98,15 @@ generated/_web-llm-smoke/
 generated/_web-llm-unit/
 generated/_wisp-cwl-poc-deploy/
 generated/_wisp-management-poc/
+# Built from Module_Manager `@arcgis/core` via Vite (pnpm run hub:wisp-cwl-arcgis-bundle)
+fixtures/hub-wisp-management/wisp-cwl-arcgis.bundle.js
+fixtures/hub-wisp-management/wisp-cwl-arcgis.bundle.js.map
+fixtures/hub-wisp-management/wisp-cwl-arcgis.bundle.css
+fixtures/hub-wisp-management/wisp-cwl-arcgis.bundle.css.map
+fixtures/hub-wisp-management/wisp-cwl-arcgis-entry-*.js
+# Vite chunk spill into fixture root (rebuilt with hub:wisp-cwl-arcgis-bundle; do not commit)
+fixtures/hub-wisp-management/*-[A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-]*.js
+fixtures/hub-wisp-management/*-[A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-]*.js.map
 generated/wisp-svelte-sidecar/
 /*Controller.php
 

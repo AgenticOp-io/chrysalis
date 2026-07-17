@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "agent",
+  "op": "list",
+  "seeded": "contract-empty",
+  "items": []
+}

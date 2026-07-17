@@ -1,20 +1,594 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="tenant_setup" data-wisp-path="/tenant-setup" data-cwl-island="client" data-wisp-layout="list">
-  <header class="wisp-demo-header">
-    <h1>Tenant Setup</h1>
-    <p class="wisp-demo-desc">Operational workspace for Tenant Setup — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/tenant-setup/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>5</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>24</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Tenant Setup data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/tenant-setup"}</script>
+<div class="wisp-app-surface" data-wisp-page="tenant-setup" data-wisp-path="/tenant-setup" data-cwl-island="client"><div class="tenant-setup-page">
+  <div class="setup-container">
+    <div class="setup-header">
+      <div>
+        <h1>🏢 Set Up Your Organization</h1>
+        <p>Create a tenant to manage your devices and networks</p>
+      </div>
+      <button type="button" class="exit-button">
+        Exit setup
+      </button>
+    </div>
+
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="step === 1"><div class="setup-card">
+        <div class="progress-bar">
+          <div class="progress" style="width: 50%"></div>
+        </div>
+
+        <h2>Organization Details</h2>
+        <p class="subtitle">Tell us about your organization</p>
+
+        <div class="info-message">
+          <span class="info-icon">ℹ️</span>
+          <strong>Note:</strong> Each account can create one organization. You'll be the owner and can invite additional users.
+        </div>
+
+        
+
+        <form>
+          <div class="form-group">
+            <label for="tenantName">
+              Organization Name <span class="required">*</span>
+            </label>
+            <input
+              id="tenantName"
+              type="text"
+              placeholder="e.g., Acme Wireless"
+              required
+            />
+            <p class="help-text">Legal or business name of your organization</p>
+          </div>
+
+          <div class="form-group">
+            <label for="displayName">
+              Display Name <span class="required">*</span>
+            </label>
+            <input
+              id="displayName"
+              type="text"
+              placeholder="e.g., Acme Wireless ISP"
+              required
+            />
+            <p class="help-text">Name shown in the application</p>
+          </div>
+
+          <div class="form-group">
+            <label for="subdomain">
+              Subdomain <span class="required">*</span>
+            </label>
+            <div class="subdomain-input">
+              <input
+                id="subdomain"
+                type="text"
+                placeholder="acme-wireless"
+                required
+                pattern="[a-z0-9\-]+"
+              />
+              <span class="subdomain-suffix">.your-domain.com</span>
+            </div>
+            <p class="help-text">Unique URL for device connections: /cwmp/<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="subdomain"></span></p>
+          </div>
+
+          <div class="form-group">
+            <label for="contactEmail">
+              Contact Email <span class="required">*</span>
+            </label>
+            <input
+              id="contactEmail"
+              type="email"
+              placeholder="admin@acme-wireless.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="contactPhone">
+              Contact Phone
+            </label>
+            <input
+              id="contactPhone"
+              type="tel"
+              placeholder="+1 (555) 123-4567"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              
+                Create Tenant
+              
+            </button>
+          </div>
+        </form>
+      </div>
+    
+      <div class="setup-card">
+        <div class="progress-bar">
+          <div class="progress" style="width: 66%"></div>
+        </div>
+
+        <h2>Payment Method Setup</h2>
+        <p class="subtitle">Add a payment method for your account (required)</p>
+
+        <div class="beta-disclaimer">
+          <div class="beta-badge">BETA</div>
+          <p><strong>wisptools.io (WISP Management) is currently in beta.</strong> No charges will be made without prior notice. Adding a payment method now ensures uninterrupted service when billing begins.</p>
+        </div>
+
+        
+
+        <div class="form-group">
+          <label>Payment Method <span class="required">*</span></label>
+          <div class="payment-method-options">
+            <label class="payment-option">
+              <input 
+                type="radio" 
+                name="paymentMethod" 
+                value="paypal"
+              />
+              <div class="payment-option-content">
+                <div class="payment-icon">💳</div>
+                <div>
+                  <strong>PayPal</strong>
+                  <p>Pay with PayPal account</p>
+                </div>
+              </div>
+            </label>
+            <label class="payment-option">
+              <input 
+                type="radio" 
+                name="paymentMethod" 
+                value="credit_card"
+              />
+              <div class="payment-option-content">
+                <div class="payment-icon">💳</div>
+                <div>
+                  <strong>Credit Card</strong>
+                  <p>Pay with credit or debit card</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="paymentMethodType === 'paypal'"><div class="form-group">
+            <label for="paypalEmail">
+              PayPal Email Address <span class="required">*</span>
+            </label>
+            <input
+              id="paypalEmail"
+              type="email"
+              placeholder="your-email@example.com"
+              required
+            />
+            <p class="help-text">The email address associated with your PayPal account</p>
+          </div></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="paymentMethodType === 'credit_card'"><div class="form-group">
+            <label for="cardEmail">
+              Billing Email <span class="required">*</span>
+            </label>
+            <input
+              id="cardEmail"
+              type="email"
+              placeholder="billing@example.com"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="cardNumber">
+              Card Number <span class="required">*</span>
+            </label>
+            <input
+              id="cardNumber"
+              type="text"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19")/g, '$1 ').trim(); value;
+              }}
+              required
+            />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expiryDate">
+                Expiry Date (MM/YY) <span class="required">*</span>
+              </label>
+              <input
+                id="expiryDate"
+                type="text"
+                placeholder="12/25"
+                maxlength="5" value;
+                }}
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="cvv">
+                CVV <span class="required">*</span>
+              </label>
+              <input
+                id="cvv"
+                type="text"
+                placeholder="123"
+                maxlength="4"
+                pattern="\d"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cardName">
+              Cardholder Name <span class="required">*</span>
+            </label>
+            <input
+              id="cardName"
+              type="text"
+              placeholder="John Doe"
+              required
+            />
+          </div></div>
+
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn-secondary"
+          >
+            Skip for Now
+          </button>
+          <button 
+            type="button" 
+            class="btn-primary"
+          >
+            
+              Continue
+            
+          </button>
+        </div>
+      </div>
+    
+      <div class="setup-card">
+        <div class="progress-bar">
+          <div class="progress" style="width: 100%"></div>
+        </div>
+
+        <h2>Primary Location Setup</h2>
+        <p class="subtitle">Set up your primary NOC/HQ/Tower location for inventory management</p>
+
+        <div class="info-message">
+          <span class="info-icon">ℹ️</span>
+          <strong>Note:</strong> Hardware scanned in will automatically be assigned to this location. You can change this later in settings.
+        </div>
+
+        
+
+        <div class="form-group">
+          <label>Primary Location</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" value="create" />
+              <span>Create New Location</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" value="skip" />
+              <span>Skip for Now</span>
+            </label>
+          </div>
+        </div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="primaryLocationOption === 'create'"><div class="form-group">
+            <button 
+              type="button" 
+              class="btn-secondary"
+            >
+              ➕ Create Primary Location
+            </button>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="createdSite"><p class="success-text">✅ Created: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="createdSite.name"></span></p></div>
+          </div></div>
+
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn-secondary");
+            }}
+          >
+            Skip
+          </button>
+          <button 
+            type="button" 
+            class="btn-primary"
+          >
+            
+              Complete Setup
+            
+          </button>
+        </div>
+      </div></div>
+  </div>
+  
+  <!-- Site Creation Modal -->
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showSiteModal">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tenantId"><div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site">✏️ Edit Site: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.name"></span></div>
+      </h2>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    
+    
+    <div class="modal-body">
+      <!-- Address Search -->
+      <div class="section">
+        <h3>🔍 Find Location</h3>
+        <div class="search-group">
+          <input
+            type="text"
+            placeholder="Enter address to search..."
+          />
+          <button 
+            class="btn-secondary"
+          >
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSearching ? '...' : 'Search'"></span>
+          </button>
+        </div>
+        <p class="help-text">Or enter GPS coordinates below</p>
+      </div>
+      
+      <!-- Basic Info -->
+      <div class="section">
+        <h3>📋 Basic Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Site Name *</label>
+            <input type="text" placeholder="Main Tower Site" required />
+          </div>
+          
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Site Types * (Select all that apply)</label>
+            <div class="type-checkboxes">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="siteTypes as siteType"><label class="type-checkbox">
+                  <input
+                    type="checkbox" } else 
+                    }}
+                  />
+                  <span class="type-label">
+                    <span class="type-icon"></span>
+                    
+                  </span>
+                </label></div>
+            </div>
+            <p class="help-text">Small operators can select multiple types (e.g., NOC + Tower, HQ + NOC)</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Status</label>
+            <select>
+              <option value="active">✅ Active</option>
+              <option value="inactive">❌ Inactive</option>
+              <option value="maintenance">🔧 Maintenance</option>
+              <option value="planned">📅 Planned</option>
+            </select>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.types.includes('tower') || formData.types.includes('pole')"><div class="form-group">
+            <label>Height (feet)</label>
+            <input type="number" placeholder="100" min="0" />
+          </div>
+          
+          <div class="form-group">
+            <label>Structure Type</label>
+            <select>
+              <option>-- Select --</option>
+              <option value="self-supporting">Self-Supporting</option>
+              <option value="guyed">Guyed</option>
+              <option value="monopole">Monopole</option>
+              <option value="building-mounted">Building-Mounted</option>
+              <option value="other">Other</option>
+            </select>
+          </div></div>
+          
+          <div class="form-group">
+            <label>Owner</label>
+            <input type="text" placeholder="Tower Company LLC" />
+          </div>
+          
+          <div class="form-group">
+            <label>FCC ID</label>
+            <input type="text" placeholder="FCC-12345" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Location -->
+      <div class="section">
+        <h3>📍 GPS Coordinates</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Latitude *</label>
+            <input type="number" step="0.000001" required />
+          </div>
+          
+          <div class="form-group">
+            <label>Longitude *</label>
+            <input type="number" step="0.000001" required />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Street Address</label>
+          <input type="text" placeholder="123 Tower Rd" />
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" placeholder="New York" />
+          </div>
+          
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" placeholder="NY" />
+          </div>
+          
+          <div class="form-group">
+            <label>ZIP Code</label>
+            <input type="text" placeholder="10001" />
+          </div>
+          
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" placeholder="US" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tower Contact (for tower/pole sites) -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'tower' || formData.type === 'pole'"><div class="section">
+        <h3>🏢 Tower Owner Contact</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" placeholder="Tower Company LLC" />
+          </div>
+          
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" placeholder="John Doe" />
+          </div>
+          
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-1234" />
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="contact@tower.com" />
+          </div>
+        </div>
+      </div></div>
+      
+      <!-- Building Contact (for building sites) -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'building'"><div class="section">
+        <h3>🏢 Building Owner Contact</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" placeholder="Building Management Co" />
+          </div>
+          
+          <div class="form-group">
+            <label>Building Manager</label>
+            <input type="text" placeholder="Jane Smith" />
+          </div>
+          
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" placeholder="John Doe" />
+          </div>
+          
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-1234" />
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="contact@building.com" />
+          </div>
+        </div>
+      </div></div>
+      
+      <!-- Site Contact (for all site types) -->
+      <div class="section">
+        <h3>👷 On-Site Contact</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" placeholder="Jane Smith" />
+          </div>
+          
+          <div class="form-group">
+            <label>Role</label>
+            <input type="text" placeholder="Site Manager" />
+          </div>
+          
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-5678" />
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="manager@site.com" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- General Contact (fallback) -->
+      <div class="section">
+        <h3>📞 General Contact (Fallback)</h3>
+        <p class="help-text">Used if no specific contact types are provided</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" placeholder="Contact Name" />
+          </div>
+          
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-0000" />
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="contact@example.com" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Access Information -->
+      <div class="section">
+        <h3>🔐 Site Access</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Gate Code</label>
+            <input type="text" placeholder="1234#" />
+          </div>
+          
+          <div class="form-group">
+            <label>Access Hours</label>
+            <input type="text" placeholder="24/7 or Mon-Fri 8am-5pm" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Access Instructions</label>
+          <textarea 
+            placeholder="Call 30 minutes before arrival. Gate code required. Enter through main gate."
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Safety Notes</label>
+          <textarea 
+            placeholder="High voltage equipment. PPE required. Confined space. Lockout/tagout required."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-primary">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (site ? '💾 Save Changes' : '✅ Create Site')"></span>
+      </button>
+    </div>
+  </div>
+</div></div></div></div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/tenant-setup"}</script>

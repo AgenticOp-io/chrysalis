@@ -1,20 +1,103 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_tenant_management_users" data-wisp-path="/modules/tenant-management/users" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/tenants">
-  <header class="wisp-demo-header">
-    <h1>Users</h1>
-    <p class="wisp-demo-desc">Operational workspace for Users — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/tenant-management/users/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>22</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Users data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>t1</td><td>Acme Org</td><td>active</td><td></td></tr><tr><td>t2</td><td>Beta Org</td><td>trial</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/tenant-management/users","apiPath":"/api/tenants","api_ok":true,"api_surface":"wisp-api-native","api_resource":"tenants","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-tenant-management-users" data-wisp-path="/modules/tenant-management/users" data-cwl-island="client"><div class="users-page">
+  <div class="page-header">
+    <div>
+      <button class="back-btn">
+        ← Back to Tenant Settings
+      </button>
+      <h1>👥 User Management</h1>
+      <p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantName"></span></p>
+    </div>
+
+    <div class="header-buttons">
+      <button class="btn-primary">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showAddUserForm ? '✕ Cancel' : '➕ Add User'"></span>
+      </button>
+    </div>
+  </div>
+
+  
+
+  
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAddUserForm"><div class="invite-form">
+      <h2>Add User to Organization</h2>
+      <p class="form-subtitle">Add an existing user or create a placeholder for a future user</p>
+      
+      <div class="form-group">
+        <label for="user-email">Email Address</label>
+        <input
+          id="user-email"
+          type="email"
+          placeholder="user@example.com"
+        />
+        <p class="help-text">User will be granted access to this organization</p>
+      </div>
+
+      <div class="form-group">
+        <label for="user-role">Role</label>
+        <select id="user-role">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="roleOptions as role"><option>
+               - 
+            </option></div>
+        </select>
+        <p class="help-text">Determines what this user can do in the organization</p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary">
+          Cancel
+        </button>
+        <button class="btn-primary">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isAdding ? 'Adding...' : 'Add User'"></span>
+        </button>
+      </div>
+    </div></div>
+
+  <div class="users-section">
+    <h2>Organization Users (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="users.length"></span>)</h2>
+
+    
+      <div class="users-table">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Added</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="users as user"><tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="user-icon">👤</span>
+                    <span></span>
+                  </div>
+                </td>
+                <td>
+                  <select>
+                    <option value="owner">Owner</option>
+                    <option value="admin">Admin</option>
+                    <option value="operator">Operator</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                </td>
+                <td>
+                  
+                </td>
+                <td>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="user.role !== 'owner'"><button 
+                      class="btn-danger-small"
+                    >
+                      Remove
+                    </button></div>
+                </td>
+              </tr></div>
+          </tbody>
+        </table>
+      </div>
+    
+  </div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/tenant-management/users"}</script>

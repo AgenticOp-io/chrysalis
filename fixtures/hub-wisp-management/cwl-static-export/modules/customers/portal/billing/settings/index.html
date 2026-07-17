@@ -1,24 +1,65 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_billing_settings" data-wisp-path="/modules/customers/portal/billing/settings" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Settings</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-portal">
-  <nav class="wisp-demo-portal-nav">
-    <a href="/modules/customers/portal/dashboard">Dashboard</a>
-    <a href="/modules/customers/portal/tickets">Tickets</a>
-    <a href="/modules/customers/portal/billing">Billing</a>
-    <a href="/modules/customers/portal/knowledge">Knowledge</a>
-  </nav>
-  <section class="wisp-demo-portal-body">
-    <h2>Settings</h2>
-    <p>Customer portal surface — demo content wired to native CWL API.</p>
-    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
-  </section>
-</div>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal/billing/settings","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-billing-settings" data-wisp-path="/modules/customers/portal/billing/settings" data-cwl-island="client"><div class="billing-settings-page">
+    <h1>Billing settings</h1>
+    <p class="subtitle">Payment method and invoice preferences</p>
+
+    
+    
+
+    <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSave"></span> class="settings-form">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="paypalEnabled"><section class="settings-section">
+          <h2>PayPal</h2>
+          <p class="hint">Your PayPal email for paying invoices (when your provider accepts PayPal).</p>
+          <label for="paypal-email">PayPal email</label>
+          <input
+            id="paypal-email"
+            type="email"
+            placeholder="you@example.com"
+            class="input"
+          />
+        </section></div>
+
+      <section class="settings-section">
+        <h2>Invoice delivery</h2>
+        <p class="hint">How you want to receive invoices.</p>
+        <label>
+          <input type="radio" value="email" />
+          Email only
+        </label>
+        <label>
+          <input type="radio" value="portal" />
+          Portal only (view in Billing page)
+        </label>
+        <label>
+          <input type="radio" value="both" />
+          Both email and portal
+        </label>
+      </section>
+
+      <section class="settings-section read-only">
+        <h2>Invoice format</h2>
+        <p class="hint">Set by your provider (read-only).</p>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="label">Company name</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoiceFormat.companyName || '—'"></span></span>
+          </div>
+          <div class="info-row">
+            <span class="label">Payment due (days)</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoiceFormat.dueDays"></span></span>
+          </div>
+          <div class="info-row">
+            <span class="label">Currency</span>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoiceFormat.currency"></span></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving…' : 'Save settings'"></span>
+        </button>
+        <a href="/modules/customers/portal/billing" class="btn-secondary">Back to Billing</a>
+      </div>
+    </form>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/billing/settings"}</script>

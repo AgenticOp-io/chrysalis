@@ -1,20 +1,113 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="admin_tenant_management" data-wisp-path="/admin/tenant-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/admin">
-  <header class="wisp-demo-header">
-    <h1>Tenant Management</h1>
-    <p class="wisp-demo-desc">Platform administration — tenants, billing, and system configuration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/admin/tenant-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+<div class="wisp-app-surface" data-wisp-page="admin-tenant-management" data-wisp-path="/admin/tenant-management" data-cwl-island="client"><div class="admin-page">
+  <header>
+    <div data-cwl-component="AdminBreadcrumb" data-cwl-lifted-component="AdminBreadcrumb"><nav class="breadcrumb">
+  <ol class="breadcrumb-list">
+    <!-- Home/Admin Management link -->
+    <li class="breadcrumb-item">
+      <a 
+        class="breadcrumb-link"
+        on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(homeItem./admin/tenant-management)"></span>
+      >
+        <span class="breadcrumb-icon">⚙️</span>
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="homeItem.label"></span>
+      </a>
+    </li>
+    
+    <!-- Additional breadcrumb items -->
+    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="items as item, index"><li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item./admin/tenant-management && index < items.length - 1"><a class="breadcrumb-link" on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(item./admin/tenant-management)"></span>
+          >
+            
+          </a></div>
+      </li></div>
+  </ol>
+</nav></div>
+    <div class="header-content">
+      <div class="header-title">
+        <h1>🏢 Platform Admin - Tenant Management</h1>
+        <p>Create and manage organization tenants</p>
+      </div>
+      <button class="btn-create">
+        ➕ Create New Tenant
+      </button>
+    </div>
   </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>12</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>3</strong><span>Pending tasks</span></article>
+  
+  <main>
+    
+      <div class="tenants-grid">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="tenants as tenant"><div class="tenant-card">
+            <div class="tenant-header">
+              <h3></h3>
+              <span class="tenant-status">
+                
+              </span>
+            </div>
+            
+            <div class="tenant-details">
+              <div class="detail-row">
+                <span class="label">Organization Name:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Subdomain:</span>
+                <span class="value monospace"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Contact Email:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Created:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Users:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Status:</span>
+                <span class="value">
+                  <label class="status-toggle">
+                    <input 
+                      type="checkbox"/>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label"></span>
+                  </label>
+                </span>
+              </div>
+            </div>
+            
+            <div class="tenant-actions">
+              <button class="btn-action btn-users">
+                👥 View Users ()
+              </button>
+              <button class="btn-action btn-owner">
+                👤 Assign Owner
+              </button>
+              <button class="btn-action btn-edit">
+                ✏️ Edit
+              </button>
+              <button class="btn-action btn-delete">
+                🗑️ Delete
+              </button>
+            </div>
+          </div></div>
+      </div>
+    
+  </main>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Tenant Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>t1</td><td>Acme Org</td><td>active</td><td></td></tr><tr><td>t2</td><td>Beta Org</td><td>trial</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+
+<!-- Create/Edit Modal -->
+
+
+<!-- Delete Confirmation Modal -->
+
+
+<!-- Assign Owner Modal -->
+
+
+<!-- Users Modal -->
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/admin/tenant-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/tenant-management"}</script>

@@ -2,236 +2,158 @@
   "kind": "chrysalis.wisp.api-goldens",
   "schemaVersion": 1,
   "goldensDir": "wisp-api-goldens",
-  "handlerCount": 124,
-  "appliedCount": 124,
+  "handlerCount": 229,
+  "appliedCount": 229,
   "routes": [
     {
       "method": "GET",
-      "path": "/api/plans",
-      "handler": "wisp_api_plans_get",
-      "goldenPath": "wisp-api-goldens/GET-api-plans.golden.json"
+      "path": "/admin",
+      "handler": "wisp_api_admin_get",
+      "goldenPath": "wisp-api-goldens/GET-admin.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/plans",
-      "handler": "wisp_api_plans_post",
-      "goldenPath": "wisp-api-goldens/POST-api-plans.golden.json"
+      "path": "/admin",
+      "handler": "wisp_api_admin_post",
+      "goldenPath": "wisp-api-goldens/POST-admin.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/plans",
-      "handler": "wisp_api_plans_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-plans.golden.json"
+      "path": "/admin",
+      "handler": "wisp_api_admin_put",
+      "goldenPath": "wisp-api-goldens/PUT-admin.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/plans",
-      "handler": "wisp_api_plans_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-plans.golden.json"
+      "path": "/admin",
+      "handler": "wisp_api_admin_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-admin.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/plans",
-      "handler": "wisp_api_plans_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-plans.golden.json"
+      "path": "/admin",
+      "handler": "wisp_api_admin_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-admin.golden.json"
     },
     {
       "method": "GET",
-      "path": "/api/network",
-      "handler": "wisp_api_network_get",
-      "goldenPath": "wisp-api-goldens/GET-api-network.golden.json"
+      "path": "/admin/tenants",
+      "handler": "wisp_api_admin_tenants_get",
+      "goldenPath": "wisp-api-goldens/GET-admin-tenants.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/network",
-      "handler": "wisp_api_network_post",
-      "goldenPath": "wisp-api-goldens/POST-api-network.golden.json"
+      "path": "/admin/tenants",
+      "handler": "wisp_api_admin_tenants_post",
+      "goldenPath": "wisp-api-goldens/POST-admin-tenants.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/network",
-      "handler": "wisp_api_network_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-network.golden.json"
+      "path": "/admin/tenants",
+      "handler": "wisp_api_admin_tenants_put",
+      "goldenPath": "wisp-api-goldens/PUT-admin-tenants.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/network",
-      "handler": "wisp_api_network_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-network.golden.json"
+      "path": "/admin/tenants",
+      "handler": "wisp_api_admin_tenants_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-admin-tenants.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/network",
-      "handler": "wisp_api_network_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-network.golden.json"
+      "path": "/admin/tenants",
+      "handler": "wisp_api_admin_tenants_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-admin-tenants.golden.json"
     },
     {
       "method": "GET",
-      "path": "/api/network/sites",
-      "handler": "wisp_api_network_sites_get",
-      "goldenPath": "wisp-api-goldens/GET-api-network-sites.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/network/sectors",
-      "handler": "wisp_api_network_sectors_get",
-      "goldenPath": "wisp-api-goldens/GET-api-network-sectors.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/network/cpe",
-      "handler": "wisp_api_network_cpe_get",
-      "goldenPath": "wisp-api-goldens/GET-api-network-cpe.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/network/equipment",
-      "handler": "wisp_api_network_equipment_get",
-      "goldenPath": "wisp-api-goldens/GET-api-network-equipment.golden.json"
+      "path": "/api/admin",
+      "handler": "wisp_api_admin_prefix_get",
+      "goldenPath": "wisp-api-goldens/GET-api-admin.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/network/import/cbrs",
-      "handler": "wisp_api_network_import_cbrs_post",
-      "goldenPath": "wisp-api-goldens/POST-api-network-import-cbrs.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/plans/marketing/discover",
-      "handler": "wisp_api_plans_marketing_discover_post",
-      "goldenPath": "wisp-api-goldens/POST-api-plans-marketing-discover.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/inventory/scan/lookup",
-      "handler": "wisp_api_inventory_scan_lookup_post",
-      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-lookup.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/inventory/scan/check-in",
-      "handler": "wisp_api_inventory_scan_checkin_post",
-      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-check-in.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/inventory/scan/check-out",
-      "handler": "wisp_api_inventory_scan_checkout_post",
-      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-check-out.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/inventory/transfer",
-      "handler": "wisp_api_inventory_transfer_post",
-      "goldenPath": "wisp-api-goldens/POST-api-inventory-transfer.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/coverage",
-      "handler": "wisp_api_coverage_get",
-      "goldenPath": "wisp-api-goldens/GET-api-coverage.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/module-access",
-      "handler": "wisp_api_module_access_get",
-      "goldenPath": "wisp-api-goldens/GET-api-module-access.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/customers",
-      "handler": "wisp_api_customers_get",
-      "goldenPath": "wisp-api-goldens/GET-api-customers.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/customers",
-      "handler": "wisp_api_customers_post",
-      "goldenPath": "wisp-api-goldens/POST-api-customers.golden.json"
+      "path": "/api/admin",
+      "handler": "wisp_api_admin_prefix_post",
+      "goldenPath": "wisp-api-goldens/POST-api-admin.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/customers",
-      "handler": "wisp_api_customers_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-customers.golden.json"
+      "path": "/api/admin",
+      "handler": "wisp_api_admin_prefix_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-admin.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/customers",
-      "handler": "wisp_api_customers_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-customers.golden.json"
+      "path": "/api/admin",
+      "handler": "wisp_api_admin_prefix_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-admin.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/customers",
-      "handler": "wisp_api_customers_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-customers.golden.json"
+      "path": "/api/admin",
+      "handler": "wisp_api_admin_prefix_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-admin.golden.json"
     },
     {
       "method": "GET",
-      "path": "/api/customer-billing",
-      "handler": "wisp_api_customer_billing_get",
-      "goldenPath": "wisp-api-goldens/GET-api-customer-billing.golden.json"
+      "path": "/api/agent",
+      "handler": "wisp_api_agent_get",
+      "goldenPath": "wisp-api-goldens/GET-api-agent.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/customer-billing",
-      "handler": "wisp_api_customer_billing_post",
-      "goldenPath": "wisp-api-goldens/POST-api-customer-billing.golden.json"
+      "path": "/api/agent",
+      "handler": "wisp_api_agent_post",
+      "goldenPath": "wisp-api-goldens/POST-api-agent.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/customer-billing",
-      "handler": "wisp_api_customer_billing_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-customer-billing.golden.json"
+      "path": "/api/agent",
+      "handler": "wisp_api_agent_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-agent.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/customer-billing",
-      "handler": "wisp_api_customer_billing_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-customer-billing.golden.json"
+      "path": "/api/agent",
+      "handler": "wisp_api_agent_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-agent.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/customer-billing",
-      "handler": "wisp_api_customer_billing_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-customer-billing.golden.json"
+      "path": "/api/agent",
+      "handler": "wisp_api_agent_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-agent.golden.json"
     },
     {
       "method": "GET",
-      "path": "/api/inventory",
-      "handler": "wisp_api_inventory_get",
-      "goldenPath": "wisp-api-goldens/GET-api-inventory.golden.json"
+      "path": "/api/auth",
+      "handler": "wisp_api_auth_get",
+      "goldenPath": "wisp-api-goldens/GET-api-auth.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/inventory",
-      "handler": "wisp_api_inventory_post",
-      "goldenPath": "wisp-api-goldens/POST-api-inventory.golden.json"
+      "path": "/api/auth",
+      "handler": "wisp_api_auth_post",
+      "goldenPath": "wisp-api-goldens/POST-api-auth.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/inventory",
-      "handler": "wisp_api_inventory_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-inventory.golden.json"
+      "path": "/api/auth",
+      "handler": "wisp_api_auth_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-auth.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/inventory",
-      "handler": "wisp_api_inventory_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-inventory.golden.json"
+      "path": "/api/auth",
+      "handler": "wisp_api_auth_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-auth.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/inventory",
-      "handler": "wisp_api_inventory_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-inventory.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/hardware",
-      "handler": "wisp_api_hardware_get",
-      "goldenPath": "wisp-api-goldens/GET-api-hardware.golden.json"
+      "path": "/api/auth",
+      "handler": "wisp_api_auth_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-auth.golden.json"
     },
     {
       "method": "GET",
@@ -241,9 +163,33 @@
     },
     {
       "method": "GET",
-      "path": "/api/me",
-      "handler": "wisp_api_me_get",
-      "goldenPath": "wisp-api-goldens/GET-api-me.golden.json"
+      "path": "/api/branding",
+      "handler": "wisp_api_branding_get",
+      "goldenPath": "wisp-api-goldens/GET-api-branding.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/branding",
+      "handler": "wisp_api_branding_post",
+      "goldenPath": "wisp-api-goldens/POST-api-branding.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/branding",
+      "handler": "wisp_api_branding_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-branding.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/branding",
+      "handler": "wisp_api_branding_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-branding.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/branding",
+      "handler": "wisp_api_branding_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-branding.golden.json"
     },
     {
       "method": "GET",
@@ -277,6 +223,102 @@
     },
     {
       "method": "GET",
+      "path": "/api/coverage",
+      "handler": "wisp_api_coverage_get",
+      "goldenPath": "wisp-api-goldens/GET-api-coverage.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customer-billing",
+      "handler": "wisp_api_customer_billing_get",
+      "goldenPath": "wisp-api-goldens/GET-api-customer-billing.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/customer-billing",
+      "handler": "wisp_api_customer_billing_post",
+      "goldenPath": "wisp-api-goldens/POST-api-customer-billing.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/customer-billing",
+      "handler": "wisp_api_customer_billing_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-customer-billing.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/customer-billing",
+      "handler": "wisp_api_customer_billing_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-customer-billing.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/customer-billing",
+      "handler": "wisp_api_customer_billing_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-customer-billing.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customer-portal",
+      "handler": "wisp_api_customer_portal_get",
+      "goldenPath": "wisp-api-goldens/GET-api-customer-portal.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/customer-portal",
+      "handler": "wisp_api_customer_portal_post",
+      "goldenPath": "wisp-api-goldens/POST-api-customer-portal.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/customer-portal",
+      "handler": "wisp_api_customer_portal_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-customer-portal.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/customer-portal",
+      "handler": "wisp_api_customer_portal_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-customer-portal.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/customer-portal",
+      "handler": "wisp_api_customer_portal_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-customer-portal.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customers",
+      "handler": "wisp_api_customers_get",
+      "goldenPath": "wisp-api-goldens/GET-api-customers.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/customers",
+      "handler": "wisp_api_customers_post",
+      "goldenPath": "wisp-api-goldens/POST-api-customers.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/customers",
+      "handler": "wisp_api_customers_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-customers.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/customers",
+      "handler": "wisp_api_customers_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-customers.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/customers",
+      "handler": "wisp_api_customers_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-customers.golden.json"
+    },
+    {
+      "method": "GET",
       "path": "/api/deploy",
       "handler": "wisp_api_deploy_get",
       "goldenPath": "wisp-api-goldens/GET-api-deploy.golden.json"
@@ -304,6 +346,192 @@
       "path": "/api/deploy",
       "handler": "wisp_api_deploy_delete",
       "goldenPath": "wisp-api-goldens/DELETE-api-deploy.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/device-assignment",
+      "handler": "wisp_api_device_assignment_get",
+      "goldenPath": "wisp-api-goldens/GET-api-device-assignment.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/device-assignment",
+      "handler": "wisp_api_device_assignment_post",
+      "goldenPath": "wisp-api-goldens/POST-api-device-assignment.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/device-assignment",
+      "handler": "wisp_api_device_assignment_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-device-assignment.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/device-assignment",
+      "handler": "wisp_api_device_assignment_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-device-assignment.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/device-assignment",
+      "handler": "wisp_api_device_assignment_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-device-assignment.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/epc",
+      "handler": "wisp_api_epc_get",
+      "goldenPath": "wisp-api-goldens/GET-api-epc.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/epc",
+      "handler": "wisp_api_epc_post",
+      "goldenPath": "wisp-api-goldens/POST-api-epc.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/epc",
+      "handler": "wisp_api_epc_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-epc.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/epc",
+      "handler": "wisp_api_epc_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-epc.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/epc",
+      "handler": "wisp_api_epc_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-epc.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/epc-management",
+      "handler": "wisp_api_epc_management_get",
+      "goldenPath": "wisp-api-goldens/GET-api-epc-management.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/epc-management",
+      "handler": "wisp_api_epc_management_post",
+      "goldenPath": "wisp-api-goldens/POST-api-epc-management.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/epc-management",
+      "handler": "wisp_api_epc_management_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-epc-management.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/epc-management",
+      "handler": "wisp_api_epc_management_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-epc-management.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/epc-management",
+      "handler": "wisp_api_epc_management_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-epc-management.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/epc-updates",
+      "handler": "wisp_api_epc_updates_get",
+      "goldenPath": "wisp-api-goldens/GET-api-epc-updates.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/epc-updates",
+      "handler": "wisp_api_epc_updates_post",
+      "goldenPath": "wisp-api-goldens/POST-api-epc-updates.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/epc-updates",
+      "handler": "wisp_api_epc_updates_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-epc-updates.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/epc-updates",
+      "handler": "wisp_api_epc_updates_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-epc-updates.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/epc-updates",
+      "handler": "wisp_api_epc_updates_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-epc-updates.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/epc/snmp",
+      "handler": "wisp_api_epc_snmp_get",
+      "goldenPath": "wisp-api-goldens/GET-api-epc-snmp.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/epc/snmp",
+      "handler": "wisp_api_epc_snmp_post",
+      "goldenPath": "wisp-api-goldens/POST-api-epc-snmp.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/epc/snmp",
+      "handler": "wisp_api_epc_snmp_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-epc-snmp.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/epc/snmp",
+      "handler": "wisp_api_epc_snmp_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-epc-snmp.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/epc/snmp",
+      "handler": "wisp_api_epc_snmp_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-epc-snmp.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/equipment-pricing",
+      "handler": "wisp_api_equipment_pricing_get",
+      "goldenPath": "wisp-api-goldens/GET-api-equipment-pricing.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/equipment-pricing",
+      "handler": "wisp_api_equipment_pricing_post",
+      "goldenPath": "wisp-api-goldens/POST-api-equipment-pricing.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/equipment-pricing",
+      "handler": "wisp_api_equipment_pricing_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-equipment-pricing.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/equipment-pricing",
+      "handler": "wisp_api_equipment_pricing_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-equipment-pricing.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/equipment-pricing",
+      "handler": "wisp_api_equipment_pricing_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-equipment-pricing.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/hardware",
+      "handler": "wisp_api_hardware_get",
+      "goldenPath": "wisp-api-goldens/GET-api-hardware.golden.json"
     },
     {
       "method": "GET",
@@ -337,33 +565,129 @@
     },
     {
       "method": "GET",
-      "path": "/api/monitoring",
-      "handler": "wisp_api_monitoring_get",
-      "goldenPath": "wisp-api-goldens/GET-api-monitoring.golden.json"
+      "path": "/api/incidents",
+      "handler": "wisp_api_incidents_get",
+      "goldenPath": "wisp-api-goldens/GET-api-incidents.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/monitoring",
-      "handler": "wisp_api_monitoring_post",
-      "goldenPath": "wisp-api-goldens/POST-api-monitoring.golden.json"
+      "path": "/api/incidents",
+      "handler": "wisp_api_incidents_post",
+      "goldenPath": "wisp-api-goldens/POST-api-incidents.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/monitoring",
-      "handler": "wisp_api_monitoring_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-monitoring.golden.json"
+      "path": "/api/incidents",
+      "handler": "wisp_api_incidents_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-incidents.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/monitoring",
-      "handler": "wisp_api_monitoring_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-monitoring.golden.json"
+      "path": "/api/incidents",
+      "handler": "wisp_api_incidents_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-incidents.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/monitoring",
-      "handler": "wisp_api_monitoring_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-monitoring.golden.json"
+      "path": "/api/incidents",
+      "handler": "wisp_api_incidents_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-incidents.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/installation-documentation",
+      "handler": "wisp_api_installation_documentation_get",
+      "goldenPath": "wisp-api-goldens/GET-api-installation-documentation.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/installation-documentation",
+      "handler": "wisp_api_installation_documentation_post",
+      "goldenPath": "wisp-api-goldens/POST-api-installation-documentation.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/installation-documentation",
+      "handler": "wisp_api_installation_documentation_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-installation-documentation.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/installation-documentation",
+      "handler": "wisp_api_installation_documentation_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-installation-documentation.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/installation-documentation",
+      "handler": "wisp_api_installation_documentation_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-installation-documentation.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/internal",
+      "handler": "wisp_api_internal_get",
+      "goldenPath": "wisp-api-goldens/GET-api-internal.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/internal",
+      "handler": "wisp_api_internal_post",
+      "goldenPath": "wisp-api-goldens/POST-api-internal.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory",
+      "handler": "wisp_api_inventory_get",
+      "goldenPath": "wisp-api-goldens/GET-api-inventory.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory",
+      "handler": "wisp_api_inventory_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/inventory",
+      "handler": "wisp_api_inventory_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-inventory.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/inventory",
+      "handler": "wisp_api_inventory_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-inventory.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/inventory",
+      "handler": "wisp_api_inventory_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-inventory.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/scan/check-in",
+      "handler": "wisp_api_inventory_scan_checkin_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-check-in.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/scan/check-out",
+      "handler": "wisp_api_inventory_scan_checkout_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-check-out.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/scan/lookup",
+      "handler": "wisp_api_inventory_scan_lookup_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-lookup.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/transfer",
+      "handler": "wisp_api_inventory_transfer_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-transfer.golden.json"
     },
     {
       "method": "GET",
@@ -394,6 +718,516 @@
       "path": "/api/maintain",
       "handler": "wisp_api_maintain_delete",
       "goldenPath": "wisp-api-goldens/DELETE-api-maintain.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/me",
+      "handler": "wisp_api_me_get",
+      "goldenPath": "wisp-api-goldens/GET-api-me.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mikrotik",
+      "handler": "wisp_api_mikrotik_get",
+      "goldenPath": "wisp-api-goldens/GET-api-mikrotik.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mikrotik",
+      "handler": "wisp_api_mikrotik_post",
+      "goldenPath": "wisp-api-goldens/POST-api-mikrotik.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mikrotik",
+      "handler": "wisp_api_mikrotik_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-mikrotik.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/mikrotik",
+      "handler": "wisp_api_mikrotik_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-mikrotik.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/mikrotik",
+      "handler": "wisp_api_mikrotik_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-mikrotik.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mme",
+      "handler": "wisp_api_mme_get",
+      "goldenPath": "wisp-api-goldens/GET-api-mme.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mme",
+      "handler": "wisp_api_mme_post",
+      "goldenPath": "wisp-api-goldens/POST-api-mme.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mme",
+      "handler": "wisp_api_mme_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-mme.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/mme",
+      "handler": "wisp_api_mme_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-mme.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/mme",
+      "handler": "wisp_api_mme_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-mme.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mobile",
+      "handler": "wisp_api_mobile_get",
+      "goldenPath": "wisp-api-goldens/GET-api-mobile.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mobile",
+      "handler": "wisp_api_mobile_post",
+      "goldenPath": "wisp-api-goldens/POST-api-mobile.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mobile",
+      "handler": "wisp_api_mobile_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-mobile.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/mobile",
+      "handler": "wisp_api_mobile_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-mobile.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/mobile",
+      "handler": "wisp_api_mobile_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-mobile.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-access",
+      "handler": "wisp_api_module_access_get",
+      "goldenPath": "wisp-api-goldens/GET-api-module-access.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/monitoring",
+      "handler": "wisp_api_monitoring_get",
+      "goldenPath": "wisp-api-goldens/GET-api-monitoring.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/monitoring",
+      "handler": "wisp_api_monitoring_post",
+      "goldenPath": "wisp-api-goldens/POST-api-monitoring.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/monitoring",
+      "handler": "wisp_api_monitoring_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-monitoring.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/monitoring",
+      "handler": "wisp_api_monitoring_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-monitoring.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/monitoring",
+      "handler": "wisp_api_monitoring_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-monitoring.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/monitoring/graphs",
+      "handler": "wisp_api_monitoring_graphs_get",
+      "goldenPath": "wisp-api-goldens/GET-api-monitoring-graphs.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/monitoring/graphs",
+      "handler": "wisp_api_monitoring_graphs_post",
+      "goldenPath": "wisp-api-goldens/POST-api-monitoring-graphs.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network",
+      "handler": "wisp_api_network_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network",
+      "handler": "wisp_api_network_post",
+      "goldenPath": "wisp-api-goldens/POST-api-network.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network",
+      "handler": "wisp_api_network_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-network.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/network",
+      "handler": "wisp_api_network_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-network.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network",
+      "handler": "wisp_api_network_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-network.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/cpe",
+      "handler": "wisp_api_network_cpe_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-cpe.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/equipment",
+      "handler": "wisp_api_network_equipment_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-equipment.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/import/cbrs",
+      "handler": "wisp_api_network_import_cbrs_post",
+      "goldenPath": "wisp-api-goldens/POST-api-network-import-cbrs.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/sectors",
+      "handler": "wisp_api_network_sectors_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-sectors.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/sites",
+      "handler": "wisp_api_network_sites_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-sites.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "handler": "wisp_api_notifications_get",
+      "goldenPath": "wisp-api-goldens/GET-api-notifications.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications",
+      "handler": "wisp_api_notifications_post",
+      "goldenPath": "wisp-api-goldens/POST-api-notifications.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/notifications",
+      "handler": "wisp_api_notifications_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-notifications.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/notifications",
+      "handler": "wisp_api_notifications_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-notifications.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/notifications",
+      "handler": "wisp_api_notifications_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-notifications.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/permissions",
+      "handler": "wisp_api_permissions_get",
+      "goldenPath": "wisp-api-goldens/GET-api-permissions.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/permissions",
+      "handler": "wisp_api_permissions_post",
+      "goldenPath": "wisp-api-goldens/POST-api-permissions.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/permissions",
+      "handler": "wisp_api_permissions_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-permissions.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/permissions",
+      "handler": "wisp_api_permissions_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-permissions.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/permissions",
+      "handler": "wisp_api_permissions_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-permissions.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/plans",
+      "handler": "wisp_api_plans_get",
+      "goldenPath": "wisp-api-goldens/GET-api-plans.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/plans",
+      "handler": "wisp_api_plans_post",
+      "goldenPath": "wisp-api-goldens/POST-api-plans.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/plans",
+      "handler": "wisp_api_plans_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-plans.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/plans",
+      "handler": "wisp_api_plans_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-plans.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/plans",
+      "handler": "wisp_api_plans_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-plans.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/plans/marketing/discover",
+      "handler": "wisp_api_plans_marketing_discover_post",
+      "goldenPath": "wisp-api-goldens/POST-api-plans-marketing-discover.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/portal",
+      "handler": "wisp_api_portal_get",
+      "goldenPath": "wisp-api-goldens/GET-api-portal.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/portal",
+      "handler": "wisp_api_portal_post",
+      "goldenPath": "wisp-api-goldens/POST-api-portal.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/portal",
+      "handler": "wisp_api_portal_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-portal.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/portal",
+      "handler": "wisp_api_portal_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-portal.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/portal",
+      "handler": "wisp_api_portal_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-portal.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/portal-content",
+      "handler": "wisp_api_portal_content_get",
+      "goldenPath": "wisp-api-goldens/GET-api-portal-content.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/portal-content",
+      "handler": "wisp_api_portal_content_post",
+      "goldenPath": "wisp-api-goldens/POST-api-portal-content.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/portal-content",
+      "handler": "wisp_api_portal_content_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-portal-content.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/portal-content",
+      "handler": "wisp_api_portal_content_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-portal-content.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/portal-content",
+      "handler": "wisp_api_portal_content_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-portal-content.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/remote-agents",
+      "handler": "wisp_api_remote_agents_get",
+      "goldenPath": "wisp-api-goldens/GET-api-remote-agents.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/remote-agents",
+      "handler": "wisp_api_remote_agents_post",
+      "goldenPath": "wisp-api-goldens/POST-api-remote-agents.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/remote-agents",
+      "handler": "wisp_api_remote_agents_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-remote-agents.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/remote-agents",
+      "handler": "wisp_api_remote_agents_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-remote-agents.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/remote-agents",
+      "handler": "wisp_api_remote_agents_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-remote-agents.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snmp",
+      "handler": "wisp_api_snmp_monitoring_get",
+      "goldenPath": "wisp-api-goldens/GET-api-snmp.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snmp",
+      "handler": "wisp_api_snmp_monitoring_post",
+      "goldenPath": "wisp-api-goldens/POST-api-snmp.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/snmp",
+      "handler": "wisp_api_snmp_monitoring_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-snmp.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/snmp",
+      "handler": "wisp_api_snmp_monitoring_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-snmp.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/snmp",
+      "handler": "wisp_api_snmp_monitoring_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-snmp.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/subcontractors",
+      "handler": "wisp_api_subcontractors_get",
+      "goldenPath": "wisp-api-goldens/GET-api-subcontractors.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/subcontractors",
+      "handler": "wisp_api_subcontractors_post",
+      "goldenPath": "wisp-api-goldens/POST-api-subcontractors.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/subcontractors",
+      "handler": "wisp_api_subcontractors_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-subcontractors.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/subcontractors",
+      "handler": "wisp_api_subcontractors_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-subcontractors.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/subcontractors",
+      "handler": "wisp_api_subcontractors_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-subcontractors.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/system",
+      "handler": "wisp_api_system_get",
+      "goldenPath": "wisp-api-goldens/GET-api-system.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/system",
+      "handler": "wisp_api_system_post",
+      "goldenPath": "wisp-api-goldens/POST-api-system.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/system",
+      "handler": "wisp_api_system_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-system.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/system",
+      "handler": "wisp_api_system_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-system.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/system",
+      "handler": "wisp_api_system_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-system.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant-settings",
+      "handler": "wisp_api_tenant_settings_get",
+      "goldenPath": "wisp-api-goldens/GET-api-tenant-settings.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant-settings",
+      "handler": "wisp_api_tenant_settings_post",
+      "goldenPath": "wisp-api-goldens/POST-api-tenant-settings.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tenant-settings",
+      "handler": "wisp_api_tenant_settings_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-tenant-settings.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tenant-settings",
+      "handler": "wisp_api_tenant_settings_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-tenant-settings.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tenant-settings",
+      "handler": "wisp_api_tenant_settings_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-tenant-settings.golden.json"
     },
     {
       "method": "GET",
@@ -457,228 +1291,6 @@
     },
     {
       "method": "GET",
-      "path": "/api/work-orders",
-      "handler": "wisp_api_work_orders_get",
-      "goldenPath": "wisp-api-goldens/GET-api-work-orders.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/work-orders",
-      "handler": "wisp_api_work_orders_post",
-      "goldenPath": "wisp-api-goldens/POST-api-work-orders.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/work-orders",
-      "handler": "wisp_api_work_orders_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-work-orders.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/work-orders",
-      "handler": "wisp_api_work_orders_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-work-orders.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/work-orders",
-      "handler": "wisp_api_work_orders_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-work-orders.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/permissions",
-      "handler": "wisp_api_permissions_get",
-      "goldenPath": "wisp-api-goldens/GET-api-permissions.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/permissions",
-      "handler": "wisp_api_permissions_post",
-      "goldenPath": "wisp-api-goldens/POST-api-permissions.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/permissions",
-      "handler": "wisp_api_permissions_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-permissions.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/permissions",
-      "handler": "wisp_api_permissions_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-permissions.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/permissions",
-      "handler": "wisp_api_permissions_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-permissions.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/mikrotik",
-      "handler": "wisp_api_mikrotik_get",
-      "goldenPath": "wisp-api-goldens/GET-api-mikrotik.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/mikrotik",
-      "handler": "wisp_api_mikrotik_post",
-      "goldenPath": "wisp-api-goldens/POST-api-mikrotik.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/mikrotik",
-      "handler": "wisp_api_mikrotik_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-mikrotik.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/mikrotik",
-      "handler": "wisp_api_mikrotik_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-mikrotik.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/mikrotik",
-      "handler": "wisp_api_mikrotik_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-mikrotik.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/epc-updates",
-      "handler": "wisp_api_epc_updates_get",
-      "goldenPath": "wisp-api-goldens/GET-api-epc-updates.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/epc-updates",
-      "handler": "wisp_api_epc_updates_post",
-      "goldenPath": "wisp-api-goldens/POST-api-epc-updates.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/epc-updates",
-      "handler": "wisp_api_epc_updates_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-epc-updates.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/epc-updates",
-      "handler": "wisp_api_epc_updates_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-epc-updates.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/epc-updates",
-      "handler": "wisp_api_epc_updates_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-epc-updates.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/snmp",
-      "handler": "wisp_api_snmp_monitoring_get",
-      "goldenPath": "wisp-api-goldens/GET-api-snmp.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/snmp",
-      "handler": "wisp_api_snmp_monitoring_post",
-      "goldenPath": "wisp-api-goldens/POST-api-snmp.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/snmp",
-      "handler": "wisp_api_snmp_monitoring_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-snmp.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/snmp",
-      "handler": "wisp_api_snmp_monitoring_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-snmp.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/snmp",
-      "handler": "wisp_api_snmp_monitoring_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-snmp.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/monitoring/graphs",
-      "handler": "wisp_api_monitoring_graphs_get",
-      "goldenPath": "wisp-api-goldens/GET-api-monitoring-graphs.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/monitoring/graphs",
-      "handler": "wisp_api_monitoring_graphs_post",
-      "goldenPath": "wisp-api-goldens/POST-api-monitoring-graphs.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/device-assignment",
-      "handler": "wisp_api_device_assignment_get",
-      "goldenPath": "wisp-api-goldens/GET-api-device-assignment.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/device-assignment",
-      "handler": "wisp_api_device_assignment_post",
-      "goldenPath": "wisp-api-goldens/POST-api-device-assignment.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/device-assignment",
-      "handler": "wisp_api_device_assignment_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-device-assignment.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/device-assignment",
-      "handler": "wisp_api_device_assignment_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-device-assignment.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/device-assignment",
-      "handler": "wisp_api_device_assignment_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-device-assignment.golden.json"
-    },
-    {
-      "method": "GET",
-      "path": "/api/notifications",
-      "handler": "wisp_api_notifications_get",
-      "goldenPath": "wisp-api-goldens/GET-api-notifications.golden.json"
-    },
-    {
-      "method": "POST",
-      "path": "/api/notifications",
-      "handler": "wisp_api_notifications_post",
-      "goldenPath": "wisp-api-goldens/POST-api-notifications.golden.json"
-    },
-    {
-      "method": "PUT",
-      "path": "/api/notifications",
-      "handler": "wisp_api_notifications_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-notifications.golden.json"
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/notifications",
-      "handler": "wisp_api_notifications_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-notifications.golden.json"
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/notifications",
-      "handler": "wisp_api_notifications_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-notifications.golden.json"
-    },
-    {
-      "method": "GET",
       "path": "/api/voice",
       "handler": "wisp_api_voice_get",
       "goldenPath": "wisp-api-goldens/GET-api-voice.golden.json"
@@ -709,46 +1321,64 @@
     },
     {
       "method": "GET",
-      "path": "/api/admin",
-      "handler": "wisp_api_admin_prefix_get",
-      "goldenPath": "wisp-api-goldens/GET-api-admin.golden.json"
+      "path": "/api/work-orders",
+      "handler": "wisp_api_work_orders_get",
+      "goldenPath": "wisp-api-goldens/GET-api-work-orders.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/admin",
-      "handler": "wisp_api_admin_prefix_post",
-      "goldenPath": "wisp-api-goldens/POST-api-admin.golden.json"
+      "path": "/api/work-orders",
+      "handler": "wisp_api_work_orders_post",
+      "goldenPath": "wisp-api-goldens/POST-api-work-orders.golden.json"
     },
     {
       "method": "PUT",
-      "path": "/api/admin",
-      "handler": "wisp_api_admin_prefix_put",
-      "goldenPath": "wisp-api-goldens/PUT-api-admin.golden.json"
+      "path": "/api/work-orders",
+      "handler": "wisp_api_work_orders_put",
+      "goldenPath": "wisp-api-goldens/PUT-api-work-orders.golden.json"
     },
     {
       "method": "PATCH",
-      "path": "/api/admin",
-      "handler": "wisp_api_admin_prefix_patch",
-      "goldenPath": "wisp-api-goldens/PATCH-api-admin.golden.json"
+      "path": "/api/work-orders",
+      "handler": "wisp_api_work_orders_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-api-work-orders.golden.json"
     },
     {
       "method": "DELETE",
-      "path": "/api/admin",
-      "handler": "wisp_api_admin_prefix_delete",
-      "goldenPath": "wisp-api-goldens/DELETE-api-admin.golden.json"
+      "path": "/api/work-orders",
+      "handler": "wisp_api_work_orders_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-api-work-orders.golden.json"
     },
     {
       "method": "GET",
-      "path": "/api/internal",
-      "handler": "wisp_api_internal_get",
-      "goldenPath": "wisp-api-goldens/GET-api-internal.golden.json"
+      "path": "/setup-admin",
+      "handler": "wisp_api_setup_admin_get",
+      "goldenPath": "wisp-api-goldens/GET-setup-admin.golden.json"
     },
     {
       "method": "POST",
-      "path": "/api/internal",
-      "handler": "wisp_api_internal_post",
-      "goldenPath": "wisp-api-goldens/POST-api-internal.golden.json"
+      "path": "/setup-admin",
+      "handler": "wisp_api_setup_admin_post",
+      "goldenPath": "wisp-api-goldens/POST-setup-admin.golden.json"
+    },
+    {
+      "method": "PUT",
+      "path": "/setup-admin",
+      "handler": "wisp_api_setup_admin_put",
+      "goldenPath": "wisp-api-goldens/PUT-setup-admin.golden.json"
+    },
+    {
+      "method": "PATCH",
+      "path": "/setup-admin",
+      "handler": "wisp_api_setup_admin_patch",
+      "goldenPath": "wisp-api-goldens/PATCH-setup-admin.golden.json"
+    },
+    {
+      "method": "DELETE",
+      "path": "/setup-admin",
+      "handler": "wisp_api_setup_admin_delete",
+      "goldenPath": "wisp-api-goldens/DELETE-setup-admin.golden.json"
     }
   ],
-  "generatedAt": "2026-07-14T04:23:25.731Z"
+  "generatedAt": "2026-07-17T00:18:13.486Z"
 }

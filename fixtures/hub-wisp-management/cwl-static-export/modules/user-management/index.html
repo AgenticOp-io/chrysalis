@@ -1,20 +1,103 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_user_management" data-wisp-path="/modules/user-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/users">
-  <header class="wisp-demo-header">
-    <h1>User Management</h1>
-    <p class="wisp-demo-desc">Operational workspace for User Management — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/user-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>0</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>11</strong><span>Pending tasks</span></article>
+<div class="user-management-container">
+  <div class="header">
+    <button class="btn-back">
+      ← Back to Modules
+    </button>
+    
+    <div class="title-section">
+      <h1>👥 User Management</h1>
+      <p class="subtitle">
+        
+          Manage all users across all organizations
+        
+      </p>
+    </div>
+    
+    
+  </div>
+
+  
+
+  <div class="filters">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Search by name or email..."
+      />
+    </div>
+
+    <select class="select">
+      <option value="all">All Roles</option>
+      <option value="owner">Owner</option>
+      <option value="admin">Admin</option>
+      <option value="engineer">Engineer</option>
+      <option value="installer">Field Technician</option>
+      <option value="helpdesk">Help Desk</option>
+      <option value="viewer">Viewer</option>
+    </select>
+
+    <select class="select">
+      <option value="all">All Status</option>
+      <option value="active">Active</option>
+      <option value="suspended">Suspended</option>
+      <option value="pending_invitation">Pending</option>
+    </select>
+
+    <div class="results-count">
+      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredUsers.length"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="users.length"></span> users
+    </div>
+  </div>
+
+  
+    <div class="table-container">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Last Login</th>
+            <th>Added</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredUsers as user (user.uid)"><tr>
+              <td>
+                <div class="user-cell">
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="user.photoURL"><img class="user-avatar" /></div>
+                  <div class="user-info">
+                    <div class="user-name"></div>
+                    <div class="user-email"></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge ">
+                  
+                </span>
+              </td>
+              <td>
+                <span class="badge ">
+                  
+                </span>
+              </td>
+              <td class="time-cell">
+                
+              </td>
+              <td class="time-cell">
+                
+              </td>
+              
+            </tr></div>
+        </tbody>
+      </table>
+    </div>
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="User Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>u1</td><td>Admin</td><td>active</td><td></td></tr><tr><td>u2</td><td>Ops</td><td>active</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/user-management","apiPath":"/api/users","api_ok":true,"api_surface":"wisp-api-native","api_resource":"users","api_op":"list","tracedApiStatus":200}</script>
+
+
+
+
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"user-management"}</script>

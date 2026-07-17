@@ -1,20 +1,216 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_hardware" data-wisp-path="/modules/hardware" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/inventory">
-  <header class="wisp-demo-header">
-    <h1>Hardware</h1>
-    <p class="wisp-demo-desc">Operational workspace for Hardware — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/hardware/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="scan" title="Scan lookup">Scan</button><button type="button" class="wisp-demo-btn" data-action="transfer" title="Transfer item">Transfer</button><a class="wisp-demo-btn" href="/modules/inventory/bundles">Bundles</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>4</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>3</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>1</strong><span>Pending tasks</span></article>
+<div class="hardware-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-button">
+        ← Back to Dashboard
+      </button>
+      <h1>🔧 Hardware Management</h1>
+      <p class="subtitle">Comprehensive equipment and hardware management system</p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary">
+        🔍 Scan Lookup
+      </button>
+      <button class="btn-secondary">
+        📥 Check In
+      </button>
+      <button class="btn-secondary">
+        📤 Check Out
+      </button>
+      <button class="btn-secondary">
+        📦 Bundles
+      </button>
+      <button class="btn-secondary">
+        📊 Reports
+      </button>
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger"
+      class:open
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div></div>
+  </div></div></div>
+      <!-- Add Hardware Dropdown -->
+      <div class="dropdown-container">
+        <button class="btn-primary dropdown-toggle">
+          ➕ Add Hardware ▼
+        </button>
+        
+      </div>
+    </div>
+  </div>
+  
+  <!-- Alerts -->
+  
+  
+  
+  
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon">🔧</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalItems + epcDevices.length"></span></div>
+        <div class="stat-label">Total Hardware</div>
+      </div>
+    </div>
+    
+    <div class="stat-card clickable">
+      <div class="stat-icon">📡</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcDevices.length"></span></div>
+        <div class="stat-label">EPC/SNMP Devices</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('available')"></span></div>
+        <div class="stat-label">Available</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">🚀</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('deployed') + epcDevices.filter(d => d.status === 'online').lengt"></span></div>
+        <div class="stat-label">Deployed/Online</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(stats.totalValue)"></span></div>
+        <div class="stat-label">Total Value</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">🏗️</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('maintenance')"></span></div>
+        <div class="stat-label">In Maintenance</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hardware Type Tabs -->
+  <div class="hardware-tabs">
+    <button class="tab-btn">
+      📋 All Hardware (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="items.length + epcDevices.length"></span>)
+    </button>
+    <button class="tab-btn">
+      📦 Inventory (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="items.length"></span>)
+    </button>
+    <button class="tab-btn">
+      📡 EPC/SNMP Devices (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcDevices.length"></span>)
+    </button>
+  </div>
+  
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="🔍 Search by serial number, model, manufacturer, asset tag..."
+        />
+        <button class="search-btn">Search</button>
+      </div>
+      
+      <select>
+        <option>All Categories</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="categoryList as category"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Statuses</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="statuses as status"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Locations</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="locationTypes as location"><option></option></div>
+      </select>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="manufacturers.length > 0"><select>
+          <option>All Manufacturers</option>
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="manufacturers as manufacturer"><option></option></div>
+        </select></div>
+      
+      <button class="btn-clear">
+        Clear Filters
+      </button>
+    </div>
+    
+    <!-- Category Quick Filters -->
+    <div class="category-filters">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="categoryList as category">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="count > 0"><button
+            class="category-chip">
+             ()
+          </button></div></div>
+    </div>
+  </div>
+  
+  <!-- Hardware Content -->
+  
+    <!-- EPC/SNMP Devices Section -->
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeHardwareTab === 'epc'"><!-- EPC Devices Section -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcDevices.length === 0"><div class="empty-state">
+          <span class="empty-icon">📡</span>
+          <h3>No EPC devices deployed</h3>
+          <p>Deploy EPC devices from the Deploy module</p>
+          <button class="btn-primary">
+            🚀 Go to Deploy
+          </button>
+        </div></div>
+      
+      <!-- Discovered SNMP Devices Section -->
+      <div class="snmp-section" style="margin-top: 2rem;">
+        <div class="cwl-widget-shell" data-cwl-widget-shell="SNMPDevicesPanel" aria-hidden="true"></div>
+      </div></div>
+  
+  
+  <!-- Inventory Items Section -->
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!isLoading && (activeHardwareTab === 'inventory' || activeHardwareTab === 'all')"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="items.length === 0 && activeHardwareTab === 'inventory'"><div class="empty-state">
+        <span class="empty-icon">🔧</span>
+        <h3>No inventory items found</h3>
+        <p>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="searchQuery || selectedCategory || selectedStatus || selectedLocation">Try adjusting your filters or search criteria</div>
+        </p>
+        <button class="btn-primary">
+          ➕ Add Hardware
+        </button>
+      </div></div></div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Hardware data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>inv-1</td><td>CPE-AX100</td><td>in-stock</td><td></td></tr><tr><td>inv-2</td><td>Sector-60</td><td>in-stock</td><td></td></tr><tr><td>inv-3</td><td>Backhaul-Link</td><td>rma</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/hardware","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+
+<!-- Scan Modal -->
+
+
+<!-- EPC Deployment Wizard -->
+
+
+<!-- EPC Edit Modal -->
+
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"hardware"}</script>

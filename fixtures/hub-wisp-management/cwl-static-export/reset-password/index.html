@@ -1,17 +1,67 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="reset_password" data-wisp-path="/reset-password" data-cwl-island="client" data-wisp-layout="form">
-  <header class="wisp-demo-header">
-    <h1>Reset Password</h1>
-    <p class="wisp-demo-desc">Operational workspace for Reset Password — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <form class="wisp-demo-form" id="wisp-demo-form">
-  <div class="wisp-demo-field"><label>Name</label><input name="name" type="text" placeholder="Reset Password entry" required /></div>
-  <div class="wisp-demo-field"><label>Notes</label><textarea name="notes" rows="4" placeholder="Optional notes"></textarea></div>
-  <div class="wisp-demo-field"><label>Status</label><select name="status"><option>Active</option><option>Pending</option><option>Archived</option></select></div>
-  <button type="submit" class="wisp-demo-btn primary">Save</button>
-</form>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/reset-password"}</script>
+<div class="wisp-app-surface" data-wisp-page="reset-password" data-wisp-path="/reset-password" data-cwl-island="client"><div class="reset-password-page">
+  <div class="reset-password-container">
+    <div class="reset-password-card">
+      <h1>WISP Management</h1>
+      <p class="subtitle">Password Reset</p>
+
+      
+
+      
+
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'reset'"><div class="form-container">
+          <h2>Set New Password</h2>
+          <p class="form-description">Enter your new password below</p>
+
+          <div class="form-group">
+            <label for="newPassword">New Password <span class="required">*</span></label>
+            <input
+              id="newPassword"
+              type="password"
+              placeholder="Enter your new password"
+              required
+              minlength="6"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+            <input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm your new password"
+              required
+              minlength="6"
+            />
+          </div>
+
+          <button 
+            type="button" 
+            class="btn-primary"
+          >
+            
+              Reset Password
+            
+          </button>
+        </div>
+      
+        <div class="form-container">
+          <h2>Verify Email</h2>
+          <p class="form-description">Click the button below to verify your email address</p>
+
+          <button 
+            type="button" 
+            class="btn-primary"
+          >
+            
+              Verify Email
+            
+          </button>
+        </div></div>
+
+      <div class="form-footer">
+        <a href="/login" class="link">Back to Login</a>
+      </div>
+    </div>
+  </div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/reset-password"}</script>

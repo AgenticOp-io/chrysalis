@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "subcontractors",
+  "op": "update",
+  "seeded": "contract-mutate"
+}

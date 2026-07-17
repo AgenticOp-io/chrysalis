@@ -1,24 +1,9 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_knowledge_id" data-wisp-path="/modules/customers/portal/knowledge/:id" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>:id</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-portal">
-  <nav class="wisp-demo-portal-nav">
-    <a href="/modules/customers/portal/dashboard">Dashboard</a>
-    <a href="/modules/customers/portal/tickets">Tickets</a>
-    <a href="/modules/customers/portal/billing">Billing</a>
-    <a href="/modules/customers/portal/knowledge">Knowledge</a>
-  </nav>
-  <section class="wisp-demo-portal-body">
-    <h2>:id</h2>
-    <p>Customer portal surface — demo content wired to native CWL API.</p>
-    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
-  </section>
-</div>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal/knowledge/:id","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-knowledge-:id" data-wisp-path="/modules/customers/portal/knowledge/:id" data-cwl-island="client"><article class="article-page">
+    <a href="/modules/customers/portal/knowledge" class="back-link">← Back to Knowledge Base</a>
+    <header>
+      <h1><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="article.title"></span></h1>
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="article.category"><span class="category"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="article.category"></span></span></div>
+    </header>
+    <div class="content"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="article.content || ''"></span></div>
+  </article></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/knowledge/:id"}</script>

@@ -1,20 +1,550 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_setup" data-wisp-path="/modules/customers/portal-setup" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Portal Setup</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/customers/portal-setup/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>3</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>1</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Portal Setup data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>c1</td><td>Acme Wireless</td><td>active</td><td></td></tr><tr><td>c2</td><td>Beta ISP</td><td>pending</td><td></td></tr><tr><td>c3</td><td>Canyon Net</td><td>active</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal-setup","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-setup" data-wisp-path="/modules/customers/portal-setup" data-cwl-island="client"><div class="portal-admin-page">
+    <div class="page-header">
+      <div class="header-left">
+        <button class="back-btn" title="Back to Modules">
+          ← Exit to Modules
+        </button>
+      </div>
+      <div class="header-content">
+        <h1>🌐 Customer Portal Management</h1>
+        <p class="subtitle">Configure your customer-facing portal, content, and support features</p>
+      </div>
+      <div class="header-actions">
+        <a target="_blank" class="btn-secondary">
+          View Portal →
+        </a>
+      </div>
+    </div>
+    
+    
+    
+    
+    
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-btn">
+        🎨 Branding
+      </button>
+      <button class="tab-btn">
+        ⚙️ Features
+      </button>
+      <button class="tab-btn">
+        💳 Billing Portal
+      </button>
+      <button class="tab-btn">
+        🚨 Alerts & Outages
+      </button>
+      <button class="tab-btn">
+        ❓ FAQ
+      </button>
+      <button class="tab-btn">
+        📚 Knowledge Base
+      </button>
+      <button class="tab-btn">
+        💬 Live Chat
+      </button>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Branding Tab -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'branding'"><div class="content-section">
+          <h2>Portal Branding</h2>
+          <p class="section-description">Customize the look and feel of your customer portal.</p>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Company Name</label>
+              <div class="readonly-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="companyName || 'Not set'"></span></div>
+              <p class="help-text">Managed from tenant settings</p>
+            </div>
+            
+            <div class="form-group">
+              <label>Portal URL</label>
+              <div class="readonly-value url-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getPortalUrl()"></span></div>
+            </div>
+            
+            <div class="form-group">
+              <label>Logo URL</label>
+              <input type="url" placeholder="https://yourcompany.com/logo.png" class="form-input" />
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="logoUrl"><div class="logo-preview">
+                  <img alt="Logo preview" />
+                </div></div>
+            </div>
+            
+            <div class="form-group">
+              <label>Primary Color</label>
+              <div class="color-input-group">
+                <input type="color" class="color-picker" />
+                <input type="text" placeholder="#3b82f6" class="form-input color-text" />
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Support Email</label>
+              <input type="email" placeholder="support@yourcompany.com" class="form-input" />
+            </div>
+            
+            <div class="form-group">
+              <label>Support Phone</label>
+              <input type="tel" placeholder="(555) 123-4567" class="form-input" />
+            </div>
+            
+            <div class="form-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Use Custom Domain</span>
+              </label>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="enableCustomDomain"><input type="text" placeholder="portal.yourcompany.com" class="form-input" />
+                <p class="help-text">Point your domain's CNAME record to: <code>wisptools.io</code></p></div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-primary">
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save Branding'"></span>
+            </button>
+          </div>
+        </div></div>
+      
+      <!-- Billing Portal Tab: payment gateways & invoice customization -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'billing'"><div class="content-section">
+          <h2>Billing Portal Admin</h2>
+          <p class="section-description">Configure payment gateways (Stripe, PayPal) and customize how invoices look for your customers.</p>
+          
+          <div class="billing-portal-sections">
+            <section class="billing-subsection">
+              <h3>Payment Gateways</h3>
+              <p class="help-text">Enable online payments in the customer portal. Store Stripe secret key in backend env (STRIPE_SECRET_KEY); use the publishable key here for the portal. For PayPal, use your client ID and choose sandbox for testing.</p>
+              
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="toggle-label">
+                    <input type="checkbox" />
+                    <span class="toggle-switch"></span>
+                    <span>Enable Stripe</span>
+                  </label>
+                  <input type="text" placeholder="pk_live_... or pk_test_... (publishable key)" class="form-input" />
+                  <input type="text" placeholder="Optional note (e.g. key purpose)" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label class="toggle-label">
+                    <input type="checkbox" />
+                    <span class="toggle-switch"></span>
+                    <span>Enable PayPal</span>
+                  </label>
+                  <input type="text" placeholder="PayPal client ID" class="form-input" />
+                  <label class="checkbox-label">
+                    <input type="checkbox" />
+                    Use PayPal sandbox (testing)
+                  </label>
+                  <input type="text" placeholder="Optional note" class="form-input" />
+                </div>
+              </div>
+            </section>
+            
+            <section class="billing-subsection">
+              <h3>Invoice Customization</h3>
+              <p class="help-text">These appear on generated invoices and in the customer billing portal.</p>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Company name on invoices</label>
+                  <input type="text" placeholder="Your WISP Name" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>Invoice logo URL</label>
+                  <input type="url" placeholder="https://..." class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Address (on invoice)</label>
+                  <input type="text" placeholder="Street, City, State ZIP" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Footer text</label>
+                  <input type="text" placeholder="Thank you for your business" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Terms & conditions</label>
+                  <textarea placeholder="Payment terms, late fees, etc." class="form-input" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Default due days</label>
+                  <input type="number" min="1" max="90" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <select class="form-input">
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-primary">
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save Billing Portal Settings'"></span>
+            </button>
+          </div>
+        </div></div>
+      
+      <!-- Features Tab -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'features'"><div class="content-section">
+          <h2>Portal Features</h2>
+          <p class="section-description">Enable or disable features for your customer portal.</p>
+          
+          <div class="feature-toggles">
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">❓ FAQ / Help Center</span>
+                  <span class="toggle-description">Show frequently asked questions to customers</span>
+                </div>
+              </label>
+            </div>
+            
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">🚨 Service Status & Outages</span>
+                  <span class="toggle-description">Display service alerts and outage notifications</span>
+                </div>
+              </label>
+            </div>
+            
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">💳 Billing & Invoices</span>
+                  <span class="toggle-description">Let customers view billing and invoice history</span>
+                </div>
+              </label>
+            </div>
+            
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">🎫 Support Tickets</span>
+                  <span class="toggle-description">Let customers open and track support tickets</span>
+                </div>
+              </label>
+            </div>
+            
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">📚 Knowledge Base</span>
+                  <span class="toggle-description">Provide documentation and help articles</span>
+                </div>
+              </label>
+            </div>
+            
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">💬 Live Chat Support</span>
+                  <span class="toggle-description">Enable real-time chat with customers</span>
+                </div>
+              </label>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="enableLiveChat"><div class="form-group" style="margin-top: 0.75rem; margin-left: 2.5rem;">
+                  <label>Chat widget embed code (e.g. Tawk.to, Crisp, Intercom)</label>
+                  <textarea rows="4" class="form-input" placeholder="Paste the &lt;script&gt;...&lt;/script&gt; snippet from your chat provider"></textarea>
+                  <p class="hint">Paste the full script tag(s) from your chat provider. The widget will load on all portal pages when Live Chat is enabled.</p>
+                </div></div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-primary">
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save Features'"></span>
+            </button>
+          </div>
+        </div></div>
+      
+      <!-- Alerts Tab -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'alerts'"><div class="content-section">
+          <div class="section-header">
+            <div>
+              <h2>Alerts & Outages</h2>
+              <p class="section-description">Notify customers about service issues, maintenance, and updates.</p>
+            </div>
+            <button class="btn-primary">
+              + New Alert
+            </button>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAlertForm"><div class="form-card">
+              <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingAlertId ? 'Edit Alert' : 'Create New Alert'"></span></h3>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Title</label>
+                  <input type="text" placeholder="Alert title" class="form-input" />
+                </div>
+                
+                <div class="form-group">
+                  <label>Type</label>
+                  <select class="form-input">
+                    <option value="info">ℹ️ Information</option>
+                    <option value="warning">⚠️ Warning</option>
+                    <option value="outage">🔴 Outage</option>
+                    <option value="maintenance">🟡 Maintenance</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-input">
+                    <option value="active">Active</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label>Message</label>
+                  <textarea placeholder="Alert message..." class="form-input" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label>Start Date (optional)</label>
+                  <input type="datetime-local" class="form-input" />
+                </div>
+                
+                <div class="form-group">
+                  <label>End Date (optional)</label>
+                  <input type="datetime-local" class="form-input" />
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button class="btn-secondary">Cancel</button>
+                <button class="btn-primary">
+                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save Alert'"></span>
+                </button>
+              </div>
+            </div></div>
+          
+          <div class="items-list">
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="alerts.length === 0"><div class="empty-state">
+                <p>No alerts yet. Create one to notify your customers.</p>
+              </div></div>
+          </div>
+        </div></div>
+      
+      <!-- FAQ Tab -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'faq'"><div class="content-section">
+          <div class="section-header">
+            <div>
+              <h2>FAQ Management</h2>
+              <p class="section-description">Create and manage frequently asked questions.</p>
+            </div>
+            <button class="btn-primary">
+              + New FAQ
+            </button>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showFAQForm"><div class="form-card">
+              <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingFAQId ? 'Edit FAQ' : 'Create New FAQ'"></span></h3>
+              
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Question</label>
+                  <input type="text" placeholder="What is your question?" class="form-input" />
+                </div>
+                
+                <div class="form-group">
+                  <label>Category</label>
+                  <select class="form-input">
+                    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="faqCategories as category"><option></option></div>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="checkbox-label inline">
+                    <input type="checkbox" />
+                    <span>Published</span>
+                  </label>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label>Answer</label>
+                  <textarea placeholder="Provide the answer..." class="form-input" rows="4"></textarea>
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button class="btn-secondary">Cancel</button>
+                <button class="btn-primary">
+                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save FAQ'"></span>
+                </button>
+              </div>
+            </div></div>
+          
+          <div class="items-list">
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="faqItems.length === 0"><div class="empty-state">
+                <p>No FAQs yet. Create some to help your customers.</p>
+              </div></div>
+          </div>
+        </div></div>
+      
+      <!-- Knowledge Base Tab -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'knowledge'"><div class="content-section">
+          <div class="section-header">
+            <div>
+              <h2>Knowledge Base</h2>
+              <p class="section-description">Create help articles and documentation for customers.</p>
+            </div>
+            <button class="btn-primary">
+              + New Article
+            </button>
+          </div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showArticleForm"><div class="form-card">
+              <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editingArticleId ? 'Edit Article' : 'Create New Article'"></span></h3>
+              
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Title</label>
+                  <input type="text" placeholder="Article title" class="form-input" />
+                </div>
+                
+                <div class="form-group">
+                  <label>Category</label>
+                  <select class="form-input">
+                    <option value="Getting Started">Getting Started</option>
+                    <option value="Account">Account</option>
+                    <option value="Billing">Billing</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Troubleshooting">Troubleshooting</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="checkbox-label inline">
+                    <input type="checkbox" />
+                    <span>Published</span>
+                  </label>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label>Tags</label>
+                  <div class="tags-input">
+                    <input type="text" placeholder="Add tags (comma separated)" class="form-input" />
+                    <button class="btn-secondary btn-sm">Add</button>
+                  </div>
+                  <div class="tags-list">
+                    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="newArticle.tags as tag"><span class="tag"> <button>×</button></span></div>
+                  </div>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label>Content</label>
+                  <textarea placeholder="Write your article content..." class="form-input" rows="8"></textarea>
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button class="btn-secondary">Cancel</button>
+                <button class="btn-primary">
+                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save Article'"></span>
+                </button>
+              </div>
+            </div></div>
+          
+          <div class="items-list">
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="kbArticles.length === 0"><div class="empty-state">
+                <p>No articles yet. Create documentation to help your customers.</p>
+              </div></div>
+          </div>
+        </div></div>
+      
+      <!-- Live Chat Tab -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTab === 'chat'"><div class="content-section">
+          <h2>Live Chat Settings</h2>
+          <p class="section-description">Configure real-time chat support for your customers.</p>
+          
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">Enable Live Chat</span>
+                  <span class="toggle-description">Show chat widget on customer portal</span>
+                </div>
+              </label>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Welcome Message</label>
+              <textarea placeholder="Hello! How can we help?" class="form-input" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Offline Message</label>
+              <textarea placeholder="We're offline, leave a message..." class="form-input" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Set Operating Hours</span>
+              </label>
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="chatSettings.operatingHours.enabled"><div class="form-group">
+                <label>Start Time</label>
+                <input type="time" class="form-input" />
+              </div>
+              
+              <div class="form-group">
+                <label>End Time</label>
+                <input type="time" class="form-input" />
+              </div></div>
+            
+            <div class="form-group full-width">
+              <h4>Auto Responses</h4>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Greeting Message</label>
+              <textarea class="form-input" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Away Message</label>
+              <textarea class="form-input" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Closed Message</label>
+              <textarea class="form-input" rows="2"></textarea>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-primary">
+              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving...' : 'Save Chat Settings'"></span>
+            </button>
+          </div>
+        </div></div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal-setup"}</script>

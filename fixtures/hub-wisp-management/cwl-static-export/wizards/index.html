@@ -1,20 +1,122 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="wizards" data-wisp-path="/wizards" data-cwl-island="client" data-wisp-layout="list">
-  <header class="wisp-demo-header">
-    <h1>Wizards</h1>
-    <p class="wisp-demo-desc">Operational workspace for Wizards — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/wizards/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>14</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Wizards data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/wizards"}</script>
+<div class="wisp-app-surface" data-wisp-page="wizards" data-wisp-path="/wizards" data-cwl-island="client"><div class="wizards-page">
+    <header class="wizards-header">
+      <button class="back-btn" type="button">
+        ← Dashboard
+      </button>
+      <div class="wizards-header-row">
+        <h1>🧙 List of wizards</h1>
+        <div class="wizards-pulldown-wrap">
+          <button
+            type="button"
+            class="wizards-pulldown-trigger"
+            aria-haspopup="true"
+          >
+            Jump to wizard ▼
+          </button>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizardsPulldownOpen"><div class="wizards-pulldown-menu" role="menu">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ALL_WIZARDS as w"><button type="button" role="menuitem" class="wizards-pulldown-item">
+                  <span class="wizards-pulldown-icon"></span>
+                  <span></span>
+                </button></div>
+            </div></div>
+        </div>
+      </div>
+      <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>
+    </header>
+
+    <div class="wizards-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><article class="wizard-card">
+          <div class="wizard-icon"></div>
+          <h2 class="wizard-name"></h2>
+          <p class="wizard-desc"></p>
+          <p class="wizard-where">
+            <strong></strong> · 
+          </p>
+          <button
+            class="open-in-module"
+              if (w.openHere && w.id === 'initial-configuration') <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showConfigWizard = true; return;"></span>
+              const w.modulePath + '?wizard=' + encodeURIComponent(w.id);
+              goto(url);
+            }}
+            type="button"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.openHere">Open</div>
+          </button>
+        </article></div>
+    </div>
+  </div>
+  <div data-cwl-component="OrganizationSetupWizard" data-cwl-lifted-component="OrganizationSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="org-wizard-title" hidden aria-hidden="true">
+    <div class="wizard-modal">
+      <div class="wizard-header">
+        <h2 id="org-wizard-title">🏢 Organization Setup</h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="wizard-content">
+        <div class="wizard-panel">
+          <p>Verify your organization details. You can edit these later in Settings.</p>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentTenant"><div class="info-card">
+              <div class="info-row">
+                <span class="label">Organization Name:</span>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.displayName"></span></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Contact Email:</span>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.contactEmail ?? '—'"></span></span>
+              </div>
+            </div></div>
+          <div class="actions">
+            <button type="button" class="btn-primary">Edit in Settings</button>
+            <button type="button" class="btn-secondary">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div data-cwl-component="InitialConfigurationWizard" data-cwl-lifted-component="InitialConfigurationWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="config-wizard-title" hidden aria-hidden="true">
+    <div class="wizard-modal">
+      <div class="wizard-header">
+        <h2 id="config-wizard-title">⚙️ Initial Configuration</h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="wizard-content">
+        <div class="wizard-panel">
+          <p>Add your first tower and configure the modules you'll use. You can do these later from the Dashboard.</p>
+
+          <div class="section">
+            <h3>Add First Tower</h3>
+            <p class="section-desc">Add a tower site for coverage planning.</p>
+            <button type="button" class="btn-primary">Open Coverage Map</button>
+          </div>
+
+          <div class="section">
+            <h3>Configure Modules</h3>
+            <div class="modules-grid">
+              <div class="module-card">
+                <span class="icon">📡</span>
+                <h4>CBRS Management</h4>
+                <p>Configure SAS API keys</p>
+                <button type="button" class="btn-secondary">Setup CBRS</button>
+              </div>
+              <div class="module-card">
+                <span class="icon">⚙️</span>
+                <h4>ACS/TR-069</h4>
+                <p>Configure network monitoring</p>
+                <button type="button" class="btn-secondary">Setup ACS</button>
+              </div>
+              <div class="module-card">
+                <span class="icon">📊</span>
+                <h4>Monitoring</h4>
+                <p>Configure SNMP and monitoring</p>
+                <button type="button" class="btn-secondary">Setup Monitoring</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn-secondary">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/wizards"}</script>

@@ -3,6 +3,7 @@
  * Stage CWL static export into WISP Module_Manager/build/client for Firebase Hosting.
  */
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
@@ -90,11 +91,18 @@ export function stageWispCwlStaticExportClient(opts = {}) {
   }
   cpSync(exportDir, clientDir, { recursive: true });
 
-  const assetsCopied = copyWispCwlStaticAssets(clientDir);
+  const assetResult = copyWispCwlStaticAssets(clientDir, { wispRoot });
   const wrappedPages = wrapExportedHtmlDocuments(clientDir);
 
   const ok = existsSync(join(clientDir, "index.html"));
-  return { ...base, ok, staged: ok, assetsCopied, wrappedPages };
+  return {
+    ...base,
+    ok,
+    staged: ok,
+    assetsCopied: assetResult.copied,
+    arcgisBundle: assetResult.arcgisBundle,
+    wrappedPages,
+  };
 }
 
 /**
@@ -102,9 +110,37 @@ export function stageWispCwlStaticExportClient(opts = {}) {
  * serves at runtime into the static client dir, so Firebase Hosting serves
  * the same styled shell as the GCE deployment.
  * @param {string} clientDir
+ * @param {{ wispRoot?: string }} [opts]
  */
-export function copyWispCwlStaticAssets(clientDir) {
+export function copyWispCwlStaticAssets(clientDir, opts = {}) {
   const fixtureDir = join(scriptRoot, "fixtures/hub-wisp-management");
+  const bundlePath = join(fixtureDir, "wisp-cwl-arcgis.bundle.js");
+  /** @type {{ ok?: boolean; bytes?: number; skip?: string; status?: number | null }} */
+  let arcgisBundle = { ok: true, skip: "exists" };
+  if (!existsSync(bundlePath) || process.env.CHRYSALIS_WISP_ARCGIS_REBUILD === "1") {
+    const env = { ...process.env };
+    if (opts.wispRoot) env.CHRYSALIS_WISP_ROOT = String(opts.wispRoot);
+    const r = spawnSync(
+      process.execPath,
+      [join(scriptRoot, "scripts/build-wisp-cwl-arcgis-bundle.mjs")],
+      { cwd: scriptRoot, env, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+    );
+    if (r.status !== 0 || !existsSync(bundlePath)) {
+      arcgisBundle = {
+        ok: false,
+        status: r.status,
+        skip: (r.stderr || r.stdout || "arcgis-bundle-build-failed").trim().slice(0, 500),
+      };
+      console.warn("[wisp-cwl-stage] ArcGIS bundle build skipped:", arcgisBundle.skip);
+    } else {
+      try {
+        arcgisBundle = JSON.parse((r.stdout || "").trim());
+      } catch {
+        arcgisBundle = { ok: true };
+      }
+    }
+  }
+
   let copied = 0;
   for (const [urlPath, spec] of Object.entries(WISP_CHIMERA_STATIC_ASSETS)) {
     const src = join(fixtureDir, spec.file);
@@ -126,7 +162,33 @@ export function copyWispCwlStaticAssets(clientDir) {
     cpSync(originalCss, join(clientDir, "assets/original-css"), { recursive: true });
     copied += 1;
   }
-  return copied;
+  // Oracle API goldens for map/client fallback when live HSS is unreachable (D6442).
+  const apiGoldens = join(fixtureDir, "wisp-api-goldens");
+  if (existsSync(apiGoldens)) {
+    cpSync(apiGoldens, join(clientDir, "assets/wisp-api-goldens"), { recursive: true });
+    copied += 1;
+  }
+  // Prefer Esri key from the origin project's env (translate, do not invent OSM — D6442/D6443).
+  const apiKey =
+    (process.env.PUBLIC_ARCGIS_API_KEY || process.env.CHRYSALIS_ARCGIS_API_KEY || "").trim();
+  if (apiKey && !/^AIza/i.test(apiKey)) {
+    const cfgPath = join(clientDir, "assets/wisp-arcgis-config.json");
+    mkdirSync(dirname(cfgPath), { recursive: true });
+    writeFileSync(
+      cfgPath,
+      `${JSON.stringify(
+        {
+          apiKey,
+          note: "Staged from PUBLIC_ARCGIS_API_KEY / CHRYSALIS_ARCGIS_API_KEY at deploy time (origin Module_Manager).",
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+    copied += 1;
+  }
+  return { copied, arcgisBundle };
 }
 
 /**
@@ -157,16 +219,21 @@ export function wrapExportedHtmlDocuments(clientDir) {
         trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")
           ? extractBodyInner(raw)
           : raw;
-      // Skip if already has full chimera client (idempotent restage).
+      const rel = relative(clientDir, abs).replace(/\\/g, "/");
+      const pathname = rel === "index.html" ? "/" : `/${rel.replace(/\/index\.html$/, "")}`;
+      const isCoverageMapPage =
+        pathname.includes("coverage-map") ||
+        pathname.includes("pci-resolution") ||
+        body.includes('data-wisp-page="coverage-map"');
+      // D6443: always restage coverage so modules overlay cannot stick from prior wraps.
       if (
+        !isCoverageMapPage &&
         body.includes("data-wisp-page") &&
         raw.includes("/assets/wisp-cwl-client.js") &&
         raw.includes("/assets/wisp-cwl-")
       ) {
         continue;
       }
-      const rel = relative(clientDir, abs).replace(/\\/g, "/");
-      const pathname = rel === "index.html" ? "/" : `/${rel.replace(/\/index\.html$/, "")}`;
       const doc = wrapWispCwlHtmlDocument(body, "WISP Management", pathname);
       writeFileSync(abs, doc.endsWith("\n") ? doc : `${doc}\n`, "utf8");
       wrapped += 1;

@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "admin",
+  "op": "create",
+  "seeded": "contract-mutate"
+}

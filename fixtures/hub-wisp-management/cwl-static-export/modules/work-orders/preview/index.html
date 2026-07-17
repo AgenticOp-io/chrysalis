@@ -1,20 +1,254 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_work_orders_id" data-wisp-path="/modules/work-orders/:id" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/work-orders">
-  <header class="wisp-demo-header">
-    <h1>:id</h1>
-    <p class="wisp-demo-desc">Operational workspace for :id — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>0</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>11</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label=":id data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>wo-1</td><td>Install CPE</td><td>open</td><td></td></tr><tr><td>wo-2</td><td>Tower climb</td><td>scheduled</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/work-orders/:id","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-work-orders-:id" data-wisp-path="/modules/work-orders/:id" data-cwl-island="client"><div class="work-order-details">
+  <div class="page-header">
+    <button class="back-button">
+      ← Back to Work Orders
+    </button>
+    
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder"><div class="header-content">
+        <div class="header-left">
+          <h1><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.ticketNumber || 'Work Order'"></span></h1>
+          <p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.title"></span></p>
+        </div>
+        
+        <div class="header-badges">
+          <div 
+            class="priority-badge" 
+            style="background-color:"
+          >
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.priority"></span>
+          </div>
+          
+          <div 
+            class="status-badge" 
+            style="background-color:"
+          >
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.status"></span>
+          </div>
+        </div>
+      </div></div>
+  </div>
+  
+  <!-- Alerts -->
+  
+  
+  
+  
+  
+    <div class="content-grid">
+      <!-- Main Content -->
+      <div class="main-column">
+        <!-- Description -->
+        <div class="card">
+          <h3>📋 Description</h3>
+          <p class="description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.description || 'No description provided'"></span></p>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.symptoms"><h4>Symptoms:</h4>
+            <p class="symptoms"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.symptoms"></span></p></div>
+        </div>
+        
+        <!-- Location -->
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location"><div class="card">
+            <h3>📍 Location</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Type:</span>
+                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.type"></span></span>
+              </div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location.siteName"><div class="info-item">
+                  <span class="info-label">Site:</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.siteName"></span></span>
+                </div></div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location.address"><div class="info-item">
+                  <span class="info-label">Address:</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.address"></span></span>
+                </div></div>
+            </div>
+          </div></div>
+        
+        <!-- Customer Info -->
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.customerReported && workOrder.customerContact"><div class="card">
+            <h3>👤 Customer Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.customerContact.name"></span></span>
+              </div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.customerContact.phone"><div class="info-item">
+                  <span class="info-label">Phone:</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.customerContact.phone"></span></span>
+                </div></div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.customerContact.email"><div class="info-item">
+                  <span class="info-label">Email:</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.customerContact.email"></span></span>
+                </div></div>
+            </div>
+          </div></div>
+        
+        <!-- Resolution -->
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.resolution"><div class="card">
+            <h3>✅ Resolution</h3>
+            <p class="resolution"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.resolution"></span></p>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.rootCause"><h4>Root Cause:</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.rootCause"></span></p></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.preventiveMeasures"><h4>Preventive Measures:</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.preventiveMeasures"></span></p></div>
+          </div></div>
+        
+        <!-- Work Log -->
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.workPerformed && workOrder.workPerformed.length > 0"><div class="card">
+            <h3>📝 Work Log</h3>
+            <div class="work-log">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="workOrder.workPerformed as entry"><div class="log-entry">
+                  <div class="log-header">
+                    <span class="log-time"></span>
+                    <span class="log-user"></span>
+                  </div>
+                  <p class="log-action"></p>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="entry.notes"><p class="log-notes"></p></div>
+                </div></div>
+            </div>
+          </div></div>
+      </div>
+      
+      <!-- Sidebar -->
+      <div class="sidebar-column">
+        <!-- Actions -->
+        <div class="card actions-card">
+          <h3>⚡ Quick Actions</h3>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.status === 'open' || workOrder.status === 'assigned'"><button 
+              class="action-btn start-btn"
+            >
+              ▶️ Start Work
+            </button></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.status === 'in-progress'"><button 
+              class="action-btn complete-btn"
+            >
+              ✅ Mark Complete
+            </button></div>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.status === 'resolved'"><button 
+              class="action-btn"
+            >
+              🔒 Close Ticket
+            </button></div>
+          
+          <button 
+            class="action-btn secondary-btn"
+          >
+            ✏️ Edit Details
+          </button>
+        </div>
+        
+        <!-- Details -->
+        <div class="card">
+          <h3>ℹ️ Details</h3>
+          
+          <div class="detail-list">
+            <div class="detail-item">
+              <span class="detail-label">Type:</span>
+              <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.type"></span></span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Created:</span>
+              <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.createdAt)"></span></span>
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.createdByName"><div class="detail-item">
+                <span class="detail-label">Created By:</span>
+                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.createdByName"></span></span>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.assignedToName"><div class="detail-item">
+                <span class="detail-label">Assigned To:</span>
+                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.assignedToName"></span></span>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.scheduledDate"><div class="detail-item">
+                <span class="detail-label">Scheduled:</span>
+                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.scheduledDate)"></span></span>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.estimatedDuration"><div class="detail-item">
+                <span class="detail-label">Est. Duration:</span>
+                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.estimatedDuration"></span> min</span>
+              </div></div>
+          </div>
+        </div>
+        
+        <!-- SLA -->
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla"><div class="card">
+            <h3>⏱️ SLA</h3>
+            
+            <div class="detail-list">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla.responseDeadline"><div class="detail-item">
+                  <span class="detail-label">Response By:</span>
+                  <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.sla.responseDeadline)"></span></span>
+                </div></div>
+              
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla.resolutionDeadline"><div class="detail-item">
+                  <span class="detail-label">Resolve By:</span>
+                  <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.sla.resolutionDeadline)"></span></span>
+                </div></div>
+              
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla.breached"><div class="sla-warning">
+                  ⚠️ SLA Breached
+                </div></div>
+            </div>
+          </div></div>
+        
+        <!-- Timeline -->
+        <div class="card">
+          <h3>📅 Timeline</h3>
+          
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="timeline-icon">📝</span>
+              <div class="timeline-content">
+                <span class="timeline-label">Created</span>
+                <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.createdAt)"></span></span>
+              </div>
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.assignedAt"><div class="timeline-item">
+                <span class="timeline-icon">👤</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Assigned</span>
+                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.assignedAt)"></span></span>
+                </div>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.startedAt"><div class="timeline-item">
+                <span class="timeline-icon">▶️</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Started</span>
+                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.startedAt)"></span></span>
+                </div>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.completedAt"><div class="timeline-item">
+                <span class="timeline-icon">✅</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Completed</span>
+                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.completedAt)"></span></span>
+                </div>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.closedAt"><div class="timeline-item">
+                <span class="timeline-icon">🔒</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Closed</span>
+                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.closedAt)"></span></span>
+                </div>
+              </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/work-orders/:id"}</script>

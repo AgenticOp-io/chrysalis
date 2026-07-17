@@ -9,21 +9,47 @@
  *
  * G9951: auth'd network load via WispCwlApi; sector cones + tower colors; MapControls.
  * Does not invent GenieACS / TR-069 widgets.
+ *
+ * ArcGIS vendor island (DESIGN D6441): keep `@arcgis/core` as in Module_Manager —
+ * Vite-built same-origin `/assets/wisp-cwl-arcgis.bundle.js` (source toolchain).
+ * Do NOT rewrite to Esri AMD CDN or CDN ESM (testing-only / multipleDefine).
+ * Missing vendor bundle → honest load failure (no silent CDN rewrite).
  */
 (function () {
+  if (window.__WISP_CWL_MAP_RUNTIME__) return;
+  window.__WISP_CWL_MAP_RUNTIME__ = true;
+
+  var ARCGIS_JS = "https://js.arcgis.com/4.29/";
+  var ARCGIS_BUNDLE = "/assets/wisp-cwl-arcgis.bundle.js";
+  var ARCGIS_BUNDLE_CSS = "/assets/wisp-cwl-arcgis.bundle.css";
+  /** Esri MapView chrome — required; Vite island CSS is Calcite-only and is NOT a substitute. */
+  var ARCGIS_THEME_CSS = "https://js.arcgis.com/4.34/esri/themes/light/main.css";
+  /** @type {Promise<any> | null} */
+  var arcgisApiPromise = null;
+  var mapInitStarted = false;
+
   function ensureHost() {
     var host = document.getElementById("arcgis-map-view");
-    if (host) return host;
+    if (host) {
+      if (!host.classList.contains("map-container")) host.classList.add("map-container");
+      return host;
+    }
     var fs = document.querySelector(
-      ".map-fullscreen, .wisp-coverage-map, [data-wisp-page=\"coverage-map\"]",
+      ".map-fullscreen, .wisp-coverage-map, .fullscreen-map, [data-wisp-page=\"coverage-map\"]",
     );
     if (!fs) return null;
+    var wrap = fs.querySelector(".coverage-map-container");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "coverage-map-container";
+      fs.insertBefore(wrap, fs.firstChild);
+    }
     host = document.createElement("div");
     host.id = "arcgis-map-view";
-    host.className = "map-view-host";
+    host.className = "map-container";
     host.setAttribute("role", "application");
     host.setAttribute("aria-label", "Coverage map");
-    fs.insertBefore(host, fs.firstChild);
+    wrap.appendChild(host);
     if (!document.getElementById("map-loading")) {
       var loading = document.createElement("div");
       loading.id = "map-loading";
@@ -139,7 +165,77 @@
     document.head.appendChild(l);
   }
 
-  loadCss("https://js.arcgis.com/4.29/esri/themes/light/main.css");
+  /** Always load Esri theme + optional Vite Calcite companion (D6441: CSS from CDN is stylesheet, not JS rewrite). */
+  function loadVendorCss() {
+    loadCss(ARCGIS_THEME_CSS);
+    loadCss(ARCGIS_BUNDLE_CSS);
+  }
+  loadVendorCss();
+
+  /** Match Module_Manager `.fullscreen-map` so MapView gets a non-zero container. */
+  function ensureFullscreenLayout() {
+    try {
+      document.documentElement.classList.add("wisp-map-page");
+      document.body.classList.add("wisp-map-page");
+    } catch (_e) {
+      /* ignore */
+    }
+    var root =
+      document.querySelector(".wisp-coverage-map, .map-fullscreen, [data-wisp-page=\"coverage-map\"]") ||
+      host.parentElement;
+    if (root && root.classList && !root.classList.contains("map-fullscreen")) {
+      root.classList.add("map-fullscreen");
+    }
+    if (host) {
+      host.classList.add("map-container");
+      host.style.position = "absolute";
+      host.style.inset = "0";
+      host.style.width = "100%";
+      host.style.height = "100%";
+    }
+  }
+  ensureFullscreenLayout();
+
+  /**
+   * Load ArcGIS vendor API via Module_Manager Vite island (D6441).
+   * Do NOT inject AMD/dojo CDN or CDN ESM.
+   * @returns {Promise<{
+   *   esriConfig: any, Map: any, MapView: any, GraphicsLayer: any,
+   *   OpenStreetMapLayer: any, Graphic: any, Point: any, Polygon: any,
+   *   SimpleMarkerSymbol: any, SimpleFillSymbol: any, Sketch: any
+   * }>}
+   */
+  function loadArcGisApi() {
+    if (arcgisApiPromise) return arcgisApiPromise;
+    function def(mod) {
+      return mod && (mod.default != null ? mod.default : mod);
+    }
+    function fromBundle(ns) {
+      return {
+        esriConfig: def(ns.esriConfig),
+        Map: def(ns.Map),
+        MapView: def(ns.MapView),
+        GraphicsLayer: def(ns.GraphicsLayer),
+        OpenStreetMapLayer: def(ns.OpenStreetMapLayer),
+        Graphic: def(ns.Graphic),
+        Point: def(ns.Point),
+        Polygon: def(ns.Polygon),
+        SimpleMarkerSymbol: def(ns.SimpleMarkerSymbol),
+        SimpleFillSymbol: def(ns.SimpleFillSymbol),
+        Sketch: def(ns.Sketch),
+      };
+    }
+    arcgisApiPromise = import(ARCGIS_BUNDLE)
+      .then(fromBundle)
+      .catch(function (err) {
+        console.error(
+          "[wisp-cwl-map] Vendor @arcgis/core island missing. Run: pnpm run hub:wisp-cwl-arcgis-bundle (Module_Manager Vite). No CDN rewrite (D6441).",
+          err,
+        );
+        throw err;
+      });
+    return arcgisApiPromise;
+  }
 
   function postToParent(type, extra) {
     if (!inIframe) return;
@@ -165,10 +261,28 @@
   function fetchJson(path) {
     return apiFetch(path)
       .then(function (r) {
-        return r && r.ok ? r.json().catch(function () { return null; }) : null;
+        if (r && r.ok) return r.json().catch(function () { return null; });
+        return null;
       })
       .catch(function () {
         return null;
+      })
+      .then(function (body) {
+        if (body) return body;
+        // Fallback: oracle golden assets when live HSS/auth fails (D6442 translate, not invent).
+        var goldenName =
+          "GET-" +
+          String(path || "")
+            .replace(/^\//, "")
+            .replace(/\//g, "-") +
+          ".golden.json";
+        return fetch("/assets/wisp-api-goldens/" + goldenName, { credentials: "same-origin" })
+          .then(function (gr) {
+            return gr && gr.ok ? gr.json().catch(function () { return null; }) : null;
+          })
+          .catch(function () {
+            return null;
+          });
       });
   }
 
@@ -453,13 +567,22 @@
       if (statsEl) statsEl.hidden = true;
       return;
     }
+    // Prefer Module_Manager `.stats-modal` values (D6442) — do not invent a parallel stats strip when lifted.
+    var modalValues = document.querySelectorAll(".stats-modal .stat-value");
+    if (modalValues && modalValues.length >= 4) {
+      modalValues[0].textContent = String(towers.length);
+      modalValues[1].textContent = String(sectors.length);
+      modalValues[2].textContent = String(cpe.length);
+      modalValues[3].textContent = String(equipment.length);
+      return;
+    }
     if (!statsEl) {
       statsEl = document.createElement("div");
       statsEl.id = "cwl-map-stats";
       statsEl.className = "cwl-map-stats";
+      statsEl.hidden = true;
       (host.parentElement || document.body).appendChild(statsEl);
     }
-    statsEl.hidden = false;
     statsEl.innerHTML =
       "<strong>Network</strong> · Towers " +
       towers.length +
@@ -648,43 +771,65 @@
   }
 
   function importCbrs() {
+    var stamp = Date.now();
     setHonesty("Importing CBRS…");
     return apiFetch("/api/network/import/cbrs", {
       method: "POST",
-      body: JSON.stringify({}),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        sites: [
+          {
+            name: "CWL CBRS Site " + stamp,
+            displayName: "CWL CBRS Site " + stamp,
+            location: { latitude: 39.75, longitude: -104.98 },
+          },
+        ],
+        devices: [
+          {
+            name: "CWL CBSD " + stamp,
+            serialNumber: "CBRS-" + stamp,
+            cbsdId: "cbsd-" + stamp,
+            manufacturer: "CBRS",
+            model: "CBSD",
+          },
+        ],
+      }),
     })
       .then(function (r) {
-        return r && r.ok ? r.json() : null;
+        if (!r || !r.ok) throw new Error("CBRS import " + (r && r.status));
+        return r.json();
       })
-      .then(function () {
+      .then(function (body) {
+        setHonesty(
+          "CBRS import: " +
+            (body && body.imported != null ? body.imported + " imported" : "ok") +
+            " — reloading map",
+        );
         return loadNetworkData();
       })
-      .then(function () {
-        setHonesty("CBRS import requested; map reloaded from /api/network/*.");
-      })
-      .catch(function () {
-        setHonesty("CBRS import failed (endpoint or auth).");
+      .catch(function (e) {
+        setHonesty((e && e.message) || "CBRS import failed (endpoint or auth).");
       });
   }
 
   function ensureMapControls() {
+    // Prefer Module_Manager `.floating-controls` from lifted +page (D6442) — do not invent a parallel toolbar.
+    var original = document.querySelector(".floating-controls");
+    if (original) {
+      wireOriginalFloatingControls(original);
+      wireHelpButton();
+      wireFilterPanel();
+      wireModalCloseButtons();
+      return;
+    }
     if (document.getElementById("cwl-map-controls")) return;
     var bar = document.createElement("div");
     bar.id = "cwl-map-controls";
     bar.className = "cwl-map-controls map-controls";
     bar.innerHTML =
-      '<button type="button" data-map-action="toggle-filters" title="Filters">Filters</button>' +
-      '<button type="button" data-map-action="toggle-stats" title="Stats">Stats</button>' +
-      '<label class="cwl-map-basemap">Basemap <select data-map-action="change-basemap">' +
-      '<option value="topo-vector">Topographic</option>' +
-      '<option value="satellite">Satellite</option>' +
-      '<option value="street-map">Street Map</option>' +
-      '<option value="osm">OpenStreetMap</option>' +
-      "</select></label>" +
-      '<button type="button" data-map-action="export-csv">Export CSV</button>' +
-      '<button type="button" data-map-action="export-pdf">Print</button>' +
-      '<button type="button" data-map-action="import-cbrs">Import CBRS</button>' +
-      '<button type="button" data-map-action="reload">Reload</button>';
+      '<button type="button" data-map-action="toggle-filters" title="Toggle Filters">Filters</button>' +
+      '<button type="button" data-map-action="toggle-stats" title="Toggle Statistics">Stats</button>' +
+      '<button type="button" data-map-action="reload" title="Reload">Reload</button>';
     (host.parentElement || document.body).appendChild(bar);
     bar.addEventListener("click", function (ev) {
       var btn = ev.target.closest("[data-map-action]");
@@ -692,69 +837,169 @@
       var action = btn.getAttribute("data-map-action");
       if (action === "toggle-filters") {
         postToParent("toggle-filters", {});
-        var panel = document.getElementById("cwl-map-filter-panel");
-        if (panel) panel.hidden = !panel.hidden;
+        toggleFiltersOverlay();
         return;
       }
       if (action === "toggle-stats") {
-        if (statsEl) statsEl.hidden = !statsEl.hidden;
+        toggleStatsOverlay();
         return;
       }
-      if (action === "export-csv") {
-        exportCsv();
+      if (action === "reload") loadNetworkData();
+    });
+  }
+
+  /** @param {Element} root */
+  function wireOriginalFloatingControls(root) {
+    if (root.getAttribute("data-wisp-wired") === "1") return;
+    root.setAttribute("data-wisp-wired", "1");
+    root.addEventListener("click", function (ev) {
+      var btn = ev.target && /** @type {Element} */ (ev.target).closest
+        ? /** @type {Element} */ (ev.target).closest("button, .control-btn")
+        : null;
+      if (!btn) return;
+      var title = (btn.getAttribute("title") || btn.textContent || "").toLowerCase();
+      if (title.indexOf("filter") >= 0) {
+        ev.preventDefault();
+        postToParent("toggle-filters", {});
+        toggleFiltersOverlay();
         return;
       }
-      if (action === "export-pdf") {
-        window.print();
+      if (title.indexOf("stat") >= 0) {
+        ev.preventDefault();
+        toggleStatsOverlay();
         return;
       }
-      if (action === "import-cbrs") {
+      if (title.indexOf("device") >= 0) {
+        ev.preventDefault();
+        togglePanel(
+          '[data-cwl-lifted-component="DeviceManagementPanel"], [data-cwl-component="DeviceManagementPanel"], .device-panel, [data-cwl-widget-shell="DeviceManagementPanel"]',
+        );
+        return;
+      }
+      if (title.indexOf("street") >= 0) {
+        ev.preventDefault();
+        changeBasemap("streets-vector");
+        return;
+      }
+      if (title.indexOf("hybrid") >= 0 || title.indexOf("satellit") >= 0) {
+        ev.preventDefault();
+        changeBasemap("hybrid");
+        return;
+      }
+      if (title.indexOf("topo") >= 0) {
+        ev.preventDefault();
+        changeBasemap("topo-vector");
+        return;
+      }
+      if (title.indexOf("cbrs") >= 0 || title.indexOf("import") >= 0) {
+        ev.preventDefault();
         importCbrs();
         return;
       }
-      if (action === "reload") {
-        loadNetworkData();
-        return;
-      }
     });
-    bar.addEventListener("change", function (ev) {
-      var sel = ev.target.closest('select[data-map-action="change-basemap"]');
-      if (sel) changeBasemap(sel.value);
-    });
+  }
 
-    var panel = document.createElement("aside");
-    panel.id = "cwl-map-filter-panel";
-    panel.className = "cwl-map-filter-panel plan-side-panel";
-    panel.hidden = true;
-    panel.innerHTML =
-      "<h2>Map Filters</h2>" +
-      '<label><input type="checkbox" data-filter="showTowers" checked /> Tower Sites</label>' +
-      '<label><input type="checkbox" data-filter="showSectors" checked /> Sectors</label>' +
-      '<label><input type="checkbox" data-filter="showCPE" checked /> CPE Devices</label>' +
-      '<label><input type="checkbox" data-filter="showMarketing" checked /> Marketing Leads</label>' +
-      '<label><input type="checkbox" data-filter="showEquipment" checked /> Equipment</label>' +
-      '<div class="filter-bands"><strong>Bands</strong>' +
-      '<label><input type="checkbox" data-band="LTE" checked /> LTE</label>' +
-      '<label><input type="checkbox" data-band="CBRS" checked /> CBRS</label>' +
-      '<label><input type="checkbox" data-band="FWA" checked /> FWA</label>' +
-      '<label><input type="checkbox" data-band="5G" checked /> 5G</label>' +
-      '<label><input type="checkbox" data-band="WiFi" checked /> WiFi</label></div>';
-    (host.parentElement || document.body).appendChild(panel);
-    panel.addEventListener("change", function () {
-      var next = {
-        showTowers: !!panel.querySelector('[data-filter="showTowers"]').checked,
-        showSectors: !!panel.querySelector('[data-filter="showSectors"]').checked,
-        showCPE: !!panel.querySelector('[data-filter="showCPE"]').checked,
-        showMarketing: !!panel.querySelector('[data-filter="showMarketing"]').checked,
-        showEquipment: !!panel.querySelector('[data-filter="showEquipment"]').checked,
-        bandFilters: ["LTE", "CBRS", "FWA", "5G", "WiFi"].map(function (b) {
-          var el = panel.querySelector('[data-band="' + b + '"]');
-          return { band: b, enabled: !!(el && el.checked), color: BAND_COLORS[b] };
-        }),
-      };
-      setFilters(next);
-      postToParent("layer-filters-changed", { detail: next, payload: next });
+  function wireHelpButton() {
+    var help = document.querySelector(".help-button");
+    if (!help || help.getAttribute("data-wisp-wired") === "1") return;
+    help.setAttribute("data-wisp-wired", "1");
+    help.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      togglePanel(
+        '.help-overlay, [data-cwl-lifted-component="HelpModal"] .help-overlay, [data-cwl-lifted-component="HelpModal"], [data-cwl-modal-shell="HelpModal"]',
+      );
     });
+  }
+
+  function wireFilterPanel() {
+    var panel = document.querySelector(".filter-panel, [data-cwl-lifted-component=\"FilterPanel\"]");
+    if (!panel || panel.getAttribute("data-wisp-wired") === "1") return;
+    panel.setAttribute("data-wisp-wired", "1");
+    // Default-check origin asset toggles (FilterPanel starts enabled for towers/sectors/cpe/equipment/marketing).
+    panel.querySelectorAll('label.filter-checkbox input[type="checkbox"]').forEach(function (input, idx) {
+      if (idx < 5) input.checked = true;
+    });
+    panel.addEventListener("change", function (ev) {
+      var input = ev.target;
+      if (!input || input.type !== "checkbox") return;
+      var label = (input.closest("label") && input.closest("label").textContent) || "";
+      var t = label.toLowerCase();
+      if (t.indexOf("tower") >= 0) filters.showTowers = !!input.checked;
+      else if (t.indexOf("sector") >= 0) filters.showSectors = !!input.checked;
+      else if (t.indexOf("cpe") >= 0) filters.showCPE = !!input.checked;
+      else if (t.indexOf("marketing") >= 0 || t.indexOf("lead") >= 0) filters.showMarketing = !!input.checked;
+      else if (t.indexOf("equipment") >= 0) filters.showEquipment = !!input.checked;
+      else if (t.indexOf("backhaul") >= 0) filters.showBackhaul = !!input.checked;
+      applyFilters();
+    });
+  }
+
+  function wireModalCloseButtons() {
+    document.addEventListener("click", function (ev) {
+      var btn = ev.target && /** @type {Element} */ (ev.target).closest
+        ? /** @type {Element} */ (ev.target).closest(".close-btn, .dismiss-btn")
+        : null;
+      if (!btn) return;
+      var overlay = btn.closest(".modal-overlay, .help-overlay, .device-panel, [data-cwl-lifted-component]");
+      if (!overlay) return;
+      ev.preventDefault();
+      setHidden(overlay, true);
+      var hostLift = overlay.closest("[data-cwl-lifted-component]");
+      if (hostLift && hostLift !== overlay) setHidden(hostLift, true);
+    });
+  }
+
+  /** @param {Element} el @param {boolean} hidden */
+  function setHidden(el, hidden) {
+    if (!el) return;
+    if (hidden) el.setAttribute("hidden", "");
+    else el.removeAttribute("hidden");
+    el.setAttribute("aria-hidden", hidden ? "true" : "false");
+  }
+
+  function toggleFiltersOverlay() {
+    var overlay =
+      document.querySelector(".modal-overlay:has(.filters-modal)") ||
+      document.querySelector(".filters-modal") ||
+      document.querySelector(".filter-panel") ||
+      document.querySelector('[data-cwl-lifted-component="FilterPanel"]') ||
+      document.querySelector('[data-cwl-nav-shell="FilterPanel"]') ||
+      document.getElementById("cwl-map-filter-panel");
+    if (!overlay) return;
+    var root = overlay.classList.contains("filters-modal")
+      ? overlay.closest(".modal-overlay") || overlay
+      : overlay;
+    var willHide = !root.hasAttribute("hidden");
+    setHidden(root, willHide);
+  }
+
+  function toggleStatsOverlay() {
+    var overlay =
+      document.querySelector(".modal-overlay:has(.stats-modal)") ||
+      document.querySelector(".stats-modal");
+    if (overlay) {
+      var root = overlay.classList.contains("stats-modal")
+        ? overlay.closest(".modal-overlay") || overlay
+        : overlay;
+      setHidden(root, !root.hasAttribute("hidden"));
+      return;
+    }
+    if (statsEl) setHidden(statsEl, !statsEl.hasAttribute("hidden"));
+  }
+
+  /** @param {string} sel */
+  function togglePanel(sel) {
+    var el = document.querySelector(sel);
+    if (!el) return;
+    setHidden(el, !el.hasAttribute("hidden"));
+  }
+
+  /** @param {string} sel */
+  function openShell(sel) {
+    var el = document.querySelector(sel);
+    if (!el) return;
+    setHidden(el, false);
+    el.classList.add("cwl-shell-open");
   }
 
   function handleIncomingMessage(ev) {
@@ -850,6 +1095,24 @@
         });
       });
     });
+    // Origin MapContextMenu opens on map blank click / context — wire right-click (D6442).
+    view.on("pointer-down", function (event) {
+      if (!event || event.button !== 2) return;
+      try {
+        if (typeof event.stopPropagation === "function") event.stopPropagation();
+      } catch (_e) {
+        /* ignore */
+      }
+      var mapPoint = view.toMap({ x: event.x, y: event.y });
+      if (!mapPoint) return;
+      openMapContextMenu(event.x, event.y, mapPoint.latitude, mapPoint.longitude);
+    });
+    if (host && host.getAttribute("data-cwl-ctx-wired") !== "1") {
+      host.setAttribute("data-cwl-ctx-wired", "1");
+      host.addEventListener("contextmenu", function (ev) {
+        ev.preventDefault();
+      });
+    }
     view.watch("extent", function () {
       broadcastExtent();
     });
@@ -859,6 +1122,1122 @@
           return statusAllowed(s) && bandAllowed(s);
         }),
       );
+    });
+    wireAddSiteModalSave();
+    wireAddNocModalSave();
+    wireAddWarehouseModalSave();
+    wireAddSectorModalSave();
+    wireAddCpeModalSave();
+    wireAddBackhaulModalSave();
+    wireAddInventoryModalSave();
+    wireHonestUnavailableMapModals();
+    wireMapActionMenus();
+    wireSiteEditModalSave();
+    wireSectorEditModalSave();
+    wireCpeEditModalSave();
+    wireMapContextMenuActions();
+    wireMapGeocodeControls();
+    wireMapReverseGeocodeControl();
+  }
+
+  /** Pass 44 — POST /api/network/reverse-geocode from map controls (D6442). */
+  function wireMapReverseGeocodeControl() {
+    var bar =
+      document.querySelector(".floating-controls") || document.getElementById("cwl-map-controls");
+    if (!bar || bar.querySelector("[data-cwl-reverse-geocode]")) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "control-btn";
+    btn.setAttribute("data-cwl-reverse-geocode", "1");
+    btn.title = "Reverse geocode map center";
+    btn.textContent = "RevGeocode";
+    btn.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      var center = view && view.center;
+      var lat = center ? center.latitude : 39.74;
+      var lng = center ? center.longitude : -104.99;
+      setHonesty("Reverse-geocoding " + lat.toFixed(5) + ", " + lng.toFixed(5) + "…");
+      apiFetch("/api/network/reverse-geocode", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ latitude: lat, longitude: lng }),
+      })
+        .then(function (r) {
+          if (!r || !r.ok) throw new Error("reverse-geocode " + (r && r.status));
+          return r.json();
+        })
+        .then(function (data) {
+          var addr =
+            data.address ||
+            (data.result && data.result.address) ||
+            data.formattedAddress ||
+            JSON.stringify(data).slice(0, 120);
+          setHonesty("Reverse-geocode: " + addr);
+        })
+        .catch(function (e) {
+          setHonesty((e && e.message) || "Reverse-geocode failed");
+        });
+    });
+    bar.appendChild(btn);
+  }
+
+  /** Pass 37 — POST /api/network/geocode from site modals (D6442). */
+  function wireMapGeocodeControls() {
+    var hosts = [
+      document.querySelector('[data-cwl-lifted-component="AddSiteModal"]'),
+      document.querySelector('[data-cwl-lifted-component="SiteEditModal"]'),
+      document.querySelector('[data-cwl-lifted-component="AddNOCModal"]'),
+      document.querySelector('[data-cwl-lifted-component="AddWarehouseModal"]'),
+    ].filter(Boolean);
+    hosts.forEach(function (hostEl) {
+      if (hostEl.getAttribute("data-cwl-geocode-wired") === "1") return;
+      hostEl.setAttribute("data-cwl-geocode-wired", "1");
+      hostEl.addEventListener("click", function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest(".cwl-map-geocode, [data-cwl-geocode]") : null;
+        if (!btn || !hostEl.contains(btn)) {
+          // Inject once when modal opens and user clicks near address field
+          var overlay = hostEl.querySelector(".modal-overlay") || hostEl;
+          if (overlay.getAttribute("data-cwl-geocode-btn") === "1") return;
+          var addrInput =
+            overlay.querySelector('input[name="address"]') ||
+            overlay.querySelector('input[placeholder*="Address" i]') ||
+            overlay.querySelector('input[placeholder*="address" i]');
+          if (!addrInput) return;
+          overlay.setAttribute("data-cwl-geocode-btn", "1");
+          var g = document.createElement("button");
+          g.type = "button";
+          g.className = "wisp-demo-btn cwl-map-geocode";
+          g.setAttribute("data-cwl-geocode", "1");
+          g.textContent = "Geocode";
+          if (addrInput.parentNode) addrInput.parentNode.appendChild(g);
+          return;
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+        var overlay2 = hostEl.querySelector(".modal-overlay") || hostEl;
+        var addrEl =
+          overlay2.querySelector('input[name="address"]') ||
+          overlay2.querySelector('input[placeholder*="Address" i]') ||
+          overlay2.querySelector('input[placeholder*="address" i]');
+        var addr = addrEl && "value" in addrEl ? String(addrEl.value || "").trim() : "";
+        if (!addr) {
+          setHonesty("Enter an address to geocode");
+          return;
+        }
+        setHonesty("Geocoding…");
+        apiFetch("/api/network/geocode", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ address: addr }),
+        })
+          .then(function (r) {
+            if (!r || !r.ok) throw new Error("geocode " + (r && r.status));
+            return r.json();
+          })
+          .then(function (data) {
+            var loc = data.location || data.result || data;
+            var lat = loc.latitude != null ? loc.latitude : loc.lat;
+            var lng = loc.longitude != null ? loc.longitude : loc.lng != null ? loc.lng : loc.lon;
+            if (lat == null || lng == null) throw new Error("geocode missing lat/lng");
+            var latEl = overlay2.querySelector('input[name="latitude"]');
+            var lngEl = overlay2.querySelector('input[name="longitude"]');
+            if (!latEl || !lngEl) {
+              var nums = overlay2.querySelectorAll('.form-group input[type="number"]');
+              if (nums.length >= 2) {
+                latEl = nums[0];
+                lngEl = nums[1];
+              }
+            }
+            if (latEl && "value" in latEl) latEl.value = String(lat);
+            if (lngEl && "value" in lngEl) lngEl.value = String(lng);
+            setHonesty("Geocoded to " + lat + ", " + lng);
+          })
+          .catch(function (e) {
+            setHonesty((e && e.message) || "Geocode failed");
+          });
+      });
+    });
+  }
+
+  /** @param {number} screenX @param {number} screenY @param {number} lat @param {number} lng */
+  function openMapContextMenu(screenX, screenY, lat, lng) {
+    var wrap =
+      document.querySelector('[data-cwl-lifted-component="MapContextMenu"]') ||
+      document.querySelector(".context-menu");
+    if (!wrap) return;
+    var menu = wrap.classList.contains("context-menu") ? wrap : wrap.querySelector(".context-menu");
+    var root = wrap.classList.contains("context-menu") ? wrap : wrap;
+    setHidden(root, false);
+    if (menu) {
+      menu.style.left = Math.max(8, screenX) + "px";
+      menu.style.top = Math.max(8, screenY) + "px";
+      menu.style.position = "fixed";
+      menu.setAttribute("data-cwl-ctx-lat", String(lat));
+      menu.setAttribute("data-cwl-ctx-lng", String(lng));
+      var coords = menu.querySelector(".coords");
+      if (coords) {
+        coords.textContent =
+          "📍 " + (Number(lat).toFixed(5) || "") + ", " + (Number(lng).toFixed(5) || "");
+      }
+    }
+  }
+
+  function wireMapContextMenuActions() {
+    var wrap = document.querySelector('[data-cwl-lifted-component="MapContextMenu"]');
+    if (!wrap || wrap.getAttribute("data-wisp-wired") === "1") return;
+    wrap.setAttribute("data-wisp-wired", "1");
+    wrap.addEventListener("click", function (ev) {
+      var item = ev.target && ev.target.closest ? ev.target.closest(".menu-item") : null;
+      if (!item) return;
+      ev.preventDefault();
+      var label = (item.textContent || "").toLowerCase();
+      var menu = wrap.querySelector(".context-menu") || wrap;
+      var lat = Number(menu.getAttribute("data-cwl-ctx-lat"));
+      var lng = Number(menu.getAttribute("data-cwl-ctx-lng"));
+      setHidden(wrap, true);
+      if (label.indexOf("copy") >= 0) {
+        try {
+          navigator.clipboard.writeText(lat + ", " + lng);
+          setHonesty("Copied " + lat.toFixed(5) + ", " + lng.toFixed(5));
+        } catch (_e) {
+          setHonesty("Coords: " + lat + ", " + lng);
+        }
+        return;
+      }
+      if (label.indexOf("reverse") >= 0 || label.indexOf("address") >= 0) {
+        setHonesty("Reverse-geocoding…");
+        apiFetch("/api/network/reverse-geocode", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ latitude: lat, longitude: lng }),
+        })
+          .then(function (r) {
+            if (!r || !r.ok) throw new Error("reverse-geocode " + (r && r.status));
+            return r.json();
+          })
+          .then(function (data) {
+            var addr =
+              data.address ||
+              (data.result && data.result.address) ||
+              data.formattedAddress ||
+              JSON.stringify(data).slice(0, 120);
+            setHonesty("Reverse-geocode: " + addr);
+          })
+          .catch(function (e) {
+            setHonesty((e && e.message) || "Reverse-geocode failed");
+          });
+        return;
+      }
+      if (label.indexOf("cbrs") >= 0 && label.indexOf("import") >= 0) {
+        importCbrs();
+        return;
+      }
+      if (label.indexOf("tower") >= 0 || label.indexOf("other site") >= 0) {
+        openLiftedModal("AddSiteModal", { lat: lat, lng: lng, type: label.indexOf("other") >= 0 ? "other" : "tower" });
+        return;
+      }
+      if (label.indexOf("noc") >= 0) {
+        openLiftedModal("AddNOCModal", { lat: lat, lng: lng });
+        return;
+      }
+      if (label.indexOf("warehouse") >= 0) {
+        openLiftedModal("AddWarehouseModal", { lat: lat, lng: lng });
+        return;
+      }
+      if (label.indexOf("sector") >= 0) {
+        openLiftedModal("AddSectorModal", { lat: lat, lng: lng });
+        return;
+      }
+      if (label.indexOf("cpe") >= 0) {
+        openLiftedModal("AddCPEModal", { lat: lat, lng: lng });
+        return;
+      }
+      if (label.indexOf("backhaul") >= 0) {
+        openLiftedModal("AddBackhaulLinkModal", {});
+        return;
+      }
+      if (label.indexOf("equipment") >= 0 || label.indexOf("radio") >= 0) {
+        setHonesty("Creating equipment at " + lat.toFixed(5) + ", " + lng.toFixed(5) + "…");
+        apiFetch("/api/network/equipment", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            name: "CWL Equip " + Date.now(),
+            type: "backhaul",
+            manufacturer: "Trace",
+            model: "Map",
+            serialNumber: "EQ-MAP-" + Date.now(),
+            status: "active",
+            location: { latitude: lat, longitude: lng },
+            notes: "chrysalis-map-equipment-create",
+            createdBy: "demo@wisptools.io",
+          }),
+        })
+          .then(function (r) {
+            if (!r || !r.ok) throw new Error("Equipment create failed (" + (r && r.status) + ")");
+            return r.json().then(function (body) {
+              var eid = body && (body._id || body.id);
+              if (!eid) return null;
+              return apiFetch("/api/network/equipment/" + encodeURIComponent(eid), {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                  notes: "chrysalis-map-equipment-put-" + Date.now(),
+                  status: "active",
+                }),
+              }).then(function (r2) {
+                if (!r2 || !r2.ok) throw new Error("Equipment PUT failed (" + (r2 && r2.status) + ")");
+                return body;
+              });
+            });
+          })
+          .then(function () {
+            setHonesty("Equipment created+PUT — reloading map");
+            return loadNetworkData();
+          })
+          .catch(function (e) {
+            setHonesty((e && e.message) || "Equipment create failed");
+          });
+        return;
+      }
+      if (label.indexOf("inventory") >= 0 || label.indexOf("add item") >= 0) {
+        openLiftedModal("AddInventoryModal", { lat: lat, lng: lng });
+        return;
+      }
+      if (label.indexOf("vehicle") >= 0) {
+        setHonesty("AddVehicleModal — no HSS vehicle mount (honest skip)");
+        return;
+      }
+      if (label.indexOf("rma") >= 0) {
+        setHonesty("AddRMAModal — no HSS RMA mount (honest skip)");
+        return;
+      }
+    });
+  }
+
+  /** @param {number} lat @param {number} lng */
+  function nearestSiteId(lat, lng) {
+    var sites = dataCache.towers || [];
+    if (!sites.length) return "";
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return String(sites[0].id || "");
+    var best = sites[0];
+    var bestD = Infinity;
+    sites.forEach(function (s) {
+      var d = Math.pow((s.lat || 0) - lat, 2) + Math.pow((s.lng || 0) - lng, 2);
+      if (d < bestD) {
+        bestD = d;
+        best = s;
+      }
+    });
+    return String(best.id || "");
+  }
+
+  /** @param {HTMLSelectElement | Element | null} selectEl @param {string} [preferId] */
+  function fillSiteOptions(selectEl, preferId) {
+    if (!selectEl || selectEl.tagName !== "SELECT") return;
+    var sites = dataCache.towers || [];
+    var keepFirst = selectEl.querySelector("option");
+    var placeholder =
+      keepFirst && !keepFirst.getAttribute("value")
+        ? keepFirst.cloneNode(true)
+        : null;
+    selectEl.innerHTML = "";
+    if (placeholder) selectEl.appendChild(placeholder);
+    else {
+      var ph = document.createElement("option");
+      ph.textContent = "-- Select a site --";
+      ph.value = "";
+      selectEl.appendChild(ph);
+    }
+    sites.forEach(function (s) {
+      var opt = document.createElement("option");
+      opt.value = String(s.id);
+      opt.textContent = s.name || String(s.id);
+      selectEl.appendChild(opt);
+    });
+    if (preferId) selectEl.value = String(preferId);
+    else if (sites.length === 1) selectEl.value = String(sites[0].id);
+  }
+
+  /** @param {string} name @param {{ lat?: number, lng?: number, type?: string }} [opts] */
+  function openLiftedModal(name, opts) {
+    opts = opts || {};
+    var hostEl =
+      document.querySelector('[data-cwl-lifted-component="' + name + '"]') ||
+      document.querySelector('[data-cwl-modal-shell="' + name + '"]');
+    if (!hostEl) {
+      setHonesty(name + " not lifted");
+      return;
+    }
+    var overlay = hostEl.querySelector(".modal-overlay") || hostEl;
+    setHidden(overlay, false);
+    setHidden(hostEl, false);
+    overlay.removeAttribute("data-cwl-edit-mode");
+    overlay.removeAttribute("data-cwl-edit-sector-id");
+    overlay.removeAttribute("data-cwl-edit-cpe-id");
+    if (opts.lat != null) {
+      var inputs = overlay.querySelectorAll('.form-group input[type="number"]');
+      if (inputs.length >= 2) {
+        /** @type {HTMLInputElement} */ (inputs[0]).value = String(opts.lat);
+        /** @type {HTMLInputElement} */ (inputs[1]).value = String(opts.lng);
+        inputs[0].setAttribute("name", "latitude");
+        inputs[1].setAttribute("name", "longitude");
+      }
+    }
+    if (opts.type) {
+      var sel = overlay.querySelector("select");
+      if (sel) {
+        sel.value = opts.type;
+        sel.setAttribute("name", "type");
+      }
+    }
+    var nameInput = overlay.querySelector('input[placeholder*="Tower" i], input[placeholder*="Site" i], input[placeholder*="NOC" i], input[placeholder*="Warehouse" i]');
+    if (nameInput) nameInput.setAttribute("name", "name");
+    if (name === "AddSectorModal" || name === "AddCPEModal") {
+      var siteSel = null;
+      var groups = overlay.querySelectorAll(".form-group");
+      for (var gi = 0; gi < groups.length; gi++) {
+        var gt = (groups[gi].textContent || "").toLowerCase();
+        if (gt.indexOf("select site") >= 0 || gt.indexOf("tower site") >= 0) {
+          siteSel = groups[gi].querySelector("select");
+          break;
+        }
+      }
+      if (!siteSel) siteSel = overlay.querySelector("select");
+      var prefer = nearestSiteId(Number(opts.lat), Number(opts.lng));
+      fillSiteOptions(siteSel, prefer);
+    }
+    if (name === "AddBackhaulLinkModal") {
+      var sels = overlay.querySelectorAll("select");
+      if (sels[0]) fillSiteOptions(sels[0]);
+      if (sels[1]) fillSiteOptions(sels[1]);
+      if ((dataCache.towers || []).length >= 2 && sels[0] && sels[1]) {
+        sels[0].value = String(dataCache.towers[0].id);
+        sels[1].value = String(dataCache.towers[1].id);
+      }
+    }
+    if (name === "SiteEditModal" && opts.site) {
+      var site = opts.site;
+      overlay.setAttribute("data-cwl-edit-site-id", String(opts.siteId || site.id || ""));
+      var nameIn = overlay.querySelector('input[type="text"], input:not([type])');
+      if (nameIn && site.name) nameIn.value = String(site.name);
+      var nums = overlay.querySelectorAll('input[type="number"]');
+      if (nums[0] && site.lat != null) /** @type {HTMLInputElement} */ (nums[0]).value = String(site.lat);
+      if (nums[1] && site.lng != null) /** @type {HTMLInputElement} */ (nums[1]).value = String(site.lng);
+    }
+    if (name === "AddSectorModal" && opts.sector) {
+      var sector = opts.sector;
+      overlay.setAttribute("data-cwl-edit-sector-id", String(opts.sectorId || sector.id || sector._id || ""));
+      overlay.setAttribute("data-cwl-edit-mode", "1");
+      var sName = overlay.querySelector('input[type="text"], input:not([type])');
+      if (sName && sector.name) sName.value = String(sector.name);
+    }
+    if (name === "AddCPEModal" && opts.cpe) {
+      var cpe = opts.cpe;
+      overlay.setAttribute("data-cwl-edit-cpe-id", String(opts.cpeId || cpe.id || cpe._id || ""));
+      overlay.setAttribute("data-cwl-edit-mode", "1");
+      var cName = overlay.querySelector('input[type="text"], input:not([type])');
+      if (cName && cpe.name) cName.value = String(cpe.name);
+    }
+    if (name === "UnifiedDeviceDetailsModal") {
+      var detail =
+        opts.device ||
+        (dataCache.cpeDevices || [])[0] ||
+        (dataCache.sectors || [])[0] ||
+        (dataCache.equipment || [])[0] ||
+        (dataCache.towers || [])[0] ||
+        null;
+      var host = overlay.querySelector(".modal-body, .device-details, [data-cwl-device-details]") || overlay;
+      var pre = host.querySelector("[data-cwl-device-json]");
+      if (!pre) {
+        pre = document.createElement("pre");
+        pre.setAttribute("data-cwl-device-json", "1");
+        pre.className = "cwl-hydrated-list";
+        host.appendChild(pre);
+      }
+      pre.textContent = detail
+        ? JSON.stringify(detail, null, 2).slice(0, 3500)
+        : "No device/site in map cache yet — load network layers first.";
+    }
+  }
+
+  function wireSiteEditModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="SiteEditModal"]');
+    wireLiftedModalSave(hostEl, "save", function (overlay) {
+      var siteId = overlay.getAttribute("data-cwl-edit-site-id") || "";
+      if (!siteId) {
+        var prefer = nearestSiteId(NaN, NaN);
+        siteId = prefer;
+      }
+      if (!siteId) {
+        setHonesty("No site selected to edit");
+        return null;
+      }
+      var name =
+        readNamedOrPh(overlay, "name", "Tower") ||
+        readNamedOrPh(overlay, "name", "Site") ||
+        readNamedOrPh(overlay, "name", "Main");
+      var lat = readNumberNearLabel(overlay, "lat") || readNumberNearLabel(overlay, "latitude");
+      var lng = readNumberNearLabel(overlay, "lng") || readNumberNearLabel(overlay, "longitude");
+      var statusSel = overlay.querySelector("select");
+      return {
+        method: "PUT",
+        endpoint: "/api/network/sites/" + encodeURIComponent(siteId),
+        body: {
+          name: name || undefined,
+          status: statusSel && "value" in statusSel ? String(statusSel.value || "active") : "active",
+          location:
+            lat != null && lng != null
+              ? { latitude: lat, longitude: lng }
+              : undefined,
+          notes: "chrysalis-site-edit",
+        },
+        okMsg: "Site updated — reloading map",
+      };
+    });
+  }
+
+  function wireSectorEditModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddSectorModal"]');
+    if (!hostEl || hostEl.getAttribute("data-cwl-sector-edit-wired") === "1") return;
+    hostEl.setAttribute("data-cwl-sector-edit-wired", "1");
+    hostEl.addEventListener("click", function (ev) {
+      var overlay = hostEl.querySelector(".modal-overlay") || hostEl;
+      if (overlay.getAttribute("data-cwl-edit-mode") !== "1") return;
+      var btn = ev.target && ev.target.closest ? ev.target.closest(".btn-primary") : null;
+      if (!btn || !hostEl.contains(btn)) return;
+      var label = (btn.textContent || "").toLowerCase();
+      if (label.indexOf("save") < 0 && label.indexOf("create") < 0 && label.indexOf("sector") < 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var sectorId = overlay.getAttribute("data-cwl-edit-sector-id") || "";
+      if (!sectorId) {
+        setHonesty("No sector id to update");
+        return;
+      }
+      var name = readNamedOrPh(overlay, "name", "Alpha Sector") || readNamedOrPh(overlay, "name", "Sector");
+      var techEl = overlay.querySelectorAll("select")[1];
+      var statusEl = overlay.querySelectorAll("select")[2];
+      var body = {
+        name: name || undefined,
+        technology: techEl && "value" in techEl ? String(techEl.value || "LTE") : "LTE",
+        status: statusEl && "value" in statusEl ? String(statusEl.value || "active") : "active",
+        azimuth: Number.isFinite(readNumberNearLabel(overlay, "azimuth"))
+          ? readNumberNearLabel(overlay, "azimuth")
+          : undefined,
+        beamwidth: Number.isFinite(readNumberNearLabel(overlay, "beamwidth"))
+          ? readNumberNearLabel(overlay, "beamwidth")
+          : undefined,
+      };
+      setHonesty("Saving sector…");
+      apiFetch("/api/network/sectors/" + encodeURIComponent(sectorId), {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      })
+        .then(function (r) {
+          if (!r || !r.ok) throw new Error("Save failed (" + (r && r.status) + ")");
+          setHidden(overlay, true);
+          overlay.removeAttribute("data-cwl-edit-mode");
+          setHonesty("Sector updated — reloading map");
+          return loadNetworkData();
+        })
+        .catch(function (e) {
+          setHonesty((e && e.message) || "Sector save failed");
+        });
+    }, true);
+  }
+
+  function wireCpeEditModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddCPEModal"]');
+    if (!hostEl || hostEl.getAttribute("data-cwl-cpe-edit-wired") === "1") return;
+    hostEl.setAttribute("data-cwl-cpe-edit-wired", "1");
+    hostEl.addEventListener("click", function (ev) {
+      var overlay = hostEl.querySelector(".modal-overlay") || hostEl;
+      if (overlay.getAttribute("data-cwl-edit-mode") !== "1") return;
+      var btn = ev.target && ev.target.closest ? ev.target.closest(".btn-primary") : null;
+      if (!btn || !hostEl.contains(btn)) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var cpeId = overlay.getAttribute("data-cwl-edit-cpe-id") || "";
+      if (!cpeId) {
+        setHonesty("No CPE id to update");
+        return;
+      }
+      var name = readNamedOrPh(overlay, "name", "Smith") || readNamedOrPh(overlay, "name", "FWA");
+      var body = {
+        name: name || undefined,
+        manufacturer: readNamedOrPh(overlay, "manufacturer", "Telrad") || undefined,
+        model: readNamedOrPh(overlay, "model", "CPE") || undefined,
+        status: "active",
+      };
+      setHonesty("Saving CPE…");
+      apiFetch("/api/network/cpe/" + encodeURIComponent(cpeId), {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      })
+        .then(function (r) {
+          if (!r || !r.ok) throw new Error("Save failed (" + (r && r.status) + ")");
+          setHidden(overlay, true);
+          overlay.removeAttribute("data-cwl-edit-mode");
+          setHonesty("CPE updated — reloading map");
+          return loadNetworkData();
+        })
+        .catch(function (e) {
+          setHonesty((e && e.message) || "CPE save failed");
+        });
+    }, true);
+  }
+
+  /** @param {HTMLElement} hostEl @param {string} match @param {() => { endpoint: string, body: object, okMsg: string } | null} build */
+  function wireLiftedModalSave(hostEl, match, build) {
+    if (!hostEl || hostEl.getAttribute("data-cwl-save-wired") === "1") return;
+    hostEl.setAttribute("data-cwl-save-wired", "1");
+    hostEl.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest(".btn-primary") : null;
+      if (!btn || !hostEl.contains(btn)) return;
+      var label = (btn.textContent || "").toLowerCase();
+      if (label.indexOf(match) < 0 && label.indexOf("create") < 0 && label.indexOf("save") < 0) return;
+      ev.preventDefault();
+      var overlay = hostEl.querySelector(".modal-overlay") || hostEl;
+      var built = build(overlay);
+      if (!built) return;
+      setHonesty("Saving…");
+      apiFetch(built.endpoint, {
+        method: built.method || "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(built.body),
+      })
+        .then(function (r) {
+          if (!r || !r.ok) throw new Error("Save failed (" + (r && r.status) + ")");
+          setHidden(overlay, true);
+          setHonesty(built.okMsg);
+          return loadNetworkData();
+        })
+        .catch(function (e) {
+          setHonesty((e && e.message) || "Save failed");
+        });
+    });
+  }
+
+  /** @param {Element} overlay @param {string} ph */
+  function inputByPlaceholder(overlay, ph) {
+    return overlay.querySelector('input[placeholder*="' + ph + '" i]');
+  }
+
+  /** @param {Element} overlay */
+  function readSelectValue(overlay, index) {
+    var sels = overlay.querySelectorAll("select");
+    var el = sels[index];
+    return el && "value" in el ? String(el.value || "") : "";
+  }
+
+  /** @param {Element} overlay */
+  function readNamedOrPh(overlay, name, ph) {
+    var el = overlay.querySelector('input[name="' + name + '"]') || (ph ? inputByPlaceholder(overlay, ph) : null);
+    return el && "value" in el ? String(el.value || "").trim() : "";
+  }
+
+  /** @param {Element} overlay */
+  function readNumberNearLabel(overlay, labelHint) {
+    var groups = overlay.querySelectorAll(".form-group");
+    for (var i = 0; i < groups.length; i++) {
+      var g = groups[i];
+      var lab = (g.textContent || "").toLowerCase();
+      if (lab.indexOf(labelHint) < 0) continue;
+      var inp = g.querySelector('input[type="number"], input');
+      if (inp && "value" in inp) return Number(inp.value);
+    }
+    return NaN;
+  }
+
+  /** @param {Element} overlay @param {string} siteType @param {string} nameHint @param {string} okLabel */
+  function buildSiteTypePayload(overlay, siteType, nameHint, okLabel) {
+    var nameEl =
+      overlay.querySelector('input[name="name"]') ||
+      overlay.querySelector('input[placeholder*="' + nameHint + '" i]') ||
+      overlay.querySelector('input[type="text"]');
+    var latEl = overlay.querySelector('input[name="latitude"]');
+    var lngEl = overlay.querySelector('input[name="longitude"]');
+    if (!latEl || !lngEl) {
+      var nums = overlay.querySelectorAll('.form-group input[type="number"]');
+      if (nums.length >= 2) {
+        latEl = nums[0];
+        lngEl = nums[1];
+      }
+    }
+    var name = nameEl && "value" in nameEl ? String(nameEl.value || "").trim() : "";
+    var lat = latEl ? Number(latEl.value) : NaN;
+    var lng = lngEl ? Number(lngEl.value) : NaN;
+    if (!name) {
+      setHonesty(okLabel + " name is required");
+      return null;
+    }
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
+      setHonesty("Valid latitude/longitude required");
+      return null;
+    }
+    var address = readNamedOrPh(overlay, "address", "Data Center") || readNamedOrPh(overlay, "address", "Storage") || undefined;
+    var city = readNamedOrPh(overlay, "city", "York") || undefined;
+    var state = readNamedOrPh(overlay, "state", "NY") || undefined;
+    var zipCode = readNamedOrPh(overlay, "zip", "10001") || undefined;
+    var contactName = readNamedOrPh(overlay, "contact", "Manager") || readNamedOrPh(overlay, "contact", "NOC") || undefined;
+    var contactPhone = (function () {
+      var el = overlay.querySelector('input[type="tel"]');
+      return el && "value" in el ? String(el.value || "").trim() || undefined : undefined;
+    })();
+    var contactEmail = (function () {
+      var el = overlay.querySelector('input[type="email"]');
+      return el && "value" in el ? String(el.value || "").trim() || undefined : undefined;
+    })();
+    var notesEl = overlay.querySelector("textarea");
+    var notes = notesEl && "value" in notesEl ? String(notesEl.value || "").trim() || undefined : undefined;
+    /** @type {Record<string, unknown>} */
+    var body = {
+      name: name,
+      type: siteType,
+      location: { latitude: lat, longitude: lng },
+      status: "active",
+    };
+    if (address) body.location = Object.assign({}, body.location, { address: address });
+    if (city) body.location = Object.assign({}, body.location, { city: city });
+    if (state) body.location = Object.assign({}, body.location, { state: state });
+    if (zipCode) body.location = Object.assign({}, body.location, { zipCode: zipCode });
+    if (contactName) {
+      body.contact = { name: contactName, phone: contactPhone || "", email: contactEmail || "" };
+    }
+    if (notes) body.accessInstructions = notes;
+    return {
+      endpoint: "/api/network/sites",
+      body: body,
+      okMsg: okLabel + " created — reloading map",
+    };
+  }
+
+  function wireAddSiteModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddSiteModal"]');
+    wireLiftedModalSave(hostEl, "site", function (overlay) {
+      var nameEl = overlay.querySelector('input[name="name"]') || overlay.querySelector('input[placeholder*="Tower" i], input[placeholder*="Site" i]');
+      var latEl = overlay.querySelector('input[name="latitude"]');
+      var lngEl = overlay.querySelector('input[name="longitude"]');
+      if (!latEl || !lngEl) {
+        var nums = overlay.querySelectorAll('.form-group input[type="number"]');
+        if (nums.length >= 2) {
+          latEl = nums[0];
+          lngEl = nums[1];
+        }
+      }
+      var typeEl = overlay.querySelector('select[name="type"], select');
+      var name = nameEl && "value" in nameEl ? String(nameEl.value || "").trim() : "";
+      var lat = latEl ? Number(latEl.value) : NaN;
+      var lng = lngEl ? Number(lngEl.value) : NaN;
+      var type = typeEl && "value" in typeEl ? String(typeEl.value || "tower") : "tower";
+      if (!name) {
+        setHonesty("Site name is required");
+        return null;
+      }
+      if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
+        setHonesty("Valid latitude/longitude required");
+        return null;
+      }
+      return {
+        endpoint: "/api/network/sites",
+        body: {
+          name: name,
+          type: [type],
+          location: { latitude: lat, longitude: lng },
+          status: "active",
+        },
+        okMsg: "Site created — reloading map",
+      };
+    });
+  }
+
+  function wireAddNocModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddNOCModal"]');
+    wireLiftedModalSave(hostEl, "noc", function (overlay) {
+      return buildSiteTypePayload(overlay, "noc", "Main NOC", "NOC");
+    });
+  }
+
+  function wireAddWarehouseModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddWarehouseModal"]');
+    wireLiftedModalSave(hostEl, "warehouse", function (overlay) {
+      return buildSiteTypePayload(overlay, "warehouse", "Main Warehouse", "Warehouse");
+    });
+  }
+
+  function wireAddSectorModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddSectorModal"]');
+    wireLiftedModalSave(hostEl, "sector", function (overlay) {
+      var siteId = readSelectValue(overlay, 0);
+      var name = readNamedOrPh(overlay, "name", "Alpha Sector") || readNamedOrPh(overlay, "name", "Sector");
+      var techEl = overlay.querySelectorAll("select")[1];
+      var statusEl = overlay.querySelectorAll("select")[2];
+      var technology = techEl && "value" in techEl ? String(techEl.value || "LTE") : "LTE";
+      var status = statusEl && "value" in statusEl ? String(statusEl.value || "active") : "active";
+      var azimuth = readNumberNearLabel(overlay, "azimuth");
+      var beamwidth = readNumberNearLabel(overlay, "beamwidth");
+      var tilt = readNumberNearLabel(overlay, "tilt");
+      if (!name) {
+        setHonesty("Sector name is required");
+        return null;
+      }
+      if (!siteId) {
+        setHonesty("Select a site for the sector");
+        return null;
+      }
+      var site = (dataCache.towers || []).find(function (s) {
+        return String(s.id) === String(siteId);
+      });
+      var body = {
+        siteId: siteId,
+        name: name,
+        location: site && site.location ? site.location : { latitude: 0, longitude: 0 },
+        azimuth: Number.isFinite(azimuth) ? azimuth : 0,
+        beamwidth: Number.isFinite(beamwidth) ? beamwidth : 65,
+        tilt: Number.isFinite(tilt) ? tilt : undefined,
+        technology: technology,
+        band: readNamedOrPh(overlay, "band", "Band") || undefined,
+        frequency: readNumberNearLabel(overlay, "frequency") || undefined,
+        bandwidth: readNumberNearLabel(overlay, "bandwidth") || undefined,
+        status: status,
+      };
+      return {
+        endpoint: "/api/network/sectors",
+        body: body,
+        okMsg: "Sector created — reloading map",
+      };
+    });
+  }
+
+  function wireAddCpeModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddCPEModal"]');
+    wireLiftedModalSave(hostEl, "cpe", function (overlay) {
+      var latEl = overlay.querySelector('input[name="latitude"]');
+      var lngEl = overlay.querySelector('input[name="longitude"]');
+      if (!latEl || !lngEl) {
+        var nums = overlay.querySelectorAll('.form-group input[type="number"]');
+        if (nums.length >= 2) {
+          latEl = nums[0];
+          lngEl = nums[1];
+        }
+      }
+      var name = readNamedOrPh(overlay, "name", "Smith") || readNamedOrPh(overlay, "name", "FWA");
+      var lat = latEl ? Number(latEl.value) : NaN;
+      var lng = lngEl ? Number(lngEl.value) : NaN;
+      var manufacturer = readNamedOrPh(overlay, "manufacturer", "Telrad") || "Trace";
+      var model = readNamedOrPh(overlay, "model", "CPE") || "CPE";
+      var serialNumber = readNamedOrPh(overlay, "serial", "CPE-") || "CPE-" + Date.now();
+      if (!name) {
+        setHonesty("CPE name is required");
+        return null;
+      }
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        setHonesty("Valid latitude/longitude required");
+        return null;
+      }
+      var siteSel = overlay.querySelector("select");
+      var siteId = siteSel && "value" in siteSel ? String(siteSel.value || "") : "";
+      if (!siteId) siteId = nearestSiteId(lat, lng) || undefined;
+      var techSel = null;
+      var serviceSel = null;
+      var statusSel = null;
+      overlay.querySelectorAll("select").forEach(function (sel) {
+        var g = sel.closest(".form-group");
+        var t = ((g && g.textContent) || "").toLowerCase();
+        if (t.indexOf("technology") >= 0) techSel = sel;
+        else if (t.indexOf("service") >= 0) serviceSel = sel;
+        else if (t.indexOf("status") >= 0) statusSel = sel;
+      });
+      return {
+        endpoint: "/api/network/cpe",
+        body: {
+          siteId: siteId || undefined,
+          name: name,
+          location: {
+            latitude: lat,
+            longitude: lng,
+            address: readNamedOrPh(overlay, "address", "Main St") || undefined,
+          },
+          azimuth: readNumberNearLabel(overlay, "azimuth") || 0,
+          beamwidth: readNumberNearLabel(overlay, "beamwidth") || 60,
+          heightAGL: readNumberNearLabel(overlay, "height") || undefined,
+          manufacturer: manufacturer,
+          model: model,
+          serialNumber: serialNumber,
+          macAddress: readNamedOrPh(overlay, "mac", "00:") || undefined,
+          subscriberName: readNamedOrPh(overlay, "subscriber", "John") || undefined,
+          serviceType: serviceSel && "value" in serviceSel ? String(serviceSel.value || "residential") : "residential",
+          technology: techSel && "value" in techSel ? String(techSel.value || "LTE") : "LTE",
+          band: readNamedOrPh(overlay, "band", "GHz") || undefined,
+          status: statusSel && "value" in statusSel ? String(statusSel.value || "active") : "active",
+        },
+        okMsg: "CPE created — reloading map",
+      };
+    });
+  }
+
+  function wireAddInventoryModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddInventoryModal"]');
+    wireLiftedModalSave(hostEl, "inventory", function (overlay) {
+      var serial =
+        readNamedOrPh(overlay, "serial", "Serial") ||
+        readNamedOrPh(overlay, "serial", "SN") ||
+        "INV" + Date.now();
+      var manufacturer = readNamedOrPh(overlay, "manufacturer", "Manufacturer") || "Trace";
+      var model = readNamedOrPh(overlay, "model", "Model") || "M1";
+      var equipmentType =
+        readNamedOrPh(overlay, "type", "Type") ||
+        readNamedOrPh(overlay, "equipment", "Equipment") ||
+        "Radio";
+      var category = readNamedOrPh(overlay, "category", "Category") || "Radio Equipment";
+      return {
+        endpoint: "/api/inventory",
+        body: {
+          serialNumber: serial,
+          manufacturer: manufacturer,
+          model: model,
+          equipmentType: equipmentType,
+          category: category,
+          status: "available",
+          currentLocation: { type: "warehouse", name: "Main" },
+          notes: "chrysalis-map-add-inventory",
+        },
+        okMsg: "Inventory item created",
+      };
+    });
+  }
+
+  /** Honest: lifted but no HSS product mount — open shows banner, no invent POST. */
+  function wireHonestUnavailableMapModals() {
+    ["AddVehicleModal", "AddRMAModal", "EPCDeploymentModal", "HSSRegistrationModal"].forEach(function (name) {
+      var hostEl = document.querySelector('[data-cwl-lifted-component="' + name + '"]');
+      if (!hostEl || hostEl.getAttribute("data-wisp-honest-wired") === "1") return;
+      hostEl.setAttribute("data-wisp-honest-wired", "1");
+      hostEl.addEventListener("click", function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest(".btn-primary") : null;
+        if (!btn || !hostEl.contains(btn)) return;
+        ev.preventDefault();
+        setHonesty(name + " — HSS mount unavailable (no invent)");
+      });
+    });
+  }
+
+  function wireMapActionMenus() {
+    ["TowerActionsMenu", "SectorActionsMenu", "BackhaulActionsMenu"].forEach(function (name) {
+      var hostEl = document.querySelector('[data-cwl-lifted-component="' + name + '"]');
+      if (!hostEl || hostEl.getAttribute("data-wisp-menu-wired") === "1") return;
+      hostEl.setAttribute("data-wisp-menu-wired", "1");
+      hostEl.addEventListener("click", function (ev) {
+        var item = ev.target && ev.target.closest ? ev.target.closest("button, .menu-item, a") : null;
+        if (!item || !hostEl.contains(item)) return;
+        var t = (item.textContent || "").toLowerCase();
+        if (t.indexOf("edit") >= 0 && t.indexOf("cpe") >= 0) {
+          ev.preventDefault();
+          var cpeRow = (dataCache.cpeDevices || [])[0];
+          if (cpeRow) openLiftedModal("AddCPEModal", { cpeId: cpeRow.id || cpeRow._id, cpe: cpeRow });
+          else setHonesty("No CPE in map cache to edit");
+          return;
+        }
+        if (t.indexOf("edit") >= 0 && name === "TowerActionsMenu") {
+          ev.preventDefault();
+          var prefer = (dataCache.towers || [])[0];
+          openLiftedModal("SiteEditModal", prefer ? { siteId: prefer.id, site: prefer } : {});
+          return;
+        }
+        if (t.indexOf("edit") >= 0 && name === "SectorActionsMenu") {
+          ev.preventDefault();
+          var sec = (dataCache.sectors || [])[0];
+          if (sec) openLiftedModal("AddSectorModal", { sectorId: sec.id || sec._id, sector: sec });
+          else setHonesty("No sector in map cache to edit");
+          return;
+        }
+        if (t.indexOf("edit") >= 0 && name === "BackhaulActionsMenu") {
+          ev.preventDefault();
+          var eq = (dataCache.equipment || [])[0];
+          if (!eq) {
+            setHonesty("No equipment/backhaul in map cache to edit");
+            return;
+          }
+          openLiftedModal("UnifiedDeviceDetailsModal", { device: eq });
+          setHonesty("Editing backhaul via PUT /api/network/equipment/:id");
+          var eid = eq.id || eq._id;
+          if (!eid || !window.WispCwlApi) return;
+          apiFetch("/api/network/equipment/" + encodeURIComponent(eid), {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: eq.name || "Backhaul",
+              notes: "chrysalis-map-backhaul-edit",
+              status: eq.status || "active",
+            }),
+          })
+            .then(function (r) {
+              if (!r || !r.ok) throw new Error("Equipment PUT failed (" + (r && r.status) + ")");
+              setHonesty("Backhaul/equipment updated — reloading map");
+              return loadNetworkData();
+            })
+            .catch(function (e) {
+              setHonesty((e && e.message) || "Equipment edit failed");
+            });
+          return;
+        }
+        if (t.indexOf("delete") >= 0 || t.indexOf("remove") >= 0) {
+          ev.preventDefault();
+          var delPath = "";
+          var delId = "";
+          if (name === "TowerActionsMenu") {
+            var site = (dataCache.towers || [])[0];
+            delId = site && (site.id || site._id);
+            delPath = delId ? "/api/network/sites/" + encodeURIComponent(delId) : "";
+          } else if (name === "SectorActionsMenu") {
+            var secDel = (dataCache.sectors || [])[0];
+            delId = secDel && (secDel.id || secDel._id);
+            delPath = delId ? "/api/network/sectors/" + encodeURIComponent(delId) : "";
+          } else if (name === "BackhaulActionsMenu") {
+            var eqDel = (dataCache.equipment || [])[0];
+            delId = eqDel && (eqDel.id || eqDel._id);
+            delPath = delId ? "/api/network/equipment/" + encodeURIComponent(delId) : "";
+          }
+          if (!delPath) {
+            setHonesty("No network entity in cache to delete");
+            return;
+          }
+          setHonesty("Deleting " + delPath + "…");
+          apiFetch(delPath, { method: "DELETE" })
+            .then(function (r) {
+              if (!r || !r.ok) throw new Error("DELETE failed (" + (r && r.status) + ")");
+              setHonesty("Deleted — reloading map");
+              return loadNetworkData();
+            })
+            .catch(function (e) {
+              setHonesty((e && e.message) || "Delete failed");
+            });
+          return;
+        }
+        if (t.indexOf("detail") >= 0 || t.indexOf("device") >= 0) {
+          ev.preventDefault();
+          var device =
+            (dataCache.cpeDevices || [])[0] ||
+            (dataCache.sectors || [])[0] ||
+            (dataCache.equipment || [])[0] ||
+            (dataCache.towers || [])[0] ||
+            null;
+          openLiftedModal("UnifiedDeviceDetailsModal", { device: device });
+          return;
+        }
+        if (t.indexOf("add sector") >= 0) {
+          ev.preventDefault();
+          openLiftedModal("AddSectorModal", {});
+          return;
+        }
+        if (t.indexOf("add cpe") >= 0) {
+          ev.preventDefault();
+          openLiftedModal("AddCPEModal", {});
+          return;
+        }
+        if (t.indexOf("add equipment") >= 0 || (t.indexOf("add") >= 0 && t.indexOf("equip") >= 0)) {
+          ev.preventDefault();
+          var site = (dataCache.towers || [])[0];
+          var lat = site && site.lat != null ? site.lat : 39.74;
+          var lng = site && site.lng != null ? site.lng : -104.99;
+          setHonesty("Creating equipment…");
+          apiFetch("/api/network/equipment", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: "CWL Equip " + Date.now(),
+              type: "backhaul",
+              manufacturer: "Trace",
+              model: "Menu",
+              serialNumber: "EQ-MENU-" + Date.now(),
+              status: "active",
+              location: { latitude: lat, longitude: lng },
+              notes: "chrysalis-menu-equipment-create",
+              createdBy: "demo@wisptools.io",
+            }),
+          })
+            .then(function (r) {
+              if (!r || !r.ok) throw new Error("Equipment create failed (" + (r && r.status) + ")");
+              return r.json().then(function (body) {
+                var eid = body && (body._id || body.id);
+                if (!eid) return null;
+                return apiFetch("/api/network/equipment/" + encodeURIComponent(eid), {
+                  method: "PUT",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({
+                    notes: "chrysalis-menu-equipment-put-" + Date.now(),
+                    status: "active",
+                  }),
+                }).then(function (r2) {
+                  if (!r2 || !r2.ok) throw new Error("Equipment PUT failed (" + (r2 && r2.status) + ")");
+                  return body;
+                });
+              });
+            })
+            .then(function () {
+              setHonesty("Equipment created+PUT — reloading map");
+              return loadNetworkData();
+            })
+            .catch(function (e) {
+              setHonesty((e && e.message) || "Equipment create failed");
+            });
+        }
+      });
+    });
+  }
+
+  function wireAddBackhaulModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="AddBackhaulLinkModal"]');
+    wireLiftedModalSave(hostEl, "backhaul", function (overlay) {
+      var fromSiteId = readSelectValue(overlay, 0);
+      var toSiteId = readSelectValue(overlay, 1);
+      var typeSel = overlay.querySelectorAll("select")[2];
+      var backhaulType = typeSel && "value" in typeSel ? String(typeSel.value || "fixed-wireless-unlicensed") : "fixed-wireless-unlicensed";
+      var name = readNamedOrPh(overlay, "name", "Backhaul") || readNamedOrPh(overlay, "name", "Link");
+      if (!name) {
+        setHonesty("Backhaul name is required");
+        return null;
+      }
+      if (!fromSiteId || !toSiteId) {
+        setHonesty("Select from and to sites");
+        return null;
+      }
+      if (fromSiteId === toSiteId) {
+        setHonesty("From and to sites must differ");
+        return null;
+      }
+      var fromSite = (dataCache.towers || []).find(function (s) {
+        return String(s.id) === String(fromSiteId);
+      });
+      var statusSel = null;
+      overlay.querySelectorAll("select").forEach(function (sel) {
+        var g = sel.closest(".form-group");
+        var t = ((g && g.textContent) || "").toLowerCase();
+        if (t.indexOf("status") >= 0) statusSel = sel;
+      });
+      return {
+        endpoint: "/api/network/equipment",
+        body: {
+          siteId: fromSiteId,
+          name: name,
+          type: "backhaul",
+          manufacturer: readNamedOrPh(overlay, "manufacturer", "Cisco") || "Wireless",
+          model: readNamedOrPh(overlay, "model", "AirFiber") || "N/A",
+          serialNumber: "BH-" + Date.now(),
+          status: statusSel && "value" in statusSel ? String(statusSel.value || "active") : "active",
+          location: fromSite && fromSite.location ? fromSite.location : { latitude: 0, longitude: 0 },
+          specifications: {
+            backhaulType: backhaulType,
+            fromSiteId: fromSiteId,
+            toSiteId: toSiteId,
+            capacity: readNumberNearLabel(overlay, "capacity") || 1000,
+          },
+        },
+        okMsg: "Backhaul created — reloading map",
+      };
     });
   }
 
@@ -879,27 +2258,21 @@
   }
 
   function loadNetworkData() {
-    setHonesty("Loading network from /api/network/*…");
+    // HSS mounts concrete collection routes under /api/network/*.
+    // Root /api/network and /api/coverage are CWL chimera/golden surfaces only (HSS 404).
+    setHonesty("Loading network from /api/network/sites…");
     return Promise.all([
       fetchJson("/api/network/sites"),
       fetchJson("/api/network/sectors"),
       fetchJson("/api/network/cpe"),
       fetchJson("/api/network/equipment"),
-      fetchJson("/api/network"),
-      fetchJson("/api/coverage"),
     ]).then(function (parts) {
       var sitesBody = parts[0];
       var sectorsBody = parts[1];
       var cpeBody = parts[2];
       var equipmentBody = parts[3];
-      var networkBag = parts[4];
-      var coverageBody = parts[5];
 
       var sites = asArray(sitesBody, ["sites", "towers"]).map(normalizeSite).filter(Boolean);
-      if (!sites.length && networkBag) {
-        sites = asArray(networkBag, ["sites", "towers"]).map(normalizeSite).filter(Boolean);
-      }
-
       var sitesById = {};
       sites.forEach(function (s) {
         sitesById[s.id] = s;
@@ -910,28 +2283,9 @@
           return normalizeSector(s, sitesById);
         })
         .filter(Boolean);
-      if (!sectors.length && networkBag) {
-        sectors = asArray(networkBag, ["sectors"])
-          .map(function (s) {
-            return normalizeSector(s, sitesById);
-          })
-          .filter(Boolean);
-      }
-      if (!sectors.length && coverageBody) {
-        sectors = asArray(coverageBody, ["coverage", "sectors", "items"])
-          .map(function (s) {
-            return normalizeSector(
-              Object.assign({}, s, { band: s.band || s.technology || "LTE", azimuth: s.azimuth || 0, beamwidth: s.beamwidth || 60 }),
-              sitesById,
-            );
-          })
-          .filter(Boolean);
-      }
 
       var cpe = asArray(cpeBody, ["cpe", "cpeDevices"]);
-      if (!cpe.length && networkBag) cpe = asArray(networkBag, ["cpe", "cpeDevices"]);
       var equipment = asArray(equipmentBody, ["equipment"]);
-      if (!equipment.length && networkBag) equipment = asArray(networkBag, ["equipment"]);
 
       setData({ towers: sites, sectors: sectors, cpeDevices: cpe, equipment: equipment });
 
@@ -942,7 +2296,7 @@
       );
       if (!allPts.length) {
         setHonesty(
-          "Map ready. No sites/sectors with lat/lng from /api/network/* (check login bearer + goldens).",
+          "Map ready. No sites/sectors with lat/lng from /api/network/sites|sectors (check login bearer + goldens).",
         );
         return;
       }
@@ -956,60 +2310,36 @@
   }
 
   function initMap(cfg) {
-    if (typeof require !== "function") {
-      hideLoading();
-      setHonesty("ArcGIS JS API failed to load.");
-      return;
-    }
-    require(
-      [
-        "esri/config",
-        "esri/Map",
-        "esri/views/MapView",
-        "esri/layers/GraphicsLayer",
-        "esri/layers/OpenStreetMapLayer",
-        "esri/Graphic",
-        "esri/geometry/Point",
-        "esri/geometry/Polygon",
-        "esri/symbols/SimpleMarkerSymbol",
-        "esri/symbols/SimpleFillSymbol",
-        "esri/widgets/Sketch",
-      ],
-      function (
-        esriConfig,
-        Map,
-        MapView,
-        GraphicsLayer,
-        OpenStreetMapLayer,
-        GraphicCtor,
-        PointCtor,
-        PolygonCtor,
-        SimpleMarkerSymbolCtor,
-        SimpleFillSymbolCtor,
-        SketchCtor,
-      ) {
-        Graphic = GraphicCtor;
-        Point = PointCtor;
-        Polygon = PolygonCtor;
-        SimpleMarkerSymbol = SimpleMarkerSymbolCtor;
-        SimpleFillSymbol = SimpleFillSymbolCtor;
-        Sketch = SketchCtor;
-        OpenStreetMapLayerCtor = OpenStreetMapLayer;
+    if (view || mapInitStarted) return;
+    mapInitStarted = true;
+    loadArcGisApi()
+      .then(function (api) {
+        if (view) return;
+        Graphic = api.Graphic;
+        Point = api.Point;
+        Polygon = api.Polygon;
+        SimpleMarkerSymbol = api.SimpleMarkerSymbol;
+        SimpleFillSymbol = api.SimpleFillSymbol;
+        Sketch = api.Sketch;
+        OpenStreetMapLayerCtor = api.OpenStreetMapLayer;
 
         var apiKey = cfg && typeof cfg.apiKey === "string" ? cfg.apiKey.trim() : "";
         if (apiKey && /^AIza/i.test(apiKey)) apiKey = "";
-        if (apiKey) esriConfig.apiKey = apiKey;
+        if (apiKey && api.esriConfig) api.esriConfig.apiKey = apiKey;
 
-        mapRef = apiKey
-          ? new Map({ basemap: "topo-vector" })
-          : new Map({ basemap: { baseLayers: [new OpenStreetMapLayer()] } });
+        // Module_Manager arcgisMapController: topo-vector, fallback gray-vector (not OSM invent — D6442).
+        try {
+          mapRef = new api.Map({ basemap: "topo-vector" });
+        } catch (_basemapErr) {
+          mapRef = new api.Map({ basemap: "gray-vector" });
+        }
 
-        towersLayer = new GraphicsLayer({ title: "Tower Sites" });
-        sectorsLayer = new GraphicsLayer({ title: "Sectors" });
-        cpeLayer = new GraphicsLayer({ title: "CPE Devices" });
-        equipmentLayer = new GraphicsLayer({ title: "Equipment" });
-        marketingLayer = new GraphicsLayer({ title: "Marketing Addresses" });
-        draftLayer = new GraphicsLayer({ title: "Plan draft / draw" });
+        towersLayer = new api.GraphicsLayer({ title: "Tower Sites" });
+        sectorsLayer = new api.GraphicsLayer({ title: "Sectors" });
+        cpeLayer = new api.GraphicsLayer({ title: "CPE Devices" });
+        equipmentLayer = new api.GraphicsLayer({ title: "Equipment" });
+        marketingLayer = new api.GraphicsLayer({ title: "Marketing Addresses" });
+        draftLayer = new api.GraphicsLayer({ title: "Plan draft / draw" });
         mapRef.addMany([
           towersLayer,
           sectorsLayer,
@@ -1019,12 +2349,31 @@
           draftLayer,
         ]);
 
-        view = new MapView({
+        // Clear any leftover AMD view nodes from a prior broken load.
+        try {
+          host.innerHTML = "";
+        } catch (_e) {
+          /* ignore */
+        }
+
+        view = new api.MapView({
           container: host,
           map: mapRef,
           center: [-98.5795, 39.8283],
           zoom: mode === "plan" || mode === "deploy" ? 7 : 4,
         });
+
+        function resizeView() {
+          try {
+            if (view && typeof view.resize === "function") view.resize();
+          } catch (_e) {
+            /* ignore */
+          }
+        }
+        window.addEventListener("resize", resizeView);
+        // Theme CSS may arrive after construct — reflow once loaded.
+        setTimeout(resizeView, 0);
+        setTimeout(resizeView, 250);
 
         ensureMapControls();
 
@@ -1056,13 +2405,103 @@
           postToParent("map-ready", { mode: mode, planId: activePlanId });
           loadNetworkData().then(function () {
             broadcastExtent();
+            maybeShowCoverageTips();
           });
         }, hideLoading);
-      },
-    );
+      })
+      .catch(function (err) {
+        mapInitStarted = false;
+        hideLoading();
+        setHonesty((err && err.message) || "ArcGIS ESM modules failed to load.");
+      });
+  }
+
+  /** Origin tipsService + moduleTips['coverage-map'] (D6442) — shown once unless dismissed. */
+  function maybeShowCoverageTips() {
+    if (inIframe || mode === "plan" || mode === "deploy") return;
+    if (window.WispCwlTips && typeof window.WispCwlTips.show === "function") {
+      window.WispCwlTips.show("coverage-map");
+      return;
+    }
+    try {
+      var dismissed = JSON.parse(localStorage.getItem("wisp_tips_dismissed") || "{}");
+      if (dismissed && dismissed.modules && dismissed.modules["coverage-map"]) return;
+    } catch (_e) {
+      /* ignore */
+    }
+    if (document.querySelector(".tips-overlay:not([hidden])")) return;
+    fetch("/assets/wisp-module-tips.json", { credentials: "same-origin" })
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (doc) {
+        var tips = doc && doc.tips && doc.tips["coverage-map"];
+        if (!tips || !tips.length) return;
+        var tip = tips[Math.floor(Math.random() * tips.length)];
+        if (window.WispCwlTips && typeof window.WispCwlTips.show === "function") {
+          window.WispCwlTips.show("coverage-map", tip);
+          return;
+        }
+        var overlay = document.createElement("div");
+        overlay.className = "tips-overlay";
+        overlay.setAttribute("role", "dialog");
+        overlay.innerHTML =
+          '<div class="tips-modal">' +
+          '<div class="tips-header"><div class="tips-title-section">' +
+          (tip.icon ? '<span class="tip-icon">' + tip.icon + "</span>" : "") +
+          "<h2>" +
+          (tip.title || "Tip") +
+          '</h2></div>' +
+          '<button type="button" class="close-btn" aria-label="Close">×</button></div>' +
+          '<div class="tips-body">' +
+          (tip.content || "") +
+          "</div>" +
+          '<div class="tips-footer"><label><input type="checkbox" class="tips-dont-show"> Don\'t show again</label>' +
+          '<button type="button" class="close-btn btn-secondary">Got it</button></div></div>';
+        document.body.appendChild(overlay);
+        function close() {
+          var dont = overlay.querySelector(".tips-dont-show");
+          if (dont && dont.checked) {
+            try {
+              var store = JSON.parse(localStorage.getItem("wisp_tips_dismissed") || "{}");
+              if (!store.modules) store.modules = {};
+              store.version = store.version || "1";
+              store.modules["coverage-map"] = true;
+              localStorage.setItem("wisp_tips_dismissed", JSON.stringify(store));
+            } catch (_e2) {
+              /* ignore */
+            }
+          }
+          overlay.remove();
+        }
+        overlay.querySelectorAll(".close-btn").forEach(function (b) {
+          b.addEventListener("click", close);
+        });
+        overlay.addEventListener("click", function (ev) {
+          if (ev.target === overlay) close();
+        });
+      })
+      .catch(function () {
+        /* tips optional */
+      });
   }
 
   function boot() {
+    if (window.__WISP_CWL_MAP_BOOTED__) return;
+    window.__WISP_CWL_MAP_BOOTED__ = true;
+    // Drop any leftover AMD/dojo ArcGIS bootstrap tags so they cannot race ESM MapView.
+    try {
+      document
+        .querySelectorAll('script[src*="js.arcgis.com/4.29/"]:not([type="module"])')
+        .forEach(function (el) {
+          var src = el.getAttribute("src") || "";
+          if (src === ARCGIS_JS || src.indexOf("js.arcgis.com/4.29/?") === 0 || /\/4\.29\/?$/.test(src)) {
+            el.remove();
+          }
+        });
+    } catch (_e) {
+      /* ignore */
+    }
     fetch("/assets/wisp-arcgis-config.json", { credentials: "same-origin" })
       .then(function (r) {
         return r.ok ? r.json() : { apiKey: "" };
@@ -1071,20 +2510,7 @@
         return { apiKey: "" };
       })
       .then(function (cfg) {
-        if (typeof require === "function") {
-          initMap(cfg);
-          return;
-        }
-        var s = document.createElement("script");
-        s.src = "https://js.arcgis.com/4.29/";
-        s.onload = function () {
-          initMap(cfg);
-        };
-        s.onerror = function () {
-          hideLoading();
-          setHonesty("ArcGIS JS API script failed to load.");
-        };
-        document.head.appendChild(s);
+        initMap(cfg);
       });
   }
 

@@ -1,0 +1,15 @@
+{
+  "_id": "6a59711cad923e3601e03344",
+  "name": "CBRS 1784246556389",
+  "status": "active",
+  "technology": "CBRS",
+  "manufacturer": "CBRS",
+  "model": "CBSD",
+  "serialNumber": "CBRS-1784246556389",
+  "siteId": null,
+  "tenantId": "6a166eb07089304417ec967a",
+  "createdAt": "2026-07-17T00:02:36.794Z",
+  "updatedAt": "2026-07-17T00:18:10.745Z",
+  "__v": 0,
+  "updatedBy": "System"
+}

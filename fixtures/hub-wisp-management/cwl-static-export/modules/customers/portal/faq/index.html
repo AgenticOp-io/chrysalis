@@ -1,24 +1,26 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_faq" data-wisp-path="/modules/customers/portal/faq" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Faq</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-portal">
-  <nav class="wisp-demo-portal-nav">
-    <a href="/modules/customers/portal/dashboard">Dashboard</a>
-    <a href="/modules/customers/portal/tickets">Tickets</a>
-    <a href="/modules/customers/portal/billing">Billing</a>
-    <a href="/modules/customers/portal/knowledge">Knowledge</a>
-  </nav>
-  <section class="wisp-demo-portal-body">
-    <h2>Faq</h2>
-    <p>Customer portal surface — demo content wired to native CWL API.</p>
-    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
-  </section>
-</div>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal/faq","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-faq" data-wisp-path="/modules/customers/portal/faq" data-cwl-island="client"><div class="faq-page">
+    <h1><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="brandName"></span> Help Center</h1>
+    <p class="subtitle">Quick answers to the most common questions from subscribers.</p>
+    <input
+      type="search"
+      class="faq-search"
+      placeholder="Search FAQ…"
+      aria-label="Search FAQ"
+    />
+    <div class="faq-list">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="displayFaqs as faq"><details class="faq-item">
+          <summary></summary>
+          <p></p>
+        </details></div>
+    </div>
+    
+    <div class="contact-card">
+      <h2>Still need help?</h2>
+      <p>Open a support ticket from the dashboard or contact our team directly.</p>
+      <div class="contact-links">
+        <a class="btn-link">Email Support</a>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="supportPhone"><a class="btn-link">Call <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="supportPhone"></span></a></div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/faq"}</script>

@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.ui-parity.verify",
   "schemaVersion": 1,
   "ok": true,
-  "generatedAt": "2026-07-14T04:23:26.425Z",
+  "generatedAt": "2026-07-15T05:46:04.793Z",
   "anchors": [
     {
       "path": "/login",
@@ -43,10 +43,13 @@
     {
       "path": "/modules/coverage-map",
       "required": [
-        "wisp-coverage-map",
-        "arcgis-map-view"
+        "arcgis-map-view",
+        "floating-controls",
+        "filters-modal",
+        "filter-panel",
+        "stats-modal"
       ],
-      "minLength": 80
+      "minLength": 4000
     },
     {
       "path": "/modules/hardware",

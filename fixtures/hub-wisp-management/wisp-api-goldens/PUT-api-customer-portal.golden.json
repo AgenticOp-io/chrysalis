@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "customer-portal",
+  "op": "update",
+  "seeded": "contract-mutate"
+}

@@ -1,20 +1,717 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_work_orders" data-wisp-path="/modules/work-orders" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/work-orders">
-  <header class="wisp-demo-header">
-    <h1>Work Orders</h1>
-    <p class="wisp-demo-desc">Operational workspace for Work Orders — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/work-orders/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="filter-open" title="Open only">Open</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>18</strong><span>Pending tasks</span></article>
+<div class="work-orders-page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-button">
+        ← Back to Dashboard
+      </button>
+      <h1>📋 Work Orders & Tickets</h1>
+      <p class="subtitle">Field operations and trouble ticket management</p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary">
+        🔄 Refresh
+      </button>
+      <button class="btn-secondary">
+        ➕ Quick Create
+      </button>
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger"
+      class:open
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div></div>
+  </div></div></div>
+    </div>
+  </div>
+  
+  <!-- Alerts -->
+  
+  
+  
+  
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrders.length"></span></div>
+        <div class="stat-label">Total Tickets</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">🔓</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalOpen"></span></div>
+        <div class="stat-label">Open</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrders.filter(wo => wo.priority === 'critical' || wo.priority === 'high').le"></span>
+        </div>
+        <div class="stat-label">High Priority</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-content">
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.avgResolutionTime ? Math.round(stats.avgResolutionTime) : 0"></span>h
+        </div>
+        <div class="stat-label">Avg Resolution</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <select>
+        <option>All Statuses</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="statuses as status"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Priorities</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="priorities as priority"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Types</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="types as type"><option></option></div>
+      </select>
+      
+      <button class="btn-secondary">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+  
+  <!-- Work Orders List -->
+  
+    <div class="work-orders-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="workOrders as workOrder"><div data-cwl-component="WorkOrderCard" data-cwl-lifted-component="WorkOrderCard"><div 
+  class="work-order-card" 
+  style="border-left: 4px solid"
+  on:keydown
+  role="button"
+  tabindex="0"
+>
+  <div class="card-header">
+    <div class="header-left">
+      <span class="priority-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getPriorityIcon(workOrder.priority)"></span></span>
+      <div class="title-group">
+        <h3 class="ticket-number">TKT-NEW</h3>
+        <span class="ticket-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.type"></span></span>
+      </div>
+    </div>
+    
+    <div 
+      class="status-badge" 
+      style="background-color:"
+    >
+      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.status"></span>
+    </div>
+  </div>
+  
+  <p class="ticket-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.title"></span></p>
+  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.description"><p class="ticket-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.description.substring(0, 150)"></span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.description.length > 150 ? '...' : ''"></span></p></div>
+  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location"><div class="location-info">
+      <span class="location-icon">📍</span>
+      <span class="location-text">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.siteName || workOrder.location.address || workOrder.location."></span>
+      </span>
+    </div></div>
+  
+  <div class="card-footer">
+    <div class="footer-left">
+      <span class="time-ago"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatTimeAgo(workOrder.createdAt)"></span></span>
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.assignedToName"><span class="assignee">👤 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.assignedToName"></span></span></div>
+    </div>
+    
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla?.breached"><span class="sla-breach">⚠️ SLA Breach</span></div>
+  </div>
+</div></div></div>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrders.length === 0"><div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No work orders found</h3>
+          <p>Create your first work order or adjust filters</p>
+          <button class="btn-primary">
+            ➕ Create Work Order
+          </button>
+        </div></div>
+    </div>
+  
+  
+  <!-- Create Modal -->
+  <div data-cwl-component="CreateWorkOrderModal" data-cwl-lifted-component="CreateWorkOrderModal"><div
+  class="modal-overlay"
+  role="dialog"
+  aria-modal="true"
+  tabindex="0"
+  aria-label="Create work order dialog"
+ hidden aria-hidden="true">
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h2>➕ Create Work Order</h2>
+      <button class="close-btn">✕</button>
+    </div>
+    
+    
+    
+    <div class="modal-body">
+      <!-- Basic Info -->
+      <div class="section">
+        <h3>📋 Basic Information</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Type *</label>
+            <select>
+              <option value="installation">Installation</option>
+              <option value="repair">Repair</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="upgrade">Upgrade</option>
+              <option value="removal">Removal</option>
+              <option value="troubleshoot">Troubleshoot</option>
+              <option value="inspection">Inspection</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Priority *</label>
+            <select>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Title *</label>
+          <input
+            type="text"
+            placeholder="Brief description of the issue or task"
+            required
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea 
+            placeholder="Detailed description of the work to be performed..."
+            rows="4"
+          ></textarea>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'troubleshoot' || formData.type === 'repair'"><div class="form-group">
+            <label>Issue Category</label>
+            <select>
+              <option>Select category...</option>
+              <option value="cpe-offline">CPE Offline</option>
+              <option value="sector-down">Sector Down</option>
+              <option value="backhaul-failure">Backhaul Failure</option>
+              <option value="network-outage">Network Outage</option>
+              <option value="poor-performance">Poor Performance</option>
+              <option value="equipment-failure">Equipment Failure</option>
+              <option value="power-issue">Power Issue</option>
+              <option value="configuration-error">Configuration Error</option>
+              <option value="other">Other</option>
+            </select>
+          </div></div>
+      </div>
+      
+      <!-- Location -->
+      <div class="section">
+        <h3>📍 Location</h3>
+        
+        <div class="form-group">
+          <label>Site</label>
+          <select>
+            <option>Select site...</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option> ()</option></div>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Customer Info -->
+      <div class="section">
+        <h3>👤 Customer Information</h3>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" />
+            Customer Reported Issue
+          </label>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.customerReported"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedCustomer"><div class="selected-customer">
+              <div class="customer-card">
+                <div class="customer-info">
+                  <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedCustomer.fullName || `$ $"></span></strong>
+                  <span class="customer-id"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedCustomer.customerId"></span></span>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedCustomer.primaryPhone"><div class="customer-phone">📞 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedCustomer.primaryPhone"></span></div></div>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedCustomer.email"><div class="customer-email">📧 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedCustomer.email"></span></div></div>
+                </div>
+                <button type="button" class="btn-remove">✕</button>
+              </div>
+            </div></div></div>
+      </div>
+      
+      <!-- Scheduling -->
+      <div class="section">
+        <h3>📅 Scheduling</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Scheduled Date</label>
+            <input
+              type="datetime-local"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Estimated Duration (minutes)</label>
+            <input
+              type="number"
+              placeholder="120"
+            />
+          </div>
+        </div>
+      </div>
+      
+      <!-- SLA -->
+      <div class="section">
+        <h3>⏱️ SLA (Service Level Agreement)</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Response Time (hours)</label>
+            <input
+              type="number"
+              placeholder="4"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Resolution Time (hours)</label>
+            <input
+              type="number"
+              placeholder="24"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-primary">
+        ✅ Create Work Order
+      </button>
+    </div>
+  </div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Work Orders data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>wo-1</td><td>Install CPE</td><td>open</td><td></td></tr><tr><td>wo-2</td><td>Tower climb</td><td>scheduled</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/work-orders","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>
+  
+  <!-- Work Order Creation Wizard -->
+  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+      <div class="wizard-panel">
+        <h3>Welcome to Work Order Creation! 📋</h3>
+        <p>This wizard will guide you through creating a work order or ticket.</p>
+        
+        <div class="info-box">
+          <h4>What You'll Do:</h4>
+          <ul>
+            <li>✅ Select work order type</li>
+            <li>✅ Identify affected sites/equipment/customers</li>
+            <li>✅ Enter details and description</li>
+            <li>✅ Set priority and SLA</li>
+            <li>✅ Assign technician (optional)</li>
+            <li>✅ Attach files/photos</li>
+          </ul>
+        </div>
+        
+        <div class="info-box">
+          <h4>Work Order Types:</h4>
+          <ul>
+            <li><strong>Installation:</strong> New equipment installation</li>
+            <li><strong>Repair:</strong> Fix broken equipment</li>
+            <li><strong>Maintenance:</strong> Scheduled maintenance</li>
+            <li><strong>Upgrade:</strong> Equipment upgrade</li>
+            <li><strong>Removal:</strong> Remove equipment</li>
+            <li><strong>Troubleshoot:</strong> Diagnose issues</li>
+            <li><strong>Inspection:</strong> Site inspection</li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      <!-- Work Order Type -->
+      <div class="wizard-panel">
+        <h3>Select Work Order Type</h3>
+        <p>What type of work order are you creating?</p>
+        
+        <div class="type-grid">
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">🔧</div>
+            <h4>Installation</h4>
+            <p>New equipment installation</p>
+          </button>
+          
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">🔨</div>
+            <h4>Repair</h4>
+            <p>Fix broken equipment</p>
+          </button>
+          
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">🛠️</div>
+            <h4>Maintenance</h4>
+            <p>Scheduled maintenance</p>
+          </button>
+          
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">🔍</div>
+            <h4>Troubleshoot</h4>
+            <p>Diagnose issues</p>
+          </button>
+          
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">⬆️</div>
+            <h4>Upgrade</h4>
+            <p>Equipment upgrade</p>
+          </button>
+          
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">🗑️</div>
+            <h4>Removal</h4>
+            <p>Remove equipment</p>
+          </button>
+          
+          <button 
+            class="type-card"
+          >
+            <div class="type-icon">👁️</div>
+            <h4>Inspection</h4>
+            <p>Site inspection</p>
+          </button>
+        </div>
+      </div>
+      
+    
+      <!-- Affected Items -->
+      <div class="wizard-panel">
+        <h3>Affected Sites & Equipment</h3>
+        <p>Select sites and equipment affected by this work order.</p>
+        
+        <div class="affected-section">
+          <h4>Sites</h4>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="availableSites.length === 0"><div class="info-box">
+              <p>No sites available. Sites will be added as you deploy equipment.</p>
+            </div></div>
+        </div>
+        
+        <div class="affected-section">
+          <h4>Equipment</h4>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="availableEquipment.length === 0"><div class="info-box">
+              <p>No equipment available. Equipment will appear as it's added to inventory.</p>
+            </div></div>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="affectedSites.length > 0 || affectedEquipment.length > 0"><div class="selected-summary">
+            <h4>Selected:</h4>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="affectedSites.length > 0"><p><strong>Sites:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="affectedSites.length"></span></p></div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="affectedEquipment.length > 0"><p><strong>Equipment:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="affectedEquipment.length"></span></p></div>
+          </div></div>
+      </div>
+      
+    
+      <!-- Details -->
+      <div class="wizard-panel">
+        <h3>Work Order Details</h3>
+        
+        <div class="form-group">
+          <label>
+            Title <span class="required">*</span>
+          </label>
+          <input 
+            type="text"
+            placeholder="Brief description of the work order"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>
+            Description <span class="required">*</span>
+          </label>
+          <textarea
+            placeholder="Detailed description of the issue or work needed..."
+            rows="6"
+          ></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Issue Category</label>
+          <select>
+            <option>-- Select Category --</option>
+            <option value="cpe-offline">CPE Offline</option>
+            <option value="sector-down">Sector Down</option>
+            <option value="backhaul-failure">Backhaul Failure</option>
+            <option value="power-issue">Power Issue</option>
+            <option value="signal-issue">Signal Issue</option>
+            <option value="configuration">Configuration</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input 
+              type="checkbox"
+            />
+            Customer Reported Issue
+          </label>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customerReported"><div class="customer-section">
+            <button 
+              class="btn-small"
+            >
+              🔍 Lookup Customer
+            </button>
+            
+            <div class="form-group">
+              <label>Customer Name</label>
+              <input 
+                type="text"
+                placeholder="Customer name"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>Customer Phone</label>
+              <input 
+                type="tel"
+                placeholder="Phone number"
+              />
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedCustomer"><div class="info-box success">
+                <p><strong>Selected:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="customerName"></span> (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="customerPhone"></span>)</p>
+                <button 
+                  class="btn-small"
+                >
+                  Clear
+                </button>
+              </div></div>
+          </div></div>
+        
+        <div class="form-group">
+          <label>Attach Files/Photos</label>
+          <input 
+            type="file" 
+            accept="image/*,.pdf,.doc,.docx"
+            multiple
+          />
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="attachments.length > 0"><div class="attachments-list">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="attachments as attachment, index"><div class="attachment-item">
+                  <span></span>
+                  <button 
+                    class="btn-icon">
+                    ×
+                  </button>
+                </div></div>
+            </div></div>
+        </div>
+      </div>
+      
+    
+      <!-- Priority & SLA -->
+      <div class="wizard-panel">
+        <h3>Priority & SLA</h3>
+        
+        <div class="form-group">
+          <label>Priority</label>
+          <select>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Scheduled Date (Optional)</label>
+          <input 
+            type="datetime-local"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Estimated Duration (minutes)</label>
+          <input 
+            type="number"
+            min="15"
+            step="15"
+          />
+        </div>
+        
+        <div class="sla-section">
+          <h4>SLA Settings</h4>
+          <div class="form-group">
+            <label>Response Time (hours)</label>
+            <input 
+              type="number"
+              min="1"
+            />
+            <small>Time to acknowledge the work order</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Resolution Time (hours)</label>
+            <input 
+              type="number"
+              min="1"
+            />
+            <small>Time to resolve the work order</small>
+          </div>
+        </div>
+        
+        <div class="info-box">
+          <p><strong>Priority Guidelines:</strong></p>
+          <ul>
+            <li><strong>Critical:</strong> Service outage affecting multiple customers</li>
+            <li><strong>High:</strong> Service issue affecting one or more customers</li>
+            <li><strong>Medium:</strong> Non-urgent repair or maintenance</li>
+            <li><strong>Low:</strong> Routine maintenance or upgrades</li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      <!-- Assign -->
+      <div class="wizard-panel">
+        <h3>Assign Technician</h3>
+        <p>Optionally assign this work order to a technician.</p>
+        
+        <div class="form-group">
+          <label>Assign To (Optional)</label>
+          <select>
+            <option>-- Unassigned --</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableTechnicians as tech"><option> ()</option></div>
+          </select>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="assignedTo"><div class="info-box success">
+            <p>Work order will be assigned to: Unknown</p>
+          </div></div>
+      </div></div>
+  </div>
+  
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0"><button class="wizard-btn-secondary">
+        ← Previous
+      </button></div>
+    
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 5"><button 
+          class="wizard-btn-primary"
+        >
+          ✅ Create Work Order
+        </button>
+      
+        <button class="wizard-btn-primary">
+          Next →
+        </button></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"work-orders"}</script>

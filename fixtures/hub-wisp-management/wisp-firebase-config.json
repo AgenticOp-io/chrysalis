@@ -6,6 +6,8 @@
   "messagingSenderId": "1048161130237",
   "appId": "1:1048161130237:web:160789736967985b655094",
   "backendUrl": "https://hss.wisptools.io",
+  "apiProxyUrl": "https://us-central1-wisptools-production.cloudfunctions.net/apiProxy",
+  "preferDirectBackend": true,
   "defaultTenantId": "6a166eb07089304417ec967a",
   "defaultTenantName": "WISP Management"
 }

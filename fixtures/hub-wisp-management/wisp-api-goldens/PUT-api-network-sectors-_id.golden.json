@@ -1,0 +1,22 @@
+{
+  "_id": "6a58eb10ad923e3601dfd7e5",
+  "name": "CWL Sector 1784212240048",
+  "status": "active",
+  "technology": "LTE",
+  "azimuth": 90,
+  "beamwidth": 65,
+  "location": {
+    "latitude": 39.74,
+    "longitude": -104.99,
+    "address": "",
+    "country": "US",
+    "_id": "6a58eb10ad923e3601dfd7e6"
+  },
+  "siteId": "6a585d6ec38e0189a0244744",
+  "tenantId": "6a166eb07089304417ec967a",
+  "createdBy": "System",
+  "createdAt": "2026-07-16T14:30:40.082Z",
+  "updatedAt": "2026-07-17T00:18:10.522Z",
+  "__v": 0,
+  "updatedBy": "System"
+}

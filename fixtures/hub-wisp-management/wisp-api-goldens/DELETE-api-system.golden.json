@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "system",
+  "op": "delete",
+  "seeded": "contract-mutate"
+}

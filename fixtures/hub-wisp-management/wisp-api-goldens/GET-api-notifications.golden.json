@@ -1,6 +1,112 @@
-{
-  "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "notifications",
-  "op": "list"
-}
+[
+  {
+    "id": "wfB78SDLGbT4nKp1j5WD",
+    "userId": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "tenantId": "6a166eb07089304417ec967a",
+    "type": "project_approved",
+    "projectId": "6a5970d3ad923e3601e032c3",
+    "title": "Project Approved: Auth 1784246481869",
+    "message": "Project \"Auth 1784246481869\" has been approved for deployment and is ready for field work.",
+    "read": false,
+    "data": {
+      "projectName": "Auth 1784246481869",
+      "projectId": "6a5970d3ad923e3601e032c3",
+      "approvedBy": "demo@wisptools.io",
+      "tenantId": "6a166eb07089304417ec967a"
+    },
+    "createdAt": "2026-07-17T00:01:23.505Z"
+  },
+  {
+    "id": "5gKzZ0iOVZD3StvYpFj0",
+    "userId": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "tenantId": "6a166eb07089304417ec967a",
+    "type": "project_approved",
+    "projectId": "6a59708fad923e3601e03226",
+    "title": "Project Approved: A 1784246414046",
+    "message": "Project \"A 1784246414046\" has been approved for deployment and is ready for field work.",
+    "read": false,
+    "data": {
+      "projectName": "A 1784246414046",
+      "projectId": "6a59708fad923e3601e03226",
+      "approvedBy": "demo@wisptools.io",
+      "tenantId": "6a166eb07089304417ec967a"
+    },
+    "createdAt": "2026-07-17T00:00:16.073Z"
+  },
+  {
+    "id": "odMfAaI3GgpzUUFmLwgB",
+    "userId": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "tenantId": "6a166eb07089304417ec967a",
+    "type": "project_approved",
+    "projectId": "6a59704aad923e3601e031aa",
+    "title": "Project Approved: Ready 1784246346096",
+    "message": "Project \"Ready 1784246346096\" has been approved for deployment and is ready for field work.",
+    "read": false,
+    "data": {
+      "projectName": "Ready 1784246346096",
+      "projectId": "6a59704aad923e3601e031aa",
+      "approvedBy": "demo@wisptools.io",
+      "tenantId": "6a166eb07089304417ec967a"
+    },
+    "createdAt": "2026-07-16T23:59:07.136Z"
+  },
+  {
+    "id": "hgflrLy4uYClHvN5sP4D",
+    "userId": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "tenantId": "6a166eb07089304417ec967a",
+    "type": "project_approved",
+    "projectId": "6a58ea60ad923e3601dfd70f",
+    "title": "Project Approved: CWL Plan 1784212055760",
+    "message": "Project \"CWL Plan 1784212055760\" has been approved for deployment and is ready for field work.",
+    "data": {
+      "projectName": "CWL Plan 1784212055760",
+      "projectId": "6a58ea60ad923e3601dfd70f",
+      "approvedBy": "demo@wisptools.io",
+      "tenantId": "6a166eb07089304417ec967a"
+    },
+    "createdAt": "2026-07-16T14:27:47.298Z",
+    "read": true,
+    "readAt": {
+      "_seconds": 1784245833,
+      "_nanoseconds": 910000000
+    }
+  },
+  {
+    "id": "513fq6q17dnhM2ZXo17n",
+    "userId": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "tenantId": "6a166eb07089304417ec967a",
+    "type": "project_approved",
+    "projectId": "6a58e75bad923e3601dfd69f",
+    "title": "Project Approved: CWL Plan 1784211282920",
+    "message": "Project \"CWL Plan 1784211282920\" has been approved for deployment and is ready for field work.",
+    "read": false,
+    "data": {
+      "projectName": "CWL Plan 1784211282920",
+      "projectId": "6a58e75bad923e3601dfd69f",
+      "approvedBy": "demo@wisptools.io",
+      "tenantId": "6a166eb07089304417ec967a"
+    },
+    "createdAt": "2026-07-16T14:14:53.833Z"
+  },
+  {
+    "id": "x97YKjYJob7VECtfDGV2",
+    "userId": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
+    "tenantId": "6a166eb07089304417ec967a",
+    "type": "project_approved",
+    "projectId": "6a58e745ad923e3601dfd62c",
+    "title": "Project Approved: CWL Plan 1784211261296",
+    "message": "Project \"CWL Plan 1784211261296\" has been approved for deployment and is ready for field work.",
+    "data": {
+      "projectName": "CWL Plan 1784211261296",
+      "projectId": "6a58e745ad923e3601dfd62c",
+      "approvedBy": "demo@wisptools.io",
+      "tenantId": "6a166eb07089304417ec967a"
+    },
+    "createdAt": "2026-07-16T14:14:31.850Z",
+    "read": true,
+    "readAt": {
+      "_seconds": 1784211292,
+      "_nanoseconds": 934000000
+    }
+  }
+]

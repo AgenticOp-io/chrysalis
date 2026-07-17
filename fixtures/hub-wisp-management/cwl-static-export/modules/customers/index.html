@@ -1,20 +1,364 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers" data-wisp-path="/modules/customers" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Customers</h1>
-    <p class="wisp-demo-desc">Operational workspace for Customers — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/customers/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/modules/customers/portal">Portal</a><a class="wisp-demo-btn" href="/modules/customers/portal-setup">Portal setup</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>3</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>1</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Customers data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>c1</td><td>Acme Wireless</td><td>active</td><td></td></tr><tr><td>c2</td><td>Beta ISP</td><td>pending</td><td></td></tr><tr><td>c3</td><td>Canyon Net</td><td>active</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<div class="customers-page">
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-top">
+          <button class="back-btn" title="Back to Module Manager">
+            ←
+          </button>
+          <h1>👥 Customer Management</h1>
+        </div>
+        <p class="subtitle">Manage your tenant's customers, service plans, and customer groups</p>
+      </div>
+      <div class="header-actions">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'customers'"><div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger"
+      class:open
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div></div>
+  </div></div></div>
+          <button class="btn-primary">
+            ➕ Add Customer
+          </button></div>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button
+      >
+        👥 Customers
+      </button>
+      <button
+      >
+        📡 Service Plans
+      </button>
+      <button
+      >
+        📦 Customer Groups
+      </button>
+      <button
+      >
+        🌐 Portal
+      </button>
+    </div>
+    
+    
+    
+    
+    
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'customers'"><!-- Customers Tab -->
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.total"></span></div>
+        <div class="stat-label">Total Customers</div>
+      </div>
+      <div class="stat-card stat-active">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.active"></span></div>
+        <div class="stat-label">Active</div>
+      </div>
+      <div class="stat-card stat-pending">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.pending"></span></div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card stat-suspended">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.suspended"></span></div>
+        <div class="stat-label">Suspended</div>
+      </div>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="filters-section">
+      <div class="search-bar">
+        <input
+          type="text"
+          placeholder="Search by name, phone, email, or customer ID..."
+          class="search-input"
+        />
+      </div>
+      
+      <div class="filter-controls">
+        <select>
+          <option>All Statuses</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="suspended">Suspended</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="trial">Trial</option>
+        </select>
+        
+        <label class="checkbox-label">
+          <input type="checkbox" />
+          Show Inactive
+        </label>
+      </div>
+    </div>
+    
+    <!-- Customer List -->
+    <div class="customers-list">
+      
+        <div class="customer-grid">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)"><div class="customer-card">
+              <div class="customer-header">
+                <div class="customer-name-section">
+                  <h3> $`}</h3>
+                  <span class="customer-id"></span>
+                </div>
+                <span class="status-badge ">
+                  
+                </span>
+              </div>
+              
+              <div class="customer-details">
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.primaryPhone"><div class="detail-row">
+                    <span class="detail-icon">📞</span>
+                    <span></span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.email"><div class="detail-row">
+                    <span class="detail-icon">📧</span>
+                    <span></span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress?.street"><div class="detail-row">
+                    <span class="detail-icon">📍</span>
+                    <span>
+                      
+                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.city">,</div>
+                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.state">,</div>
+                    </span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan?.planName"><div class="detail-row">
+                    <span class="detail-icon">📡</span>
+                    <span>
+                      
+                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan.downloadMbps">(/ Mbps)</div>
+                    </span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceType"><div class="detail-row">
+                    <span class="detail-icon">📶</span>
+                    <span>Service Type: </span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.networkInfo?.imsi"><div class="detail-row">
+                    <span class="detail-icon">🔢</span>
+                    <span>IMSI: </span>
+                  </div></div>
+              </div>
+              
+              <div class="customer-actions">
+                <button class="btn-secondary btn-sm">
+                  ✏️ Edit
+                </button>
+                <button class="btn-danger btn-sm">
+                  🗑️ Delete
+                </button>
+                <button class="btn-secondary btn-sm">
+                  👁️ View
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn-sm"
+                  title="Voice & SIP for this customer"
+                >
+                  📞 Voice
+                </button>
+                <a 
+                  href="/modules/customers/portal/login" 
+                  target="_blank" 
+                  class="btn-secondary btn-sm"
+                  title="Open Customer Portal"
+                >
+                  🌐 Portal
+                </a>
+              </div>
+            </div></div>
+        </div>
+      
+    </div>
+      
+        <!-- Service Plans Tab -->
+        <div class="cwl-widget-shell" data-cwl-widget-shell="BandwidthPlans" aria-hidden="true"></div>
+      
+        <!-- Customer Groups Tab -->
+        <div class="cwl-widget-shell" data-cwl-widget-shell="GroupManagement" aria-hidden="true"></div></div>
+    </div>
+  </div>
+  
+  
+  
+  
+
+  <div data-cwl-component="CustomerOnboardingWizard" data-cwl-lifted-component="CustomerOnboardingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Add a New Customer</h3>
+        <p>This wizard guides you through adding a customer: basic info, address, service type, and optional LTE credentials.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter name and contact info</li>
+            <li>Set service address</li>
+            <li>Choose service type and optional group</li>
+            <li>Optionally add LTE/5G credentials</li>
+          </ul>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Basic Information</h3>
+        <div class="form-group">
+          <label>First Name <span class="required">*</span></label>
+          <input type="text" placeholder="John" />
+        </div>
+        <div class="form-group">
+          <label>Last Name <span class="required">*</span></label>
+          <input type="text" placeholder="Smith" />
+        </div>
+        <div class="form-group">
+          <label>Primary Phone <span class="required">*</span></label>
+          <input type="tel" placeholder="555-123-4567" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="john@example.com" />
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Service Address</h3>
+        <div class="form-group">
+          <label>Street <span class="required">*</span></label>
+          <input type="text" placeholder="123 Main St" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City <span class="required">*</span></label>
+            <input type="text" placeholder="City" />
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" placeholder="State" />
+          </div>
+          <div class="form-group">
+            <label>ZIP <span class="required">*</span></label>
+            <input type="text" placeholder="12345" />
+          </div>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Service Type & Group</h3>
+        <div class="form-group">
+          <label>Service Type</label>
+          <select>
+            <option>Select type</option>
+            <option value="4G/5G">4G/5G (LTE/5G)</option>
+            <option value="FWA">FWA (Fixed Wireless)</option>
+            <option value="WiFi">WiFi</option>
+            <option value="Fiber">Fiber</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Customer Group (optional)</label>
+          <select>
+            <option>No group</option>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="groups as g"><option></option></div>
+          </select>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>LTE/5G (optional)</h3>
+        <p class="hint">Only needed if service type is 4G/5G and you want to sync to HSS.</p>
+        <div class="form-group">
+          <label>IMSI (15 digits)</label>
+          <input type="text" placeholder="123456789012345" maxlength="15" />
+        </div>
+        <div class="form-group">
+          <label>Ki (32 hex)</label>
+          <input type="text" placeholder="32 hex characters" maxlength="32" />
+        </div>
+        <div class="form-group">
+          <label>OPc (32 hex)</label>
+          <input type="text" placeholder="32 hex characters" maxlength="32" />
+        </div>
+        <div class="form-group">
+          <label>MAC Address (optional)</label>
+          <input type="text" placeholder="aa:bb:cc:dd:ee:ff" />
+        </div>
+      </div></div>
+  </div>
+
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary">← Previous</button></div>
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 4"><button class="wizard-btn-primary">Next →</button>
+      
+        <button class="wizard-btn-primary">Done</button></div>
+    </div>
+  </div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"customers"}</script>

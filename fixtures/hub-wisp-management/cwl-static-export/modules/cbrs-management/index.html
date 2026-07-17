@@ -1,20 +1,653 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_cbrs_management" data-wisp-path="/modules/cbrs-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/network">
-  <header class="wisp-demo-header">
-    <h1>Cbrs Management</h1>
-    <p class="wisp-demo-desc">Operational workspace for Cbrs Management — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/cbrs-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>0</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>11</strong><span>Pending tasks</span></article>
+<!-- CBRS Setup Wizard -->
+
+<!-- CBRS Device Registration Wizard -->
+<div class="cwl-wizard-shell" data-cwl-wizard-shell="CBRSDeviceRegistrationWizard" aria-hidden="true" role="dialog"></div>
+
+<div class="cbrs-module">
+  <!-- Header -->
+  <div class="module-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a href="/dashboard" class="back-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to Dashboard
+        </a>
+        <h1 class="module-title">
+          <span class="module-icon">📡</span>
+          CBRS Management
+        </h1>
+        <p class="module-description">Citizens Broadband Radio Service spectrum management</p>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tenantName"><div class="tenant-badge">
+            <span class="tenant-icon">🏢</span>
+            <span class="tenant-text"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantName"></span></span>
+          </div></div>
+      </div>
+      
+      <div class="header-actions">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentUserID"><button 
+              class="btn btn-network-selector active"
+              title="Switch network/User ID"
+            >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span class="network-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentUserIDDisplay"></span></span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button></div>
+        <button class="btn btn-secondary" title="Configure SAS providers">
+          ⚙️ Settings
+        </button>
+        <button class="btn btn-primary">
+          + Add CBSD Device
+        </button>
+        <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger"
+      class:open
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div></div>
+  </div></div></div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!tenantId"><div class="error-banner">
+      <span class="error-icon">⚠️</span>
+      <span class="error-message">
+        No tenant selected. Please return to the 
+        <a href="/dashboard" class="inline-link">dashboard</a> 
+        and select a tenant first.
+      </span>
+    </div></div>
+
+  <!-- Main Content -->
+  <div class="module-content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📡</div>
+        <div class="stat-content">
+          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.length"></span></div>
+          <div class="stat-label">Total Devices</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.filter(d => d.state === 'REGISTERED' || d.state === 'GRANTED' || d.state"></span></div>
+          <div class="stat-label">Registered</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.reduce((sum, d) => sum + (d.activeGrants?.length || 0), 0)"></span></div>
+          <div class="stat-label">Active Grants</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🌐</div>
+        <div class="stat-content">
+          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="CBRS_BAND.BANDWIDTH / 1000000"></span> MHz</div>
+          <div class="stat-label">CBRS Band</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="map-section">
+      <div class="map-header">
+        <h3>CBSD Device Map</h3>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-color" style="background: #10b981;"></span>
+            <span>Active</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: #3b82f6;"></span>
+            <span>Registered</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: #6b7280;"></span>
+            <span>Unregistered</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="map-container">
+        <div class="arcgis-map"></div>
+        
+        
+      </div>
+    </div>
+
+    <!-- Device List and Grant Status -->
+    <div class="content-grid">
+      <div class="device-list-section">
+        <h3>CBSD Devices</h3>
+        <div data-cwl-component="DeviceList" data-cwl-lifted-component="DeviceList"><div class="device-list">
+  <div class="list-header">
+    <div class="search-section">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search devices..."
+      />
+      <select class="filter-select">
+        <option value="all">All States</option>
+        <option value="UNREGISTERED">Unregistered</option>
+        <option value="REGISTERED">Registered</option>
+        <option value="GRANTED">Granted</option>
+        <option value="AUTHORIZED">Authorized</option>
+        <option value="SUSPENDED">Suspended</option>
+        <option value="DEREGISTERED">Deregistered</option>
+      </select>
+    </div>
+    <div class="device-count">
+      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredDevices.length"></span> device<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredDevices.length !== 1 ? 's' : ''"></span>
+    </div>
+  </div>
+  
+  <div class="device-table-container">
+    <table class="device-table">
+      <thead>
+        <tr>
+          <th>Serial Number</th>
+          <th>FCC ID</th>
+          <th>Category</th>
+          <th>Provider</th>
+          <th>State</th>
+          <th>Active Grants</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredDevices as device"><tr class="device-row">
+            <td class="serial-number"></td>
+            <td class="fcc-id"></td>
+            <td class="category">
+              <span class="category-badge category-">
+                
+              </span>
+            </td>
+            <td class="provider">
+              <span class="provider-badge">
+                
+              </span>
+            </td>
+            <td class="state">
+              <span class="state-badge" style="--state-color: ">
+                
+              </span>
+            </td>
+            <td class="grants">
+              
+            </td>
+            <td class="location">
+              📍 , 
+            </td>
+            <td class="actions" on:click|stopPropagation>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.state === 'UNREGISTERED'"><button class="btn btn-sm btn-primary">
+                  Register
+                </button></div>
+            </td>
+          </tr></div>
+      </tbody>
+    </table>
+    
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="filteredDevices.length === 0"><div class="empty-state">
+        <div class="empty-icon">📡</div>
+        <p class="empty-text"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.length === 0 ? 'No CBSD devices yet' : 'No devices match your filters'"></span></p>
+        <p class="empty-subtext"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.length === 0 ? 'Run the Setup Wizard or add your first CBSD device above"></span></p>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="devices.length === 0"><button type="button" class="btn-get-started">
+            📡 Get Started with CBRS Setup
+          </button></div>
+      </div></div>
+  </div>
+</div></div>
+      </div>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedDevice"><div class="grant-status-section">
+          <div data-cwl-component="GrantStatus" data-cwl-lifted-component="GrantStatus"><div class="grant-status">
+  <div class="grant-header">
+    <h3>Grant Status</h3>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.state === 'REGISTERED' || device.state === 'GRANTED'"><button class="btn btn-primary">
+        + Request New Grant
+      </button></div>
+  </div>
+  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="hasGrants"><div class="grants-container">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="activeGrants as grant"><div class="grant-card">
+          <div class="grant-card-header">
+            <div class="grant-id">
+              <span class="grant-label">Grant ID</span>
+              <span class="grant-value"></span>
+            </div>
+            <span class="grant-state-badge" style="--state-color: ">
+              
+            </span>
+          </div>
+          
+          <div class="grant-details">
+            <div class="grant-detail-row">
+              <div class="detail-item">
+                <span class="detail-label">Channel Type</span>
+                <span class="detail-value channel-">
+                  
+                </span>
+              </div>
+              
+              <div class="detail-item">
+                <span class="detail-label">Max EIRP</span>
+                <span class="detail-value"> dBm/MHz</span>
+              </div>
+            </div>
+            
+            <div class="grant-detail-row">
+              <div class="detail-item">
+                <span class="detail-label">Frequency Range</span>
+                <span class="detail-value frequency">
+                   - 
+                  
+                </span>
+              </div>
+            </div>
+            
+            <div class="grant-detail-row">
+              <div class="detail-item">
+                <span class="detail-label">Grant Expires</span>
+                <span class="detail-value time-remaining">
+                  
+                </span>
+              </div>
+              
+              <div class="detail-item">
+                <span class="detail-label">Heartbeat Interval</span>
+                <span class="detail-value">s</span>
+              </div>
+            </div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="grant.lastHeartbeat"><div class="grant-detail-row">
+                <div class="detail-item">
+                  <span class="detail-label">Last Heartbeat</span>
+                  <span class="detail-value">
+                    
+                  </span>
+                </div>
+              </div></div>
+          </div>
+          
+          <div class="grant-actions">
+            <button 
+              class="btn btn-sm btn-danger"
+            >
+              Relinquish Grant
+            </button>
+          </div>
+        </div></div>
+    </div></div>
+</div></div>
+        </div></div>
+    </div>
+  </div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Cbrs Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>s1</td><td>North Tower</td><td>active</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/cbrs-management","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>
+
+<!-- Add Device Modal -->
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAddDeviceModal"><div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add CBSD Device</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>CBSD Serial Number</label>
+            <input type="text" required />
+          </div>
+          
+          <div class="form-group">
+            <label>FCC ID</label>
+            <input type="text" required />
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Category</label>
+              <select>
+                <option value="A">Category A (Indoor)</option>
+                <option value="B">Category B (Outdoor)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>SAS Provider</label>
+              <div class="readonly-field">
+                <span class="provider-badge">🔵 Google SAS</span>
+                <span class="provider-note">Shared Platform Mode</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Latitude</label>
+              <input type="number" step="0.0001" required />
+            </div>
+            
+            <div class="form-group">
+              <label>Longitude</label>
+              <input type="number" step="0.0001" required />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Height (m)</label>
+              <input type="number" step="0.1" required />
+            </div>
+            
+            <div class="form-group">
+              <label>Antenna Gain (dBi)</label>
+              <input type="number" step="0.1" required />
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Add Device
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div></div>
+
+<!-- Grant Request Modal -->
+<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showGrantRequestModal && selectedDevice"><div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Request Spectrum Grant</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="device-info-card">
+          <p><strong>Device:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedDevice.cbsdSerialNumber"></span></p>
+          <p><strong>FCC ID:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedDevice.fccId"></span></p>
+          <p><strong>Category:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedDevice.cbsdCategory"></span></p>
+        </div>
+        
+        <form>
+          <div class="form-group">
+            <label>Max EIRP (dBm/MHz)</label>
+            <input type="number" step="0.1" required />
+            <span class="form-hint">Maximum Effective Isotropic Radiated Power</span>
+          </div>
+          
+          <div class="form-group">
+            <label>Low Frequency (Hz)</label>
+            <input type="number" required />
+            <span class="form-hint">Must be between 3550 MHz and 3700 MHz</span>
+          </div>
+          
+          <div class="form-group">
+            <label>High Frequency (Hz)</label>
+            <input type="number" required />
+            <span class="form-hint">Must be between 3550 MHz and 3700 MHz</span>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Request Grant
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div></div>
+
+<!-- Settings Modal -->
+  <div data-cwl-component="SettingsModal" data-cwl-lifted-component="SettingsModal"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content settings-modal" on:click|stopPropagation>
+      <div class="modal-header">
+        <h3>⚙️ CBRS Configuration</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSave"></span>>
+          <!-- Info Banner -->
+          <div class="info-banner">
+            <span class="info-icon">ℹ️</span>
+            <div class="info-content">
+              <strong>Optional Security Configuration</strong>
+              <p>Upload a PFX certificate for enhanced mTLS security with Google SAS. This is optional but recommended for production deployments.</p>
+            </div>
+          </div>
+          
+          <!-- PFX Certificate Section -->
+          <div class="form-section">
+            <h4>🔒 Client Certificate (Optional)</h4>
+            
+            <div class="form-group">
+              <label>PFX Certificate (.pfx or .p12)</label>
+              <input 
+                type="file" 
+                accept=".pfx,.p12"
+                class="file-input"
+              />
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.pfxCertificateName"><span class="file-status">✅ <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formData.pfxCertificateName"></span></span></div>
+              <span class="form-hint">
+                PFX/PKCS#12 file containing both certificate and private key
+              </span>
+            </div>
+            
+            <div class="form-group">
+              <label>PFX Password</label>
+              <input 
+                type="password"
+                placeholder="Enter PFX password"
+                autocomplete="off"
+              />
+              <span class="form-hint">
+                Password to decrypt the PFX certificate file
+              </span>
+            </div>
+          </div>
+          
+          <!-- Enhanced Features -->
+          <div class="form-section enhancement-section">
+            <h4>Enhanced Features</h4>
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Enable Advanced Analytics</span>
+              </label>
+              <p class="checkbox-hint">Get detailed performance metrics and insights</p>
+            </div>
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Enable Automated Optimization</span>
+              </label>
+              <p class="checkbox-hint">Let SAS automatically optimize spectrum assignments</p>
+            </div>
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Enable Multi-Site Coordination</span>
+              </label>
+              <p class="checkbox-hint">Coordinate spectrum across multiple sites</p>
+            </div>
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Enable Interference Monitoring</span>
+              </label>
+              <p class="checkbox-hint">Real-time interference detection and alerts</p>
+            </div>
+          </div>
+          
+          <!-- Security Notice -->
+          <div class="security-notice">
+            <div class="notice-icon">🔒</div>
+            <div class="notice-content">
+              <strong>Security:</strong> All certificates and passwords are encrypted and stored securely in Firestore.
+              Your configuration is isolated to your tenant account.
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="form-actions">
+            <button 
+              type="button" 
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+            >
+              
+                💾 Save Settings
+              
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div></div>
+
+<!-- User ID / Network Selector Modal (includes Google login) -->
+<div data-cwl-component="UserIDSelector" data-cwl-lifted-component="UserIDSelector"><div class="modal-overlay" hidden aria-hidden="true">
+    <div class="modal-content" on:click|stopPropagation>
+      <div class="modal-header">
+        <h3>🆔 Select Network / Customer</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="errorMessage"><div class="error-banner">
+            <span class="error-icon">⚠️</span>
+            <div><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="errorMessage"></span></div>
+          </div></div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!googleAuthState?.isAuthenticated"><!-- Google Sign-In Section -->
+          <div class="signin-section">
+            <div class="signin-header">
+              <h4>🔐 Sign in to Google SAS Portal</h4>
+              <p>Sign in with your Google account to access your CBRS networks</p>
+            </div>
+            
+            <button 
+              type="button"
+              class="btn-google-signin"
+            >
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isSigningIn"><span class="spinner"></span>
+                Signing in...</div>
+            </button>
+            <p class="signin-hint">
+              Sign in with your Google account registered for CBRS SAS API access
+            </p>
+          </div></div>
+      </div>
+    </div>
+  </div></div>
+
+<!-- Help Button - Fixed Position -->
+<button class="help-button" aria-label="Open Help" title="Help">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  </svg>
+</button>
+
+<!-- Help Modal -->
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="help-body">
+        
+      </div>
+    </div>
+  </div></div>
+
+<!-- Quick Tips Modal -->
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTip.icon"><span class="tip-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.icon"></span></span></div>
+          <h2 id="tips-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="tips-body">
+        <div class="tip-content">
+          
+        </div>
+      </div>
+      
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" type="button">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"cbrs-management"}</script>

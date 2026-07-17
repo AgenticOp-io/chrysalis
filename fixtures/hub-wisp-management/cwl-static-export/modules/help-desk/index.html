@@ -1,20 +1,148 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_help_desk" data-wisp-path="/modules/help-desk" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/maintain">
-  <header class="wisp-demo-header">
-    <h1>Help Desk</h1>
-    <p class="wisp-demo-desc">Operational workspace for Help Desk — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/help-desk/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="filter-open" title="Open only">Open</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>6</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>9</strong><span>Pending tasks</span></article>
+<div class="help-desk-container">
+  <div class="header">
+    <button class="btn-back">
+      ← Back to Modules
+    </button>
+    
+    <div class="title-section">
+      <h1>🎧 Help Desk</h1>
+      <p class="subtitle">Customer support and ticket management for your organization</p>
+    </div>
+    
+    <div class="header-actions">
+      <button 
+        class="btn btn-secondary btn-reports"
+        title="View Ticket Reports and Analytics"
+      >
+        📊 Reports
+      </button>
+      <button class="btn btn-secondary">
+        🔍 Customer Lookup
+      </button>
+      <button class="btn btn-primary">
+        ➕ Create Ticket
+      </button>
+    </div>
+  </div>
+  
+  
+  
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon open">📋</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.open"></span></div>
+        <div class="stat-label">Open Tickets</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon in-progress">⚙️</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.inProgress"></span></div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon resolved">✅</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.resolved"></span></div>
+        <div class="stat-label">Resolved</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon time">⏱️</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.avgResolutionTime"></span></div>
+        <div class="stat-label">Avg Resolution</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="filters">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Search tickets, customers..."
+      />
+    </div>
+    
+    <select class="select">
+      <option value="all">All Status</option>
+      <option value="open">Open</option>
+      <option value="assigned">Assigned</option>
+      <option value="in-progress">In Progress</option>
+      <option value="waiting-parts">Waiting Parts</option>
+      <option value="resolved">Resolved</option>
+      <option value="closed">Closed</option>
+    </select>
+    
+    <select class="select">
+      <option value="all">All Priority</option>
+      <option value="critical">Critical</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    
+    <select class="select">
+      <option value="all">All Categories</option>
+      <option value="customer-facing">Customer-Facing</option>
+      <option value="infrastructure">Infrastructure</option>
+    </select>
+    
+    <div class="results-count">
+      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredTickets.length"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tickets.length"></span> tickets
+    </div>
+  </div>
+  
+  
+    <div class="tickets-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredTickets as ticket (ticket._id)"><div class="ticket-card">
+          <div class="ticket-header">
+            <div>
+              <div class="ticket-number"></div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.ticketCategory"><span class="ticket-category"></span></div>
+            </div>
+            <div class="badges">
+              <span class="badge ">
+                
+              </span>
+              <span class="badge ">
+                
+              </span>
+            </div>
+          </div>
+          
+          <h3 class="ticket-title"></h3>
+          
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.description"><p class="ticket-description"></p></div>
+          
+          <div class="ticket-meta">
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.affectedCustomers && ticket.affectedCustomers.length > 0"><div class="meta-item">
+                <span class="meta-icon">👤</span>
+                <span class="meta-text"></span>
+              </div></div>
+            
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.assignedToName"><div class="meta-item">
+                <span class="meta-icon">👷</span>
+                <span class="meta-text"></span>
+              </div></div>
+            
+            <div class="meta-item">
+              <span class="meta-icon">🕒</span>
+              <span class="meta-text"></span>
+            </div>
+          </div>
+        </div></div>
+    </div>
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Help Desk data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>tk-1</td><td>Outage</td><td>open</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/help-desk","apiPath":"/api/maintain","api_ok":true,"api_surface":"wisp-api-native","api_resource":"maintain","api_op":"list","tracedApiStatus":200}</script>
+
+
+
+
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"help-desk"}</script>

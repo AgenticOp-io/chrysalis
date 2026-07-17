@@ -1,24 +1,111 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_billing" data-wisp-path="/modules/customers/portal/billing" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Billing</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-portal">
-  <nav class="wisp-demo-portal-nav">
-    <a href="/modules/customers/portal/dashboard">Dashboard</a>
-    <a href="/modules/customers/portal/tickets">Tickets</a>
-    <a href="/modules/customers/portal/billing">Billing</a>
-    <a href="/modules/customers/portal/knowledge">Knowledge</a>
-  </nav>
-  <section class="wisp-demo-portal-body">
-    <h2>Billing</h2>
-    <p>Customer portal surface — demo content wired to native CWL API.</p>
-    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
-  </section>
-</div>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal/billing","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-billing" data-wisp-path="/modules/customers/portal/billing" data-cwl-island="client"><div class="billing-page">
+    <h1>Billing &amp; Account</h1>
+    <p class="subtitle">Your plan, billing cycle, and balance. <a href="/modules/customers/portal/billing/settings" class="link-settings">Billing settings</a></p>
+
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing"><div class="billing-sections">
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.servicePlan"><section class="info-section">
+            <h2>Service Plan</h2>
+            <div class="info-card">
+              <div class="info-row">
+                <span class="info-label">Plan</span>
+                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="billing.servicePlan.planName || '—'"></span></span>
+              </div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.servicePlan.monthlyFee != null"><div class="info-row">
+                  <span class="info-label">Monthly</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(billing.servicePlan.monthlyFee)"></span></span>
+                </div></div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.servicePlan.setupFee != null && billing.servicePlan.setupFee > 0"><div class="info-row">
+                  <span class="info-label">Setup (one-time)</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(billing.servicePlan.setupFee)"></span></span>
+                </div></div>
+            </div>
+          </section></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.billingCycle"><section class="info-section">
+            <h2>Billing Cycle</h2>
+            <div class="info-card">
+              <div class="info-row">
+                <span class="info-label">Cycle</span>
+                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="billing.billingCycle.type || '—'"></span></span>
+              </div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.billingCycle.dayOfMonth != null"><div class="info-row">
+                  <span class="info-label">Billing day</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="billing.billingCycle.dayOfMonth"></span></span>
+                </div></div>
+              <div class="info-row">
+                <span class="info-label">Next billing date</span>
+                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(billing.billingCycle.nextBillingDate)"></span></span>
+              </div>
+            </div>
+          </section></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.balance && (billing.balance.current != null || billing.balance.overdue != null)"><section class="info-section">
+            <h2>Balance</h2>
+            <div class="info-card">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.balance.current != null"><div class="info-row">
+                  <span class="info-label">Current balance</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(billing.balance.current)"></span></span>
+                </div></div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.balance.overdue != null && billing.balance.overdue > 0"><div class="info-row overdue">
+                  <span class="info-label">Overdue</span>
+                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(billing.balance.overdue)"></span></span>
+                </div></div>
+            </div>
+          </section></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.autoPay?.enabled"><section class="info-section">
+            <div class="info-card auto-pay-badge">
+              <span class="badge">Auto-pay enabled</span>
+            </div>
+          </section></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.balance && ((billing.balance.current ?? 0) + (billing.balance.overdue ?? 0)) > 0"><section class="info-section">
+            <h2>Pay now</h2>
+            <div class="info-card">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCardForm && clientSecretForStripe && stripePublishableKey"><div data-cwl-component="StripeCardForm" data-cwl-lifted-component="StripeCardForm"><div class="stripe-card-form">
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mountError"><p class="form-error"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mountError"></span></p></div>
+</div></div></div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="payMessage"><p class="pay-message"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="payMessage"></span></p></div>
+            </div>
+          </section></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.invoices && billing.invoices.length > 0"><section class="info-section">
+            <h2>Invoices</h2>
+            <div class="info-card">
+              <ul class="invoice-list">
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="billing.invoices as inv"><li class="invoice-row">
+                    <span class="inv-num"></span>
+                    <span class="inv-amount"></span>
+                    <span class="inv-status"></span>
+                    <span class="inv-due">Due </span>
+                    <button type="button" class="btn-view">View</button>
+                  </li></div>
+              </ul>
+            </div>
+          </section></div>
+
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="billing.paymentHistory && billing.paymentHistory.length > 0"><section class="info-section">
+            <h2>Payment history</h2>
+            <div class="info-card">
+              <ul class="payment-list">
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="billing.paymentHistory.slice().reverse() as pay"><li class="payment-row">
+                    <span class="pay-amount"></span>
+                    <span class="pay-method"></span>
+                    <span class="pay-date"></span>
+                  </li></div>
+              </ul>
+            </div>
+          </section></div>
+      </div></div>
+
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showInvoiceModal"><div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Invoice detail">
+        <div class="modal-content" on:click|stopPropagation>
+          <div class="modal-header">
+            <h2>Invoice detail</h2>
+            <button type="button" class="modal-close" aria-label="Close">&times;</button>
+          </div>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="invoiceDetailLoading"><p>Loading…</p></div>
+        </div>
+      </div></div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/billing"}</script>

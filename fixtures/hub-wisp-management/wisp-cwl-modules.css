@@ -8,6 +8,18 @@ html, body {
   color: #f1f5f9;
 }
 
+/* Coverage / plan / deploy map: Module_Manager `.fullscreen-map` equivalent */
+html.wisp-map-page,
+html.wisp-map-page body,
+body.wisp-map-page {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+}
+
 .wisp-plan-app {
   position: relative;
   width: 100vw;
@@ -17,9 +29,16 @@ html, body {
 }
 
 .map-fullscreen {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   z-index: 0;
+  background: #000;
 }
 
 .plan-map-iframe {
@@ -213,15 +232,23 @@ html, body {
 }
 
 .wisp-coverage-map {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  /* D6443: look is original-css `.fullscreen-map` — do not restyle coverage chrome here. */
 }
 
+/* Island host aliases kept only for plan/deploy iframes that still inject map-view-host. */
 .map-view-host {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 0;
+}
+
+.map-view-host .esri-view,
+.map-view-host .esri-view-root,
+.map-view-host .esri-view-surface {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .map-loading {
@@ -283,15 +310,23 @@ html, body {
 }
 
 .map-fullscreen {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: #000;
 }
 
 .map-fullscreen .map-view-host {
   position: absolute;
   inset: 0;
   z-index: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Wizard launcher (wizards page) */

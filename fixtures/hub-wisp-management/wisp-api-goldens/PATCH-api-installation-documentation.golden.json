@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "installation-documentation",
+  "op": "update",
+  "seeded": "contract-mutate"
+}

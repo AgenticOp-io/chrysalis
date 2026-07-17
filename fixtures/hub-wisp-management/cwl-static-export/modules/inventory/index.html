@@ -1,20 +1,633 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_inventory" data-wisp-path="/modules/inventory" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/inventory">
-  <header class="wisp-demo-header">
-    <h1>Inventory</h1>
-    <p class="wisp-demo-desc">Operational workspace for Inventory — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/inventory/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="scan" title="Scan lookup">Scan</button><button type="button" class="wisp-demo-btn" data-action="transfer" title="Transfer item">Transfer</button><a class="wisp-demo-btn" href="/modules/inventory/bundles">Bundles</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>4</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>3</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>1</strong><span>Pending tasks</span></article>
+<div class="inventory-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+        <button class="back-button">
+        ← Back to Dashboard
+      </button>
+      <h1>📦 Inventory Management</h1>
+      <p class="subtitle">Centralized asset tracking and management</p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary">
+        🔍 Scan Lookup
+      </button>
+      <button class="btn-secondary">
+        📥 Scan Check In
+      </button>
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger"
+      class:open
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div></div>
+  </div></div></div>
+      <button class="btn-secondary">
+        📤 Scan Check Out
+      </button>
+      <button class="btn-secondary">
+        🔍 Manual Lookup
+      </button>
+      <button class="btn-secondary">
+        📦 Bundles
+      </button>
+      <button class="btn-secondary">
+        📊 View Reports
+      </button>
+      <button class="btn-secondary">
+        📥 Export CSV
+      </button>
+      <button class="btn-primary">
+        ➕ Add Item
+      </button>
+    </div>
+  </div>
+  
+  <!-- Alerts -->
+  
+  
+  
+  
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalItems"></span></div>
+        <div class="stat-label">Total Items</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('available')"></span>
+        </div>
+        <div class="stat-label">Available</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">🚀</div>
+      <div>
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('deployed')"></span>
+        </div>
+        <div class="stat-label">Deployed</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(stats.totalValue)"></span></div>
+        <div class="stat-label">Total Value</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="🔍 Search by serial number, model, manufacturer..."
+        />
+      </div>
+      
+      <select>
+        <option>All Categories</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="categories as category"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Statuses</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="statuses as status"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Locations</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="locationTypes as locType"><option></option></div>
+      </select>
+      
+      <button class="btn-primary">Apply</button>
+      <button class="btn-secondary">Clear</button>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  
+    <!-- Inventory Table -->
+    <div class="table-container">
+      <table class="inventory-table">
+        <thead>
+          <tr>
+            <th>Asset Tag</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Manufacturer</th>
+            <th>Model</th>
+            <th>Serial Number</th>
+            <th>Status</th>
+            <th>Condition</th>
+            <th>Location</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    
+  
+  
+  <!-- Manual Barcode Entry Modal -->
+  
+
+  <!-- Asset Tag Viewer -->
+  
+  
+  <!-- Scan Modal -->
+  
+  
+  <!-- Check-in Wizard -->
+  <div data-cwl-component="InventoryCheckInWizard" data-cwl-lifted-component="InventoryCheckInWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+      <div class="wizard-panel">
+        <h3>Welcome to Inventory Check-in! 📦</h3>
+        <p>This wizard will guide you through checking in inventory items.</p>
+        
+        <div class="info-box">
+          <h4>Check-in Process:</h4>
+          <ul>
+            <li>✅ Scan or enter item serial number</li>
+            <li>✅ Verify item details</li>
+            <li>✅ Set storage location</li>
+            <li>✅ Print label (optional)</li>
+            <li>✅ Complete check-in</li>
+          </ul>
+        </div>
+        
+        <div class="info-box">
+          <h4>Check-in Methods:</h4>
+          <ul>
+            <li><strong>Barcode Scan:</strong> Scan item barcode with camera</li>
+            <li><strong>Manual Entry:</strong> Enter serial number manually</li>
+            <li><strong>Bulk:</strong> Check in multiple items at once</li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      <!-- Scan Item -->
+      <div class="wizard-panel">
+        <h3>Scan or Enter Item</h3>
+        <p>How would you like to identify the item?</p>
+        
+        <div class="method-grid">
+          <button 
+            class="method-card"
+          >
+            <div class="method-icon">📷</div>
+            <h4>Scan Barcode</h4>
+            <p>Use camera to scan barcode/QR code</p>
+          </button>
+          
+          <button 
+            class="method-card"
+          >
+            <div class="method-icon">✏️</div>
+            <h4>Manual Entry</h4>
+            <p>Enter serial number manually</p>
+          </button>
+          
+          <button 
+            class="method-card"
+          >
+            <div class="method-icon">📊</div>
+            <h4>Bulk Check-in</h4>
+            <p>Check in multiple items</p>
+          </button>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="scanMethod === 'manual'"><div class="form-section">
+            <div class="form-group">
+              <label>
+                Serial Number <span class="required">*</span>
+              </label>
+              <input 
+                type="text"
+                placeholder="Enter serial number"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>Purchase Order ID</label>
+              <input 
+                type="text"
+                placeholder="Optional: Link to purchase order"
+              />
+            </div>
+            
+            <button 
+              class="wizard-btn-primary"
+            >
+              Lookup Item →
+            </button>
+          </div></div>
+      </div>
+      
+    
+      <!-- Verify -->
+      <div class="wizard-panel">
+        <h3>Verify Item Details</h3>
+        <p>Review and update item information if needed.</p>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="itemDetails"><div class="item-details">
+            <div class="form-group">
+              <label>
+                Item Name <span class="required">*</span>
+              </label>
+              <input 
+                type="text"
+                placeholder="e.g., TP-Link Router"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>Category</label>
+              <select>
+                <option>-- Select Category --</option>
+                <option value="Radio Equipment">Radio Equipment</option>
+                <option value="Antennas">Antennas</option>
+                <option value="Power Systems">Power Systems</option>
+                <option value="Networking Equipment">Networking Equipment</option>
+                <option value="CPE Devices">CPE Devices</option>
+                <option value="Cables & Accessories">Cables & Accessories</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Manufacturer</label>
+              <input 
+                type="text"
+                placeholder="e.g., TP-Link"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>Model</label>
+              <input 
+                type="text"
+                placeholder="e.g., CPE610"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>Serial Number</label>
+              <input 
+                type="text"
+                disabled
+              />
+            </div>
+          </div></div>
+      </div>
+      
+    
+      <!-- Set Location -->
+      <div class="wizard-panel">
+        <h3>Set Storage Location</h3>
+        <p>Where will this item be stored?</p>
+        
+        <div class="form-group">
+          <label>Location Type</label>
+          <select>
+            <option value="warehouse">Warehouse</option>
+            <option value="tower">Tower Site</option>
+            <option value="noc">NOC</option>
+            <option value="vehicle">Vehicle</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="locationType === 'warehouse'"><div class="form-group">
+            <label>Section</label>
+            <input 
+              type="text"
+              placeholder="e.g., A, B, C"
+            />
+          </div>
+          <div class="form-group">
+            <label>Shelf</label>
+            <input 
+              type="text"
+              placeholder="e.g., Shelf 1"
+            />
+          </div>
+        
+          <div class="form-group">
+            <label>Site</label>
+            <select>
+              <option>-- Select Site --</option>
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableSites as site"><option></option></div>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Rack</label>
+            <input 
+              type="text"
+              placeholder="e.g., Rack 1"
+            />
+          </div>
+          <div class="form-group">
+            <label>Rack Unit</label>
+            <input 
+              type="text"
+              placeholder="e.g., U12"
+            />
+          </div>
+        
+          <div class="form-group">
+            <label>Room</label>
+            <input 
+              type="text"
+              placeholder="e.g., Server Room A"
+            />
+          </div>
+          <div class="form-group">
+            <label>Rack</label>
+            <input 
+              type="text"
+              placeholder="e.g., Rack 1"
+            />
+          </div>
+        
+          <div class="form-group">
+            <label>Vehicle ID</label>
+            <input 
+              type="text"
+              placeholder="e.g., VEH-001"
+            />
+          </div>
+          <div class="form-group">
+            <label>Vehicle Name</label>
+            <input 
+              type="text"
+              placeholder="e.g., Service Truck 1"
+            />
+          </div></div>
+        
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea
+            placeholder="Any additional notes..."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      
+    
+      <!-- Print Label -->
+      <div class="wizard-panel">
+        <h3>Print Label</h3>
+        <p>Print asset tag label for this item.</p>
+        
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="itemDetails"><div class="label-preview">
+            <div class="label-content">
+              <h4><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="itemDetails.name || itemDetails.serialNumber"></span></h4>
+              <p class="serial">SN: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="itemDetails.serialNumber"></span></p>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="itemDetails.category"><p class="category"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="itemDetails.category"></span></p></div>
+            </div>
+          </div></div>
+        
+        <div class="form-group">
+          <label>
+            <input 
+              type="checkbox"
+            />
+            Print label after check-in
+          </label>
+        </div>
+        
+        <div class="info-box">
+          <p>💡 Label will be printed automatically after check-in completes.</p>
+        </div>
+      </div></div>
+  </div>
+  
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0"><button class="wizard-btn-secondary">
+        ← Previous
+      </button></div>
+    
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1 && scanMethod === 'bulk'"><!-- Bulk check-in skips to location step -->
+      
+        <button 
+          class="wizard-btn-primary"
+        >
+          ✅ Complete Check-in
+        </button>
+      
+        <button class="wizard-btn-primary">
+          Next →
+        </button></div>
+    </div>
+  </div>
+</div></div>
+  <!-- RMA Tracking Wizard -->
+  <div data-cwl-component="RMATrackingWizard" data-cwl-lifted-component="RMATrackingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
+    class="wizard-overlay" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="wizard-title"
+   hidden aria-hidden="true">
+    <div 
+      class="wizard-modal"
+      on:click|stopPropagation
+    >
+      <!-- Header -->
+      <div class="wizard-header">
+        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">✕</button>
+      </div>
+      
+      <!-- Progress Steps -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav></div>
+      
+      <!-- Content Area -->
+      <div class="wizard-content">
+        
+        
+        
+        
+        <!-- Slot for step content -->
+        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+      </div>
+      
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+      </div>
+    </div>
+  </div></div>
+  <div slot="content">
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>RMA (Return Merchandise Authorization)</h3>
+        <p>Mark an inventory item as sent for RMA and record the RMA number, vendor, and reason.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Select the item being sent for RMA</li>
+            <li>Enter RMA number and vendor</li>
+            <li>Record reason and optional expected return date</li>
+          </ul>
+        </div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>Select Item</h3>
+        <div class="form-group">
+          <label>Search</label>
+          <input type="text" placeholder="Serial, asset tag, model..." />
+        </div>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isLoading && items.length === 0"><p>Loading inventory...</p>
+        
+          <p class="hint">No items found. Add inventory first or clear the search.</p></div>
+      </div>
+    
+      <div class="wizard-panel">
+        <h3>RMA Details</h3>
+        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedItem"><p class="hint">Item: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedItem.serialNumber || selectedItem.assetTag"></span> — <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedItem.model || selectedItem.equipmentType"></span></p></div>
+        <div class="form-group">
+          <label>RMA Number <span class="required">*</span></label>
+          <input type="text" placeholder="e.g. RMA-2024-001" />
+        </div>
+        <div class="form-group">
+          <label>Vendor <span class="required">*</span></label>
+          <input type="text" placeholder="Vendor or manufacturer" />
+        </div>
+        <div class="form-group">
+          <label>Reason</label>
+          <input type="text" placeholder="e.g. Defective, warranty repair" />
+        </div>
+        <div class="form-group">
+          <label>Expected Return Date</label>
+          <input type="date" />
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea rows="2" placeholder="Additional notes"></textarea>
+        </div>
+      </div></div>
+  </div>
+
+  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary">← Previous</button></div>
+    <div class="footer-actions">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 2"><button class="wizard-btn-primary">Next →</button>
+      
+        <button class="wizard-btn-primary">Done</button></div>
+    </div>
+  </div>
+</div></div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Inventory data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td>inv-1</td><td>CPE-AX100</td><td>in-stock</td><td></td></tr><tr><td>inv-2</td><td>Sector-60</td><td>in-stock</td><td></td></tr><tr><td>inv-3</td><td>Backhaul-Link</td><td>rma</td><td></td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/inventory","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+
+<!-- Help Button - Fixed Position -->
+<button class="help-button" aria-label="Open Help" title="Help">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  </svg>
+</button>
+
+<!-- Help Modal -->
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
+
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <button class="close-btn" aria-label="Close">×</button>
+      </div>
+      
+      <div class="help-body">
+        
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"inventory"}</script>

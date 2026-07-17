@@ -1,6 +1,26 @@
 {
-  "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "work-orders",
-  "op": "create"
+  "tenantId": "6a166eb07089304417ec967a",
+  "ticketNumber": "TKT-CWL-1784247475446",
+  "type": "installation",
+  "ticketCategory": "customer-facing",
+  "priority": "medium",
+  "status": "open",
+  "requiresApproval": false,
+  "approvalStatus": "not-required",
+  "title": "CWL WO 1784247475446",
+  "description": "chrysalis-live-mutate-trace",
+  "sla": {
+    "breached": false
+  },
+  "photos": [],
+  "attachments": [],
+  "_id": "6a5974c0ad923e3601e03610",
+  "affectedEquipment": [],
+  "affectedSites": [],
+  "affectedCustomers": [],
+  "workPerformed": [],
+  "partsUsed": [],
+  "createdAt": "2026-07-17T00:18:08.736Z",
+  "updatedAt": "2026-07-17T00:18:08.737Z",
+  "__v": 0
 }
