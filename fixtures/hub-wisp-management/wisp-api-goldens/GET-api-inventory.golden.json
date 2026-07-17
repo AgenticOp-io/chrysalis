@@ -1,6 +1,52 @@
 {
   "items": [
     {
+      "_id": "6a5978abad923e3601e03a7a",
+      "tenantId": "6a166eb07089304417ec967a",
+      "category": "Radio Equipment",
+      "equipmentType": "Radio",
+      "manufacturer": "Trace",
+      "model": "M1",
+      "serialNumber": "INV1784248478296",
+      "status": "available",
+      "condition": "new",
+      "currentLocation": {
+        "type": "warehouse"
+      },
+      "ownership": "owned",
+      "attachments": [],
+      "maintenanceRecords": [],
+      "locationHistory": [],
+      "alerts": [],
+      "createdAt": "2026-07-17T00:34:51.371Z",
+      "updatedAt": "2026-07-17T00:34:52.178Z",
+      "__v": 0,
+      "notes": "chrysalis-live-mutate-put-1784248491850"
+    },
+    {
+      "_id": "6a597813ad923e3601e03994",
+      "tenantId": "6a166eb07089304417ec967a",
+      "category": "Radio Equipment",
+      "equipmentType": "Radio",
+      "manufacturer": "Trace",
+      "model": "M1",
+      "serialNumber": "INV1784248326355",
+      "status": "available",
+      "condition": "new",
+      "currentLocation": {
+        "type": "warehouse"
+      },
+      "ownership": "owned",
+      "attachments": [],
+      "maintenanceRecords": [],
+      "locationHistory": [],
+      "alerts": [],
+      "createdAt": "2026-07-17T00:32:19.441Z",
+      "updatedAt": "2026-07-17T00:32:20.280Z",
+      "__v": 0,
+      "notes": "chrysalis-live-mutate-put-1784248339918"
+    },
+    {
       "_id": "6a597766ad923e3601e038d2",
       "tenantId": "6a166eb07089304417ec967a",
       "category": "Radio Equipment",
@@ -1418,7 +1464,7 @@
   "pagination": {
     "page": 1,
     "limit": 100,
-    "total": 52,
+    "total": 54,
     "pages": 1
   }
 }

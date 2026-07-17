@@ -176,7 +176,9 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **Deepen passes 173–182 (×10):** source-doc — remote-agents status/unlinked; voice accounts/numbers/locations; bundle type/search; inv stats; complaint PUT; branding GET; `hub:fidelity-deepen -- --batch n10r` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10r.json`) |
 | 2026-07-17 | **Deepen passes 183–192 (×10):** source-doc — portal-content alerts/FAQ/KB/chat; voice emergency/port-orders + provider POST; snmp config/devices (status held: bad require path); pricing import; `hub:fidelity-deepen -- --batch n10s` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10s.json`) |
 | 2026-07-17 | **Deepen passes 193–202 (×10):** source-doc — mikrotik status/devices/discovery; snmp discovery/discovered; monitoring epc + `/monitoring/monitoring/{dashboard,topology}` (source mount path); plans mobile; portal tenant; `hub:fidelity-deepen -- --batch n10t` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10t.json`) |
-| — | (none — deepen-n10t closed; next `n10u` 203–212 via `--source-doc`) | **open** |
+| 2026-07-17 | **Deepen passes 203–212 (×10):** permissions/me; users visible; install-docs; monitoring mikrotik/snmp; snmp metrics; voice service-location POST; portal alerts/FAQ published; `hub:fidelity-deepen -- --batch n10u` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10u.json`) |
+| 2026-07-17 | **Deepen passes 213–222 (×10):** portal KB published; epc list; pricing/bundles/tenant-settings/notifications; permissions check; voice TN+emergency POST; mobile tasks; `hub:fidelity-deepen -- --batch n10v` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10v.json`) |
+| — | (none — deepen-n10v closed; next `n10w` 223–232 via `--source-doc`) | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

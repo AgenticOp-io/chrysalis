@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 202,
-  "nextBatchId": "n10u",
-  "nextPassRange": [203, 212],
+  "closedThroughPass": 222,
+  "nextBatchId": "n10w",
+  "nextPassRange": [223, 232],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -39,7 +39,9 @@
     { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" },
     { "id": "n10r", "passRange": [173, 182], "status": "closed-harness" },
     { "id": "n10s", "passRange": [183, 192], "status": "closed-harness" },
-    { "id": "n10t", "passRange": [193, 202], "status": "closed-harness" }
+    { "id": "n10t", "passRange": [193, 202], "status": "closed-harness" },
+    { "id": "n10u", "passRange": [203, 212], "status": "closed-harness" },
+    { "id": "n10v", "passRange": [213, 222], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -181,7 +183,27 @@
     { "id": 199, "batch": "n10t", "title": "Monitoring dashboard GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
     { "id": 200, "batch": "n10t", "title": "Monitoring topology GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
     { "id": 201, "batch": "n10t", "title": "Plans mobile by user GET", "status": "done", "apiPaths": ["/api/plans"], "source": "backend-services/routes/plans/plans-mobile.js" },
-    { "id": 202, "batch": "n10t", "title": "Portal tenant config GET", "status": "done", "apiPaths": ["/api/portal"], "source": "backend-services/routes/portal-domain.js" }
+    { "id": 202, "batch": "n10t", "title": "Portal tenant config GET", "status": "done", "apiPaths": ["/api/portal"], "source": "backend-services/routes/portal-domain.js" },
+    { "id": 203, "batch": "n10u", "title": "Permissions me GET", "status": "done", "apiPaths": ["/api/permissions"], "source": "backend-services/routes/permissions.js" },
+    { "id": 204, "batch": "n10u", "title": "Users tenant visible GET", "status": "done", "apiPaths": ["/api/users"], "source": "backend-services/routes/users/index.js" },
+    { "id": 205, "batch": "n10u", "title": "Installation-documentation list GET", "status": "done", "apiPaths": ["/api/installation-documentation"], "source": "backend-services/routes/installation-documentation.js" },
+    { "id": 206, "batch": "n10u", "title": "Monitoring mikrotik devices GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
+    { "id": 207, "batch": "n10u", "title": "Monitoring snmp devices GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
+    { "id": 208, "batch": "n10u", "title": "Monitoring snmp discovered GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
+    { "id": 209, "batch": "n10u", "title": "SNMP metrics latest GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-metrics.js" },
+    { "id": 210, "batch": "n10u", "title": "Voice service-locations POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 211, "batch": "n10u", "title": "Portal-content alerts/active GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 212, "batch": "n10u", "title": "Portal-content FAQ published GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 213, "batch": "n10v", "title": "Portal-content KB published GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 214, "batch": "n10v", "title": "EPC list GET", "status": "done", "apiPaths": ["/api/epc"], "source": "backend-services/routes/epc.js" },
+    { "id": 215, "batch": "n10v", "title": "Equipment-pricing list GET", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
+    { "id": 216, "batch": "n10v", "title": "Bundles list GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
+    { "id": 217, "batch": "n10v", "title": "Tenant-settings GET", "status": "done", "apiPaths": ["/api/tenant-settings"], "source": "backend-services/routes/tenant-settings.js" },
+    { "id": 218, "batch": "n10v", "title": "Notifications list GET", "status": "done", "apiPaths": ["/api/notifications"], "source": "backend-services/routes/notifications.js" },
+    { "id": 219, "batch": "n10v", "title": "Permissions check GET", "status": "done", "apiPaths": ["/api/permissions"], "source": "backend-services/routes/permissions.js" },
+    { "id": 220, "batch": "n10v", "title": "Voice telephone-numbers POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 221, "batch": "n10v", "title": "Voice emergency-addresses POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 222, "batch": "n10v", "title": "Mobile tasks GET", "status": "done", "apiPaths": ["/api/mobile"], "source": "backend-services/routes/mobile-tasks.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },
@@ -198,7 +220,8 @@
     { "pass": null, "title": "Install submit without photos", "blocker": "Requires min 3 photos; storageBucket blocks uploads", "source": "backend-services/routes/installation-documentation.js" },
     { "pass": null, "title": "Bundle items require category enum", "blocker": "HardwareBundle items require category from model enum (e.g. Radio Equipment)", "source": "backend-services/models/hardwareBundle.js" },
     { "pass": 161, "title": "Customer GET /:id/subscriber after create", "blocker": "POST create-subscriber 201 but GET returns No HSS subscriber (hssSubscriberId not visible)", "source": "backend-services/routes/customers.js" },
-    { "pass": null, "title": "SNMP status GET", "blocker": "HSS 500: Cannot find module '../models/snmp-metrics-schema' (wrong relative require in snmp-status.js line 46; top-level import uses ../../models)", "source": "backend-services/routes/snmp-routes/snmp-status.js" }
+    { "pass": null, "title": "SNMP status GET", "blocker": "HSS 500: Cannot find module '../models/snmp-metrics-schema' (wrong relative require in snmp-status.js line 46; top-level import uses ../../models)", "source": "backend-services/routes/snmp-routes/snmp-status.js" },
+    { "pass": null, "title": "EPC status GET", "blocker": "GET /api/epc/status shadowed by /:id — Cast to ObjectId failed for value \"status\"", "source": "backend-services/routes/epc.js" }
   ],
   "candidateHints": [
     { "title": "Retry held residuals after HSS fix", "api": "held", "note": "Re-probe heldResiduals after reading backend-services source" },

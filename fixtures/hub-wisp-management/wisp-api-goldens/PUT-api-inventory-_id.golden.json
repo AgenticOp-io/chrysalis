@@ -1,11 +1,11 @@
 {
-  "_id": "6a597813ad923e3601e03994",
+  "_id": "6a5978c6ad923e3601e03b0f",
   "tenantId": "6a166eb07089304417ec967a",
   "category": "Radio Equipment",
   "equipmentType": "Radio",
   "manufacturer": "Trace",
   "model": "M1",
-  "serialNumber": "INV1784248326355",
+  "serialNumber": "INV1784248505811",
   "status": "available",
   "condition": "new",
   "currentLocation": {
@@ -16,8 +16,8 @@
   "maintenanceRecords": [],
   "locationHistory": [],
   "alerts": [],
-  "createdAt": "2026-07-17T00:32:19.441Z",
-  "updatedAt": "2026-07-17T00:32:20.280Z",
+  "createdAt": "2026-07-17T00:35:18.383Z",
+  "updatedAt": "2026-07-17T00:35:19.128Z",
   "__v": 0,
-  "notes": "chrysalis-live-mutate-put-1784248339918"
+  "notes": "chrysalis-live-mutate-put-1784248518863"
 }

@@ -1,5 +1,5 @@
 {
-  "name": "CWL Trace Site 1784248326355",
+  "name": "CWL Trace Site 1784248505811",
   "type": [
     "tower"
   ],
@@ -8,12 +8,12 @@
     "latitude": 39.74,
     "longitude": -104.99,
     "country": "US",
-    "_id": "6a597812ad923e3601e03989"
+    "_id": "6a5978c5ad923e3601e03b04"
   },
   "tenantId": "6a166eb07089304417ec967a",
   "createdBy": "System",
-  "_id": "6a597812ad923e3601e03988",
-  "createdAt": "2026-07-17T00:32:18.988Z",
-  "updatedAt": "2026-07-17T00:32:18.989Z",
+  "_id": "6a5978c5ad923e3601e03b03",
+  "createdAt": "2026-07-17T00:35:17.919Z",
+  "updatedAt": "2026-07-17T00:35:17.920Z",
   "__v": 0
 }

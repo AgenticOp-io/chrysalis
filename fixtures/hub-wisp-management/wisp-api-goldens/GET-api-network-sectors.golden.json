@@ -29,7 +29,7 @@
     "tenantId": "6a166eb07089304417ec967a",
     "createdBy": "System",
     "createdAt": "2026-07-16T14:30:40.082Z",
-    "updatedAt": "2026-07-17T00:29:28.022Z",
+    "updatedAt": "2026-07-17T00:34:53.056Z",
     "__v": 0,
     "updatedBy": "System"
   },
@@ -1280,6 +1280,70 @@
     "createdBy": "System",
     "createdAt": "2026-07-17T00:29:26.071Z",
     "updatedAt": "2026-07-17T00:29:26.072Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a597813ad923e3601e0398c",
+    "name": "CWL Trace Sector 1784248326355",
+    "status": "active",
+    "technology": "LTE",
+    "azimuth": 90,
+    "beamwidth": 65,
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a597813ad923e3601e0398d"
+    },
+    "siteId": {
+      "_id": "6a596f4dad923e3601e03063",
+      "name": "Bulk 1784246090538",
+      "type": [
+        "tower"
+      ],
+      "location": {
+        "latitude": 39.7,
+        "longitude": -105,
+        "country": "US",
+        "_id": "6a596f4dad923e3601e03064"
+      }
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:32:19.119Z",
+    "updatedAt": "2026-07-17T00:32:19.120Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a5978abad923e3601e03a72",
+    "name": "CWL Trace Sector 1784248478296",
+    "status": "active",
+    "technology": "LTE",
+    "azimuth": 90,
+    "beamwidth": 65,
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a5978abad923e3601e03a73"
+    },
+    "siteId": {
+      "_id": "6a596f4dad923e3601e03063",
+      "name": "Bulk 1784246090538",
+      "type": [
+        "tower"
+      ],
+      "location": {
+        "latitude": 39.7,
+        "longitude": -105,
+        "country": "US",
+        "_id": "6a596f4dad923e3601e03064"
+      }
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:34:51.057Z",
+    "updatedAt": "2026-07-17T00:34:51.058Z",
     "__v": 0
   },
   {

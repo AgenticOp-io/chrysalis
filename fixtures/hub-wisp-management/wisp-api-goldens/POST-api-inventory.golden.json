@@ -4,7 +4,7 @@
   "equipmentType": "Radio",
   "manufacturer": "Trace",
   "model": "M1",
-  "serialNumber": "INV1784248326355",
+  "serialNumber": "INV1784248505811",
   "status": "available",
   "condition": "new",
   "currentLocation": {
@@ -12,11 +12,11 @@
   },
   "ownership": "owned",
   "attachments": [],
-  "_id": "6a597813ad923e3601e03994",
+  "_id": "6a5978c6ad923e3601e03b0f",
   "maintenanceRecords": [],
   "locationHistory": [],
   "alerts": [],
-  "createdAt": "2026-07-17T00:32:19.441Z",
-  "updatedAt": "2026-07-17T00:32:19.442Z",
+  "createdAt": "2026-07-17T00:35:18.383Z",
+  "updatedAt": "2026-07-17T00:35:18.384Z",
   "__v": 0
 }

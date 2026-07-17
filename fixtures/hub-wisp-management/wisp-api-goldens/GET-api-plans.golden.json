@@ -1,5 +1,121 @@
 [
   {
+    "_id": "6a5978abad923e3601e03a7c",
+    "name": "CWL Plan 1784248478296",
+    "description": "chrysalis-live-mutate-trace",
+    "status": "draft",
+    "location": {
+      "country": "US"
+    },
+    "marketing": {
+      "targetRadiusMiles": 5,
+      "totalUniqueAddresses": 0,
+      "totalRuns": 0,
+      "lastRunNewAddresses": 0,
+      "algorithms": [],
+      "addresses": [],
+      "runHistory": []
+    },
+    "showOnMap": false,
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdById": null,
+    "scope": {
+      "towers": [],
+      "sectors": [],
+      "cpeDevices": [],
+      "equipment": [],
+      "backhauls": []
+    },
+    "hardwareRequirements": {
+      "existing": [],
+      "needed": []
+    },
+    "purchasePlan": {
+      "totalEstimatedCost": 0,
+      "missingHardware": [],
+      "procurementStatus": "pending",
+      "vendorQuotes": []
+    },
+    "deployment": {
+      "assignedTeam": [],
+      "deploymentStage": "planning",
+      "fieldTechs": [],
+      "hardwareDeployment": [],
+      "documentation": {
+        "installationPhotos": [],
+        "testReports": [],
+        "asBuiltDrawings": []
+      },
+      "milestones": [],
+      "issues": []
+    },
+    "stagedFeatureCounts": {
+      "total": 0
+    },
+    "createdAt": "2026-07-17T00:34:51.531Z",
+    "updatedAt": "2026-07-17T00:34:51.533Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a597813ad923e3601e03996",
+    "name": "CWL Plan 1784248326355",
+    "description": "chrysalis-live-mutate-trace",
+    "status": "draft",
+    "location": {
+      "country": "US"
+    },
+    "marketing": {
+      "targetRadiusMiles": 5,
+      "totalUniqueAddresses": 0,
+      "totalRuns": 0,
+      "lastRunNewAddresses": 0,
+      "algorithms": [],
+      "addresses": [],
+      "runHistory": []
+    },
+    "showOnMap": false,
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdById": null,
+    "scope": {
+      "towers": [],
+      "sectors": [],
+      "cpeDevices": [],
+      "equipment": [],
+      "backhauls": []
+    },
+    "hardwareRequirements": {
+      "existing": [],
+      "needed": []
+    },
+    "purchasePlan": {
+      "totalEstimatedCost": 0,
+      "missingHardware": [],
+      "procurementStatus": "pending",
+      "vendorQuotes": []
+    },
+    "deployment": {
+      "assignedTeam": [],
+      "deploymentStage": "planning",
+      "fieldTechs": [],
+      "hardwareDeployment": [],
+      "documentation": {
+        "installationPhotos": [],
+        "testReports": [],
+        "asBuiltDrawings": []
+      },
+      "milestones": [],
+      "issues": []
+    },
+    "stagedFeatureCounts": {
+      "total": 0
+    },
+    "createdAt": "2026-07-17T00:32:19.594Z",
+    "updatedAt": "2026-07-17T00:32:19.595Z",
+    "__v": 0
+  },
+  {
     "_id": "6a597766ad923e3601e038d4",
     "name": "CWL Plan 1784248153441",
     "description": "chrysalis-live-mutate-trace",

@@ -2110,6 +2110,102 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10rSurfaces();
   initDeepenN10sSurfaces();
   initDeepenN10tSurfaces();
+  initDeepenN10uSurfaces();
+  initDeepenN10vSurfaces();
+
+  function initDeepenN10vSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10v="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10v", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var dash =
+      document.querySelector(".dashboard-page .page-header") ||
+      document.querySelector('[data-wisp-page="dashboard"] .page-header');
+    addGet(dash, "epc-list", "/api/epc/list", "EPC list");
+    addGet(dash, "notif", "/api/notifications", "Notifications");
+    addGet(dash, "mobile-tasks", "/api/mobile/tasks", "Mobile tasks");
+    addGet(
+      dash,
+      "perm-check",
+      "/api/permissions/check?module=customers&fcapsCategory=fault&operation=read",
+      "Perm check",
+    );
+  }
+
+  function initDeepenN10uSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10u="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10u", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var tid = "6a166eb07089304417ec967a";
+    var dash =
+      document.querySelector(".dashboard-page .page-header") ||
+      document.querySelector('[data-wisp-page="dashboard"] .page-header');
+    addGet(dash, "perm-me", "/api/permissions/me", "Permissions me");
+    addGet(dash, "users-vis", "/api/users/tenant/" + tid + "/visible", "Users visible");
+    var monHost =
+      document.querySelector(".monitoring-page .page-header") ||
+      document.querySelector('[data-wisp-page="monitoring"] .page-header') ||
+      document.querySelector(".monitor-page .page-header");
+    addGet(monHost, "mon-mt", "/api/monitoring/mikrotik/devices", "Mon mikrotik");
+    addGet(monHost, "mon-snmp", "/api/monitoring/snmp/devices", "Mon SNMP");
+    var portalHost =
+      document.querySelector(".customers-page .page-header") ||
+      document.querySelector('[data-wisp-page="customers"] .page-header');
+    addGet(portalHost, "pc-active", "/api/portal-content/" + tid + "/alerts/active", "Active alerts");
+  }
 
   function initDeepenN10tSurfaces() {
     if (!window.WispCwlApi) return;
