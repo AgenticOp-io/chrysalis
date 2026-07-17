@@ -16,7 +16,7 @@ import {
   patchCwlRouteBlockHtml,
 } from "@chrysalis/emit-shared";
 import { inferUiPageApiPath } from "./infer-ui-page-api-path.js";
-import { DEFAULT_SHOWCASE_LOAD_BOOLS, scrubStructuralMarkupArtifacts } from "./ui-markup-svelte-structural.js";
+import { DEFAULT_SHOWCASE_LOAD_BOOLS, scrubStructuralMarkupArtifacts, isUiToggleOverlayIfHeader, stampClosedUiChrome } from "./ui-markup-svelte-structural.js";
 
 export const SITE_LOAD_BIND_REPORT_KIND = "chrysalis.site-load-bind.v1";
 export const SITE_LOAD_BIND_REPORT_SCHEMA_VERSION = 1;
@@ -194,7 +194,27 @@ export function resolveInterpDetail(root: unknown, detail: string): unknown {
   let d = detail.trim();
   if (!d) return undefined;
   // Reject Svelte pipe filters (`|`) but allow `||` coalesce (G9780).
-  if (/(^|[^|])\|([^|]|$)/.test(d) || d.includes("&&")) return undefined;
+  if (/(^|[^|])\|([^|]|$)/.test(d)) return undefined;
+
+  // Nullish coalesce before optional-chain strip (D6448).
+  if (d.includes("??")) {
+    const parts = d.split("??").map((p) => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      for (const part of parts) {
+        if (/^'.*'$/.test(part) || /^".*"$/.test(part)) {
+          const lit = part.slice(1, -1);
+          if (lit) return lit;
+          continue;
+        }
+        const v = resolveInterpDetail(root, part);
+        if (v !== undefined && v !== null) return v;
+      }
+      return undefined;
+    }
+  }
+
+  // Reject opaque && chains (keep simple paths / coalesce / ternaries).
+  if (d.includes("&&") && !/^[a-zA-Z_$][\w.$]*$/.test(d)) return undefined;
 
   // Coalesce: a || 'literal' || b (leftmost truthy)
   if (d.includes("||")) {
@@ -234,6 +254,30 @@ export function resolveInterpDetail(root: unknown, detail: string): unknown {
     if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return undefined;
     return ((num / den) * 100).toFixed(digits);
   }
+
+  // JSON.stringify(path) when path resolves (honest; was force-settle-only).
+  const js = /^JSON\.stringify\((.+?)(?:,\s*null,\s*\d+)?\)$/.exec(d);
+  if (js) {
+    const inner = resolveInterpDetail(root, js[1]!.trim());
+    if (inner !== undefined) {
+      try {
+        return JSON.stringify(inner);
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+
+  // arr.filter(...).length → base array length when filter opaque (honest count ceiling).
+  const filterLen = /^([a-zA-Z_$][\w.$]*)\.filter\([^)]*\)\.length$/.exec(d);
+  if (filterLen) {
+    const arr = resolveInterpDetail(root, filterLen[1]!);
+    if (Array.isArray(arr)) return arr.length;
+  }
+
+  // Event handlers are not display text
+  if (/^handle[A-Z][A-Za-z0-9_]*$/.test(d) || /^\(\)\s*=>/.test(d)) return "";
 
   const call = /^(formatCurrency|formatDate|formatDateTime|formatNumber|String)\((.+)\)$/.exec(d);
   if (call) {
@@ -714,20 +758,17 @@ function expandEachHoles(
                   if (allowResidualInners && chunk.includes("data-cwl-hole=")) {
                     const scoped = buildItemScope(item, parsed.itemName, body);
                     chunk = hydrateStructuralHtmlFromApiBody(chunk, scoped, {
-                      forceSettle: true,
+                      forceSettle: forceDepth > 0 || allowResidualInners,
                       _depth: forceDepth + 1,
                     });
                   }
                   return chunk;
                 });
-              const clean =
-                allowResidualInners ||
-                expanded.every((chunk) => !chunk.includes("data-cwl-hole="));
-              if (clean) {
-                rebuilt += expanded.join("");
-              } else {
-                rebuilt += html.slice(start, end);
-              }
+              // Expand when collection resolves; nested holes cleared in later passes (D6448).
+              rebuilt += expanded.join("");
+            } else if (collection !== null && collection.length === 0) {
+              // Empty origin/API array — honest empty list (not a hole).
+              rebuilt += "";
             } else if (allowResidualInners) {
               // Missing collection → empty (filled hole, no invented rows).
               rebuilt += "";
@@ -992,6 +1033,13 @@ function hydrateSimpleIfHoles(html: string, body: unknown, forceSettle = false):
     const inner = html.slice(afterOpen, end - "</div>".length);
     rebuilt += html.slice(cursor, start);
     let keep = evaluateIfDetail(detail, body);
+    // UI toggles: closed first paint keeps DOM (honest) even without forceSettle (D6448).
+    if (keep === null && isUiToggleOverlayIfHeader(detail)) {
+      rebuilt += stampClosedUiChrome(inner);
+      cursor = end;
+      re.lastIndex = end;
+      continue;
+    }
     if (keep === null && forceSettle) {
       // Unknown opaque if → omit branch (honest empty, not invented truth).
       keep = false;
@@ -1025,7 +1073,7 @@ export function hydrateStructuralHtmlFromApiBody(
     return scrubStructuralMarkupArtifacts(stripRemainingMarkupHoles(html));
   }
   let out = scrubStructuralMarkupArtifacts(html);
-  for (let pass = 0; pass < (force ? 8 : 1); pass++) {
+  for (let pass = 0; pass < (force ? 8 : 4); pass++) {
     const before = out;
     const lookup = collectHydrationLookup(body);
 
@@ -1037,15 +1085,21 @@ export function hydrateStructuralHtmlFromApiBody(
       }
       const viaPath = formatHydrationText(resolveInterpDetail(body, d));
       if (viaPath !== null) return viaPath;
-      if (!force) return m;
+      if (!force) {
+        if (/^handle[A-Z]/.test(d) || /^\(\)\s*=>/.test(d)) return "";
+        if ((d.startsWith("'") && d.endsWith("'")) || (d.startsWith('"') && d.endsWith('"'))) {
+          return d.slice(1, -1);
+        }
+        return m;
+      }
       return forceSettleInterpDetail(body, d);
     });
 
     out = hydrateSimpleIfHoles(out, body, force);
-    out = expandEachHoles(out, body, force ? 3 : 1, force, depth);
+    out = expandEachHoles(out, body, 3, true, depth);
     out = hydrateSimpleIfHoles(out, body, force);
     out = hydrateWidgetShells(out, body);
-    if (!force || out === before || !out.includes("data-cwl-hole=")) break;
+    if (out === before || !out.includes("data-cwl-hole=")) break;
   }
   if (force && out.includes("data-cwl-hole=")) {
     out = stripRemainingMarkupHoles(out);

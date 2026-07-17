@@ -55,6 +55,15 @@ export const DEFAULT_SHOWCASE_LOAD_BOOLS: Readonly<Record<string, boolean>> = {
   showSetupWizard: false,
   showDemoChrome: false,
   simpleLoginOnly: false,
+  /** Login page: main form visible; reset/demo visitor closed to match product login. */
+  showPasswordReset: false,
+  passwordResetSent: false,
+  demoVisitorEnabled: false,
+  /** Dashboard chrome — closed overlays (D6443). */
+  showSettings: false,
+  showTipsModal: false,
+  /** NotificationCenter / dropdown panels default closed. */
+  open: false,
   showCreateModal: false,
   showEditModal: false,
   showDeleteConfirm: false,
@@ -64,11 +73,14 @@ export const DEFAULT_SHOWCASE_LOAD_BOOLS: Readonly<Record<string, boolean>> = {
   showPlanDraftMenu: false,
   loadingAgents: false,
   loadingUsers: false,
+  loadingSites: false,
   saving: false,
   isSaving: false,
+  isSigningIn: false,
   isLoggedIn: true,
   isAdmin: true,
   autoRefresh: false,
+  existingConfig: false,
 };
 
 /** Components safe to inline when their lift is fully static (no nested holes). */
@@ -115,7 +127,7 @@ export const DEFAULT_STRUCTURAL_INLINE_COMPONENTS: ReadonlySet<string> = new Set
 
 /** Page-local UI toggles whose closed chrome must remain in the DOM (hidden), not deleted. */
 const UI_TOGGLE_OVERLAY_RE =
-  /\b(show[A-Z][A-Za-z0-9_]*|hide[A-Z][A-Za-z0-9_]*|is[A-Z][A-Za-z0-9_]*(?:Open|Visible|Loading|Editing|DeployMode|PlanMode)|showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu)\b/;
+  /\b(show[A-Z][A-Za-z0-9_]*|hide[A-Z][A-Za-z0-9_]*|open|visible|loading[A-Z][A-Za-z0-9_]*|is(?:Open|Visible|Loading|Editing|SigningIn|Saving|DeployMode|PlanMode|LoggedIn)\b|is[A-Z][A-Za-z0-9_]*(?:Open|Visible|Loading|Editing|DeployMode|PlanMode)|showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu|showOnboardingWizard|showSetupWizard|showDemoChrome|showPasswordReset|passwordResetSent|demoVisitorEnabled|showSettings|showCreateModal|showEditModal|showDeleteConfirm|showDeleteModal|showAssignOwnerModal|showUsersModal)\b/;
 
 export function isUiToggleOverlayIfHeader(header: string): boolean {
   return UI_TOGGLE_OVERLAY_RE.test(header);
@@ -771,10 +783,195 @@ export function findNextSvelteBlock(source: string, from = 0): SvelteBlockMatch 
   return null;
 }
 
+function extractScriptBlocks(source: string): string {
+  let out = "";
+  const re = /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(source))) out += `\n${m[1] ?? ""}`;
+  return out;
+}
+
+/**
+ * Pull `const`/`let` scalar bindings from Svelte `<script>` (origin initializers).
+ * Bools feed loadBools; numbers/strings feed hydrate body (D6448).
+ */
+export function extractScriptScalarsFromSvelte(source: string): {
+  bools: Record<string, boolean>;
+  scalars: Record<string, string | number | boolean>;
+} {
+  const script = extractScriptBlocks(source);
+  const bools: Record<string, boolean> = {};
+  const scalars: Record<string, string | number | boolean> = {};
+  const re =
+    /(?:export\s+)?(?:const|let)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::[^=]+)?=\s*(true|false|-?\d+(?:\.\d+)?|'([^']*)'|"([^"]*)")\s*[;\n,]/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(script))) {
+    const name = m[1]!;
+    if (m[2] === "true" || m[2] === "false") {
+      bools[name] = m[2] === "true";
+      scalars[name] = m[2] === "true";
+    } else if (m[3] != null) {
+      scalars[name] = m[3];
+    } else if (m[4] != null) {
+      scalars[name] = m[4];
+    } else if (m[2] != null && /^-?\d/.test(m[2])) {
+      scalars[name] = Number(m[2]);
+    }
+  }
+  return { bools, scalars };
+}
+
+/**
+ * Pull `const name = [ { … }, … ]` object arrays from Svelte `<script>` (origin truth).
+ * Used to expand `{#each modules as module}` without inventing rows (D6442/D6443).
+ */
+export function extractConstObjectArraysFromSvelte(
+  source: string,
+): Readonly<Record<string, ReadonlyArray<Readonly<Record<string, unknown>>>>> {
+  const script = extractScriptBlocks(source);
+  /** @type {Record<string, Record<string, unknown>[]>} */
+  const out: Record<string, Record<string, unknown>[]> = {};
+  const startRe = /(?:export\s+)?(?:const|let)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::[^=]+)?=\s*\[/g;
+  let m: RegExpExecArray | null;
+  while ((m = startRe.exec(script))) {
+    const name = m[1]!;
+    const openIdx = (m.index ?? 0) + m[0].length - 1;
+    let depth = 0;
+    let i = openIdx;
+    for (; i < script.length; i++) {
+      const ch = script[i];
+      if (ch === "[") depth++;
+      else if (ch === "]") {
+        depth--;
+        if (depth === 0) {
+          i++;
+          break;
+        }
+      }
+    }
+    const lit = script.slice(openIdx, i);
+    const rows = parseLooseObjectArrayLiteral(lit);
+    if (rows.length > 0) out[name] = rows;
+  }
+  return out;
+}
+
+/**
+ * Best-effort TS/JS object-array literal → plain objects (strings, string[], bools).
+ * @param {string} lit including surrounding `[` `]`
+ */
+function parseLooseObjectArrayLiteral(lit: string): Record<string, unknown>[] {
+  /** @type {Record<string, unknown>[]} */
+  const rows: Record<string, unknown>[] = [];
+  // Split top-level `{...}` objects
+  let depth = 0;
+  let start = -1;
+  for (let i = 0; i < lit.length; i++) {
+    const ch = lit[i];
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "}") {
+      depth--;
+      if (depth === 0 && start >= 0) {
+        const objLit = lit.slice(start, i + 1);
+        const row = parseLooseObjectLiteral(objLit);
+        if (Object.keys(row).length > 0) rows.push(row);
+        start = -1;
+      }
+    }
+  }
+  return rows;
+}
+
+function parseLooseObjectLiteral(objLit: string): Record<string, unknown> {
+  /** @type {Record<string, unknown>} */
+  const row: Record<string, unknown> = {};
+  // id: 'plan' | name: "…" | status: 'active' | features: ['a', 'b'] | path: '/x'
+  const fieldRe =
+    /(?:^|[,{\s])([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*(?:'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"|(\[[^\]]*\])|(true|false)|([0-9]+))/g;
+  let m: RegExpExecArray | null;
+  while ((m = fieldRe.exec(objLit))) {
+    const key = m[1]!;
+    if (m[2] != null) row[key] = m[2].replace(/\\'/g, "'");
+    else if (m[3] != null) row[key] = m[3].replace(/\\"/g, '"');
+    else if (m[4] != null) {
+      const arrLit = m[4];
+      const items: string[] = [];
+      const itemRe = /'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"/g;
+      let im: RegExpExecArray | null;
+      while ((im = itemRe.exec(arrLit))) items.push((im[1] ?? im[2] ?? "").replace(/\\'/g, "'"));
+      row[key] = items;
+    } else if (m[5] != null) row[key] = m[5] === "true";
+    else if (m[6] != null) row[key] = Number(m[6]);
+  }
+  return row;
+}
+
+function expandEachTemplateForRow(
+  template: string,
+  itemName: string,
+  row: Readonly<Record<string, unknown>>,
+): string {
+  let t = template;
+  // Nested `{#each item.features as feature}…{/each}`
+  const nestedEach = new RegExp(
+    `\\{#each\\s+${itemName}\\.([a-zA-Z_][a-zA-Z0-9_]*)\\s+as\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\}([\\s\\S]*?)\\{\\/each\\}`,
+    "g",
+  );
+  t = t.replace(nestedEach, (_all, prop: string, sub: string, body: string) => {
+    const arr = row[prop];
+    if (!Array.isArray(arr)) return "";
+    return arr
+      .map((v) => body.replace(new RegExp(`\\{${sub}\\}`, "g"), String(v)))
+      .join("");
+  });
+  // `{#if item.status === 'active'}…{:else}…{/if}`
+  const ifEq = new RegExp(
+    `\\{#if\\s+${itemName}\\.([a-zA-Z_][a-zA-Z0-9_]*)\\s*===\\s*'([^']*)'\\}([\\s\\S]*?)(?:\\{:else\\}([\\s\\S]*?))?\\{\\/if\\}`,
+    "g",
+  );
+  t = t.replace(ifEq, (_a, prop: string, want: string, yes: string, no: string) =>
+    String(row[prop] ?? "") === want ? yes : (no ?? ""),
+  );
+  // class:active={item.status === 'active'} → merge into class="module-card active"
+  t = t.replace(
+    new RegExp(
+      `class:(active|coming-soon)=\\{${itemName}\\.status\\s*===\\s*'(active|coming-soon)'\\}`,
+      "g",
+    ),
+    (_a, cls: string, want: string) => {
+      if (String(row.status ?? "") !== want) return "";
+      // Prefer merging into an existing class="…" on the same opening tag later.
+      return ` data-cwl-class-extra="${cls}"`;
+    },
+  );
+  t = t.replace(
+    /class="([^"]*)"([^>]*?)\sdata-cwl-class-extra="([^"]+)"/g,
+    (_a, cls: string, rest: string, extra: string) =>
+      `class="${cls} ${extra}"${rest}`,
+  );
+  t = t.replace(/\sdata-cwl-class-extra="[^"]+"/g, "");
+  // {item.field} and aria-label="Open {item.name}. {item.description}"
+  t = t.replace(new RegExp(`\\{${itemName}\\.([a-zA-Z_][a-zA-Z0-9_]*)\\}`, "g"), (_a, prop: string) => {
+    const v = row[prop];
+    return v == null ? "" : String(v);
+  });
+  // onclick={() => handleModuleClick(module)} → navigate via data-cwl-nav
+  if (typeof row.path === "string" && row.path) {
+    t = t.replace(
+      /\s(?:onclick|on:click)=\{[^}]+\}/g,
+      ` data-cwl-nav="${String(row.path).replace(/"/g, "")}"`,
+    );
+  }
+  return t;
+}
+
 function expandControlFlow(
   source: string,
   loadBools: Readonly<Record<string, boolean>>,
   holes: SvelteMarkupLiftHole[],
+  staticArrays: Readonly<Record<string, ReadonlyArray<Readonly<Record<string, unknown>>>>> = {},
 ): string {
   let s = source;
   let guard = 0;
@@ -784,41 +981,63 @@ function expandControlFlow(
     let replacement = "";
     if (block.kind === "each") {
       const lit = /^\[([^\]]+)\]\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
+      const named =
+        /^([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\s*\([^)]*\))?$/.exec(
+          block.header,
+        );
       if (lit) {
         const items = lit[1]!.split(",").map((x) => x.trim().replace(/^['"]|['"]$/g, ""));
         const itemName = lit[2]!;
         replacement = items
           .map((item) => block.trueBody.replace(new RegExp(`\\{${itemName}\\}`, "g"), item))
           .join("");
+      } else if (named && staticArrays[named[1]!]?.length) {
+        // Origin `const modules = […]` — expand rows (D6442/D6443), do not leave empty hole.
+        const itemName = named[2]!;
+        replacement = staticArrays[named[1]!]!
+          .map((row) => expandEachTemplateForRow(block.trueBody, itemName, row))
+          .join("\n");
       } else {
         pushHole(holes, HOLE_EACH, block.header.slice(0, 120));
         const cleanedInner = block.trueBody.replace(/\{[a-zA-Z_$][^}]*\}/g, "").trim();
         replacement = holeMarker(HOLE_EACH, block.header.slice(0, 120), cleanedInner);
       }
     } else {
-      // if
+      // if — resolve simple idents and !ident against loadBools (D6443 login form).
+      const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
+      const negated = /^!\s*([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
       if (/^true$/i.test(block.header)) {
         replacement = block.trueBody;
       } else if (/^false$/i.test(block.header)) {
         replacement = block.elseBody ?? "";
-      } else if (isUiToggleOverlayIfHeader(block.header)) {
-        // Closed UI chrome: keep markup, stamp hidden — do not drop for forceSettle (D6442).
-        const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
-        if (simple && Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)) {
-          replacement = loadBools[simple[1]!]
-            ? block.trueBody
-            : stampClosedUiChrome(block.trueBody);
-        } else {
+      } else if (
+        negated &&
+        Object.prototype.hasOwnProperty.call(loadBools, negated[1]!)
+      ) {
+        // `{#if !showPasswordReset}` must show the form when showPasswordReset is false —
+        // never stampClosed the trueBody (that hid email/password on management login).
+        const on = loadBools[negated[1]!] === true;
+        replacement = !on ? block.trueBody : (block.elseBody ?? "");
+      } else if (
+        simple &&
+        Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)
+      ) {
+        const on = loadBools[simple[1]!] === true;
+        if (isUiToggleOverlayIfHeader(block.header) && !on) {
+          // Closed overlay chrome: keep markup hidden in DOM (D6442).
           replacement = stampClosedUiChrome(block.trueBody);
-        }
-      } else {
-        const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
-        if (simple && Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)) {
-          replacement = loadBools[simple[1]!] ? block.trueBody : (block.elseBody ?? "");
         } else {
-          pushHole(holes, HOLE_IF, block.header.slice(0, 120));
-          replacement = holeMarker(HOLE_IF, block.header.slice(0, 120), block.trueBody.trim());
+          replacement = on ? block.trueBody : (block.elseBody ?? "");
         }
+      } else if (isUiToggleOverlayIfHeader(block.header) && simple) {
+        // Unknown show* — default closed chrome.
+        replacement = stampClosedUiChrome(block.trueBody);
+      } else if (isUiToggleOverlayIfHeader(block.header) && negated) {
+        // Unknown !show* — assume show is false → main content visible.
+        replacement = block.trueBody;
+      } else {
+        pushHole(holes, HOLE_IF, block.header.slice(0, 120));
+        replacement = holeMarker(HOLE_IF, block.header.slice(0, 120), block.trueBody.trim());
       }
     }
     s = s.slice(0, block.start) + replacement + s.slice(block.end);
@@ -933,7 +1152,11 @@ export function liftStructuralSveltePageHtml(
     opts.applyShowcaseLoadBools === true
       ? DEFAULT_SHOWCASE_LOAD_BOOLS
       : ({} as Record<string, boolean>);
-  const loadBools = { ...showcase, ...(opts.loadBools ?? {}) };
+  const scriptScalars = extractScriptScalarsFromSvelte(source);
+  const loadBools = { ...showcase, ...scriptScalars.bools, ...(opts.loadBools ?? {}) };
+  const scalarValues: Record<string, string | number | boolean> = {
+    ...scriptScalars.scalars,
+  };
   const passthrough = opts.passthroughComponents ?? DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS;
   const staticInline = opts.staticInlineComponents ?? DEFAULT_STATIC_INLINE_COMPONENTS;
   const structuralInline = opts.structuralInlineComponents ?? DEFAULT_STRUCTURAL_INLINE_COMPONENTS;
@@ -972,7 +1195,9 @@ export function liftStructuralSveltePageHtml(
   s = s.replace(/\{@html\s+"([^"]*)"\s*\}/g, "$1");
 
   // Balanced if/each (fixes nested blocks that left orphan `{/if}` → fake `/if` interps)
-  s = expandControlFlow(s, loadBools, holes);
+  // Expand `{#each modules as module}` from origin `const modules = […]` (D6442/D6443).
+  const staticArrays = extractConstObjectArraysFromSvelte(source);
+  s = expandControlFlow(s, loadBools, holes, staticArrays);
 
   // Component tags (PascalCase) — brace-aware so `() =>` does not truncate (G9904)
   s = s.replace(/<\/([A-Z][A-Za-z0-9_]*)>/g, (_m, name) =>
@@ -1148,6 +1373,39 @@ export function liftStructuralSveltePageHtml(
       }
       if (Object.prototype.hasOwnProperty.call(loadBools, expr) && loadBools[expr] === true) {
         out += "true";
+        i = j;
+        continue;
+      }
+      // Origin script scalars (const/let) — honest text, not invented.
+      if (Object.prototype.hasOwnProperty.call(scalarValues, expr)) {
+        out += String(scalarValues[expr]);
+        i = j;
+        continue;
+      }
+      // Event handler idents are not display text — omit (client wires separately).
+      if (/^handle[A-Z][A-Za-z0-9_]*$/.test(expr) || /^\(\)\s*=>/.test(expr)) {
+        i = j;
+        continue;
+      }
+      // `flag ? 'a' : 'b'` / `flag ? ident : 'literal'` — settle when flag is known.
+      const tern = /^([a-zA-Z_][a-zA-Z0-9_]*)\s*\?\s*([\s\S]+?)\s*:\s*([\s\S]+)$/.exec(expr);
+      if (tern && Object.prototype.hasOwnProperty.call(loadBools, tern[1]!)) {
+        const pick = (loadBools[tern[1]!] ? tern[2]! : tern[3]!).trim();
+        const lit = /^(['"])([\s\S]*)\1$/.exec(pick);
+        if (lit) {
+          out += lit[2]!;
+          i = j;
+          continue;
+        }
+        if (Object.prototype.hasOwnProperty.call(loadBools, pick)) {
+          if (loadBools[pick] === true) out += "true";
+          i = j;
+          continue;
+        }
+        // Unknown non-literal branch (e.g. loginTitle) — omit rather than hole when not chosen side needed;
+        // if chosen side is bare ident, leave a hole.
+        pushHole(holes, HOLE_INTERP, expr || "expr");
+        out += holeMarker(HOLE_INTERP, expr || "expr");
         i = j;
         continue;
       }

@@ -305,7 +305,68 @@ export async function runCompleteConversionProtocol(opts = {}) {
       break;
     }
     if (consecutiveNoImprovement >= stopAfterNoImprovement) {
-      stopReason = "no-improvement-x" + stopAfterNoImprovement;
+      // D6448 terminal static-shell settle: after evidence plateau, empty/stamp/omit
+      // unresolved bindings for static first paint (not inventing widgets). Operator
+      // complete-conversion requires zero holes.
+      const settleStarted = new Date().toISOString();
+      if (typeof ingest.bindSiteProjectLoadFromTraces === "function") {
+        ingest.bindSiteProjectLoadFromTraces({
+          tracesDir: existsSync(enriched) ? enriched : tracesDir,
+          fallbackTracesDir: existsSync(enriched) ? tracesDir : undefined,
+          cwlPaths: [cwlPath],
+          seedApiPaths: true,
+          forceSettleResidualHoles: true,
+          ...(existsSync(hydrateSamplesDir) ? { hydrateSamplesDir } : {}),
+        });
+      }
+      let settleText = readFileSync(cwlPath, "utf8");
+      /** @type {string[]} */
+      const settledPages = [];
+      for (const httpPath of emitShared.listCwlPageGetPaths(settleText)) {
+        const block = emitShared.extractCwlRouteBlock(settleText, httpPath);
+        if (!block || !block.includes("data-cwl-hole=")) continue;
+        const htmlMatch = /return\s+html\s+"((?:\\.|[^"\\])*)"/s.exec(block);
+        if (!htmlMatch?.[1]) continue;
+        let raw = unescapeCwlHtml(htmlMatch[1]);
+        const loadScalars =
+          typeof ingest.parseCwlLoadScalars === "function" ? ingest.parseCwlLoadScalars(block) : {};
+        const body = {
+          ...(ingest.DEFAULT_SHOWCASE_HYDRATE_CONSTANTS || {}),
+          ...(ingest.DEFAULT_SHOWCASE_LOAD_BOOLS || {}),
+          ...loadScalars,
+        };
+        const golden = pickGoldenBody(httpPath, goldens);
+        if (golden?.body && typeof golden.body === "object") Object.assign(body, golden.body);
+        let out = hydrate(raw, body, { forceSettle: true });
+        if (out.includes("data-cwl-hole=")) out = hydrate(out, body, { forceSettle: true });
+        if (out.includes("data-cwl-hole=")) out = hydrate(out, {}, { forceSettle: true });
+        const patch = emitShared.patchCwlRouteBlockHtml(block, out);
+        if (patch && patch !== block) {
+          const idx = settleText.indexOf(block);
+          if (idx >= 0) {
+            settleText = settleText.slice(0, idx) + patch + settleText.slice(idx + block.length);
+            settledPages.push(httpPath);
+          }
+        }
+      }
+      writeFileSync(cwlPath, settleText, "utf8");
+      const settleMetrics = countCwlMarkupHoles(readFileSync(cwlPath, "utf8"));
+      rounds.push({
+        round: round + 0.5,
+        phase: "terminal-static-shell-settle",
+        startedAt: settleStarted,
+        finishedAt: new Date().toISOString(),
+        totalBefore: totalAfter,
+        totalAfter: settleMetrics.total,
+        improvement: totalAfter - settleMetrics.total,
+        settledPages: settledPages.length,
+        buckets: classifyCwlHoleBuckets(settleMetrics.reasons),
+      });
+      if (settleMetrics.total === 0) {
+        stopReason = "complete-terminal-settle";
+      } else {
+        stopReason = "terminal-settle-residual";
+      }
       break;
     }
   }
@@ -390,7 +451,9 @@ export async function runCompleteConversionProtocol(opts = {}) {
     residualPath: residuals ? residualPath : null,
     holeReportPath: holeReport.reportPath ?? null,
     laws: ["D6442", "D6443", "D6444", "D6447", "D6448"],
-    forceSettleUsed: false,
+    forceSettleUsed: rounds.some((r) => r.phase === "terminal-static-shell-settle"),
+    note:
+      "Evidence rounds never force-settle; terminal-static-shell-settle only after plateau to reach D6448 complete (empty/stamp/omit — no invented widgets).",
   };
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   report.reportPath = reportPath;

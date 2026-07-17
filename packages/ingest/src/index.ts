@@ -460,9 +460,20 @@ export {
   svelteKitPageFileToRouteId,
 } from "./ui-markup-svelte.js";
 export {
+  UI_SOURCE_AUTHORITY_KIND,
+  UI_SOURCE_AUTHORITY_SCHEMA_VERSION,
+  SOURCE_AUTHORITY_CONVERT_STEPS,
+  collectCssClassSelectors,
+  evaluateSourceAuthorityStyles,
+  findOverlayRedefinedOriginClasses,
+  type SourceAuthorityConvertStep,
+  type SourceAuthorityReport,
+} from "./ui-source-authority.js";
+export {
   DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS,
   DEFAULT_SHOWCASE_LOAD_BOOLS,
   DEFAULT_STATIC_INLINE_COMPONENTS,
+  DEFAULT_STRUCTURAL_INLINE_COMPONENTS,
   DEFAULT_MODAL_SHELL_COMPONENTS,
   DEFAULT_MAP_SHELL_COMPONENTS,
   DEFAULT_CHART_SHELL_COMPONENTS,
@@ -476,8 +487,12 @@ export {
   findNextSvelteBlock,
   findPascalComponentTagEnd,
   indexSvelteComponentSources,
+  isUiToggleOverlayIfHeader,
+  extractConstObjectArraysFromSvelte,
+  extractScriptScalarsFromSvelte,
   liftStructuralSveltePageHtml,
   scrubStructuralMarkupArtifacts,
+  stampClosedUiChrome,
   stripSvelteNonMarkup,
   type LiftStructuralSvelteOptions,
   type SvelteMarkupLiftHole,

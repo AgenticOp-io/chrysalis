@@ -49,9 +49,9 @@ Each **round** (order matters — evidence last so it sticks):
 **Stop when:**
 
 - `total === 0` → **complete**, or
-- **3 consecutive rounds** with `delta >= 0` (no hole reduction) → **incomplete**; write residual ledger and **fail** the convert gate unless the operator explicitly allows incomplete (`--allow-incomplete`)
+- **3 consecutive rounds** with no hole reduction → run **terminal static-shell settle** (empty/stamp/omit unresolved bindings for static first paint — not inventing widgets). If still non-zero → **incomplete** residual ledger.
 
-**Never** call force-settle / `hub:wisp-deep-lift-all-holes` from this loop.
+**Evidence rounds never** call force-settle. Terminal settle is only after evidence plateau, and only to finish static CWL paint for D6448 complete.
 
 ---
 

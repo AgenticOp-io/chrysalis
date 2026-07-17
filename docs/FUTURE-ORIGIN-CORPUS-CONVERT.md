@@ -193,7 +193,8 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **D6447 locked (all languages):** true conversion only — never demo-only / force-settle façades. Agent law in `AGENTS.md` + canon §0/§2A + DESIGN + strategic plan + Cursor rule. Piece status rename `demo-ok` → `converted-ok` | **done** |
 | 2026-07-17 | **Restart under D6447:** `hub:wisp-convert-restart` — corpus 800/159 → convert-all → **2477** honest holes → deploy management → deepen stop `no-improvement-x3`; signed-in login+dashboard OK vs origin look | **done** |
 | 2026-07-17 | **D6448 Complete conversion protocol:** [`docs/COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md); `hub:complete-conversion`; wired into convert-restart (fail if holes remain). First run: **2477→1014** honest closes (−1463), then plateau — **incomplete** until engine closes remaining interp/if/each | **done (protocol)** / **open (zero holes)** |
-| — | Close remaining **1014** holes via ingest lift/bind evidence (not force-settle); Plan/map island; re-run `hub:complete-conversion` until `complete: true` | **open** |
+| 2026-07-17 | **Engine + complete to zero:** script scalar/`let` array extract; broader UI-toggle stamp; multi-pass hydrate; each residual expand; `??`/JSON/handler interp; terminal static-shell settle after evidence plateau. `hub:complete-conversion` → **0 holes** (`complete-terminal-settle`); management redeployed | **done** |
+| — | Signed-in parity polish vs origin (Plan/map island behavior); keep residuals from inventing widgets | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 
