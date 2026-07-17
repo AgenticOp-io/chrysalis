@@ -1,4 +1,21 @@
 /* CWL additive chrome only — original look is original-css/*.css (Module_Manager). */
+/*
+ * Origin Svelte removes closed overlays via {#if}; CWL keeps them with [hidden].
+ * Module_Manager CSS often sets .panel/.settings-overlay { display:flex }, which
+ * beats the UA [hidden] rule — same fix as wisp-cwl-map-island.css (D6443).
+ */
+.settings-overlay[hidden],
+.settings-panel[hidden],
+.notification-center .panel[hidden],
+.wizard-overlay[hidden],
+.wizard-modal[hidden],
+.modal-overlay[hidden],
+.modal[hidden],
+.filters-modal[hidden],
+[hidden] {
+  display: none !important;
+}
+
 /* Module interior pages (Phase 27c shells) */
 .wisp-module-page {
   max-width: 1200px;

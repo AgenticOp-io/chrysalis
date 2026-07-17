@@ -241,9 +241,9 @@ export const DEFAULT_MODAL_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
 
 /**
  * Map / chart embeds collapsed to inert shells (G9680 / D6388) — no live map/chart invented.
+ * SharedMap is NOT here: origin uses an iframe → coverage-map ArcGIS island (D6442/D6448-ST).
  */
 export const DEFAULT_MAP_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
-  "SharedMap",
   "CoverageMapView",
   "BasemapSwitcher",
   "MapContextMenu",
@@ -344,6 +344,36 @@ function modalShellMarkup(name: string): string {
 function mapShellMarkup(name: string): string {
   const safe = name.replace(/"/g, "'");
   return `<div class="cwl-map-shell" data-cwl-map-shell="${safe}" aria-hidden="true" role="img"></div>`;
+}
+
+/**
+ * Origin SharedMap.svelte → iframe to coverage-map (ArcGIS island). Do not invent Bing/OSM.
+ * @param tagText full `<SharedMap …>` open/self-closing tag
+ */
+export function sharedMapIslandMarkup(tagText: string): string {
+  let mode = "plan";
+  const lit =
+    /\bmode\s*=\s*["'](plan|deploy|monitor)["']/.exec(tagText) ||
+    /\bmode\s*=\s*\{\s*["'](plan|deploy|monitor)["']\s*\}/.exec(tagText);
+  if (lit) mode = lit[1]!;
+  else if (/\bmode\s*=\s*\{\s*mapMode\s*\}/.test(tagText)) {
+    // Parent `mapMode` — Plan defaults plan; Deploy pages set deploy in route context.
+    mode = /deploy/i.test(tagText) ? "deploy" : "plan";
+  }
+  const qs =
+    mode === "deploy"
+      ? "mode=deploy&hideStats=true&deployMode=true"
+      : mode === "plan"
+        ? "mode=plan&hideStats=true&planMode=true"
+        : "hideStats=true";
+  const id = mode === "deploy" ? "deploy-map-iframe" : "plan-map-iframe";
+  const title = mode === "deploy" ? "Deploy map" : "Plan map";
+  return (
+    `<iframe id="${id}" class="plan-map-iframe" title="${title}" ` +
+    `src="/modules/coverage-map?${qs}" ` +
+    `data-cwl-island="shared-map" data-cwl-map-mode="${mode}" ` +
+    `data-cwl-lifted-component="SharedMap"></iframe>`
+  );
 }
 
 function chartShellMarkup(name: string): string {
@@ -1024,8 +1054,22 @@ function expandControlFlow(
       ) {
         const on = loadBools[simple[1]!] === true;
         if (isUiToggleOverlayIfHeader(block.header) && !on) {
-          // Closed overlay chrome: keep markup hidden in DOM (D6442).
-          replacement = stampClosedUiChrome(block.trueBody);
+          // Busy/loading toggles: keep else (idle CTA); only stamp the busy branch.
+          if (
+            /^(isSigningIn|isSaving|saving|loading[A-Z]|isLoading|loading)$/i.test(simple[1]!) ||
+            /^(isSigningIn|isSaving|saving|loading)/i.test(block.header)
+          ) {
+            replacement =
+              (block.elseBody && block.elseBody.trim().length > 0
+                ? block.elseBody
+                : "") +
+              (block.trueBody.trim().length > 0
+                ? stampClosedUiChrome(block.trueBody)
+                : "");
+          } else {
+            // Closed overlay chrome: keep markup hidden in DOM (D6442).
+            replacement = stampClosedUiChrome(block.trueBody);
+          }
         } else {
           replacement = on ? block.trueBody : (block.elseBody ?? "");
         }
@@ -1213,8 +1257,12 @@ export function liftStructuralSveltePageHtml(
         if (nameMatch !== null && end !== null) {
           const n = nameMatch[1]!;
           const selfClosing = s.slice(end - 2, end) === "/>";
+          const tagText = s.slice(i, end);
           if (passthrough.has(n)) {
             out += "";
+          } else if (n === "SharedMap") {
+            // Origin iframe → /modules/coverage-map ArcGIS (D6442 / D6448-ST).
+            out += sharedMapIslandMarkup(tagText);
           } else {
             const structural = tryInlineStructuralComponent(
               n,

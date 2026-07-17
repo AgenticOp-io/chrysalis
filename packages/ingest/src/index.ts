@@ -490,6 +490,7 @@ export {
   isUiToggleOverlayIfHeader,
   extractConstObjectArraysFromSvelte,
   extractScriptScalarsFromSvelte,
+  sharedMapIslandMarkup,
   liftStructuralSveltePageHtml,
   scrubStructuralMarkupArtifacts,
   stampClosedUiChrome,

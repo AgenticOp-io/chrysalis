@@ -378,6 +378,23 @@
     submitLogin(form);
   });
 
+  document.addEventListener(
+    "click",
+    function (ev) {
+      var navEl = ev.target && ev.target.closest && ev.target.closest("[data-cwl-nav]");
+      if (navEl) {
+        var navPath = navEl.getAttribute("data-cwl-nav");
+        if (navPath) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          location.href = navPath;
+          return;
+        }
+      }
+    },
+    true,
+  );
+
   document.addEventListener("click", function (ev) {
     var btn = ev.target.closest("[data-cwl-on-click], button, a.btn-primary, .back-button, .btn-back");
     if (!btn) return;
@@ -3421,7 +3438,39 @@ function initShellIslands() {
       el.classList.add("cwl-map-shell-ready");
       return;
     }
-    ensureInlineShell(el, el.getAttribute("data-cwl-map-shell") || "Map", "map");
+    // Origin SharedMap = iframe → coverage-map ArcGIS island (D6442 / D6448-ST).
+    var mapName = el.getAttribute("data-cwl-map-shell") || "Map";
+    if (
+      mapName === "SharedMap" ||
+      el.querySelector("iframe.plan-map-iframe, iframe[data-cwl-island='shared-map']")
+    ) {
+      if (!el.querySelector("iframe")) {
+        var mode = el.getAttribute("data-cwl-map-mode") || "plan";
+        var page = document.querySelector("[data-wisp-page]");
+        var pageId = (page && page.getAttribute("data-wisp-page")) || "";
+        if (/deploy/i.test(pageId)) mode = "deploy";
+        var qs =
+          mode === "deploy"
+            ? "mode=deploy&hideStats=true&deployMode=true"
+            : "mode=plan&hideStats=true&planMode=true";
+        var id = mode === "deploy" ? "deploy-map-iframe" : "plan-map-iframe";
+        el.innerHTML =
+          '<iframe id="' +
+          id +
+          '" class="plan-map-iframe" title="' +
+          (mode === "deploy" ? "Deploy" : "Plan") +
+          ' map" src="/modules/coverage-map?' +
+          qs +
+          '" data-cwl-island="shared-map" data-cwl-map-mode="' +
+          mode +
+          '"></iframe>';
+      }
+      el.removeAttribute("aria-hidden");
+      el.setAttribute("data-cwl-island", "shared-map");
+      el.classList.add("cwl-map-shell-ready");
+      return;
+    }
+    ensureInlineShell(el, mapName, "map");
   });
   document.querySelectorAll("[data-cwl-chart-shell]").forEach(function (el) {
     ensureInlineShell(el, el.getAttribute("data-cwl-chart-shell") || "Chart", "chart");

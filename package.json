@@ -762,6 +762,7 @@
     "hub:convert-next-piece": "node scripts/hub-ingest/hub-convert-all-pieces.mjs --limit 1",
     "hub:wisp-convert-restart": "node scripts/lib/wisp-convert-restart.mjs",
     "hub:complete-conversion": "node scripts/lib/wisp-complete-conversion-protocol.mjs",
+    "hub:complete-conversion-prove": "node scripts/lib/complete-conversion-prove.mjs",
     "hub:wisp-hole-report": "node scripts/lib/wisp-hole-report.mjs",
     "hub:sync-api-paths": "node scripts/lib/sync-api-paths-from-backend.mjs",
     "hub:extract-module-tips": "node scripts/lib/extract-wisp-module-tips.mjs",

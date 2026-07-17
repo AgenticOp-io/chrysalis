@@ -48,6 +48,15 @@ body.wisp-map-page {
   display: block;
 }
 
+/* Origin CSS uses display:flex on .modal-overlay — beat UA [hidden] (D6443). */
+.modal-overlay[hidden],
+.modal[hidden],
+.filters-modal[hidden],
+.hardware-modal[hidden],
+.projects-panel[hidden] {
+  display: none !important;
+}
+
 .module-header-overlay,
 .wisp-header-overlay {
   position: absolute;

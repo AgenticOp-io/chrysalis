@@ -17,6 +17,8 @@ A conversion is **complete** only when:
 
 **Not complete:** deploy green, smoke green, hole-count zero via force-settle / `stripRemainingMarkupHoles`, parity façades, or “good enough for demo.”
 
+**Success template (D6448-ST):** Hole zero is necessary but not sufficient. See [`COMPLETE-CONVERSION-SUCCESS-TEMPLATE.md`](./COMPLETE-CONVERSION-SUCCESS-TEMPLATE.md). Prove gate: `pnpm run hub:complete-conversion-prove`. Terminal settle alone **fails** ST.
+
 ---
 
 ## 1. Convert-time phases (mandatory order)

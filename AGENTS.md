@@ -15,6 +15,7 @@ Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin,
 | **D6444** | Convert from the origin file corpus / piece queue — not a stub page. |
 | **D6447** | **No demo façades.** Do not invent simplified login/dashboard/shells, parity HTML that is not a lift of origin, force-settled “green” holes, or helper apps that only look like the product. If it is not present in origin (or an honest **hole**), it does not ship. |
 | **D6448** | **Complete conversion.** During convert, run the honest hole-close loop until **zero** `data-cwl-hole` (or fail with residual ledger). Do not stop after one convert-all pass. Protocol: [`docs/COMPLETE-CONVERSION-PROTOCOL.md`](docs/COMPLETE-CONVERSION-PROTOCOL.md). |
+| **D6448-ST** | **Success template.** Hole zero + vendor islands + page chrome + closed overlays + idle labels + signed-in origin compare. Terminal settle alone is **not** ST green. [`docs/COMPLETE-CONVERSION-SUCCESS-TEMPLATE.md`](docs/COMPLETE-CONVERSION-SUCCESS-TEMPLATE.md) · `pnpm run hub:complete-conversion-prove`. |
 
 **Refuse:** hand-written showcase pages, “good enough for demo” substitutes, invented widgets/APIs/maps, overlay chrome that redesigns origin, claiming done from smoke/hole-count without signed-in parity against origin.
 

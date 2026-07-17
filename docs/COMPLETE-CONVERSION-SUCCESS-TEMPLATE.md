@@ -1,0 +1,75 @@
+# Complete conversion success template (**D6448-ST**)
+
+> **Status:** locked 2026-07-17  
+> **Authority:** DESIGN **D6448** + this template + canon §2D  
+> **Scope:** Every origin → WebIR/CWL → emit pair. WISP is the first filled instance — not the schema identity.
+
+Companion: [`COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md)
+
+---
+
+## 0. Why this exists
+
+Hole-count **zero** alone is not success. Terminal static-shell settle can empty markers without origin-faithful islands, labels, or closed overlays. The **success template** is the reusable bar across pages and languages.
+
+**Green (`D6448-ST`)** only when all checklist rows pass.
+
+---
+
+## 1. Checklist artifact
+
+Kind: `chrysalis.complete-conversion.checklist.v1`  
+POC instance: `fixtures/hub-wisp-management/chrysalis.complete-conversion.checklist.v1.json`  
+Prove CLI: `pnpm run hub:complete-conversion-prove`
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `projectId` | yes | Stable id (e.g. `wisp-management`) |
+| `originPair` | yes | `{ originLanguage, emitTarget }` |
+| `routesCwl` | yes | Path to authoritative CWL |
+| `holeCensus.total` | yes | Must be `0` |
+| `holeCensus.forceSettleUsed` | yes | Must be `false` for ST green (evidence-only). Terminal settle → ST **fail** / `settleOnly` |
+| `islands[]` | yes | Vendor contracts preserved (`shared-map`→ArcGIS, auth, charts…) |
+| `pages[]` | yes | Per-route prove steps |
+| `signedInOriginCompare` | yes | Operator/agent signed-in check vs origin host |
+| `gate` | yes | `D6448-ST` |
+
+---
+
+## 2. Mandatory prove categories (every project)
+
+1. **Corpus** — full origin tree indexed; convert queue drained  
+2. **Structural lift** — no invented parity shells  
+3. **Honest holes** — evidence close; `forceSettleUsed: false` for ST  
+4. **Vendor islands** — same SDK + toolchain as origin (ArcGIS stays ArcGIS)  
+5. **Page chrome** — `data-*-page` (or equivalent) so client islands boot  
+6. **Closed overlays** — `hidden` + CSS that beats origin `display:flex`  
+7. **Idle labels** — loading/signing if/else keeps CTA text when idle  
+8. **Signed-in prove** — login + critical routes vs origin site  
+
+---
+
+## 3. Cross-language application
+
+| Origin | What “island” means | Prove focus |
+| --- | --- | --- |
+| SvelteKit (WISP) | SharedMap iframe → coverage-map `@arcgis/core` | Plan/Deploy iframe + ArcGIS MapView |
+| PHP | Legacy SDK includes / widgets | Same vendor URL + behavior |
+| Next / React | Client components marked island | No rewrite to alternate map stack |
+| Kotlin / Compose web | Platform views | Preserve bindings |
+
+Phases 0–6 of the protocol stay identical. Only project config changes (`routesPath`, `originRoot`, `goldensDir`, `pageProve[]`).
+
+---
+
+## 4. Agent refusal
+
+Refuse claiming **D6448-ST** success when:
+
+- `forceSettleUsed: true` / `stopReason: complete-terminal-settle` only  
+- Map shell placeholder instead of origin iframe/SDK  
+- Invented Bing/OSM map engines  
+- Open modals on first paint that origin keeps closed  
+- Missing signed-in origin compare  
+
+Terminal settle may still produce a **static emit** for hosting, but it is **not** the success template.

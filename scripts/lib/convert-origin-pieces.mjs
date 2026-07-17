@@ -2,7 +2,8 @@
 /**
  * D6444 / G9993 — convert origin corpus pieces (piecemeal → all).
  *
- * Status vocabulary: pending | converting | demo-ok | bound | island-bound | hole
+ * Status vocabulary: pending | converting | converted-ok | bound | island-bound | hole
+ * (`demo-ok` kept as alias write for one release; prefer converted-ok — D6447)
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
@@ -10,14 +11,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { updatePieceStatuses } from "./source-corpus.mjs";
 import { replaceRouteHandlerBlock, routesPath as defaultRoutesPath } from "./cwl-apply-surfaces.mjs";
 import { sveltePagePathForRoute } from "./cwl-bulk-svelte-lift.mjs";
-import {
-  buildWispModuleHtmlPageBlock,
-  buildWispLoginParityHtml,
-  buildWispDashboardParityHtml,
-  buildWispCoverageMapParityHtml,
-  buildWispPlanParityHtml,
-  buildWispDeployParityHtml,
-} from "../wisp-cwl-ui-parity-lib.mjs";
+import { buildWispModuleHtmlPageBlock } from "../wisp-cwl-ui-parity-lib.mjs";
 
 export const CONVERT_ALL_PIECES_KIND = "chrysalis.convert-all-pieces";
 export const CONVERT_ALL_PIECES_SCHEMA_VERSION = 1;
@@ -210,11 +204,11 @@ export async function convertAllOriginPieces(opts = {}) {
       if (piece.kind === "ui-layout" || piece.kind === "ui-style") {
         results.push({
           id: piece.id,
-          status: "demo-ok",
+          status: "converted-ok",
           note: "origin-css-assets-sync",
           files: piece.pathCount ?? 0,
         });
-        statusUpdates.push({ id: piece.id, status: "demo-ok" });
+        statusUpdates.push({ id: piece.id, status: "converted-ok" });
         continue;
       }
       if (piece.kind === "ui-component" || piece.kind === "ui-source") {
@@ -373,59 +367,79 @@ function convertSharedLibPiece(piece) {
   return { id, status: "island-bound", note: "client-runtime-lib", files: piece.pathCount ?? 0 };
 }
 
+/**
+ * Structural lift of one Module_Manager +page.svelte (D6442/D6443).
+ * No invented parity HTML — origin markup + class names are look authority.
+ * @returns {{ html: string, note: string } | { hole: string }}
+ */
+function structuralLiftUiPage(httpPath, ctx) {
+  const pageFile = sveltePagePath(ctx.wispRoot, httpPath);
+  if (!existsSync(pageFile)) {
+    return { hole: "missing-svelte-page" };
+  }
+  const raw = readFileSync(pageFile, "utf8");
+  const moduleName = httpPath.match(/^\/modules\/([^/]+)/)?.[1];
+  const inline = structuralInlineSet(ctx.componentSources, moduleName, ctx.defaultInline);
+  const lifted = ctx.ingest.liftStructuralSveltePageHtml(raw, {
+    applyShowcaseLoadBools: true,
+    componentSources: ctx.componentSources,
+    structuralInlineComponents: inline,
+    loadBools: {
+      isDeployMode: false,
+      hideStats: false,
+      isLoading: false,
+      error: false,
+      success: false,
+    },
+  });
+  if (!lifted || typeof lifted.html !== "string" || lifted.html.trim().length < 20) {
+    return { hole: "lift-empty" };
+  }
+  let html = lifted.html;
+  // Always stamp page identity so client islands (initMapShell) boot — even when
+  // lifted HTML already contains data-cwl-island markers (D6448-ST).
+  if (!html.includes("data-wisp-page")) {
+    const slug = httpPath.replace(/^\//, "").replace(/\//g, "-") || "home";
+    html = `<div class="wisp-app-surface" data-wisp-page="${slug}" data-wisp-path="${httpPath}" data-cwl-island="client">${html}</div>`;
+  }
+  // Deploy SharedMap defaults to plan when mode={mapMode} — fix from route (origin).
+  if (httpPath === "/modules/deploy" || httpPath.startsWith("/modules/deploy/")) {
+    html = html
+      .replace(/\bid="plan-map-iframe"/g, 'id="deploy-map-iframe"')
+      .replace(/\bdata-cwl-map-mode="plan"/g, 'data-cwl-map-mode="deploy"')
+      .replace(
+        /\/modules\/coverage-map\?mode=plan&amp;hideStats=true&amp;planMode=true/g,
+        "/modules/coverage-map?mode=deploy&amp;hideStats=true&amp;deployMode=true",
+      )
+      .replace(
+        /\/modules\/coverage-map\?mode=plan&hideStats=true&planMode=true/g,
+        "/modules/coverage-map?mode=deploy&hideStats=true&deployMode=true",
+      )
+      .replace(/\btitle="Plan map"/g, 'title="Deploy map"');
+  }
+  // Closed first paint: modal overlays must carry hidden (origin {#if show*} false).
+  html = html.replace(
+    /<(div|section)(\s+[^>]*\bclass="[^"]*modal-overlay[^"]*"[^>]*)>/gi,
+    (full, tag, attrs) => {
+      if (/\bhidden\b/i.test(attrs)) return full;
+      return `<${tag}${attrs} hidden aria-hidden="true">`;
+    },
+  );
+  // Login / dashboard: preserve origin chrome; demo credentials stay CWL-additive CSS/client only.
+  return { html, note: "structural-lift" };
+}
+
 function convertUiPiece(piece, ctx) {
   const httpPath = piece.httpPaths?.[0];
   if (!httpPath) {
     return { id: piece.id, status: "hole", note: "missing-http-path", files: piece.pathCount ?? 0 };
   }
 
-  let html = null;
-  let note = "structural-lift";
-
-  if (httpPath === "/login") {
-    html = buildWispLoginParityHtml();
-    note = "parity:login";
-  } else if (httpPath === "/dashboard") {
-    html = buildWispDashboardParityHtml();
-    note = "parity:dashboard";
-  } else if (httpPath === "/modules/coverage-map") {
-    html = buildWispCoverageMapParityHtml();
-    note = "parity:coverage-map-structural";
-  } else if (httpPath === "/modules/plan") {
-    html = buildWispPlanParityHtml();
-    note = "parity:plan";
-  } else if (httpPath === "/modules/deploy") {
-    html = buildWispDeployParityHtml();
-    note = "parity:deploy";
-  } else {
-    const pageFile = sveltePagePath(ctx.wispRoot, httpPath);
-    if (!existsSync(pageFile)) {
-      return { id: piece.id, status: "hole", note: "missing-svelte-page", files: piece.pathCount ?? 0 };
-    }
-    const raw = readFileSync(pageFile, "utf8");
-    const moduleName = httpPath.match(/^\/modules\/([^/]+)/)?.[1];
-    const inline = structuralInlineSet(ctx.componentSources, moduleName, ctx.defaultInline);
-    const lifted = ctx.ingest.liftStructuralSveltePageHtml(raw, {
-      applyShowcaseLoadBools: true,
-      componentSources: ctx.componentSources,
-      structuralInlineComponents: inline,
-      loadBools: {
-        isDeployMode: false,
-        hideStats: false,
-        isLoading: false,
-        error: false,
-        success: false,
-      },
-    });
-    if (!lifted || typeof lifted.html !== "string" || lifted.html.trim().length < 20) {
-      return { id: piece.id, status: "hole", note: "lift-empty", files: piece.pathCount ?? 0 };
-    }
-    html = lifted.html;
-    if (!html.includes("data-wisp-page") && !html.includes("data-cwl-island")) {
-      const slug = httpPath.replace(/^\//, "").replace(/\//g, "-") || "home";
-      html = `<div class="wisp-app-surface" data-wisp-page="${slug}" data-wisp-path="${httpPath}" data-cwl-island="client">${html}</div>`;
-    }
+  const liftedPage = structuralLiftUiPage(httpPath, ctx);
+  if ("hole" in liftedPage) {
+    return { id: piece.id, status: "hole", note: liftedPage.hole, files: piece.pathCount ?? 0 };
   }
+  const { html, note } = liftedPage;
 
   const pageBlock = buildWispModuleHtmlPageBlock(
     httpPath,
@@ -448,7 +462,7 @@ function convertUiPiece(piece, ctx) {
   const holeCount = (html.match(/data-cwl-hole=/g) || []).length;
   return {
     id: piece.id,
-    status: "demo-ok",
+    status: "converted-ok",
     note: `${note};lifted=${liftedCount};shells=${shellCount};holes=${holeCount}`,
     files: piece.pathCount ?? 1,
   };
@@ -520,36 +534,28 @@ function convertModuleSupportPiece(piece, ctx) {
   }
   const inline = structuralInlineSet(ctx.componentSources, mod, forceNames);
 
-  let html;
-  let note = "module-support-inline";
-  if (httpPath === "/modules/coverage-map") {
-    html = buildWispCoverageMapParityHtml();
-    note = "parity:coverage-map+support";
-  } else if (httpPath === "/modules/plan") {
-    html = buildWispPlanParityHtml();
-    note = "parity:plan+support";
-  } else if (httpPath === "/modules/deploy") {
-    html = buildWispDeployParityHtml();
-    note = "parity:deploy+support";
-  } else {
-    const raw = readFileSync(pageFile, "utf8");
-    const lifted = ctx.ingest.liftStructuralSveltePageHtml(raw, {
-      applyShowcaseLoadBools: true,
-      componentSources: ctx.componentSources,
-      structuralInlineComponents: inline,
-      loadBools: {
-        isDeployMode: false,
-        hideStats: false,
-        isLoading: false,
-        error: false,
-        success: false,
-      },
-    });
-    if (!lifted || typeof lifted.html !== "string" || lifted.html.trim().length < 40) {
-      return { id: piece.id, status: "hole", note: "support-lift-empty", files: piece.pathCount ?? 0 };
-    }
-    html = lifted.html;
+  // D6443 — always structural-lift origin page; never invent parity shells.
+  if (!existsSync(pageFile)) {
+    return { id: piece.id, status: "hole", note: "support-missing-page", files: piece.pathCount ?? 0 };
   }
+  const raw = readFileSync(pageFile, "utf8");
+  const lifted = ctx.ingest.liftStructuralSveltePageHtml(raw, {
+    applyShowcaseLoadBools: true,
+    componentSources: ctx.componentSources,
+    structuralInlineComponents: inline,
+    loadBools: {
+      isDeployMode: false,
+      hideStats: false,
+      isLoading: false,
+      error: false,
+      success: false,
+    },
+  });
+  if (!lifted || typeof lifted.html !== "string" || lifted.html.trim().length < 40) {
+    return { id: piece.id, status: "hole", note: "support-lift-empty", files: piece.pathCount ?? 0 };
+  }
+  let html = lifted.html;
+  const note = "module-support-structural";
 
   html = appendOrphanLiftedModals(html, inline, ctx.componentSources, ctx.ingest, mod);
 
@@ -572,7 +578,7 @@ function convertModuleSupportPiece(piece, ctx) {
   const liftedCount = (html.match(/data-cwl-lifted-component=/g) || []).length;
   const shellCount = (html.match(/data-cwl-modal-shell=/g) || []).length;
   const orphanCount = (html.match(/data-cwl-orphan-modal=/g) || []).length;
-  const status = liftedCount > 0 || note.startsWith("parity:") ? "demo-ok" : shellCount > 0 ? "hole" : "demo-ok";
+  const status = liftedCount > 0 || shellCount === 0 ? "converted-ok" : "hole";
   return {
     id: piece.id,
     status,
