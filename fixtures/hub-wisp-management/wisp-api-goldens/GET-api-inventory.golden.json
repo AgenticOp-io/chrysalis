@@ -1,6 +1,56 @@
 {
   "items": [
     {
+      "_id": "6a59764aad923e3601e036c6",
+      "tenantId": "6a166eb07089304417ec967a",
+      "category": "Radio Equipment",
+      "equipmentType": "Radio",
+      "manufacturer": "Trace",
+      "model": "M1",
+      "serialNumber": "INV1784247869413",
+      "status": "available",
+      "condition": "new",
+      "currentLocation": {
+        "warehouse": {
+          "name": "CWL Demo Warehouse",
+          "section": "n10q-1784247885212",
+          "aisle": "A",
+          "shelf": "1",
+          "bin": "1"
+        },
+        "type": "warehouse"
+      },
+      "ownership": "owned",
+      "attachments": [],
+      "maintenanceRecords": [],
+      "locationHistory": [
+        {
+          "date": "2026-07-17T00:24:46.790Z",
+          "fromLocation": {
+            "type": "warehouse"
+          },
+          "toLocation": {
+            "warehouse": {
+              "name": "CWL Demo Warehouse",
+              "section": "n10q-1784247885212",
+              "aisle": "A",
+              "shelf": "1",
+              "bin": "1"
+            },
+            "type": "warehouse"
+          },
+          "reason": "transfer",
+          "movedBy": "cwl-demo",
+          "notes": "chrysalis-n10q-1784247885212"
+        }
+      ],
+      "alerts": [],
+      "createdAt": "2026-07-17T00:24:42.772Z",
+      "updatedAt": "2026-07-17T00:24:46.794Z",
+      "__v": 1,
+      "notes": "chrysalis-live-mutate-put-1784247883274"
+    },
+    {
       "_id": "6a5974c0ad923e3601e03612",
       "tenantId": "6a166eb07089304417ec967a",
       "category": "Radio Equipment",
@@ -1299,7 +1349,7 @@
   "pagination": {
     "page": 1,
     "limit": 100,
-    "total": 48,
+    "total": 49,
     "pages": 1
   }
 }

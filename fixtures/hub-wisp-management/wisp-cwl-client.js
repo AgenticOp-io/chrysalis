@@ -2107,6 +2107,61 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10iSurfaces();
   initDeepenN10pSurfaces();
   initDeepenN10qSurfaces();
+  initDeepenN10rSurfaces();
+
+  function initDeepenN10rSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10r="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10r", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var invHost =
+      document.querySelector(".inventory-page .page-header") ||
+      document.querySelector('[data-wisp-page="inventory"] .page-header');
+    addGet(invHost, "inv-stats", "/api/inventory/stats", "Inv stats");
+    var bundleHost =
+      document.querySelector(".inventory-bundles-page .page-header") ||
+      document.querySelector('[data-wisp-page="inventory-bundles"] .page-header') ||
+      invHost;
+    addGet(bundleHost, "bundle-type", "/api/bundles/type/standard", "Bundles type");
+    addGet(bundleHost, "bundle-search", "/api/bundles/search/radio", "Bundles search");
+    var voiceHost =
+      document.querySelector(".voice-telephony-page .page-header") ||
+      document.querySelector('[data-wisp-page="voice-telephony"] .page-header') ||
+      document.querySelector(".voice-telephony-page");
+    addGet(voiceHost, "voice-accounts", "/api/voice/provider-accounts", "Voice accounts");
+    addGet(voiceHost, "remote-agents", "/api/remote-agents/status", "Remote agents");
+    var dash =
+      document.querySelector(".dashboard-page .page-header") ||
+      document.querySelector('[data-wisp-page="dashboard"] .page-header') ||
+      document.querySelector(".dashboard-page");
+    addGet(dash, "branding", "/api/branding/6a166eb07089304417ec967a", "Branding");
+  }
 
   function initDeepenN10qSurfaces() {
     if (!window.WispCwlApi) return;

@@ -1,15 +1,15 @@
 {
   "tenantId": "6a166eb07089304417ec967a",
-  "name": "CWL Bundle 1784247869413",
+  "name": "CWL Bundle 1784248013356",
   "bundleType": "standard",
   "tags": [],
   "status": "active",
   "usageCount": 0,
-  "_id": "6a59764bad923e3601e036ca",
+  "_id": "6a5976daad923e3601e03786",
   "items": [],
   "images": [],
-  "createdAt": "2026-07-17T00:24:43.056Z",
-  "updatedAt": "2026-07-17T00:24:43.057Z",
+  "createdAt": "2026-07-17T00:27:06.401Z",
+  "updatedAt": "2026-07-17T00:27:06.402Z",
   "estimatedTotalCost": 0,
   "__v": 0
 }

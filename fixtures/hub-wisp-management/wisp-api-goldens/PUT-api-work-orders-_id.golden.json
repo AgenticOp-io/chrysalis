@@ -2,16 +2,16 @@
   "sla": {
     "breached": false
   },
-  "_id": "6a59764aad923e3601e036c4",
+  "_id": "6a5976daad923e3601e03780",
   "tenantId": "6a166eb07089304417ec967a",
-  "ticketNumber": "TKT-CWL-1784247869413",
+  "ticketNumber": "TKT-CWL-1784248013356",
   "type": "installation",
   "ticketCategory": "customer-facing",
   "priority": "medium",
   "status": "open",
   "requiresApproval": false,
   "approvalStatus": "not-required",
-  "title": "CWL WO 1784247869413",
+  "title": "CWL WO 1784248013356",
   "description": "chrysalis-live-mutate-trace",
   "photos": [],
   "attachments": [],
@@ -20,7 +20,7 @@
   "affectedCustomers": [],
   "workPerformed": [],
   "partsUsed": [],
-  "createdAt": "2026-07-17T00:24:42.661Z",
-  "updatedAt": "2026-07-17T00:24:43.746Z",
+  "createdAt": "2026-07-17T00:27:06.041Z",
+  "updatedAt": "2026-07-17T00:27:07.081Z",
   "__v": 0
 }

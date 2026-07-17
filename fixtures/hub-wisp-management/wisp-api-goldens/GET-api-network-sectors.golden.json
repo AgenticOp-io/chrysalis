@@ -29,7 +29,7 @@
     "tenantId": "6a166eb07089304417ec967a",
     "createdBy": "System",
     "createdAt": "2026-07-16T14:30:40.082Z",
-    "updatedAt": "2026-07-17T00:18:10.522Z",
+    "updatedAt": "2026-07-17T00:24:44.428Z",
     "__v": 0,
     "updatedBy": "System"
   },
@@ -1152,6 +1152,38 @@
     "createdBy": "System",
     "createdAt": "2026-07-17T00:18:08.500Z",
     "updatedAt": "2026-07-17T00:18:08.500Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a59764aad923e3601e036be",
+    "name": "CWL Trace Sector 1784247869413",
+    "status": "active",
+    "technology": "LTE",
+    "azimuth": 90,
+    "beamwidth": 65,
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a59764aad923e3601e036bf"
+    },
+    "siteId": {
+      "_id": "6a596f4dad923e3601e03063",
+      "name": "Bulk 1784246090538",
+      "type": [
+        "tower"
+      ],
+      "location": {
+        "latitude": 39.7,
+        "longitude": -105,
+        "country": "US",
+        "_id": "6a596f4dad923e3601e03064"
+      }
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:24:42.430Z",
+    "updatedAt": "2026-07-17T00:24:42.431Z",
     "__v": 0
   },
   {

@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 172,
-  "nextBatchId": "n10r",
-  "nextPassRange": [173, 182],
+  "closedThroughPass": 182,
+  "nextBatchId": "n10s",
+  "nextPassRange": [183, 192],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -36,7 +36,8 @@
     { "id": "n10n", "passRange": [133, 142], "status": "closed-harness" },
     { "id": "n10o", "passRange": [143, 152], "status": "closed-harness" },
     { "id": "n10p", "passRange": [153, 162], "status": "closed-harness" },
-    { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" }
+    { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" },
+    { "id": "n10r", "passRange": [173, 182], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -148,7 +149,17 @@
     { "id": 169, "batch": "n10q", "title": "Inventory by-site GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
     { "id": 170, "batch": "n10q", "title": "Notifications count GET", "status": "done", "apiPaths": ["/api/notifications"], "source": "backend-services/routes/notifications.js" },
     { "id": 171, "batch": "n10q", "title": "Network site sectors GET", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
-    { "id": 172, "batch": "n10q", "title": "Voice schema GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" }
+    { "id": 172, "batch": "n10q", "title": "Voice schema GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 173, "batch": "n10r", "title": "Remote-agents status GET", "status": "done", "apiPaths": ["/api/remote-agents"], "source": "backend-services/routes/remote-agents-status.js" },
+    { "id": 174, "batch": "n10r", "title": "Remote-agents status/unlinked GET", "status": "done", "apiPaths": ["/api/remote-agents"], "source": "backend-services/routes/remote-agents-status.js" },
+    { "id": 175, "batch": "n10r", "title": "Voice provider-accounts GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 176, "batch": "n10r", "title": "Voice telephone-numbers GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 177, "batch": "n10r", "title": "Voice service-locations GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 178, "batch": "n10r", "title": "Bundles by type GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
+    { "id": 179, "batch": "n10r", "title": "Bundles search GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
+    { "id": 180, "batch": "n10r", "title": "Inventory stats GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
+    { "id": 181, "batch": "n10r", "title": "Customers complaints PUT", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
+    { "id": 182, "batch": "n10r", "title": "Branding GET by tenant", "status": "done", "apiPaths": ["/api/branding"], "source": "backend-services/routes/branding-api.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },

@@ -27,6 +27,73 @@
       "enabled": true,
       "accountStatus": "pending"
     },
+    "_id": "6a59764bad923e3601e036cf",
+    "tenantId": "6a166eb07089304417ec967a",
+    "customerId": "CUST-2026-0039",
+    "isLead": false,
+    "leadStatus": "new",
+    "firstName": "CWL",
+    "lastName": "Trace1784247869414",
+    "fullName": "CWL Trace1784247869414",
+    "primaryPhone": "555-0100",
+    "email": "cwl-trace-1784247869414@example.com",
+    "serviceStatus": "active",
+    "notes": "chrysalis-live-mutate-trace",
+    "tags": [],
+    "accountStatus": "good-standing",
+    "isActive": true,
+    "serviceHistory": [
+      {
+        "date": "2026-07-17T00:24:46.293Z",
+        "type": "support-call",
+        "description": "chrysalis-n10q-1784247885212",
+        "technician": "cwl-demo",
+        "notes": "fidelity-deepen",
+        "_id": "6a59764ead923e3601e0370a"
+      }
+    ],
+    "complaints": [
+      {
+        "date": "2026-07-17T00:24:46.531Z",
+        "category": "other",
+        "description": "chrysalis-n10q-1784247885212",
+        "priority": "low",
+        "status": "open",
+        "_id": "6a59764ead923e3601e03719"
+      }
+    ],
+    "createdAt": "2026-07-17T00:24:43.281Z",
+    "updatedAt": "2026-07-17T00:24:46.531Z",
+    "__v": 0
+  },
+  {
+    "serviceAddress": {
+      "country": "USA"
+    },
+    "billingAddress": {
+      "country": "USA",
+      "sameAsService": true
+    },
+    "servicePlan": {
+      "currency": "USD",
+      "qci": 9,
+      "priorityLevel": "medium"
+    },
+    "lteAuth": {
+      "sqn": 0
+    },
+    "installation": {
+      "status": "not-scheduled",
+      "otherEquipment": []
+    },
+    "billingInfo": {
+      "accountBalance": 0,
+      "autopay": false
+    },
+    "portalAccess": {
+      "enabled": true,
+      "accountStatus": "pending"
+    },
     "_id": "6a5974c1ad923e3601e0361b",
     "tenantId": "6a166eb07089304417ec967a",
     "customerId": "CUST-2026-0038",
