@@ -1,0 +1,2526 @@
+{
+  "kind": "chrysalis.wisp.external-deps",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-17T02:30:20.630Z",
+  "protocol": {
+    "id": "wisp-external-deps-v1",
+    "decision": "D6445",
+    "steps": [
+      "scan origin for https URLs, process.env/import.meta.env secrets, hardware tokens",
+      "merge .env.example documented keys",
+      "classify local presence without printing values",
+      "emit operator briefing (missing keys + vendors + hardware)",
+      "deepen batches must consult briefing before vendor/hardware probes"
+    ]
+  },
+  "operatorBriefing": {
+    "summary": "101 external host/vendor surfaces; 3 hardware/protocol surfaces; 22 secret/env key references; 22 missing or placeholder locally; 13 referenced in code but absent from .env.example",
+    "missingOrPlaceholderKeys": [
+      {
+        "name": "ARCGIS_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/config/app.js",
+          "backend-services/routes/plans/plans-marketing.js",
+          "backend-services/services/arcgisBuildingFootprints.js"
+        ]
+      },
+      {
+        "name": "ARCGIS_OAUTH_CLIENT_SECRET",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/services/arcgisOAuth.js"
+        ]
+      },
+      {
+        "name": "DATABASE_URL",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/scripts/heal-customer-tenantid-index.js"
+        ]
+      },
+      {
+        "name": "EPC_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/utils/epc-snmp-agent.js"
+        ]
+      },
+      {
+        "name": "FIREBASE_SERVICE_ACCOUNT_BASE64",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/config/firebase.js"
+        ]
+      },
+      {
+        "name": "FIREBASE_SERVICE_ACCOUNT_JSON",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/config/firebase.js"
+        ]
+      },
+      {
+        "name": "FIREBASE_SERVICE_ACCOUNT_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/config/firebase.js",
+          "backend-services/scripts/cleanup-firestore-test-data.js"
+        ]
+      },
+      {
+        "name": "GH_TOKEN",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/config/app.js",
+          "backend-services/utils/epc-auto-update.js"
+        ]
+      },
+      {
+        "name": "GITHUB_TOKEN",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/config/app.js",
+          "backend-services/utils/epc-auto-update.js"
+        ]
+      },
+      {
+        "name": "GOOGLE_APPLICATION_CREDENTIALS",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/config/firebase.js"
+        ]
+      },
+      {
+        "name": "INTERNAL_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/routes/internal.js"
+        ]
+      },
+      {
+        "name": "MONGO_URI",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/scripts/heal-customer-tenantid-index.js"
+        ]
+      },
+      {
+        "name": "MONGODB_URI",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/config/app.js",
+          "backend-services/config/database.js",
+          "backend-services/fix-inventory-category.js"
+        ]
+      },
+      {
+        "name": "PAYPAL_CLIENT_SECRET",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/billing-api.js"
+        ]
+      },
+      {
+        "name": "PUBLIC_ARCGIS_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "Module_Manager/src/lib/config.ts",
+          "Module_Manager/src/routes/modules/coverage-map/lib/arcgisMapController.ts",
+          "Module_Manager/src/routes/modules/monitoring/components/NetworkDeviceMap.svelte"
+        ]
+      },
+      {
+        "name": "PUBLIC_FIREBASE_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "Module_Manager/src/lib/config.ts",
+          "Module_Manager/src/lib/firebase.ts"
+        ]
+      },
+      {
+        "name": "PUBLIC_GEMINI_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "Module_Manager/src/lib/config.ts",
+          "Module_Manager/src/lib/geminiService.ts"
+        ]
+      },
+      {
+        "name": "SENDGRID_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/email-service.js"
+        ]
+      },
+      {
+        "name": "SMTP_PASS",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/services/emailService.js"
+        ]
+      },
+      {
+        "name": "STRIPE_SECRET_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "backend-services/routes/customer-portal-api.js"
+        ]
+      },
+      {
+        "name": "VITE_FIREBASE_API_KEY",
+        "localPresence": "missing",
+        "documentedInEnvExample": false,
+        "requiredHint": "undeclared-in-env-example",
+        "sampleFiles": [
+          "Module_Manager/src/lib/firebase.ts"
+        ]
+      },
+      {
+        "name": "VOICE_WEBHOOK_SECRET",
+        "localPresence": "missing",
+        "documentedInEnvExample": true,
+        "requiredHint": "documented",
+        "sampleFiles": [
+          "backend-services/routes/voice-webhooks.js"
+        ]
+      }
+    ],
+    "undeclaredInEnvExample": [
+      "ARCGIS_OAUTH_CLIENT_SECRET",
+      "DATABASE_URL",
+      "EPC_API_KEY",
+      "GH_TOKEN",
+      "GITHUB_TOKEN",
+      "GOOGLE_APPLICATION_CREDENTIALS",
+      "MONGO_URI",
+      "PUBLIC_ARCGIS_API_KEY",
+      "PUBLIC_FIREBASE_API_KEY",
+      "PUBLIC_GEMINI_API_KEY",
+      "SENDGRID_API_KEY",
+      "STRIPE_SECRET_KEY",
+      "VITE_FIREBASE_API_KEY"
+    ],
+    "externalVendors": [
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "elevation3d.arcgis.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "geocode.arcgis.com",
+        "hitCount": 8
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "gisservices.its.ny.gov",
+        "hitCount": 2
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "js.arcgis.com",
+        "hitCount": 4
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "mapit.tarrantcounty.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "registry.npmjs.org",
+        "hitCount": 6
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "services.arcgis.com",
+        "hitCount": 5
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "services.arcgisonline.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "services8.arcgis.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "arcgis",
+        "kind": "vendor-sdk",
+        "host": "www.arcgis.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "cbrs-sas",
+        "kind": "external-http",
+        "host": "sas.federatedwireless.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "cbrs-sas",
+        "kind": "external-http",
+        "host": "www.federatedwireless.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "firebase",
+        "kind": "vendor-sdk",
+        "host": "firebasestorage.googleapis.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "firebase",
+        "kind": "vendor-sdk",
+        "host": "lte-pci-mapper-65450042-bbf71.firebaseapp.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "firebase",
+        "kind": "vendor-sdk",
+        "host": "registry.npmjs.org",
+        "hitCount": 55
+      },
+      {
+        "vendor": "firebase",
+        "kind": "vendor-sdk",
+        "host": "wisptools-io.firebaseapp.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "firebase",
+        "kind": "vendor-sdk",
+        "host": "wisptools-management.firebaseapp.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "firebase",
+        "kind": "vendor-sdk",
+        "host": "wisptools-production.firebaseapp.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "gemini",
+        "kind": "external-http",
+        "host": "generativelanguage.googleapis.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "google",
+        "kind": "external-http",
+        "host": "sas.googleapis.com",
+        "hitCount": 4
+      },
+      {
+        "vendor": "google",
+        "kind": "external-http",
+        "host": "storage.googleapis.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "google",
+        "kind": "external-http",
+        "host": "www.googleapis.com",
+        "hitCount": 7
+      },
+      {
+        "vendor": "nominatim",
+        "kind": "external-http",
+        "host": "{s}.tile.openstreetmap.org",
+        "hitCount": 1
+      },
+      {
+        "vendor": "nominatim",
+        "kind": "external-http",
+        "host": "nominatim.openstreetmap.org",
+        "hitCount": 5
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "api-m.paypal.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "api-m.sandbox.paypal.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "github.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "paypal.me",
+        "hitCount": 2
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "registry.npmjs.org",
+        "hitCount": 2
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "www.npmjs.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "paypal",
+        "kind": "external-http",
+        "host": "your-domain.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "snmp",
+        "kind": "hardware",
+        "host": "registry.npmjs.org",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "...",
+        "hitCount": 4
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "{hss_ip}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "&lt;device-ip&gt;",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "%s",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${brandingdata.portal.customdomain}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${central_server}",
+        "hitCount": 9
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${config.gce_ip}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${config.management_ip}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${customdomain}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${epcip}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${gce_ip}",
+        "hitCount": 6
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${gce_public_ip}",
+        "hitCount": 7
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${GCE_PUBLIC_IP}",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "${subdomain}.lte-pci-mapper-65450042-bbf71.us-east4.hosted.app",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "136.112.111.167",
+        "hitCount": 6
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "192.168.1.100",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "accounts.google.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "api.example.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "api.github.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "api.wolframalpha.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "app.example.com,https",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "archive.ubuntu.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "cdnjs.cloudflare.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "cli.vuejs.org",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "cloud.google.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "cloudfunctions.net",
+        "hitCount": 2
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "console.cloud.google.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "creativecommons.org",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "cwmp-{subdomain}.your-domain.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "deb.nodesource.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "developer.mozilla.org",
+        "hitCount": 13
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "dotenvx.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "en.wikipedia.org",
+        "hitCount": 4
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "example.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "feross.org",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "git.io",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "github.com",
+        "hitCount": 132
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "kit.svelte.dev",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "link.vuejs.org",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "lte-pci-mapper--lte-pci-mapper-65450042-bbf71.us-east4.hosted.app",
+        "hitCount": 6
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "lte-pci-mapper-65450042-bbf71.web.app",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "opencollective.com",
+        "hitCount": 33
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "overpass-api.de",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "patreon.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "paulmillr.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "pci-mapper--lte-pci-mapper-65450042-bbf71.us-central1.hosted.app",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "raw.githubusercontent.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "registry.npmjs.org",
+        "hitCount": 968
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "stackoverflow.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "tidelift.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "tinyurl.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "ubuntu.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "unpkg.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "us-central1-lte-pci-mapper-65450042-bbf71.cloudfunctions.net",
+        "hitCount": 11
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "us-central1-wisptools-production.cloudfunctions.net",
+        "hitCount": 7
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "usbuildingdata.blob.core.windows.net",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "usertenants-nxulhoqnyq-uc.a.run.app",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "vuejs.org",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "wisptools-io.web.app",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "wisptools-management.web.app",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.ecfr.gov",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.google.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.npmjs.com",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.opengis.net",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.patreon.com",
+        "hitCount": 3
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.w3.org",
+        "hitCount": 14
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "www.wirelessinnovation.org",
+        "hitCount": 1
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "your-domain.com",
+        "hitCount": 2
+      },
+      {
+        "vendor": "unknown",
+        "kind": "external-http",
+        "host": "yourcompany.com",
+        "hitCount": 1
+      }
+    ],
+    "hardware": [
+      {
+        "vendor": "mikrotik",
+        "hitCount": 243
+      },
+      {
+        "vendor": "snmp",
+        "hitCount": 1417
+      },
+      {
+        "vendor": "telnet",
+        "hitCount": 1
+      }
+    ],
+    "deepenRules": [
+      "Do not invent vendor SDKs or alternate hosts (D6442 / D6441).",
+      "If a deepen pass needs a missing key, mark honest residual and list the key name — never invent a key.",
+      "Hardware (SNMP/MikroTik/ACS) probes must use source bodies; credentials live on devices or tenant settings, not invented.",
+      "Local presence ≠ HSS production env; treat remote as unknown unless separately verified."
+    ]
+  },
+  "secrets": [
+    {
+      "name": "ARCGIS_API_KEY",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 16,
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/routes/plans/plans-marketing.js",
+        "backend-services/services/arcgisBuildingFootprints.js",
+        "backend-services/services/marketingDiscovery.js",
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "name": "ARCGIS_OAUTH_CLIENT_SECRET",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/services/arcgisOAuth.js"
+      ]
+    },
+    {
+      "name": "DATABASE_URL",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/scripts/heal-customer-tenantid-index.js"
+      ]
+    },
+    {
+      "name": "EPC_API_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/utils/epc-snmp-agent.js"
+      ]
+    },
+    {
+      "name": "FIREBASE_SERVICE_ACCOUNT_BASE64",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 1,
+      "files": [
+        "backend-services/config/firebase.js"
+      ]
+    },
+    {
+      "name": "FIREBASE_SERVICE_ACCOUNT_JSON",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 1,
+      "files": [
+        "backend-services/config/firebase.js"
+      ]
+    },
+    {
+      "name": "FIREBASE_SERVICE_ACCOUNT_KEY",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 2,
+      "files": [
+        "backend-services/config/firebase.js",
+        "backend-services/scripts/cleanup-firestore-test-data.js"
+      ]
+    },
+    {
+      "name": "GH_TOKEN",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 2,
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/utils/epc-auto-update.js"
+      ]
+    },
+    {
+      "name": "GITHUB_TOKEN",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 2,
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/utils/epc-auto-update.js"
+      ]
+    },
+    {
+      "name": "GOOGLE_APPLICATION_CREDENTIALS",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/config/firebase.js"
+      ]
+    },
+    {
+      "name": "INTERNAL_API_KEY",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 1,
+      "files": [
+        "backend-services/routes/internal.js"
+      ]
+    },
+    {
+      "name": "MONGO_URI",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/scripts/heal-customer-tenantid-index.js"
+      ]
+    },
+    {
+      "name": "MONGODB_URI",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 69,
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/config/database.js",
+        "backend-services/fix-inventory-category.js",
+        "backend-services/hss-server.js",
+        "backend-services/initialize-billing-plans.js"
+      ]
+    },
+    {
+      "name": "PAYPAL_CLIENT_SECRET",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 1,
+      "files": [
+        "backend-services/billing-api.js"
+      ]
+    },
+    {
+      "name": "PUBLIC_ARCGIS_API_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 4,
+      "files": [
+        "Module_Manager/src/lib/config.ts",
+        "Module_Manager/src/routes/modules/coverage-map/lib/arcgisMapController.ts",
+        "Module_Manager/src/routes/modules/monitoring/components/NetworkDeviceMap.svelte"
+      ]
+    },
+    {
+      "name": "PUBLIC_FIREBASE_API_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 2,
+      "files": [
+        "Module_Manager/src/lib/config.ts",
+        "Module_Manager/src/lib/firebase.ts"
+      ]
+    },
+    {
+      "name": "PUBLIC_GEMINI_API_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 2,
+      "files": [
+        "Module_Manager/src/lib/config.ts",
+        "Module_Manager/src/lib/geminiService.ts"
+      ]
+    },
+    {
+      "name": "SENDGRID_API_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/email-service.js"
+      ]
+    },
+    {
+      "name": "SMTP_PASS",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 2,
+      "files": [
+        "backend-services/services/emailService.js"
+      ]
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "backend-services/routes/customer-portal-api.js"
+      ]
+    },
+    {
+      "name": "VITE_FIREBASE_API_KEY",
+      "documentedInEnvExample": false,
+      "localPresence": "missing",
+      "requiredHint": "undeclared-in-env-example",
+      "hitCount": 1,
+      "files": [
+        "Module_Manager/src/lib/firebase.ts"
+      ]
+    },
+    {
+      "name": "VOICE_WEBHOOK_SECRET",
+      "documentedInEnvExample": true,
+      "localPresence": "missing",
+      "requiredHint": "documented",
+      "hitCount": 1,
+      "files": [
+        "backend-services/routes/voice-webhooks.js"
+      ]
+    }
+  ],
+  "externalCalls": [
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "elevation3d.arcgis.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer/getSamples"
+      ],
+      "files": [
+        "Module_Manager/src/lib/pci/lib/services/losService.ts",
+        "Module_Manager/src/lib/services/losService.ts"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "geocode.arcgis.com",
+      "hitCount": 8,
+      "sampleUrls": [
+        "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates",
+        "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode",
+        "https://geocode.arcgis.com/arcgis/rest/services/World/BuildingFootprints/FeatureServer"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/services/arcgisBuildingFootprints.js",
+        "backend-services/services/marketingDiscovery.js",
+        "backend-services/services/microsoftFootprints.js",
+        "Module_Manager/src/lib/components/maps/NetworkManager.svelte"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "gisservices.its.ny.gov",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://gisservices.its.ny.gov/arcgis/rest/services/BuildingFootprints/FeatureServer"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/services/arcgisBuildingFootprints.js"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "js.arcgis.com",
+      "hitCount": 4,
+      "sampleUrls": [
+        "https://js.arcgis.com/4.32/esri/themes/dark/main.css",
+        "https://js.arcgis.com/4.32/esri/themes/light/main.css"
+      ],
+      "files": [
+        "Module_Manager/src/lib/darkMode.ts",
+        "Module_Manager/src/lib/stores/themeStore.ts"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "mapit.tarrantcounty.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://mapit.tarrantcounty.com/arcgis/rest/services/Dynamic/Building_Footprint/MapServer"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/services/arcgisBuildingFootprints.js"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "registry.npmjs.org",
+      "hitCount": 6,
+      "sampleUrls": [
+        "https://registry.npmjs.org/@arcgis/core/-/core-4.34.8.tgz",
+        "https://registry.npmjs.org/@arcgis/lumina/-/lumina-4.34.4.tgz",
+        "https://registry.npmjs.org/@arcgis/toolkit/-/toolkit-4.34.4.tgz"
+      ],
+      "files": [
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "services.arcgis.com",
+      "hitCount": 5,
+      "sampleUrls": [
+        "https://services.arcgis.com/your_organization_id/arcgis/rest/services/YourBuildingFootprints/FeatureServer",
+        "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/MSBFP2/FeatureServer",
+        "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/MSBFP2/FeatureServer/0/query"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/services/marketingDiscovery.js",
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "services.arcgisonline.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}?token=${arcgisApiKey}"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/monitoring/components/NetworkDeviceMap.svelte"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "services8.arcgis.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://services8.arcgis.com/8PAo5HGmvRMlF2eU/arcgis/rest/services/Building_Footprints/FeatureServer"
+      ],
+      "files": [
+        "backend-services/services/arcgisBuildingFootprints.js"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "arcgis",
+      "host": "www.arcgis.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://www.arcgis.com/sharing/rest/oauth2/token",
+        "https://www.arcgis.com/sharing/rest/content/items"
+      ],
+      "files": [
+        "backend-services/services/arcgisOAuth.js",
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "cbrs-sas",
+      "host": "sas.federatedwireless.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://sas.federatedwireless.com/api/v1"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/cbrs-management/lib/api/federatedWirelessClient.ts",
+        "Module_Manager/src/routes/modules/tenant-management/cbrs-platform/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "cbrs-sas",
+      "host": "www.federatedwireless.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://www.federatedwireless.com/"
+      ],
+      "files": [
+        "Module_Manager/src/lib/docs/cbrs-management-docs.ts"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "firebase",
+      "host": "firebasestorage.googleapis.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://firebasestorage.googleapis.com/v0/b/lte-pci-mapper-65450042-bbf71.appspot.com/o/mobile-app%2FWISP-Multitool-v1.0.0-release.apk?alt=media"
+      ],
+      "files": [
+        "Module_Manager/src/lib/components/common/APKDownload.svelte"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "firebase",
+      "host": "lte-pci-mapper-65450042-bbf71.firebaseapp.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://lte-pci-mapper-65450042-bbf71.firebaseapp.com"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "Module_Manager/src/routes/modules/hss-management/components/RemoteEPCs.svelte"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "firebase",
+      "host": "registry.npmjs.org",
+      "hitCount": 55,
+      "sampleUrls": [
+        "https://registry.npmjs.org/@firebase/app-check-interop-types/-/app-check-interop-types-0.3.3.tgz",
+        "https://registry.npmjs.org/@firebase/app-types/-/app-types-0.9.3.tgz",
+        "https://registry.npmjs.org/@firebase/auth-interop-types/-/auth-interop-types-0.2.4.tgz"
+      ],
+      "files": [
+        "backend-services/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "firebase",
+      "host": "wisptools-io.firebaseapp.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://wisptools-io.firebaseapp.com"
+      ],
+      "files": [
+        "backend-services/config/app.js"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "firebase",
+      "host": "wisptools-management.firebaseapp.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://wisptools-management.firebaseapp.com"
+      ],
+      "files": [
+        "backend-services/config/app.js"
+      ]
+    },
+    {
+      "kind": "vendor-sdk",
+      "vendor": "firebase",
+      "host": "wisptools-production.firebaseapp.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://wisptools-production.firebaseapp.com"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/monitoring-backend-server.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "gemini",
+      "host": "generativelanguage.googleapis.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+      ],
+      "files": [
+        "Module_Manager/src/lib/config.ts",
+        "Module_Manager/src/lib/geminiService.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "google",
+      "host": "sas.googleapis.com",
+      "hitCount": 4,
+      "sampleUrls": [
+        "https://sas.googleapis.com/v1"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/cbrs-management/+page.svelte",
+        "Module_Manager/src/routes/modules/cbrs-management/lib/api/googleSASClient.ts",
+        "Module_Manager/src/routes/modules/tenant-management/cbrs-platform/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "google",
+      "host": "storage.googleapis.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://storage.googleapis.com/${bucket.name}/${filename}",
+        "https://storage.googleapis.com/${bucket.name}/${path}"
+      ],
+      "files": [
+        "backend-services/routes/installation-documentation.js",
+        "backend-services/services/planDeploymentPhotoStorage.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "google",
+      "host": "www.googleapis.com",
+      "hitCount": 7,
+      "sampleUrls": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/cloud-platform"
+      ],
+      "files": [
+        "Module_Manager/src/lib/services/googleAuthService.ts",
+        "Module_Manager/src/lib/services/googleOAuthService.ts",
+        "Module_Manager/src/routes/oauth/google/callback/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "nominatim",
+      "host": "{s}.tile.openstreetmap.org",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/monitoring/components/NetworkDeviceMap.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "nominatim",
+      "host": "nominatim.openstreetmap.org",
+      "hitCount": 5,
+      "sampleUrls": [
+        "https://nominatim.openstreetmap.org/search?${new",
+        "https://nominatim.openstreetmap.org/reverse?${params.toString(",
+        "https://nominatim.openstreetmap.org/reverse"
+      ],
+      "files": [
+        "backend-services/routes/network.js",
+        "backend-services/scripts/ensure-sites-have-gps.js",
+        "backend-services/services/marketingDiscovery.js",
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "api-m.paypal.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://api-m.paypal.com"
+      ],
+      "files": [
+        "backend-services/billing-api.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "api-m.sandbox.paypal.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://api-m.sandbox.paypal.com"
+      ],
+      "files": [
+        "backend-services/billing-api.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "github.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://github.com/paypal/Checkout-NodeJS-SDK/blob/master/LICENSE"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "paypal.me",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://paypal.me/jimmywarting"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "registry.npmjs.org",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://registry.npmjs.org/@paypal/checkout-server-sdk/-/checkout-server-sdk-1.0.3.tgz",
+        "https://registry.npmjs.org/@paypal/paypalhttp/-/paypalhttp-1.0.1.tgz"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "www.npmjs.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://www.npmjs.com/package/@paypal/paypal-server-sdk"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "paypal",
+      "host": "your-domain.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://your-domain.com/api/billing/webhook/paypal"
+      ],
+      "files": [
+        "backend-services/billing-api.js"
+      ]
+    },
+    {
+      "kind": "hardware",
+      "vendor": "snmp",
+      "host": "registry.npmjs.org",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://registry.npmjs.org/net-snmp/-/net-snmp-3.26.0.tgz"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "...",
+      "hitCount": 4,
+      "sampleUrls": [
+        "https://.../FeatureServer/0",
+        "https://.../MapServer/0",
+        "https://.../FeatureServer"
+      ],
+      "files": [
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "{hss_ip}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://{HSS_IP}/downloads/isos/wisptools-epc-*.iso"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/hss-management/components/DeployEPC.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "&lt;device-ip&gt;",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://&lt;device-ip&gt;/device-status.html"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/hss-management/components/RemoteEPCs.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "%s",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://%s:%s/api/epc/%s/bootstrap?auth_code=%s"
+      ],
+      "files": [
+        "backend-services/routes/deployment/iso-generation.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${brandingdata.portal.customdomain}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://${brandingData.portal.customDomain}"
+      ],
+      "files": [
+        "backend-services/routes/branding-api.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${central_server}",
+      "hitCount": 9,
+      "sampleUrls": [
+        "https://${CENTRAL_SERVER}/api/epc",
+        "https://${CENTRAL_SERVER}/downloads/scripts/${scriptName}"
+      ],
+      "files": [
+        "backend-services/scripts/epc-ping-monitor.js",
+        "backend-services/scripts/epc-snmp-discovery.js",
+        "backend-services/scripts/epc-snmp-monitor.js",
+        "backend-services/scripts/IMPROVED_PING_MONITOR.js",
+        "backend-services/scripts/IMPROVED_SNMP_MONITOR.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${config.gce_ip}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://${config.gce_ip}:${config.hss_port}"
+      ],
+      "files": [
+        "backend-services/utils/epc-snmp-integration.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${config.management_ip}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://${config.management_ip}"
+      ],
+      "files": [
+        "backend-services/scripts/add-devices-to-inventory.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${customdomain}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://${customDomain}"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/customers/portal-setup/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${epcip}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://${epcIp}:3000/api/hss/subscribers/${subscriberData.imsi}"
+      ],
+      "files": [
+        "backend-services/services/hss-sync-service.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${gce_ip}",
+      "hitCount": 6,
+      "sampleUrls": [
+        "http://${gce_ip}:${hss_port}/api/epc/$EPC_ID/full-deployment?auth_code=$EPC_AUTH_CODE",
+        "http://${gce_ip}:${hss_port}",
+        "http://${gce_ip}:${hss_port}/apt-repos/${tenant_id}"
+      ],
+      "files": [
+        "backend-services/utils/bootstrap-helpers.js",
+        "backend-services/utils/epc-snmp-integration.js",
+        "backend-services/utils/iso-helpers.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${gce_public_ip}",
+      "hitCount": 7,
+      "sampleUrls": [
+        "http://${GCE_PUBLIC_IP}/downloads/isos/wisptools-epc-generic-netinstall.iso",
+        "http://${GCE_PUBLIC_IP}/downloads/isos/${iso_filename}",
+        "http://${GCE_PUBLIC_IP}/downloads/isos/${iso_filename}.sha256"
+      ],
+      "files": [
+        "backend-services/routes/deployment/epc-management.js",
+        "backend-services/routes/deployment/iso-generation.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${GCE_PUBLIC_IP}",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://${GCE_PUBLIC_IP}:${HSS_PORT}/apt-repos/main"
+      ],
+      "files": [
+        "backend-services/routes/deployment/epc-management.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "${subdomain}.lte-pci-mapper-65450042-bbf71.us-east4.hosted.app",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://${subdomain}.lte-pci-mapper-65450042-bbf71.us-east4.hosted.app"
+      ],
+      "files": [
+        "backend-services/routes/admin/tenants.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "136.112.111.167",
+      "hitCount": 6,
+      "sampleUrls": [
+        "https://136.112.111.167:3001",
+        "https://136.112.111.167:3001/api/hss",
+        "http://136.112.111.167:${PORT}/health"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/monitoring-backend-server.js",
+        "backend-services/monitoring-service.js",
+        "Module_Manager/src/routes/modules/plan/components/HSSImportModal.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "192.168.1.100",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://192.168.1.100"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/inventory/[id]/edit/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "accounts.google.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://accounts.google.com/o/oauth2/v2/auth"
+      ],
+      "files": [
+        "Module_Manager/src/lib/services/googleAuthService.ts",
+        "Module_Manager/src/lib/services/googleOAuthService.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "api.example.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://api.example.com"
+      ],
+      "files": [
+        "backend-services/services/planDeploymentPhotoStorage.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "api.github.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://api.github.com/repos"
+      ],
+      "files": [
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "api.wolframalpha.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "http://api.wolframalpha.com/v1/simple"
+      ],
+      "files": [
+        "Module_Manager/src/lib/config.ts",
+        "Module_Manager/src/lib/wolframService.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "app.example.com,https",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://app.example.com,https://api.example.com"
+      ],
+      "files": [
+        "backend-services/.env.example"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "archive.ubuntu.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "http://archive.ubuntu.com/ubuntu/dists/jammy/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64",
+        "http://archive.ubuntu.com/ubuntu/dists/jammy/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64",
+        "http://archive.ubuntu.com/ubuntu/dists/jammy-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
+      ],
+      "files": [
+        "backend-services/routes/deployment/iso-generation.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "cdnjs.cloudflare.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/monitoring/components/NetworkDeviceMap.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "cli.vuejs.org",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://cli.vuejs.org/guide/webpack.html#modifying-options-of-a-loader"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/chunk-QE257C5J.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "cloud.google.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://cloud.google.com/spectrum-access-system"
+      ],
+      "files": [
+        "Module_Manager/src/lib/docs/cbrs-management-docs.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "cloudfunctions.net",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://cloudfunctions.net",
+        "https://cloudfunctions.net/api"
+      ],
+      "files": [
+        "Module_Manager/src/lib/services/userManagementService.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "console.cloud.google.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://console.cloud.google.com/logs"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/backend-management/components/QuickActions.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "creativecommons.org",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://creativecommons.org/licenses/by/4.0/"
+      ],
+      "files": [
+        "Module_Manager/src/routes/dashboard/+page.svelte",
+        "Module_Manager/src/routes/login/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "cwmp-{subdomain}.your-domain.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://cwmp-{subdomain}.your-domain.com/cwmp"
+      ],
+      "files": [
+        "Module_Manager/src/lib/models/tenant.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "deb.nodesource.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://deb.nodesource.com/setup_20.x",
+        "https://deb.nodesource.com/setup_18.x"
+      ],
+      "files": [
+        "backend-services/utils/deployment-templates/dependencies.js",
+        "backend-services/utils/epc-snmp-integration.js",
+        "Module_Manager/src/routes/modules/deploy/components/EPCDeploymentModal.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "developer.mozilla.org",
+      "hitCount": 13,
+      "sampleUrls": [
+        "https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition",
+        "https://developer.mozilla.org/en/docs/Web/API/NodeIterator}",
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/clear"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___@vueuse_integrations_useFocusTrap.js",
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___mark__js_src_vanilla__js.js",
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___minisearch.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "dotenvx.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://dotenvx.com"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "en.wikipedia.org",
+      "hitCount": 4,
+      "sampleUrls": [
+        "https://en.wikipedia.org/wiki/Romanization_of_Georgian",
+        "https://en.wikipedia.org/wiki/Romanization_of_Russian",
+        "https://en.wikipedia.org/wiki/Dash#Figure_dash"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___@vue_devtools-api.js",
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___mark__js_src_vanilla__js.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "example.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://example.com/logo.png"
+      ],
+      "files": [
+        "Module_Manager/src/lib/components/BrandingManagement.svelte",
+        "Module_Manager/src/routes/modules/monitoring/components/EmailSettings.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "feross.org",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://feross.org/support"
+      ],
+      "files": [
+        "backend-services/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "git.io",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://git.io/v6USg"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___mark__js_src_vanilla__js.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "github.com",
+      "hitCount": 132,
+      "sampleUrls": [
+        "https://github.com/theorem6/WISP-Management.git",
+        "https://github.com/chalk/ansi-regex?sponsor=1",
+        "https://github.com/chalk/ansi-styles?sponsor=1"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/package-lock.json",
+        "backend-services/utils/epc-auto-update.js",
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/chunk-QE257C5J.js",
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___@vueuse_integrations_useFocusTrap.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "kit.svelte.dev",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://kit.svelte.dev/docs/integrations#preprocessors"
+      ],
+      "files": [
+        "Module_Manager/svelte.config.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "link.vuejs.org",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://link.vuejs.org/feature-flags"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/chunk-QE257C5J.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "lte-pci-mapper--lte-pci-mapper-65450042-bbf71.us-east4.hosted.app",
+      "hitCount": 6,
+      "sampleUrls": [
+        "https://lte-pci-mapper--lte-pci-mapper-65450042-bbf71.us-east4.hosted.app",
+        "https://lte-pci-mapper--lte-pci-mapper-65450042-bbf71.us-east4.hosted.app/modules/monitoring"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "backend-services/config/middleware.js",
+        "backend-services/email-service.js",
+        "backend-services/hss-server.js",
+        "backend-services/monitoring-service.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "lte-pci-mapper-65450042-bbf71.web.app",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://lte-pci-mapper-65450042-bbf71.web.app"
+      ],
+      "files": [
+        "backend-services/config/app.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "opencollective.com",
+      "hitCount": 33,
+      "sampleUrls": [
+        "https://opencollective.com/js-sdsl",
+        "https://opencollective.com/express",
+        "https://opencollective.com/node-fetch"
+      ],
+      "files": [
+        "backend-services/package-lock.json",
+        "Module_Manager/docs-site/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "overpass-api.de",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://overpass-api.de/api/interpreter"
+      ],
+      "files": [
+        "backend-services/services/marketingDiscovery.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "patreon.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://patreon.com/mdevils"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "paulmillr.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://paulmillr.com/funding/"
+      ],
+      "files": [
+        "backend-services/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "pci-mapper--lte-pci-mapper-65450042-bbf71.us-central1.hosted.app",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://pci-mapper--lte-pci-mapper-65450042-bbf71.us-central1.hosted.app"
+      ],
+      "files": [
+        "backend-services/config/app.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "raw.githubusercontent.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://raw.githubusercontent.com"
+      ],
+      "files": [
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "registry.npmjs.org",
+      "hitCount": 968,
+      "sampleUrls": [
+        "https://registry.npmjs.org/@fastify/busboy/-/busboy-3.2.0.tgz",
+        "https://registry.npmjs.org/@google-cloud/firestore/-/firestore-7.11.6.tgz",
+        "https://registry.npmjs.org/@google-cloud/paginator/-/paginator-5.0.2.tgz"
+      ],
+      "files": [
+        "backend-services/package-lock.json",
+        "Module_Manager/docs-site/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "stackoverflow.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://stackoverflow.com/a/36155560/3894981}"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___mark__js_src_vanilla__js.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "tidelift.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://tidelift.com/funding/github/npm/postcss"
+      ],
+      "files": [
+        "Module_Manager/docs-site/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "tinyurl.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "http://tinyurl.com/zdczmm2}",
+        "http://tinyurl.com/zfqqkx2}",
+        "http://tinyurl.com/z5asa8c}"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/vitepress___mark__js_src_vanilla__js.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "ubuntu.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://ubuntu.com/download/server"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/hss-management/components/RemoteEPCs.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "unpkg.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/monitoring/components/NetworkDeviceMap.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "us-central1-lte-pci-mapper-65450042-bbf71.cloudfunctions.net",
+      "hitCount": 11,
+      "sampleUrls": [
+        "https://us-central1-lte-pci-mapper-65450042-bbf71.cloudfunctions.net",
+        "https://us-central1-lte-pci-mapper-65450042-bbf71.cloudfunctions.net/apiProxy/api/system/${action}",
+        "https://us-central1-lte-pci-mapper-65450042-bbf71.cloudfunctions.net/apiProxy/api/system/services/status"
+      ],
+      "files": [
+        "backend-services/config/middleware.js",
+        "Module_Manager/src/routes/modules/backend-management/components/QuickActions.svelte",
+        "Module_Manager/src/routes/modules/backend-management/components/ServiceStatus.svelte",
+        "Module_Manager/src/routes/modules/backend-management/components/SystemResources.svelte",
+        "Module_Manager/src/routes/modules/cbrs-management/lib/api/googleSASClient.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "us-central1-wisptools-production.cloudfunctions.net",
+      "hitCount": 7,
+      "sampleUrls": [
+        "https://us-central1-wisptools-production.cloudfunctions.net/apiProxy",
+        "https://us-central1-wisptools-production.cloudfunctions.net/isoProxy",
+        "https://us-central1-wisptools-production.cloudfunctions.net/coverageMapProxy"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "Module_Manager/src/lib/config/api.ts",
+        "Module_Manager/src/routes/setup-admin/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "usbuildingdata.blob.core.windows.net",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://usbuildingdata.blob.core.windows.net/usbuildings-v2"
+      ],
+      "files": [
+        "backend-services/services/microsoftFootprints.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "usertenants-nxulhoqnyq-uc.a.run.app",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://usertenants-nxulhoqnyq-uc.a.run.app"
+      ],
+      "files": [
+        "Module_Manager/src/lib/config/api.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "vuejs.org",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://vuejs.org/error-reference/#runtime-${type}"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/chunk-QE257C5J.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "wisptools-io.web.app",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://wisptools-io.web.app"
+      ],
+      "files": [
+        "backend-services/config/app.js"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "wisptools-management.web.app",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://wisptools-management.web.app"
+      ],
+      "files": [
+        "backend-services/config/app.js",
+        "Module_Manager/.env.single-use",
+        "Module_Manager/.env.single-use.example"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.ecfr.gov",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://www.ecfr.gov/current/title-47/chapter-I/subchapter-B/part-96"
+      ],
+      "files": [
+        "Module_Manager/src/lib/docs/cbrs-management-docs.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.google.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://www.google.com/maps"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/hss-management/components/RemoteEPCs.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.npmjs.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://www.npmjs.com/support"
+      ],
+      "files": [
+        "backend-services/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.opengis.net",
+      "hitCount": 1,
+      "sampleUrls": [
+        "http://www.opengis.net/kml/2.2"
+      ],
+      "files": [
+        "Module_Manager/src/lib/components/forms/ImportWizard.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.patreon.com",
+      "hitCount": 3,
+      "sampleUrls": [
+        "https://www.patreon.com/feross"
+      ],
+      "files": [
+        "backend-services/package-lock.json",
+        "Module_Manager/package-lock.json"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.w3.org",
+      "hitCount": 14,
+      "sampleUrls": [
+        "http://www.w3.org/2000/svg",
+        "http://www.w3.org/1998/Math/MathML",
+        "http://www.w3.org/1999/xlink"
+      ],
+      "files": [
+        "Module_Manager/docs-site/.vitepress/cache/deps_temp_0b2c7e13/chunk-QE257C5J.js",
+        "Module_Manager/src/lib/mapIcons.ts",
+        "Module_Manager/src/lib/services/barcodeService.ts",
+        "Module_Manager/src/routes/modules/customers/components/AddEditCustomerModal.svelte",
+        "Module_Manager/src/routes/modules/maintain/+page.svelte"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "www.wirelessinnovation.org",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://www.wirelessinnovation.org/cbrs-spectrum-access-system"
+      ],
+      "files": [
+        "Module_Manager/src/lib/docs/cbrs-management-docs.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "your-domain.com",
+      "hitCount": 2,
+      "sampleUrls": [
+        "https://your-domain.com/cwmp/{tenantId}",
+        "https://your-domain.com"
+      ],
+      "files": [
+        "Module_Manager/src/lib/models/tenant.ts",
+        "Module_Manager/src/lib/services/tenantService.ts"
+      ]
+    },
+    {
+      "kind": "external-http",
+      "vendor": "unknown",
+      "host": "yourcompany.com",
+      "hitCount": 1,
+      "sampleUrls": [
+        "https://yourcompany.com/logo.png"
+      ],
+      "files": [
+        "Module_Manager/src/routes/modules/customers/portal-setup/+page.svelte"
+      ]
+    }
+  ],
+  "hardware": [
+    {
+      "kind": "hardware",
+      "vendor": "mikrotik",
+      "files": [
+        "backend-services/config/mikrotikOIDs.js",
+        "backend-services/monitoring-backend-server.js",
+        "backend-services/routes/epc-snmp.js",
+        "backend-services/routes/mikrotik.js",
+        "backend-services/routes/mikrotikAPI.js",
+        "backend-services/routes/monitoring-graphs.js",
+        "backend-services/routes/monitoring.js",
+        "backend-services/scripts/add-devices-to-inventory.js"
+      ],
+      "hitCount": 243,
+      "note": "Device/protocol surface in source — deepen must not invent credentials"
+    },
+    {
+      "kind": "hardware",
+      "vendor": "snmp",
+      "files": [
+        "backend-services/config/mikrotikOIDs.js",
+        "backend-services/models/distributed-epc-schema.js",
+        "backend-services/models/snmp-metrics-schema.js",
+        "backend-services/monitoring-backend-server.js",
+        "backend-services/package-lock.json",
+        "backend-services/package.json",
+        "backend-services/routes/deployment/epc-management.js",
+        "backend-services/routes/device-assignment.js"
+      ],
+      "hitCount": 1417,
+      "note": "Device/protocol surface in source — deepen must not invent credentials"
+    },
+    {
+      "kind": "hardware",
+      "vendor": "telnet",
+      "files": [
+        "Module_Manager/src/routes/modules/deploy/components/MikrotikConfigurationModal.svelte"
+      ],
+      "hitCount": 1,
+      "note": "Device/protocol surface in source — deepen must not invent credentials"
+    }
+  ],
+  "documentedEnvExampleKeys": [
+    "API_BASE_URL",
+    "ARCGIS_API_KEY",
+    "FIREBASE_PROJECT_ID",
+    "FIREBASE_SERVICE_ACCOUNT_BASE64",
+    "FIREBASE_SERVICE_ACCOUNT_JSON",
+    "FIREBASE_SERVICE_ACCOUNT_KEY",
+    "FROM_EMAIL",
+    "FROM_NAME",
+    "HOST",
+    "INTERNAL_API_KEY",
+    "MICROSOFT_FOOTPRINTS_ENABLED",
+    "MONGODB_URI",
+    "NODE_ENV",
+    "PAYPAL_CLIENT_ID",
+    "PAYPAL_CLIENT_SECRET",
+    "PAYPAL_ENVIRONMENT",
+    "PLATFORM_ADMIN_EMAILS",
+    "PORT",
+    "PUBLIC_DEMO_SITE",
+    "PUBLIC_DEMO_VISITOR_LOGIN",
+    "PUBLIC_SIMPLE_LOGIN",
+    "PUBLIC_SINGLE_TENANT_DISPLAY_NAME",
+    "PUBLIC_SINGLE_TENANT_ID",
+    "PUBLIC_SINGLE_TENANT_MODE",
+    "PUBLIC_SINGLE_USE_APP_TITLE",
+    "SINGLE_TENANT_ID",
+    "SMTP_HOST",
+    "SMTP_PASS",
+    "SMTP_PORT",
+    "SMTP_USER",
+    "VITE_BACKEND_URL",
+    "VITE_COVERAGE_MAP_HOST",
+    "VOICE_WEBHOOK_SECRET"
+  ]
+}

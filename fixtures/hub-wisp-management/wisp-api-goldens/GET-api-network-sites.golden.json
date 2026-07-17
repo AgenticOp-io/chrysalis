@@ -40,6 +40,26 @@
     "__v": 0
   },
   {
+    "_id": "6a5979a6ad923e3601e03ceb",
+    "name": "Bulk 1784248740953",
+    "type": [
+      "tower"
+    ],
+    "status": "active",
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a5979a6ad923e3601e03cec",
+      "address": ""
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:39:02.256Z",
+    "updatedAt": "2026-07-17T00:39:02.257Z",
+    "__v": 0
+  },
+  {
     "_id": "6a595e51ad923e3601dfd8ed",
     "name": "CWL Bulk Site 1784241745171",
     "type": [
@@ -1049,6 +1069,26 @@
     "createdBy": "System",
     "createdAt": "2026-07-17T00:37:18.361Z",
     "updatedAt": "2026-07-17T00:37:18.362Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a5979a1ad923e3601e03ca5",
+    "name": "CWL Trace Site 1784248725236",
+    "type": [
+      "tower"
+    ],
+    "status": "active",
+    "location": {
+      "latitude": 39.74,
+      "longitude": -104.99,
+      "country": "US",
+      "_id": "6a5979a1ad923e3601e03ca6",
+      "address": ""
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:38:57.975Z",
+    "updatedAt": "2026-07-17T00:38:57.977Z",
     "__v": 0
   },
   {

@@ -180,7 +180,9 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **Deepen passes 213–222 (×10):** portal KB published; epc list; pricing/bundles/tenant-settings/notifications; permissions check; voice TN+emergency POST; mobile tasks; `hub:fidelity-deepen -- --batch n10v` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10v.json`) |
 | 2026-07-17 | **Deepen passes 223–232 (×10):** voice TN PATCH + port-order POST; install-doc GET :id; portal FAQ/alerts POST; pricing create+DELETE; HSS group/BW/subscribers GET; `hub:fidelity-deepen -- --batch n10w` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10w.json`) |
 | 2026-07-17 | **Deepen passes 233–242 (×10):** portal KB POST + FAQ/alerts PUT/DELETE + chat-settings; branding PUT; port-order events; HW deployments; sites bulk-import; `hub:fidelity-deepen -- --batch n10x` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10x.json`) |
-| — | (none — deepen-n10x closed; next `n10y` 243–252 via `--source-doc`) | **open** |
+| 2026-07-17 | **D6445 external-deps protocol:** `hub:fidelity-deepen-external-deps` scans origin for external hosts/hardware/API keys; operator briefing lists missing keys (no values); deepen workflow inserts scan before source-doc | **done** (`fixtures/hub-wisp-management/chrysalis.wisp-external-deps.v1.json`) |
+| 2026-07-17 | **Deepen passes 243–252 (×10):** first batch under D6445 — portal KB CRUD; HD PUT; equip bulk; inv by-location; site/CPE/WO GET :id; geocode with ArcGIS-key risk noted (Nominatim fallback); skipped SendGrid/Gemini/Stripe/PayPal (keys missing); `hub:fidelity-deepen -- --batch n10y` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10y.json`) |
+| — | (none — deepen-n10y closed; next `n10z` 253–262 via `--external-deps` + `--source-doc`) | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 
@@ -447,7 +449,7 @@ Shared tooling so ×10 batches are not copy-pasted runners:
 | Run batch | `pnpm run hub:fidelity-deepen -- --batch n10h` |
 | Legacy frozen | `n10`–`n10f` scripts unchanged; `hub:fidelity-deepen-legacy` = original deepen |
 
-Workflow: **candidates → `--source-doc` → `--probe` (parity) → AI proposes ×10 → `--batch` → FUTURE §7**. Bodies from in-repo HSS/`backend-services` (D6442).
+Workflow: **candidates → `--external-deps` (D6445) → `--source-doc` → `--probe` (parity) → AI proposes ×10 → `--batch` → FUTURE §7**. Bodies from in-repo HSS/`backend-services` (D6442). Missing API keys are listed in the operator briefing — never invented.
 
 ### Deepen passes 83–92 (×10) — **closed 2026-07-16**
 

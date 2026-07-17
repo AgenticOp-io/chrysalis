@@ -4,6 +4,7 @@
  *
  *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --list
  *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --candidates
+ *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --external-deps
  *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --source-doc
  *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --probe
  *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --batch n10h
@@ -11,6 +12,7 @@
  *
  * Also: pnpm run hub:fidelity-deepen -- --batch n10h
  *       pnpm run hub:fidelity-deepen-candidates
+ *       pnpm run hub:fidelity-deepen-external-deps
  *       pnpm run hub:fidelity-deepen-source-doc
  *       pnpm run hub:fidelity-deepen-probe
  */
@@ -24,6 +26,7 @@ import {
   scriptRoot,
 } from "./wisp-fidelity-deepen-harness.mjs";
 import { documentDeepenCandidatesFromSource } from "./wisp-fidelity-deepen-source-doc.mjs";
+import { runExternalDepsProtocol, externalRiskForApiPath } from "./wisp-external-deps-protocol.mjs";
 import { HARNESS_BATCHES, LEGACY_BATCHES, listBatches } from "./wisp-fidelity-deepen-batches/index.mjs";
 
 function parseArgs(argv) {
@@ -33,6 +36,7 @@ function parseArgs(argv) {
     candidates: false,
     probe: false,
     sourceDoc: false,
+    externalDeps: false,
     help: false,
     limit: 40,
   };
@@ -42,6 +46,7 @@ function parseArgs(argv) {
     else if (a === "--candidates") out.candidates = true;
     else if (a === "--probe") out.probe = true;
     else if (a === "--source-doc" || a === "--from-source") out.sourceDoc = true;
+    else if (a === "--external-deps" || a === "--external") out.externalDeps = true;
     else if (a === "--help" || a === "-h") out.help = true;
     else if (a === "--batch") out.batch = argv[++i];
     else if (a === "--limit") out.limit = Number(argv[++i]) || 40;
@@ -51,17 +56,19 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`WISP CWL fidelity deepen desk (D6442)
+  console.log(`WISP CWL fidelity deepen desk (D6442 / D6445)
 
 Usage:
   --list                 Show harness + legacy batches
   --candidates [--limit] Next-queue hints for AI ×10 proposal
+  --external-deps        Scan origin for external hosts, hardware, API keys (D6445)
   --source-doc [--limit] Document candidates from backend-services (+ MM services)
   --probe [--limit]      Live GET verify deploy parity against HSS (not body invention)
   --batch <id>           Run a batch (n10g+ harness; n10–n10f legacy)
 
-Workflow: candidates → --source-doc → --probe (parity) → AI ×10 → --batch → FUTURE §7
-Contract authority: products/wisptools/backend-services (and Module_Manager service clients).`);
+Workflow: candidates → --external-deps → --source-doc → --probe → AI ×10 → --batch → FUTURE §7
+Contract authority: products/wisptools/backend-services (and Module_Manager service clients).
+Missing API keys are documented in the external-deps operator briefing — never invented.`);
 }
 
 async function runHarnessBatch(batchId, opts = {}) {
@@ -94,7 +101,12 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (
     args.help ||
-    (!args.list && !args.candidates && !args.probe && !args.sourceDoc && !args.batch)
+    (!args.list &&
+      !args.candidates &&
+      !args.probe &&
+      !args.sourceDoc &&
+      !args.externalDeps &&
+      !args.batch)
   ) {
     printHelp();
     process.exit(args.help ? 0 : 1);
@@ -117,9 +129,51 @@ async function main() {
     return;
   }
 
+  if (args.externalDeps) {
+    const out = runExternalDepsProtocol();
+    console.log(
+      JSON.stringify(
+        {
+          ok: out.ok,
+          kind: out.kind,
+          schemaVersion: out.schemaVersion,
+          operatorBriefing: out.operatorBriefing,
+          secretCount: out.secrets.length,
+          externalCallCount: out.externalCalls.length,
+          hardwareCount: out.hardware.length,
+          reportPath: out.reportPath,
+          fixturePath: out.fixturePath,
+        },
+        null,
+        2,
+      ),
+    );
+    process.exit(out.ok ? 0 : 1);
+  }
+
   if (args.candidates) {
     const result = buildDeepenCandidates({ limit: args.limit });
-    console.log(JSON.stringify(result, null, 2));
+    let externalDeps = null;
+    try {
+      externalDeps = runExternalDepsProtocol();
+    } catch {
+      externalDeps = null;
+    }
+    const withRisk = (result.candidates || []).map((c) => ({
+      ...c,
+      externalRisks: externalDeps ? externalRiskForApiPath(c.path || c.api || "", externalDeps) : [],
+    }));
+    console.log(
+      JSON.stringify(
+        {
+          ...result,
+          candidates: withRisk,
+          externalDepsBriefing: externalDeps?.operatorBriefing || null,
+        },
+        null,
+        2,
+      ),
+    );
     process.exit(result.ok ? 0 : 1);
   }
 

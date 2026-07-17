@@ -1,5 +1,24 @@
 [
   {
+    "_id": "6a5979a2ad923e3601e03cb7",
+    "tenantId": "6a166eb07089304417ec967a",
+    "incidentNumber": "INC-CWL-1784248725236",
+    "source": "other",
+    "incidentType": "other",
+    "severity": "medium",
+    "status": "new",
+    "title": "CWL Trace Incident 1784248725236",
+    "description": "chrysalis-live-mutate-trace",
+    "detectedAt": "2026-07-17T00:38:45.236Z",
+    "affectedEquipment": [],
+    "affectedSites": [],
+    "affectedCustomers": [],
+    "investigationNotes": [],
+    "createdAt": "2026-07-17T00:38:58.859Z",
+    "updatedAt": "2026-07-17T00:38:59.665Z",
+    "__v": 0
+  },
+  {
     "_id": "6a59793fad923e3601e03bf4",
     "tenantId": "6a166eb07089304417ec967a",
     "incidentNumber": "INC-CWL-1784248625601",

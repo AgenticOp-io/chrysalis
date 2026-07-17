@@ -154,6 +154,17 @@
     "__v": 0
   },
   {
+    "_id": "6a5993a2ad923e3601e03d09",
+    "name": "Eq 1784255392330",
+    "type": "router",
+    "status": "active",
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T02:29:54.707Z",
+    "updatedAt": "2026-07-17T02:29:54.709Z",
+    "__v": 0
+  },
+  {
     "_id": "6a5971a3ad923e3601e03421",
     "name": "OwnE 1784246690725",
     "type": "radio",

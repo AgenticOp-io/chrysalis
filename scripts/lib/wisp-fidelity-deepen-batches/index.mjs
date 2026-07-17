@@ -19,6 +19,7 @@ import * as n10u from "./n10u.mjs";
 import * as n10v from "./n10v.mjs";
 import * as n10w from "./n10w.mjs";
 import * as n10x from "./n10x.mjs";
+import * as n10y from "./n10y.mjs";
 
 /** @type {Record<string, { BATCH_ID: string, KIND: string, NEED_ADMIN: boolean, NOTE: string, PASSES: unknown[], REFRESH_PATHS: string[], runProbes: Function, legacyScript?: string }>} */
 export const HARNESS_BATCHES = {
@@ -40,6 +41,7 @@ export const HARNESS_BATCHES = {
   n10v,
   n10w,
   n10x,
+  n10y,
 };
 
 /** Frozen pre-harness runners (spawn only — do not rewrite). */

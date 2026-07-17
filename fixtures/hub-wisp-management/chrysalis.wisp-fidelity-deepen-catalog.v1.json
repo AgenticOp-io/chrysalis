@@ -1,21 +1,27 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 242,
-  "nextBatchId": "n10y",
-  "nextPassRange": [243, 252],
+  "closedThroughPass": 252,
+  "nextBatchId": "n10z",
+  "nextPassRange": [253, 262],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
     "workflow": [
       "pnpm run hub:fidelity-deepen-candidates",
+      "pnpm run hub:fidelity-deepen-external-deps",
       "pnpm run hub:fidelity-deepen-source-doc",
       "pnpm run hub:fidelity-deepen-probe",
-      "AI proposes ×10 from source docs (D6442) — live probe is parity only",
+      "AI proposes ×10 from source docs + external-deps briefing (D6442/D6445) — live probe is parity only; missing keys → honest residual",
       "Add scripts/lib/wisp-fidelity-deepen-batches/<id>.mjs + catalog entry",
       "pnpm run hub:fidelity-deepen -- --batch <id>",
       "Stage/deploy + FUTURE §7"
-    ]
+    ],
+    "externalDeps": {
+      "protocol": "scripts/lib/wisp-external-deps-protocol.mjs",
+      "fixture": "fixtures/hub-wisp-management/chrysalis.wisp-external-deps.v1.json",
+      "decision": "D6445"
+    }
   },
   "batches": [
     { "id": "deepen", "passes": "pre", "status": "closed-legacy" },
@@ -43,7 +49,8 @@
     { "id": "n10u", "passRange": [203, 212], "status": "closed-harness" },
     { "id": "n10v", "passRange": [213, 222], "status": "closed-harness" },
     { "id": "n10w", "passRange": [223, 232], "status": "closed-harness" },
-    { "id": "n10x", "passRange": [233, 242], "status": "closed-harness" }
+    { "id": "n10x", "passRange": [233, 242], "status": "closed-harness" },
+    { "id": "n10y", "passRange": [243, 252], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -225,7 +232,17 @@
     { "id": 239, "batch": "n10x", "title": "Hardware-deployments list GET", "status": "done", "apiPaths": ["/api/network/hardware-deployments"], "source": "backend-services/routes/network.js" },
     { "id": 240, "batch": "n10x", "title": "Network sites bulk-import POST", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
     { "id": 241, "batch": "n10x", "title": "Portal-content FAQ DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 242, "batch": "n10x", "title": "Portal-content alerts DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" }
+    { "id": 242, "batch": "n10x", "title": "Portal-content alerts DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 243, "batch": "n10y", "title": "Portal-content KB GET by id", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 244, "batch": "n10y", "title": "Portal-content KB PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 245, "batch": "n10y", "title": "Portal-content KB DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 246, "batch": "n10y", "title": "Hardware-deployments PUT", "status": "done", "apiPaths": ["/api/network/hardware-deployments"], "source": "backend-services/routes/network.js" },
+    { "id": 247, "batch": "n10y", "title": "Network equipment bulk-import POST", "status": "done", "apiPaths": ["/api/network/equipment"], "source": "backend-services/routes/network.js" },
+    { "id": 248, "batch": "n10y", "title": "Inventory by-location warehouse GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
+    { "id": 249, "batch": "n10y", "title": "Network site GET by id", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
+    { "id": 250, "batch": "n10y", "title": "Network CPE GET by id", "status": "done", "apiPaths": ["/api/network/cpe"], "source": "backend-services/routes/network.js" },
+    { "id": 251, "batch": "n10y", "title": "Work-order GET by id", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
+    { "id": 252, "batch": "n10y", "title": "Network geocode POST (ArcGIS key risk)", "status": "done", "apiPaths": ["/api/network/geocode"], "source": "backend-services/routes/network.js", "externalRisk": "ARCGIS_API_KEY missing locally; HSS Nominatim fallback ok" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },

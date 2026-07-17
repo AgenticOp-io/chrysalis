@@ -772,6 +772,7 @@
     "hub:fidelity-deepen": "node scripts/lib/wisp-fidelity-deepen-cli.mjs",
     "hub:fidelity-deepen-legacy": "node scripts/lib/wisp-fidelity-deepen.mjs",
     "hub:fidelity-deepen-candidates": "node scripts/lib/wisp-fidelity-deepen-cli.mjs --candidates",
+    "hub:fidelity-deepen-external-deps": "node scripts/lib/wisp-fidelity-deepen-cli.mjs --external-deps",
     "hub:fidelity-deepen-source-doc": "node scripts/lib/wisp-fidelity-deepen-cli.mjs --source-doc",
     "hub:fidelity-deepen-probe": "node scripts/lib/wisp-fidelity-deepen-cli.mjs --probe",
     "hub:fidelity-deepen2": "node scripts/lib/wisp-fidelity-deepen2.mjs",
