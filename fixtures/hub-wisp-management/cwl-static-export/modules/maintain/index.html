@@ -13,9 +13,7 @@
           >
             Reports
           </button>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'tickets'"><button class="btn btn-primary">
-              + Create Ticket
-            </button></div>
+          
         </div>
       </div>
       
@@ -46,187 +44,19 @@
     
     <!-- Content -->
     <div class="module-content">
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'help-desk'"><!-- Help Desk Dashboard -->
-        <div class="dashboard-grid">
-          <div class="stat-card">
-            <div class="stat-icon">📋</div>
-            <div class="stat-info">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="dashboardStats.openTickets"></span></div>
-              <div class="stat-label">Open Tickets</div>
-              <div class="stat-sub"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="dashboardStats.criticalTickets"></span> critical</div>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">🔧</div>
-            <div class="stat-info">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="dashboardStats.scheduledMaintenance"></span></div>
-              <div class="stat-label">Scheduled Maintenance</div>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-info">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="dashboardStats.activeCustomers"></span></div>
-              <div class="stat-label">Active Customers</div>
-              <div class="stat-sub">of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="dashboardStats.totalCustomers"></span> total</div>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon stat-icon-svg" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="dashboardStats.avgResponseTime"></span></div>
-              <div class="stat-label">Avg Response Time</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Recent Activity -->
-        <div class="activity-section">
-          <h2>Recent Activity</h2>
-          <div class="activity-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="recentActivity.slice(0, 10) as activity"><div class="activity-item">
-                <span class="activity-icon">
-                  
-                </span>
-                <div class="activity-content">
-                  <div class="activity-title"></div>
-                  <div class="activity-meta">
-                    <span class="activity-status" style="color: ">
-                      
-                    </span>
-                    <span class="activity-time"></span>
-                  </div>
-                </div>
-              </div>
-            
-              <div class="empty-state">No recent activity</div></div>
-          </div>
-        </div>
-        
       
-        <!-- Tickets Tab -->
-        <div class="tab-content">
-          <!-- Filters -->
-          <div class="filters-bar">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Search tickets..."
-            />
-            <select class="filter-select">
-              <option value="all">All Status</option>
-              <option value="open">Open</option>
-              <option value="assigned">Assigned</option>
-              <option value="in-progress">In Progress</option>
-              <option value="resolved">Resolved</option>
-              <option value="closed">Closed</option>
-            </select>
-            <select class="filter-select">
-              <option value="all">All Priority</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
-          
-          <!-- Tickets List -->
-          <div class="items-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingTickets"><div class="loading">Loading tickets...</div>
-            
-              <div class="empty-state">No tickets found</div></div>
-          </div>
-        </div>
-        
-      
-        <!-- Customers Tab -->
-        <div class="tab-content">
-          <!-- Filters -->
-          <div class="filters-bar">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Search customers..."
-            />
-            <select class="filter-select">
-              <option>All Status</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="suspended">Suspended</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          
-          <!-- Customers List -->
-          <div class="items-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingCustomers"><div class="loading">Loading customers...</div>
-            
-              <div class="empty-state">No customers found</div></div>
-          </div>
-        </div>
-        
-      
-        <!-- Maintenance Tab -->
-        <div class="tab-content">
-          <div class="info-section">
-            <h2>Scheduled Maintenance</h2>
-            <p>View and manage scheduled maintenance tasks, preventive maintenance schedules, and equipment inspections.</p>
-            <button class="btn btn-primary">
-              View Maintenance Tickets
-            </button>
-          </div>
-        </div></div>
     </div>
   </div>
   
   <!-- Modals -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCreateTicket"><div class="cwl-modal-shell" data-cwl-modal-shell="CreateTicketModal" aria-hidden="true" role="dialog"></div></div>
   
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showTicketDetails && selectedTicket"><div class="cwl-modal-shell" data-cwl-modal-shell="TicketDetailsModal" aria-hidden="true" role="dialog"></div></div>
   
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAddCustomer"><div class="cwl-modal-shell" data-cwl-modal-shell="AddEditCustomerModal" aria-hidden="true" role="dialog"></div></div>
   
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showEditCustomer && selectedCustomer"><div class="cwl-modal-shell" data-cwl-modal-shell="AddEditCustomerModal" aria-hidden="true" role="dialog"></div></div>
+  
+  
+  
+  
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay">
-    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
-      <div class="tips-header">
-        <div class="tips-title-section">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTip.icon"><span class="tip-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.icon"></span></span></div>
-          <h2 id="tips-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.title"></span></h2>
-        </div>
-        <button class="close-btn" aria-label="Close">×</button>
-      </div>
-      
-      <div class="tips-body">
-        <div class="tip-content">
-          
-        </div>
-      </div>
-      
-      <div class="tips-footer">
-        <div class="tips-footer-left">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
-              <button type="button" class="nav-btn" aria-label="Previous tip">←</button>
-              <span class="tip-counter"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tips.length"></span></span>
-              <button type="button" class="nav-btn" aria-label="Next tip">→</button>
-            </div></div>
-          <label class="dont-show-again">
-            <input type="checkbox" />
-            <span>Don't show again</span>
-          </label>
-        </div>
-        <button class="close-button" type="button">Close</button>
-      </div>
-    </div>
-  </div></div></div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/maintain"}</script>
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/maintain","apiPath":"/api/maintain","api_ok":true,"api_surface":"wisp-api-native","api_resource":"maintain","api_op":"list","tracedApiStatus":200}</script>

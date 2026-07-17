@@ -6,21 +6,20 @@
     <li class="breadcrumb-item">
       <a 
         class="breadcrumb-link"
-        on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(homeItem./admin/tenant-management)"></span>
       >
         <span class="breadcrumb-icon">⚙️</span>
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="homeItem.label"></span>
+        
       </a>
     </li>
     
     <!-- Additional breadcrumb items -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="items as item, index"><li class="breadcrumb-separator">/</li>
+    <li class="breadcrumb-separator">/</li>
       <li class="breadcrumb-item">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item./admin/tenant-management && index < items.length - 1"><a class="breadcrumb-link" on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(item./admin/tenant-management)"></span>
-          >
-            
-          </a></div>
-      </li></div>
+        
+      </li><li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item">
+        
+      </li>
   </ol>
 </nav></div>
     <div class="header-content">
@@ -37,7 +36,7 @@
   <main>
     
       <div class="tenants-grid">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="tenants as tenant"><div class="tenant-card">
+        <div class="tenant-card">
             <div class="tenant-header">
               <h3></h3>
               <span class="tenant-status">
@@ -93,166 +92,77 @@
                 🗑️ Delete
               </button>
             </div>
-          </div></div>
+          </div><div class="tenant-card">
+            <div class="tenant-header">
+              <h3></h3>
+              <span class="tenant-status">
+                
+              </span>
+            </div>
+            
+            <div class="tenant-details">
+              <div class="detail-row">
+                <span class="label">Organization Name:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Subdomain:</span>
+                <span class="value monospace"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Contact Email:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Created:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Users:</span>
+                <span class="value"></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Status:</span>
+                <span class="value">
+                  <label class="status-toggle">
+                    <input 
+                      type="checkbox"/>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label"></span>
+                  </label>
+                </span>
+              </div>
+            </div>
+            
+            <div class="tenant-actions">
+              <button class="btn-action btn-users">
+                👥 View Users ()
+              </button>
+              <button class="btn-action btn-owner">
+                👤 Assign Owner
+              </button>
+              <button class="btn-action btn-edit">
+                ✏️ Edit
+              </button>
+              <button class="btn-action btn-delete">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
       </div>
     
   </main>
 </div>
 
 <!-- Create/Edit Modal -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCreateModal || showEditModal"><div class="modal-overlay">
-    <div class="modal-content" on:click|stopPropagation>
-      <div class="modal-header">
-        <h2><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showCreateModal ? '➕ Create New Tenant' : '✏️ Edit Tenant'"></span></h2>
-        <button class="close-btn">✕</button>
-      </div>
-      
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Organization Name <span class="required">*</span></label>
-          <input 
-            type="text" 
-            placeholder="e.g., acme-wireless"
-          />
-          <small>Used internally, lowercase with hyphens</small>
-        </div>
-        
-        <div class="form-group">
-          <label>Display Name <span class="required">*</span></label>
-          <input 
-            type="text" 
-            placeholder="e.g., Acme Wireless Corp"
-          />
-          <small>Friendly name shown in the UI</small>
-        </div>
-        
-        <div class="form-group">
-          <label>Contact Email (Owner) <span class="required">*</span></label>
-          <input 
-            type="email" 
-            placeholder="admin@example.com"
-          />
-          <small>This person will be assigned as the tenant owner</small>
-        </div>
-        
-        <div class="form-group">
-          <label>Subdomain</label>
-          <input 
-            type="text" 
-            placeholder="Auto-generated from name"
-          />
-          <small>Leave blank to auto-generate</small>
-        </div>
-      </div>
-      
-      <div class="modal-footer">
-        <button class="btn-secondary">
-          Cancel
-        </button>
-        <button 
-          class="btn-primary"
-        >
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="processing ? 'Processing...' : (showCreateModal ? 'Create Tenant' : 'Update Tena"></span>
-        </button>
-      </div>
-    </div>
-  </div></div>
+
 
 <!-- Delete Confirmation Modal -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showDeleteModal && selectedTenant"><div class="modal-overlay">
-    <div class="modal-content modal-danger" on:click|stopPropagation>
-      <div class="modal-header">
-        <h2>🗑️ Delete Tenant</h2>
-        <button class="close-btn">✕</button>
-      </div>
-      
-      <div class="modal-body">
-        <p><strong>⚠️ Warning:</strong> This action cannot be undone!</p>
-        <p>Are you sure you want to delete the tenant:</p>
-        <p class="tenant-name-delete"><strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.displayName"></span></strong></p>
-        <p>All associated users, data, and configurations will be removed.</p>
-      </div>
-      
-      <div class="modal-footer">
-        <button class="btn-secondary">
-          Cancel
-        </button>
-        <button class="btn-danger">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="processing ? 'Deleting...' : 'Delete Tenant'"></span>
-        </button>
-      </div>
-    </div>
-  </div></div>
+
 
 <!-- Assign Owner Modal -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showAssignOwnerModal && selectedTenant"><div class="modal-overlay">
-    <div class="modal-content" on:click|stopPropagation>
-      <div class="modal-header">
-        <h2>👤 Assign/Change Owner</h2>
-        <button class="close-btn">✕</button>
-      </div>
-      
-      <div class="modal-body">
-        <p><strong>Tenant:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.displayName"></span></p>
-        <p class="help-text">
-          Enter the email address of the user who should be the owner of this tenant.
-          The user must already have a Firebase account.
-        </p>
-        
-        <div class="form-group">
-          <label>Owner Email Address <span class="required">*</span></label>
-          <input 
-            type="email" 
-            placeholder="user@example.com"
-          />
-        </div>
-      </div>
-      
-      <div class="modal-footer">
-        <button class="btn-secondary">
-          Cancel
-        </button>
-        <button 
-          class="btn-primary"
-        >
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="processing ? 'Assigning...' : 'Assign Owner'"></span>
-        </button>
-      </div>
-    </div>
-  </div></div>
+
 
 <!-- Users Modal -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showUsersModal && selectedTenant"><div class="modal-overlay">
-    <div class="modal-content modal-large" on:click|stopPropagation>
-      <div class="modal-header">
-        <h2>👥 Users in <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.displayName"></span></h2>
-        <button class="close-btn">✕</button>
-      </div>
-      
-      <div class="modal-body">
-        
-          <div class="users-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="tenantUsers as user"><div class="user-item">
-                <div class="user-info">
-                  <div class="user-name"></div>
-                  <div class="user-email"></div>
-                </div>
-                <div class="user-role-badge badge-">
-                  
-                </div>
-                <div class="user-status-badge badge-">
-                  
-                </div>
-              </div></div>
-          </div>
-        
-      </div>
-      
-      <div class="modal-footer">
-        <button class="btn-secondary">
-          Close
-        </button>
-      </div>
-    </div>
-  </div></div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/tenant-management"}</script>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/tenant-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>

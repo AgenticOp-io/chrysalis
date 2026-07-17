@@ -2,7 +2,7 @@
     <header class="dashboard-header">
       <div class="header-content">
         <h1>🎧 Customer Support Dashboard</h1>
-        <p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantName"></span> - Support Portal</p>
+        <p class="subtitle">Demo Tenant - Support Portal</p>
       </div>
       <div class="header-actions">
         <button class="btn-secondary">
@@ -17,7 +17,7 @@
         <div class="stat-card alerts">
           <div class="stat-icon">🚨</div>
           <div class="stat-content">
-            <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.activeAlerts"></span></div>
+            <div class="stat-value"></div>
             <div class="stat-label">Active Alerts</div>
           </div>
         </div>
@@ -25,7 +25,7 @@
         <div class="stat-card tickets">
           <div class="stat-icon">🎫</div>
           <div class="stat-content">
-            <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.pendingTickets"></span></div>
+            <div class="stat-value"></div>
             <div class="stat-label">Pending Tickets</div>
           </div>
         </div>
@@ -33,7 +33,7 @@
         <div class="stat-card chats">
           <div class="stat-icon">💬</div>
           <div class="stat-content">
-            <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.openChats"></span></div>
+            <div class="stat-value"></div>
             <div class="stat-label">Open Chats</div>
           </div>
         </div>
@@ -41,7 +41,7 @@
         <div class="stat-card customers">
           <div class="stat-icon">👥</div>
           <div class="stat-content">
-            <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalCustomers"></span></div>
+            <div class="stat-value"></div>
             <div class="stat-label">Customers</div>
           </div>
         </div>
@@ -84,24 +84,7 @@
       </div>
 
       <!-- Active Alerts Section -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeAlerts.length > 0"><div class="section">
-          <div class="section-header">
-            <h2>🚨 Active Alerts</h2>
-            <button class="btn-link">
-              Manage All →
-            </button>
-          </div>
-          <div class="alerts-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="activeAlerts as alert"><div class="alert-item ">
-                <span class="alert-icon"></span>
-                <div class="alert-content">
-                  <h4></h4>
-                  <p></p>
-                </div>
-                <span class="alert-status"></span>
-              </div></div>
-          </div>
-        </div></div>
+      
 
       <!-- Recent Tickets Section -->
       <div class="section">
@@ -112,10 +95,8 @@
           </button>
         </div>
         
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="recentTickets.length === 0"><div class="empty-state">
-            <p>No recent tickets</p>
-          </div></div>
+        
       </div>
     
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/support-dashboard"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/support-dashboard","apiPath":"/api/maintain","api_ok":true,"api_surface":"wisp-api-native","api_resource":"maintain","api_op":"list","tracedApiStatus":200}</script>

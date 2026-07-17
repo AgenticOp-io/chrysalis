@@ -115,7 +115,7 @@ export const DEFAULT_STRUCTURAL_INLINE_COMPONENTS: ReadonlySet<string> = new Set
 
 /** Page-local UI toggles whose closed chrome must remain in the DOM (hidden), not deleted. */
 const UI_TOGGLE_OVERLAY_RE =
-  /\b(showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu|showAddSiteModal|showAddNOCModal|showAddWarehouseModal|showAddVehicleModal|showAddRMAModal|showAddSectorModal|showAddCPEModal|showAddBackhaulModal|showAddInventoryModal|showEPCDeploymentModal|showHSSRegistrationModal|showHardwareDeploymentModal|showSiteEditModal|showUnifiedDeviceModal)\b/;
+  /\b(show[A-Z][A-Za-z0-9_]*|hide[A-Z][A-Za-z0-9_]*|is[A-Z][A-Za-z0-9_]*(?:Open|Visible|Loading|Editing|DeployMode|PlanMode)|showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu)\b/;
 
 export function isUiToggleOverlayIfHeader(header: string): boolean {
   return UI_TOGGLE_OVERLAY_RE.test(header);

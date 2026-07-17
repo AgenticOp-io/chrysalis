@@ -5,18 +5,8 @@
     
     
 
-    <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSave"></span> class="settings-form">
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="paypalEnabled"><section class="settings-section">
-          <h2>PayPal</h2>
-          <p class="hint">Your PayPal email for paying invoices (when your provider accepts PayPal).</p>
-          <label for="paypal-email">PayPal email</label>
-          <input
-            id="paypal-email"
-            type="email"
-            placeholder="you@example.com"
-            class="input"
-          />
-        </section></div>
+    <form class="settings-form">
+      
 
       <section class="settings-section">
         <h2>Invoice delivery</h2>
@@ -41,25 +31,25 @@
         <div class="info-rows">
           <div class="info-row">
             <span class="label">Company name</span>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoiceFormat.companyName || '—'"></span></span>
+            <span class="value">—</span>
           </div>
           <div class="info-row">
             <span class="label">Payment due (days)</span>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoiceFormat.dueDays"></span></span>
+            <span class="value"></span>
           </div>
           <div class="info-row">
             <span class="label">Currency</span>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoiceFormat.currency"></span></span>
+            <span class="value"></span>
           </div>
         </div>
       </section>
 
       <div class="actions">
         <button type="submit" class="btn-primary">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="saving ? 'Saving…' : 'Save settings'"></span>
+          Save settings
         </button>
         <a href="/modules/customers/portal/billing" class="btn-secondary">Back to Billing</a>
       </div>
     </form>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/billing/settings"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/billing/settings","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>

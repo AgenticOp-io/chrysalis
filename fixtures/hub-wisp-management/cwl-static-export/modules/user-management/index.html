@@ -13,20 +13,7 @@
       </p>
     </div>
     
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canManageUsers"><div class="header-actions">
-        <button class="btn btn-secondary">
-          <span>👥</span>
-          Role Management
-        </button>
-        <button class="btn btn-secondary">
-          <span>🔐</span>
-          User Permissions
-        </button>
-        <button class="btn btn-primary">
-          <span>➕</span>
-          Add User
-        </button>
-      </div></div>
+    
   </div>
 
   
@@ -58,7 +45,7 @@
     </select>
 
     <div class="results-count">
-      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredUsers.length"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="users.length"></span> users
+       of 2 users
     </div>
   </div>
 
@@ -72,176 +59,18 @@
             <th>Status</th>
             <th>Last Login</th>
             <th>Added</th>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canManageUsers"><th>Actions</th></div>
+            
           </tr>
         </thead>
         <tbody>
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredUsers as user (user.uid)"><tr>
-              <td>
-                <div class="user-cell">
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="user.photoURL"><img class="user-avatar" /></div>
-                  <div class="user-info">
-                    <div class="user-name"></div>
-                    <div class="user-email"></div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <span class="badge ">
-                  
-                </span>
-              </td>
-              <td>
-                <span class="badge ">
-                  
-                </span>
-              </td>
-              <td class="time-cell">
-                
-              </td>
-              <td class="time-cell">
-                
-              </td>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canManageUsers"><td>
-                  <button class="btn btn-sm btn-ghost">
-                    ✏️ Edit
-                  </button>
-                </td></div>
-            </tr></div>
+          
         </tbody>
       </table>
     </div>
   
 </div>
 
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showInviteModal"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
-  class="modal-backdrop"
-  role="dialog"
-  aria-modal="true"
-  tabindex="0"
-  aria-label="Add user dialog"
->
-  <div class="modal-content" role="document">
-    <div class="modal-header">
-      <h2>➕ Add Team Member</h2>
-      <button class="close-btn">✕</button>
-    </div>
-    
-    
-      <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSubmit"></span>>
-        
-        
-        <div class="form-group">
-          <label for="email">Email Address *</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="user@example.com"
-            required
-          />
-          <p class="hint">They'll receive login instructions at this email</p>
-        </div>
-        
-        <div class="form-group">
-          <label for="displayName">Display Name (optional)</label>
-          <input
-            id="displayName"
-            type="text"
-            placeholder="John Smith"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label for="role">Role *</label>
-          <select id="role">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableRoles as roleOption"><option>
-                
-              </option></div>
-          </select>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="role"><p class="role-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ROLE_DESCRIPTIONS[role]"></span></p></div>
-        </div>
-        
-        <div class="info-box">
-          <span class="info-icon">ℹ️</span>
-          <div class="info-content">
-            <p><strong>What happens next:</strong></p>
-            <ul>
-              <li>User receives a welcome email at <strong>wisptools.io</strong></li>
-              <li>They can sign in with Google or create a password</li>
-              <li>Once signed in, they'll have access to your organization</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="modal-actions">
-          <button type="button" class="btn btn-secondary">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary">
-            
-              Add User
-            
-          </button>
-        </div>
-      </form>
-    
-  </div>
-</div></div></div>
 
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showEditModal && selectedUser"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
-  class="modal-backdrop"
-  role="presentation"
-  aria-hidden="true"
-  tabindex="-1"
->
-  <div
-    class="modal-content"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Edit user dialog"
-    tabindex="0"
-    on:click|stopPropagation
-  >
-    <div class="modal-header">
-      <h2>Edit User</h2>
-      <button class="close-btn">✕</button>
-    </div>
-    
-    <div class="modal-body">
-      
-      
-      <div class="user-info-section">
-        <div class="user-avatar-large">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="user.photoURL"><img /></div>
-        </div>
-        <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="user.displayName || 'No name'"></span></h3>
-        <p class="user-email"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="user.email"></span></p>
-        <span class="status-badge status-"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="user.status.replace('_', ' ')"></span></span>
-      </div>
-      
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!showDeleteConfirm"><div class="form-section">
-          <label for="role">Role</label>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOwner"><div class="role-locked">
-              <span class="lock-icon">🔒</span>
-              <div>
-                <div class="role-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ROLE_NAMES.owner"></span></div>
-                <div class="role-hint">Owner role cannot be changed</div>
-              </div>
-            </div></div>
-        </div>
-        
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!isOwner"><div class="actions-section">
-            <h4>Actions</h4>
-            
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="user.status === 'active'"><button class="btn btn-warning btn-block">
-                🚫 Suspend User
-              </button></div>
-            
-            <button class="btn btn-danger btn-block">
-              🗑️ Remove from Organization
-            </button>
-          </div></div></div>
-    </div>
-  </div>
-</div></div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"user-management"}</script>
+
+
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"user-management","apiPath":"/api/users","api_ok":true,"api_surface":"wisp-api-native","api_resource":"users","api_op":"list","tracedApiStatus":200}</script>

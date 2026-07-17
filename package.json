@@ -151,6 +151,7 @@
     "hub:wisp-whole-site-finish-smoke": "node scripts/hub-ingest/hub-wisp-whole-site-finish-smoke.mjs",
     "hub:wisp-remaining-holes-finish-smoke": "node scripts/hub-ingest/hub-wisp-remaining-holes-finish-smoke.mjs",
     "hub:wisp-fill-holes-smoke": "node scripts/hub-ingest/hub-wisp-fill-holes-smoke.mjs",
+    "hub:wisp-deep-lift-all-holes": "node scripts/lib/wisp-deep-lift-all-holes.mjs",
     "wisp:enrich-pilot-traces": "node scripts/wisp-enrich-pilot-traces.mjs",
     "hub:wisp-package-ui-lift-smoke": "node scripts/hub-ingest/hub-wisp-package-ui-lift-smoke.mjs",
     "hub:cwl-phase15-close-smoke": "node scripts/hub-ingest/hub-cwl-phase15-close-smoke.mjs",

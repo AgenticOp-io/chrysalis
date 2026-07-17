@@ -13,36 +13,14 @@
           >
             Jump to wizard ▼
           </button>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizardsPulldownOpen"><div class="wizards-pulldown-menu" role="menu">
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ALL_WIZARDS as w"><button type="button" role="menuitem" class="wizards-pulldown-item">
-                  <span class="wizards-pulldown-icon"></span>
-                  <span></span>
-                </button></div>
-            </div></div>
+          
         </div>
       </div>
       <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>
     </header>
 
     <div class="wizards-grid">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><article class="wizard-card">
-          <div class="wizard-icon"></div>
-          <h2 class="wizard-name"></h2>
-          <p class="wizard-desc"></p>
-          <p class="wizard-where">
-            <strong></strong> · 
-          </p>
-          <button
-            class="open-in-module"
-              if (w.openHere && w.id === 'initial-configuration') <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showConfigWizard = true; return;"></span>
-              const w.modulePath + '?wizard=' + encodeURIComponent(w.id);
-              goto(url);
-            }}
-            type="button"
-          >
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.openHere">Open</div>
-          </button>
-        </article></div>
+      
     </div>
   </div>
   <div data-cwl-component="OrganizationSetupWizard" data-cwl-lifted-component="OrganizationSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="org-wizard-title" hidden aria-hidden="true">
@@ -54,16 +32,16 @@
       <div class="wizard-content">
         <div class="wizard-panel">
           <p>Verify your organization details. You can edit these later in Settings.</p>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentTenant"><div class="info-card">
+          <div class="info-card">
               <div class="info-row">
                 <span class="label">Organization Name:</span>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.displayName"></span></span>
+                <span class="value">Demo Tenant</span>
               </div>
               <div class="info-row">
                 <span class="label">Contact Email:</span>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.contactEmail ?? '—'"></span></span>
+                <span class="value"></span>
               </div>
-            </div></div>
+            </div>
           <div class="actions">
             <button type="button" class="btn-primary">Edit in Settings</button>
             <button type="button" class="btn-secondary">Done</button>

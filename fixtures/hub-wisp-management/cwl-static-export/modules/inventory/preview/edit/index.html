@@ -5,7 +5,7 @@
         ← Back to Details
       </button>
       <h1>✏️ Edit Equipment</h1>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item"><p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.manufacturer"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.model"></span> - <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.serialNumber"></span></p></div>
+      
     </div>
 
     <div class="header-actions">
@@ -13,13 +13,13 @@
         Cancel
       </button>
       <button class="btn btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : 'Save Changes'"></span>
+        Save Changes
       </button>
     </div>
   </div>
 
   
-    <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSave"></span> class="edit-form">
+    <form class="edit-form">
       <div class="form-sections">
         <!-- Basic Information -->
         <div class="form-section">
@@ -136,14 +136,7 @@
               </select>
             </div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.currentLocation.type !== 'unassigned'"><div class="form-group">
-                <label for="siteName">Site Name</label>
-                <input 
-                  id="siteName"
-                  type="text" 
-                  placeholder="Enter site name"
-                />
-              </div></div>
+            
           </div>
         </div>
 
@@ -278,4 +271,4 @@
     </form>
   
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id/edit"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id/edit","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>

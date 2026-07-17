@@ -19,14 +19,9 @@
   <div class="role-selector-section">
     <h2>Select Role</h2>
     <div class="role-tabs">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="EDITABLE_ROLES as role"><button
-          class="role-tab" style="border-color: "
-        >
-          <span class="role-icon"></span>
-          <span class="role-name"></span>
-        </button></div>
+      
     </div>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedRole"><p class="role-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ROLE_DESCRIPTIONS[selectedRole]"></span></p></div>
+    
   </div>
 
   <!-- FCAPS Legend -->
@@ -56,9 +51,9 @@
 
   <!-- Modules Grid -->
   <div class="modules-section">
-    <h2>Module Permissions for <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ROLE_NAMES[selectedRole]"></span></h2>
+    <h2>Module Permissions for </h2>
     <div class="modules-grid">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="MODULES as module">
+      
         <div class="module-card">
           <div class="module-header">
             <span class="module-icon"></span>
@@ -75,74 +70,190 @@
               <div class="operation-col">W</div>
               <div class="operation-col">D</div>
             </div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_CATEGORIES as category"><div class="matrix-row">
+            <div class="matrix-row">
                 <div class="category-label"></div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_OPERATIONS as op">
+                
                   <div class="permission-cell">
                     
-                  </div></div>
-              </div></div>
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div>
           </div>
           
           <button class="btn-edit">
             ✏️ Edit Permissions
           </button>
-        </div></div>
+        </div>
+        <div class="module-card">
+          <div class="module-header">
+            <span class="module-icon"></span>
+            <div>
+              <h3></h3>
+              <p class="module-description"></p>
+            </div>
+          </div>
+          
+          <div class="fcaps-matrix">
+            <div class="matrix-header">
+              <div class="category-col"></div>
+              <div class="operation-col">R</div>
+              <div class="operation-col">W</div>
+              <div class="operation-col">D</div>
+            </div>
+            <div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div><div class="matrix-row">
+                <div class="category-label"></div>
+                
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+                  <div class="permission-cell">
+                    
+                  </div>
+              </div>
+          </div>
+          
+          <button class="btn-edit">
+            ✏️ Edit Permissions
+          </button>
+        </div>
     </div>
   </div>
 
   <!-- Edit Permission Modal -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="editingModule && editingPermissions">
-    <div class="modal-overlay">
-      <div class="modal-content" on:click|stopPropagation>
-        <div class="modal-header">
-          <div>
-            <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="module?.icon"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="module?.name"></span></h3>
-            <p class="modal-subtitle">Role: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ROLE_NAMES[selectedRole]"></span></p>
-          </div>
-          <button class="close-btn">✕</button>
-        </div>
-        
-        <div class="modal-body">
-          <div class="quick-actions">
-            <button class="btn-quick">
-              ✅ Grant All
-            </button>
-            <button class="btn-quick">
-              ❌ Revoke All
-            </button>
-          </div>
-
-          <div class="fcaps-edit-grid">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_CATEGORIES as category"><div class="fcaps-edit-category">
-                <div class="category-header-edit">
-                  <h4></h4>
-                  <div class="category-toggle">
-                    <button class="btn-toggle">All</button>
-                    <button class="btn-toggle">None</button>
-                  </div>
-                </div>
-                <div class="operations-checkboxes">
-                  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_OPERATIONS as op"><label class="checkbox-label">
-                      <input
-                        type="checkbox"/>
-                      <span class="operation-name">
-                        
-                        
-                      </span>
-                    </label></div>
-                </div>
-              </div></div>
-          </div>
-        </div>
-        
-        <div class="modal-footer">
-          <button class="btn-secondary">Cancel</button>
-          <button class="btn-primary">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loading ? 'Saving...' : 'Save Permissions'"></span>
-          </button>
-        </div>
-      </div>
-    </div></div>
+  
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/user-management/roles"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/user-management/roles","apiPath":"/api/permissions","api_ok":true,"api_surface":"wisp-api-native","api_resource":"permissions","api_op":"list","tracedApiStatus":200}</script>

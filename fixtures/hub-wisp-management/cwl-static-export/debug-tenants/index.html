@@ -3,25 +3,22 @@
   
   <div class="debug-section">
     <h2>Authentication Status</h2>
-    <p><strong>Is Authenticated:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.isAuthenticated"></span></p>
-    <p><strong>User Email:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.currentUser?.email || 'None'"></span></p>
-    <p><strong>User UID:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.currentUser?.uid || 'None'"></span></p>
+    <p><strong>Is Authenticated:</strong> true</p>
+    <p><strong>User Email:</strong> demo@wisptools.io</p>
+    <p><strong>User UID:</strong> u1</p>
   </div>
 
   <div class="debug-section">
     <h2>Tenant Store State</h2>
-    <pre><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="JSON.stringify(debugInfo.tenantState, null, 2)"></span></pre>
+    <pre>{"id":"t1"}</pre>
   </div>
 
   <div class="debug-section">
     <h2>User Tenants (Direct API Call)</h2>
-    <p><strong>Count:</strong> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.userTenants.length"></span></p>
-    <pre><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="JSON.stringify(debugInfo.userTenants, null, 2)"></span></pre>
+    <p><strong>Count:</strong> 1</p>
+    <pre>[{"id":"t1"}]</pre>
   </div>
 
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="debugInfo.error"><div class="debug-section error">
-      <h2>Error</h2>
-      <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="debugInfo.error"></span></p>
-    </div></div>
+  
 </div></div>
 <script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/debug-tenants"}</script>

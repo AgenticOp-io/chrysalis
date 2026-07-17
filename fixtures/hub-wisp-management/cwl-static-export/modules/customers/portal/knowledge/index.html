@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="modules-customers-portal-knowledge" data-wisp-path="/modules/customers/portal/knowledge" data-cwl-island="client"><div class="knowledge-page">
     <header>
-      <h1><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="brandName"></span> Knowledge Base</h1>
+      <h1>WISP Management Knowledge Base</h1>
       <p class="subtitle">Self-service guides curated by our support engineers.</p>
       <div class="kb-filters">
         <input
@@ -9,20 +9,14 @@
           placeholder="Search articles…"
           aria-label="Search knowledge base"
         />
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="categories.length > 0"><select class="kb-category" aria-label="Filter by category">
+        <select class="kb-category" aria-label="Filter by category">
             <option>All categories</option>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="categories as cat"><option></option></div>
-          </select></div>
+            <option></option><option></option><option></option><option></option>
+          </select>
       </div>
     </header>
     <section class="guides-grid">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="displayItems as article"><article class="guide-card">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="article._id"><a href="/modules/customers/portal/knowledge/" class="guide-link">
-              <h2></h2>
-              <p></p>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="article.category"><span class="meta"></span></div>
-            </a></div>
-        </article></div>
+      
     </section>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/knowledge"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/knowledge","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>

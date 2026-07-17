@@ -7,21 +7,20 @@
     <li class="breadcrumb-item">
       <a 
         class="breadcrumb-link"
-        on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(homeItem./admin/billing)"></span>
       >
         <span class="breadcrumb-icon">⚙️</span>
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="homeItem.label"></span>
+        
       </a>
     </li>
     
     <!-- Additional breadcrumb items -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="items as item, index"><li class="breadcrumb-separator">/</li>
+    <li class="breadcrumb-separator">/</li>
       <li class="breadcrumb-item">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item./admin/billing && index < items.length - 1"><a class="breadcrumb-link" on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(item./admin/billing)"></span>
-          >
-            
-          </a></div>
-      </li></div>
+        
+      </li><li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item">
+        
+      </li>
   </ol>
 </nav></div>
       <div class="header-content">
@@ -30,8 +29,7 @@
           <p>Manage subscriptions, payments, and billing analytics</p>
         </div>
         <div class="user-info">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentUser"><span class="user-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentUser.email"></span></span>
-            <span class="user-role">Platform Admin</span></div>
+          
         </div>
       </div>
     </div>
@@ -48,28 +46,28 @@
             <div class="analytics-icon">💰</div>
             <div class="analytics-info">
               <h4>Total Revenue</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(analytics.totalRevenue)"></span></p>
+              <p>$12000.00</p>
             </div>
           </div>
           <div class="analytics-card">
             <div class="analytics-icon">📈</div>
             <div class="analytics-info">
               <h4>Monthly Recurring Revenue</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(analytics.monthlyRecurringRevenue)"></span></p>
+              <p>$4800.00</p>
             </div>
           </div>
           <div class="analytics-card">
             <div class="analytics-icon">👥</div>
             <div class="analytics-info">
               <h4>Active Subscriptions</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="analytics.activeSubscriptions"></span></p>
+              <p>96</p>
             </div>
           </div>
           <div class="analytics-card">
             <div class="analytics-icon">📊</div>
             <div class="analytics-info">
               <h4>Average Revenue Per User</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(analytics.averageRevenuePerUser)"></span></p>
+              <p>$50.00</p>
             </div>
           </div>
         </div>
@@ -79,8 +77,8 @@
       <div class="plans-section">
         <h2>Subscription Plans</h2>
         <div class="plans-grid">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plans as plan"><div class="plan-card ">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.isPopular"><div class="popular-badge">Most Popular</div></div>
+          <div class="plan-card ">
+              
               <div class="plan-header">
                 <h3></h3>
                 <div class="plan-price">
@@ -90,21 +88,38 @@
               </div>
               <p class="plan-description"></p>
               <ul class="plan-features">
-                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plan.features as feature"><li>✓ </li></div>
+                <li>✓ </li><li>✓ </li>
               </ul>
               <div class="plan-limits">
                 <span>Up to  users</span>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.maxTenants"><span>Up to  tenants</span></div>
+                
               </div>
-            </div></div>
+            </div><div class="plan-card ">
+              
+              <div class="plan-header">
+                <h3></h3>
+                <div class="plan-price">
+                  <span class="price"></span>
+                  <span class="interval">/</span>
+                </div>
+              </div>
+              <p class="plan-description"></p>
+              <ul class="plan-features">
+                <li>✓ </li><li>✓ </li>
+              </ul>
+              <div class="plan-limits">
+                <span>Up to  users</span>
+                
+              </div>
+            </div>
         </div>
       </div>
 
       <!-- Failed Payment Alerts -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!loading && getFailedPayments().length > 0"><div class="alerts-section">
+      <div class="alerts-section">
           <h2>⚠️ Failed Payment Alerts</h2>
           <div class="failed-payments-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="getFailedPayments() as invoice"><div class="alert-card alert-error">
+            <div class="alert-card alert-error">
                 <div class="alert-icon">⚠️</div>
                 <div class="alert-content">
                   <strong>Failed Payment</strong>
@@ -113,9 +128,18 @@
                   <p>Invoice ID: </p>
                   <p class="alert-date">Date: </p>
                 </div>
-              </div></div>
+              </div><div class="alert-card alert-error">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                  <strong>Failed Payment</strong>
+                  <p>Tenant: </p>
+                  <p>Amount:  </p>
+                  <p>Invoice ID: </p>
+                  <p class="alert-date">Date: </p>
+                </div>
+              </div>
           </div>
-        </div></div>
+        </div>
 
       <!-- Payment History Section -->
       <div class="payments-section">
@@ -129,7 +153,7 @@
               <div class="col-status">Status</div>
               <div class="col-date">Date</div>
             </div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="invoices as invoice"><div class="table-row">
+            <div class="table-row">
                 <div class="col-invoice">
                   <span class="invoice-id"></span>
                 </div>
@@ -146,9 +170,9 @@
                 </div>
                 <div class="col-date">
                   <span class="date"></span>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="invoice.paidAt"><span class="paid-date">Paid: </span></div>
+                  
                 </div>
-              </div></div>
+              </div>
           </div>
         
       </div>
@@ -158,20 +182,20 @@
         <h2>💳 Payment Methods & Billing Details</h2>
         
           <div class="payment-methods-grid">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="paymentMethods as method"><div class="payment-method-card">
+            <div class="payment-method-card">
                 <div class="method-header">
                   <div class="method-type">
                     <span class="method-icon">💳</span>
                     <strong></strong>
                   </div>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="method.isDefault"><span class="default-badge">Default</span></div>
+                  
                 </div>
                 <div class="method-details">
                   <p><strong>Tenant:</strong> </p>
                   <p><strong>Email:</strong> </p>
                   <p><strong>Added:</strong> </p>
                 </div>
-              </div></div>
+              </div>
           </div>
         
       </div>
@@ -188,7 +212,7 @@
               <div class="col-period">Current Period</div>
               <div class="col-actions">Actions</div>
             </div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="subscriptions as subscription"><div class="table-row">
+            <div class="table-row">
                 <div class="col-tenant">
                   <span class="tenant-name"></span>
                 </div>
@@ -210,10 +234,10 @@
                     View Details
                   </button>
                 </div>
-              </div></div>
+              </div>
           </div>
         
       </div>
       </div>
     </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/billing"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/billing","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>

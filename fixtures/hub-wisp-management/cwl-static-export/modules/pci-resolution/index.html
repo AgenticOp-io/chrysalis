@@ -3,10 +3,7 @@
 <div class="app">
   <!-- Map Background -->
   <div class="map-fullscreen">
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$isAnyLoading"><div class="loading">
-        <div class="spinner"></div>
-        <p>Analyzing...</p>
-      </div></div>
+    
   </div>
 
   <!-- New UI Layout: Separate Positioned Elements -->
@@ -24,43 +21,39 @@
   
   <!-- Top Right: Basemap Switcher -->
   <div data-cwl-component="BasemapSwitcher" data-cwl-lifted-component="BasemapSwitcher"><div class="basemap-switcher">
-  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="basemaps as basemap"><button 
-      class="basemap-btn">
-      <span class="basemap-icon"></span>
-      <span class="basemap-label"></span>
-    </button></div>
+  
 </div></div>
   
   <!-- Right Side: PCI Status Widget -->
   <div data-cwl-component="PCIStatusWidget" data-cwl-lifted-component="PCIStatusWidget"><div class="pci-status-widget">
   <div class="status-header">
     <h2 class="status-title">PCI Status</h2>
-    <div class="cell-count"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$cellCount"></span> Cells</div>
+    <div class="cell-count"> Cells</div>
   </div>
   
   <div class="status-grid">
     <div class="status-item total">
-      <span class="status-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$conflictCount"></span></span>
+      <span class="status-value"></span>
       <span class="status-label">Total</span>
     </div>
     
     <div class="status-item critical">
-      <span class="status-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$criticalConflictCount"></span></span>
+      <span class="status-value"></span>
       <span class="status-label">Critical</span>
     </div>
     
     <div class="status-item high">
-      <span class="status-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$highConflictCount"></span></span>
+      <span class="status-value"></span>
       <span class="status-label">High</span>
     </div>
     
     <div class="status-item medium">
-      <span class="status-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$mediumConflictCount"></span></span>
+      <span class="status-value"></span>
       <span class="status-label">Medium</span>
     </div>
     
     <div class="status-item low">
-      <span class="status-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$lowConflictCount"></span></span>
+      <span class="status-value"></span>
       <span class="status-label">Low</span>
     </div>
   </div>
@@ -70,29 +63,12 @@
   <div data-cwl-component="VerticalMenu" data-cwl-lifted-component="VerticalMenu"><div class="vertical-menu">
   <div class="menu-items">
     <!-- Back to Dashboard Button at Top -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$isAuthenticated && $currentUser"><button class="logout-button back-button" title="Back to Module Manager">
-        <div class="user-info">
-          <span class="user-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getUserName()"></span></span>
-          <span class="user-email"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentUser.email"></span></span>
-        </div>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-      </button></div>
+    
     
     <div class="menu-divider"></div>
     
     <!-- Network Selector -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentNetwork"><button class="network-selector" title="Change network">
-        <div class="network-info">
-          <span class="network-name-menu"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentNetwork.name"></span></span>
-          <span class="network-market-menu"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentNetwork.market"></span></span>
-        </div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </button></div>
+    
     
     <div class="menu-divider"></div>
     <button class="menu-item" title="Import cell data">
@@ -131,31 +107,7 @@
       <span class="menu-label">Optimize</span>
     </button>
     
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizardItems.length > 0"><div class="menu-wizards">
-        <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizards.length > 0"><div class="module-wizard-menu">
-    <button
-      type="button"
-      class="wizard-trigger"
-      class:open
-      title="Wizards for this module"
-      aria-haspopup="true"
-    >
-      <span class="wizard-trigger-icon">🧙</span>
-      <span class="wizard-trigger-label">Wizards</span>
-      <span class="wizard-trigger-chevron">▼</span>
-    </button>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="open"><div class="wizard-dropdown" role="menu">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><button
-            type="button"
-            role="menuitem"
-            class="wizard-item"
-          >
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.icon"><span class="wizard-item-icon"></span></div>
-            <span class="wizard-item-label"></span>
-          </button></div>
-      </div></div>
-  </div></div></div>
-      </div></div>
+    
     
     <div class="menu-divider"></div>
     
@@ -207,118 +159,7 @@
     </svg>
   </button>
   
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOpen"><div class="settings-panel">
-      <div class="settings-header">
-        <h3>⚙️ Settings</h3>
-        <button class="close-btn">×</button>
-      </div>
-      
-      <div class="settings-content">
-        <div class="setting-item">
-          <span class="setting-label">Theme</span>
-          <div data-cwl-component="ThemeSwitcher" data-cwl-lifted-component="ThemeSwitcher"><div class="theme-switcher">
-  <button
-    class="theme-button"
-    aria-label="Toggle theme"
-    title="Change theme"
-  >
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mounted"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$themeStore.resolved === 'dark'"><!-- Moon icon for dark mode -->
-        <svg
-          class="icon"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg></div></div>
-  </button>
-
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showDropdown && mounted"><div class="dropdown">
-      <button
-        class="dropdown-item"
-      >
-        <svg
-          class="dropdown-icon"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="12" cy="12" r="5" />
-          <line x1="12" y1="1" x2="12" y2="3" />
-          <line x1="12" y1="21" x2="12" y2="23" />
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-          <line x1="1" y1="12" x2="3" y2="12" />
-          <line x1="21" y1="12" x2="23" y2="12" />
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-        </svg>
-        <span>Light</span>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$themeStore.mode === 'light'"><svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg></div>
-      </button>
-
-      <button
-        class="dropdown-item"
-      >
-        <svg
-          class="dropdown-icon"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-        <span>Dark</span>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$themeStore.mode === 'dark'"><svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg></div>
-      </button>
-
-      <button
-        class="dropdown-item"
-      >
-        <svg
-          class="dropdown-icon"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-          <line x1="8" y1="21" x2="16" y2="21"></line>
-          <line x1="12" y1="17" x2="12" y2="21"></line>
-        </svg>
-        <span>System</span>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$themeStore.mode === 'system'"><svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg></div>
-      </button>
-    </div></div>
-</div></div>
-        </div>
-        
-        <div class="menu-divider"></div>
-        
-        <div class="setting-info">
-          <p class="info-text">More settings coming soon...</p>
-        </div>
-      </div>
-    </div></div>
+  
 </div></div>
   
   <!-- Help Button -->
@@ -345,30 +186,13 @@
     >
       <div class="network-header">
         <h2 id="network-manager-modal-title">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="view === 'list'">My Networks</div>
+          
         </h2>
         <button class="close-btn">×</button>
       </div>
       
       <div class="network-body">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="view === 'list'"><div class="network-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$isNetworkLoading"><div class="loading-state">
-                <div class="spinner-small"></div>
-                <p>Loading networks...</p>
-              </div>
-            
-              <div class="empty-state">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                <h3>No Networks Yet</h3>
-                <p>Create your first network to start planning your LTE deployment.</p>
-                <button class="create-btn">
-                  ➕ Create Network
-                </button>
-              </div></div>
-          </div></div>
+        
       </div>
     </div>
   </div></div>
@@ -391,7 +215,7 @@
       </div>
       
       <div class="wizard-body">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!importMethod"><!-- Step 1: Choose Import Method -->
+        <!-- Step 1: Choose Import Method -->
           <div class="wizard-intro">
             <p class="intro-text">Choose how you'd like to import cell data:</p>
           </div>
@@ -490,158 +314,15 @@
             <div class="info-box">
               <strong>Supported Data:</strong> The KML parser will extract coordinates, name, and cell parameters from ExtendedData or description fields (PCI, eNodeB, Sector, Frequency, etc.).
             </div>
-          </div></div>
+          </div>
       </div>
     </div>
   </div>
 
 <!-- Nested Site Editor for Manual Import -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOpen"><div class="modal-backdrop">
-    <div class="site-editor">
-      <div class="editor-header">
-        <h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create New Cell Site</div>
-        </h2>
-        <button class="close-btn">×</button>
-      </div>
-      
-      <div class="editor-content">
-        <!-- Site Information -->
-        <section class="editor-section">
-          <h3>Cell Site Information</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="siteId">Site ID</label>
-              <input 
-                type="text" 
-                id="siteId"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="siteName">Site Name</label>
-              <input 
-                type="text" 
-                id="siteName"
-                placeholder="Manhattan Tower A"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="eNodeB">eNodeB</label>
-              <input 
-                type="number" 
-                id="eNodeB"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input 
-                type="number" 
-                id="latitude"
-                step="0.000001"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input 
-                type="number" 
-                id="longitude"
-                step="0.000001"
-                required
-              />
-            </div>
-          </div>
-        </section>
-        
-        <!-- Sectors Section -->
-        <section class="editor-section sectors-section">
-          <div class="section-header">
-            <h3>📡 Sectors (Transmitters on this Cell)</h3>
-            <div class="sector-count-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
-          </div>
-          
-          <div class="add-sector-prompt">
-            <button type="button" class="add-sector-btn-large">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
-              Add New Sector
-            </button>
-            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
-          </div>
-          
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="editedSite.sectors.length === 0"><p class="empty-message">
-              📍 No sectors configured yet.<br/>
-              Click "Add New Sector" above to create your first sector.
-            </p></div>
-        </section>
-      </div>
-      
-      <div class="editor-footer">
-        <button type="button" class="cancel-btn">Cancel</button>
-        <button type="button" class="save-btn">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create Site</div>
-        </button>
-      </div>
-    </div>
-  </div></div></div></div>
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div></div>
   
-  <div data-cwl-component="AnalysisModal" data-cwl-lifted-component="AnalysisModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && analysis" hidden aria-hidden="true"><div 
-    class="modal-overlay" 
-    role="presentation"
-  >
-    <div 
-      class="modal" 
-      role="dialog"
-      tabindex="-1"
-      aria-labelledby="analysis-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
-    >
-      <div class="modal-header">
-        <h2 id="analysis-modal-title">Analysis Summary</h2>
-        <button class="close-btn">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="stats-grid">
-          <div class="stat-box">
-            <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="analysis.totalCells"></span></div>
-            <div class="stat-label">Total Cells</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="analysis.conflicts.length"></span></div>
-            <div class="stat-label">Conflicts</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="analysis.conflictRate.toFixed(1)"></span>%</div>
-            <div class="stat-label">Conflict Rate</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="conflicts.filter(c => c.severity === 'CRITICAL').length"></span></div>
-            <div class="stat-label">Critical</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="conflicts.filter(c => c.severity === 'HIGH').length"></span></div>
-            <div class="stat-label">High</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="conflicts.filter(c => c.severity === 'MEDIUM').length"></span></div>
-            <div class="stat-label">Medium</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div></div></div>
+  <div data-cwl-component="AnalysisModal" data-cwl-lifted-component="AnalysisModal"></div>
   
   <div data-cwl-component="ConflictsModal" data-cwl-lifted-component="ConflictsModal"><div 
     class="modal-overlay" 
@@ -656,434 +337,22 @@
       on:keydown|stopPropagation
     >
       <div class="modal-header">
-        <h2 id="conflicts-modal-title">Conflicts (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="conflicts.length"></span>)</h2>
+        <h2 id="conflicts-modal-title">Conflicts ()</h2>
         <button class="close-btn">×</button>
       </div>
       <div class="modal-body scrollable">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="conflicts.length > 0"><div class="conflicts-table">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="conflicts as conflict"><div class="conflict-row ">
-                <div class="conflict-cells">
-                  <span class="cell-name"></span>
-                  <span class="arrow">→</span>
-                  <span class="cell-name"></span>
-                </div>
-                <div class="conflict-meta">
-                  <span class="badge "></span>
-                  <span class="type"></span>
-                  <span class="distance">m</span>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="conflict.losChecked"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="conflict.terrainBlocked"><span class="los-badge blocked" title="Terrain blocks line of sight">🗻 No LOS</span></div></div>
-                </div>
-              </div></div>
-          </div></div>
+        
       </div>
     </div>
   </div></div>
   
-  <div data-cwl-component="RecommendationsModal" data-cwl-lifted-component="RecommendationsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && geminiAnalysis" hidden aria-hidden="true"><div 
-    class="modal-overlay" 
-    role="presentation"
-  >
-    <div 
-      class="modal modal-large" 
-      role="dialog"
-      tabindex="-1"
-      aria-labelledby="recommendations-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
-    >
-      <div class="modal-header">
-        <h2 id="recommendations-modal-title">AI Recommendations</h2>
-        <button class="close-btn">×</button>
-      </div>
-      <div class="modal-body scrollable">
-        <div class="recommendations">
-          
-        </div>
-      </div>
-    </div>
-  </div></div></div>
+  <div data-cwl-component="RecommendationsModal" data-cwl-lifted-component="RecommendationsModal"></div>
   
-  <div data-cwl-component="OptimizationResultModal" data-cwl-lifted-component="OptimizationResultModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && result" hidden aria-hidden="true"><div 
-    class="modal-overlay" 
-    role="presentation"
-  >
-    <div 
-      class="modal" 
-      role="dialog"
-      tabindex="-1"
-      aria-labelledby="optimization-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
-    >
-      <div class="modal-header">
-        <h2 id="optimization-modal-title">Optimization Complete</h2>
-        <button class="close-btn">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="success-banner">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <p>Successfully optimized PCI assignments</p>
-        </div>
-        <div class="result-stats">
-          <div class="result-item">
-            <div class="result-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="result.resolvedConflicts"></span></div>
-            <div class="result-label">Conflicts Resolved</div>
-          </div>
-          <div class="result-item">
-            <div class="result-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="result.conflictReduction.toFixed(0)"></span>%</div>
-            <div class="result-label">Reduction</div>
-          </div>
-          <div class="result-item">
-            <div class="result-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="result.iterations"></span></div>
-            <div class="result-label">Iterations</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div></div></div>
+  <div data-cwl-component="OptimizationResultModal" data-cwl-lifted-component="OptimizationResultModal"></div>
   
-  <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOpen"><div class="modal-backdrop">
-    <div class="cell-editor">
-      <div class="editor-header">
-        <h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewCell">➕ Create New Cell</div>
-        </h2>
-        <button class="close-btn">×</button>
-      </div>
-      
-      <div class="editor-content">
-        <!-- Basic Info Section -->
-        <section class="editor-section">
-          <h3>Basic Information</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="cellId">Cell ID</label>
-              <input 
-                type="text" 
-                id="cellId"
-                placeholder="CELL001"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="eNodeB">eNodeB</label>
-              <input 
-                type="number" 
-                id="eNodeB"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="sector">Sector</label>
-              <input 
-                type="number" 
-                id="sector"
-                min="1"
-                max="12"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="pci">PCI</label>
-              <input 
-                type="number" 
-                id="pci"
-                min="0"
-                max="503"
-              />
-            </div>
-          </div>
-        </section>
-        
-        <!-- Location Section -->
-        <section class="editor-section">
-          <h3>Location</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input 
-                type="number" 
-                id="latitude"
-                step="0.000001"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input 
-                type="number" 
-                id="longitude"
-                step="0.000001"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="azimuth">Azimuth (degrees)</label>
-              <input 
-                type="number" 
-                id="azimuth"
-                min="0"
-                max="359"
-                placeholder="0-359"
-                required
-              />
-              <span class="helper-text">Direction the antenna is pointing (0° = North)</span>
-            </div>
-          </div>
-        </section>
-        
-        <!-- RF Parameters Section -->
-        <section class="editor-section">
-          <h3>RF Parameters</h3>
-          
-          <!-- Smart Frequency/EARFCN Input -->
-          <div class="smart-input-section">
-            <label for="smartInput">🎯 Quick Add: Frequency or EARFCN</label>
-            <p class="smart-help">Add frequencies or EARFCNs to the list below (e.g., 2100, 3550, 1950, 55240)</p>
-            
-            <!-- Band Selector -->
-            <div class="band-selector-group">
-              <label for="bandSelect" class="band-label">LTE Band:</label>
-              <select id="bandSelect" class="band-select">
-                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="bandOptions as option"><option></option></div>
-              </select>
-            </div>
-            
-            <!-- Frequency/EARFCN Input -->
-            <div class="smart-input-group">
-              <input 
-                type="number" 
-                id="smartInput"
-                placeholder="2100 or 1950 or 55240..."
-                class="smart-input"
-              />
-              <button 
-                type="button"
-                class="smart-btn"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add to List
-              </button>
-            </div>
-            
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedBand !== 'auto'"><p class="band-hint">
-                ℹ️ <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bandOptions.find(b => b.value === selectedBand)?.label || ''"></span> - 
-                Enter frequency between <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bandOptions.find(b => b.value === selectedBand)?.freqRange?.[0]"></span>-<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bandOptions.find(b => b.value === selectedBand)?.freqRange?.[1]"></span> MHz
-              </p></div>
-          </div>
-          
-          <div class="divider"></div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="dlEarfcn">DL EARFCN</label>
-              <input 
-                type="number" 
-                id="dlEarfcn"
-                min="0"
-                max="70000"
-              />
-              <span class="helper-text">
-                <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getFrequencyBand(editedCell.dlEarfcn || 0)"></span>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="editedCell.dlEarfcn">• <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="earfcnToFrequency(editedCell.dlEarfcn).isTDD ? 'TDD' : 'FDD'"></span></div>
-              </span>
-            </div>
-            
-            <div class="form-group">
-              <label for="ulEarfcn">UL EARFCN <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="earfcnToFrequency(editedCell.dlEarfcn || 0).isTDD ? '(Same as DL for TDD)' : ''"></span></label>
-              <input 
-                type="number" 
-                id="ulEarfcn"
-                min="0"
-                max="70000"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="centerFreq">Center Frequency (MHz)</label>
-              <input 
-                type="number" 
-                id="centerFreq"
-                step="0.1"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="channelBandwidth">Channel Bandwidth (MHz)</label>
-              <select id="channelBandwidth">
-                <option>1.4 MHz</option>
-                <option>3 MHz</option>
-                <option>5 MHz</option>
-                <option>10 MHz</option>
-                <option>15 MHz</option>
-                <option>20 MHz</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="rsPower">RS Power (dBm)</label>
-              <input 
-                type="number" 
-                id="rsPower"
-                step="0.1"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="technology">Technology</label>
-              <select id="technology">
-                <option value="LTE">LTE (4G)</option>
-              </select>
-            </div>
-          </div>
-        </section>
-        
-        <!-- Additional EARFCNs Section -->
-        <section class="editor-section">
-          <h3>Additional EARFCNs</h3>
-          <p class="section-description">Add carrier aggregation or additional frequency channels</p>
-          
-          <div class="earfcn-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="additionalEarfcns as earfcn, index"><div class="earfcn-item">
-                <span class="earfcn-value"></span>
-                <span class="earfcn-band"></span>
-                <button 
-                  type="button"
-                  class="remove-earfcn-btn"
-                >
-                  ×
-                </button>
-              </div></div>
-          </div>
-          
-          <div class="add-earfcn-group">
-            <input 
-              type="number"
-              placeholder="Enter EARFCN (e.g., 1950)"
-            />
-            <button 
-              type="button"
-              class="add-earfcn-btn"
-            >
-              + Add EARFCN
-            </button>
-          </div>
-        </section>
-      </div>
-      
-      <div class="editor-footer">
-        <button type="button" class="cancel-btn">Cancel</button>
-        <button type="button" class="save-btn">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewCell">➕ Create Cell</div>
-        </button>
-      </div>
-    </div>
-  </div></div></div>
+  <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"></div>
   
-  <div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOpen"><div class="modal-backdrop">
-    <div class="site-editor">
-      <div class="editor-header">
-        <h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create New Cell Site</div>
-        </h2>
-        <button class="close-btn">×</button>
-      </div>
-      
-      <div class="editor-content">
-        <!-- Site Information -->
-        <section class="editor-section">
-          <h3>Cell Site Information</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="siteId">Site ID</label>
-              <input 
-                type="text" 
-                id="siteId"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="siteName">Site Name</label>
-              <input 
-                type="text" 
-                id="siteName"
-                placeholder="Manhattan Tower A"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="eNodeB">eNodeB</label>
-              <input 
-                type="number" 
-                id="eNodeB"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input 
-                type="number" 
-                id="latitude"
-                step="0.000001"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input 
-                type="number" 
-                id="longitude"
-                step="0.000001"
-                required
-              />
-            </div>
-          </div>
-        </section>
-        
-        <!-- Sectors Section -->
-        <section class="editor-section sectors-section">
-          <div class="section-header">
-            <h3>📡 Sectors (Transmitters on this Cell)</h3>
-            <div class="sector-count-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
-          </div>
-          
-          <div class="add-sector-prompt">
-            <button type="button" class="add-sector-btn-large">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
-              Add New Sector
-            </button>
-            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
-          </div>
-          
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="editedSite.sectors.length === 0"><p class="empty-message">
-              📍 No sectors configured yet.<br/>
-              Click "Add New Sector" above to create your first sector.
-            </p></div>
-        </section>
-      </div>
-      
-      <div class="editor-footer">
-        <button type="button" class="cancel-btn">Cancel</button>
-        <button type="button" class="save-btn">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create Site</div>
-        </button>
-      </div>
-    </div>
-  </div></div></div>
+  <div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div>
   
   <div data-cwl-component="ContextMenu" data-cwl-lifted-component="ContextMenu"><div hidden aria-hidden="true"><!-- Invisible backdrop to close menu -->
   <div 
@@ -1093,28 +362,7 @@
   
   <!-- Context menu -->
   <div class="context-menu" style="left: px; top: px;">
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="hasSelectedCell"><!-- Options for existing sector -->
-      <div class="menu-header">
-        <span class="menu-title">Sector: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cellId"></span></span>
-      </div>
-      
-      <button class="menu-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-        </svg>
-        Edit Sector
-      </button>
-      
-      <button class="menu-item danger">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-        Delete Sector
-      </button>
-      
-      <div class="menu-divider"></div></div>
+    
     
     <!-- Always show add options -->
     <button class="menu-item primary">
@@ -1157,7 +405,7 @@
             <polyline points="2 12 12 17 22 12"></polyline>
           </svg>
           <h2 id="tower-manager-modal-title">Tower Management</h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentNetwork"><span class="network-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentNetwork.name"></span></span></div>
+          
         </div>
         <button class="close-btn">×</button>
       </div>
@@ -1187,135 +435,29 @@
         <!-- Tower Stats -->
         <div class="tower-stats">
           <div class="stat-card">
-            <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="towers.length"></span></span>
+            <span class="stat-value">1</span>
             <span class="stat-label">Towers</span>
           </div>
           <div class="stat-card">
-            <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="towers.reduce((sum, t) => sum + t.sectorCount, 0)"></span></span>
+            <span class="stat-value"></span>
             <span class="stat-label">Sectors</span>
           </div>
           <div class="stat-card">
-            <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$cellsStore.items.length"></span></span>
+            <span class="stat-value"></span>
             <span class="stat-label">Carriers</span>
           </div>
         </div>
         
         <!-- Tower List -->
         <div class="tower-list">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="filteredTowers.length === 0"><div class="empty-state">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                <polyline points="2 17 12 22 22 17"></polyline>
-                <polyline points="2 12 12 17 22 12"></polyline>
-              </svg>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="searchQuery"><h3>No Towers Found</h3>
-                <p>Try adjusting your search terms.</p></div>
-            </div></div>
+          
         </div>
       </div>
     </div>
   </div>
 
 <!-- Site Editor Modal -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOpen"><div class="modal-backdrop">
-    <div class="site-editor">
-      <div class="editor-header">
-        <h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create New Cell Site</div>
-        </h2>
-        <button class="close-btn">×</button>
-      </div>
-      
-      <div class="editor-content">
-        <!-- Site Information -->
-        <section class="editor-section">
-          <h3>Cell Site Information</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="siteId">Site ID</label>
-              <input 
-                type="text" 
-                id="siteId"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="siteName">Site Name</label>
-              <input 
-                type="text" 
-                id="siteName"
-                placeholder="Manhattan Tower A"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="eNodeB">eNodeB</label>
-              <input 
-                type="number" 
-                id="eNodeB"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input 
-                type="number" 
-                id="latitude"
-                step="0.000001"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input 
-                type="number" 
-                id="longitude"
-                step="0.000001"
-                required
-              />
-            </div>
-          </div>
-        </section>
-        
-        <!-- Sectors Section -->
-        <section class="editor-section sectors-section">
-          <div class="section-header">
-            <h3>📡 Sectors (Transmitters on this Cell)</h3>
-            <div class="sector-count-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
-          </div>
-          
-          <div class="add-sector-prompt">
-            <button type="button" class="add-sector-btn-large">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
-              Add New Sector
-            </button>
-            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
-          </div>
-          
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="editedSite.sectors.length === 0"><p class="empty-message">
-              📍 No sectors configured yet.<br/>
-              Click "Add New Sector" above to create your first sector.
-            </p></div>
-        </section>
-      </div>
-      
-      <div class="editor-footer">
-        <button type="button" class="cancel-btn">Cancel</button>
-        <button type="button" class="save-btn">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create Site</div>
-        </button>
-      </div>
-    </div>
-  </div></div></div>
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div>
 
 <!-- Import Wizard Modal -->
 <div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div 
@@ -1336,7 +478,7 @@
       </div>
       
       <div class="wizard-body">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!importMethod"><!-- Step 1: Choose Import Method -->
+        <!-- Step 1: Choose Import Method -->
           <div class="wizard-intro">
             <p class="intro-text">Choose how you'd like to import cell data:</p>
           </div>
@@ -1435,178 +577,22 @@
             <div class="info-box">
               <strong>Supported Data:</strong> The KML parser will extract coordinates, name, and cell parameters from ExtendedData or description fields (PCI, eNodeB, Sector, Frequency, etc.).
             </div>
-          </div></div>
+          </div>
       </div>
     </div>
   </div>
 
 <!-- Nested Site Editor for Manual Import -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isOpen"><div class="modal-backdrop">
-    <div class="site-editor">
-      <div class="editor-header">
-        <h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create New Cell Site</div>
-        </h2>
-        <button class="close-btn">×</button>
-      </div>
-      
-      <div class="editor-content">
-        <!-- Site Information -->
-        <section class="editor-section">
-          <h3>Cell Site Information</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="siteId">Site ID</label>
-              <input 
-                type="text" 
-                id="siteId"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="siteName">Site Name</label>
-              <input 
-                type="text" 
-                id="siteName"
-                placeholder="Manhattan Tower A"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="eNodeB">eNodeB</label>
-              <input 
-                type="number" 
-                id="eNodeB"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input 
-                type="number" 
-                id="latitude"
-                step="0.000001"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input 
-                type="number" 
-                id="longitude"
-                step="0.000001"
-                required
-              />
-            </div>
-          </div>
-        </section>
-        
-        <!-- Sectors Section -->
-        <section class="editor-section sectors-section">
-          <div class="section-header">
-            <h3>📡 Sectors (Transmitters on this Cell)</h3>
-            <div class="sector-count-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
-          </div>
-          
-          <div class="add-sector-prompt">
-            <button type="button" class="add-sector-btn-large">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
-              Add New Sector
-            </button>
-            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
-          </div>
-          
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="editedSite.sectors.length === 0"><p class="empty-message">
-              📍 No sectors configured yet.<br/>
-              Click "Add New Sector" above to create your first sector.
-            </p></div>
-        </section>
-      </div>
-      
-      <div class="editor-footer">
-        <button type="button" class="cancel-btn">Cancel</button>
-        <button type="button" class="save-btn">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isNewSite">🏗️ Create Site</div>
-        </button>
-      </div>
-    </div>
-  </div></div></div></div></div>
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div></div></div>
   
   <!-- Export Modal -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showExportModal"><div 
-      class="modal-overlay" 
-      role="presentation"
-    >
-      <div 
-        class="modal-container" 
-        role="dialog"
-        tabindex="-1"
-        aria-labelledby="export-modal-title"
-      >
-        <div class="modal-header">
-          <h3 id="export-modal-title">📤 Export & Configuration</h3>
-          <button class="modal-close-btn">×</button>
-        </div>
-        <div class="modal-body">
-          <div data-cwl-component="ConflictReportExport" data-cwl-lifted-component="ConflictReportExport"><div class="export-panel">
-  <h3>📊 Export Options</h3>
-  <p class="export-subtitle">Export conflict reports or generate Nokia base station configurations</p>
   
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!report"><div class="generate-section">
-      <p class="info-text">
-        Generate a comprehensive conflict analysis report with detailed statistics and recommendations.
-      </p>
-      <button 
-        class="generate-button"
-      >
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isGenerating">⏳ Generating Report...</div>
-      </button>
-    </div></div>
-  
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="report && report.totalConflicts > 0"><div class="conflict-breakdown">
-      <h4>Conflict Breakdown</h4>
-      <div class="breakdown-grid">
-        <div class="breakdown-item">
-          <span class="breakdown-label">Mod3 (CRS)</span>
-          <span class="breakdown-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="report.summary.mod3"></span></span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Mod6 (PBCH)</span>
-          <span class="breakdown-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="report.summary.mod6"></span></span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Mod30 (PRS)</span>
-          <span class="breakdown-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="report.summary.mod30"></span></span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">3-Sector</span>
-          <span class="breakdown-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="report.summary.threeSector"></span></span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">4-Sector</span>
-          <span class="breakdown-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="report.summary.fourSector"></span></span>
-        </div>
-      </div>
-    </div></div>
-</div></div>
-        </div>
-      </div>
-    </div></div>
   
   <!-- Help Modal -->
   <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
-        <h2 id="help-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <h2 id="help-modal-title"></h2>
         <button class="close-btn" aria-label="Close">×</button>
       </div>
       
@@ -1628,19 +614,12 @@
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <h2 id="wizard-title"></h2>
         <button class="close-btn" aria-label="Close">✕</button>
       </div>
       
       <!-- Progress Steps -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="steps.length > 0"><nav class="wizard-steps" aria-label="Wizard steps">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="steps as step, index"><button
-              type="button"
-              class="wizard-step">
-              <span class="step-icon"></span>
-              <span class="step-title"></span>
-            </button></div>
-        </nav></div>
+      
       
       <!-- Content Area -->
       <div class="wizard-content">
@@ -1649,93 +628,26 @@
         
         
         <!-- Slot for step content -->
-        <slot name="content" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> />
+        <slot name="content"  />
       </div>
       
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer" <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="prevStep"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleClose"></span> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleComplete"></span>  />
+        <slot name="footer"       />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
-        <h3>PCI Conflict Resolution</h3>
-        <p>This wizard will help you identify and resolve Physical Cell ID (PCI) conflicts in your LTE network.</p>
-        <div class="info-box">
-          <h4>Steps:</h4>
-          <ul>
-            <li>Run analysis on your current network cells</li>
-            <li>Review detected conflicts</li>
-            <li>Apply automatic PCI optimization</li>
-            <li>Verify resolution</li>
-          </ul>
-        </div>
-        <p class="hint">Make sure you have a network selected and cells loaded on the PCI Resolution page before starting.</p>
-      </div>
     
-      <div class="wizard-panel">
-        <h3>Identify Conflicts</h3>
-        <p>Run PCI conflict analysis on the current network cells.</p>
-        <button type="button" class="wizard-btn-primary">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Analyzing...' : 'Run Analysis'"></span>
-        </button>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="conflictCount >= 0 && !isLoading"><p class="hint">Conflicts found: <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="conflictCount"></span></strong></p></div>
-      </div>
-    
-      <div class="wizard-panel">
-        <h3>Review Conflicts</h3>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="conflicts.length === 0"><p class="success-msg">No conflicts detected. Your PCI assignments are good.</p>
-          <button type="button" class="wizard-btn-secondary">Done</button></div>
-      </div>
-    
-      <div class="wizard-panel">
-        <h3>Resolution Strategy</h3>
-        <p>Choose automatic optimization to reassign PCIs and resolve conflicts.</p>
-        <button type="button" class="wizard-btn-primary">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Optimizing...' : 'Auto-optimize PCIs'"></span>
-        </button>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="conflictCount === 0"><p class="hint">No conflicts to optimize. You can close the wizard.</p></div>
-      </div>
-    
-      <div class="wizard-panel">
-        <h3>Preview Changes</h3>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="optimizationResult?.changes?.length"><p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="optimizationResult.changes.length"></span> PCI change(s) will be applied:</p>
-          <ul class="change-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="optimizationResult.changes.slice(0, 15) as ch"><li><strong></strong>: PCI  → </li></div>
-          </ul>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="optimizationResult.changes.length > 15"><p class="hint">... and <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="optimizationResult.changes.length - 15"></span> more.</p></div></div>
-      </div>
-    
-      <div class="wizard-panel">
-        <h3>Apply Changes</h3>
-        <p>Save the optimized PCI assignments to your network.</p>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeNetwork"><p class="hint">Network: <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="activeNetwork.name || activeNetwork.id"></span></strong></p>
-          <button type="button" class="wizard-btn-primary">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Saving...' : 'Apply & Save'"></span>
-          </button></div>
-      </div>
-    
-      <div class="wizard-panel">
-        <h3>Verify Resolution</h3>
-        <p>Re-run analysis to confirm conflicts are resolved.</p>
-        <button type="button" class="wizard-btn-primary">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Verifying...' : 'Verify'"></span>
-        </button>
-      </div></div>
   </div>
 
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1 && currentStep !== 2"><button class="wizard-btn-secondary">← Previous</button></div>
+    
     <div class="footer-actions">
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1 && !isLoading && conflictCount >= 0"><button class="wizard-btn-primary">Next →</button>
       
-        <button class="wizard-btn-primary">Next →</button>
-      
-        <button class="wizard-btn-primary">Next →</button></div>
     </div>
   </div>
 </div></div>
   
         </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"pci-resolution"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"pci-resolution","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>

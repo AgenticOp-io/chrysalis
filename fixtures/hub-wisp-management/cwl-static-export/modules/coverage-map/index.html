@@ -11,15 +11,15 @@
       style="left: px; top: px"
      hidden aria-hidden="true">
       <div class="menu-header">
-        <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedPlanDraft.properties?.name ?? selectedPlanDraft.featureType ?? 'Draft Ob"></span></strong>
-        <small>Status: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedPlanDraft.status ?? 'draft'"></span></small>
+        <strong></strong>
+        <small>Status: </small>
       </div>
       <div class="menu-body">
         <p>Drag the marker to refine this deployment location.</p>
         <p class="coords">
           📍
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedPlanDraftCoords.latitude != null && typeof selectedPlanDraftCoords.latit"></span>,
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedPlanDraftCoords.longitude != null && typeof selectedPlanDraftCoords.long"></span>
+          ,
+          
         </p>
       </div>
       <button class="menu-item">
@@ -53,12 +53,12 @@
 
   <!-- Floating Control Panel -->
   <div class="floating-controls">
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!isDeployMode"><button class="control-btn" title="Toggle Filters">
+    <button class="control-btn" title="Toggle Filters">
         🔍
-      </button></div>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!hideStats"><button class="control-btn" title="Toggle Statistics">
+      </button>
+    <button class="control-btn" title="Toggle Statistics">
         📊
-      </button></div>
+      </button>
     <button 
       class="control-btn" 
       title="Device Management (SNMP, TR-069, MikroTik, EPC)"
@@ -108,19 +108,7 @@
     </svg>
   </button>
 
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="displayPlanSummary && (() =>"><div class="plan-summary-card">
-      <div class="plan-summary-header">
-        <span>Plan Drafts</span>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="sharedMapStateTimestamp"><small>Updated <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sharedMapStateTimestamp.toLocaleTimeString()"></span></small></div>
-      </div>
-      <div class="plan-summary-total"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="displayPlanSummary.total"></span> objects</div>
-      <div class="plan-summary-grid">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Object.entries(displayPlanSummary.byType ?? ) as [type, count]"><div class="plan-summary-item">
-            <span class="label"></span>
-            <span class="value"></span>
-          </div></div>
-      </div>
-    </div></div>
+  
 
 
 
@@ -142,7 +130,7 @@
       class="section-header"
     >
       <h4>Asset Types</h4>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isMobile"><span class="expand-icon">▼</span></div>
+      
     </button>
     <div class="filter-options">
       <label class="filter-checkbox">
@@ -196,12 +184,12 @@
   </div>
   
   <!-- Backhaul Type Filters -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="filters.showBackhaul"><div class="filter-section">
+  <div class="filter-section" hidden aria-hidden="true">
       <button 
         class="section-header"
       >
         <h4>Backhaul Types</h4>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isMobile"><span class="expand-icon">▼</span></div>
+        
       </button>
       <div class="filter-options">
         <label class="filter-checkbox">
@@ -228,7 +216,7 @@
           <span>Unlicensed Wireless</span>
         </label>
       </div>
-    </div></div>
+    </div>
   
   <!-- Band/Technology Filters -->
   <div class="filter-section">
@@ -240,27 +228,19 @@
     >
       <div class="filter-header">
         <h4>Bands / Technology</h4>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!isMobile"><div class="filter-actions">
+        <div class="filter-actions">
             <button class="btn-link">All</button>
             <button class="btn-link">None</button>
-          </div></div>
+          </div>
       </div>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isMobile"><span class="expand-icon">▼</span></div>
+      
     </div>
     <div class="filter-options">
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isMobile"><div class="filter-actions mobile-actions">
-          <button class="btn-link">All</button>
-          <button class="btn-link">None</button>
-        </div></div>
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableBands as band"><label class="filter-checkbox">
-          <input 
-            type="checkbox"/>
-          <span class="band-indicator" style="background-color: "></span>
-          <span></span>
-        </label></div>
+      
+      
     </div>
     <p class="filter-note">
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="filters.bandFilters.filter(f => f.enabled).length === 0">Showing all bands</div>
+      
     </p>
   </div>
   
@@ -270,12 +250,12 @@
       class="section-header"
     >
       <h4>Status</h4>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isMobile"><span class="expand-icon">▼</span></div>
+      
     </button>
     <div class="filter-options">
       <label class="filter-checkbox">
         <input 
-          type="checkbox" else <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filters.statusFilter = filters.statusFilter.filter(s => s !== 'active');"></span>
+          type="checkbox" else 
             dispatch('change', filters);
           }}
         />
@@ -285,7 +265,7 @@
       
       <label class="filter-checkbox">
         <input 
-          type="checkbox" else <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filters.statusFilter = filters.statusFilter.filter(s => s !== 'inactive');"></span>
+          type="checkbox" else 
             dispatch('change', filters);
           }}
         />
@@ -295,7 +275,7 @@
       
       <label class="filter-checkbox">
         <input 
-          type="checkbox" else <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filters.statusFilter = filters.statusFilter.filter(s => s !== 'maintenance');"></span>
+          type="checkbox" else 
             dispatch('change', filters);
           }}
         />
@@ -323,7 +303,7 @@
           <div class="stat-card">
             <div class="stat-icon">📡</div>
             <div class="stat-content">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="towers.length"></span></div>
+              <div class="stat-value"></div>
               <div class="stat-label">Tower Sites</div>
             </div>
           </div>
@@ -331,7 +311,7 @@
           <div class="stat-card">
             <div class="stat-icon">📶</div>
             <div class="stat-content">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sectors.length"></span></div>
+              <div class="stat-value"></div>
               <div class="stat-label">Sectors</div>
             </div>
           </div>
@@ -339,7 +319,7 @@
           <div class="stat-card">
             <div class="stat-icon">📱</div>
             <div class="stat-content">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.length"></span></div>
+              <div class="stat-value">2</div>
               <div class="stat-label">CPE Devices</div>
             </div>
           </div>
@@ -347,7 +327,7 @@
           <div class="stat-card">
             <div class="stat-icon">🔧</div>
             <div class="stat-content">
-              <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="equipment.length"></span></div>
+              <div class="stat-value"></div>
               <div class="stat-label">Equipment</div>
             </div>
           </div>
@@ -405,7 +385,7 @@
     <div class="panel-body">
       
         <div class="devices-list">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredDevices as device (device.id || device._id)">
+          
             
             
             
@@ -423,189 +403,25 @@
               </div>
               
               <div class="device-details">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.manufacturer || device.model"><div class="detail-line">
-                    <span class="detail-label">Device:</span>
-                    <span class="detail-value">
-                       
-                    </span>
-                  </div></div>
                 
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.ipAddress || device.ip_address"><div class="detail-line">
-                    <span class="detail-label">IP:</span>
-                    <span class="detail-value mono"></span>
-                  </div></div>
                 
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.location"><div class="detail-line">
-                    <span class="detail-label">Location:</span>
-                    <span class="detail-value">
-                      , 
-                    </span>
-                  </div></div>
+                
+                
+                
               </div>
-            </div></div>
+            </div>
         </div>
       
     </div>
     
     <div class="panel-footer">
       <div class="device-count">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredDevices.length"></span> device<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredDevices.length !== 1 ? 's' : ''"></span>
+        1 device
       </div>
     </div>
   </div></div>
 
-<div data-cwl-component="UnifiedDeviceDetailsModal" data-cwl-lifted-component="UnifiedDeviceDetailsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && device" hidden aria-hidden="true"><div class="modal-overlay">
-    <div class="modal-content unified-device-modal">
-      <div class="modal-header">
-        <div class="header-left">
-          <span class="device-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getDeviceTypeIcon(deviceType)"></span></span>
-          <div class="header-info">
-            <h2><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.name || device.id || device._id || 'Unknown Device'"></span></h2>
-            <div class="device-meta">
-              <span class="device-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getDeviceTypeLabel(deviceType)"></span></span>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.status || device.status"><span class="status-badge">
-                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusBadge(deviceDetails?.status || device.status).label"></span>
-                </span></div>
-            </div>
-          </div>
-        </div>
-        <button class="close-button" aria-label="Close">×</button>
-      </div>
-      
-      <div class="modal-body">
-        
-          <!-- Tab Navigation -->
-          <div class="tab-navigation">
-            <button 
-              class="tab-button"
-            >
-              Overview
-            </button>
-            <button 
-              class="tab-button"
-            >
-              Metrics
-            </button>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceType === 'snmp' || deviceType === 'mikrotik'"><button 
-                class="tab-button"
-              >
-                Configuration
-              </button></div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceType === 'mikrotik'"><button 
-                class="tab-button"
-              >
-                Actions
-              </button></div>
-          </div>
-          
-          <!-- Tab Content -->
-          <div class="tab-content">
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'overview'"><div class="overview-tab">
-                <div class="details-grid">
-                  <!-- Basic Information -->
-                  <div class="detail-section">
-                    <h3>Basic Information</h3>
-                    <div class="detail-list">
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.manufacturer || device.manufacturer"><div class="detail-item">
-                          <span class="label">Manufacturer:</span>
-                          <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.manufacturer || device.manufacturer"></span></span>
-                        </div></div>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.model || device.model"><div class="detail-item">
-                          <span class="label">Model:</span>
-                          <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.model || device.model"></span></span>
-                        </div></div>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.serialNumber || device.serialNumber"><div class="detail-item">
-                          <span class="label">Serial Number:</span>
-                          <span class="value mono"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.serialNumber || device.serialNumber"></span></span>
-                        </div></div>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.firmware || device.firmware || deviceDetails?.routerosVersion"><div class="detail-item">
-                          <span class="label">Firmware:</span>
-                          <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.firmware || device.firmware || deviceDetails?.routerosVersion"></span></span>
-                        </div></div>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.ipAddress || device.ipAddress"><div class="detail-item">
-                          <span class="label">IP Address:</span>
-                          <span class="value mono"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.ipAddress || device.ipAddress"></span></span>
-                        </div></div>
-                    </div>
-                  </div>
-                  
-                  <!-- Location -->
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.location || deviceDetails?.location"><div class="detail-section">
-                      <h3>Location</h3>
-                      <div class="detail-list">
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.location?.latitude || deviceDetails?.location?.latitude"><div class="detail-item">
-                            <span class="label">Coordinates:</span>
-                            <span class="value mono">
-                              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.location?.latitude || deviceDetails?.location?.latitude"></span>, 
-                              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.location?.longitude || deviceDetails?.location?.longitude"></span>
-                            </span>
-                          </div></div>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device.location?.address || deviceDetails?.location?.address"><div class="detail-item">
-                            <span class="label">Address:</span>
-                            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device.location?.address || deviceDetails?.location?.address"></span></span>
-                          </div></div>
-                      </div>
-                    </div></div>
-                  
-                  <!-- Type-Specific Information -->
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceType === 'snmp'"><div class="detail-section">
-                      <h3>SNMP Configuration</h3>
-                      <div class="detail-list">
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.snmpVersion || device.snmp_version"><div class="detail-item">
-                            <span class="label">SNMP Version:</span>
-                            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.snmpVersion || device.snmp_version"></span></span>
-                          </div></div>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.community || device.community"><div class="detail-item">
-                            <span class="label">Community:</span>
-                            <span class="value mono"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.community || device.community"></span></span>
-                          </div></div>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="device._id || device.id"><div class="detail-item">
-                            <span class="label">Device ID:</span>
-                            <span class="value mono"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="device._id || device.id"></span></span>
-                          </div></div>
-                      </div>
-                    </div>
-                  
-                    <div class="detail-section">
-                      <h3>EPC Configuration</h3>
-                      <div class="detail-list">
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.hssConfig?.mcc || device.hss_config?.mcc"><div class="detail-item">
-                            <span class="label">MCC:</span>
-                            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.hssConfig?.mcc || device.hss_config?.mcc"></span></span>
-                          </div></div>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.hssConfig?.mnc || device.hss_config?.mnc"><div class="detail-item">
-                            <span class="label">MNC:</span>
-                            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.hssConfig?.mnc || device.hss_config?.mnc"></span></span>
-                          </div></div>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceDetails?.hssConfig?.apnName || device.hss_config?.apnName"><div class="detail-item">
-                            <span class="label">APN:</span>
-                            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deviceDetails?.hssConfig?.apnName || device.hss_config?.apnName"></span></span>
-                          </div></div>
-                      </div>
-                    </div></div>
-                </div>
-              </div>
-            
-              <div class="metrics-tab">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceType === 'snmp' && deviceMetrics"><div class="metrics-content">
-                    <h3>SNMP Metrics (Last 24 Hours)</h3>
-                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceMetrics.length > 0"><div class="metrics-grid">
-                        <p>SNMP metrics visualization coming soon...</p>
-                      </div></div>
-                  </div></div>
-              </div>
-            
-              <div class="configuration-tab">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deviceType === 'snmp'"><div class="config-content">
-                    <h3>SNMP Configuration</h3>
-                    <p>SNMP configuration editing coming soon...</p>
-                  </div></div>
-              </div></div>
-          </div>
-        
-      </div>
-    </div>
-  </div></div></div>
+<div data-cwl-component="UnifiedDeviceDetailsModal" data-cwl-lifted-component="UnifiedDeviceDetailsModal"></div>
 
 <!-- Modals -->
 <div data-cwl-component="AddSiteModal" data-cwl-lifted-component="AddSiteModal"><div class="modal-overlay" hidden aria-hidden="true">
@@ -629,7 +445,7 @@
           <button 
             class="btn-secondary"
           >
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSearching ? '...' : 'Search'"></span>
+            Search
           </button>
         </div>
         <p class="help-text">Or enter GPS coordinates below</p>
@@ -654,10 +470,7 @@
           </select>
           </div>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'tower'"><div class="form-group">
-            <label>Height (feet)</label>
-            <input type="number" placeholder="100" />
-          </div></div>
+          
           
           <div class="form-group">
             <label>FCC ID</label>
@@ -705,77 +518,7 @@
       </div>
       
       <!-- Tower-Specific Sections (only for actual towers) -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'tower'"><!-- Tower Contact -->
-      <div class="section">
-        <h3>🏢 Tower Owner Contact</h3>
-        <div class="form-group">
-          <label>Tower Owner</label>
-          <input type="text" placeholder="Tower Company LLC" />
-        </div>
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Contact Name</label>
-            <input type="text" placeholder="John Doe" />
-          </div>
-          
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" placeholder="555-1234" />
-          </div>
-          
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="contact@tower.com" />
-          </div>
-        </div>
-      </div>
       
-      <!-- Site Contact -->
-      <div class="section">
-        <h3>👷 On-Site Contact</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Site Manager</label>
-            <input type="text" placeholder="Jane Smith" />
-          </div>
-          
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" placeholder="555-5678" />
-          </div>
-          
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="manager@site.com" />
-          </div>
-        </div>
-      </div>
-      
-      <!-- Access Info -->
-      <div class="section">
-        <h3>🔐 Site Access</h3>
-        <div class="form-group">
-          <label>Gate Code</label>
-          <input type="text" placeholder="1234#" />
-        </div>
-        
-        <div class="form-group">
-          <label>Access Instructions</label>
-          <textarea 
-            placeholder="Call 30 minutes before arrival. Gate code required."
-            rows="2"
-          ></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label>Safety Notes</label>
-          <textarea 
-            placeholder="High voltage equipment. PPE required. Confined space."
-            rows="2"
-          ></textarea>
-        </div>
-      </div></div>
       
       <!-- General Notes (for all types) -->
       <div class="section">
@@ -793,7 +536,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create Site'"></span>
+        ✅ Create Site
       </button>
     </div>
   </div>
@@ -892,7 +635,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create NOC'"></span>
+        ✅ Create NOC
       </button>
     </div>
   </div>
@@ -968,7 +711,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create Warehouse'"></span>
+        ✅ Create Warehouse
       </button>
     </div>
   </div>
@@ -1027,7 +770,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Add Vehicle'"></span>
+        ✅ Add Vehicle
       </button>
     </div>
   </div>
@@ -1103,7 +846,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create RMA Center'"></span>
+        ✅ Create RMA Center
       </button>
     </div>
   </div>
@@ -1112,7 +855,7 @@
 <div data-cwl-component="AddSectorModal" data-cwl-lifted-component="AddSectorModal"><div class="modal-overlay" hidden aria-hidden="true">
     <div class="modal-content">
     <div class="modal-header">
-      <h2>📶 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sectorToEdit ? 'Edit Sector' : 'Add Sector'"></span></h2>
+      <h2>📶 Add Sector</h2>
       <button class="close-btn">✕</button>
     </div>
     
@@ -1126,12 +869,10 @@
           <label>Select Site *</label>
           <select>
             <option>-- Select a tower site --</option>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option> ()</option></div>
+            
           </select>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="sectorToEdit"><p class="help-text">⚠️ Site cannot be changed when editing</p></div>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedSiteData"><p class="help-text">
-              📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedSiteData.location.latitude.toFixed(4)"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedSiteData.location.longitude.toFixed(4)"></span>
-            </p></div>
+          
+          
         </div>
       </div>
       
@@ -1256,7 +997,7 @@
           handleSave();
         }}
       >
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (sectorToEdit ? '✅ Save Changes' : '✅ Create Sector')"></span>
+        
       </button>
     </div>
   </div>
@@ -1281,7 +1022,7 @@
             placeholder="Enter customer address..."
           />
           <button class="btn-secondary">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSearching ? '...' : 'Search'"></span>
+            Search
           </button>
         </div>
         
@@ -1379,7 +1120,7 @@
             <label>Connected to Site</label>
             <select>
               <option>None / Unknown</option>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option></option></div>
+              
             </select>
           </div>
         </div>
@@ -1436,7 +1177,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create CPE'"></span>
+        ✅ Create CPE
       </button>
     </div>
   </div>
@@ -1445,15 +1186,15 @@
 <div data-cwl-component="AddBackhaulLinkModal" data-cwl-lifted-component="AddBackhaulLinkModal"><div class="modal-overlay" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>🔗 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="backhaulToEdit ? 'Edit Backhaul Link' : 'Add Backhaul Link'"></span></h2>
+      <h2>🔗 Add Backhaul Link</h2>
       <button class="close-btn">✕</button>
     </div>
     
     
     
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!canCreateBackhaul"><div class="warning-banner">
+    <div class="warning-banner">
         ⚠️ Need at least 2 sites to create backhaul. Add more tower sites or NOC first.
-      </div></div>
+      </div>
     
     <div class="modal-body">
       <!-- Link Endpoints -->
@@ -1464,16 +1205,16 @@
             <label>From Site (A) *</label>
             <select>
               <option>-- Select site --</option>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as site"><option> ()</option></div>
+              
             </select>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="backhaulToEdit"><p class="help-text">⚠️ Sites cannot be changed when editing</p></div>
+            
           </div>
           
           <div class="form-group">
             <label>To Site (B) *</label>
             <select>
               <option>-- Select site --</option>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableToSites as site"><option> ()</option></div>
+              
             </select>
           </div>
         </div>
@@ -1500,758 +1241,34 @@
       </div>
       
       <!-- Wireless Configuration -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isWireless && canCreateBackhaul"><div class="section wireless-section">
-          <h3>📡 Fixed Wireless Configuration</h3>
-          
-          <!-- Site A Configuration -->
-          <div class="site-config">
-            <h4>📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="fromSiteName"></span> (Site A)</h4>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Azimuth (auto-calculated)</label>
-                <input type="number" min="0" max="360" />
-                <p class="help-text">Pointing toward <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="toSiteName"></span></p>
-              </div>
-              
-              <div class="form-group">
-                <label>Antenna Height (feet)</label>
-                <input type="number" placeholder="150" />
-              </div>
-              
-              <div class="form-group">
-                <label>Antenna Gain (dBi)</label>
-                <input type="number" placeholder="23" />
-              </div>
-              
-              <div class="form-group">
-                <label>TX Power (dBm)</label>
-                <input type="number" placeholder="20" />
-              </div>
-            </div>
-          </div>
-          
-          <!-- Site B Configuration -->
-          <div class="site-config">
-            <h4>📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="toSiteName"></span> (Site B)</h4>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Azimuth (auto-calculated)</label>
-                <input type="number" min="0" max="360" />
-                <p class="help-text">Pointing toward <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="fromSiteName"></span></p>
-              </div>
-              
-              <div class="form-group">
-                <label>Antenna Height (feet)</label>
-                <input type="number" placeholder="150" />
-              </div>
-              
-              <div class="form-group">
-                <label>Antenna Gain (dBi)</label>
-                <input type="number" placeholder="23" />
-              </div>
-              
-              <div class="form-group">
-                <label>TX Power (dBm)</label>
-                <input type="number" placeholder="20" />
-              </div>
-            </div>
-          </div>
-          
-          <!-- RF Parameters -->
-          <h4>📻 RF Parameters</h4>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Frequency (MHz) *</label>
-              <input type="number" placeholder="5800" />
-              <p class="help-text">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-unlicensed'">WiFi: 5150-5850 | 60GHz: 57000-71000</div>
-              </p>
-            </div>
-            
-            <div class="form-group">
-              <label>Channel Bandwidth (MHz)</label>
-              <input type="number" placeholder="80" />
-            </div>
-            
-            <div class="form-group">
-              <label>Beamwidth (degrees)</label>
-              <input type="number" placeholder="10" />
-              <p class="help-text">Antenna beamwidth (5-15° typical)</p>
-            </div>
-          </div>
-          
-          <!-- Licensed Spectrum -->
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-licensed'"><div class="license-section">
-              <h4>📜 FCC Licensing Information</h4>
-              <p class="section-help">Required FCC licensing details for licensed wireless backhaul links</p>
-              
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>License Type *</label>
-                  <select>
-                    <option>-- Select --</option>
-                    <option value="point-to-point">Point-to-Point</option>
-                    <option value="point-to-multipoint">Point-to-Multipoint</option>
-                  </select>
-                </div>
-                
-                <div class="form-group">
-                  <label>FCC Call Sign *</label>
-                  <input type="text" placeholder="WXYZ123" />
-                  <p class="help-text">FCC-assigned call sign</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>FCC License Number</label>
-                  <input type="text" placeholder="Additional license identifier" />
-                  <p class="help-text">Additional license number if different from call sign</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>FCC File Number</label>
-                  <input type="text" placeholder="0000123456" />
-                  <p class="help-text">FCC application/file number</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>License Status</label>
-                  <select>
-                    <option value="active">✅ Active</option>
-                    <option value="pending">⏳ Pending</option>
-                    <option value="expired">❌ Expired</option>
-                    <option value="suspended">⚠️ Suspended</option>
-                    <option value="revoked">🚫 Revoked</option>
-                  </select>
-                </div>
-                
-                <div class="form-group">
-                  <label>Part Number</label>
-                  <select>
-                    <option>-- Select --</option>
-                    <option value="Part 101">Part 101 - Fixed Microwave Services</option>
-                    <option value="Part 90">Part 90 - Private Land Mobile Radio</option>
-                    <option value="Part 22">Part 22 - Public Mobile Services</option>
-                    <option value="Part 24">Part 24 - Personal Communications Services</option>
-                    <option value="Part 27">Part 27 - Miscellaneous Wireless Services</option>
-                    <option value="Part 94">Part 94 - Private Operational-Fixed Microwave Service</option>
-                    <option value="Part 97">Part 97 - Amateur Radio Service</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>Frequency Band</label>
-                  <input type="text" placeholder="6 GHz, 11 GHz, 18 GHz, 23 GHz, 80 GHz" />
-                  <p class="help-text">Authorized frequency band (e.g., "6 GHz", "18-23 GHz")</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>Authorized Bandwidth</label>
-                  <input type="text" placeholder="50 MHz, 100 MHz" />
-                  <p class="help-text">Total authorized bandwidth for this license</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>Emission Designator</label>
-                  <input type="text" placeholder="8K00F1D" />
-                  <p class="help-text">FCC emission designator code</p>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label>License Holder Name *</label>
-                <input type="text" placeholder="Company Name" />
-              </div>
-              
-              <div class="form-group">
-                <label>License Holder Address</label>
-                <textarea 
-                  placeholder="123 Business St, City, State ZIP"
-                  rows="2"
-                ></textarea>
-                <p class="help-text">Full address of license holder as registered with FCC</p>
-              </div>
-              
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>License Expiration Date</label>
-                  <input type="date" />
-                  <p class="help-text">When the license expires</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>Renewal Date</label>
-                  <input type="date" />
-                  <p class="help-text">Recommended renewal date (before expiration)</p>
-                </div>
-              </div>
-            </div></div>
-        </div></div>
+      
       
       <!-- Fiber Configuration -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isFiber && canCreateBackhaul"><div class="section fiber-section">
-          <h3>🌐 Fiber Optic Details</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Provider *</label>
-              <input type="text" placeholder="AT&T, Verizon, Zayo" />
-            </div>
-            
-            <div class="form-group">
-              <label>Circuit ID</label>
-              <input type="text" placeholder="CIRCUIT-123456" />
-            </div>
-            
-            <div class="form-group">
-              <label>Speed</label>
-              <select>
-                <option value="100M">100 Mbps</option>
-                <option value="1G">1 Gbps</option>
-                <option value="10G">10 Gbps</option>
-                <option value="100G">100 Gbps</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Handoff Type</label>
-              <select>
-                <option value="single-mode">Single-Mode Fiber</option>
-                <option value="multi-mode">Multi-Mode Fiber</option>
-                <option value="ethernet">Ethernet</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label>Connector</label>
-              <select>
-                <option value="LC">LC</option>
-                <option value="SC">SC</option>
-                <option value="ST">ST</option>
-                <option value="RJ45">RJ45</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label>Fiber Count</label>
-              <input type="number" placeholder="2" />
-            </div>
-          </div>
-        </div></div>
+      
       
       <!-- Common Fields -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="canCreateBackhaul"><div class="section">
-          <h3>⚙️ Link Details</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Capacity (Mbps) *</label>
-              <input type="number" placeholder="1000" />
-            </div>
-            
-            <div class="form-group">
-              <label>Equipment Manufacturer</label>
-              <input type="text" placeholder="Cisco, Ubiquiti" />
-            </div>
-            
-            <div class="form-group">
-              <label>Equipment Model</label>
-              <input type="text" placeholder="ASR9000, AirFiber60" />
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Monthly Cost ($)</label>
-              <input type="number" />
-            </div>
-            
-            <div class="form-group">
-              <label>Contract (months)</label>
-              <input type="number" />
-            </div>
-            
-            <div class="form-group">
-              <label>Status</label>
-              <select>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="planned">Planned</option>
-              </select>
-            </div>
-          </div>
-        </div></div>
+      
     </div>
     
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (backhaulToEdit ? '✅ Save Changes' : '✅ Create Backhaul"></span>
+        
       </button>
     </div>
   </div>
 </div></div>
 
-<div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <div>
-        <h2>📦 Add Equipment Inventory</h2>
-        <p class="site-name">📡 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.name"></span></p>
-      </div>
-      <button class="close-btn">✕</button>
-    </div>
-    
-    
-    
-    <div class="modal-body">
-      <!-- Equipment Category & Type -->
-      <div class="section">
-        <h3>🏷️ Equipment Classification</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Equipment Category *</label>
-            <select>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Object.keys(equipmentCategories) as category"><option></option></div>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Equipment Type *</label>
-            <select>
-              <option>-- Select Type --</option>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableTypes as type"><option></option></div>
-              <option value="Other/Custom">Other/Custom</option>
-            </select>
-          </div>
-        </div>
-        
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="useCustomType"><div class="form-group">
-            <label>Custom Equipment Type *</label>
-            <input type="text" placeholder="Enter custom equipment type" />
-          </div></div>
-      </div>
-      
-      <!-- Manufacturer & Model Information -->
-      <div class="section">
-        <h3>🏭 Manufacturer Information</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Manufacturer</label>
-            <input 
-              type="text" 
-              placeholder="Nokia, Ericsson, Huawei, Cisco, etc." 
-            />
-          </div>
-          
-          <div class="form-group">
-            <label>Model Number</label>
-            <input type="text" placeholder="Model/SKU" />
-          </div>
-          
-          <div class="form-group">
-            <label>Serial Number *</label>
-            <input type="text" placeholder="S/N" required />
-            <p class="help-text">Required for inventory tracking</p>
-          </div>
-          
-          <div class="form-group">
-            <label>Part Number</label>
-            <input type="text" placeholder="P/N" />
-          </div>
-        </div>
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Firmware Version</label>
-            <input type="text" placeholder="FW version" />
-          </div>
-          
-          <div class="form-group">
-            <label>Hardware Version</label>
-            <input type="text" placeholder="HW revision" />
-          </div>
-        </div>
-      </div>
-      
-      <!-- Physical Location -->
-      <div class="section">
-        <h3>📍 Physical Location</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Rack/Cabinet Location</label>
-            <input type="text" placeholder="Rack A, Cabinet 1, etc." />
-          </div>
-          
-          <div class="form-group">
-            <label>Rack Unit (RU)</label>
-            <input type="text" placeholder="RU 10-15" />
-          </div>
-          
-          <div class="form-group">
-            <label>Condition</label>
-            <select>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-              <option value="refurbished">Refurbished</option>
-              <option value="rma">RMA</option>
-              <option value="retired">Retired</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Status</label>
-            <select>
-              <option value="deployed">Deployed</option>
-              <option value="inventory">In Inventory</option>
-              <option value="maintenance">Under Maintenance</option>
-              <option value="rma">RMA</option>
-              <option value="retired">Retired</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Dates & Warranty -->
-      <div class="section">
-        <h3>📅 Installation & Warranty</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Install Date</label>
-            <input type="date" />
-          </div>
-          
-          <div class="form-group">
-            <label>Warranty Expiration</label>
-            <input type="date" />
-          </div>
-        </div>
-      </div>
-      
-      <!-- Purchase Information -->
-      <div class="section">
-        <h3>💰 Purchase Information</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Purchase Date</label>
-            <input type="date" />
-          </div>
-          
-          <div class="form-group">
-            <label>Vendor</label>
-            <input type="text" placeholder="Vendor/Supplier" />
-          </div>
-          
-          <div class="form-group">
-            <label>Purchase Order Number</label>
-            <input type="text" placeholder="PO-######" />
-          </div>
-          
-          <div class="form-group">
-            <label>Purchase Price ($)</label>
-            <input type="number" placeholder="0.00" step="0.01" />
-          </div>
-        </div>
-      </div>
-      
-      <!-- Technical Details -->
-      <div class="section">
-        <h3>⚙️ Technical Details</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Power Requirements</label>
-            <input type="text" placeholder="48V DC, 100-240V AC, etc." />
-          </div>
-          
-          <div class="form-group">
-            <label>IP Address</label>
-            <input type="text" placeholder="192.168.1.100" />
-          </div>
-          
-          <div class="form-group">
-            <label>MAC Address</label>
-            <input type="text" placeholder="00:1A:2B:3C:4D:5E" />
-          </div>
-          
-          <div class="form-group">
-            <label>Management URL</label>
-            <input type="url" placeholder="https://..." />
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Additional Notes</label>
-          <textarea 
-            placeholder="Configuration notes, maintenance history, special instructions..."
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
-    </div>
-    
-    <div class="modal-footer">
-      <button class="btn-secondary">Cancel</button>
-      <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Add to Inventory'"></span>
-      </button>
-    </div>
-  </div>
-</div></div></div>
+<div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"></div>
 
 <!-- Context Menus -->
-<div data-cwl-component="MapContextMenu" data-cwl-lifted-component="MapContextMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && !disabled" hidden aria-hidden="true"><div 
-  class="context-menu" 
-  style="left: px; top: px"
->
-  <div class="menu-header">
-    <span class="coords">
-      📍 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="latitude != null && longitude != null ? `$, $"></span>
-    </span>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="planMode"><div class="plan-mode-indicator">
-        📋 Plan Mode<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="planName ? `: $` : ''"></span>
-      </div></div>
-  </div>
-  
-  <div class="menu-section">
-    <div class="section-label">
-      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="planMode ? 'Add Site to Plan' : 'Create Site'"></span>
-    </div>
-    <button class="menu-item">
-      <span class="menu-icon">📡</span>
-      <span>Add Tower Site<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="planMode ? ' to Plan' : ''"></span></span>
-    </button>
-    
-    <button class="menu-item">
-      <span class="menu-icon">🖥️</span>
-      <span>Add NOC<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="planMode ? ' to Plan' : ''"></span></span>
-    </button>
-    
-    <button class="menu-item">
-      <span class="menu-icon">🏭</span>
-      <span>Add Warehouse<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="planMode ? ' to Plan' : ''"></span></span>
-    </button>
-    
-    <button class="menu-item">
-      <span class="menu-icon">📍</span>
-      <span>Add Other Site<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="planMode ? ' to Plan' : ''"></span></span>
-    </button>
-  </div>
-  
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="planMode"><div class="menu-divider"></div>
-  
-  <div class="menu-section">
-    <div class="section-label">Add Equipment to Plan</div>
-    <button class="menu-item">
-      <span class="menu-icon">📶</span>
-      <span>Add Sector to Plan</span>
-    </button>
-    
-    <button class="menu-item">
-      <span class="menu-icon">📱</span>
-      <span>Add CPE Device to Plan</span>
-    </button>
-  </div></div>
-  
-  <div class="menu-divider"></div>
-  
-  <button class="menu-item">
-    <span class="menu-icon">📋</span>
-    <span>Copy Coordinates</span>
-  </button>
-</div></div></div>
+<div data-cwl-component="MapContextMenu" data-cwl-lifted-component="MapContextMenu"></div>
 
-<div data-cwl-component="TowerActionsMenu" data-cwl-lifted-component="TowerActionsMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && tower" hidden aria-hidden="true"><div 
-  class="tower-menu" 
-  style="left: px; top: px"
->
-  <div class="menu-header">
-    <span class="tower-name">📡 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tower?.name || 'Unknown Site'"></span></span>
-    <span class="tower-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="siteTypeLabel"></span></span>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions?.isReadOnly"><span class="readonly-indicator">🔒</span></div>
-  </div>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">✏️</span>
-    <span>Edit <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="siteTypeLabel"></span></span>
-  </button>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">📶</span>
-    <span>Add Sector</span>
-  </button>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">🔗</span>
-    <span>Add Backhaul Link</span>
-  </button>
-  
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!shouldHideAddInventory"><!-- Only show "Add Equipment Inventory" when NOT in deploy mode -->
-  <!-- In deploy mode, adding inventory should be done in the Inventory module -->
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">📦</span>
-    <span>Add Equipment Inventory</span>
-  </button></div>
-  
-  <button class="menu-item">
-    <span class="menu-icon">📋</span>
-    <span>View All Equipment</span>
-  </button>
-  
-  <div class="menu-divider"></div>
-  
-  <!-- Hardware Deployment -->
-  <button 
-    class="menu-item epc-option"
-  >
-    <span class="menu-icon">🔧</span>
-    <span>Deploy Hardware</span>
-  </button>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">🔄</span>
-    <span>Change Site Type</span>
-  </button>
-  
-  <div class="menu-divider"></div>
-  
-  <button 
-    class="menu-item danger"
-  >
-    <span class="menu-icon">🗑️</span>
-    <span>Delete Site</span>
-  </button>
-  
-  <!-- Show object state info -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions"><div class="menu-divider"></div>
-    <div class="object-state-info">
-      <div class="state-item">
-        <span class="state-label">Status:</span>
-        <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.status"></span></span>
-      </div>
-      <div class="state-item">
-        <span class="state-label">Source:</span>
-        <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.origin-convert-all"></span></span>
-      </div>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions.projectId"><div class="state-item">
-          <span class="state-label">Project:</span>
-          <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.projectId"></span></span>
-        </div></div>
-    </div></div>
-</div></div></div>
+<div data-cwl-component="TowerActionsMenu" data-cwl-lifted-component="TowerActionsMenu"></div>
 
-<div data-cwl-component="SectorActionsMenu" data-cwl-lifted-component="SectorActionsMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && sector" hidden aria-hidden="true"><div 
-  class="sector-menu" 
-  style="left: px; top: px"
->
-  <div class="menu-header">
-    <span class="sector-name">📶 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sector?.name || 'Unknown Sector'"></span></span>
-    <span class="sector-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sector?.technology || 'Unknown'"></span></span>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions?.isReadOnly"><span class="readonly-indicator">🔒</span></div>
-  </div>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">➕</span>
-    <span>Add Sector</span>
-  </button>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">✏️</span>
-    <span>Edit Sector</span>
-  </button>
-  
-  <div class="menu-divider"></div>
-  
-  <button 
-    class="menu-item danger"
-  >
-    <span class="menu-icon">🗑️</span>
-    <span>Delete Sector</span>
-  </button>
-  
-  <!-- Show object state info -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions"><div class="menu-divider"></div>
-    <div class="object-state-info">
-      <div class="state-item">
-        <span class="state-label">Status:</span>
-        <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.status"></span></span>
-      </div>
-      <div class="state-item">
-        <span class="state-label">Source:</span>
-        <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.origin-convert-all"></span></span>
-      </div>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions.projectId"><div class="state-item">
-          <span class="state-label">Project:</span>
-          <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.projectId"></span></span>
-        </div></div>
-    </div></div>
-</div></div></div>
+<div data-cwl-component="SectorActionsMenu" data-cwl-lifted-component="SectorActionsMenu"></div>
 
-<div data-cwl-component="BackhaulActionsMenu" data-cwl-lifted-component="BackhaulActionsMenu"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && backhaul" hidden aria-hidden="true"><div 
-  class="backhaul-menu" 
-  style="left: px; top: px"
->
-  <div class="menu-header">
-    <span class="backhaul-name">🔗 <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="backhaul?.name || 'Unknown Backhaul'"></span></span>
-    <span class="backhaul-type"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="backhaul?.backhaulType || 'Unknown'"></span></span>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions?.isReadOnly"><span class="readonly-indicator">🔒</span></div>
-  </div>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">➕</span>
-    <span>Add Backhaul</span>
-  </button>
-  
-  <button 
-    class="menu-item"
-  >
-    <span class="menu-icon">✏️</span>
-    <span>Edit Backhaul</span>
-  </button>
-  
-  <div class="menu-divider"></div>
-  
-  <button 
-    class="menu-item danger"
-  >
-    <span class="menu-icon">🗑️</span>
-    <span>Delete Backhaul</span>
-  </button>
-  
-  <!-- Show object state info -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions"><div class="menu-divider"></div>
-    <div class="object-state-info">
-      <div class="state-item">
-        <span class="state-label">Status:</span>
-        <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.status"></span></span>
-      </div>
-      <div class="state-item">
-        <span class="state-label">Source:</span>
-        <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.origin-convert-all"></span></span>
-      </div>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="objectPermissions.projectId"><div class="state-item">
-          <span class="state-label">Project:</span>
-          <span class="state-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="objectPermissions.projectId"></span></span>
-        </div></div>
-    </div></div>
-</div></div></div>
+<div data-cwl-component="BackhaulActionsMenu" data-cwl-lifted-component="BackhaulActionsMenu"></div>
 
 <!-- EPC Deployment Modal -->
 <div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" hidden aria-hidden="true">
@@ -2268,320 +1285,20 @@
       <div class="modal-body">
         <!-- Step Progress Indicator -->
         <div class="step-indicator">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Array(totalSteps) as _, i">
-            <div class="step-indicator-item">
-              <div class="step-indicator-number"></div>
-              <div class="step-indicator-line"></div>
-            </div></div>
+          
         </div>
 
         <!-- Step Content -->
         <div class="step-content">
           <!-- Step 1: Deployment Type -->
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep === 1"><div class="step-panel">
-              <h3>Step 1: Select Deployment Type</h3>
-              <p class="step-description">Choose what components to deploy on the server</p>
-              <div class="deployment-type-options">
-                <label class="deployment-option">
-                  <input type="radio" name="deploymentType" value="epc" />
-                  <div class="option-content">
-                    <div class="option-icon">📡</div>
-                    <div class="option-info">
-                      <strong>EPC Core Only</strong>
-                      <p>Deploy Open5GS EPC components (MME, SGW, PGW, PCRF)</p>
-                    </div>
-                  </div>
-                </label>
-                <label class="deployment-option">
-                  <input type="radio" name="deploymentType" value="snmp" />
-                  <div class="option-content">
-                    <div class="option-icon">📊</div>
-                    <div class="option-info">
-                      <strong>SNMP/Mikrotik Agent Only</strong>
-                      <p>Deploy SNMP agent and Mikrotik monitoring modules</p>
-                    </div>
-                  </div>
-                </label>
-                <label class="deployment-option">
-                  <input type="radio" name="deploymentType" value="both" />
-                  <div class="option-content">
-                    <div class="option-icon">🔄</div>
-                    <div class="option-info">
-                      <strong>Both EPC + SNMP</strong>
-                      <p>Deploy both EPC Core and SNMP/Mikrotik monitoring agents</p>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-          <!-- Step 2: Site Information -->
           
-            <div class="step-panel">
-              <h3>Step 2: Site Information</h3>
-              <p class="step-description">Select a site to deploy the remote EPC/SNMP agent. Site selection is required to link device codes.</p>
-              <div class="form-section">
-                <div class="form-group">
-                  <label for="siteSelect">Select Site *</label>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingSites"><select id="siteSelect" disabled>
-                      <option>Loading sites...</option>
-                    </select>
-                  
-                    <select id="siteSelect" disabled>
-                      <option>No sites available. Please create a site first.</option>
-                    </select>
-                    <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
-                      You need to create a site in the Coverage Map module before deploying remotes.
-                    </p></div>
-                </div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedSiteId && selectedSite"><div class="form-group">
-                    <label>Site Name</label>
-                    <input type="text" readonly />
-                  </div>
-                  <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" readonly />
-                  </div>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.contact.name || epcConfig.contact.email"><div class="form-group">
-                      <label>Contact</label>
-                      <input type="text" readonly />
-                    </div>
-                    <div class="form-group">
-                      <label>Email</label>
-                      <input type="text" readonly />
-                    </div></div></div>
-              </div>
-            </div>
-
-          <!-- Step 3: EPC Network Configuration (if EPC selected) -->
-          
-            <div class="step-panel">
-              <h3>Step 3: EPC Network Configuration</h3>
-              <p class="step-description">Configure network parameters for EPC</p>
-              <div class="form-section">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="mcc">MCC *</label>
-                    <input id="mcc" type="text" placeholder="001" required />
-                  </div>
-                  <div class="form-group">
-                    <label for="mnc">MNC *</label>
-                    <input id="mnc" type="text" placeholder="01" required />
-                  </div>
-                  <div class="form-group">
-                    <label for="tac">TAC *</label>
-                    <input id="tac" type="text" placeholder="1" required />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          <!-- Step 4: HSS Configuration (if EPC selected) -->
-          
-            <div class="step-panel">
-              <h3>Step 4: HSS Configuration</h3>
-              <p class="step-description">Configure HSS connection settings</p>
-              <div class="form-section">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="hssHost">HSS Host</label>
-                    <input id="hssHost" type="text" placeholder="HSS host" />
-                  </div>
-                  <div class="form-group">
-                    <label for="hssPort">HSS Port</label>
-                    <input id="hssPort" type="text" placeholder="3868" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="diameterRealm">Diameter Realm</label>
-                  <input id="diameterRealm" type="text" placeholder="example.com" />
-                </div>
-              </div>
-            </div>
-
-          <!-- SNMP Configuration (if SNMP selected) -->
-          
-            <div class="step-panel">
-              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: SNMP/Mikrotik Configuration</h3>
-              <p class="step-description">Configure SNMP agent and monitoring</p>
-              <div class="form-section">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="snmpVersion">SNMP Version</label>
-                    <select id="snmpVersion">
-                      <option value="2c">SNMPv2c (Recommended)</option>
-                      <option value="1">SNMPv1</option>
-                      <option value="3">SNMPv3 (Secure)</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="snmpCommunity">Community String</label>
-                    <input id="snmpCommunity" type="text" placeholder="public" />
-                  </div>
-                  <div class="form-group">
-                    <label for="snmpPort">SNMP Port</label>
-                    <input id="snmpPort" type="number" placeholder="161" />
-                  </div>
-                </div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.snmpConfig.version === '3'"><div class="form-row">
-                    <div class="form-group">
-                      <label for="snmpUsername">SNMPv3 Username</label>
-                      <input id="snmpUsername" type="text" placeholder="Enter username" />
-                    </div>
-                    <div class="form-group">
-                      <label for="snmpAuthProtocol">Auth Protocol</label>
-                      <select id="snmpAuthProtocol">
-                        <option value="SHA">SHA</option>
-                        <option value="MD5">MD5</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="snmpAuthKey">Auth Key</label>
-                      <input id="snmpAuthKey" type="password" placeholder="Enter auth key" />
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="snmpPrivProtocol">Privacy Protocol</label>
-                      <select id="snmpPrivProtocol">
-                        <option value="AES">AES</option>
-                        <option value="DES">DES</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="snmpPrivKey">Privacy Key</label>
-                      <input id="snmpPrivKey" type="password" placeholder="Enter privacy key" />
-                    </div>
-                  </div></div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="snmpReportingInterval">Reporting Interval (seconds)</label>
-                    <input id="snmpReportingInterval" type="number" placeholder="60" />
-                  </div>
-                  <div class="form-group">
-                    <label for="snmpCloudApiUrl">Cloud API URL</label>
-                    <input id="snmpCloudApiUrl" type="text" placeholder="https://hss.wisptools.io:3003" />
-                  </div>
-                  <div class="form-group checkbox-group">
-                    <label>
-                      <input type="checkbox" />
-                      Enable SNMP Traps
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          <!-- APT Repository Configuration -->
-          
-            <div class="step-panel">
-              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: APT Repository Configuration</h3>
-              <p class="step-description">Configure remote updates repository</p>
-              <div class="form-section">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="aptRepositoryUrl">Repository URL</label>
-                    <input id="aptRepositoryUrl" type="text" placeholder="https://hss.wisptools.io/apt" />
-                  </div>
-                  <div class="form-group checkbox-group">
-                    <label>
-                      <input type="checkbox" />
-                      Enable APT Repository
-                    </label>
-                  </div>
-                  <div class="form-group checkbox-group">
-                    <label>
-                      <input type="checkbox" />
-                      Auto-update Enabled
-                    </label>
-                  </div>
-                </div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.aptConfig.autoUpdate"><div class="form-row">
-                    <div class="form-group">
-                      <label for="aptUpdateSchedule">Update Schedule</label>
-                      <select id="aptUpdateSchedule">
-                        <option value="hourly">Hourly</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="aptUpdateTime">Update Time (HH:MM)</label>
-                      <input id="aptUpdateTime" type="text" placeholder="02:00" pattern="[0-9]:[0-9]" />
-                    </div>
-                    <div class="form-group checkbox-group">
-                      <label>
-                        <input type="checkbox" />
-                        Security Updates Only
-                      </label>
-                    </div>
-                  </div></div>
-              </div>
-            </div>
-
-          <!-- Review Step -->
-          
-            <div class="step-panel">
-              <h3>Step <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentStep"></span>: Review Configuration</h3>
-              <p class="step-description">Review your deployment configuration</p>
-              <div class="review-section">
-                <div class="review-item">
-                  <strong>Deployment Type:</strong>
-                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deploymentType === 'both' ? 'EPC + SNMP' : deploymentType.toUpperCase()"></span></span>
-                </div>
-                <div class="review-item">
-                  <strong>Site Name:</strong>
-                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.siteName"></span></span>
-                </div>
-                <div class="review-item">
-                  <strong>Device Code:</strong>
-                  <span style="color: #999; font-style: italic;">Will be entered in device configuration after hardware boots</span>
-                </div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deploymentType === 'epc' || deploymentType === 'both'"><div class="review-item">
-                    <strong>EPC Network:</strong>
-                    <span>MCC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.mcc"></span>, MNC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.mnc"></span>, TAC: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.networkConfig.tac"></span></span>
-                  </div>
-                  <div class="review-item">
-                    <strong>HSS:</strong>
-                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.hssConfig.hssHost"></span>:<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.hssConfig.hssPort"></span></span>
-                  </div></div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="deploymentType === 'snmp' || deploymentType === 'both'"><div class="review-item">
-                    <strong>SNMP Version:</strong>
-                    <span>SNMPv<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.snmpConfig.version"></span></span>
-                  </div>
-                  <div class="review-item">
-                    <strong>SNMP Community:</strong>
-                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.snmpConfig.community"></span></span>
-                  </div></div>
-                <div class="review-item">
-                  <strong>Location:</strong>
-                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.address"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.city"></span>, <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.location.state"></span></span>
-                </div>
-                <div class="review-item">
-                  <strong>Contact:</strong>
-                  <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.contact.name"></span> (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.contact.email"></span>)</span>
-                </div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcConfig.aptConfig.enabled"><div class="review-item">
-                    <strong>APT Repository:</strong>
-                    <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="epcConfig.aptConfig.repositoryUrl"></span></span>
-                  </div></div>
-              </div>
-            </div>
-
-          <!-- Final Step: Download (Script/ISO Selection) --></div>
         </div>
 
         <!-- Action Buttons -->
         <div class="modal-actions">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep > 1"><button class="btn btn-secondary">
-              ← Previous
-            </button></div>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentStep < totalSteps"><button class="btn btn-primary">
-              
-                Next →
-              
-            </button></div>
+          
+          
         </div>
       </div>
     </div>
@@ -2809,103 +1526,15 @@
   </div></div>
 
 <!-- Hardware Deployment Modal -->
-<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && tower" hidden aria-hidden="true"><div class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>🔧 Deploy Hardware to <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tower?.name || 'Selected Site'"></span></h2>
-      <button class="close-btn">✕</button>
-    </div>
-    
-    <div class="modal-content">
-      <p class="info-text">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tower">Deploy hardware to <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tower.name"></span></strong> located at <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tower.location?.address || `$, $"></span></strong></div>
-      </p>
-      
-      
-      
-      <!-- Site Selector -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="availableSites.length > 1"><div class="form-group">
-          <label for="siteSelect">Select Site:</label>
-          <select id="siteSelect" class="form-control">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableSites as site"><option></option></div>
-          </select>
-        </div></div>
-
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!showInventoryList"><div class="button-group">
-          <button class="btn btn-primary">
-            🚀 Deploy EPC to Site
-          </button>
-          
-          <button 
-            class="btn btn-primary"
-            type="button"
-          >
-            📦 Select Hardware from Inventory
-          </button>
-          
-          <button class="btn btn-secondary">
-            📋 View Current Inventory
-          </button>
-        </div>
-        
-        <div class="info-section">
-          <h3>Available Hardware Types:</h3>
-          <ul>
-            <li>📡 Radio Equipment (eNodeB, gNodeB, RRH)</li>
-            <li>🛰️ Antennas (Sector, Panel, MIMO)</li>
-            <li>🔌 Power Systems (Batteries, UPS, Solar)</li>
-            <li>🌐 Networking Equipment (Routers, Switches)</li>
-            <li>📡 EPC Equipment (MME, SGW, PGW)</li>
-            <li>🔧 Test Equipment</li>
-            <li>📦 Other Equipment</li>
-          </ul>
-        </div></div>
-    </div>
-    
-    <div class="modal-footer">
-      <button class="btn btn-secondary">Cancel</button>
-    </div>
-  </div>
-</div></div></div>
+<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"></div>
 
 <!-- Help Modal -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!isEmbedded"><div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay">
-    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
-      <div class="tips-header">
-        <div class="tips-title-section">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentTip.icon"><span class="tip-icon"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.icon"></span></span></div>
-          <h2 id="tips-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTip.title"></span></h2>
-        </div>
-        <button class="close-btn" aria-label="Close">×</button>
-      </div>
-      
-      <div class="tips-body">
-        <div class="tip-content">
-          
-        </div>
-      </div>
-      
-      <div class="tips-footer">
-        <div class="tips-footer-left">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
-              <button type="button" class="nav-btn" aria-label="Previous tip">←</button>
-              <span class="tip-counter"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tips.length"></span></span>
-              <button type="button" class="nav-btn" aria-label="Next tip">→</button>
-            </div></div>
-          <label class="dont-show-again">
-            <input type="checkbox" />
-            <span>Don't show again</span>
-          </label>
-        </div>
-        <button class="close-button" type="button">Close</button>
-      </div>
-    </div>
-  </div></div></div></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
 
 <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
-        <h2 id="help-modal-title"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="title"></span></h2>
+        <h2 id="help-modal-title"></h2>
         <button class="close-btn" aria-label="Close">×</button>
       </div>
       
@@ -2920,7 +1549,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h2>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site">✏️ Edit Site: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="site.name"></span></div>
+        
       </h2>
       <button class="close-btn">✕</button>
     </div>
@@ -2939,7 +1568,7 @@
           <button 
             class="btn-secondary"
           >
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSearching ? '...' : 'Search'"></span>
+            Search
           </button>
         </div>
         <p class="help-text">Or enter GPS coordinates below</p>
@@ -2957,16 +1586,7 @@
           <div class="form-group" style="grid-column: 1 / -1;">
             <label>Site Types * (Select all that apply)</label>
             <div class="type-checkboxes">
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="siteTypes as siteType"><label class="type-checkbox">
-                  <input
-                    type="checkbox" } else 
-                    }}
-                  />
-                  <span class="type-label">
-                    <span class="type-icon"></span>
-                    
-                  </span>
-                </label></div>
+              
             </div>
             <p class="help-text">Small operators can select multiple types (e.g., NOC + Tower, HQ + NOC)</p>
           </div>
@@ -2981,22 +1601,7 @@
             </select>
           </div>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.types.includes('tower') || formData.types.includes('pole')"><div class="form-group">
-            <label>Height (feet)</label>
-            <input type="number" placeholder="100" min="0" />
-          </div>
           
-          <div class="form-group">
-            <label>Structure Type</label>
-            <select>
-              <option>-- Select --</option>
-              <option value="self-supporting">Self-Supporting</option>
-              <option value="guyed">Guyed</option>
-              <option value="monopole">Monopole</option>
-              <option value="building-mounted">Building-Mounted</option>
-              <option value="other">Other</option>
-            </select>
-          </div></div>
           
           <div class="form-group">
             <label>Owner</label>
@@ -3054,61 +1659,10 @@
       </div>
       
       <!-- Tower Contact (for tower/pole sites) -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'tower' || formData.type === 'pole'"><div class="section">
-        <h3>🏢 Tower Owner Contact</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Company</label>
-            <input type="text" placeholder="Tower Company LLC" />
-          </div>
-          
-          <div class="form-group">
-            <label>Contact Name</label>
-            <input type="text" placeholder="John Doe" />
-          </div>
-          
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" placeholder="555-1234" />
-          </div>
-          
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="contact@tower.com" />
-          </div>
-        </div>
-      </div></div>
+      
       
       <!-- Building Contact (for building sites) -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.type === 'building'"><div class="section">
-        <h3>🏢 Building Owner Contact</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Company</label>
-            <input type="text" placeholder="Building Management Co" />
-          </div>
-          
-          <div class="form-group">
-            <label>Building Manager</label>
-            <input type="text" placeholder="Jane Smith" />
-          </div>
-          
-          <div class="form-group">
-            <label>Contact Name</label>
-            <input type="text" placeholder="John Doe" />
-          </div>
-          
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" placeholder="555-1234" />
-          </div>
-          
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="contact@building.com" />
-          </div>
-        </div>
-      </div></div>
+      
       
       <!-- Site Contact (for all site types) -->
       <div class="section">
@@ -3194,7 +1748,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (site ? '💾 Save Changes' : '✅ Create Site')"></span>
+        
       </button>
     </div>
   </div>
@@ -3208,7 +1762,7 @@
       <button class="close-btn">✕</button>
     </div>
     
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error"><div class="error-banner"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="error"></span></div></div>
+    
     
     <div class="modal-body">
       <!-- Site Selection -->
@@ -3218,7 +1772,7 @@
           <label>Select Site *</label>
           <select>
             <option>-- Select a tower site --</option>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites as s"><option> ()</option></div>
+            
           </select>
         </div>
       </div>
@@ -3242,167 +1796,10 @@
       </div>
       
       <!-- Fiber Specific Fields -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isFiber"><div class="section fiber-section">
-          <h3>🌐 Fiber Optic Details</h3>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Fiber Provider *</label>
-              <input type="text" placeholder="AT&T, Verizon, Zayo, Crown Castle" />
-            </div>
-            
-            <div class="form-group">
-              <label>Circuit ID</label>
-              <input type="text" placeholder="CIRCUIT-123456-ABC" />
-            </div>
-            
-            <div class="form-group">
-              <label>Fiber Speed</label>
-              <select>
-                <option value="100M">100 Mbps</option>
-                <option value="1G">1 Gbps</option>
-                <option value="10G">10 Gbps</option>
-                <option value="100G">100 Gbps</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Handoff Type</label>
-              <select>
-                <option value="single-mode">Single-Mode Fiber (SMF)</option>
-                <option value="multi-mode">Multi-Mode Fiber (MMF)</option>
-                <option value="ethernet">Ethernet Handoff</option>
-                <option value="coax">Coax Handoff</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label>Connector Type</label>
-              <select>
-                <option value="LC">LC (Lucent Connector)</option>
-                <option value="SC">SC (Subscriber Connector)</option>
-                <option value="ST">ST (Straight Tip)</option>
-                <option value="RJ45">RJ45 (Ethernet)</option>
-                <option value="MTP">MTP/MPO (Multi-fiber)</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label>Fiber Count</label>
-              <input type="number" placeholder="2" />
-              <p class="help-text">Number of fiber strands</p>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Demarc Location</label>
-            <input type="text" placeholder="Ground floor equipment room, Rack A3" />
-            <p class="help-text">Where fiber enters the building</p>
-          </div>
-        </div></div>
+      
       
       <!-- Fixed Wireless Specific Fields -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isWireless"><div class="section wireless-section">
-          <h3>📡 Fixed Wireless Details</h3>
-          
-          <!-- RF Configuration -->
-          <h4>📻 RF Configuration</h4>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Azimuth (degrees) *</label>
-              <input type="number" min="0" max="360" />
-              <p class="help-text">Direction link is pointing (0° = North)</p>
-            </div>
-            
-            <div class="form-group">
-              <label>Beamwidth (degrees)</label>
-              <input type="number" />
-              <p class="help-text">Antenna beamwidth (10-30° typical for PTP)</p>
-            </div>
-            
-            <div class="form-group">
-              <label>Antenna Height (feet)</label>
-              <input type="number" placeholder="150" />
-              <p class="help-text">Height above ground level</p>
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Frequency (MHz) *</label>
-              <input type="number" placeholder="5800" />
-              <p class="help-text">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-unlicensed'">WiFi: 2412-2484, 5150-5850 MHz | 60 GHz: 57000-71000 MHz</div>
-              </p>
-            </div>
-            
-            <div class="form-group">
-              <label>Channel Bandwidth (MHz)</label>
-              <input type="number" placeholder="40" />
-              <p class="help-text">20, 40, 80, 160 MHz</p>
-            </div>
-            
-            <div class="form-group">
-              <label>Antenna Gain (dBi)</label>
-              <input type="number" placeholder="23" />
-            </div>
-          </div>
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>TX Power (dBm)</label>
-              <input type="number" placeholder="20" />
-              <p class="help-text">Transmit power</p>
-            </div>
-          </div>
-          
-          <!-- Remote Site Location -->
-          <h4>📍 Remote Site Location</h4>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Remote Latitude</label>
-              <input type="number" step="0.000001" />
-            </div>
-            
-            <div class="form-group">
-              <label>Remote Longitude</label>
-              <input type="number" step="0.000001" />
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Remote Site Address</label>
-            <input type="text" placeholder="123 Remote Tower Rd" />
-          </div>
-          
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-licensed'"><div class="license-section">
-              <h4>📜 FCC Licensing (Required for Licensed Spectrum)</h4>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>License Type *</label>
-                  <select>
-                    <option>-- Select Type --</option>
-                    <option value="point-to-point">Point-to-Point</option>
-                    <option value="point-to-multipoint">Point-to-Multipoint</option>
-                    <option value="multipoint">Multipoint</option>
-                  </select>
-                </div>
-                
-                <div class="form-group">
-                  <label>FCC License Number *</label>
-                  <input type="text" placeholder="FCC-ABC123456" />
-                  <p class="help-text">FCC call sign or license number</p>
-                </div>
-                
-                <div class="form-group">
-                  <label>License Expiration Date</label>
-                  <input type="date" />
-                </div>
-              </div>
-            </div></div>
-        </div></div>
+      
       
       <!-- Common Fields -->
       <div class="section">
@@ -3418,7 +1815,7 @@
             <label>Connects to (Upstream Site)</label>
             <select>
               <option>-- Select upstream site --</option>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="sites.filter(s => s.id !== formData.siteId) as upstreamOption"><option></option></div>
+              
             </select>
             <p class="help-text">Network topology - which site this connects to</p>
           </div>
@@ -3472,7 +1869,7 @@
           <div class="form-group">
             <label>Monthly Recurring Cost ($)</label>
             <input type="number" />
-            <p class="help-text"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isFiber ? 'Monthly circuit fee' : 'Maintenance/licensing costs'"></span></p>
+            <p class="help-text">Maintenance/licensing costs</p>
           </div>
           
           <div class="form-group">
@@ -3495,7 +1892,7 @@
     <div class="modal-footer">
       <button class="btn-secondary">Cancel</button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '✅ Create Backhaul'"></span>
+        ✅ Create Backhaul
       </button>
     </div>
   </div>
@@ -3513,116 +1910,16 @@
     >
       <div class="auth-header">
         <h2 id="auth-modal-title">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'signin'">Sign In to PCI Mapper
           
-            Create Account</div>
         </h2>
         <button class="close-btn">×</button>
       </div>
       
       <div class="auth-body">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error"><div class="error-message"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="error"></span></div></div>
         
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mode === 'signin'"><form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSignIn"></span>>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input 
-                type="email" 
-                id="email" 
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input 
-                type="password" 
-                id="password" 
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            
-            <button type="submit" class="auth-btn primary">
-              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Signing In...' : 'Sign In'"></span>
-            </button>
-          </form>
-          
-          <div class="divider">or</div>
-          
-          <button class="auth-btn google">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-          </button>
-          
-          <div class="auth-footer">
-            <button class="link-btn">
-              Forgot password?
-            </button>
-            <span>•</span>
-            <button class="link-btn">
-              Create account
-            </button>
-          </div>
         
-          <form on:submit|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSignUp"></span>>
-            <div class="form-group">
-              <label for="displayName">Display Name (Optional)</label>
-              <input 
-                type="text" 
-                id="displayName" 
-                placeholder="John Doe"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input 
-                type="email" 
-                id="email" 
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input 
-                type="password" 
-                id="password" 
-                placeholder="At least 6 characters"
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="confirmPassword">Confirm Password</label>
-              <input 
-                type="password" 
-                id="confirmPassword" 
-                placeholder="Re-enter password"
-                required
-              />
-            </div>
-            
-            <button type="submit" class="auth-btn primary">
-              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Creating Account...' : 'Create Account'"></span>
-            </button>
-          </form>
-          
-          <div class="auth-footer">
-            <span>Already have an account?</span>
-            <button class="link-btn">
-              Sign in
-            </button>
-          </div></div>
+        
       </div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"coverage-map"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"coverage-map","apiPath":"/api/coverage","api_ok":true,"itemCount":1,"tracedApiStatus":200}</script>

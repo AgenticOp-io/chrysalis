@@ -5,21 +5,20 @@
     <li class="breadcrumb-item">
       <a 
         class="breadcrumb-link"
-        on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(homeItem./admin/system-management)"></span>
       >
         <span class="breadcrumb-icon">⚙️</span>
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="homeItem.label"></span>
+        
       </a>
     </li>
     
     <!-- Additional breadcrumb items -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="items as item, index"><li class="breadcrumb-separator">/</li>
+    <li class="breadcrumb-separator">/</li>
       <li class="breadcrumb-item">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item./admin/system-management && index < items.length - 1"><a class="breadcrumb-link" on:click|preventDefault=<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="() => handleClick(item./admin/system-management)"></span>
-          >
-            
-          </a></div>
-      </li></div>
+        
+      </li><li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item">
+        
+      </li>
   </ol>
 </nav></div>
     <div class="admin-header">
@@ -27,85 +26,16 @@
       <p>Manage all tenants and system settings</p>
     </div>
 
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isLoading && tenants.length === 0"><div class="loading">
-        <p>Loading tenants...</p>
-      </div>
     
-      <div class="error-message">
-        <span class="error-icon">⚠️</span>
-        
-      </div></div>
 
     <div class="admin-content">
       <div class="tenants-list">
-        <h2>All Tenants (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenants.length"></span>)</h2>
+        <h2>All Tenants (2)</h2>
         
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tenants.length === 0"><div class="empty-state">
-            <p>No tenants found.</p>
-          </div></div>
+        
       </div>
 
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedTenant"><div class="tenant-details">
-          <h2>Tenant Details</h2>
-          <div class="details-card">
-            <div class="detail-row">
-              <strong>Organization Name:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.name"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>Display Name:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.displayName"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>Subdomain:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.subdomain"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>Contact Email:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.contactEmail"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>CWMP URL:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.cwmpUrl"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>Status:</strong>
-              <span class="status-badge status-">
-                <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.status || 'active'"></span>
-              </span>
-            </div>
-            <div class="detail-row">
-              <strong>User Count:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.userCount || 0"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>Created:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(selectedTenant.createdAt)"></span></span>
-            </div>
-            <div class="detail-row">
-              <strong>Last Updated:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(selectedTenant.updatedAt)"></span></span>
-            </div>
-          </div>
-          
-          <div class="details-actions">
-            <button 
-              class="btn btn-warning"
-            >
-              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.status === 'suspended' ? 'Activate Tenant' : 'Suspend Tenant'"></span>
-            </button>
-            <button 
-              class="btn btn-danger"
-            >
-              Delete Tenant
-            </button>
-            <button 
-              class="btn btn-secondary"
-            >
-              Close
-            </button>
-          </div>
-        </div></div>
+      
     </div>
 
     <!-- Remote Agents Status Section (Global/System-wide) -->
@@ -113,7 +43,7 @@
       <div class="section-header">
         <h2>📡 Remote Agents Status (System-wide)</h2>
         <button class="btn btn-secondary">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loadingAgents ? 'Refreshing...' : 'Refresh'"></span>
+          Refresh
         </button>
       </div>
 
@@ -133,7 +63,7 @@
                 </tr>
               </thead>
               <tbody>
-                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="remoteAgents as agent (agent.epc_id || agent.device_id)"><tr>
+                <tr>
                     <td>
                       <strong></strong>
                     </td>
@@ -151,8 +81,7 @@
                     <td></td>
                     <td>
                       
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="agent.time_since_checkin !== null && agent.time_since_checkin !== undefined"><br>
-                        <small class="time-ago"></small></div>
+                      
                     </td>
                     <td>
                       <span class="status-badge status-">
@@ -160,46 +89,15 @@
                       </span>
                     </td>
                     <td>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="agent.hardware_linked"><span class="linked-badge linked">✓ Linked</span>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="agent.hardware_link_type"><br><small>()</small></div></div>
+                      
                     </td>
-                  </tr></div>
+                  </tr>
               </tbody>
             </table>
           </div>
         
       </div>
 
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showDeleteConfirm && tenantToDelete"><div class="modal-overlay">
-        <div class="modal" on:click|stopPropagation>
-          <h2>⚠️ Confirm Deletion</h2>
-          <p>
-            Are you sure you want to delete the tenant <strong>"<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantToDelete.displayName"></span>"</strong>?
-          </p>
-          <p class="warning-text">
-            This action cannot be undone. All data associated with this tenant will be permanently deleted,
-            including:
-          </p>
-          <ul>
-            <li>All user associations</li>
-            <li>All customers</li>
-            <li>All work orders</li>
-            <li>All inventory</li>
-            <li>All network configurations</li>
-          </ul>
-          <div class="modal-actions">
-            <button 
-              class="btn btn-danger"
-            >
-              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isLoading ? 'Deleting...' : 'Yes, Delete Tenant'"></span>
-            </button>
-            <button 
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div></div>
+    
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/system-management"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/system-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>

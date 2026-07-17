@@ -4,9 +4,7 @@
       ← Back to Tenants
     </button>
     <h1>Module Configuration</h1>
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tenantData"><p class="subtitle">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantData.displayName || tenantData.name"></span> (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantId"></span>)
-      </p></div>
+    
   </div>
   
   
@@ -21,7 +19,7 @@
         <h2>📋 Subscription Tier</h2>
         <div class="tier-selector">
           <select>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="tiers as tier"><option></option></div>
+            <option></option><option></option>
           </select>
           <button class="btn-secondary">
             Apply Tier Defaults
@@ -178,10 +176,10 @@
           Cancel
         </button>
         <button class="btn-primary">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : '💾 Save Configuration'"></span>
+          💾 Save Configuration
         </button>
       </div>
     </div>
   
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/tenants/:tenantId/modules"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/tenants/:tenantId/modules","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>

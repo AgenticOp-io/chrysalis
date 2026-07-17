@@ -11,8 +11,8 @@
           <p>Manage your subscription and billing information</p>
         </div>
         <div class="tenant-info">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentTenant"><span class="tenant-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.name"></span></span>
-            <span class="tenant-subdomain"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.subdomain"></span></span></div>
+          <span class="tenant-name">Demo Tenant</span>
+            <span class="tenant-subdomain">demo</span>
         </div>
       </div>
     </div>
@@ -25,58 +25,15 @@
         <!-- Current Subscription -->
         <div class="current-subscription">
           <h2>Current Subscription</h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentSubscription">
-            <div class="subscription-card">
-              <div class="subscription-header">
-                <div class="plan-info">
-                  <h3><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentPlan?.name || 'Unknown Plan'"></span></h3>
-                  <p class="plan-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentPlan?.description || ''"></span></p>
-                </div>
-                <div class="subscription-status">
-                  <span class="badge">
-                    <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentSubscription.status"></span>
-                  </span>
-                </div>
-              </div>
-              
-              <div class="subscription-details">
-                <div class="detail-item">
-                  <span class="label">Current Period:</span>
-                  <span class="value">
-                    <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(currentSubscription.currentPeriodStart)"></span> - <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(currentSubscription.currentPeriodEnd)"></span>
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Plan Price:</span>
-                  <span class="value">
-                    <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentPlan ? formatCurrency(currentPlan.price) : 'N/A'"></span> / <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentPlan?.interval || 'month'"></span>
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Auto-renewal:</span>
-                  <span class="value">
-                    <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentSubscription.cancelAtPeriodEnd ? 'Cancelled' : 'Active'"></span>
-                  </span>
-                </div>
-              </div>
-              
-              <div class="subscription-actions">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentSubscription.status === 'active' && !currentSubscription.cancelAtPeriodEnd"><button class="cancel-btn">
-                    Cancel Subscription
-                  </button></div>
-                <button class="upgrade-btn">
-                  Change Plan
-                </button>
-              </div>
-            </div></div>
+          
         </div>
 
         <!-- Available Plans -->
         <div class="plans-section">
           <h2>Available Plans</h2>
           <div class="plans-grid">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plans as plan"><div class="plan-card ">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.isPopular"><div class="popular-badge">Most Popular</div></div>
+            <div class="plan-card ">
+                
                 <div class="plan-header">
                   <h3></h3>
                   <div class="plan-price">
@@ -86,7 +43,7 @@
                 </div>
                 <p class="plan-description"></p>
                 <ul class="plan-features">
-                  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plan.features as feature"><li>✓ </li></div>
+                  <li>✓ </li><li>✓ </li>
                 </ul>
                 <div class="plan-limits">
                   <span>Up to  users</span>
@@ -95,50 +52,45 @@
                   class="select-plan-btn">
                   
                 </button>
-              </div></div>
+              </div><div class="plan-card ">
+                
+                <div class="plan-header">
+                  <h3></h3>
+                  <div class="plan-price">
+                    <span class="price"></span>
+                    <span class="interval">/</span>
+                  </div>
+                </div>
+                <p class="plan-description"></p>
+                <ul class="plan-features">
+                  <li>✓ </li><li>✓ </li><li>✓ </li>
+                </ul>
+                <div class="plan-limits">
+                  <span>Up to  users</span>
+                </div>
+                <button 
+                  class="select-plan-btn">
+                  
+                </button>
+              </div>
           </div>
         </div>
 
         <!-- Payment Methods -->
         <div class="payment-methods-section">
           <h2>Payment Methods</h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="paymentMethods.length === 0"><div class="no-payment-methods">
-              <p>No payment methods found. Add a payment method to manage your subscription.</p>
-            </div></div>
+          
         </div>
 
         <!-- Recent Invoices -->
         <div class="invoices-section">
           <h2>Recent Invoices</h2>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="invoices.length === 0"><div class="no-invoices">
-              <p>No invoices found.</p>
-            </div></div>
+          
         </div>
       
     </div>
 
     <!-- Edit Payment Method Modal -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showEditPaymentModal && selectedPaymentMethod"><div class="modal-overlay">
-        <div class="modal-content" on:click|stopPropagation>
-          <div class="modal-header">
-            <h3>Edit Payment Method</h3>
-            <button class="modal-close">✕</button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>PayPal Email</label>
-              <input
-                type="email"
-                placeholder="paypal@example.com"
-                required
-              />
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-secondary">Cancel</button>
-            <button class="btn-primary">Save</button>
-          </div>
-        </div>
-      </div></div>
+    
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/billing"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/billing","apiPath":"/api/customer-billing","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customer-billing","api_op":"list","tracedApiStatus":200}</script>

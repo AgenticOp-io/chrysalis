@@ -17,7 +17,7 @@
         🔑 CBRS Platform Keys
       </button>
       <button class="btn-primary">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showCreateForm ? '✕ Cancel' : '➕ Create New Tenant'"></span>
+        ➕ Create New Tenant
       </button>
     </div>
   </div>
@@ -27,65 +27,15 @@
   
 
   <!-- Create Tenant Form -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showCreateForm"><div class="create-form">
-      <h2>Create New Tenant</h2>
-      
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="tenant-name">Tenant Name *</label>
-          <input
-            id="tenant-name"
-            type="text"
-            placeholder="e.g., acme-wireless"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="display-name">Display Name *</label>
-          <input
-            id="display-name"
-            type="text"
-            placeholder="e.g., Acme Wireless ISP"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="contact-email">Contact Email *</label>
-          <input
-            id="contact-email"
-            type="email"
-            placeholder="admin@acme.com"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="subdomain">Subdomain</label>
-          <input
-            id="subdomain"
-            type="text"
-            placeholder="acme-wireless-abc123"
-          />
-          <p class="help-text">Used for CWMP URL: /cwmp/<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="newTenantSubdomain || 'subdomain'"></span></p>
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button class="btn-secondary">
-          Cancel
-        </button>
-        <button class="btn-primary">
-          Create Tenant
-        </button>
-      </div>
-    </div></div>
+  
 
   <!-- Tenants List -->
   <div class="tenants-section">
-    <h2>All Tenants (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenants.length"></span>)</h2>
+    <h2>All Tenants (2)</h2>
     
     
       <div class="tenants-grid">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="tenants as tenant"><div class="tenant-card">
+        <div class="tenant-card">
             <div class="tenant-header">
               <div class="tenant-icon">🏢</div>
               <div class="tenant-status">
@@ -135,170 +85,65 @@
                 🗑️ Delete
               </button>
             </div>
-          </div></div>
+          </div><div class="tenant-card">
+            <div class="tenant-header">
+              <div class="tenant-icon">🏢</div>
+              <div class="tenant-status">
+                <span class="status-badge status-">
+                  
+                </span>
+              </div>
+            </div>
+
+            <h3 class="tenant-name"></h3>
+            <p class="tenant-id"></p>
+
+            <div class="tenant-info">
+              <div class="info-row">
+                <span class="label">Contact:</span>
+                <span class="value"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Created:</span>
+                <span class="value"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">CWMP URL:</span>
+                <span class="value url"></span>
+              </div>
+            </div>
+
+            <div class="tenant-stats">
+              <div class="stat">
+                <span class="stat-value"></span>
+                <span class="stat-label">Users</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value"></span>
+                <span class="stat-label">Devices</span>
+              </div>
+            </div>
+
+            <div class="tenant-actions">
+              <button class="btn-small">
+                ⚙️ Manage
+              </button>
+              <button class="btn-small">
+                📊 Settings
+              </button>
+              <button class="btn-small btn-danger">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
       </div>
     
   </div>
 </div>
 
 <!-- Edit Tenant Modal -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showEditModal && selectedTenant"><div
-    class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    tabindex="0"
-    aria-label="Tenant details dialog"
-  >
-    <div class="modal-content" role="document">
-      <div class="modal-header">
-        <h2>Manage Tenant: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.displayName"></span></h2>
-        <button class="close-btn">✕</button>
-      </div>
 
-      <div class="modal-body">
-        <div class="info-section">
-          <h3>Tenant Information</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <strong>Tenant ID:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.id"></span></span>
-            </div>
-            <div class="info-item">
-              <strong>Subdomain:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.subdomain"></span></span>
-            </div>
-            <div class="info-item">
-              <strong>Status:</strong>
-              <span class="status-badge status-"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.status"></span></span>
-            </div>
-            <div class="info-item">
-              <strong>Contact Email:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.contactEmail"></span></span>
-            </div>
-            <div class="info-item">
-              <strong>CWMP URL:</strong>
-              <code class="cwmp-url"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.cwmpUrl"></span></code>
-            </div>
-            <div class="info-item">
-              <strong>Created:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="new Date(selectedTenant.createdAt).toLocaleString()"></span></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="info-section">
-          <h3>Settings</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <strong>Max Devices:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.limits.maxDevices"></span></span>
-            </div>
-            <div class="info-item">
-              <strong>Max Users:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.limits.maxUsers"></span></span>
-            </div>
-            <div class="info-item">
-              <strong>Storage Quota:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.limits.storageQuotaMB"></span> MB</span>
-            </div>
-            <div class="info-item">
-              <strong>Inform Interval:</strong>
-              <span><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedTenant.settings.informInterval"></span>s</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="info-section">
-          <h3>Quick Actions</h3>
-          <div class="quick-actions">
-            <button class="btn-action">
-              ⚙️ Open Tenant Settings
-            </button>
-            <button class="btn-action">
-              📡 View Devices
-            </button>
-            <button class="btn-action">
-              👥 Manage Users
-            </button>
-          </div>
-        </div>
-
-        <div class="info-section danger-zone">
-          <h3>⚠️ Danger Zone</h3>
-          <p class="danger-description">
-            Deleting a tenant is permanent and cannot be undone. All associated data will be removed.
-          </p>
-          <button class="btn-danger-action">
-            🗑️ Delete Tenant
-          </button>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary">
-          Close
-        </button>
-      </div>
-    </div>
-  </div></div>
 
 <!-- Delete Confirmation Dialog -->
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showDeleteConfirm && tenantToDelete"><div
-    class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    tabindex="0"
-    aria-label="Confirm tenant deletion dialog"
-  >
-    <div class="modal-content delete-confirm-modal" role="document">
-      <div class="modal-header danger">
-        <h2>⚠️ Confirm Deletion</h2>
-        <button class="close-btn">✕</button>
-      </div>
 
-      <div class="modal-body">
-        <div class="warning-box">
-          <div class="warning-icon">🚨</div>
-          <div class="warning-content">
-            <h3>This action cannot be undone!</h3>
-            <p>You are about to permanently delete:</p>
-            <div class="tenant-to-delete">
-              <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantToDelete.displayName"></span></strong>
-              <span class="subdomain">(<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantToDelete.subdomain"></span>)</span>
-            </div>
-            <p class="consequences">This will remove:</p>
-            <ul class="deletion-list">
-              <li>✗ The tenant organization</li>
-              <li>✗ All user associations</li>
-              <li>✗ All pending invitations</li>
-              <li>✗ Access to tenant configurations</li>
-            </ul>
-            <p class="note">
-              <strong>Note:</strong> Users who owned this tenant will be able to create a new organization.
-            </p>
-          </div>
-        </div>
-
-        <div class="confirm-input">
-          <p>Type the tenant name <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantToDelete.displayName"></span></strong> to confirm:</p>
-          <input 
-            type="text" 
-            placeholder="Enter tenant name to confirm"
-            id="deleteConfirmInput"
-          />
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary">
-          Cancel
-        </button>
-        <button 
-          class="btn-danger"
-        >
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isDeleting ? 'Deleting...' : 'Delete Tenant'"></span>
-        </button>
-      </div>
-    </div>
-  </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"tenant-management"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"tenant-management","apiPath":"/api/tenants","api_ok":true,"api_surface":"wisp-api-native","api_resource":"tenants","api_op":"list","tracedApiStatus":200}</script>

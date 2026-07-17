@@ -7,11 +7,7 @@
           <p>User and tenant management for owners and administrators</p>
         </div>
         <div class="user-info">
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="currentUser"><span class="user-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="currentUser.email"></span></span>
-            <span class="user-role">Platform Admin</span>
-            <button class="logout-btn" title="Logout">
-              🚪 Logout
-            </button></div>
+          
         </div>
       </div>
     </div>
@@ -28,7 +24,7 @@
       <div class="features-section">
         <h2>Administration Features</h2>
         <div class="features-grid">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="adminFeatures as feature"><div 
+          <div 
               class="feature-card"
               role="button"
               tabindex="0"
@@ -39,7 +35,40 @@
                 <p class="feature-description"></p>
               </div>
               <div class="feature-arrow">→</div>
-            </div></div>
+            </div><div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div><div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div><div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div>
         </div>
       </div>
 
@@ -50,13 +79,13 @@
         <div class="status-grid">
           <div class="status-card">
             <div class="status-icon">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="systemStatus.health === 'operational'">🟢
+              🟢
               
-                🔴</div>
+                🔴
             </div>
             <div class="status-info">
               <h4>System Health</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.healthMessage"></span></p>
+              <p>All systems nominal</p>
             </div>
           </div>
           <div class="status-card">
@@ -65,7 +94,7 @@
               <h4>Active Tenants</h4>
               <p>
                 
-                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.activeTenants"></span> tenant<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.activeTenants !== 1 ? 's' : ''"></span> active
+                  2 tenants active
                 
               </p>
             </div>
@@ -76,20 +105,20 @@
               <h4>Total Users</h4>
               <p>
                 
-                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.totalUsers"></span> users across all tenants
+                  14 users across all tenants
                 
               </p>
             </div>
           </div>
           <div class="status-card">
             <div class="status-icon">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="systemStatus.databaseStatus === 'connected'">💾
+              💾
               
-                ⚠️</div>
+                ⚠️
             </div>
             <div class="status-info">
               <h4>Database</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.databaseMessage"></span></p>
+              <p>Primary OK</p>
             </div>
           </div>
         </div>
@@ -100,23 +129,12 @@
         <div class="section-header">
           <h2>📡 Remote Agents Status</h2>
           <button class="refresh-btn">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="loadingAgents ? 'Refreshing...' : '🔄 Refresh'"></span>
+            🔄 Refresh
           </button>
         </div>
 
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="loadingAgents && remoteAgents.length === 0"><div class="loading-state">
-            <p>Loading remote agents...</p>
-          </div>
         
-          <div class="error-state">
-            <p>⚠️ </p>
-            <button class="retry-btn">Retry</button>
-          </div>
-        
-          <div class="empty-state">
-            <p>No remote agents found across all tenants.</p>
-          </div></div>
       </div>
       </div>
     </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/management"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
