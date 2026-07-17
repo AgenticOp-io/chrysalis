@@ -27,6 +27,7 @@ import {
 } from "./wisp-fidelity-deepen-harness.mjs";
 import { documentDeepenCandidatesFromSource } from "./wisp-fidelity-deepen-source-doc.mjs";
 import { runExternalDepsProtocol, externalRiskForApiPath } from "./wisp-external-deps-protocol.mjs";
+import { runUntilExhausted } from "./wisp-fidelity-deepen-auto.mjs";
 import { HARNESS_BATCHES, LEGACY_BATCHES, listBatches } from "./wisp-fidelity-deepen-batches/index.mjs";
 
 function parseArgs(argv) {
@@ -37,6 +38,9 @@ function parseArgs(argv) {
     probe: false,
     sourceDoc: false,
     externalDeps: false,
+    untilExhausted: false,
+    resetStreak: false,
+    maxRounds: 40,
     help: false,
     limit: 40,
   };
@@ -47,6 +51,9 @@ function parseArgs(argv) {
     else if (a === "--probe") out.probe = true;
     else if (a === "--source-doc" || a === "--from-source") out.sourceDoc = true;
     else if (a === "--external-deps" || a === "--external") out.externalDeps = true;
+    else if (a === "--until-exhausted" || a === "--auto") out.untilExhausted = true;
+    else if (a === "--reset-streak") out.resetStreak = true;
+    else if (a === "--max-rounds") out.maxRounds = Number(argv[++i]) || 40;
     else if (a === "--help" || a === "-h") out.help = true;
     else if (a === "--batch") out.batch = argv[++i];
     else if (a === "--limit") out.limit = Number(argv[++i]) || 40;
@@ -65,8 +72,11 @@ Usage:
   --source-doc [--limit] Document candidates from backend-services (+ MM services)
   --probe [--limit]      Live GET verify deploy parity against HSS (not body invention)
   --batch <id>           Run a batch (n10g+ harness; n10–n10f legacy)
+  --until-exhausted      Auto ×10 GET rounds until 3 consecutive rounds with no new green exact paths
+                         (optional --reset-streak, --max-rounds N)
 
 Workflow: candidates → --external-deps → --source-doc → --probe → AI ×10 → --batch → FUTURE §7
+Or autonomous: --until-exhausted (stop after 3 no-improvement rounds — do not wait for "continue")
 Contract authority: products/wisptools/backend-services (and Module_Manager service clients).
 Missing API keys are documented in the external-deps operator briefing — never invented.`);
 }
@@ -106,6 +116,7 @@ async function main() {
       !args.probe &&
       !args.sourceDoc &&
       !args.externalDeps &&
+      !args.untilExhausted &&
       !args.batch)
   ) {
     printHelp();
@@ -149,6 +160,14 @@ async function main() {
       ),
     );
     process.exit(out.ok ? 0 : 1);
+  }
+
+  if (args.untilExhausted) {
+    const summary = await runUntilExhausted({
+      resetStreak: args.resetStreak,
+      maxRounds: args.maxRounds,
+    });
+    process.exit(summary.ok ? 0 : 1);
   }
 
   if (args.candidates) {

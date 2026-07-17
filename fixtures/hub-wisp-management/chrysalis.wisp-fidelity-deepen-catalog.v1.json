@@ -1,9 +1,12 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 252,
-  "nextBatchId": "n10z",
-  "nextPassRange": [253, 262],
+  "closedThroughPass": 305,
+  "nextBatchId": "n11f",
+  "nextPassRange": [
+    306,
+    315
+  ],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -21,259 +24,2891 @@
       "protocol": "scripts/lib/wisp-external-deps-protocol.mjs",
       "fixture": "fixtures/hub-wisp-management/chrysalis.wisp-external-deps.v1.json",
       "decision": "D6445"
+    },
+    "autoExhaust": {
+      "protocol": "scripts/lib/wisp-fidelity-deepen-auto.mjs",
+      "stopAfterNoImprovement": 3,
+      "decision": "D6445",
+      "lastBatchId": "n11e",
+      "lastImprovement": 1
     }
   },
   "batches": [
-    { "id": "deepen", "passes": "pre", "status": "closed-legacy" },
-    { "id": "deepen2", "passes": "pre", "status": "closed-legacy" },
-    { "id": "n10", "passRange": [3, 12], "status": "closed-legacy" },
-    { "id": "n10b", "passRange": [13, 22], "status": "closed-legacy" },
-    { "id": "n10c", "passRange": [23, 32], "status": "closed-legacy" },
-    { "id": "n10d", "passRange": [33, 42], "status": "closed-legacy" },
-    { "id": "n10e", "passRange": [43, 52], "status": "closed-legacy" },
-    { "id": "n10f", "passRange": [53, 62], "status": "closed-legacy" },
-    { "id": "n10g", "passRange": [63, 72], "status": "closed-harness" },
-    { "id": "n10h", "passRange": [73, 82], "status": "closed-harness" },
-    { "id": "n10i", "passRange": [83, 92], "status": "closed-harness" },
-    { "id": "n10j", "passRange": [93, 102], "status": "closed-harness" },
-    { "id": "n10k", "passRange": [103, 112], "status": "closed-harness" },
-    { "id": "n10l", "passRange": [113, 122], "status": "closed-harness" },
-    { "id": "n10m", "passRange": [123, 132], "status": "closed-harness" },
-    { "id": "n10n", "passRange": [133, 142], "status": "closed-harness" },
-    { "id": "n10o", "passRange": [143, 152], "status": "closed-harness" },
-    { "id": "n10p", "passRange": [153, 162], "status": "closed-harness" },
-    { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" },
-    { "id": "n10r", "passRange": [173, 182], "status": "closed-harness" },
-    { "id": "n10s", "passRange": [183, 192], "status": "closed-harness" },
-    { "id": "n10t", "passRange": [193, 202], "status": "closed-harness" },
-    { "id": "n10u", "passRange": [203, 212], "status": "closed-harness" },
-    { "id": "n10v", "passRange": [213, 222], "status": "closed-harness" },
-    { "id": "n10w", "passRange": [223, 232], "status": "closed-harness" },
-    { "id": "n10x", "passRange": [233, 242], "status": "closed-harness" },
-    { "id": "n10y", "passRange": [243, 252], "status": "closed-harness" }
+    {
+      "id": "deepen",
+      "passes": "pre",
+      "status": "closed-legacy"
+    },
+    {
+      "id": "deepen2",
+      "passes": "pre",
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10",
+      "passRange": [
+        3,
+        12
+      ],
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10b",
+      "passRange": [
+        13,
+        22
+      ],
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10c",
+      "passRange": [
+        23,
+        32
+      ],
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10d",
+      "passRange": [
+        33,
+        42
+      ],
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10e",
+      "passRange": [
+        43,
+        52
+      ],
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10f",
+      "passRange": [
+        53,
+        62
+      ],
+      "status": "closed-legacy"
+    },
+    {
+      "id": "n10g",
+      "passRange": [
+        63,
+        72
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10h",
+      "passRange": [
+        73,
+        82
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10i",
+      "passRange": [
+        83,
+        92
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10j",
+      "passRange": [
+        93,
+        102
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10k",
+      "passRange": [
+        103,
+        112
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10l",
+      "passRange": [
+        113,
+        122
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10m",
+      "passRange": [
+        123,
+        132
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10n",
+      "passRange": [
+        133,
+        142
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10o",
+      "passRange": [
+        143,
+        152
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10p",
+      "passRange": [
+        153,
+        162
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10q",
+      "passRange": [
+        163,
+        172
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10r",
+      "passRange": [
+        173,
+        182
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10s",
+      "passRange": [
+        183,
+        192
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10t",
+      "passRange": [
+        193,
+        202
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10u",
+      "passRange": [
+        203,
+        212
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10v",
+      "passRange": [
+        213,
+        222
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10w",
+      "passRange": [
+        223,
+        232
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10x",
+      "passRange": [
+        233,
+        242
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10y",
+      "passRange": [
+        243,
+        252
+      ],
+      "status": "closed-harness"
+    },
+    {
+      "id": "n10z",
+      "passRange": [
+        253,
+        262
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11a",
+      "passRange": [
+        263,
+        272
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11b",
+      "passRange": [
+        273,
+        282
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11c",
+      "passRange": [
+        283,
+        292
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11d",
+      "passRange": [
+        293,
+        302
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11e",
+      "passRange": [
+        303,
+        305
+      ],
+      "status": "closed-harness-auto"
+    }
   ],
   "passes": [
-    { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
-    { "id": 64, "batch": "n10g", "title": "HSS bandwidth-plans PUT/DELETE", "status": "honest", "residual": "create-500", "apiPaths": ["/api/hss/bandwidth-plans"] },
-    { "id": 65, "batch": "n10g", "title": "HSS subscribers PUT/DELETE", "status": "honest", "residual": "id-shape-404", "apiPaths": ["/api/hss/subscribers"] },
-    { "id": 66, "batch": "n10g", "title": "Subcontractors POST + approve", "status": "honest", "residual": "timeout", "apiPaths": ["/api/subcontractors"] },
-    { "id": 67, "batch": "n10g", "title": "Permissions role PUT", "status": "honest", "residual": "isPlatformAdminUser", "apiPaths": ["/api/permissions/role"] },
-    { "id": 68, "batch": "n10g", "title": "Users invite", "status": "honest", "residual": "invite-500", "apiPaths": ["/api/users/invite"] },
-    { "id": 69, "batch": "n10g", "title": "Users suspend/activate", "status": "honest", "residual": "invite-gate", "apiPaths": ["/api/users"] },
-    { "id": 70, "batch": "n10g", "title": "Admin assign-owner", "status": "done", "apiPaths": ["/admin/tenants"] },
-    { "id": 71, "batch": "n10g", "title": "Plans DELETE polish", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 72, "batch": "n10g", "title": "CBRS import body", "status": "done", "apiPaths": ["/api/network/import/cbrs"] },
-    { "id": 73, "batch": "n10h", "title": "Inventory return", "status": "done", "apiPaths": ["/api/inventory"] },
-    { "id": 74, "batch": "n10h", "title": "Inventory maintenance", "status": "done", "apiPaths": ["/api/inventory"] },
-    { "id": 75, "batch": "n10h", "title": "Install-doc PUT", "status": "done", "apiPaths": ["/api/installation-documentation"] },
-    { "id": 76, "batch": "n10h", "title": "Install-doc photos", "status": "honest", "residual": "storageBucket", "apiPaths": ["/api/installation-documentation"] },
-    { "id": 77, "batch": "n10h", "title": "Plan marketing discover", "status": "honest", "residual": "timeout-504", "apiPaths": ["/api/plans"] },
-    { "id": 78, "batch": "n10h", "title": "Incident notes", "status": "done", "apiPaths": ["/api/incidents"] },
-    { "id": 79, "batch": "n10h", "title": "Work-order complete", "status": "done", "apiPaths": ["/api/work-orders"] },
-    { "id": 80, "batch": "n10h", "title": "Equipment-pricing create", "status": "done", "apiPaths": ["/api/equipment-pricing"] },
-    { "id": 81, "batch": "n10h", "title": "HSS BW PUT existing", "status": "done", "apiPaths": ["/api/hss/bandwidth-plans"] },
-    { "id": 82, "batch": "n10h", "title": "Monitoring graphs devices", "status": "done", "apiPaths": ["/api/monitoring/graphs/devices"] },
-    { "id": 83, "batch": "n10i", "title": "Notifications mark-read", "status": "done", "apiPaths": ["/api/notifications"] },
-    { "id": 84, "batch": "n10i", "title": "Tenant-settings ACS PUT", "status": "done", "apiPaths": ["/api/tenant-settings"] },
-    { "id": 85, "batch": "n10i", "title": "HSS groups PUT", "status": "done", "apiPaths": ["/api/hss/groups"] },
-    { "id": 86, "batch": "n10i", "title": "Plans PUT", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 87, "batch": "n10i", "title": "Plans analyze", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 88, "batch": "n10i", "title": "Plans features sector", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 89, "batch": "n10i", "title": "Bundle PUT", "status": "done", "apiPaths": ["/api/bundles"] },
-    { "id": 90, "batch": "n10i", "title": "Bundle items radio", "status": "done", "apiPaths": ["/api/bundles"] },
-    { "id": 91, "batch": "n10i", "title": "Customers PUT + CPE PUT", "status": "done", "apiPaths": ["/api/customers", "/api/network/cpe"] },
-    { "id": 92, "batch": "n10i", "title": "Equipment create+PUT", "status": "done", "apiPaths": ["/api/network/equipment"] },
-    { "id": 93, "batch": "n10j", "title": "Network sectors PUT", "status": "done", "apiPaths": ["/api/network/sectors"] },
-    { "id": 94, "batch": "n10j", "title": "Network sites PUT", "status": "done", "apiPaths": ["/api/network/sites"] },
-    { "id": 95, "batch": "n10j", "title": "Site hardware POST", "status": "done", "apiPaths": ["/api/network/sites"] },
-    { "id": 96, "batch": "n10j", "title": "HSS bandwidth-plans PUT", "status": "done", "apiPaths": ["/api/hss/bandwidth-plans"] },
-    { "id": 97, "batch": "n10j", "title": "WO log + assign + start", "status": "done", "apiPaths": ["/api/work-orders"] },
-    { "id": 98, "batch": "n10j", "title": "Incident PUT + notes + close", "status": "done", "apiPaths": ["/api/incidents"] },
-    { "id": 99, "batch": "n10j", "title": "Inventory PUT + deploy", "status": "done", "apiPaths": ["/api/inventory"] },
-    { "id": 100, "batch": "n10j", "title": "Hardware-deployments PUT", "status": "done", "apiPaths": ["/api/network/hardware-deployments"] },
-    { "id": 101, "batch": "n10j", "title": "Plans toggle-visibility PUT", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 102, "batch": "n10j", "title": "Geocode + reverse-geocode", "status": "done", "apiPaths": ["/api/network/geocode"] },
-    { "id": 103, "batch": "n10k", "title": "Plans features GET", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 104, "batch": "n10k", "title": "Bundle use POST", "status": "done", "apiPaths": ["/api/bundles"] },
-    { "id": 105, "batch": "n10k", "title": "Customer complaints POST", "status": "done", "apiPaths": ["/api/customers"] },
-    { "id": 106, "batch": "n10k", "title": "Customer complaint PUT resolve", "status": "done", "apiPaths": ["/api/customers"] },
-    { "id": 107, "batch": "n10k", "title": "HSS subscribers POST + GET list", "status": "done", "apiPaths": ["/api/hss/subscribers"] },
-    { "id": 108, "batch": "n10k", "title": "HSS groups GET hydrate", "status": "done", "apiPaths": ["/api/hss/groups"] },
-    { "id": 109, "batch": "n10k", "title": "Pricing import-from-inventory", "status": "done", "apiPaths": ["/api/equipment-pricing"] },
-    { "id": 110, "batch": "n10k", "title": "Work-order close", "status": "done", "apiPaths": ["/api/work-orders"] },
-    { "id": 111, "batch": "n10k", "title": "Notifications count GET", "status": "done", "apiPaths": ["/api/notifications"] },
-    { "id": 112, "batch": "n10k", "title": "Sites bulk-import", "status": "done", "apiPaths": ["/api/network/sites"] },
-    { "id": 113, "batch": "n10l", "title": "Network sectors POST create", "status": "done", "apiPaths": ["/api/network/sectors"] },
-    { "id": 114, "batch": "n10l", "title": "Network CPE POST create", "status": "done", "apiPaths": ["/api/network/cpe"] },
-    { "id": 115, "batch": "n10l", "title": "Inventory POST create", "status": "done", "apiPaths": ["/api/inventory"] },
-    { "id": 116, "batch": "n10l", "title": "Customers POST create", "status": "done", "apiPaths": ["/api/customers"] },
-    { "id": 117, "batch": "n10l", "title": "Plans POST create", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 118, "batch": "n10l", "title": "Bundles POST create", "status": "done", "apiPaths": ["/api/bundles"] },
-    { "id": 119, "batch": "n10l", "title": "Work-orders POST create", "status": "done", "apiPaths": ["/api/work-orders"] },
-    { "id": 120, "batch": "n10l", "title": "Incidents POST (incidentNumber+source)", "status": "done", "apiPaths": ["/api/incidents"] },
-    { "id": 121, "batch": "n10l", "title": "Hardware-deployments DELETE", "status": "done", "apiPaths": ["/api/network/hardware-deployments"] },
-    { "id": 122, "batch": "n10l", "title": "Equipment bulk-import + graphs GET", "status": "done", "apiPaths": ["/api/network/equipment", "/api/monitoring/graphs"] },
-    { "id": 123, "batch": "n10m", "title": "Inventory scan lookup (identifier)", "status": "done", "apiPaths": ["/api/inventory/scan/lookup"] },
-    { "id": 124, "batch": "n10m", "title": "Inventory transfer newLocation", "status": "done", "apiPaths": ["/api/inventory"] },
-    { "id": 125, "batch": "n10m", "title": "Sites create+DELETE", "status": "done", "apiPaths": ["/api/network/sites"] },
-    { "id": 126, "batch": "n10m", "title": "Work-orders create+DELETE", "status": "done", "apiPaths": ["/api/work-orders"] },
-    { "id": 127, "batch": "n10m", "title": "Plans ready→approve→authorize", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 128, "batch": "n10m", "title": "Tenant-settings companyInfo PUT", "status": "done", "apiPaths": ["/api/tenant-settings"] },
-    { "id": 129, "batch": "n10m", "title": "Installation-documentation POST", "status": "done", "apiPaths": ["/api/installation-documentation"] },
-    { "id": 130, "batch": "n10m", "title": "HSS groups GET by id", "status": "done", "apiPaths": ["/api/hss/groups"] },
-    { "id": 131, "batch": "n10m", "title": "Plans requirements (category+qty)", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 132, "batch": "n10m", "title": "Equipment-pricing create basePrice", "status": "done", "apiPaths": ["/api/equipment-pricing"] },
-    { "id": 133, "batch": "n10n", "title": "Plans features GET", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 134, "batch": "n10n", "title": "Plans feature create+DELETE by id", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 135, "batch": "n10n", "title": "Plans ready→reject", "status": "done", "apiPaths": ["/api/plans"] },
-    { "id": 136, "batch": "n10n", "title": "Inventory bulk-update itemIds", "status": "done", "apiPaths": ["/api/inventory"] },
-    { "id": 137, "batch": "n10n", "title": "Customer service-history POST", "status": "done", "apiPaths": ["/api/customers"] },
-    { "id": 138, "batch": "n10n", "title": "Customer create-subscriber", "status": "done", "apiPaths": ["/api/customers"] },
-    { "id": 139, "batch": "n10n", "title": "Incident acknowledge", "status": "done", "apiPaths": ["/api/incidents"] },
-    { "id": 140, "batch": "n10n", "title": "Incident resolve", "status": "done", "apiPaths": ["/api/incidents"] },
-    { "id": 141, "batch": "n10n", "title": "Incident convert-to-ticket", "status": "done", "apiPaths": ["/api/incidents"] },
-    { "id": 142, "batch": "n10n", "title": "CBRS import devices body", "status": "done", "apiPaths": ["/api/network/import/cbrs"] },
-    { "id": 143, "batch": "n10o", "title": "Plans requirements POST+DELETE index", "status": "done", "apiPaths": ["/api/plans"], "source": "backend-services/routes/plans/plans-hardware.js" },
-    { "id": 144, "batch": "n10o", "title": "Plans feature PATCH", "status": "done", "apiPaths": ["/api/plans"], "source": "backend-services/routes/plans/plans-features.js" },
-    { "id": 145, "batch": "n10o", "title": "Plans missing-hardware GET", "status": "done", "apiPaths": ["/api/plans"], "source": "backend-services/routes/plans/plans-hardware.js" },
-    { "id": 146, "batch": "n10o", "title": "Bundle items category+DELETE", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/models/hardwareBundle.js" },
-    { "id": 147, "batch": "n10o", "title": "Equipment create+PUT (createdBy)", "status": "done", "apiPaths": ["/api/network/equipment"], "source": "backend-services/routes/network.js" },
-    { "id": 148, "batch": "n10o", "title": "CPE create+PUT (createdBy/X-User-Email)", "status": "done", "apiPaths": ["/api/network/cpe"], "source": "backend-services/routes/network.js" },
-    { "id": 149, "batch": "n10o", "title": "Inventory alerts low-stock GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 150, "batch": "n10o", "title": "Inventory by-location GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 151, "batch": "n10o", "title": "HSS groups create+PUT+DELETE", "status": "done", "apiPaths": ["/api/hss/groups"], "source": "backend-services/routes/hss/hss-groups.js" },
-    { "id": 152, "batch": "n10o", "title": "Equipment-pricing GET /price", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
-    { "id": 153, "batch": "n10p", "title": "Work-orders stats/dashboard GET", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
-    { "id": 154, "batch": "n10p", "title": "Work-orders SLA-breach alerts GET", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
-    { "id": 155, "batch": "n10p", "title": "Incidents stats/dashboard GET", "status": "done", "apiPaths": ["/api/incidents"], "source": "backend-services/routes/incidents.js" },
-    { "id": 156, "batch": "n10p", "title": "Customers stats/summary GET", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 157, "batch": "n10p", "title": "Customers search/email GET", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 158, "batch": "n10p", "title": "Inventory warranty-expiring alerts", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 159, "batch": "n10p", "title": "Inventory maintenance-due alerts", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 160, "batch": "n10p", "title": "Work-orders assigned/:userId GET", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
-    { "id": 161, "batch": "n10p", "title": "Customer create-subscriber; GET subscriber residual", "status": "honest", "residual": "hssSubscriberId-get-404", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 162, "batch": "n10p", "title": "Inventory export/csv GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 163, "batch": "n10q", "title": "Work-orders by site GET", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
-    { "id": 164, "batch": "n10q", "title": "Customers search/phone GET", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 165, "batch": "n10q", "title": "Customers search/imsi GET", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 166, "batch": "n10q", "title": "Customers service-history POST", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/models/customer.js" },
-    { "id": 167, "batch": "n10q", "title": "Customers complaints POST", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/models/customer.js" },
-    { "id": 168, "batch": "n10q", "title": "Inventory transfer (newLocation)", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 169, "batch": "n10q", "title": "Inventory by-site GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 170, "batch": "n10q", "title": "Notifications count GET", "status": "done", "apiPaths": ["/api/notifications"], "source": "backend-services/routes/notifications.js" },
-    { "id": 171, "batch": "n10q", "title": "Network site sectors GET", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
-    { "id": 172, "batch": "n10q", "title": "Voice schema GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 173, "batch": "n10r", "title": "Remote-agents status GET", "status": "done", "apiPaths": ["/api/remote-agents"], "source": "backend-services/routes/remote-agents-status.js" },
-    { "id": 174, "batch": "n10r", "title": "Remote-agents status/unlinked GET", "status": "done", "apiPaths": ["/api/remote-agents"], "source": "backend-services/routes/remote-agents-status.js" },
-    { "id": 175, "batch": "n10r", "title": "Voice provider-accounts GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 176, "batch": "n10r", "title": "Voice telephone-numbers GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 177, "batch": "n10r", "title": "Voice service-locations GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 178, "batch": "n10r", "title": "Bundles by type GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
-    { "id": 179, "batch": "n10r", "title": "Bundles search GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
-    { "id": 180, "batch": "n10r", "title": "Inventory stats GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 181, "batch": "n10r", "title": "Customers complaints PUT", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 182, "batch": "n10r", "title": "Branding GET by tenant", "status": "done", "apiPaths": ["/api/branding"], "source": "backend-services/routes/branding-api.js" },
-    { "id": 183, "batch": "n10s", "title": "Portal-content alerts GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 184, "batch": "n10s", "title": "Portal-content FAQ GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 185, "batch": "n10s", "title": "Portal-content knowledge-base GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 186, "batch": "n10s", "title": "Portal-content chat-settings GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 187, "batch": "n10s", "title": "Voice emergency-addresses GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 188, "batch": "n10s", "title": "Voice port-orders GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 189, "batch": "n10s", "title": "SNMP configuration GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-status.js" },
-    { "id": 190, "batch": "n10s", "title": "SNMP devices GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-devices.js" },
-    { "id": 191, "batch": "n10s", "title": "Voice provider-accounts POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 192, "batch": "n10s", "title": "Equipment-pricing import-from-inventory", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
-    { "id": 193, "batch": "n10t", "title": "Mikrotik status GET", "status": "done", "apiPaths": ["/api/mikrotik"], "source": "backend-services/routes/mikrotik.js" },
-    { "id": 194, "batch": "n10t", "title": "Mikrotik devices GET", "status": "done", "apiPaths": ["/api/mikrotik"], "source": "backend-services/routes/mikrotik.js" },
-    { "id": 195, "batch": "n10t", "title": "Mikrotik discovery GET", "status": "done", "apiPaths": ["/api/mikrotik"], "source": "backend-services/routes/mikrotik.js" },
-    { "id": 196, "batch": "n10t", "title": "SNMP discovery GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-discovery.js" },
-    { "id": 197, "batch": "n10t", "title": "SNMP discovered GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-discovery.js" },
-    { "id": 198, "batch": "n10t", "title": "Monitoring EPC list GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
-    { "id": 199, "batch": "n10t", "title": "Monitoring dashboard GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
-    { "id": 200, "batch": "n10t", "title": "Monitoring topology GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
-    { "id": 201, "batch": "n10t", "title": "Plans mobile by user GET", "status": "done", "apiPaths": ["/api/plans"], "source": "backend-services/routes/plans/plans-mobile.js" },
-    { "id": 202, "batch": "n10t", "title": "Portal tenant config GET", "status": "done", "apiPaths": ["/api/portal"], "source": "backend-services/routes/portal-domain.js" },
-    { "id": 203, "batch": "n10u", "title": "Permissions me GET", "status": "done", "apiPaths": ["/api/permissions"], "source": "backend-services/routes/permissions.js" },
-    { "id": 204, "batch": "n10u", "title": "Users tenant visible GET", "status": "done", "apiPaths": ["/api/users"], "source": "backend-services/routes/users/index.js" },
-    { "id": 205, "batch": "n10u", "title": "Installation-documentation list GET", "status": "done", "apiPaths": ["/api/installation-documentation"], "source": "backend-services/routes/installation-documentation.js" },
-    { "id": 206, "batch": "n10u", "title": "Monitoring mikrotik devices GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
-    { "id": 207, "batch": "n10u", "title": "Monitoring snmp devices GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
-    { "id": 208, "batch": "n10u", "title": "Monitoring snmp discovered GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
-    { "id": 209, "batch": "n10u", "title": "SNMP metrics latest GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-metrics.js" },
-    { "id": 210, "batch": "n10u", "title": "Voice service-locations POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 211, "batch": "n10u", "title": "Portal-content alerts/active GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 212, "batch": "n10u", "title": "Portal-content FAQ published GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 213, "batch": "n10v", "title": "Portal-content KB published GET", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 214, "batch": "n10v", "title": "EPC list GET", "status": "done", "apiPaths": ["/api/epc"], "source": "backend-services/routes/epc.js" },
-    { "id": 215, "batch": "n10v", "title": "Equipment-pricing list GET", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
-    { "id": 216, "batch": "n10v", "title": "Bundles list GET", "status": "done", "apiPaths": ["/api/bundles"], "source": "backend-services/routes/hardwareBundles.js" },
-    { "id": 217, "batch": "n10v", "title": "Tenant-settings GET", "status": "done", "apiPaths": ["/api/tenant-settings"], "source": "backend-services/routes/tenant-settings.js" },
-    { "id": 218, "batch": "n10v", "title": "Notifications list GET", "status": "done", "apiPaths": ["/api/notifications"], "source": "backend-services/routes/notifications.js" },
-    { "id": 219, "batch": "n10v", "title": "Permissions check GET", "status": "done", "apiPaths": ["/api/permissions"], "source": "backend-services/routes/permissions.js" },
-    { "id": 220, "batch": "n10v", "title": "Voice telephone-numbers POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 221, "batch": "n10v", "title": "Voice emergency-addresses POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 222, "batch": "n10v", "title": "Mobile tasks GET", "status": "done", "apiPaths": ["/api/mobile"], "source": "backend-services/routes/mobile-tasks.js" },
-    { "id": 223, "batch": "n10w", "title": "Voice telephone-numbers PATCH", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 224, "batch": "n10w", "title": "Installation-documentation GET by id", "status": "done", "apiPaths": ["/api/installation-documentation"], "source": "backend-services/routes/installation-documentation.js" },
-    { "id": 225, "batch": "n10w", "title": "Portal-content FAQ POST", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 226, "batch": "n10w", "title": "Portal-content alerts POST", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 227, "batch": "n10w", "title": "Equipment-pricing create POST", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
-    { "id": 228, "batch": "n10w", "title": "Equipment-pricing DELETE", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
-    { "id": 229, "batch": "n10w", "title": "Voice port-orders POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 230, "batch": "n10w", "title": "HSS groups GET by id", "status": "done", "apiPaths": ["/api/hss/groups"], "source": "backend-services/routes/hss/hss-groups.js" },
-    { "id": 231, "batch": "n10w", "title": "HSS bandwidth-plans list GET", "status": "done", "apiPaths": ["/api/hss/bandwidth-plans"], "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },
-    { "id": 232, "batch": "n10w", "title": "HSS subscribers list GET", "status": "done", "apiPaths": ["/api/hss/subscribers"], "source": "backend-services/routes/hss/hss-subscribers.js" },
-    { "id": 233, "batch": "n10x", "title": "Portal-content KB POST", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 234, "batch": "n10x", "title": "Portal-content FAQ PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 235, "batch": "n10x", "title": "Portal-content alerts PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 236, "batch": "n10x", "title": "Portal-content chat-settings PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 237, "batch": "n10x", "title": "Branding PUT", "status": "done", "apiPaths": ["/api/branding"], "source": "backend-services/routes/branding-api.js" },
-    { "id": 238, "batch": "n10x", "title": "Voice port-order events GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 239, "batch": "n10x", "title": "Hardware-deployments list GET", "status": "done", "apiPaths": ["/api/network/hardware-deployments"], "source": "backend-services/routes/network.js" },
-    { "id": 240, "batch": "n10x", "title": "Network sites bulk-import POST", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
-    { "id": 241, "batch": "n10x", "title": "Portal-content FAQ DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 242, "batch": "n10x", "title": "Portal-content alerts DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 243, "batch": "n10y", "title": "Portal-content KB GET by id", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 244, "batch": "n10y", "title": "Portal-content KB PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 245, "batch": "n10y", "title": "Portal-content KB DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
-    { "id": 246, "batch": "n10y", "title": "Hardware-deployments PUT", "status": "done", "apiPaths": ["/api/network/hardware-deployments"], "source": "backend-services/routes/network.js" },
-    { "id": 247, "batch": "n10y", "title": "Network equipment bulk-import POST", "status": "done", "apiPaths": ["/api/network/equipment"], "source": "backend-services/routes/network.js" },
-    { "id": 248, "batch": "n10y", "title": "Inventory by-location warehouse GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
-    { "id": 249, "batch": "n10y", "title": "Network site GET by id", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
-    { "id": 250, "batch": "n10y", "title": "Network CPE GET by id", "status": "done", "apiPaths": ["/api/network/cpe"], "source": "backend-services/routes/network.js" },
-    { "id": 251, "batch": "n10y", "title": "Work-order GET by id", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
-    { "id": 252, "batch": "n10y", "title": "Network geocode POST (ArcGIS key risk)", "status": "done", "apiPaths": ["/api/network/geocode"], "source": "backend-services/routes/network.js", "externalRisk": "ARCGIS_API_KEY missing locally; HSS Nominatim fallback ok" }
+    {
+      "id": 63,
+      "batch": "n10g",
+      "title": "HSS groups PUT/DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/groups"
+      ]
+    },
+    {
+      "id": 64,
+      "batch": "n10g",
+      "title": "HSS bandwidth-plans PUT/DELETE",
+      "status": "honest",
+      "residual": "create-500",
+      "apiPaths": [
+        "/api/hss/bandwidth-plans"
+      ]
+    },
+    {
+      "id": 65,
+      "batch": "n10g",
+      "title": "HSS subscribers PUT/DELETE",
+      "status": "honest",
+      "residual": "id-shape-404",
+      "apiPaths": [
+        "/api/hss/subscribers"
+      ]
+    },
+    {
+      "id": 66,
+      "batch": "n10g",
+      "title": "Subcontractors POST + approve",
+      "status": "honest",
+      "residual": "timeout",
+      "apiPaths": [
+        "/api/subcontractors"
+      ]
+    },
+    {
+      "id": 67,
+      "batch": "n10g",
+      "title": "Permissions role PUT",
+      "status": "honest",
+      "residual": "isPlatformAdminUser",
+      "apiPaths": [
+        "/api/permissions/role"
+      ]
+    },
+    {
+      "id": 68,
+      "batch": "n10g",
+      "title": "Users invite",
+      "status": "honest",
+      "residual": "invite-500",
+      "apiPaths": [
+        "/api/users/invite"
+      ]
+    },
+    {
+      "id": 69,
+      "batch": "n10g",
+      "title": "Users suspend/activate",
+      "status": "honest",
+      "residual": "invite-gate",
+      "apiPaths": [
+        "/api/users"
+      ]
+    },
+    {
+      "id": 70,
+      "batch": "n10g",
+      "title": "Admin assign-owner",
+      "status": "done",
+      "apiPaths": [
+        "/admin/tenants"
+      ]
+    },
+    {
+      "id": 71,
+      "batch": "n10g",
+      "title": "Plans DELETE polish",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 72,
+      "batch": "n10g",
+      "title": "CBRS import body",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/import/cbrs"
+      ]
+    },
+    {
+      "id": 73,
+      "batch": "n10h",
+      "title": "Inventory return",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ]
+    },
+    {
+      "id": 74,
+      "batch": "n10h",
+      "title": "Inventory maintenance",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ]
+    },
+    {
+      "id": 75,
+      "batch": "n10h",
+      "title": "Install-doc PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ]
+    },
+    {
+      "id": 76,
+      "batch": "n10h",
+      "title": "Install-doc photos",
+      "status": "honest",
+      "residual": "storageBucket",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ]
+    },
+    {
+      "id": 77,
+      "batch": "n10h",
+      "title": "Plan marketing discover",
+      "status": "honest",
+      "residual": "timeout-504",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 78,
+      "batch": "n10h",
+      "title": "Incident notes",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ]
+    },
+    {
+      "id": 79,
+      "batch": "n10h",
+      "title": "Work-order complete",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ]
+    },
+    {
+      "id": 80,
+      "batch": "n10h",
+      "title": "Equipment-pricing create",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ]
+    },
+    {
+      "id": 81,
+      "batch": "n10h",
+      "title": "HSS BW PUT existing",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/bandwidth-plans"
+      ]
+    },
+    {
+      "id": 82,
+      "batch": "n10h",
+      "title": "Monitoring graphs devices",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring/graphs/devices"
+      ]
+    },
+    {
+      "id": 83,
+      "batch": "n10i",
+      "title": "Notifications mark-read",
+      "status": "done",
+      "apiPaths": [
+        "/api/notifications"
+      ]
+    },
+    {
+      "id": 84,
+      "batch": "n10i",
+      "title": "Tenant-settings ACS PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/tenant-settings"
+      ]
+    },
+    {
+      "id": 85,
+      "batch": "n10i",
+      "title": "HSS groups PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/groups"
+      ]
+    },
+    {
+      "id": 86,
+      "batch": "n10i",
+      "title": "Plans PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 87,
+      "batch": "n10i",
+      "title": "Plans analyze",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 88,
+      "batch": "n10i",
+      "title": "Plans features sector",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 89,
+      "batch": "n10i",
+      "title": "Bundle PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ]
+    },
+    {
+      "id": 90,
+      "batch": "n10i",
+      "title": "Bundle items radio",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ]
+    },
+    {
+      "id": 91,
+      "batch": "n10i",
+      "title": "Customers PUT + CPE PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers",
+        "/api/network/cpe"
+      ]
+    },
+    {
+      "id": 92,
+      "batch": "n10i",
+      "title": "Equipment create+PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/equipment"
+      ]
+    },
+    {
+      "id": 93,
+      "batch": "n10j",
+      "title": "Network sectors PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sectors"
+      ]
+    },
+    {
+      "id": 94,
+      "batch": "n10j",
+      "title": "Network sites PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ]
+    },
+    {
+      "id": 95,
+      "batch": "n10j",
+      "title": "Site hardware POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ]
+    },
+    {
+      "id": 96,
+      "batch": "n10j",
+      "title": "HSS bandwidth-plans PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/bandwidth-plans"
+      ]
+    },
+    {
+      "id": 97,
+      "batch": "n10j",
+      "title": "WO log + assign + start",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ]
+    },
+    {
+      "id": 98,
+      "batch": "n10j",
+      "title": "Incident PUT + notes + close",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ]
+    },
+    {
+      "id": 99,
+      "batch": "n10j",
+      "title": "Inventory PUT + deploy",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ]
+    },
+    {
+      "id": 100,
+      "batch": "n10j",
+      "title": "Hardware-deployments PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/hardware-deployments"
+      ]
+    },
+    {
+      "id": 101,
+      "batch": "n10j",
+      "title": "Plans toggle-visibility PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 102,
+      "batch": "n10j",
+      "title": "Geocode + reverse-geocode",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/geocode"
+      ]
+    },
+    {
+      "id": 103,
+      "batch": "n10k",
+      "title": "Plans features GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 104,
+      "batch": "n10k",
+      "title": "Bundle use POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ]
+    },
+    {
+      "id": 105,
+      "batch": "n10k",
+      "title": "Customer complaints POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ]
+    },
+    {
+      "id": 106,
+      "batch": "n10k",
+      "title": "Customer complaint PUT resolve",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ]
+    },
+    {
+      "id": 107,
+      "batch": "n10k",
+      "title": "HSS subscribers POST + GET list",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/subscribers"
+      ]
+    },
+    {
+      "id": 108,
+      "batch": "n10k",
+      "title": "HSS groups GET hydrate",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/groups"
+      ]
+    },
+    {
+      "id": 109,
+      "batch": "n10k",
+      "title": "Pricing import-from-inventory",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ]
+    },
+    {
+      "id": 110,
+      "batch": "n10k",
+      "title": "Work-order close",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ]
+    },
+    {
+      "id": 111,
+      "batch": "n10k",
+      "title": "Notifications count GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/notifications"
+      ]
+    },
+    {
+      "id": 112,
+      "batch": "n10k",
+      "title": "Sites bulk-import",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ]
+    },
+    {
+      "id": 113,
+      "batch": "n10l",
+      "title": "Network sectors POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sectors"
+      ]
+    },
+    {
+      "id": 114,
+      "batch": "n10l",
+      "title": "Network CPE POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/cpe"
+      ]
+    },
+    {
+      "id": 115,
+      "batch": "n10l",
+      "title": "Inventory POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ]
+    },
+    {
+      "id": 116,
+      "batch": "n10l",
+      "title": "Customers POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ]
+    },
+    {
+      "id": 117,
+      "batch": "n10l",
+      "title": "Plans POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 118,
+      "batch": "n10l",
+      "title": "Bundles POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ]
+    },
+    {
+      "id": 119,
+      "batch": "n10l",
+      "title": "Work-orders POST create",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ]
+    },
+    {
+      "id": 120,
+      "batch": "n10l",
+      "title": "Incidents POST (incidentNumber+source)",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ]
+    },
+    {
+      "id": 121,
+      "batch": "n10l",
+      "title": "Hardware-deployments DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/hardware-deployments"
+      ]
+    },
+    {
+      "id": 122,
+      "batch": "n10l",
+      "title": "Equipment bulk-import + graphs GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/equipment",
+        "/api/monitoring/graphs"
+      ]
+    },
+    {
+      "id": 123,
+      "batch": "n10m",
+      "title": "Inventory scan lookup (identifier)",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory/scan/lookup"
+      ]
+    },
+    {
+      "id": 124,
+      "batch": "n10m",
+      "title": "Inventory transfer newLocation",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ]
+    },
+    {
+      "id": 125,
+      "batch": "n10m",
+      "title": "Sites create+DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ]
+    },
+    {
+      "id": 126,
+      "batch": "n10m",
+      "title": "Work-orders create+DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ]
+    },
+    {
+      "id": 127,
+      "batch": "n10m",
+      "title": "Plans ready→approve→authorize",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 128,
+      "batch": "n10m",
+      "title": "Tenant-settings companyInfo PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/tenant-settings"
+      ]
+    },
+    {
+      "id": 129,
+      "batch": "n10m",
+      "title": "Installation-documentation POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ]
+    },
+    {
+      "id": 130,
+      "batch": "n10m",
+      "title": "HSS groups GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/groups"
+      ]
+    },
+    {
+      "id": 131,
+      "batch": "n10m",
+      "title": "Plans requirements (category+qty)",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 132,
+      "batch": "n10m",
+      "title": "Equipment-pricing create basePrice",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ]
+    },
+    {
+      "id": 133,
+      "batch": "n10n",
+      "title": "Plans features GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 134,
+      "batch": "n10n",
+      "title": "Plans feature create+DELETE by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 135,
+      "batch": "n10n",
+      "title": "Plans ready→reject",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ]
+    },
+    {
+      "id": 136,
+      "batch": "n10n",
+      "title": "Inventory bulk-update itemIds",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ]
+    },
+    {
+      "id": 137,
+      "batch": "n10n",
+      "title": "Customer service-history POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ]
+    },
+    {
+      "id": 138,
+      "batch": "n10n",
+      "title": "Customer create-subscriber",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ]
+    },
+    {
+      "id": 139,
+      "batch": "n10n",
+      "title": "Incident acknowledge",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ]
+    },
+    {
+      "id": 140,
+      "batch": "n10n",
+      "title": "Incident resolve",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ]
+    },
+    {
+      "id": 141,
+      "batch": "n10n",
+      "title": "Incident convert-to-ticket",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ]
+    },
+    {
+      "id": 142,
+      "batch": "n10n",
+      "title": "CBRS import devices body",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/import/cbrs"
+      ]
+    },
+    {
+      "id": 143,
+      "batch": "n10o",
+      "title": "Plans requirements POST+DELETE index",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "source": "backend-services/routes/plans/plans-hardware.js"
+    },
+    {
+      "id": 144,
+      "batch": "n10o",
+      "title": "Plans feature PATCH",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "source": "backend-services/routes/plans/plans-features.js"
+    },
+    {
+      "id": 145,
+      "batch": "n10o",
+      "title": "Plans missing-hardware GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "source": "backend-services/routes/plans/plans-hardware.js"
+    },
+    {
+      "id": 146,
+      "batch": "n10o",
+      "title": "Bundle items category+DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "source": "backend-services/models/hardwareBundle.js"
+    },
+    {
+      "id": 147,
+      "batch": "n10o",
+      "title": "Equipment create+PUT (createdBy)",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/equipment"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 148,
+      "batch": "n10o",
+      "title": "CPE create+PUT (createdBy/X-User-Email)",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/cpe"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 149,
+      "batch": "n10o",
+      "title": "Inventory alerts low-stock GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 150,
+      "batch": "n10o",
+      "title": "Inventory by-location GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 151,
+      "batch": "n10o",
+      "title": "HSS groups create+PUT+DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/groups"
+      ],
+      "source": "backend-services/routes/hss/hss-groups.js"
+    },
+    {
+      "id": 152,
+      "batch": "n10o",
+      "title": "Equipment-pricing GET /price",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "source": "backend-services/routes/equipment-pricing.js"
+    },
+    {
+      "id": 153,
+      "batch": "n10p",
+      "title": "Work-orders stats/dashboard GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "source": "backend-services/routes/work-orders.js"
+    },
+    {
+      "id": 154,
+      "batch": "n10p",
+      "title": "Work-orders SLA-breach alerts GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "source": "backend-services/routes/work-orders.js"
+    },
+    {
+      "id": 155,
+      "batch": "n10p",
+      "title": "Incidents stats/dashboard GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ],
+      "source": "backend-services/routes/incidents.js"
+    },
+    {
+      "id": 156,
+      "batch": "n10p",
+      "title": "Customers stats/summary GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "id": 157,
+      "batch": "n10p",
+      "title": "Customers search/email GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "id": 158,
+      "batch": "n10p",
+      "title": "Inventory warranty-expiring alerts",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 159,
+      "batch": "n10p",
+      "title": "Inventory maintenance-due alerts",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 160,
+      "batch": "n10p",
+      "title": "Work-orders assigned/:userId GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "source": "backend-services/routes/work-orders.js"
+    },
+    {
+      "id": 161,
+      "batch": "n10p",
+      "title": "Customer create-subscriber; GET subscriber residual",
+      "status": "honest",
+      "residual": "hssSubscriberId-get-404",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "id": 162,
+      "batch": "n10p",
+      "title": "Inventory export/csv GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 163,
+      "batch": "n10q",
+      "title": "Work-orders by site GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "source": "backend-services/routes/work-orders.js"
+    },
+    {
+      "id": 164,
+      "batch": "n10q",
+      "title": "Customers search/phone GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "id": 165,
+      "batch": "n10q",
+      "title": "Customers search/imsi GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "id": 166,
+      "batch": "n10q",
+      "title": "Customers service-history POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/models/customer.js"
+    },
+    {
+      "id": 167,
+      "batch": "n10q",
+      "title": "Customers complaints POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/models/customer.js"
+    },
+    {
+      "id": 168,
+      "batch": "n10q",
+      "title": "Inventory transfer (newLocation)",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 169,
+      "batch": "n10q",
+      "title": "Inventory by-site GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 170,
+      "batch": "n10q",
+      "title": "Notifications count GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/notifications"
+      ],
+      "source": "backend-services/routes/notifications.js"
+    },
+    {
+      "id": 171,
+      "batch": "n10q",
+      "title": "Network site sectors GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 172,
+      "batch": "n10q",
+      "title": "Voice schema GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 173,
+      "batch": "n10r",
+      "title": "Remote-agents status GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/remote-agents"
+      ],
+      "source": "backend-services/routes/remote-agents-status.js"
+    },
+    {
+      "id": 174,
+      "batch": "n10r",
+      "title": "Remote-agents status/unlinked GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/remote-agents"
+      ],
+      "source": "backend-services/routes/remote-agents-status.js"
+    },
+    {
+      "id": 175,
+      "batch": "n10r",
+      "title": "Voice provider-accounts GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 176,
+      "batch": "n10r",
+      "title": "Voice telephone-numbers GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 177,
+      "batch": "n10r",
+      "title": "Voice service-locations GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 178,
+      "batch": "n10r",
+      "title": "Bundles by type GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "source": "backend-services/routes/hardwareBundles.js"
+    },
+    {
+      "id": 179,
+      "batch": "n10r",
+      "title": "Bundles search GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "source": "backend-services/routes/hardwareBundles.js"
+    },
+    {
+      "id": 180,
+      "batch": "n10r",
+      "title": "Inventory stats GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 181,
+      "batch": "n10r",
+      "title": "Customers complaints PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "id": 182,
+      "batch": "n10r",
+      "title": "Branding GET by tenant",
+      "status": "done",
+      "apiPaths": [
+        "/api/branding"
+      ],
+      "source": "backend-services/routes/branding-api.js"
+    },
+    {
+      "id": 183,
+      "batch": "n10s",
+      "title": "Portal-content alerts GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 184,
+      "batch": "n10s",
+      "title": "Portal-content FAQ GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 185,
+      "batch": "n10s",
+      "title": "Portal-content knowledge-base GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 186,
+      "batch": "n10s",
+      "title": "Portal-content chat-settings GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 187,
+      "batch": "n10s",
+      "title": "Voice emergency-addresses GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 188,
+      "batch": "n10s",
+      "title": "Voice port-orders GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 189,
+      "batch": "n10s",
+      "title": "SNMP configuration GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/snmp"
+      ],
+      "source": "backend-services/routes/snmp-routes/snmp-status.js"
+    },
+    {
+      "id": 190,
+      "batch": "n10s",
+      "title": "SNMP devices GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/snmp"
+      ],
+      "source": "backend-services/routes/snmp-routes/snmp-devices.js"
+    },
+    {
+      "id": 191,
+      "batch": "n10s",
+      "title": "Voice provider-accounts POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 192,
+      "batch": "n10s",
+      "title": "Equipment-pricing import-from-inventory",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "source": "backend-services/routes/equipment-pricing.js"
+    },
+    {
+      "id": 193,
+      "batch": "n10t",
+      "title": "Mikrotik status GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "source": "backend-services/routes/mikrotik.js"
+    },
+    {
+      "id": 194,
+      "batch": "n10t",
+      "title": "Mikrotik devices GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "source": "backend-services/routes/mikrotik.js"
+    },
+    {
+      "id": 195,
+      "batch": "n10t",
+      "title": "Mikrotik discovery GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "source": "backend-services/routes/mikrotik.js"
+    },
+    {
+      "id": 196,
+      "batch": "n10t",
+      "title": "SNMP discovery GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/snmp"
+      ],
+      "source": "backend-services/routes/snmp-routes/snmp-discovery.js"
+    },
+    {
+      "id": 197,
+      "batch": "n10t",
+      "title": "SNMP discovered GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/snmp"
+      ],
+      "source": "backend-services/routes/snmp-routes/snmp-discovery.js"
+    },
+    {
+      "id": 198,
+      "batch": "n10t",
+      "title": "Monitoring EPC list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "source": "backend-services/routes/monitoring.js"
+    },
+    {
+      "id": 199,
+      "batch": "n10t",
+      "title": "Monitoring dashboard GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "source": "backend-services/routes/monitoring.js"
+    },
+    {
+      "id": 200,
+      "batch": "n10t",
+      "title": "Monitoring topology GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "source": "backend-services/routes/monitoring.js"
+    },
+    {
+      "id": 201,
+      "batch": "n10t",
+      "title": "Plans mobile by user GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "source": "backend-services/routes/plans/plans-mobile.js"
+    },
+    {
+      "id": 202,
+      "batch": "n10t",
+      "title": "Portal tenant config GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal"
+      ],
+      "source": "backend-services/routes/portal-domain.js"
+    },
+    {
+      "id": 203,
+      "batch": "n10u",
+      "title": "Permissions me GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/permissions"
+      ],
+      "source": "backend-services/routes/permissions.js"
+    },
+    {
+      "id": 204,
+      "batch": "n10u",
+      "title": "Users tenant visible GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "source": "backend-services/routes/users/index.js"
+    },
+    {
+      "id": 205,
+      "batch": "n10u",
+      "title": "Installation-documentation list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ],
+      "source": "backend-services/routes/installation-documentation.js"
+    },
+    {
+      "id": 206,
+      "batch": "n10u",
+      "title": "Monitoring mikrotik devices GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "source": "backend-services/routes/monitoring.js"
+    },
+    {
+      "id": 207,
+      "batch": "n10u",
+      "title": "Monitoring snmp devices GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "source": "backend-services/routes/monitoring.js"
+    },
+    {
+      "id": 208,
+      "batch": "n10u",
+      "title": "Monitoring snmp discovered GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "source": "backend-services/routes/monitoring.js"
+    },
+    {
+      "id": 209,
+      "batch": "n10u",
+      "title": "SNMP metrics latest GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/snmp"
+      ],
+      "source": "backend-services/routes/snmp-routes/snmp-metrics.js"
+    },
+    {
+      "id": 210,
+      "batch": "n10u",
+      "title": "Voice service-locations POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 211,
+      "batch": "n10u",
+      "title": "Portal-content alerts/active GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 212,
+      "batch": "n10u",
+      "title": "Portal-content FAQ published GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 213,
+      "batch": "n10v",
+      "title": "Portal-content KB published GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 214,
+      "batch": "n10v",
+      "title": "EPC list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "source": "backend-services/routes/epc.js"
+    },
+    {
+      "id": 215,
+      "batch": "n10v",
+      "title": "Equipment-pricing list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "source": "backend-services/routes/equipment-pricing.js"
+    },
+    {
+      "id": 216,
+      "batch": "n10v",
+      "title": "Bundles list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "source": "backend-services/routes/hardwareBundles.js"
+    },
+    {
+      "id": 217,
+      "batch": "n10v",
+      "title": "Tenant-settings GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/tenant-settings"
+      ],
+      "source": "backend-services/routes/tenant-settings.js"
+    },
+    {
+      "id": 218,
+      "batch": "n10v",
+      "title": "Notifications list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/notifications"
+      ],
+      "source": "backend-services/routes/notifications.js"
+    },
+    {
+      "id": 219,
+      "batch": "n10v",
+      "title": "Permissions check GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/permissions"
+      ],
+      "source": "backend-services/routes/permissions.js"
+    },
+    {
+      "id": 220,
+      "batch": "n10v",
+      "title": "Voice telephone-numbers POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 221,
+      "batch": "n10v",
+      "title": "Voice emergency-addresses POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 222,
+      "batch": "n10v",
+      "title": "Mobile tasks GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/mobile"
+      ],
+      "source": "backend-services/routes/mobile-tasks.js"
+    },
+    {
+      "id": 223,
+      "batch": "n10w",
+      "title": "Voice telephone-numbers PATCH",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 224,
+      "batch": "n10w",
+      "title": "Installation-documentation GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ],
+      "source": "backend-services/routes/installation-documentation.js"
+    },
+    {
+      "id": 225,
+      "batch": "n10w",
+      "title": "Portal-content FAQ POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 226,
+      "batch": "n10w",
+      "title": "Portal-content alerts POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 227,
+      "batch": "n10w",
+      "title": "Equipment-pricing create POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "source": "backend-services/routes/equipment-pricing.js"
+    },
+    {
+      "id": 228,
+      "batch": "n10w",
+      "title": "Equipment-pricing DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "source": "backend-services/routes/equipment-pricing.js"
+    },
+    {
+      "id": 229,
+      "batch": "n10w",
+      "title": "Voice port-orders POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 230,
+      "batch": "n10w",
+      "title": "HSS groups GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/groups"
+      ],
+      "source": "backend-services/routes/hss/hss-groups.js"
+    },
+    {
+      "id": 231,
+      "batch": "n10w",
+      "title": "HSS bandwidth-plans list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/bandwidth-plans"
+      ],
+      "source": "backend-services/routes/hss/hss-bandwidth-plans.js"
+    },
+    {
+      "id": 232,
+      "batch": "n10w",
+      "title": "HSS subscribers list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/hss/subscribers"
+      ],
+      "source": "backend-services/routes/hss/hss-subscribers.js"
+    },
+    {
+      "id": 233,
+      "batch": "n10x",
+      "title": "Portal-content KB POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 234,
+      "batch": "n10x",
+      "title": "Portal-content FAQ PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 235,
+      "batch": "n10x",
+      "title": "Portal-content alerts PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 236,
+      "batch": "n10x",
+      "title": "Portal-content chat-settings PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 237,
+      "batch": "n10x",
+      "title": "Branding PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/branding"
+      ],
+      "source": "backend-services/routes/branding-api.js"
+    },
+    {
+      "id": 238,
+      "batch": "n10x",
+      "title": "Voice port-order events GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "source": "backend-services/routes/voice-sip.js"
+    },
+    {
+      "id": 239,
+      "batch": "n10x",
+      "title": "Hardware-deployments list GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/hardware-deployments"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 240,
+      "batch": "n10x",
+      "title": "Network sites bulk-import POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 241,
+      "batch": "n10x",
+      "title": "Portal-content FAQ DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 242,
+      "batch": "n10x",
+      "title": "Portal-content alerts DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 243,
+      "batch": "n10y",
+      "title": "Portal-content KB GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 244,
+      "batch": "n10y",
+      "title": "Portal-content KB PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 245,
+      "batch": "n10y",
+      "title": "Portal-content KB DELETE",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "source": "backend-services/routes/portal-content.js"
+    },
+    {
+      "id": 246,
+      "batch": "n10y",
+      "title": "Hardware-deployments PUT",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/hardware-deployments"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 247,
+      "batch": "n10y",
+      "title": "Network equipment bulk-import POST",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/equipment"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 248,
+      "batch": "n10y",
+      "title": "Inventory by-location warehouse GET",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "source": "backend-services/routes/inventory.js"
+    },
+    {
+      "id": 249,
+      "batch": "n10y",
+      "title": "Network site GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/sites"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 250,
+      "batch": "n10y",
+      "title": "Network CPE GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/cpe"
+      ],
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "id": 251,
+      "batch": "n10y",
+      "title": "Work-order GET by id",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "source": "backend-services/routes/work-orders.js"
+    },
+    {
+      "id": 252,
+      "batch": "n10y",
+      "title": "Network geocode POST (ArcGIS key risk)",
+      "status": "done",
+      "apiPaths": [
+        "/api/network/geocode"
+      ],
+      "source": "backend-services/routes/network.js",
+      "externalRisk": "ARCGIS_API_KEY missing locally; HSS Nominatim fallback ok"
+    },
+    {
+      "id": 253,
+      "batch": "n10z",
+      "title": "Auto GET /admin/",
+      "status": "done",
+      "apiPaths": [
+        "/admin/"
+      ],
+      "exactPath": "/admin/",
+      "source": "routes/admin/general.js"
+    },
+    {
+      "id": 254,
+      "batch": "n10z",
+      "title": "Auto GET /admin/tenants/",
+      "status": "honest",
+      "apiPaths": [
+        "/admin/tenants"
+      ],
+      "exactPath": "/admin/tenants/",
+      "source": "routes/admin/tenants.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 255,
+      "batch": "n10z",
+      "title": "Auto GET /api/agent/manifest",
+      "status": "honest",
+      "apiPaths": [
+        "/api/agent"
+      ],
+      "exactPath": "/api/agent/manifest",
+      "source": "routes/agent.js",
+      "residual": "auto-get-500"
+    },
+    {
+      "id": 256,
+      "batch": "n10z",
+      "title": "Auto GET /api/auth/me",
+      "status": "done",
+      "apiPaths": [
+        "/api/auth"
+      ],
+      "exactPath": "/api/auth/me",
+      "source": "routes/auth/index.js"
+    },
+    {
+      "id": 257,
+      "batch": "n10z",
+      "title": "Auto GET /api/auth/status",
+      "status": "done",
+      "apiPaths": [
+        "/api/auth"
+      ],
+      "exactPath": "/api/auth/status",
+      "source": "routes/auth/index.js"
+    },
+    {
+      "id": 258,
+      "batch": "n10z",
+      "title": "Auto GET /api/billing/analytics",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/analytics",
+      "source": "billing-api.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 259,
+      "batch": "n10z",
+      "title": "Auto GET /api/billing/invoices",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/invoices",
+      "source": "billing-api.js",
+      "externalRisk": "voice carrier / webhook secrets may be unset",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 260,
+      "batch": "n10z",
+      "title": "Auto GET /api/billing/payment-methods",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/payment-methods",
+      "source": "billing-api.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 261,
+      "batch": "n10z",
+      "title": "Auto GET /api/billing/plans",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/plans",
+      "source": "billing-api.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 262,
+      "batch": "n10z",
+      "title": "Auto GET /api/billing/subscriptions",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/subscriptions",
+      "source": "billing-api.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 263,
+      "batch": "n11a",
+      "title": "Auto GET /api/bundles/",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "exactPath": "/api/bundles/",
+      "source": "routes/hardwareBundles.js"
+    },
+    {
+      "id": 264,
+      "batch": "n11a",
+      "title": "Auto GET /api/customer-billing/",
+      "status": "honest",
+      "apiPaths": [
+        "/api/customer-billing"
+      ],
+      "exactPath": "/api/customer-billing/",
+      "source": "routes/customer-billing.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 265,
+      "batch": "n11a",
+      "title": "Auto GET /api/customer-portal/auth/me",
+      "status": "honest",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/auth/me",
+      "source": "routes/customer-portal-api.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 266,
+      "batch": "n11a",
+      "title": "Auto GET /api/customer-portal/billing",
+      "status": "honest",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/billing",
+      "source": "routes/customer-portal-api.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 267,
+      "batch": "n11a",
+      "title": "Auto GET /api/customer-portal/billing/settings",
+      "status": "honest",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/billing/settings",
+      "source": "routes/customer-portal-api.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 268,
+      "batch": "n11a",
+      "title": "Auto GET /api/customer-portal/service",
+      "status": "honest",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/service",
+      "source": "routes/customer-portal-api.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 269,
+      "batch": "n11a",
+      "title": "Auto GET /api/customer-portal/tickets",
+      "status": "honest",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/tickets",
+      "source": "routes/customer-portal-api.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 270,
+      "batch": "n11a",
+      "title": "Auto GET /api/customers/",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "exactPath": "/api/customers/",
+      "source": "routes/customers.js"
+    },
+    {
+      "id": 271,
+      "batch": "n11a",
+      "title": "Auto GET /api/device-assignment/unassigned",
+      "status": "done",
+      "apiPaths": [
+        "/api/device-assignment"
+      ],
+      "exactPath": "/api/device-assignment/unassigned",
+      "source": "routes/device-assignment.js"
+    },
+    {
+      "id": 272,
+      "batch": "n11a",
+      "title": "Auto GET /api/epc/checkin/monitoring-devices",
+      "status": "honest",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/checkin/monitoring-devices",
+      "source": "routes/epc-checkin.js",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "auto-get-400"
+    },
+    {
+      "id": 273,
+      "batch": "n11b",
+      "title": "Auto GET /api/epc/checkin/snmp-subnets",
+      "status": "honest",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/checkin/snmp-subnets",
+      "source": "routes/epc-checkin.js",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "auto-get-400"
+    },
+    {
+      "id": 274,
+      "batch": "n11b",
+      "title": "Auto GET /api/epc/status",
+      "status": "honest",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/status",
+      "source": "routes/epc.js",
+      "residual": "auto-get-500"
+    },
+    {
+      "id": 275,
+      "batch": "n11b",
+      "title": "Auto GET /api/equipment-pricing/",
+      "status": "done",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "exactPath": "/api/equipment-pricing/",
+      "source": "routes/equipment-pricing.js"
+    },
+    {
+      "id": 276,
+      "batch": "n11b",
+      "title": "Auto GET /api/equipment-pricing/price",
+      "status": "honest",
+      "apiPaths": [
+        "/api/equipment-pricing"
+      ],
+      "exactPath": "/api/equipment-pricing/price",
+      "source": "routes/equipment-pricing.js",
+      "residual": "auto-get-400"
+    },
+    {
+      "id": 277,
+      "batch": "n11b",
+      "title": "Auto GET /api/incidents/",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ],
+      "exactPath": "/api/incidents/",
+      "source": "routes/incidents.js"
+    },
+    {
+      "id": 278,
+      "batch": "n11b",
+      "title": "Auto GET /api/installation-documentation/",
+      "status": "done",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ],
+      "exactPath": "/api/installation-documentation/",
+      "source": "routes/installation-documentation.js"
+    },
+    {
+      "id": 279,
+      "batch": "n11b",
+      "title": "Auto GET /api/internal/plans",
+      "status": "honest",
+      "apiPaths": [
+        "/api/internal"
+      ],
+      "exactPath": "/api/internal/plans",
+      "source": "routes/internal.js",
+      "residual": "auto-get-401"
+    },
+    {
+      "id": 280,
+      "batch": "n11b",
+      "title": "Auto GET /api/internal/tenant-settings",
+      "status": "honest",
+      "apiPaths": [
+        "/api/internal"
+      ],
+      "exactPath": "/api/internal/tenant-settings",
+      "source": "routes/internal.js",
+      "residual": "auto-get-401"
+    },
+    {
+      "id": 281,
+      "batch": "n11b",
+      "title": "Auto GET /api/inventory/",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "exactPath": "/api/inventory/",
+      "source": "routes/inventory.js"
+    },
+    {
+      "id": 282,
+      "batch": "n11b",
+      "title": "Auto GET /api/maintain/dashboard/activity",
+      "status": "done",
+      "apiPaths": [
+        "/api/maintain"
+      ],
+      "exactPath": "/api/maintain/dashboard/activity",
+      "source": "routes/maintain.js"
+    },
+    {
+      "id": 283,
+      "batch": "n11c",
+      "title": "Auto GET /api/maintain/dashboard/stats",
+      "status": "done",
+      "apiPaths": [
+        "/api/maintain"
+      ],
+      "exactPath": "/api/maintain/dashboard/stats",
+      "source": "routes/maintain.js"
+    },
+    {
+      "id": 284,
+      "batch": "n11c",
+      "title": "Auto GET /api/mikrotik/devices/credentials",
+      "status": "honest",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "exactPath": "/api/mikrotik/devices/credentials",
+      "source": "routes/mikrotik.js",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "auto-get-500"
+    },
+    {
+      "id": 285,
+      "batch": "n11c",
+      "title": "Auto GET /api/mme/customer-count",
+      "status": "honest",
+      "apiPaths": [
+        "/api/mme"
+      ],
+      "exactPath": "/api/mme/customer-count",
+      "source": "routes/mme-status.js",
+      "residual": "auto-get-401"
+    },
+    {
+      "id": 286,
+      "batch": "n11c",
+      "title": "Auto GET /api/mme/online-subscribers",
+      "status": "honest",
+      "apiPaths": [
+        "/api/mme"
+      ],
+      "exactPath": "/api/mme/online-subscribers",
+      "source": "routes/mme-status.js",
+      "residual": "auto-get-401"
+    },
+    {
+      "id": 287,
+      "batch": "n11c",
+      "title": "Auto GET /api/monitoring/graphs/",
+      "status": "done",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "exactPath": "/api/monitoring/graphs/",
+      "source": "routes/monitoring-graphs.js",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent"
+    },
+    {
+      "id": 288,
+      "batch": "n11c",
+      "title": "Auto GET /api/monitoring/snmp/metrics/latest",
+      "status": "honest",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "exactPath": "/api/monitoring/snmp/metrics/latest",
+      "source": "routes/monitoring.js",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "auto-get-500"
+    },
+    {
+      "id": 289,
+      "batch": "n11c",
+      "title": "Auto GET /api/network/cpe",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/cpe",
+      "source": "routes/network.js"
+    },
+    {
+      "id": 290,
+      "batch": "n11c",
+      "title": "Auto GET /api/network/equipment",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/equipment",
+      "source": "routes/network.js"
+    },
+    {
+      "id": 291,
+      "batch": "n11c",
+      "title": "Auto GET /api/network/sectors",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/sectors",
+      "source": "routes/network.js"
+    },
+    {
+      "id": 292,
+      "batch": "n11c",
+      "title": "Auto GET /api/network/sites",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/sites",
+      "source": "routes/network.js"
+    },
+    {
+      "id": 293,
+      "batch": "n11d",
+      "title": "Auto GET /api/notifications/",
+      "status": "done",
+      "apiPaths": [
+        "/api/notifications"
+      ],
+      "exactPath": "/api/notifications/",
+      "source": "routes/notifications.js",
+      "externalRisk": "email/firebase secrets may be unset for outbound notify"
+    },
+    {
+      "id": 294,
+      "batch": "n11d",
+      "title": "Auto GET /api/permissions/check",
+      "status": "honest",
+      "apiPaths": [
+        "/api/permissions"
+      ],
+      "exactPath": "/api/permissions/check",
+      "source": "routes/permissions.js",
+      "residual": "auto-get-400"
+    },
+    {
+      "id": 295,
+      "batch": "n11d",
+      "title": "Auto GET /api/permissions/roles",
+      "status": "honest",
+      "apiPaths": [
+        "/api/permissions"
+      ],
+      "exactPath": "/api/permissions/roles",
+      "source": "routes/permissions.js",
+      "residual": "auto-get-500"
+    },
+    {
+      "id": 296,
+      "batch": "n11d",
+      "title": "Auto GET /api/plans/",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/",
+      "source": "routes/plans/plans-core.js"
+    },
+    {
+      "id": 297,
+      "batch": "n11d",
+      "title": "Auto GET /api/plans/hardware/existing",
+      "status": "honest",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/hardware/existing",
+      "source": "routes/plans/plans-hardware.js",
+      "residual": "auto-get-500"
+    },
+    {
+      "id": 298,
+      "batch": "n11d",
+      "title": "Auto GET /api/subcontractors/",
+      "status": "done",
+      "apiPaths": [
+        "/api/subcontractors"
+      ],
+      "exactPath": "/api/subcontractors/",
+      "source": "routes/subcontractors.js"
+    },
+    {
+      "id": 299,
+      "batch": "n11d",
+      "title": "Auto GET /api/system/resources",
+      "status": "honest",
+      "apiPaths": [
+        "/api/system"
+      ],
+      "exactPath": "/api/system/resources",
+      "source": "routes/system.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 300,
+      "batch": "n11d",
+      "title": "Auto GET /api/system/services/status",
+      "status": "honest",
+      "apiPaths": [
+        "/api/system"
+      ],
+      "exactPath": "/api/system/services/status",
+      "source": "routes/system.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 301,
+      "batch": "n11d",
+      "title": "Auto GET /api/tenant-settings/",
+      "status": "done",
+      "apiPaths": [
+        "/api/tenant-settings"
+      ],
+      "exactPath": "/api/tenant-settings/",
+      "source": "routes/tenant-settings.js"
+    },
+    {
+      "id": 302,
+      "batch": "n11d",
+      "title": "Auto GET /api/users/",
+      "status": "honest",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/",
+      "source": "routes/users/index.js",
+      "residual": "auto-get-403"
+    },
+    {
+      "id": 303,
+      "batch": "n11e",
+      "title": "Auto GET /api/users/suggest-role",
+      "status": "honest",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/suggest-role",
+      "source": "routes/users/auto-assign-role.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 304,
+      "batch": "n11e",
+      "title": "Auto GET /api/users/test",
+      "status": "honest",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/test",
+      "source": "routes/users/tenants.js",
+      "residual": "auto-get-404"
+    },
+    {
+      "id": 305,
+      "batch": "n11e",
+      "title": "Auto GET /api/work-orders/",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "exactPath": "/api/work-orders/",
+      "source": "routes/work-orders.js"
+    }
   ],
   "heldResiduals": [
-    { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },
-    { "pass": 65, "title": "HSS subscribers PUT/DELETE", "blocker": "Lookup by string _id 404 (ObjectId shape)", "source": "backend-services/routes/hss/hss-subscribers.js" },
-    { "pass": 66, "title": "Subcontractors", "blocker": "Admin POST often times out", "source": "backend-services/routes/subcontractors.js" },
-    { "pass": 67, "title": "Permissions role PUT", "blocker": "isPlatformAdminUser is not a function", "source": "backend-services/routes/permissions.js" },
-    { "pass": 68, "title": "Users invite", "blocker": "Failed to invite user 500", "source": "backend-services/routes/users" },
-    { "pass": 76, "title": "Install photos multipart", "blocker": "Firebase storageBucket not configured on HSS", "source": "backend-services/routes/installation-documentation.js" },
-    { "pass": 77, "title": "Marketing discover", "blocker": "504 / timeout; UI uses spatial fallback", "source": "backend-services/routes/plans" },
-    { "pass": 123, "title": "Inventory scan check-in/out", "blocker": "Route passes reason 'check-in'/'check-out' to transferTo, but LocationHistorySchema enum is deployment|transfer|return|maintenance|rma|sale|disposal|other — backend bug", "source": ["backend-services/routes/inventory.js", "backend-services/models/inventory.js"] },
-    { "pass": null, "title": "Users modules PUT", "blocker": "moduleAccess accepted shape still 500 on HSS", "source": "backend-services/routes/users" },
-    { "pass": null, "title": "Equipment PUT foreign ownership", "blocker": "403 unless creator; create+PUT own row works", "source": "backend-services/routes/network.js" },
-    { "pass": null, "title": "CPE PUT foreign ownership", "blocker": "403 unless creator (ownership check in route)", "source": "backend-services/routes/network.js" },
-    { "pass": null, "title": "Install submit without photos", "blocker": "Requires min 3 photos; storageBucket blocks uploads", "source": "backend-services/routes/installation-documentation.js" },
-    { "pass": null, "title": "Bundle items require category enum", "blocker": "HardwareBundle items require category from model enum (e.g. Radio Equipment)", "source": "backend-services/models/hardwareBundle.js" },
-    { "pass": 161, "title": "Customer GET /:id/subscriber after create", "blocker": "POST create-subscriber 201 but GET returns No HSS subscriber (hssSubscriberId not visible)", "source": "backend-services/routes/customers.js" },
-    { "pass": null, "title": "SNMP status GET", "blocker": "HSS 500: Cannot find module '../models/snmp-metrics-schema' (wrong relative require in snmp-status.js line 46; top-level import uses ../../models)", "source": "backend-services/routes/snmp-routes/snmp-status.js" },
-    { "pass": null, "title": "EPC status GET", "blocker": "GET /api/epc/status shadowed by /:id — Cast to ObjectId failed for value \"status\"", "source": "backend-services/routes/epc.js" }
+    {
+      "pass": 64,
+      "title": "HSS bandwidth-plans create",
+      "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread",
+      "source": "backend-services/routes/hss/hss-bandwidth-plans.js"
+    },
+    {
+      "pass": 65,
+      "title": "HSS subscribers PUT/DELETE",
+      "blocker": "Lookup by string _id 404 (ObjectId shape)",
+      "source": "backend-services/routes/hss/hss-subscribers.js"
+    },
+    {
+      "pass": 66,
+      "title": "Subcontractors",
+      "blocker": "Admin POST often times out",
+      "source": "backend-services/routes/subcontractors.js"
+    },
+    {
+      "pass": 67,
+      "title": "Permissions role PUT",
+      "blocker": "isPlatformAdminUser is not a function",
+      "source": "backend-services/routes/permissions.js"
+    },
+    {
+      "pass": 68,
+      "title": "Users invite",
+      "blocker": "Failed to invite user 500",
+      "source": "backend-services/routes/users"
+    },
+    {
+      "pass": 76,
+      "title": "Install photos multipart",
+      "blocker": "Firebase storageBucket not configured on HSS",
+      "source": "backend-services/routes/installation-documentation.js"
+    },
+    {
+      "pass": 77,
+      "title": "Marketing discover",
+      "blocker": "504 / timeout; UI uses spatial fallback",
+      "source": "backend-services/routes/plans"
+    },
+    {
+      "pass": 123,
+      "title": "Inventory scan check-in/out",
+      "blocker": "Route passes reason 'check-in'/'check-out' to transferTo, but LocationHistorySchema enum is deployment|transfer|return|maintenance|rma|sale|disposal|other — backend bug",
+      "source": [
+        "backend-services/routes/inventory.js",
+        "backend-services/models/inventory.js"
+      ]
+    },
+    {
+      "pass": null,
+      "title": "Users modules PUT",
+      "blocker": "moduleAccess accepted shape still 500 on HSS",
+      "source": "backend-services/routes/users"
+    },
+    {
+      "pass": null,
+      "title": "Equipment PUT foreign ownership",
+      "blocker": "403 unless creator; create+PUT own row works",
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "pass": null,
+      "title": "CPE PUT foreign ownership",
+      "blocker": "403 unless creator (ownership check in route)",
+      "source": "backend-services/routes/network.js"
+    },
+    {
+      "pass": null,
+      "title": "Install submit without photos",
+      "blocker": "Requires min 3 photos; storageBucket blocks uploads",
+      "source": "backend-services/routes/installation-documentation.js"
+    },
+    {
+      "pass": null,
+      "title": "Bundle items require category enum",
+      "blocker": "HardwareBundle items require category from model enum (e.g. Radio Equipment)",
+      "source": "backend-services/models/hardwareBundle.js"
+    },
+    {
+      "pass": 161,
+      "title": "Customer GET /:id/subscriber after create",
+      "blocker": "POST create-subscriber 201 but GET returns No HSS subscriber (hssSubscriberId not visible)",
+      "source": "backend-services/routes/customers.js"
+    },
+    {
+      "pass": null,
+      "title": "SNMP status GET",
+      "blocker": "HSS 500: Cannot find module '../models/snmp-metrics-schema' (wrong relative require in snmp-status.js line 46; top-level import uses ../../models)",
+      "source": "backend-services/routes/snmp-routes/snmp-status.js"
+    },
+    {
+      "pass": null,
+      "title": "EPC status GET",
+      "blocker": "GET /api/epc/status shadowed by /:id — Cast to ObjectId failed for value \"status\"",
+      "source": "backend-services/routes/epc.js"
+    }
   ],
   "candidateHints": [
-    { "title": "Retry held residuals after HSS fix", "api": "held", "note": "Re-probe heldResiduals after reading backend-services source" },
-    { "title": "Inventory scan check-in/out after enum fix", "api": "/api/inventory/scan/check-in", "note": "Source bug: routes/inventory.js passes check-in/check-out; models/inventory.js LocationHistorySchema rejects them" },
-    { "title": "Plan requirements DELETE index", "api": "/api/plans", "note": "See routes/plans/plans-hardware.js — DELETE /requirements/0" },
-    { "title": "Notifications mark-read path variants", "api": "/api/notifications", "note": "Document from routes/notifications.js before retrying mounts" },
-    { "title": "Nearest-site route", "api": "/api/network/sites", "note": "Confirm route exists in routes/network.js before wiring UI" },
-    { "title": "Users invite retry", "api": "/api/users/invite", "note": "Body fields from routes/users — still 500 live" },
-    { "title": "Subcontractor approve retry", "api": "/api/subcontractors", "note": "Body from routes/subcontractors.js; POST often times out live" },
-    { "title": "Install photos after storageBucket fix", "api": "/api/installation-documentation", "note": "Multipart wired; blocked on HSS Firebase config" },
-    { "title": "HSS BW create retry", "api": "/api/hss/bandwidth-plans", "note": "Source: routes/hss/hss-bandwidth-plans.js spreads req.body; live still 500" },
-    { "title": "Equipment pricing GET by id", "api": "/api/equipment-pricing", "note": "routes/equipment-pricing.js — list+DELETE work; confirm GET :id" },
-    { "title": "Bundle items category enum", "api": "/api/bundles", "note": "models/hardwareBundle.js requires category enum e.g. Radio Equipment" },
-    { "title": "Inventory transfer newLocation", "api": "/api/inventory", "note": "POST /:id/transfer — newLocation required (routes/inventory.js); not /api/inventory/transfer" }
+    {
+      "title": "Retry held residuals after HSS fix",
+      "api": "held",
+      "note": "Re-probe heldResiduals after reading backend-services source"
+    },
+    {
+      "title": "Inventory scan check-in/out after enum fix",
+      "api": "/api/inventory/scan/check-in",
+      "note": "Source bug: routes/inventory.js passes check-in/check-out; models/inventory.js LocationHistorySchema rejects them"
+    },
+    {
+      "title": "Plan requirements DELETE index",
+      "api": "/api/plans",
+      "note": "See routes/plans/plans-hardware.js — DELETE /requirements/0"
+    },
+    {
+      "title": "Notifications mark-read path variants",
+      "api": "/api/notifications",
+      "note": "Document from routes/notifications.js before retrying mounts"
+    },
+    {
+      "title": "Nearest-site route",
+      "api": "/api/network/sites",
+      "note": "Confirm route exists in routes/network.js before wiring UI"
+    },
+    {
+      "title": "Users invite retry",
+      "api": "/api/users/invite",
+      "note": "Body fields from routes/users — still 500 live"
+    },
+    {
+      "title": "Subcontractor approve retry",
+      "api": "/api/subcontractors",
+      "note": "Body from routes/subcontractors.js; POST often times out live"
+    },
+    {
+      "title": "Install photos after storageBucket fix",
+      "api": "/api/installation-documentation",
+      "note": "Multipart wired; blocked on HSS Firebase config"
+    },
+    {
+      "title": "HSS BW create retry",
+      "api": "/api/hss/bandwidth-plans",
+      "note": "Source: routes/hss/hss-bandwidth-plans.js spreads req.body; live still 500"
+    },
+    {
+      "title": "Equipment pricing GET by id",
+      "api": "/api/equipment-pricing",
+      "note": "routes/equipment-pricing.js — list+DELETE work; confirm GET :id"
+    },
+    {
+      "title": "Bundle items category enum",
+      "api": "/api/bundles",
+      "note": "models/hardwareBundle.js requires category enum e.g. Radio Equipment"
+    },
+    {
+      "title": "Inventory transfer newLocation",
+      "api": "/api/inventory",
+      "note": "POST /:id/transfer — newLocation required (routes/inventory.js); not /api/inventory/transfer"
+    }
   ]
 }

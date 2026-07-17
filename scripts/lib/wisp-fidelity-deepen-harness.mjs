@@ -175,18 +175,22 @@ export async function runDeepenBatch(cfg) {
   }
 
   const auth = await authContext({ ...opts, needAdmin });
-  const refresh = await liveRefreshWispApiGoldens({
-    firebaseDemoLogin: true,
-    discover: true,
-    applyHandlers: true,
-    paths: refreshPaths,
-    ...opts,
-  });
-  const mutate = await liveMutateTraceGoldens({
-    firebaseDemoLogin: true,
-    applyHandlers: true,
-    ...opts,
-  });
+  let refresh = { ok: true, skipped: true };
+  let mutate = { ok: true, skipped: true };
+  if (!opts.skipLiveRefresh) {
+    refresh = await liveRefreshWispApiGoldens({
+      firebaseDemoLogin: true,
+      discover: true,
+      applyHandlers: true,
+      paths: refreshPaths,
+      ...opts,
+    });
+    mutate = await liveMutateTraceGoldens({
+      firebaseDemoLogin: true,
+      applyHandlers: true,
+      ...opts,
+    });
+  }
 
   const ctx = {
     ...auth,

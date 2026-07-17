@@ -373,6 +373,7 @@ export function scanWispExternalDeps(opts = {}) {
       "If a deepen pass needs a missing key, mark honest residual and list the key name — never invent a key.",
       "Hardware (SNMP/MikroTik/ACS) probes must use source bodies; credentials live on devices or tenant settings, not invented.",
       "Local presence ≠ HSS production env; treat remote as unknown unless separately verified.",
+      "Auto-continue via --until-exhausted: stop after 3 consecutive rounds with no newly green exact method+path (or empty fresh static-GET queue). Do not wait for operator 'continue'.",
     ],
   };
 

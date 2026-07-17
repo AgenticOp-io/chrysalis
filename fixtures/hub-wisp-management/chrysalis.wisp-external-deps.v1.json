@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.wisp.external-deps",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-17T02:30:20.630Z",
+  "generatedAt": "2026-07-17T02:35:24.445Z",
   "protocol": {
     "id": "wisp-external-deps-v1",
     "decision": "D6445",
@@ -867,7 +867,8 @@
       "Do not invent vendor SDKs or alternate hosts (D6442 / D6441).",
       "If a deepen pass needs a missing key, mark honest residual and list the key name — never invent a key.",
       "Hardware (SNMP/MikroTik/ACS) probes must use source bodies; credentials live on devices or tenant settings, not invented.",
-      "Local presence ≠ HSS production env; treat remote as unknown unless separately verified."
+      "Local presence ≠ HSS production env; treat remote as unknown unless separately verified.",
+      "Auto-continue via --until-exhausted: stop after 3 consecutive rounds with no newly green exact method+path (or empty fresh static-GET queue). Do not wait for operator 'continue'."
     ]
   },
   "secrets": [
