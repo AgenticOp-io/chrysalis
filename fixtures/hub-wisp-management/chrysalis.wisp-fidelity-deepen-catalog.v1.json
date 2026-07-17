@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 192,
-  "nextBatchId": "n10t",
-  "nextPassRange": [193, 202],
+  "closedThroughPass": 202,
+  "nextBatchId": "n10u",
+  "nextPassRange": [203, 212],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -38,7 +38,8 @@
     { "id": "n10p", "passRange": [153, 162], "status": "closed-harness" },
     { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" },
     { "id": "n10r", "passRange": [173, 182], "status": "closed-harness" },
-    { "id": "n10s", "passRange": [183, 192], "status": "closed-harness" }
+    { "id": "n10s", "passRange": [183, 192], "status": "closed-harness" },
+    { "id": "n10t", "passRange": [193, 202], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -170,7 +171,17 @@
     { "id": 189, "batch": "n10s", "title": "SNMP configuration GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-status.js" },
     { "id": 190, "batch": "n10s", "title": "SNMP devices GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-devices.js" },
     { "id": 191, "batch": "n10s", "title": "Voice provider-accounts POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 192, "batch": "n10s", "title": "Equipment-pricing import-from-inventory", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" }
+    { "id": 192, "batch": "n10s", "title": "Equipment-pricing import-from-inventory", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
+    { "id": 193, "batch": "n10t", "title": "Mikrotik status GET", "status": "done", "apiPaths": ["/api/mikrotik"], "source": "backend-services/routes/mikrotik.js" },
+    { "id": 194, "batch": "n10t", "title": "Mikrotik devices GET", "status": "done", "apiPaths": ["/api/mikrotik"], "source": "backend-services/routes/mikrotik.js" },
+    { "id": 195, "batch": "n10t", "title": "Mikrotik discovery GET", "status": "done", "apiPaths": ["/api/mikrotik"], "source": "backend-services/routes/mikrotik.js" },
+    { "id": 196, "batch": "n10t", "title": "SNMP discovery GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-discovery.js" },
+    { "id": 197, "batch": "n10t", "title": "SNMP discovered GET", "status": "done", "apiPaths": ["/api/snmp"], "source": "backend-services/routes/snmp-routes/snmp-discovery.js" },
+    { "id": 198, "batch": "n10t", "title": "Monitoring EPC list GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
+    { "id": 199, "batch": "n10t", "title": "Monitoring dashboard GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
+    { "id": 200, "batch": "n10t", "title": "Monitoring topology GET", "status": "done", "apiPaths": ["/api/monitoring"], "source": "backend-services/routes/monitoring.js" },
+    { "id": 201, "batch": "n10t", "title": "Plans mobile by user GET", "status": "done", "apiPaths": ["/api/plans"], "source": "backend-services/routes/plans/plans-mobile.js" },
+    { "id": 202, "batch": "n10t", "title": "Portal tenant config GET", "status": "done", "apiPaths": ["/api/portal"], "source": "backend-services/routes/portal-domain.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },

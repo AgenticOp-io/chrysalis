@@ -27,6 +27,55 @@
       "enabled": true,
       "accountStatus": "pending"
     },
+    "_id": "6a597766ad923e3601e038db",
+    "tenantId": "6a166eb07089304417ec967a",
+    "customerId": "CUST-2026-0042",
+    "isLead": false,
+    "leadStatus": "new",
+    "firstName": "CWL",
+    "lastName": "Trace1784248153442",
+    "fullName": "CWL Trace1784248153442",
+    "primaryPhone": "555-0100",
+    "email": "cwl-trace-1784248153442@example.com",
+    "serviceStatus": "active",
+    "notes": "chrysalis-live-mutate-trace",
+    "tags": [],
+    "accountStatus": "good-standing",
+    "isActive": true,
+    "serviceHistory": [],
+    "complaints": [],
+    "createdAt": "2026-07-17T00:29:26.882Z",
+    "updatedAt": "2026-07-17T00:29:26.884Z",
+    "__v": 0
+  },
+  {
+    "serviceAddress": {
+      "country": "USA"
+    },
+    "billingAddress": {
+      "country": "USA",
+      "sameAsService": true
+    },
+    "servicePlan": {
+      "currency": "USD",
+      "qci": 9,
+      "priorityLevel": "medium"
+    },
+    "lteAuth": {
+      "sqn": 0
+    },
+    "installation": {
+      "status": "not-scheduled",
+      "otherEquipment": []
+    },
+    "billingInfo": {
+      "accountBalance": 0,
+      "autopay": false
+    },
+    "portalAccess": {
+      "enabled": true,
+      "accountStatus": "pending"
+    },
     "_id": "6a59773ead923e3601e0383a",
     "tenantId": "6a166eb07089304417ec967a",
     "customerId": "CUST-2026-0041",

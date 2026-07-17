@@ -2109,6 +2109,56 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10qSurfaces();
   initDeepenN10rSurfaces();
   initDeepenN10sSurfaces();
+  initDeepenN10tSurfaces();
+
+  function initDeepenN10tSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10t="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10t", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var monHost =
+      document.querySelector(".monitoring-page .page-header") ||
+      document.querySelector('[data-wisp-page="monitoring"] .page-header') ||
+      document.querySelector(".monitor-page .page-header");
+    addGet(monHost, "mt-status", "/api/mikrotik/status", "Mikrotik status");
+    addGet(monHost, "snmp-disc", "/api/snmp/discovery", "SNMP discovery");
+    addGet(monHost, "mon-dash", "/api/monitoring/monitoring/dashboard", "Mon dashboard");
+    addGet(monHost, "mon-topo", "/api/monitoring/monitoring/topology", "Mon topology");
+    var planHost =
+      document.querySelector(".plan-page .page-header") ||
+      document.querySelector('[data-wisp-page="plan"] .page-header');
+    addGet(planHost, "plan-mobile", "/api/plans/mobile/cwl-demo", "Plans mobile");
+    var dash =
+      document.querySelector(".dashboard-page .page-header") ||
+      document.querySelector('[data-wisp-page="dashboard"] .page-header');
+    addGet(dash, "portal-tenant", "/api/portal/tenant/6a166eb07089304417ec967a", "Portal tenant");
+  }
 
   function initDeepenN10sSurfaces() {
     if (!window.WispCwlApi) return;
