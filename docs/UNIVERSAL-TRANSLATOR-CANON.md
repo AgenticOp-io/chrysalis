@@ -1,7 +1,7 @@
 # Chrysalis Universal Translator — Canon Plan (locked)
 
-> **Status:** **CANON** — locked 2026-07-14 (**DESIGN D6438**); amended **D6442** (translate-only); **D6447** (no demo-only code)  
-> **Authority:** This document + `DESIGN.md` §1–3 + Decision Log **D6438** / **D6442** / **D6447**. It **supersedes** ad-hoc WISP-first queues and soft guidance in older path notes.  
+> **Status:** **CANON** — locked 2026-07-14 (**DESIGN D6438**); amended **D6442** (translate-only); **D6447** (no demo-only code); **D6448** (complete conversion)  
+> **Authority:** This document + `DESIGN.md` §1–3 + Decision Log **D6438** / **D6442** / **D6447** / **D6448**. It **supersedes** ad-hoc WISP-first queues and soft guidance in older path notes.  
 > **Supersedes for default build:** prior §12 “WISP depth / management.firebase” as product work; those remain **POC-only**.  
 > **Knowledge base:** [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json)  
 > **Operator stack (ship today):** [`MIGRATION-OS.md`](./MIGRATION-OS.md)  
@@ -93,6 +93,22 @@ When the operator says **“do not add new code”** / **“no demo code”** / 
 | 5. Background truth | API + services pieces are first-class; empty `/api/*` or unbound clients are holes |
 
 **Artifacts:** `reports/origin-corpus/chrysalis.source-corpus.v1.{json,sqlite}` + `chrysalis.convert-queue.v1.json`. Gate: `hub:origin-source-corpus-smoke` (**G9993**).
+
+### 2D. Complete conversion — fix holes during convert (**DESIGN D6448** — locked)
+
+**Top rule:** Convert is not complete after one lift pass. The convert process **must** run an honest hole-close loop until **zero** `data-cwl-hole` markers (without force-settle), or **fail incomplete** with a residual ledger.
+
+Normative protocol: [`COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md).
+
+| Requirement | Detail |
+| --- | --- |
+| During convert | Re-lift → bind (`forceSettle: false`) → golden hydrate → UI-toggle stamp → census |
+| Complete | `data-cwl-hole` total === 0 (vendor islands may remain as islands) |
+| Incomplete | 3× no improvement → residuals + gate fail (unless `--allow-incomplete`) |
+| Forbidden | Force-settle / `hub:wisp-deep-lift-all-holes` as a completeness claim |
+| Cross-language | Same law for every origin→emit pair |
+
+POC CLI: `pnpm run hub:complete-conversion` · wired into `hub:wisp-convert-restart`.
 
 ---
 

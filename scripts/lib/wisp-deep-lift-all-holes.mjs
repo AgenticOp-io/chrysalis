@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Deep-lift / force-settle ALL markup holes in hub-wisp-management routes.cwl
- * (D6446 / G9800 showcase settle — empty/omit, do not invent widgets).
+ * Deep-lift / force-settle ALL markup holes in hub-wisp-management routes.cwl.
+ *
+ * **D6447 / D6448 — NOT a completeness claim.** Force-settle empties holes without
+ * origin evidence. Use `hub:complete-conversion` for honest close-during-convert.
+ * This script remains only for legacy showcase mop experiments.
  *
  *   pnpm run hub:wisp-deep-lift-all-holes
  */

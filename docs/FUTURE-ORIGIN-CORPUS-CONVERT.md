@@ -189,7 +189,11 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **Auto-exhaust continue (skip-unburn + list overrides):** n11n–n11u — retry prior skip-no-id param GETs; stop only after **3×** no-fresh (`no-fresh-routes-x3`) | **done** |
 | 2026-07-17 | **UI deep-lift resume (D6443/D6444):** fixed `findPascalComponentTagEnd` (apostrophe-in-`//` comment + backticks) so **HardwareDeploymentModal** inlines; orphan module modals (**TransferModal**, **CustomerBillingModal**, …); map/client openers prefer lifted chrome; Firebase management redeploy | **done** |
 | 2026-07-17 | **Deep-lift all markup holes:** `hub:wisp-deep-lift-all-holes` force-settled **1805 → 0** (`interp` 870 / `if` 755 / `each` 180) via bind+G9800 settle; expanded UI-toggle stamp regex; report `reports/wisp/deep-lift-all-holes.json` | **done** |
-| — | Visual SPA parity still incomplete (stores/ArcGIS keys/module depth) — but static CWL hole markers are cleared | **open** |
+| 2026-07-17 | **Restart (D6442–D6446):** parity login/dashboard/plan/deploy shells **removed** from convert — structural origin lift only; `hub:wisp-convert-restart` = corpus → convert-all → **honest hole report** → export/CSS/deploy → external-deps → deepen-until-exhausted; **`CHRYSALIS_WISP_STRUCTURAL_ONLY=1`** skips Phase30 parity + force-settle overwrite | **done** (holes **2428** honest; live login has Welcome Back + Google + features) |
+| 2026-07-17 | **D6447 locked (all languages):** true conversion only — never demo-only / force-settle façades. Agent law in `AGENTS.md` + canon §0/§2A + DESIGN + strategic plan + Cursor rule. Piece status rename `demo-ok` → `converted-ok` | **done** |
+| 2026-07-17 | **Restart under D6447:** `hub:wisp-convert-restart` — corpus 800/159 → convert-all → **2477** honest holes → deploy management → deepen stop `no-improvement-x3`; signed-in login+dashboard OK vs origin look | **done** |
+| 2026-07-17 | **D6448 Complete conversion protocol:** [`docs/COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md); `hub:complete-conversion`; wired into convert-restart (fail if holes remain). First run: **2477→1014** honest closes (−1463), then plateau — **incomplete** until engine closes remaining interp/if/each | **done (protocol)** / **open (zero holes)** |
+| — | Close remaining **1014** holes via ingest lift/bind evidence (not force-settle); Plan/map island; re-run `hub:complete-conversion` until `complete: true` | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

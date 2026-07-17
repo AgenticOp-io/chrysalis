@@ -452,6 +452,8 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-07-15 (D6443) — Source-authoritative UI conversion.** See canon §2B. Origin CSS + class names + vendor islands are look/behavior authority; no overlay redefine.
 
+**Amended 2026-07-17 (D6448) — Complete conversion protocol.** See [`COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md) and canon §2D. Convert must close holes during convert (honest loop) until zero or fail incomplete — all languages.
+
 **Amended 2026-07-17 (D6447) — True conversion only; never demo-only code (all languages).** See canon §0/§2A and `AGENTS.md` absolute law. Applies to every origin→emit pair — WISP is POC proof only. Agents: lift origin or emit honest holes — **refuse** hand-built showcase pages, non-lifted parity shells, force-settled “green” holes. After convert: sign in and test against origin.
 
 **Amended 2026-07-14 (D6442) — Translate-only fidelity law.** See canon §2A. Agents: translate / verify / holes only — **do not invent**.

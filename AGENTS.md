@@ -14,10 +14,11 @@ Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin,
 | **D6443** | Origin UI (markup classes + CSS + islands) is look/behavior authority. |
 | **D6444** | Convert from the origin file corpus / piece queue — not a stub page. |
 | **D6447** | **No demo façades.** Do not invent simplified login/dashboard/shells, parity HTML that is not a lift of origin, force-settled “green” holes, or helper apps that only look like the product. If it is not present in origin (or an honest **hole**), it does not ship. |
+| **D6448** | **Complete conversion.** During convert, run the honest hole-close loop until **zero** `data-cwl-hole` (or fail with residual ledger). Do not stop after one convert-all pass. Protocol: [`docs/COMPLETE-CONVERSION-PROTOCOL.md`](docs/COMPLETE-CONVERSION-PROTOCOL.md). |
 
 **Refuse:** hand-written showcase pages, “good enough for demo” substitutes, invented widgets/APIs/maps, overlay chrome that redesigns origin, claiming done from smoke/hole-count without signed-in parity against origin.
 
-**Required after convert:** sign in and test against the **origin site** (for WISP: `wisptools.io` vs management/CWL host). Deploy OK ≠ fidelity.
+**Required after convert:** sign in and test against the **origin site** (for WISP: `wisptools.io` vs management/CWL host). Deploy OK ≠ fidelity. Convert gate fails while holes remain (**D6448**) unless the operator explicitly allows incomplete.
 
 ## 0. Before you do anything
 
