@@ -178,7 +178,8 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **Deepen passes 193–202 (×10):** source-doc — mikrotik status/devices/discovery; snmp discovery/discovered; monitoring epc + `/monitoring/monitoring/{dashboard,topology}` (source mount path); plans mobile; portal tenant; `hub:fidelity-deepen -- --batch n10t` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10t.json`) |
 | 2026-07-17 | **Deepen passes 203–212 (×10):** permissions/me; users visible; install-docs; monitoring mikrotik/snmp; snmp metrics; voice service-location POST; portal alerts/FAQ published; `hub:fidelity-deepen -- --batch n10u` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10u.json`) |
 | 2026-07-17 | **Deepen passes 213–222 (×10):** portal KB published; epc list; pricing/bundles/tenant-settings/notifications; permissions check; voice TN+emergency POST; mobile tasks; `hub:fidelity-deepen -- --batch n10v` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10v.json`) |
-| — | (none — deepen-n10v closed; next `n10w` 223–232 via `--source-doc`) | **open** |
+| 2026-07-17 | **Deepen passes 223–232 (×10):** voice TN PATCH + port-order POST; install-doc GET :id; portal FAQ/alerts POST; pricing create+DELETE; HSS group/BW/subscribers GET; `hub:fidelity-deepen -- --batch n10w` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10w.json`) |
+| — | (none — deepen-n10w closed; next `n10x` 233–242 via `--source-doc`) | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

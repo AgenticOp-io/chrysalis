@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 222,
-  "nextBatchId": "n10w",
-  "nextPassRange": [223, 232],
+  "closedThroughPass": 232,
+  "nextBatchId": "n10x",
+  "nextPassRange": [233, 242],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -41,7 +41,8 @@
     { "id": "n10s", "passRange": [183, 192], "status": "closed-harness" },
     { "id": "n10t", "passRange": [193, 202], "status": "closed-harness" },
     { "id": "n10u", "passRange": [203, 212], "status": "closed-harness" },
-    { "id": "n10v", "passRange": [213, 222], "status": "closed-harness" }
+    { "id": "n10v", "passRange": [213, 222], "status": "closed-harness" },
+    { "id": "n10w", "passRange": [223, 232], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -203,7 +204,17 @@
     { "id": 219, "batch": "n10v", "title": "Permissions check GET", "status": "done", "apiPaths": ["/api/permissions"], "source": "backend-services/routes/permissions.js" },
     { "id": 220, "batch": "n10v", "title": "Voice telephone-numbers POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
     { "id": 221, "batch": "n10v", "title": "Voice emergency-addresses POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
-    { "id": 222, "batch": "n10v", "title": "Mobile tasks GET", "status": "done", "apiPaths": ["/api/mobile"], "source": "backend-services/routes/mobile-tasks.js" }
+    { "id": 222, "batch": "n10v", "title": "Mobile tasks GET", "status": "done", "apiPaths": ["/api/mobile"], "source": "backend-services/routes/mobile-tasks.js" },
+    { "id": 223, "batch": "n10w", "title": "Voice telephone-numbers PATCH", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 224, "batch": "n10w", "title": "Installation-documentation GET by id", "status": "done", "apiPaths": ["/api/installation-documentation"], "source": "backend-services/routes/installation-documentation.js" },
+    { "id": 225, "batch": "n10w", "title": "Portal-content FAQ POST", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 226, "batch": "n10w", "title": "Portal-content alerts POST", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 227, "batch": "n10w", "title": "Equipment-pricing create POST", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
+    { "id": 228, "batch": "n10w", "title": "Equipment-pricing DELETE", "status": "done", "apiPaths": ["/api/equipment-pricing"], "source": "backend-services/routes/equipment-pricing.js" },
+    { "id": 229, "batch": "n10w", "title": "Voice port-orders POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 230, "batch": "n10w", "title": "HSS groups GET by id", "status": "done", "apiPaths": ["/api/hss/groups"], "source": "backend-services/routes/hss/hss-groups.js" },
+    { "id": 231, "batch": "n10w", "title": "HSS bandwidth-plans list GET", "status": "done", "apiPaths": ["/api/hss/bandwidth-plans"], "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },
+    { "id": 232, "batch": "n10w", "title": "HSS subscribers list GET", "status": "done", "apiPaths": ["/api/hss/subscribers"], "source": "backend-services/routes/hss/hss-subscribers.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },

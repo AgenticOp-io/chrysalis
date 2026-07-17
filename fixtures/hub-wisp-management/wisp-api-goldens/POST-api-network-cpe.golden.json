@@ -1,21 +1,21 @@
 {
-  "name": "CWL Trace CPE 1784248505811",
+  "name": "CWL Trace CPE 1784248625601",
   "status": "active",
   "technology": "LTE",
   "manufacturer": "Trace",
   "model": "CWL",
-  "serialNumber": "CPE-1784248505811",
+  "serialNumber": "CPE-1784248625601",
   "location": {
     "latitude": 39.75,
     "longitude": -104.98,
     "country": "US",
-    "_id": "6a5978c6ad923e3601e03b0b"
+    "_id": "6a59793ead923e3601e03bea"
   },
   "siteId": "6a596f4dad923e3601e03063",
   "tenantId": "6a166eb07089304417ec967a",
   "createdBy": "System",
-  "_id": "6a5978c6ad923e3601e03b0a",
-  "createdAt": "2026-07-17T00:35:18.155Z",
-  "updatedAt": "2026-07-17T00:35:18.156Z",
+  "_id": "6a59793ead923e3601e03be9",
+  "createdAt": "2026-07-17T00:37:18.600Z",
+  "updatedAt": "2026-07-17T00:37:18.601Z",
   "__v": 0
 }

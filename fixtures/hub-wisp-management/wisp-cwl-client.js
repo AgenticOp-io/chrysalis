@@ -2112,6 +2112,51 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10tSurfaces();
   initDeepenN10uSurfaces();
   initDeepenN10vSurfaces();
+  initDeepenN10wSurfaces();
+
+  function initDeepenN10wSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10w="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10w", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var hssHost =
+      document.querySelector(".hss-management .page-header") ||
+      document.querySelector('[data-wisp-page="hss-management"] .page-header') ||
+      document.querySelector(".hss-management");
+    addGet(hssHost, "hss-bw", "/api/hss/bandwidth-plans", "HSS BW plans");
+    addGet(hssHost, "hss-subs", "/api/hss/subscribers", "HSS subscribers");
+    var voiceHost =
+      document.querySelector(".voice-telephony-page .page-header") ||
+      document.querySelector('[data-wisp-page="voice-telephony"] .page-header');
+    addGet(voiceHost, "voice-tns", "/api/voice/telephone-numbers", "Voice TNs");
+    addGet(voiceHost, "voice-pos", "/api/voice/port-orders", "Port orders");
+  }
 
   function initDeepenN10vSurfaces() {
     if (!window.WispCwlApi) return;

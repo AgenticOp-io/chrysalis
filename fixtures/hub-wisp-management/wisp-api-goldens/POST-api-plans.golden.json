@@ -1,5 +1,5 @@
 {
-  "name": "CWL Plan 1784248505811",
+  "name": "CWL Plan 1784248625601",
   "description": "chrysalis-live-mutate-trace",
   "status": "draft",
   "location": {
@@ -48,15 +48,15 @@
     "milestones": [],
     "issues": []
   },
-  "_id": "6a5978c6ad923e3601e03b11",
+  "_id": "6a59793ead923e3601e03bf0",
   "stagedFeatureCounts": {
     "total": 0
   },
-  "createdAt": "2026-07-17T00:35:18.522Z",
-  "updatedAt": "2026-07-17T00:35:18.524Z",
+  "createdAt": "2026-07-17T00:37:18.988Z",
+  "updatedAt": "2026-07-17T00:37:18.989Z",
   "__v": 0,
   "totalHardwareCount": 0,
   "missingHardwareCount": 0,
   "criticalMissingCount": 0,
-  "id": "6a5978c6ad923e3601e03b11"
+  "id": "6a59793ead923e3601e03bf0"
 }

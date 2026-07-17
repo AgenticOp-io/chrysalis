@@ -1,22 +1,5 @@
 [
   {
-    "_id": "6a5970d5ad923e3601e032e4",
-    "tenantId": "6a166eb07089304417ec967a",
-    "category": "Radio Equipment",
-    "equipmentType": "Radio",
-    "manufacturer": "CWL",
-    "model": "BP-1784246481869",
-    "basePrice": 42,
-    "currency": "USD",
-    "source": "manual",
-    "quantity": 1,
-    "unitPrice": 42,
-    "lastUpdated": "2026-07-17T00:01:25.065Z",
-    "createdAt": "2026-07-17T00:01:25.066Z",
-    "updatedAt": "2026-07-17T00:01:25.066Z",
-    "__v": 0
-  },
-  {
     "_id": "6a597064ad923e3601e031f4",
     "tenantId": "6a166eb07089304417ec967a",
     "category": "Radio Equipment",
@@ -66,6 +49,23 @@
     "lastUpdated": "2026-07-16T23:31:54.566Z",
     "createdAt": "2026-07-16T23:31:54.566Z",
     "updatedAt": "2026-07-16T23:31:54.566Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a597917ad923e3601e03b83",
+    "tenantId": "6a166eb07089304417ec967a",
+    "category": "Radio Equipment",
+    "equipmentType": "radio",
+    "manufacturer": "CWL",
+    "model": "n10w-1784248598459",
+    "basePrice": 99,
+    "currency": "USD",
+    "source": "manual",
+    "quantity": 1,
+    "unitPrice": 99,
+    "lastUpdated": "2026-07-17T00:36:39.352Z",
+    "createdAt": "2026-07-17T00:36:39.352Z",
+    "updatedAt": "2026-07-17T00:36:39.352Z",
     "__v": 0
   },
   {
