@@ -183,8 +183,10 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **D6445 external-deps protocol:** `hub:fidelity-deepen-external-deps` scans origin for external hosts/hardware/API keys; operator briefing lists missing keys (no values); deepen workflow inserts scan before source-doc | **done** (`fixtures/hub-wisp-management/chrysalis.wisp-external-deps.v1.json`) |
 | 2026-07-17 | **Deepen passes 243–252 (×10):** first batch under D6445 — portal KB CRUD; HD PUT; equip bulk; inv by-location; site/CPE/WO GET :id; geocode with ArcGIS-key risk noted (Nominatim fallback); skipped SendGrid/Gemini/Stripe/PayPal (keys missing); `hub:fidelity-deepen -- --batch n10y` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10y.json`) |
 | 2026-07-17 | **D6445 auto-exhaust:** `--until-exhausted` / `hub:fidelity-deepen-until-exhausted` — auto ×10 static GET rounds; **stop after 3 consecutive rounds with no newly green exact paths** (or empty queue). No operator “continue” required | **done** |
-| 2026-07-17 | **Auto-exhaust run (passes 253–305):** batches n10z–n11e — **22** newly green static GETs across 6 rounds; round 7 empty queue → stop (`stopReason: no-fresh-static-get-routes`). State: `chrysalis.wisp-fidelity-deepen-auto-state.v1.json`; summary: `reports/wisp/fidelity-deepen-auto-exhaust.json`. Catalog `closedThroughPass: 305` | **done** |
-| — | Static GET auto-queue exhausted. Next deepen = **mutations / param routes / held residuals** (manual source-doc ×10) or re-run auto after new Express static GETs land | **open** |
+| 2026-07-17 | **Auto-exhaust run (passes 253–305):** batches n10z–n11e — **22** newly green static GETs across 6 rounds; earlier stop on empty static-GET queue (too early) | **superseded** |
+| 2026-07-17 | **D6445 stop-rule fix:** auto continues across **param GET + golden-backed mutations**; **only** stop after **3 consecutive** no-improvement rounds (empty queue increments streak, does not early-exit) | **done** |
+| 2026-07-17 | **Auto-exhaust re-run (passes 306–382):** n11f–n11m param-GET (+ golden-mut) then **3×** `no-fresh-routes` → `stopReason: no-fresh-routes-x3`. Catalog `closedThroughPass: 382` | **done** |
+| — | Auto queue drained under current discovery (static/param GET + golden mut). Further greens need richer mutation/source-doc discovery or held-residual work | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

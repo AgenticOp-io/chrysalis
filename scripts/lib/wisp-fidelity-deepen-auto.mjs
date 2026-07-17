@@ -2,23 +2,26 @@
 /**
  * Autonomous deepen exhaust loop (D6445).
  *
- * Continues proposing ×10 GET-first deepen rounds until **3 consecutive**
- * rounds show **no improvement** (zero newly green exact method+path probes).
- * Operator does not need to say "continue".
+ * Continues proposing ×10 deepen rounds across static GET → param GET →
+ * golden-backed mutations until **3 consecutive** rounds show **no improvement**
+ * (zero newly green exact method+path probes). Empty queue alone is **not** a
+ * stop — it only increments the no-improvement streak. Operator does not need
+ * to say "continue".
  *
  *   pnpm run hub:fidelity-deepen-until-exhausted
  *   node scripts/lib/wisp-fidelity-deepen-cli.mjs --until-exhausted
  *
- * Laws: D6442 translate-only bodies; D6445 external-deps briefing; never invent keys.
+ * Laws: D6442 translate-only bodies (mutation bodies from goldens / no invent);
+ * D6445 external-deps briefing; never invent API keys.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   runDeepenBatch,
   loadCatalog,
   catalogPath,
   scriptRoot,
+  DEFAULT_TENANT_ID,
 } from "./wisp-fidelity-deepen-harness.mjs";
 import { runExternalDepsProtocol, externalRiskForApiPath } from "./wisp-external-deps-protocol.mjs";
 import { extractExpressApiMounts } from "./sync-api-paths-from-backend.mjs";
@@ -27,6 +30,8 @@ export const AUTO_KIND = "chrysalis.wisp.fidelity-deepen-auto-exhaust";
 export const AUTO_SCHEMA = 1;
 export const STOP_AFTER_NO_IMPROVEMENT = 3;
 export const BATCH_SIZE = 10;
+/** Safety ceiling only — real stop is 3× no-improvement. */
+export const DEFAULT_MAX_ROUNDS = 200;
 
 const autoStatePath = join(
   scriptRoot,
@@ -34,6 +39,10 @@ const autoStatePath = join(
 );
 
 const SKIP_DIR = new Set(["node_modules", ".git", "dist", "build", "coverage"]);
+
+/** Routes auto must not touch (session break / destructive / cron). */
+const SKIP_ROUTE_RE =
+  /^\/api\/auth\/(login|logout|refresh|send-verification|verify-email)|\/api\/internal\/cron|\/api\/internal\/first-tenant|DELETE\s/i;
 
 /**
  * @param {object} [opts]
@@ -48,6 +57,7 @@ export function loadAutoState(opts = {}) {
       consecutiveNoImprovement: 0,
       status: "idle",
       exactPathsProbed: [],
+      patternsProbed: [],
       rounds: [],
       updatedAt: null,
     };
@@ -67,7 +77,7 @@ export function saveAutoState(state, opts = {}) {
   return next;
 }
 
-function resolveBackendRoot(opts = {}) {
+export function resolveBackendRoot(opts = {}) {
   return resolve(
     opts.backendRoot ??
       process.env.CHRYSALIS_WISP_BACKEND ??
@@ -99,20 +109,38 @@ function walkJs(dir, acc = []) {
 }
 
 /**
- * Discover static GET routes (no :params) from Express mounts + router.get.
- * @param {string} backendRoot
- * @returns {Array<{ path: string, source: string }>}
+ * Exact probe key.
+ * @param {string} method
+ * @param {string} path
  */
-export function discoverStaticGetRoutes(backendRoot) {
+export function exactKey(method, path) {
+  return `${String(method).toUpperCase()} ${path}`;
+}
+
+/**
+ * Pattern key keeps :params (for “already tried this route shape”).
+ * @param {string} method
+ * @param {string} template
+ */
+export function patternKey(method, template) {
+  return `${String(method).toUpperCase()} ${template}`;
+}
+
+/**
+ * Discover Express routes (all methods) from mounts + router.* .
+ * @param {string} backendRoot
+ * @returns {Array<{ method: string, template: string, source: string, hasParams: boolean }>}
+ */
+export function discoverExpressRoutes(backendRoot) {
   const serverPath = join(backendRoot, "server.js");
   if (!existsSync(serverPath)) return [];
   const mounts = extractExpressApiMounts(readFileSync(serverPath, "utf8"));
   mounts.push({ path: "/api/branding", source: "routes/branding-api.js" });
 
-  /** @type {Map<string, { path: string, source: string }>} */
+  /** @type {Map<string, { method: string, template: string, source: string, hasParams: boolean }>} */
   const out = new Map();
-  const getRe = /router\.get\(\s*['"`]([^'"`]+)['"`]/g;
-  const appGetRe = /app\.get\(\s*['"`](\/api[^'"`]+)['"`]/g;
+  const routeRe = /router\.(get|post|put|patch|delete)\(\s*['"`]([^'"`]+)['"`]/gi;
+  const appRe = /app\.(get|post|put|patch|delete)\(\s*['"`](\/api[^'"`]+)['"`]/gi;
 
   for (const mount of mounts) {
     let rel = mount.source.replace(/^\.\//, "");
@@ -121,7 +149,6 @@ export function discoverStaticGetRoutes(backendRoot) {
     else {
       candidates.push(join(backendRoot, `${rel}.js`));
       candidates.push(join(backendRoot, rel, "index.js"));
-      // also walk directory
       const dir = join(backendRoot, rel);
       if (existsSync(dir)) walkJs(dir, candidates);
     }
@@ -134,58 +161,138 @@ export function discoverStaticGetRoutes(backendRoot) {
         continue;
       }
       const src = relative(backendRoot, file).replace(/\\/g, "/");
-      for (const m of text.matchAll(getRe)) {
-        const sub = m[1];
-        if (sub.includes(":")) continue; // param routes need ids — later
+      for (const m of text.matchAll(routeRe)) {
+        const method = m[1].toUpperCase();
+        const sub = m[2];
         if (sub.includes("*")) continue;
         const full = (mount.path.replace(/\/$/, "") + (sub.startsWith("/") ? sub : `/${sub}`)).replace(
           /\/+/g,
           "/",
         );
         if (!full.startsWith("/api") && !full.startsWith("/admin")) continue;
-        out.set(full, { path: full, source: src });
+        const key = patternKey(method, full);
+        out.set(key, {
+          method,
+          template: full,
+          source: src,
+          hasParams: full.includes(":"),
+        });
       }
-      for (const m of text.matchAll(appGetRe)) {
-        const full = m[1];
-        if (full.includes(":")) continue;
-        out.set(full, { path: full, source: src });
+      for (const m of text.matchAll(appRe)) {
+        const method = m[1].toUpperCase();
+        const full = m[2];
+        if (full.includes("*")) continue;
+        out.set(patternKey(method, full), {
+          method,
+          template: full,
+          source: src,
+          hasParams: full.includes(":"),
+        });
       }
     }
   }
-
-  // Branding helper registers app.get('/api/branding/:tenantId') — skip params
-  return [...out.values()].sort((a, b) => a.path.localeCompare(b.path));
+  return [...out.values()].sort((a, b) =>
+    a.method === b.method
+      ? a.template.localeCompare(b.template)
+      : a.method.localeCompare(b.method),
+  );
 }
 
 /**
- * Exact probe key.
- * @param {string} method
- * @param {string} path
+ * @deprecated prefer discoverExpressRoutes — kept for callers
  */
-export function exactKey(method, path) {
-  return `${String(method).toUpperCase()} ${path}`;
+export function discoverStaticGetRoutes(backendRoot) {
+  return discoverExpressRoutes(backendRoot)
+    .filter((r) => r.method === "GET" && !r.hasParams)
+    .map((r) => ({ path: r.template, source: r.source }));
 }
 
 /**
- * Seed exactPathsProbed from prior deepen reports + batch TARGETS so auto
- * does not re-count already-closed endpoints as improvement.
+ * Load mutate request bodies from API golden files (D6442 — not invented).
+ * @returns {Map<string, object|null>} patternKey → body (null = no JSON body)
+ */
+export function loadGoldenBodies() {
+  /** @type {Map<string, object|null>} */
+  const map = new Map();
+  const indexPath = join(
+    scriptRoot,
+    "fixtures/hub-wisp-management/chrysalis.wisp-api-goldens.v1.json",
+  );
+  if (!existsSync(indexPath)) return map;
+  const idx = JSON.parse(readFileSync(indexPath, "utf8"));
+  const goldensDir = join(
+    scriptRoot,
+    "fixtures/hub-wisp-management",
+    idx.goldensDir || "wisp-api-goldens",
+  );
+  for (const h of idx.routes || []) {
+    const method = String(h.method || "GET").toUpperCase();
+    if (method === "GET" || method === "OPTIONS" || method === "HEAD") continue;
+    const path = String(h.path || "");
+    if (!path.startsWith("/api/") && !path.startsWith("/admin")) continue;
+    // Concrete golden paths may use literal ids — normalize :id-ish segments later
+    const template = path.replace(/\/[a-f0-9]{24}(?=\/|$)/gi, "/:id").replace(/\/x97YKjYJob7VECtfDGV2/g, "/:id");
+    let body = null;
+    const gp = h.goldenPath ? join(scriptRoot, "fixtures/hub-wisp-management", h.goldenPath) : null;
+    if (gp && existsSync(gp)) {
+      try {
+        const g = JSON.parse(readFileSync(gp, "utf8"));
+        // Goldens are often the request body itself, or { request, body, payload }
+        if (g && typeof g === "object") {
+          if (g.request && typeof g.request === "object") body = g.request;
+          else if (g.body && typeof g.body === "object" && !Array.isArray(g.body)) body = g.body;
+          else if (g.payload && typeof g.payload === "object") body = g.payload;
+          else if (!("status" in g) && !("ok" in g) && !("response" in g)) body = g;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    map.set(patternKey(method, template), body);
+    map.set(patternKey(method, path), body);
+  }
+  return map;
+}
+
+function isSkippedRoute(method, template) {
+  const key = `${method} ${template}`;
+  if (SKIP_ROUTE_RE.test(key) || SKIP_ROUTE_RE.test(template)) return true;
+  if (method === "DELETE") return true; // never auto-delete live demo rows
+  return false;
+}
+
+/**
+ * Seed exactPathsProbed + patternsProbed from prior deepen history.
  */
 export function seedExactPathsFromHistory(state) {
   const probed = new Set(state.exactPathsProbed || []);
+  const patterns = new Set(state.patternsProbed || []);
   const batchesDir = join(scriptRoot, "scripts/lib/wisp-fidelity-deepen-batches");
   if (existsSync(batchesDir)) {
     for (const name of readdirSync(batchesDir)) {
       if (!name.endsWith(".mjs") || name === "index.mjs") continue;
       try {
         const text = readFileSync(join(batchesDir, name), "utf8");
-        for (const m of text.matchAll(/path:\s*["']([^"']+)["']/g)) {
+        for (const m of text.matchAll(/"path":\s*"([^"]+)"/g)) {
           probed.add(exactKey("GET", m[1]));
+          patterns.add(patternKey("GET", m[1]));
+        }
+        for (const m of text.matchAll(/"template":\s*"([^"]+)"/g)) {
+          patterns.add(patternKey("GET", m[1]));
         }
         for (const m of text.matchAll(
           /probeDemo\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']\s*,\s*[`'"]([^`'"]+)[`'"]/g,
         )) {
           const path = m[2];
-          if (!path.includes("${")) probed.add(exactKey(m[1], path));
+          if (!path.includes("${")) {
+            probed.add(exactKey(m[1], path));
+            patterns.add(patternKey(m[1], path));
+          }
+        }
+        for (const m of text.matchAll(
+          /"method":\s*"(GET|POST|PUT|PATCH|DELETE)"[\s\S]*?"template":\s*"([^"]+)"/g,
+        )) {
+          patterns.add(patternKey(m[1], m[2]));
         }
       } catch {
         /* ignore */
@@ -199,9 +306,12 @@ export function seedExactPathsFromHistory(state) {
       try {
         const j = JSON.parse(readFileSync(join(reportsDir, name), "utf8"));
         for (const p of j.probes || []) {
-          if (p.path && (p.ok === true || (p.status >= 200 && p.status < 300))) {
-            probed.add(exactKey(p.method || "GET", p.path));
+          if (!p.path) continue;
+          const method = p.method || "GET";
+          if (p.ok === true || (p.status >= 200 && p.status < 300)) {
+            probed.add(exactKey(method, p.path));
           }
+          patterns.add(patternKey(method, p.template || p.path));
         }
       } catch {
         /* ignore */
@@ -210,18 +320,16 @@ export function seedExactPathsFromHistory(state) {
   }
   const catalog = loadCatalog();
   for (const p of catalog?.passes || []) {
-    if (p.exactPath) probed.add(exactKey("GET", p.exactPath));
+    if (p.exactPath) {
+      probed.add(exactKey("GET", p.exactPath));
+      patterns.add(patternKey("GET", p.exactPath));
+    }
+    if (p.pattern) patterns.add(String(p.pattern));
   }
-  return [...probed].sort();
-}
-
-/**
- * @param {string} batchId
- */
-function batchIdToPassStart(catalog, batchId) {
-  if (catalog?.nextPassRange?.[0]) return catalog.nextPassRange[0];
-  const n = Number(String(batchId).replace(/\D/g, ""));
-  return Number.isFinite(n) && n > 0 ? n : (catalog?.closedThroughPass || 0) + 1;
+  return {
+    exactPathsProbed: [...probed].sort(),
+    patternsProbed: [...patterns].sort(),
+  };
 }
 
 /**
@@ -241,32 +349,77 @@ export function bumpBatchId(id) {
 }
 
 /**
- * Pick next ×10 targets not yet exact-probed.
+ * Pick next ×10 targets: static GET → param GET → golden-backed mutations.
  * @param {object} opts
  */
 export function selectAutoTargets(opts = {}) {
   const backendRoot = resolveBackendRoot(opts);
   const state = opts.state || loadAutoState();
-  const probed = new Set(state.exactPathsProbed || []);
-  const discovered = discoverStaticGetRoutes(backendRoot);
+  const probedExact = new Set(state.exactPathsProbed || []);
+  const probedPatterns = new Set(state.patternsProbed || []);
   const deps = opts.externalDeps || null;
+  const goldens = opts.goldenBodies || loadGoldenBodies();
+  const all = discoverExpressRoutes(backendRoot);
 
-  /** @type {Array<{ path: string, source: string, risks: string[] }>} */
+  /** @type {Array<object>} */
   const fresh = [];
-  for (const d of discovered) {
-    const key = exactKey("GET", d.path);
-    if (probed.has(key)) continue;
-    const risks = deps ? externalRiskForApiPath(d.path, deps) : [];
-    // Soft filter: still allow geocode etc — risks are notes, not hard skips
-    fresh.push({ ...d, risks });
+
+  const pushIfFresh = (tier, route, extra = {}) => {
+    if (isSkippedRoute(route.method, route.template)) return;
+    const pk = patternKey(route.method, route.template);
+    if (probedPatterns.has(pk)) return;
+    if (!route.hasParams && probedExact.has(exactKey(route.method, route.template))) return;
+    const risks = deps ? externalRiskForApiPath(route.template, deps) : [];
+    fresh.push({
+      tier,
+      method: route.method,
+      path: route.template,
+      template: route.template,
+      source: route.source,
+      hasParams: route.hasParams,
+      risks,
+      ...extra,
+    });
+  };
+
+  // Tier 1 — static GET
+  for (const r of all) {
+    if (r.method === "GET" && !r.hasParams) pushIfFresh("static-get", r);
+  }
+  // Tier 2 — param GET
+  for (const r of all) {
+    if (r.method === "GET" && r.hasParams) pushIfFresh("param-get", r);
+  }
+  // Tier 3 — mutations with golden body (POST/PUT/PATCH only; DELETE skipped)
+  for (const r of all) {
+    if (r.method === "GET") continue;
+    if (r.method === "DELETE") continue;
+    const body =
+      goldens.get(patternKey(r.method, r.template)) ??
+      [...goldens.entries()].find(([k]) => {
+        // golden concrete path vs express template
+        const [m, p] = k.split(" ");
+        if (m !== r.method) return false;
+        const asPattern = p.replace(/\/[a-f0-9]{24}(?=\/|$)/gi, "/:id");
+        return asPattern === r.template || p === r.template;
+      })?.[1];
+    if (body === undefined) continue; // no golden body — do not invent
+    pushIfFresh("golden-mut", r, { body });
   }
 
+  // Prefer lower tiers first (already ordered)
   const limit = opts.limit ?? BATCH_SIZE;
+  const chosen = fresh.slice(0, limit);
   return {
     backendRoot,
-    candidates: fresh.slice(0, limit),
+    candidates: chosen,
     remainingAfter: Math.max(0, fresh.length - limit),
     totalFresh: fresh.length,
+    byTier: {
+      "static-get": fresh.filter((c) => c.tier === "static-get").length,
+      "param-get": fresh.filter((c) => c.tier === "param-get").length,
+      "golden-mut": fresh.filter((c) => c.tier === "golden-mut").length,
+    },
   };
 }
 
@@ -299,13 +452,7 @@ export function countImprovements(report, priorProbed) {
 export function updateCatalogAfterAutoRound(opts) {
   const catalog = loadCatalog();
   if (!catalog) throw new Error("missing deepen catalog");
-  const {
-    batchId,
-    passStart,
-    passEnd,
-    passes,
-    newlyGreen,
-  } = opts;
+  const { batchId, passStart, passEnd, passes, newlyGreen } = opts;
 
   catalog.batches = catalog.batches || [];
   if (!catalog.batches.some((b) => b.id === batchId)) {
@@ -329,9 +476,131 @@ export function updateCatalogAfterAutoRound(opts) {
     decision: "D6445",
     lastBatchId: batchId,
     lastImprovement: newlyGreen.length,
+    stopRule: "only-after-3-consecutive-rounds-with-zero-new-green-exact-paths",
   };
   writeFileSync(catalogPath, JSON.stringify(catalog, null, 2) + "\n");
   return catalog;
+}
+
+export function listPathForTemplate(template, tenantId) {
+  let t = String(template).replace(/:tenantId\b|:tenant\b/gi, tenantId);
+  const parts = t.split("/");
+  while (parts.length && parts[parts.length - 1].startsWith(":")) parts.pop();
+  return parts.join("/") || "/";
+}
+
+export function fillRouteTemplate(template, tenantId, ids = {}) {
+  return String(template).replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, (_, name) => {
+    const lower = name.toLowerCase();
+    if (lower.includes("tenant")) return tenantId;
+    if (lower === "email") return "demo@wisptools.io";
+    if (ids[name] != null) return String(ids[name]);
+    if (ids.id != null) return String(ids.id);
+    return `missing-${name}`;
+  });
+}
+
+function templateNeedsNonTenantId(template) {
+  const params = [...String(template).matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) =>
+    m[1].toLowerCase(),
+  );
+  return params.some((p) => !p.includes("tenant"));
+}
+
+/**
+ * Shared auto probe runner (imported by generated batch modules).
+ * @param {object} ctx harness ctx
+ * @param {object[]} targets
+ */
+export async function runAutoProbes(ctx, targets) {
+  const { probeDemo, firstIdDemo, tenantId, stamp } = ctx;
+  const tid = tenantId || DEFAULT_TENANT_ID;
+  /** @type {Array<Record<string, unknown>>} */
+  const probes = [];
+  for (const t of targets) {
+    let path = t.template;
+    if (t.hasParams) {
+      const listGuess = listPathForTemplate(t.template, tid);
+      const hit = await firstIdDemo(listGuess, [
+        "data",
+        "items",
+        "results",
+        "users",
+        "sites",
+        "customers",
+        "plans",
+        "bundles",
+        "inventory",
+        "devices",
+        "rows",
+        "workOrders",
+        "incidents",
+        "notifications",
+        "equipment",
+        "sectors",
+        "cpe",
+        "subscribers",
+        "groups",
+      ]);
+      if (!hit?.id && templateNeedsNonTenantId(t.template)) {
+        probes.push({
+          pass: t.pass,
+          method: t.method,
+          path: t.template,
+          template: t.template,
+          action: "skip-no-id",
+          listGuess,
+          source: t.source || "auto-discover",
+          tier: t.tier,
+          risks: t.risks || [],
+        });
+        continue;
+      }
+      const ids = {
+        id: hit?.id,
+        userId: hit?.id,
+        siteId: hit?.id,
+        customerId: hit?.id,
+        articleId: hit?.id,
+        planId: hit?.id,
+        bundleId: hit?.id,
+        orderId: hit?.id,
+        incidentId: hit?.id,
+      };
+      path = fillRouteTemplate(t.template, tid, ids);
+      if (path.includes("missing-")) {
+        probes.push({
+          pass: t.pass,
+          method: t.method,
+          path,
+          template: t.template,
+          action: "skip-unresolved-param",
+          source: t.source || "auto-discover",
+          tier: t.tier,
+          risks: t.risks || [],
+        });
+        continue;
+      }
+    }
+    let body = t.body;
+    if (body && typeof body === "object") {
+      body = JSON.parse(JSON.stringify(body));
+      for (const k of Object.keys(body)) {
+        if (typeof body[k] === "string" && /trace|chrysalis|n10|stamp/i.test(body[k])) {
+          body[k] = `${String(body[k]).replace(/\d{10,}/g, "")}${stamp}`;
+        }
+      }
+    }
+    probes.push({
+      pass: t.pass,
+      ...(await probeDemo(t.method, path, body)),
+      template: t.template,
+      source: t.source || "auto-discover",
+      tier: t.tier,
+      risks: t.risks || [],
+    });
+  }
+  return probes;
 }
 
 /**
@@ -339,42 +608,47 @@ export function updateCatalogAfterAutoRound(opts) {
  */
 export function writeAutoBatchModule(batchId, passStart, targets) {
   const file = join(scriptRoot, `scripts/lib/wisp-fidelity-deepen-batches/${batchId}.mjs`);
+  const tiers = [...new Set(targets.map((t) => t.tier))].join("+");
   const clean = `/** Auto deepen batch ${batchId} — generated by wisp-fidelity-deepen-auto (D6445). */
+import { runAutoProbes } from "../wisp-fidelity-deepen-auto.mjs";
+
 export const BATCH_ID = ${JSON.stringify(batchId)};
 export const KIND = ${JSON.stringify(`chrysalis.wisp.fidelity-deepen-${batchId}`)};
 export const NEED_ADMIN = false;
-export const NOTE = ${JSON.stringify(`Auto exhaust GET round ${batchId} (D6445)`)};
+export const NOTE = ${JSON.stringify(`Auto exhaust ${tiers} round ${batchId} (D6445)`)};
 export const AUTO = true;
+export const DEMO_TENANT = ${JSON.stringify(DEFAULT_TENANT_ID)};
 export const PASSES = [
-${targets.map((t, i) => `  { id: ${passStart + i}, title: ${JSON.stringify(`Auto GET ${t.path}`)} },`).join("\n")}
+${targets.map((t, i) => `  { id: ${passStart + i}, title: ${JSON.stringify(`Auto ${t.method} ${t.template}`)} },`).join("\n")}
 ];
 export const REFRESH_PATHS = ${JSON.stringify(
-    [...new Set(targets.map((t) => "/" + t.path.split("/").filter(Boolean).slice(0, 2).join("/")))],
+    [
+      ...new Set(
+        targets.map((t) => {
+          const parts = t.template.split("/").filter(Boolean);
+          return "/" + parts.slice(0, Math.min(2, parts.length)).join("/");
+        }),
+      ),
+    ],
   )};
 export const TARGETS = ${JSON.stringify(
     targets.map((t, i) => ({
       pass: passStart + i,
-      path: t.path,
+      method: t.method,
+      template: t.template,
+      path: t.template,
       source: t.source,
+      tier: t.tier,
+      hasParams: !!t.hasParams,
       risks: t.risks || [],
+      ...(t.body !== undefined ? { body: t.body } : {}),
     })),
     null,
     2,
   )};
 
 export async function runProbes(ctx) {
-  const { probeDemo } = ctx;
-  /** @type {Array<Record<string, unknown>>} */
-  const probes = [];
-  for (const t of TARGETS) {
-    probes.push({
-      pass: t.pass,
-      ...(await probeDemo("GET", t.path)),
-      source: t.source || "auto-discover",
-      risks: t.risks || [],
-    });
-  }
-  return probes;
+  return runAutoProbes(ctx, TARGETS);
 }
 `;
   writeFileSync(file, clean);
@@ -398,14 +672,30 @@ export async function runAutoRound(opts = {}) {
   });
 
   if (selection.candidates.length === 0) {
+    const consecutiveNoImprovement = (state.consecutiveNoImprovement || 0) + 1;
+    const nextState = saveAutoState({
+      ...state,
+      consecutiveNoImprovement,
+      status:
+        consecutiveNoImprovement >= STOP_AFTER_NO_IMPROVEMENT ? "exhausted" : "running",
+      lastRound: {
+        batchId,
+        improvement: 0,
+        reason: "no-fresh-routes",
+        at: new Date().toISOString(),
+      },
+    });
     return {
       ok: true,
       batchId,
       improvement: 0,
-      reason: "no-fresh-static-get-routes",
+      reason: "no-fresh-routes",
       totalFresh: 0,
       selection,
       exhaustedQueue: true,
+      consecutiveNoImprovement: nextState.consecutiveNoImprovement,
+      remainingFresh: 0,
+      stop: nextState.consecutiveNoImprovement >= STOP_AFTER_NO_IMPROVEMENT,
     };
   }
 
@@ -413,7 +703,6 @@ export async function runAutoRound(opts = {}) {
   const passEnd = passStart + targets.length - 1;
   writeAutoBatchModule(batchId, passStart, targets);
 
-  // Dynamic import of just-written module
   const modPath = join(scriptRoot, `scripts/lib/wisp-fidelity-deepen-batches/${batchId}.mjs`);
   const mod = await import(`file:///${modPath.replace(/\\/g, "/")}?t=${Date.now()}`);
 
@@ -425,48 +714,55 @@ export async function runAutoRound(opts = {}) {
     refreshPaths: mod.REFRESH_PATHS,
     needAdmin: false,
     runProbes: mod.runProbes,
-    note: `${mod.NOTE}; remainingFresh=${selection.remainingAfter}`,
+    note: `${mod.NOTE}; remainingFresh=${selection.remainingAfter}; tiers=${JSON.stringify(selection.byTier)}`,
     opts: { ...(opts.batchOpts || {}), skipLiveRefresh: opts.skipLiveRefresh !== false },
   });
 
-  // Ensure path/method on probes for improvement count
   for (let i = 0; i < (report.probes || []).length; i++) {
     const p = report.probes[i];
-    if (!p.path && targets[i]) p.path = targets[i].path;
-    if (!p.method) p.method = "GET";
+    if (!p.method && targets[i]) p.method = targets[i].method;
+    if (!p.template && targets[i]) p.template = targets[i].template;
+    if (!p.path && targets[i] && !targets[i].hasParams) p.path = targets[i].template;
   }
 
   const { newlyGreen, newlyTried, improvement } = countImprovements(report, priorProbed);
 
   const exactPathsProbed = [...new Set([...(state.exactPathsProbed || []), ...newlyTried])];
+  const patternsProbed = [
+    ...new Set([
+      ...(state.patternsProbed || []),
+      ...targets.map((t) => patternKey(t.method, t.template)),
+    ]),
+  ];
   const consecutiveNoImprovement =
     improvement > 0 ? 0 : (state.consecutiveNoImprovement || 0) + 1;
 
   const passes = targets.map((t, i) => {
     const pr = report.probes?.[i];
     const ok = pr?.ok === true || (pr?.status >= 200 && pr?.status < 300);
+    const skipped = String(pr?.action || "").startsWith("skip");
     return {
       id: passStart + i,
       batch: batchId,
-      title: `Auto GET ${t.path}`,
-      status: ok ? "done" : "honest",
-      apiPaths: [t.path.split("/").slice(0, 3).join("/") || t.path],
-      exactPath: t.path,
+      title: `Auto ${t.method} ${t.template}`,
+      status: ok ? "done" : skipped ? "skip" : "honest",
+      apiPaths: [t.template.split("/").slice(0, 3).join("/") || t.template],
+      exactPath: pr?.path || t.template,
+      pattern: patternKey(t.method, t.template),
       source: t.source,
+      tier: t.tier,
       ...(t.risks?.length ? { externalRisk: t.risks.join("; ") } : {}),
-      ...(ok ? {} : { residual: `auto-get-${pr?.status || "fail"}` }),
+      ...(ok ? {} : { residual: skipped ? pr.action : `auto-${pr?.status || "fail"}` }),
     };
   });
 
-  if (improvement > 0 || targets.length > 0) {
-    updateCatalogAfterAutoRound({
-      batchId,
-      passStart,
-      passEnd,
-      passes,
-      newlyGreen,
-    });
-  }
+  updateCatalogAfterAutoRound({
+    batchId,
+    passStart,
+    passEnd,
+    passes,
+    newlyGreen,
+  });
 
   const round = {
     batchId,
@@ -475,6 +771,7 @@ export async function runAutoRound(opts = {}) {
     newlyGreen,
     tried: newlyTried.length,
     remainingFresh: selection.remainingAfter,
+    byTier: selection.byTier,
     at: new Date().toISOString(),
   };
 
@@ -484,7 +781,8 @@ export async function runAutoRound(opts = {}) {
     stopAfterNoImprovement: STOP_AFTER_NO_IMPROVEMENT,
     consecutiveNoImprovement,
     exactPathsProbed,
-    rounds: [...(state.rounds || []), round].slice(-50),
+    patternsProbed,
+    rounds: [...(state.rounds || []), round].slice(-80),
     lastRound: round,
   });
 
@@ -498,6 +796,7 @@ export async function runAutoRound(opts = {}) {
     consecutiveNoImprovement: nextState.consecutiveNoImprovement,
     remainingFresh: selection.remainingAfter,
     totalFreshBefore: selection.totalFresh,
+    byTier: selection.byTier,
     reportPath: report.reportPath,
     stop: nextState.consecutiveNoImprovement >= STOP_AFTER_NO_IMPROVEMENT,
     exhaustedQueue: false,
@@ -505,11 +804,11 @@ export async function runAutoRound(opts = {}) {
 }
 
 /**
- * Loop until 3 no-improvement rounds or empty queue.
+ * Loop until 3 consecutive no-improvement rounds (only stop rule).
  * @param {object} [opts]
  */
 export async function runUntilExhausted(opts = {}) {
-  const maxRounds = opts.maxRounds ?? 40;
+  const maxRounds = opts.maxRounds ?? DEFAULT_MAX_ROUNDS;
   const startedAt = new Date().toISOString();
   /** @type {object[]} */
   const rounds = [];
@@ -517,13 +816,17 @@ export async function runUntilExhausted(opts = {}) {
 
   let st = loadAutoState();
   if (opts.resetStreak) {
-    st = saveAutoState({ ...st, consecutiveNoImprovement: 0, status: "running" });
+    st = saveAutoState({
+      ...st,
+      consecutiveNoImprovement: 0,
+      status: "running",
+    });
   }
-  // Always merge history seed so previously closed deepen GETs are not "new"
   const seeded = seedExactPathsFromHistory(st);
   st = saveAutoState({
     ...st,
-    exactPathsProbed: seeded,
+    exactPathsProbed: seeded.exactPathsProbed,
+    patternsProbed: seeded.patternsProbed,
     status: st.status === "exhausted" && opts.resetStreak ? "running" : st.status || "running",
   });
 
@@ -538,6 +841,7 @@ export async function runUntilExhausted(opts = {}) {
           improvement: result.improvement,
           consecutiveNoImprovement: result.consecutiveNoImprovement,
           remainingFresh: result.remainingFresh,
+          byTier: result.byTier,
           stop: result.stop,
           reason: result.reason,
         },
@@ -546,27 +850,11 @@ export async function runUntilExhausted(opts = {}) {
       ),
     );
 
-    if (result.exhaustedQueue) {
-      // Empty queue counts as no improvement
-      const st = loadAutoState();
-      const consecutiveNoImprovement = (st.consecutiveNoImprovement || 0) + (result.improvement ? 0 : 1);
-      saveAutoState({
-        ...st,
-        consecutiveNoImprovement,
-        status: consecutiveNoImprovement >= STOP_AFTER_NO_IMPROVEMENT ? "exhausted" : st.status,
-      });
-      if (consecutiveNoImprovement >= STOP_AFTER_NO_IMPROVEMENT) {
-        stopReason = "no-fresh-routes-and-streak";
-        break;
-      }
-      // If queue empty once, we're done — nothing left to find
-      stopReason = "no-fresh-static-get-routes";
-      saveAutoState({ ...loadAutoState(), status: "exhausted", consecutiveNoImprovement: STOP_AFTER_NO_IMPROVEMENT });
-      break;
-    }
-
     if (result.stop) {
-      stopReason = `no-improvement-x${STOP_AFTER_NO_IMPROVEMENT}`;
+      stopReason =
+        result.exhaustedQueue && result.consecutiveNoImprovement >= STOP_AFTER_NO_IMPROVEMENT
+          ? `no-fresh-routes-x${STOP_AFTER_NO_IMPROVEMENT}`
+          : `no-improvement-x${STOP_AFTER_NO_IMPROVEMENT}`;
       break;
     }
   }
@@ -587,6 +875,8 @@ export async function runUntilExhausted(opts = {}) {
       improvement: r.improvement,
       consecutiveNoImprovement: r.consecutiveNoImprovement,
       remainingFresh: r.remainingFresh,
+      byTier: r.byTier,
+      reason: r.reason,
     })),
     statePath: autoStatePath,
     catalogPath,
@@ -605,7 +895,7 @@ async function main() {
   const resetStreak = args.includes("--reset-streak");
   const maxRounds = (() => {
     const i = args.indexOf("--max-rounds");
-    return i >= 0 ? Number(args[i + 1]) || 40 : 40;
+    return i >= 0 ? Number(args[i + 1]) || DEFAULT_MAX_ROUNDS : DEFAULT_MAX_ROUNDS;
   })();
   await runUntilExhausted({ resetStreak, maxRounds });
 }

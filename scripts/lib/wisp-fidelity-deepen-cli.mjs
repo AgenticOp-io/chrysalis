@@ -72,7 +72,7 @@ Usage:
   --source-doc [--limit] Document candidates from backend-services (+ MM services)
   --probe [--limit]      Live GET verify deploy parity against HSS (not body invention)
   --batch <id>           Run a batch (n10g+ harness; n10–n10f legacy)
-  --until-exhausted      Auto ×10 GET rounds until 3 consecutive rounds with no new green exact paths
+  --until-exhausted      Auto ×10 rounds (GET→param GET→golden mut) until 3 consecutive no-improvement rounds
                          (optional --reset-streak, --max-rounds N)
 
 Workflow: candidates → --external-deps → --source-doc → --probe → AI ×10 → --batch → FUTURE §7

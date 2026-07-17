@@ -1,11 +1,11 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 305,
-  "nextBatchId": "n11f",
+  "closedThroughPass": 382,
+  "nextBatchId": "n11n",
   "nextPassRange": [
-    306,
-    315
+    383,
+    392
   ],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
@@ -29,8 +29,9 @@
       "protocol": "scripts/lib/wisp-fidelity-deepen-auto.mjs",
       "stopAfterNoImprovement": 3,
       "decision": "D6445",
-      "lastBatchId": "n11e",
-      "lastImprovement": 1
+      "lastBatchId": "n11m",
+      "lastImprovement": 1,
+      "stopRule": "only-after-3-consecutive-rounds-with-zero-new-green-exact-paths"
     }
   },
   "batches": [
@@ -289,6 +290,70 @@
       "passRange": [
         303,
         305
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11f",
+      "passRange": [
+        306,
+        315
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11g",
+      "passRange": [
+        316,
+        325
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11h",
+      "passRange": [
+        326,
+        335
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11i",
+      "passRange": [
+        336,
+        345
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11j",
+      "passRange": [
+        346,
+        355
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11k",
+      "passRange": [
+        356,
+        365
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11l",
+      "passRange": [
+        366,
+        375
+      ],
+      "status": "closed-harness-auto"
+    },
+    {
+      "id": "n11m",
+      "passRange": [
+        376,
+        382
       ],
       "status": "closed-harness-auto"
     }
@@ -2746,6 +2811,1073 @@
       ],
       "exactPath": "/api/work-orders/",
       "source": "routes/work-orders.js"
+    },
+    {
+      "id": 306,
+      "batch": "n11f",
+      "title": "Auto GET /admin/tenants/:tenantId",
+      "status": "honest",
+      "apiPaths": [
+        "/admin/tenants"
+      ],
+      "exactPath": "/admin/tenants/6a166eb07089304417ec967a",
+      "pattern": "GET /admin/tenants/:tenantId",
+      "source": "routes/admin/tenants.js",
+      "tier": "param-get",
+      "residual": "auto-403"
+    },
+    {
+      "id": 307,
+      "batch": "n11f",
+      "title": "Auto GET /admin/tenants/:tenantId/users",
+      "status": "honest",
+      "apiPaths": [
+        "/admin/tenants"
+      ],
+      "exactPath": "/admin/tenants/6a166eb07089304417ec967a/users",
+      "pattern": "GET /admin/tenants/:tenantId/users",
+      "source": "routes/admin/tenants.js",
+      "tier": "param-get",
+      "residual": "auto-403"
+    },
+    {
+      "id": 308,
+      "batch": "n11f",
+      "title": "Auto GET /api/auth/check-email-verified/:email",
+      "status": "skip",
+      "apiPaths": [
+        "/api/auth"
+      ],
+      "exactPath": "/api/auth/check-email-verified/:email",
+      "pattern": "GET /api/auth/check-email-verified/:email",
+      "source": "routes/auth/verification.js",
+      "tier": "param-get",
+      "externalRisk": "email/firebase secrets may be unset for outbound notify",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 309,
+      "batch": "n11f",
+      "title": "Auto GET /api/billing/invoices/:tenantId",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/invoices/6a166eb07089304417ec967a",
+      "pattern": "GET /api/billing/invoices/:tenantId",
+      "source": "billing-api.js",
+      "tier": "param-get",
+      "externalRisk": "voice carrier / webhook secrets may be unset",
+      "residual": "auto-404"
+    },
+    {
+      "id": 310,
+      "batch": "n11f",
+      "title": "Auto GET /api/billing/payment-methods/:tenantId",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/payment-methods/6a166eb07089304417ec967a",
+      "pattern": "GET /api/billing/payment-methods/:tenantId",
+      "source": "billing-api.js",
+      "tier": "param-get",
+      "residual": "auto-404"
+    },
+    {
+      "id": 311,
+      "batch": "n11f",
+      "title": "Auto GET /api/billing/subscription/:tenantId",
+      "status": "honest",
+      "apiPaths": [
+        "/api/billing"
+      ],
+      "exactPath": "/api/billing/subscription/6a166eb07089304417ec967a",
+      "pattern": "GET /api/billing/subscription/:tenantId",
+      "source": "billing-api.js",
+      "tier": "param-get",
+      "residual": "auto-404"
+    },
+    {
+      "id": 312,
+      "batch": "n11f",
+      "title": "Auto GET /api/branding/:tenantId",
+      "status": "done",
+      "apiPaths": [
+        "/api/branding"
+      ],
+      "exactPath": "/api/branding/6a166eb07089304417ec967a",
+      "pattern": "GET /api/branding/:tenantId",
+      "source": "routes/branding-api.js",
+      "tier": "param-get",
+      "externalRisk": "email/firebase secrets may be unset for outbound notify"
+    },
+    {
+      "id": 313,
+      "batch": "n11f",
+      "title": "Auto GET /api/bundles/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "exactPath": "/api/bundles/6a5993caad923e3601e03d73",
+      "pattern": "GET /api/bundles/:id",
+      "source": "routes/hardwareBundles.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 314,
+      "batch": "n11f",
+      "title": "Auto GET /api/bundles/search/:query",
+      "status": "skip",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "exactPath": "/api/bundles/search/:query",
+      "pattern": "GET /api/bundles/search/:query",
+      "source": "routes/hardwareBundles.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 315,
+      "batch": "n11f",
+      "title": "Auto GET /api/bundles/type/:bundleType",
+      "status": "skip",
+      "apiPaths": [
+        "/api/bundles"
+      ],
+      "exactPath": "/api/bundles/type/:bundleType",
+      "pattern": "GET /api/bundles/type/:bundleType",
+      "source": "routes/hardwareBundles.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 316,
+      "batch": "n11g",
+      "title": "Auto GET /api/customer-billing/:customerId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customer-billing"
+      ],
+      "exactPath": "/api/customer-billing/:customerId",
+      "pattern": "GET /api/customer-billing/:customerId",
+      "source": "routes/customer-billing.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 317,
+      "batch": "n11g",
+      "title": "Auto GET /api/customer-portal/billing/invoices/:invoiceId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/billing/invoices/:invoiceId",
+      "pattern": "GET /api/customer-portal/billing/invoices/:invoiceId",
+      "source": "routes/customer-portal-api.js",
+      "tier": "param-get",
+      "externalRisk": "voice carrier / webhook secrets may be unset",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 318,
+      "batch": "n11g",
+      "title": "Auto GET /api/customer-portal/tickets/:id",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customer-portal"
+      ],
+      "exactPath": "/api/customer-portal/tickets/:id",
+      "pattern": "GET /api/customer-portal/tickets/:id",
+      "source": "routes/customer-portal-api.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 319,
+      "batch": "n11g",
+      "title": "Auto GET /api/customers/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "exactPath": "/api/customers/6a5993caad923e3601e03d78",
+      "pattern": "GET /api/customers/:id",
+      "source": "routes/customers.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 320,
+      "batch": "n11g",
+      "title": "Auto GET /api/customers/:id/subscriber",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "exactPath": "/api/customers/:id/subscriber",
+      "pattern": "GET /api/customers/:id/subscriber",
+      "source": "routes/customers.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 321,
+      "batch": "n11g",
+      "title": "Auto GET /api/customers/search/email/:email",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "exactPath": "/api/customers/search/email/:email",
+      "pattern": "GET /api/customers/search/email/:email",
+      "source": "routes/customers.js",
+      "tier": "param-get",
+      "externalRisk": "email/firebase secrets may be unset for outbound notify",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 322,
+      "batch": "n11g",
+      "title": "Auto GET /api/customers/search/imsi/:imsi",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "exactPath": "/api/customers/search/imsi/:imsi",
+      "pattern": "GET /api/customers/search/imsi/:imsi",
+      "source": "routes/customers.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 323,
+      "batch": "n11g",
+      "title": "Auto GET /api/customers/search/phone/:phone",
+      "status": "skip",
+      "apiPaths": [
+        "/api/customers"
+      ],
+      "exactPath": "/api/customers/search/phone/:phone",
+      "pattern": "GET /api/customers/search/phone/:phone",
+      "source": "routes/customers.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 324,
+      "batch": "n11g",
+      "title": "Auto GET /api/epc/:epc_id/commands",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epc_id/commands",
+      "pattern": "GET /api/epc/:epc_id/commands",
+      "source": "routes/epc-commands.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 325,
+      "batch": "n11g",
+      "title": "Auto GET /api/epc/:epc_id/commands/history",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epc_id/commands/history",
+      "pattern": "GET /api/epc/:epc_id/commands/history",
+      "source": "routes/epc-commands.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 326,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/:epc_id/logs",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epc_id/logs",
+      "pattern": "GET /api/epc/:epc_id/logs",
+      "source": "routes/epc-logs.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 327,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/:epc_id/status",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epc_id/status",
+      "pattern": "GET /api/epc/:epc_id/status",
+      "source": "routes/epc-commands.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 328,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/:epc_id/status/history",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epc_id/status/history",
+      "pattern": "GET /api/epc/:epc_id/status/history",
+      "source": "routes/epc-commands.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 329,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/:epcId/metrics/history",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epcId/metrics/history",
+      "pattern": "GET /api/epc/:epcId/metrics/history",
+      "source": "routes/epcMetrics.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 330,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/:epcId/status",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:epcId/status",
+      "pattern": "GET /api/epc/:epcId/status",
+      "source": "routes/epcMetrics.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 331,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/:id",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/:id",
+      "pattern": "GET /api/epc/:id",
+      "source": "routes/epc.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 332,
+      "batch": "n11h",
+      "title": "Auto GET /api/epc/metrics/:id",
+      "status": "skip",
+      "apiPaths": [
+        "/api/epc"
+      ],
+      "exactPath": "/api/epc/metrics/:id",
+      "pattern": "GET /api/epc/metrics/:id",
+      "source": "routes/epc.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 333,
+      "batch": "n11h",
+      "title": "Auto GET /api/incidents/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/incidents"
+      ],
+      "exactPath": "/api/incidents/6a5993caad923e3601e03d75",
+      "pattern": "GET /api/incidents/:id",
+      "source": "routes/incidents.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 334,
+      "batch": "n11h",
+      "title": "Auto GET /api/installation-documentation/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/installation-documentation"
+      ],
+      "exactPath": "/api/installation-documentation/6a5970d4ad923e3601e032d9",
+      "pattern": "GET /api/installation-documentation/:id",
+      "source": "routes/installation-documentation.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 335,
+      "batch": "n11h",
+      "title": "Auto GET /api/internal/tenant-details/:tenantId",
+      "status": "honest",
+      "apiPaths": [
+        "/api/internal"
+      ],
+      "exactPath": "/api/internal/tenant-details/6a166eb07089304417ec967a",
+      "pattern": "GET /api/internal/tenant-details/:tenantId",
+      "source": "routes/internal.js",
+      "tier": "param-get",
+      "residual": "auto-401"
+    },
+    {
+      "id": 336,
+      "batch": "n11i",
+      "title": "Auto GET /api/internal/user-tenants/:userId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/internal"
+      ],
+      "exactPath": "/api/internal/user-tenants/:userId",
+      "pattern": "GET /api/internal/user-tenants/:userId",
+      "source": "routes/internal.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 337,
+      "batch": "n11i",
+      "title": "Auto GET /api/inventory/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "exactPath": "/api/inventory/6a5993caad923e3601e03d6f",
+      "pattern": "GET /api/inventory/:id",
+      "source": "routes/inventory.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 338,
+      "batch": "n11i",
+      "title": "Auto GET /api/inventory/by-location/:locationType",
+      "status": "skip",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "exactPath": "/api/inventory/by-location/:locationType",
+      "pattern": "GET /api/inventory/by-location/:locationType",
+      "source": "routes/inventory.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 339,
+      "batch": "n11i",
+      "title": "Auto GET /api/inventory/by-site/:siteId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "exactPath": "/api/inventory/by-site/:siteId",
+      "pattern": "GET /api/inventory/by-site/:siteId",
+      "source": "routes/inventory.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 340,
+      "batch": "n11i",
+      "title": "Auto GET /api/mikrotik/devices/:id",
+      "status": "skip",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "exactPath": "/api/mikrotik/devices/:id",
+      "pattern": "GET /api/mikrotik/devices/:id",
+      "source": "routes/mikrotik.js",
+      "tier": "param-get",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 341,
+      "batch": "n11i",
+      "title": "Auto GET /api/mikrotik/devices/:id/credentials",
+      "status": "skip",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "exactPath": "/api/mikrotik/devices/:id/credentials",
+      "pattern": "GET /api/mikrotik/devices/:id/credentials",
+      "source": "routes/mikrotik.js",
+      "tier": "param-get",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 342,
+      "batch": "n11i",
+      "title": "Auto GET /api/mikrotik/devices/:id/metrics",
+      "status": "skip",
+      "apiPaths": [
+        "/api/mikrotik"
+      ],
+      "exactPath": "/api/mikrotik/devices/:id/metrics",
+      "pattern": "GET /api/mikrotik/devices/:id/metrics",
+      "source": "routes/mikrotik.js",
+      "tier": "param-get",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 343,
+      "batch": "n11i",
+      "title": "Auto GET /api/monitoring/graphs/ping/:deviceId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "exactPath": "/api/monitoring/graphs/ping/:deviceId",
+      "pattern": "GET /api/monitoring/graphs/ping/:deviceId",
+      "source": "routes/monitoring-graphs.js",
+      "tier": "param-get",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 344,
+      "batch": "n11i",
+      "title": "Auto GET /api/monitoring/graphs/snmp/:deviceId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/monitoring"
+      ],
+      "exactPath": "/api/monitoring/graphs/snmp/:deviceId",
+      "pattern": "GET /api/monitoring/graphs/snmp/:deviceId",
+      "source": "routes/monitoring-graphs.js",
+      "tier": "param-get",
+      "externalRisk": "hardware credentials are device/tenant-scoped — do not invent",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 345,
+      "batch": "n11i",
+      "title": "Auto GET /api/network/cpe/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/cpe/6a59711cad923e3601e03344",
+      "pattern": "GET /api/network/cpe/:id",
+      "source": "routes/network.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 346,
+      "batch": "n11j",
+      "title": "Auto GET /api/network/sectors/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/sectors/6a58eb10ad923e3601dfd7e5",
+      "pattern": "GET /api/network/sectors/:id",
+      "source": "routes/network.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 347,
+      "batch": "n11j",
+      "title": "Auto GET /api/network/sites/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/sites/6a596f4dad923e3601e03063",
+      "pattern": "GET /api/network/sites/:id",
+      "source": "routes/network.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 348,
+      "batch": "n11j",
+      "title": "Auto GET /api/network/sites/:siteId/hardware",
+      "status": "skip",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/sites/:siteId/hardware",
+      "pattern": "GET /api/network/sites/:siteId/hardware",
+      "source": "routes/network.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 349,
+      "batch": "n11j",
+      "title": "Auto GET /api/network/sites/:siteId/sectors",
+      "status": "skip",
+      "apiPaths": [
+        "/api/network"
+      ],
+      "exactPath": "/api/network/sites/:siteId/sectors",
+      "pattern": "GET /api/network/sites/:siteId/sectors",
+      "source": "routes/network.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 350,
+      "batch": "n11j",
+      "title": "Auto GET /api/permissions/role/:role",
+      "status": "skip",
+      "apiPaths": [
+        "/api/permissions"
+      ],
+      "exactPath": "/api/permissions/role/:role",
+      "pattern": "GET /api/permissions/role/:role",
+      "source": "routes/permissions.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 351,
+      "batch": "n11j",
+      "title": "Auto GET /api/permissions/user/:userId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/permissions"
+      ],
+      "exactPath": "/api/permissions/user/:userId",
+      "pattern": "GET /api/permissions/user/:userId",
+      "source": "routes/permissions.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 352,
+      "batch": "n11j",
+      "title": "Auto GET /api/plans/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/6a5993caad923e3601e03d71",
+      "pattern": "GET /api/plans/:id",
+      "source": "routes/plans/plans-core.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 353,
+      "batch": "n11j",
+      "title": "Auto GET /api/plans/:id/features",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/:id/features",
+      "pattern": "GET /api/plans/:id/features",
+      "source": "routes/plans/plans-features.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 354,
+      "batch": "n11j",
+      "title": "Auto GET /api/plans/:id/marketing/addresses",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/:id/marketing/addresses",
+      "pattern": "GET /api/plans/:id/marketing/addresses",
+      "source": "routes/plans/plans-marketing.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 355,
+      "batch": "n11j",
+      "title": "Auto GET /api/plans/:id/marketing/progress/:requestId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/:id/marketing/progress/:requestId",
+      "pattern": "GET /api/plans/:id/marketing/progress/:requestId",
+      "source": "routes/plans/plans-marketing.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 356,
+      "batch": "n11k",
+      "title": "Auto GET /api/plans/:id/missing-hardware",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/:id/missing-hardware",
+      "pattern": "GET /api/plans/:id/missing-hardware",
+      "source": "routes/plans/plans-hardware.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 357,
+      "batch": "n11k",
+      "title": "Auto GET /api/plans/:id/sites",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/:id/sites",
+      "pattern": "GET /api/plans/:id/sites",
+      "source": "routes/plans/plans-features.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 358,
+      "batch": "n11k",
+      "title": "Auto GET /api/plans/deployment-photos/:planId/:fileId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/deployment-photos/:planId/:fileId",
+      "pattern": "GET /api/plans/deployment-photos/:planId/:fileId",
+      "source": "routes/plans/plans-deployment-photos.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 359,
+      "batch": "n11k",
+      "title": "Auto GET /api/plans/mobile/:userId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/mobile/:userId",
+      "pattern": "GET /api/plans/mobile/:userId",
+      "source": "routes/plans/plans-mobile.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 360,
+      "batch": "n11k",
+      "title": "Auto GET /api/plans/mobile/:userId/:planId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/plans"
+      ],
+      "exactPath": "/api/plans/mobile/:userId/:planId",
+      "pattern": "GET /api/plans/mobile/:userId/:planId",
+      "source": "routes/plans/plans-mobile.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 361,
+      "batch": "n11k",
+      "title": "Auto GET /api/portal-content/:tenantId/alerts",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/alerts",
+      "pattern": "GET /api/portal-content/:tenantId/alerts",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 362,
+      "batch": "n11k",
+      "title": "Auto GET /api/portal-content/:tenantId/alerts/active",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/alerts/active",
+      "pattern": "GET /api/portal-content/:tenantId/alerts/active",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 363,
+      "batch": "n11k",
+      "title": "Auto GET /api/portal-content/:tenantId/chat-settings",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/chat-settings",
+      "pattern": "GET /api/portal-content/:tenantId/chat-settings",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 364,
+      "batch": "n11k",
+      "title": "Auto GET /api/portal-content/:tenantId/faq",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/faq",
+      "pattern": "GET /api/portal-content/:tenantId/faq",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 365,
+      "batch": "n11k",
+      "title": "Auto GET /api/portal-content/:tenantId/faq/published",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/faq/published",
+      "pattern": "GET /api/portal-content/:tenantId/faq/published",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 366,
+      "batch": "n11l",
+      "title": "Auto GET /api/portal-content/:tenantId/knowledge-base",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/knowledge-base",
+      "pattern": "GET /api/portal-content/:tenantId/knowledge-base",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 367,
+      "batch": "n11l",
+      "title": "Auto GET /api/portal-content/:tenantId/knowledge-base/:articleId",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/knowledge-base/6a5979a5ad923e3601e03cda",
+      "pattern": "GET /api/portal-content/:tenantId/knowledge-base/:articleId",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 368,
+      "batch": "n11l",
+      "title": "Auto GET /api/portal-content/:tenantId/knowledge-base/published",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal-content"
+      ],
+      "exactPath": "/api/portal-content/6a166eb07089304417ec967a/knowledge-base/published",
+      "pattern": "GET /api/portal-content/:tenantId/knowledge-base/published",
+      "source": "routes/portal-content.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 369,
+      "batch": "n11l",
+      "title": "Auto GET /api/portal/domain/:domain",
+      "status": "skip",
+      "apiPaths": [
+        "/api/portal"
+      ],
+      "exactPath": "/api/portal/domain/:domain",
+      "pattern": "GET /api/portal/domain/:domain",
+      "source": "routes/portal-domain.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 370,
+      "batch": "n11l",
+      "title": "Auto GET /api/portal/subdomain/:subdomain",
+      "status": "skip",
+      "apiPaths": [
+        "/api/portal"
+      ],
+      "exactPath": "/api/portal/subdomain/:subdomain",
+      "pattern": "GET /api/portal/subdomain/:subdomain",
+      "source": "routes/portal-domain.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 371,
+      "batch": "n11l",
+      "title": "Auto GET /api/portal/tenant/:tenantId",
+      "status": "done",
+      "apiPaths": [
+        "/api/portal"
+      ],
+      "exactPath": "/api/portal/tenant/6a166eb07089304417ec967a",
+      "pattern": "GET /api/portal/tenant/:tenantId",
+      "source": "routes/portal-domain.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 372,
+      "batch": "n11l",
+      "title": "Auto GET /api/subcontractors/:id",
+      "status": "skip",
+      "apiPaths": [
+        "/api/subcontractors"
+      ],
+      "exactPath": "/api/subcontractors/:id",
+      "pattern": "GET /api/subcontractors/:id",
+      "source": "routes/subcontractors.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 373,
+      "batch": "n11l",
+      "title": "Auto GET /api/subcontractors/:id/expired-items",
+      "status": "skip",
+      "apiPaths": [
+        "/api/subcontractors"
+      ],
+      "exactPath": "/api/subcontractors/:id/expired-items",
+      "pattern": "GET /api/subcontractors/:id/expired-items",
+      "source": "routes/subcontractors.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 374,
+      "batch": "n11l",
+      "title": "Auto GET /api/users/:userId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/:userId",
+      "pattern": "GET /api/users/:userId",
+      "source": "routes/users/tenants.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 375,
+      "batch": "n11l",
+      "title": "Auto GET /api/users/:userId/activity",
+      "status": "skip",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/:userId/activity",
+      "pattern": "GET /api/users/:userId/activity",
+      "source": "routes/users/index.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 376,
+      "batch": "n11m",
+      "title": "Auto GET /api/users/tenant/:tenantId",
+      "status": "done",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/tenant/6a166eb07089304417ec967a",
+      "pattern": "GET /api/users/tenant/:tenantId",
+      "source": "routes/users/tenant-details.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 377,
+      "batch": "n11m",
+      "title": "Auto GET /api/users/tenant/:tenantId/visible",
+      "status": "done",
+      "apiPaths": [
+        "/api/users"
+      ],
+      "exactPath": "/api/users/tenant/6a166eb07089304417ec967a/visible",
+      "pattern": "GET /api/users/tenant/:tenantId/visible",
+      "source": "routes/users/index.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 378,
+      "batch": "n11m",
+      "title": "Auto GET /api/voice/port-orders/:id/events",
+      "status": "skip",
+      "apiPaths": [
+        "/api/voice"
+      ],
+      "exactPath": "/api/voice/port-orders/:id/events",
+      "pattern": "GET /api/voice/port-orders/:id/events",
+      "source": "routes/voice-sip.js",
+      "tier": "param-get",
+      "externalRisk": "voice carrier / webhook secrets may be unset",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 379,
+      "batch": "n11m",
+      "title": "Auto GET /api/work-orders/:id",
+      "status": "done",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "exactPath": "/api/work-orders/6a5993c9ad923e3601e03d6d",
+      "pattern": "GET /api/work-orders/:id",
+      "source": "routes/work-orders.js",
+      "tier": "param-get"
+    },
+    {
+      "id": 380,
+      "batch": "n11m",
+      "title": "Auto GET /api/work-orders/assigned/:userId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "exactPath": "/api/work-orders/assigned/:userId",
+      "pattern": "GET /api/work-orders/assigned/:userId",
+      "source": "routes/work-orders.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 381,
+      "batch": "n11m",
+      "title": "Auto GET /api/work-orders/site/:siteId",
+      "status": "skip",
+      "apiPaths": [
+        "/api/work-orders"
+      ],
+      "exactPath": "/api/work-orders/site/:siteId",
+      "pattern": "GET /api/work-orders/site/:siteId",
+      "source": "routes/work-orders.js",
+      "tier": "param-get",
+      "residual": "skip-no-id"
+    },
+    {
+      "id": 382,
+      "batch": "n11m",
+      "title": "Auto POST /api/inventory/scan/check-in",
+      "status": "honest",
+      "apiPaths": [
+        "/api/inventory"
+      ],
+      "exactPath": "/api/inventory/scan/check-in",
+      "pattern": "POST /api/inventory/scan/check-in",
+      "source": "routes/inventory.js",
+      "tier": "golden-mut",
+      "residual": "auto-400"
     }
   ],
   "heldResiduals": [
