@@ -2113,6 +2113,50 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10uSurfaces();
   initDeepenN10vSurfaces();
   initDeepenN10wSurfaces();
+  initDeepenN10xSurfaces();
+
+  function initDeepenN10xSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10x="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10x", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var tid = "6a166eb07089304417ec967a";
+    var sitesHost =
+      document.querySelector(".sites-page .page-header") ||
+      document.querySelector('[data-wisp-page="sites"] .page-header');
+    addGet(sitesHost, "hw-dep", "/api/network/hardware-deployments", "HW deployments");
+    var dash =
+      document.querySelector(".dashboard-page .page-header") ||
+      document.querySelector('[data-wisp-page="dashboard"] .page-header');
+    addGet(dash, "branding-get", "/api/branding/" + tid, "Branding");
+    addGet(dash, "pc-kb", "/api/portal-content/" + tid + "/knowledge-base", "Portal KB");
+  }
 
   function initDeepenN10wSurfaces() {
     if (!window.WispCwlApi) return;

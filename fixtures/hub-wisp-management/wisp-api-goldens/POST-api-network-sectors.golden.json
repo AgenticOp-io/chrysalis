@@ -1,5 +1,5 @@
 {
-  "name": "CWL Trace Sector 1784248625601",
+  "name": "CWL Trace Sector 1784248725236",
   "status": "active",
   "technology": "LTE",
   "azimuth": 90,
@@ -8,13 +8,13 @@
     "latitude": 39.74,
     "longitude": -104.99,
     "country": "US",
-    "_id": "6a59793ead923e3601e03be7"
+    "_id": "6a5979a2ad923e3601e03caa"
   },
   "siteId": "6a596f4dad923e3601e03063",
   "tenantId": "6a166eb07089304417ec967a",
   "createdBy": "System",
-  "_id": "6a59793ead923e3601e03be6",
-  "createdAt": "2026-07-17T00:37:18.479Z",
-  "updatedAt": "2026-07-17T00:37:18.480Z",
+  "_id": "6a5979a2ad923e3601e03ca9",
+  "createdAt": "2026-07-17T00:38:58.091Z",
+  "updatedAt": "2026-07-17T00:38:58.091Z",
   "__v": 0
 }

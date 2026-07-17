@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 232,
-  "nextBatchId": "n10x",
-  "nextPassRange": [233, 242],
+  "closedThroughPass": 242,
+  "nextBatchId": "n10y",
+  "nextPassRange": [243, 252],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -42,7 +42,8 @@
     { "id": "n10t", "passRange": [193, 202], "status": "closed-harness" },
     { "id": "n10u", "passRange": [203, 212], "status": "closed-harness" },
     { "id": "n10v", "passRange": [213, 222], "status": "closed-harness" },
-    { "id": "n10w", "passRange": [223, 232], "status": "closed-harness" }
+    { "id": "n10w", "passRange": [223, 232], "status": "closed-harness" },
+    { "id": "n10x", "passRange": [233, 242], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -214,7 +215,17 @@
     { "id": 229, "batch": "n10w", "title": "Voice port-orders POST", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
     { "id": 230, "batch": "n10w", "title": "HSS groups GET by id", "status": "done", "apiPaths": ["/api/hss/groups"], "source": "backend-services/routes/hss/hss-groups.js" },
     { "id": 231, "batch": "n10w", "title": "HSS bandwidth-plans list GET", "status": "done", "apiPaths": ["/api/hss/bandwidth-plans"], "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },
-    { "id": 232, "batch": "n10w", "title": "HSS subscribers list GET", "status": "done", "apiPaths": ["/api/hss/subscribers"], "source": "backend-services/routes/hss/hss-subscribers.js" }
+    { "id": 232, "batch": "n10w", "title": "HSS subscribers list GET", "status": "done", "apiPaths": ["/api/hss/subscribers"], "source": "backend-services/routes/hss/hss-subscribers.js" },
+    { "id": 233, "batch": "n10x", "title": "Portal-content KB POST", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 234, "batch": "n10x", "title": "Portal-content FAQ PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 235, "batch": "n10x", "title": "Portal-content alerts PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 236, "batch": "n10x", "title": "Portal-content chat-settings PUT", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 237, "batch": "n10x", "title": "Branding PUT", "status": "done", "apiPaths": ["/api/branding"], "source": "backend-services/routes/branding-api.js" },
+    { "id": 238, "batch": "n10x", "title": "Voice port-order events GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" },
+    { "id": 239, "batch": "n10x", "title": "Hardware-deployments list GET", "status": "done", "apiPaths": ["/api/network/hardware-deployments"], "source": "backend-services/routes/network.js" },
+    { "id": 240, "batch": "n10x", "title": "Network sites bulk-import POST", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
+    { "id": 241, "batch": "n10x", "title": "Portal-content FAQ DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" },
+    { "id": 242, "batch": "n10x", "title": "Portal-content alerts DELETE", "status": "done", "apiPaths": ["/api/portal-content"], "source": "backend-services/routes/portal-content.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },

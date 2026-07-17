@@ -1,6 +1,22 @@
 {
   "bundles": [
     {
+      "_id": "6a59793fad923e3601e03bf2",
+      "tenantId": "6a166eb07089304417ec967a",
+      "name": "CWL Bundle 1784248625601",
+      "bundleType": "standard",
+      "tags": [],
+      "status": "active",
+      "usageCount": 0,
+      "items": [],
+      "images": [],
+      "createdAt": "2026-07-17T00:37:19.103Z",
+      "updatedAt": "2026-07-17T00:37:20.286Z",
+      "estimatedTotalCost": 0,
+      "__v": 0,
+      "notes": "chrysalis-live-mutate-put-1784248639346"
+    },
+    {
       "_id": "6a5978c6ad923e3601e03b13",
       "tenantId": "6a166eb07089304417ec967a",
       "name": "CWL Bundle 1784248505811",
@@ -800,7 +816,7 @@
   "pagination": {
     "page": 1,
     "limit": 50,
-    "total": 47,
+    "total": 48,
     "pages": 1
   }
 }
