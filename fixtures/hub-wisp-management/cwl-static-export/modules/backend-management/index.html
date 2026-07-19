@@ -1,10 +1,477 @@
+<div class="wisp-app-surface" data-wisp-page="backend-management" data-wisp-path="/modules/backend-management" data-cwl-island="client"><div class="backend-management">
+    <!-- Admin Banner -->
+    <div class="admin-banner">
+      <span>🔐 Platform Administrator Mode</span>
+      <span class="admin-user"><span data-cwl-bind="interp" data-cwl-hole-detail="user?.email"></span></span>
+    </div>
 
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1>🖥️ Backend Server Management</h1>
+        <p class="subtitle">Monitor and control backend services on 136.112.111.167</p>
+      </div>
+      <a href="/dashboard" class="btn-back">
+        ← Back to Dashboard
+      </a>
+    </div>
 
+    <!-- Main Content -->
+    <div class="content-grid">
+      <!-- System Overview -->
+      <div class="section full-width">
+        <h2>🌐 System Overview</h2>
+        <div class="systems-grid">
+          <!-- Frontend -->
+          <div class="system-card frontend">
+            <div class="system-header">
+              <h3>🌐 Frontend</h3>
+              <span class="status-badge status-online">🟢 Online</span>
+            </div>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="label">Platform:</span>
+                <span class="value">Firebase Hosting</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">URL:</span>
+                <span class="value"><a href="https://wisptools.io" target="_blank">wisptools.io</a></span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Status:</span>
+                <span class="value">Deployed & Active</span>
+              </div>
+            </div>
+          </div>
 
-  <div class="access-denied">
-    <div class="denied-icon">🔒</div>
-    <h2>Access Denied</h2>
-    <p>This module is restricted to platform administrators only.</p>
-    <a href="/dashboard" class="btn-primary">← Back to Dashboard</a>
+          <!-- Backend -->
+          <div class="system-card backend">
+            <div class="system-header">
+              <h3>🖥️ Backend API</h3>
+              <span class="status-badge status-online">🟢 Online</span>
+            </div>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="label">Platform:</span>
+                <span class="value">Google Cloud Functions</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Region:</span>
+                <span class="value">us-central1</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Status:</span>
+                <span class="value">Running</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Services -->
+          <div class="system-card services">
+            <div class="system-header">
+              <h3>⚙️ Services</h3>
+              <span class="status-badge status-online">🟢 Monitoring</span>
+            </div>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="label">Backend Server:</span>
+                <span class="value">136.112.111.167</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Services:</span>
+                <span class="value">PM2 + systemd</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Status:</span>
+                <span class="value">See below</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Status -->
+      <div class="section full-width">
+        <div data-cwl-component="ServiceStatus" data-cwl-lifted-component="ServiceStatus"><div class="service-status">
+  <div class="section-header">
+    <h2>🔧 Service Status</h2>
+    <button class="btn-refresh" data-cwl-action="loadServices" data-cwl-attr-disabled="isLoading" aria-label="Load Services">
+      🔄 Refresh
+    </button>
   </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"backend-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+
+  <div class="services-grid">
+    <div data-cwl-bind="each" data-cwl-hole-detail="services as service" data-cwl-each-item="service" data-cwl-each-tpl="%0A%20%20%20%20%20%20%3Cdiv%20class%3D%22service-card%22%20class%3Aonline%3D%7Bservice.status%20%3D%3D%3D%20'online'%7D%20class%3Aoffline%3D%7Bservice.status%20%3D%3D%3D%20'offline'%7D%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22service-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bservice.displayName%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22service-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22port%22%3EPort%20%7Bservice.port%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20service.uptime%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22uptime%22%3EUptime%3A%20%7BformatUptime(service.uptime)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22status-badge%20status-%7Bservice.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7Bservice.status%20%3D%3D%3D%20'online'%20%3F%20'%F0%9F%9F%A2'%20%3A%20service.status%20%3D%3D%3D%20'offline'%20%3F%20'%F0%9F%94%B4'%20%3A%20'%E2%9A%AA'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7Bservice.status.toUpperCase()%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%7B%23if%20service.status%20%3D%3D%3D%20'online'%20%26%26%20(service.memory%20%7C%7C%20service.cpu%20!%3D%3D%20undefined)%7D%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22service-metrics%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20service.memory%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22metric%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EMemory%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7BformatBytes(service.memory)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20service.cpu%20!%3D%3D%20undefined%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22metric%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ECPU%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bservice.cpu.toFixed(1)%7D%25%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20service.restarts%20!%3D%3D%20undefined%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22metric%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ERestarts%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bservice.restarts%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%7B%23if%20service.canControl%7D%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22service-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-action%20btn-restart%22%20data-cwl-action%3D%22handleServiceAction%22%20data-cwl-action-args%3D%22service.name%2C%20'restart'%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Service%20Action%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%94%84%20Restart%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20service.status%20%3D%3D%3D%20'online'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-action%20btn-stop%22%20data-cwl-action%3D%22handleServiceAction%22%20data-cwl-action-args%3D%22service.name%2C%20'stop'%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Service%20Action%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%8F%B9%EF%B8%8F%20Stop%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-action%20btn-start%22%20data-cwl-action%3D%22handleServiceAction%22%20data-cwl-action-args%3D%22service.name%2C%20'start'%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Service%20Action%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%96%B6%EF%B8%8F%20Start%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22no-control%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Csmall%3E%E2%9A%A0%EF%B8%8F%20External%20service%20-%20no%20direct%20control%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20"><div class="service-card">
+        <div class="service-header">
+          <div>
+            <h3></h3>
+            <div class="service-meta">
+              <span class="port">Port </span>
+
+                <div hidden aria-hidden="true"><span class="uptime">Uptime: </span>
+              </div>
+            </div>
+          </div>
+          <div class="status-badge status-">
+
+          </div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="service.status === 'online' && (service.memory || service.cpu !== undefined)"><div class="service-metrics">
+
+              <div class="metric" hidden aria-hidden="true">
+                <span class="label">Memory:</span>
+                <span class="value"></span>
+              </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="service.cpu !== undefined"><div class="metric">
+                <span class="label">CPU:</span>
+                <span class="value">%</span>
+              </div></div>
+            <div data-cwl-bind="if" data-cwl-hole-detail="service.restarts !== undefined"><div class="metric">
+                <span class="label">Restarts:</span>
+                <span class="value"></span>
+              </div></div>
+          </div></div>
+
+          <div class="no-control">
+            <small>⚠️ External service - no direct control</small>
+          </div>
+
+          <div class="service-actions" hidden aria-hidden="true">
+            <button
+              class="btn-action btn-restart" data-cwl-action="handleServiceAction" data-cwl-action-args="service.name, 'restart'"
+             aria-label="Service Action">
+              🔄 Restart
+            </button>
+            <div data-cwl-bind="if" data-cwl-hole-detail="service.status === 'online'"><button
+                class="btn-action btn-stop" data-cwl-action="handleServiceAction" data-cwl-action-args="service.name, 'stop'"
+               aria-label="Service Action">
+                ⏹️ Stop
+              </button></div>
+              <button
+                class="btn-action btn-start" data-cwl-action="handleServiceAction" data-cwl-action-args="service.name, 'start'"
+               aria-label="Service Action">
+                ▶️ Start
+              </button>
+
+          </div>
+
+      </div></div>
+  </div>
+</div></div>
+      </div>
+
+      <!-- System Resources -->
+      <div class="section">
+        <div data-cwl-component="SystemResources" data-cwl-lifted-component="SystemResources"><div class="system-resources">
+  <h2>📊 System Resources</h2>
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="systemInfo"><div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon">💾</div>
+        <div class="metric-content">
+          <div class="metric-label">Memory Usage</div>
+          <div class="metric-value"><span data-cwl-bind="interp" data-cwl-hole-detail="systemInfo.memory?.percent || 'N/A'"></span>%</div>
+
+            <div class="metric-detail" hidden aria-hidden="true">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="formatBytes(systemInfo.memory.used)"></span> / <span data-cwl-bind="interp" data-cwl-hole-detail="formatBytes(systemInfo.memory.total)"></span>
+            </div>
+
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">⚡</div>
+        <div class="metric-content">
+          <div class="metric-label">CPU Usage</div>
+          <div class="metric-value"><span data-cwl-bind="interp" data-cwl-hole-detail="systemInfo.cpu?.percent || 'N/A'"></span>%</div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="systemInfo.cpu?.cores"><div class="metric-detail"><span data-cwl-bind="interp" data-cwl-hole-detail="systemInfo.cpu.cores"></span> cores</div></div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">💿</div>
+        <div class="metric-content">
+          <div class="metric-label">Disk Usage</div>
+          <div class="metric-value"><span data-cwl-bind="interp" data-cwl-hole-detail="systemInfo.disk?.percent || 'N/A'"></span>%</div>
+
+            <div class="metric-detail" hidden aria-hidden="true">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="formatBytes(systemInfo.disk.used)"></span> / <span data-cwl-bind="interp" data-cwl-hole-detail="formatBytes(systemInfo.disk.total)"></span>
+            </div>
+
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">⏱️</div>
+        <div class="metric-content">
+          <div class="metric-label">Uptime</div>
+          <div class="metric-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(systemInfo.uptime || 0)"></span></div>
+
+            <div class="metric-detail" hidden aria-hidden="true">Load: <span data-cwl-bind="interp" data-cwl-hole-detail="systemInfo.loadAvg.join(', ')"></span></div>
+
+        </div>
+      </div>
+    </div></div>
+    <div class="empty-state">
+      <p>System information unavailable. Configure backend API endpoint.</p>
+    </div>
+
+    <div class="loading-state" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading system information...</p>
+    </div>
+
+</div></div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section">
+        <div data-cwl-component="QuickActions" data-cwl-lifted-component="QuickActions"><div class="quick-actions">
+  <h2>⚡ Quick Actions</h2>
+
+  <div class="actions-grid">
+    <button
+      class="action-card action-warning" data-cwl-action="handleRestartAll" data-cwl-attr-disabled="isExecuting"
+     aria-label="Restart All">
+      <div class="action-icon">🔄</div>
+      <div class="action-content">
+        <div class="action-title">Restart All Services</div>
+        <div class="action-description">Restart all PM2 services</div>
+      </div>
+    </button>
+
+    <button
+      class="action-card action-danger" data-cwl-action="handleRebootVM" data-cwl-attr-disabled="isExecuting"
+     aria-label="Reboot VM">
+      <div class="action-icon">🔴</div>
+      <div class="action-content">
+        <div class="action-title">Reboot VM</div>
+        <div class="action-description">Full system reboot (1-2 min downtime)</div>
+      </div>
+    </button>
+
+    <button
+      class="action-card action-info" data-cwl-action="handleViewLogs" data-cwl-attr-disabled="isExecuting"
+     aria-label="View Logs">
+      <div class="action-icon">📋</div>
+      <div class="action-content">
+        <div class="action-title">View Cloud Logs</div>
+        <div class="action-description">Open Google Cloud Logging</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠️ Important:</strong> These actions affect the entire backend server.
+    All users will be impacted. Use with caution during active operations.
+  </div>
+</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" hidden aria-hidden="true">
+    <div class="spinner"></div>
+    <p>Verifying admin access...</p>
+  </div></div>
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal" data-cwl-orphan-modal="1"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title">Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="help-body">
+
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"backend-management"}</script>

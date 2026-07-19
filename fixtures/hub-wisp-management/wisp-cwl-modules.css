@@ -53,7 +53,11 @@ body.wisp-map-page {
 .modal[hidden],
 .filters-modal[hidden],
 .hardware-modal[hidden],
-.projects-panel[hidden] {
+.projects-panel[hidden],
+.tips-overlay[hidden],
+.help-overlay[hidden],
+.marketing-backdrop[hidden],
+.popup-overlay[hidden] {
   display: none !important;
 }
 

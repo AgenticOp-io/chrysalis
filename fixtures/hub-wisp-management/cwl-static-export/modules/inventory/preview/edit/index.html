@@ -1,25 +1,24 @@
-<div class="wisp-app-surface" data-wisp-page="modules-inventory-:id-edit" data-wisp-path="/modules/inventory/:id/edit" data-cwl-island="client"><div class="edit-page">
+<div class="wisp-app-surface" data-wisp-page="inventory" data-wisp-path="/modules/inventory/:id/edit" data-cwl-island="client"><div class="edit-page">
   <div class="page-header">
     <div class="header-left">
-      <button class="back-btn">
+      <button class="back-btn" data-cwl-nav="/modules/inventory/">
         ← Back to Details
       </button>
       <h1>✏️ Edit Equipment</h1>
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="item"><p class="subtitle"><span data-cwl-bind="interp" data-cwl-hole-detail="item.manufacturer"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="item.model"></span> - <span data-cwl-bind="interp" data-cwl-hole-detail="item.serialNumber"></span></p></div>
     </div>
 
     <div class="header-actions">
-      <button class="btn btn-secondary">
+      <button class="btn btn-secondary" data-cwl-action="handleCancel" data-cwl-attr-disabled="isSaving" aria-label="Cancel">
         Cancel
       </button>
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
         Save Changes
       </button>
     </div>
   </div>
 
-  
-    <form class="edit-form">
+  <div data-cwl-bind="if" data-cwl-hole-detail="item && formData"><form data-cwl-on-submit="action:handleSave" class="edit-form">
       <div class="form-sections">
         <!-- Basic Information -->
         <div class="form-section">
@@ -27,23 +26,23 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="assetTag">Asset Tag</label>
-              <input 
+              <input
                 id="assetTag"
-                type="text" 
+                type="text"
                 placeholder="Enter asset tag"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="serialNumber">Serial Number *</label>
-              <input 
+              <input
                 id="serialNumber"
-                type="text" 
+                type="text"
                 placeholder="Enter serial number"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="category">Category *</label>
               <select id="category" required>
@@ -58,35 +57,35 @@
                 <option value="other">Other</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label for="equipmentType">Equipment Type *</label>
-              <input 
+              <input
                 id="equipmentType"
-                type="text" 
+                type="text"
                 placeholder="e.g., Sector Antenna, CPE Router"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="manufacturer">Manufacturer</label>
-              <input 
+              <input
                 id="manufacturer"
-                type="text" 
+                type="text"
                 placeholder="Enter manufacturer"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="model">Model</label>
-              <input 
+              <input
                 id="model"
-                type="text" 
+                type="text"
                 placeholder="Enter model"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="status">Status *</label>
               <select id="status" required>
@@ -101,7 +100,7 @@
                 <option value="sold">Sold</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label for="condition">Condition *</label>
               <select id="condition" required>
@@ -135,8 +134,15 @@
                 <option value="other">Other</option>
               </select>
             </div>
-            
-            
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="formData.currentLocation.type !== 'unassigned'"><div class="form-group">
+                <label for="siteName">Site Name</label>
+                <input
+                  id="siteName"
+                  type="text"
+                  placeholder="Enter site name"
+                />
+              </div></div>
           </div>
         </div>
 
@@ -146,36 +152,36 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="vendor">Vendor</label>
-              <input 
+              <input
                 id="vendor"
-                type="text" 
+                type="text"
                 placeholder="Enter vendor name"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="purchaseDate">Purchase Date</label>
-              <input 
+              <input
                 id="purchaseDate"
-                type="date" 
+                type="date"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="purchasePrice">Purchase Price</label>
-              <input 
+              <input
                 id="purchasePrice"
-                type="number" 
-                step="0.01" 
+                type="number"
+                step="0.01"
                 placeholder="0.00"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="purchaseOrderNumber">PO Number</label>
-              <input 
+              <input
                 id="purchaseOrderNumber"
-                type="text" 
+                type="text"
                 placeholder="Enter PO number"
               />
             </div>
@@ -188,34 +194,34 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="warrantyProvider">Provider</label>
-              <input 
+              <input
                 id="warrantyProvider"
-                type="text" 
+                type="text"
                 placeholder="Enter warranty provider"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="warrantyStartDate">Start Date</label>
-              <input 
+              <input
                 id="warrantyStartDate"
-                type="date" 
+                type="date"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="warrantyEndDate">End Date</label>
-              <input 
+              <input
                 id="warrantyEndDate"
-                type="date" 
+                type="date"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="warrantyType">Type</label>
-              <input 
+              <input
                 id="warrantyType"
-                type="text" 
+                type="text"
                 placeholder="e.g., Manufacturer, Extended"
               />
             </div>
@@ -228,27 +234,27 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="powerRequirements">Power Requirements</label>
-              <input 
+              <input
                 id="powerRequirements"
-                type="text" 
+                type="text"
                 placeholder="e.g., 24V DC, 2A"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="ipAddress">IP Address</label>
-              <input 
+              <input
                 id="ipAddress"
-                type="text" 
+                type="text"
                 placeholder="192.168.1.100"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="managementUrl">Management URL</label>
-              <input 
+              <input
                 id="managementUrl"
-                type="url" 
+                type="url"
                 placeholder="http://192.168.1.100"
               />
             </div>
@@ -260,15 +266,19 @@
           <h3>📝 Notes</h3>
           <div class="form-group">
             <label for="notes">Additional Notes</label>
-            <textarea 
-              id="notes" 
+            <textarea
+              id="notes"
               placeholder="Enter any additional notes or comments..."
               rows="4"
             ></textarea>
           </div>
         </div>
       </div>
-    </form>
-  
+    </form></div>
+    <div class="loading" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading equipment details...</p>
+    </div>
+
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id/edit","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/inventory/:id/edit"}</script>

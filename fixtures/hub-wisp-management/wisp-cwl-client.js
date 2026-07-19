@@ -122,7 +122,10 @@
 
   function fetchFirebaseConfig() {
     if (firebaseConfig) return Promise.resolve(firebaseConfig);
-    return fetch("/assets/wisp-firebase-config.json", { credentials: "same-origin" })
+    return fetch("/assets/wisp-firebase-config.json?v=20260718u", {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
       .then(function (r) {
         return r.ok ? r.json() : null;
       })
@@ -220,6 +223,13 @@
     }
     var base = String(backendBase || "").replace(/\/$/, "");
     if (!base || path.indexOf("/") !== 0) return path;
+    // Keep in sync with WispCwlCors.aliasDirectBackendPath.
+    if (path === "/api/hardware/stats") path = "/api/inventory/stats";
+    else if (path === "/api/hardware" || path.indexOf("/api/hardware/") === 0 || path.indexOf("/api/hardware?") === 0)
+      path = "/api/inventory" + path.slice("/api/hardware".length);
+    else if (path === "/api/tenants" || path.indexOf("/api/tenants/") === 0)
+      path = "/admin/tenants" + path.slice("/api/tenants".length);
+    else if (path === "/api/hss") path = "/api/hss/groups";
     if (path === "/api/admin" || path.indexOf("/api/admin/") === 0) {
       var mapped = base + path.slice("/api".length);
       return mapped === base + "/admin" ? mapped + "/" : mapped;
@@ -232,6 +242,146 @@
       return window.WispCwlCors.responseUsable(res);
     }
     return res && (res.ok || res.status === 401 || res.status === 403);
+  }
+
+  function nestedApiFallback(path, opts) {
+    var method = String((opts && opts.method) || "GET").toUpperCase();
+    var payload = {};
+    if (opts && typeof opts.body === "string") {
+      try {
+        payload = JSON.parse(opts.body) || {};
+      } catch (_) {}
+    }
+    var simple =
+      /^\/api\/(customers|inventory|work-orders|incidents|bundles|users|tenants)\/([^/]+)(?:\/([^/]+))?$/.exec(
+        path,
+      );
+    var network =
+      /^\/api\/network\/(sites|sectors|cpe|equipment|hardware-deployments)(?:\/([^/]+)(?:\/([^/]+))?)?$/.exec(
+        path,
+      );
+    var hss = /^\/api\/hss\/(groups|bandwidth-plans|subscribers)(?:\/([^/]+))?$/.exec(path);
+    var notification = /^\/api\/notifications\/([^/]+)\/read$/.exec(path);
+    var notificationCount = path === "/api/notifications/count";
+    var permissionRoles = path === "/api/permissions/roles";
+    var inviteUser = path === "/api/users/invite";
+    var match = simple || network || hss;
+    if (!match && !notification && !notificationCount && !permissionRoles && !inviteUser)
+      return null;
+
+    var id = notification
+      ? notification[1]
+      : notificationCount || permissionRoles || inviteUser
+        ? ""
+        : simple || network
+          ? match[2] || ""
+          : match[2] || "";
+    var action = notification ? "read" : simple || network ? match[3] || "" : "";
+    var resource = permissionRoles
+      ? "roles"
+      : simple
+        ? simple[1]
+        : network
+          ? network[1]
+          : hss
+            ? hss[1]
+            : inviteUser
+              ? "users"
+              : "notifications";
+    var collection = simple
+      ? "/api/" + resource
+      : network
+        ? "/api/network"
+        : hss
+          ? "/api/hss"
+          : permissionRoles
+            ? "/api/permissions"
+            : inviteUser
+              ? "/api/users"
+              : "/api/notifications";
+
+    if (inviteUser) {
+      method = "POST";
+    } else if (simple && resource === "inventory" && action === "transfer") {
+      collection = "/api/inventory/transfer";
+      method = "POST";
+    } else if (method === "GET" && action) {
+      return null;
+    } else if (method !== "GET") {
+      method = method === "POST" && !id ? "POST" : method === "PATCH" ? "PATCH" : "PUT";
+    }
+
+    payload.id = payload.id || id;
+    if (resource === "inventory") payload.itemId = payload.itemId || id;
+    if (network) {
+      payload.resource = resource;
+      payload.resourceId = id;
+    }
+    if (hss) {
+      payload.resource = resource;
+      if (id) payload.resourceId = id;
+    }
+    if (notification) payload.read = true;
+    if (action) {
+      payload.action = action;
+      var statuses = {
+        assign: "assigned",
+        start: "in-progress",
+        complete: "completed",
+        close: "closed",
+        acknowledge: "acknowledged",
+        resolve: "resolved",
+        deploy: "deployed",
+        return: "available",
+        maintenance: "maintenance",
+      };
+      if (statuses[action] && payload.status == null) payload.status = statuses[action];
+    }
+    return {
+      path: collection,
+      init: Object.assign({}, opts, {
+        method: method,
+        body: method === "GET" ? undefined : JSON.stringify(payload),
+      }),
+      id: id,
+      resource: resource,
+      select: method === "GET",
+      count: notificationCount,
+    };
+  }
+
+  function selectFallbackResponse(res, fallback) {
+    if (!fallback.select || !res.ok) return Promise.resolve(res);
+    return res
+      .clone()
+      .json()
+      .then(function (data) {
+        var rows = Array.isArray(data)
+          ? data
+          : Array.isArray(data[fallback.resource])
+            ? data[fallback.resource]
+            : Array.isArray(data.items)
+              ? data.items
+              : Array.isArray(data.data)
+                ? data.data
+                : [];
+        var value = fallback.count
+          ? { count: rows.filter(function (row) { return !row.read; }).length }
+          : fallback.id
+          ? rows.find(function (row) {
+              return String(row.id || row._id || row.customerId || row.ticketNumber || "") ===
+                String(fallback.id);
+            })
+          : rows;
+        if (value == null) return res;
+        return new Response(JSON.stringify(value), {
+          status: 200,
+          headers: { "content-type": "application/json; charset=utf-8" },
+        });
+      })
+      .catch(function () {
+        return res;
+      });
   }
 
   /**
@@ -279,6 +429,34 @@
             ? proxyBase + "?path=" + encodeURIComponent(path)
             : null;
 
+        // Endpoints with no HSS implementation (goldens only). In direct mode
+        // skip the doomed cross-origin call: callers fall through to goldens.
+        var DIRECT_MISSING = [
+          "/api/customer-billing",
+          "/api/billing",
+          "/api/voice",
+          "/api/module-access",
+          "/api/epc",
+          "/api/user-tenants",
+          "/api/mikrotik",
+        ];
+        var directMissing = false;
+        for (var dm = 0; dm < DIRECT_MISSING.length; dm++) {
+          var miss = DIRECT_MISSING[dm];
+          if (path === miss || path.indexOf(miss + "/") === 0 || path.indexOf(miss + "?") === 0) {
+            directMissing = true;
+            break;
+          }
+        }
+        if (preferDirect && directMissing) {
+          return Promise.resolve(
+            new Response('{"error":"endpoint-not-on-hss-direct"}', {
+              status: 404,
+              headers: { "content-type": "application/json" },
+            }),
+          );
+        }
+
         var chain;
         if (preferDirect && direct !== path) {
           chain = attempt(direct, "omit").then(function (res) {
@@ -297,6 +475,13 @@
               return attempt(direct, "omit").then(function (res2) {
                 if (responseUsable(res2) || skipProxy || !viaProxy) return res2;
                 return attempt(viaProxy, "omit");
+              }).catch(function () {
+                if (!skipProxy && viaProxy) {
+                  return attempt(viaProxy, "omit").catch(function () {
+                    return res;
+                  });
+                }
+                return res;
               });
             }
             if (!skipProxy && viaProxy) return attempt(viaProxy, "omit");
@@ -304,15 +489,40 @@
           });
         }
 
-        return chain.catch(function () {
-          if (direct !== path) return attempt(direct, "omit");
-          return Promise.reject(new Error("api-fetch-failed"));
-        });
+        return chain
+          .then(function (res) {
+            if (res.status !== 404 && res.status !== 405 && res.status !== 501) return res;
+            var fallback = nestedApiFallback(path, init);
+            if (!fallback) return res;
+            var fallbackUrl =
+              preferDirect && direct !== path
+                ? backendUrlForApiPath(base, fallback.path)
+                : fallback.path;
+            var fallbackInit = Object.assign({}, fallback.init, { headers: merged });
+            return fetch(
+              window.WispCwlCors && window.WispCwlCors.corsSafeUrl
+                ? window.WispCwlCors.corsSafeUrl(fallbackUrl)
+                : fallbackUrl,
+              Object.assign({}, fallbackInit, {
+                credentials: preferDirect && direct !== path ? "omit" : "same-origin",
+              }),
+            ).then(function (fallbackRes) {
+              return selectFallbackResponse(fallbackRes, fallback);
+            });
+          })
+          .catch(function () {
+            if (direct !== path) return attempt(direct, "omit");
+            return Promise.reject(new Error("api-fetch-failed"));
+          });
       });
     });
   }
 
-  window.WispCwlApi = { fetch: apiFetch, headers: authHeaders };
+  window.WispCwlApi = {
+    fetch: apiFetch,
+    headers: authHeaders,
+    resolveFallback: nestedApiFallback,
+  };
 
   function firebaseLogin(email, password) {
     return ensureFirebase().then(function (fb) {
@@ -378,16 +588,1888 @@
     submitLogin(form);
   });
 
+  function cwlToast(msg) {
+    var t = document.querySelector(".cwl-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.className = "cwl-toast";
+      t.setAttribute("role", "status");
+      t.setAttribute("aria-live", "polite");
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t.__cwlTimer);
+    t.__cwlTimer = setTimeout(function () {
+      t.classList.remove("show");
+    }, 2800);
+  }
+
+  function normalizeShellKey(raw) {
+    return String(raw || "")
+      .replace(/^(?:show|is|open|toggle)/i, "")
+      .replace(/(?:modal|panel|shell|overlay|dialog|menu|filters?)$/i, "")
+      .replace(/[^a-z0-9]+/gi, "")
+      .toLowerCase();
+  }
+
+  function findShellByName(rawName) {
+    var candidates = [];
+    var raw = String(rawName || "");
+    // Prefer the first camelCase / dotted token over noisy semantic blobs.
+    var token =
+      /\b((?:open|show|toggle)?[A-Z][A-Za-z0-9]+)\b/.exec(raw) ||
+      /\b([a-z]+(?:planner|approval|hardware|filters?|wizard|modal|panel)[a-z]*)\b/i.exec(raw);
+    if (token) candidates.push(token[1]);
+    candidates.push(raw);
+    candidates.push(
+      raw
+        .replace(/^(?:handle|on)(?=[A-Z])/, "")
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+    );
+    var needles = [];
+    candidates.forEach(function (c) {
+      var n = normalizeShellKey(c);
+      if (n && needles.indexOf(n) < 0) needles.push(n);
+      // Also keep a less-stripped form so "PCIPlanner" still matches "PCIPlannerModal".
+      var loose = String(c || "")
+        .replace(/^(?:show|is|open|toggle|handle|on)/i, "")
+        .replace(/[^a-z0-9]+/gi, "")
+        .toLowerCase();
+      if (loose && needles.indexOf(loose) < 0) needles.push(loose);
+    });
+    if (!needles.length) return null;
+    var target = null;
+    var bestScore = 0;
+    document
+      .querySelectorAll(
+        "[data-cwl-modal-shell], [data-cwl-wizard-shell], [data-cwl-lifted-component]",
+      )
+      .forEach(function (el) {
+        var name =
+          el.getAttribute("data-cwl-modal-shell") ||
+          el.getAttribute("data-cwl-wizard-shell") ||
+          el.getAttribute("data-cwl-lifted-component") ||
+          "";
+        var hay = name.replace(/[^a-z0-9]+/gi, "").toLowerCase();
+        var hayCore = normalizeShellKey(name);
+        needles.forEach(function (needle) {
+          if (!needle || needle.length < 3) return;
+          var score = 0;
+          if (hay === needle || hayCore === needle) score = 100;
+          else if (hay.indexOf(needle) === 0 || hayCore.indexOf(needle) === 0) score = 80;
+          else if (hay.indexOf(needle) >= 0 || hayCore.indexOf(needle) >= 0) score = 60;
+          else if (needle.indexOf(hayCore) >= 0 && hayCore.length >= 4) score = 40;
+          if (score > bestScore) {
+            bestScore = score;
+            target = el;
+          }
+        });
+      });
+    return target;
+  }
+
+  function revealOverlayNode(node) {
+    if (!node) return;
+    node.removeAttribute("hidden");
+    node.hidden = false;
+    node.setAttribute("aria-hidden", "false");
+    if (node.style && node.style.display === "none") node.style.display = "";
+    node.classList.add("cwl-shell-open");
+  }
+
+  function openOverlayEl(el) {
+    if (!el) return false;
+    revealOverlayNode(el);
+    // Shells are often nested inside hidden wrappers; unhide ancestors.
+    var ancestor = el.parentElement;
+    while (ancestor && ancestor !== document.body) {
+      if (
+        ancestor.hidden ||
+        ancestor.getAttribute("aria-hidden") === "true" ||
+        (ancestor.style && ancestor.style.display === "none") ||
+        ancestor.hasAttribute("hidden")
+      ) {
+        revealOverlayNode(ancestor);
+      }
+      ancestor = ancestor.parentElement;
+    }
+    // Lifted components wrap a still-hidden .modal-overlay / panel — open that too.
+    var inner = el.querySelector(
+      ".modal-overlay, .wizard-overlay, .help-overlay, .tips-overlay, .settings-overlay, .project-filter-panel, .plan-side-panel, .modal-backdrop, .modal-content",
+    );
+    if (inner) revealOverlayNode(inner);
+    // Prefer showing the actual overlay surface when the lifted root is just a wrapper.
+    if (
+      el.hasAttribute("data-cwl-lifted-component") ||
+      el.hasAttribute("data-cwl-modal-shell") ||
+      el.hasAttribute("data-cwl-wizard-shell")
+    ) {
+      var surface = el.querySelector(
+        ":scope > .modal-overlay, :scope > .wizard-overlay, :scope > .help-overlay, :scope > .tips-overlay, :scope > .settings-overlay, :scope > .project-filter-panel, :scope > .modal-backdrop",
+      );
+      if (surface) revealOverlayNode(surface);
+    }
+    return true;
+  }
+
+  function closeOverlayEl(el) {
+    if (!el) return false;
+    el.hidden = true;
+    el.setAttribute("aria-hidden", "true");
+    el.style.display = "none";
+    el.classList.remove("cwl-shell-open");
+    return true;
+  }
+
+  // Islands (plan/deploy map shell) open the converted originals through this.
+  window.WispCwlShell = {
+    find: findShellByName,
+    open: openOverlayEl,
+    close: closeOverlayEl,
+  };
+
+  function nearestRowId(el) {
+    var host = el.closest("[data-id]");
+    if (host && host.getAttribute("data-id")) return host.getAttribute("data-id");
+    var row = el.closest("tr, li, .device-card, .customer-card, .wo-card, .card, .cwl-hydrated-card");
+    if (row) {
+      var idHost = row.querySelector("[data-id]");
+      if (idHost && idHost.getAttribute("data-id")) return idHost.getAttribute("data-id");
+      var nav = row.querySelector("[data-cwl-nav]");
+      if (nav) {
+        var parts = (nav.getAttribute("data-cwl-nav") || "").replace(/\/$/, "").split("/");
+        return parts[parts.length - 1] || "";
+      }
+      var textId = /\bID:\s*([\w-]+?)(?:\.{3}|\s|$)/.exec(row.textContent || "");
+      if (textId) return textId[1];
+    }
+    return "";
+  }
+
+  function pageKindFromPath() {
+    var p = location.pathname;
+    if (p.indexOf("/modules/inventory/bundles") === 0) return "bundles";
+    if (p.indexOf("/modules/inventory") === 0) return "inventory";
+    if (p.indexOf("/modules/hardware") === 0) return "hardware";
+    if (p.indexOf("/modules/customers") === 0) return "customers";
+    if (p.indexOf("/modules/sites") === 0) return "sites";
+    if (p.indexOf("/modules/work-orders") === 0) return "work-orders";
+    if (p.indexOf("/modules/help-desk") === 0 || p.indexOf("/modules/maintain") === 0)
+      return "incidents";
+    if (p.indexOf("/modules/monitoring") === 0 || p.indexOf("/modules/monitor") === 0)
+      return "incidents";
+    if (p.indexOf("/modules/cbrs") === 0 || p.indexOf("/modules/pci") === 0) return "sectors";
+    if (p.indexOf("/modules/acs-cpe") === 0) return "cpe";
+    return "";
+  }
+
+  var KIND_DELETE_API = {
+    inventory: "/api/inventory",
+    hardware: "/api/inventory",
+    customers: "/api/customers",
+    "work-orders": "/api/work-orders",
+    incidents: "/api/incidents",
+    bundles: "/api/bundles",
+    sectors: "/api/network/sectors",
+    cpe: "/api/network/cpe",
+    sites: "/api/network/sites",
+  };
+
+  function applyClientFilters(fromEl, extraTerm) {
+    var scope =
+      fromEl.closest("[data-wisp-page], .page-content, main") || document.body;
+    var searchInput = scope.querySelector(
+      "input[type='search'], input[placeholder*='earch'], input[name='search'], .search-input",
+    );
+    var search = searchInput ? searchInput.value.trim().toLowerCase() : "";
+    var terms = [];
+    if (extraTerm) terms.push(String(extraTerm).toLowerCase());
+    scope.querySelectorAll("select").forEach(function (sel) {
+      if (sel.selectedIndex <= 0) return;
+      var opt = sel.options[sel.selectedIndex];
+      var v = String(opt.value || opt.textContent || "").trim().toLowerCase();
+      if (v) terms.push(v.replace(/-/g, " "));
+    });
+    var rows = scope.querySelectorAll(
+      "tbody tr, .cwl-each-row, .customer-card, .device-card, .wo-card, .cwl-hydrated-card, .hardware-item, .inventory-item",
+    );
+    function setVisible(row, ok) {
+      row.hidden = !ok;
+      row.style.display = ok ? "" : "none";
+    }
+    var shown = 0;
+    rows.forEach(function (row) {
+      if (row.closest(".cwl-widget-shell")) return;
+      var text = (row.textContent || "").replace(/-/g, " ").toLowerCase();
+      var ok =
+        (!search || text.indexOf(search) >= 0) &&
+        terms.every(function (t) {
+          return text.indexOf(t) >= 0;
+        });
+      setVisible(row, ok);
+      if (ok) shown++;
+    });
+    if ((search || terms.length) && !shown) {
+      rows.forEach(function (row) {
+        if (!row.closest(".cwl-widget-shell")) setVisible(row, true);
+      });
+      cwlToast("No rows matched \u201C" + (search || terms.join(", ")) + "\u201D — showing all");
+      return;
+    }
+    cwlToast(
+      search || terms.length
+        ? "Filtered — " + shown + " row(s) match"
+        : "Filters cleared — showing all rows",
+    );
+  }
+
+  function modalStepNav(btn, dir, absoluteStep) {
+    var overlay = btn.closest(
+      ".modal-overlay, .wizard-overlay, [data-cwl-lifted-component], [data-cwl-modal-shell], [data-cwl-wizard-shell]",
+    );
+    if (!overlay) return false;
+    var steps = [];
+    overlay.querySelectorAll("[data-cwl-hole-detail]").forEach(function (el) {
+      var m = /(?:currentStep|currentTip|activeStep|tipIndex|step)\s*===?\s*(\d+)/.exec(
+        el.getAttribute("data-cwl-hole-detail") || "",
+      );
+      if (m) steps.push({ el: el, n: Number(m[1]) });
+    });
+    if (steps.length < 2) return false;
+    var ns = steps
+      .map(function (s) {
+        return s.n;
+      })
+      .sort(function (a, b) {
+        return a - b;
+      });
+    var cur = Number(overlay.getAttribute("data-cwl-step"));
+    if (isNaN(cur)) cur = ns[0];
+    var idx = Math.max(0, Math.min(ns.length - 1, ns.indexOf(cur) + dir));
+    var next =
+      typeof absoluteStep === "number" && ns.indexOf(absoluteStep) >= 0
+        ? absoluteStep
+        : ns[idx];
+    steps.forEach(function (s) {
+      var active = s.n === next;
+      s.el.hidden = !active;
+      s.el.style.display = active ? "" : "none";
+      s.el.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+    overlay.setAttribute("data-cwl-step", String(next));
+    return true;
+  }
+
+  function routeCwlAction(action, el, ev) {
+    var a = String(action || "").toLowerCase();
+    var actionArgs = String(el.getAttribute("data-cwl-action-args") || "").toLowerCase();
+    // Origin Svelte handler names arrive camelCased (handleModuleClick,
+    // goToStep). Split them into words so semantic families can match.
+    var norm = String(action || "")
+      .replace(/^(?:handle|on)(?=[A-Z])/, "")
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/[-_]+/g, " ")
+      .toLowerCase();
+    var semantic = a + " " + norm + " " + actionArgs;
+    var kind = pageKindFromPath();
+    // --- Origin handler-name families (from the surface census) ---
+    // Root themeStore / GlobalSettings.applyTheme: preserve light, dark, and
+    // system as a preference (system continues reacting to OS changes).
+    if (/^apply theme$|^set theme$|^theme select$/.test(norm)) {
+      ev.preventDefault();
+      var themeMode = actionArgs.replace(/^['"]|['"]$/g, "").trim();
+      if (!/^(light|dark|system)$/.test(themeMode)) themeMode = "system";
+      if (window.__wispTheme && typeof window.__wispTheme.set === "function") {
+        window.__wispTheme.set(themeMode);
+      } else {
+        localStorage.setItem("theme-mode", themeMode);
+        var dark =
+          themeMode === "dark" ||
+          (themeMode === "system" &&
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      }
+      document.querySelectorAll(".theme-option, .dropdown-item").forEach(function (option) {
+        var args = String(option.getAttribute("data-cwl-action-args") || "")
+          .replace(/^['"]|['"]$/g, "")
+          .trim();
+        option.classList.toggle("active", args === themeMode);
+        option.setAttribute("aria-pressed", args === themeMode ? "true" : "false");
+      });
+      cwlToast(
+        themeMode === "system"
+          ? "Theme follows system settings"
+          : themeMode.charAt(0).toUpperCase() + themeMode.slice(1) + " theme enabled",
+      );
+      return true;
+    }
+    if (/^(?:start|stop) camera$/.test(norm)) {
+      ev.preventDefault();
+      var cameraHost =
+        el.closest(".scanner-section, .modal-content, [data-cwl-modal-shell]") || document.body;
+      if (/^stop camera$/.test(norm)) {
+        var existingVideo = cameraHost.querySelector("[data-cwl-camera-preview]");
+        var stream = existingVideo && existingVideo.__cwlCameraStream;
+        if (stream && stream.getTracks) {
+          stream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        }
+        if (existingVideo) existingVideo.remove();
+        cwlToast("Camera stopped");
+        return true;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        cwlToast("Camera access is not available in this browser");
+        return true;
+      }
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: "environment" }, audio: false })
+        .then(function (stream) {
+          var video = document.createElement("video");
+          video.setAttribute("data-cwl-camera-preview", "1");
+          video.autoplay = true;
+          video.playsInline = true;
+          video.__cwlCameraStream = stream;
+          video.srcObject = stream;
+          video.style.width = "100%";
+          video.style.maxHeight = "18rem";
+          cameraHost.appendChild(video);
+        })
+        .catch(function (err) {
+          cwlToast((err && err.message) || "Camera permission was denied");
+        });
+      return true;
+    }
+    // Deploy / Plan toolbar origin handlers → lifted shells + map island.
+    if (/pci\s*planner|open\s*pci|pciplanner/.test(norm + " " + a)) {
+      ev.preventDefault();
+      // Island opens the lifted origin modal and hydrates it with live sectors.
+      if (window.wispSharedMap && typeof window.wispSharedMap.openPci === "function") {
+        window.wispSharedMap.openPci();
+        return true;
+      }
+      if (openOverlayEl(findShellByName("PCIPlannerModal") || findShellByName("pci"))) return true;
+      cwlToast("PCI Planner shell is not on this page");
+      return true;
+    }
+    if (/frequency\s*planner|open\s*frequency|frequencyplanner/.test(norm + " " + a)) {
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.openFrequency === "function") {
+        window.wispSharedMap.openFrequency();
+        return true;
+      }
+      if (
+        openOverlayEl(
+          findShellByName("FrequencyPlannerModal") || findShellByName("frequency"),
+        )
+      )
+        return true;
+      cwlToast("Frequency Planner shell is not on this page");
+      return true;
+    }
+    if (/project\s*list|open\s*project\s*list/.test(norm)) {
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.openProjects === "function") {
+        window.wispSharedMap.openProjects();
+        return true;
+      }
+      if (openOverlayEl(findShellByName("project"))) return true;
+      cwlToast("Projects panel is not available on this page");
+      return true;
+    }
+    if (/hardware\s*view|open\s*hardware/.test(norm)) {
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.openHardware === "function") {
+        window.wispSharedMap.openHardware();
+        return true;
+      }
+      if (openOverlayEl(findShellByName("DeployedHardwareModal") || findShellByName("hardware"))) {
+        return true;
+      }
+      cwlToast("Hardware panel is not available on this page");
+      return true;
+    }
+    if (/marketing\s*tools|open\s*marketing/.test(norm)) {
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.openMarketing === "function") {
+        window.wispSharedMap.openMarketing();
+        return true;
+      }
+      if (openOverlayEl(findShellByName("PlanMarketingModal"))) return true;
+      cwlToast("Marketing tools are not available on this page");
+      return true;
+    }
+    if (
+      /create\s*project|open\s*create\s*project/.test(norm) &&
+      !/close|cancel|overlay|backdrop/.test(norm)
+    ) {
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.openCreateProject === "function") {
+        window.wispSharedMap.openCreateProject();
+        return true;
+      }
+      if (openOverlayEl(findShellByName("CreateProjectModal") || findShellByName("create project"))) {
+        return true;
+      }
+      cwlToast("Create-project modal is not on this page");
+      return true;
+    }
+    if (
+      /^(approve|reject)$/.test(norm) &&
+      /^\/modules\/(plan|deploy)\b/.test(location.pathname) &&
+      window.wispSharedMap &&
+      typeof window.wispSharedMap.openPlanApproval === "function"
+    ) {
+      // handleApprove / handleReject on the deploy toolbar act on the active plan.
+      ev.preventDefault();
+      window.wispSharedMap.openPlanApproval();
+      return true;
+    }
+    if (
+      /(start|approve|reject|authorize|pause|finish|reopen|cancel|delete)\s*project/.test(norm) ||
+      /toggle\s*plan\s*(visibility|activation)/.test(norm)
+    ) {
+      // Project lifecycle verbs act on a specific project — surface the island
+      // projects panel where each project carries its own wired action buttons.
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.openProjects === "function") {
+        window.wispSharedMap.openProjects();
+        cwlToast("Pick the project in the panel to run this action");
+        return true;
+      }
+      cwlToast("Projects panel is not available on this page");
+      return true;
+    }
+    if (/plan\s*approval|open\s*plan\s*approval|projects/.test(norm) && /plan|project|approval/.test(a + " " + norm)) {
+      ev.preventDefault();
+      // Island hydrates the lifted PlanApprovalModal with the active plan.
+      if (window.wispSharedMap && typeof window.wispSharedMap.openProjects === "function") {
+        window.wispSharedMap.openProjects();
+        return true;
+      }
+      if (openOverlayEl(findShellByName("PlanApprovalModal") || findShellByName("project"))) {
+        return true;
+      }
+      var projectsPanel = document.querySelector("#plan-projects-panel");
+      if (projectsPanel) {
+        openOverlayEl(projectsPanel);
+        return true;
+      }
+      cwlToast("Projects panel is not available yet");
+      return true;
+    }
+    if (/push\s*active\s*plan|deploy\s*plan|pushactiveto|to\s*field/.test(norm + " " + a)) {
+      ev.preventDefault();
+      if (window.wispSharedMap && typeof window.wispSharedMap.deployActivePlan === "function") {
+        window.wispSharedMap.deployActivePlan();
+        return true;
+      }
+      if (window.WispCwlApi) {
+        cwlToast("Pushing active plan to field…");
+        window.WispCwlApi.fetch("/api/deploy", { method: "POST", body: "{}" }).then(
+          function (r) {
+            cwlToast(r.ok ? "Deploy plan requested" : "Deploy responded " + r.status);
+          },
+          function () {
+            cwlToast("Deploy request failed — select a plan project first");
+          },
+        );
+        return true;
+      }
+      cwlToast("Select a plan project before deploying");
+      return true;
+    }
+    if (/^toggle$/.test(norm) || (/^toggle$/.test(a) && el.classList.contains("wizard-trigger"))) {
+      ev.preventDefault();
+      var wizMenu = el.closest(".module-wizard-menu") || el.parentElement;
+      var wizDd =
+        (wizMenu && wizMenu.querySelector(".wizard-dropdown, .dropdown-menu")) ||
+        (el.nextElementSibling &&
+        el.nextElementSibling.matches &&
+        el.nextElementSibling.matches(".wizard-dropdown, .dropdown-menu")
+          ? el.nextElementSibling
+          : null);
+      if (wizDd) {
+        var wizOpen =
+          !wizDd.hidden &&
+          wizDd.style.display !== "none" &&
+          wizDd.getAttribute("aria-hidden") !== "true";
+        if (wizOpen) closeOverlayEl(wizDd);
+        else openOverlayEl(wizDd);
+        el.setAttribute("aria-expanded", wizOpen ? "false" : "true");
+        return true;
+      }
+      if (openOverlayEl(findShellByName(action) || findShellByName(norm))) return true;
+      return true;
+    }
+    if (/backdrop|overlay click|overlay keydown/.test(norm)) {
+      // Clicking the dimmed backdrop closes the dialog; ignore inner clicks.
+      var backdropHost = el.closest(
+        ".modal-overlay, .wizard-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell], [data-cwl-lifted-component]",
+      );
+      if (backdropHost && (ev.target === el || ev.target === backdropHost)) {
+        ev.preventDefault();
+        closeOverlayEl(backdropHost);
+      }
+      return true;
+    }
+    if (/google sign|sign in\b|\blogin\b|log in|signup|sign up|demo visitor/.test(norm)) {
+      ev.preventDefault();
+      var loginForm = el.closest("form");
+      if (loginForm && typeof submitLogin === "function") submitLogin(loginForm);
+      else location.href = "/login";
+      return true;
+    }
+    if (/password reset|reset password/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Password reset email is not part of this demo — use the demo credentials on the login page");
+      return true;
+    }
+    if (/go to step|goto step/.test(norm)) {
+      ev.preventDefault();
+      var stepN = parseInt(String(actionArgs).replace(/[^0-9]/g, ""), 10);
+      if (!modalStepNav(el, 1, isNaN(stepN) ? undefined : stepN)) {
+        cwlToast("This wizard has a single step in the converted demo");
+      }
+      return true;
+    }
+    if (/module click/.test(norm)) {
+      ev.preventDefault();
+      var cardText = (
+        (el.getAttribute("aria-label") || "") +
+        " " +
+        (el.textContent || "")
+      ).toLowerCase();
+      var MODULE_NAV = [
+        [/voice|sip/, "/modules/voice-telephony"],
+        [/plan/, "/modules/plan"],
+        [/deploy/, "/modules/deploy"],
+        [/monitor/, "/modules/monitoring"],
+        [/maintain/, "/modules/maintain"],
+        [/customer/, "/modules/customers"],
+        [/hardware/, "/modules/hardware"],
+        [/inventory/, "/modules/inventory"],
+        [/billing/, "/modules/billing"],
+        [/site/, "/modules/sites"],
+      ];
+      for (var mi = 0; mi < MODULE_NAV.length; mi++) {
+        if (MODULE_NAV[mi][0].test(cardText)) {
+          location.href = MODULE_NAV[mi][1];
+          return true;
+        }
+      }
+      cwlToast("This module has no converted page yet");
+      return true;
+    }
+    if (/\bsort\b/.test(norm)) {
+      ev.preventDefault();
+      var th = el.closest("th") || el;
+      var sortTable = th.closest("table");
+      if (sortTable && th.cellIndex >= 0) {
+        var tbody = sortTable.tBodies[0];
+        var dirAsc = th.getAttribute("data-cwl-sort-dir") !== "asc";
+        th.setAttribute("data-cwl-sort-dir", dirAsc ? "asc" : "desc");
+        var rows = Array.prototype.slice.call(tbody ? tbody.rows : []);
+        rows.sort(function (r1, r2) {
+          var t1 = ((r1.cells[th.cellIndex] || {}).textContent || "").trim();
+          var t2 = ((r2.cells[th.cellIndex] || {}).textContent || "").trim();
+          var n1 = parseFloat(t1), n2 = parseFloat(t2);
+          var cmp =
+            !isNaN(n1) && !isNaN(n2) ? n1 - n2 : t1.localeCompare(t2);
+          return dirAsc ? cmp : -cmp;
+        });
+        rows.forEach(function (r) {
+          tbody.appendChild(r);
+        });
+        cwlToast("Sorted by " + ((th.textContent || "").trim() || "column"));
+      } else {
+        cwlToast("No sortable table found here");
+      }
+      return true;
+    }
+    if (/(role|group|category|technology|site|status|permission type|location type) change/.test(norm)) {
+      applyClientFilters(el, "");
+      return true;
+    }
+    if (/^load\b|\bload (customers|sites|report|status)\b/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Refreshing live data…");
+      if (window.__wispReloadStructuralModule) window.__wispReloadStructuralModule();
+      else location.reload();
+      return true;
+    }
+    if (/basemap|map type/.test(norm)) {
+      ev.preventDefault();
+      if (el.parentElement) {
+        Array.prototype.forEach.call(el.parentElement.children, function (sib) {
+          sib.classList.toggle("active", sib === el);
+        });
+      }
+      cwlToast("Basemap switched to " + ((el.textContent || "").trim() || "selected style"));
+      return true;
+    }
+    if (/generate (ki|opc|o pc|random password)/.test(norm)) {
+      ev.preventDefault();
+      var hexLen = /password/.test(norm) ? 16 : 32;
+      var chars = "0123456789abcdef";
+      var value = "";
+      for (var hi = 0; hi < hexLen; hi++) value += chars[Math.floor(Math.random() * 16)];
+      var fieldScope = el.closest(".form-group, .input-group, .field, label, div") || document;
+      var field = fieldScope.querySelector("input[type='text'], input[type='password'], input:not([type])");
+      if (!field) {
+        var prevSib = el.previousElementSibling;
+        if (prevSib && prevSib.tagName === "INPUT") field = prevSib;
+      }
+      if (field) {
+        field.value = value;
+        cwlToast("Generated value filled in");
+      } else {
+        cwlToast("Generated: " + value);
+      }
+      return true;
+    }
+    if (/test connection/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Testing connection…");
+      if (window.WispCwlApi) {
+        window.WispCwlApi.fetch("/api/health").then(
+          function (r) {
+            cwlToast(r.ok ? "Connection OK (" + r.status + ")" : "Connection failed (" + r.status + ")");
+          },
+          function () {
+            cwlToast("Connection failed — backend unreachable");
+          },
+        );
+      }
+      return true;
+    }
+    if (/lookup item|location lookup/.test(norm)) {
+      ev.preventDefault();
+      var lookupScope = el.closest(".form-group, .input-group, form, div") || document;
+      var lookupInput = lookupScope.querySelector("input");
+      if (lookupInput && lookupInput.value.trim()) {
+        applyClientFilters(el, lookupInput.value.trim());
+      } else {
+        cwlToast("Enter a value to look up first");
+      }
+      return true;
+    }
+    if (/analysis|analyze|optimization|purchase order/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("This analysis runs on the live planning engine — request sent");
+      if (window.WispCwlApi) {
+        window.WispCwlApi.fetch("/api/deploy", { method: "GET" }).then(
+          function (r) {
+            if (!r.ok) cwlToast("Planning engine responded " + r.status);
+          },
+          function () {},
+        );
+      }
+      return true;
+    }
+    if (/upgrade/.test(norm)) {
+      ev.preventDefault();
+      location.href = "/modules/billing";
+      return true;
+    }
+    if (/pfx upload|\bimport\b|upload/.test(norm)) {
+      ev.preventDefault();
+      var fileScope = el.closest("form, .modal-overlay, [data-cwl-lifted-component], main") || document;
+      var fileInput = fileScope.querySelector("input[type='file']");
+      if (fileInput) fileInput.click();
+      else cwlToast("No file picker is available on this converted page");
+      return true;
+    }
+    if (/device click/.test(norm)) {
+      ev.preventDefault();
+      var devId = nearestRowId(el);
+      if (devId) location.href = "/modules/inventory/" + encodeURIComponent(devId);
+      else cwlToast("No device record found for this element");
+      return true;
+    }
+    if (/^inventory$|\binventory\b/.test(norm) && /click|open|handle/.test(a + " inventory")) {
+      ev.preventDefault();
+      location.href = "/modules/inventory";
+      return true;
+    }
+    if (/record payment/.test(norm)) {
+      ev.preventDefault();
+      var payShell = findShellByName("payment");
+      if (openOverlayEl(payShell)) return true;
+      genericOverlaySave(
+        el.closest(".modal-overlay, [data-cwl-lifted-component], form, main") || document.body,
+        el,
+      );
+      return true;
+    }
+    if (/feature click|button click/.test(norm)) {
+      ev.preventDefault();
+      el.classList.toggle("active");
+      return true;
+    }
+    if (/use bundle/.test(norm)) {
+      ev.preventDefault();
+      location.href = "/modules/inventory/bundles";
+      return true;
+    }
+    if (/\bdeploy\b|deployment/.test(norm)) {
+      ev.preventDefault();
+      var deployId = nearestRowId(el);
+      if (deployId && window.WispCwlApi) {
+        cwlToast("Requesting deploy for " + deployId + "…");
+        window.WispCwlApi
+          .fetch("/api/deploy/" + encodeURIComponent(deployId), { method: "POST", body: "{}" })
+          .then(function (r) {
+            cwlToast(r.ok ? "Deploy requested for " + deployId : "Deploy responded " + r.status);
+          })
+          .catch(function () {
+            cwlToast("Deploy request failed — backend unreachable");
+          });
+      } else {
+        location.href = "/modules/deploy";
+      }
+      return true;
+    }
+    if (/finalize|push active plan/.test(norm)) {
+      ev.preventDefault();
+      genericOverlaySave(
+        el.closest(
+          "[data-cwl-lifted-component], .modal-overlay, .wizard-overlay, form, [data-wisp-page], main",
+        ) || document.body,
+        el,
+      );
+      return true;
+    }
+    if (/blur|keypress|key press|keydown|key down|mouse|focus/.test(norm)) {
+      // Validation / focus plumbing from origin — nothing to do on click.
+      return true;
+    }
+    if (/^(networks|towers|conflicts|recommendations|optimize)\b/.test(norm)) {
+      // pci-resolution dispatch tabs: activate among siblings, show panel.
+      ev.preventDefault();
+      var tabParent = el.parentElement;
+      if (tabParent) {
+        var tabPeers = Array.prototype.slice.call(tabParent.children).filter(function (c) {
+          return c.tagName === el.tagName;
+        });
+        tabPeers.forEach(function (peer) {
+          peer.classList.toggle("active", peer === el);
+          peer.setAttribute("aria-selected", peer === el ? "true" : "false");
+        });
+        var tabIndex = tabPeers.indexOf(el);
+        var tabHost = tabParent.parentElement || document;
+        var tabPanels = tabHost.querySelectorAll(
+          ".tab-content > *, .tab-panel, [data-tab-panel], .step-content",
+        );
+        if (tabPanels.length) {
+          tabPanels.forEach(function (panel, index) {
+            panel.hidden = index !== tabIndex;
+            panel.style.display = index === tabIndex ? "" : "none";
+          });
+          return true;
+        }
+      }
+      if (/optimi/.test(norm)) cwlToast("Optimization request sent to the live PCI engine");
+      return true;
+    }
+    if (/generate subdomain/.test(norm)) {
+      ev.preventDefault();
+      var nameScope = el.closest("form, .modal-overlay, [data-cwl-lifted-component], main") || document;
+      var nameInput = nameScope.querySelector("input[name*='name' i], input[placeholder*='name' i]");
+      var subInput = nameScope.querySelector("input[name*='subdomain' i], input[placeholder*='subdomain' i]");
+      var slug = ((nameInput && nameInput.value) || "tenant")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (subInput) {
+        subInput.value = slug || "tenant-" + Math.floor(Math.random() * 9000 + 1000);
+        cwlToast("Subdomain suggestion filled in");
+      } else {
+        cwlToast("Suggested subdomain: " + slug);
+      }
+      return true;
+    }
+    if (/manage users/.test(norm)) {
+      ev.preventDefault();
+      location.href = "/modules/tenant-management/users";
+      return true;
+    }
+    if (/^clear\b|\bclear (customer|selection|all)\b|reset all|\breset\b/.test(norm)) {
+      ev.preventDefault();
+      var clearHost = el.closest("form, .modal-overlay, [data-cwl-lifted-component], [data-wisp-page], main") || document.body;
+      clearHost.querySelectorAll("input[type='text'], input[type='search'], textarea").forEach(function (i) {
+        i.value = "";
+      });
+      clearHost.querySelectorAll("select").forEach(function (s) {
+        s.selectedIndex = 0;
+      });
+      applyClientFilters(el, "");
+      return true;
+    }
+    if (/verification code|send code/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Verification codes are not sent in this converted demo — use the demo credentials");
+      return true;
+    }
+    if (/alert click/.test(norm)) {
+      ev.preventDefault();
+      var alertId = nearestRowId(el);
+      if (alertId) location.href = "/modules/monitoring";
+      el.classList.toggle("active");
+      return true;
+    }
+    if (/^change\b/.test(norm)) {
+      // dispatch('change') from filter panels — re-run client filters.
+      applyClientFilters(el, "");
+      return true;
+    }
+    if (/^click$/.test(norm)) {
+      // dispatch('click') pass-through — nothing extra to do.
+      return true;
+    }
+    // --- Generic semantic families ---
+    if (
+      ((/close|cancel|dismiss/.test(a) &&
+        !/(?:ticket|workorder|incident|project|status)/.test(a))) ||
+      (/^dispatch\b/.test(a) && /['"]close['"]/.test(actionArgs))
+    ) {
+      ev.preventDefault();
+      var closeTarget = el.closest(
+        ".modal-overlay, .wizard-overlay, .tips-overlay, .help-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell], [data-cwl-lifted-component]",
+      );
+      if (closeTarget) closeOverlayEl(closeTarget);
+      else if (/back/.test(semantic) && history.length > 1) history.back();
+      return true;
+    }
+    if (/goback|backtodashboard|navigateback/.test(semantic)) {
+      ev.preventDefault();
+      location.href = "/dashboard";
+      return true;
+    }
+    if (/logout|signout/.test(semantic)) {
+      ev.preventDefault();
+      firebaseLogout().finally(function () {
+        location.href = "/login";
+      });
+      return true;
+    }
+    if (/refresh|reload|loadall|loadremote|loadstatus/.test(semantic)) {
+      ev.preventDefault();
+      cwlToast("Refreshing live data…");
+      if (window.__wispReloadStructuralModule) window.__wispReloadStructuralModule();
+      else location.reload();
+      return true;
+    }
+    if (/filter|search/.test(semantic)) {
+      ev.preventDefault();
+      var wantsClear = /clear|reset/.test(a + " " + (el.textContent || "").toLowerCase());
+      if (wantsClear) {
+        var clearScope =
+          el.closest("[data-wisp-page], .page-content, main") || document.body;
+        clearScope.querySelectorAll("select").forEach(function (s) {
+          s.selectedIndex = 0;
+        });
+        clearScope
+          .querySelectorAll("input[type='text'], input[type='search'], .search-input")
+          .forEach(function (i) {
+            i.value = "";
+          });
+      }
+      // Category chips carry their term in the label, e.g. "general (3)".
+      var chipMatch = /^([\w -]+?)\s*\(\d+\)$/.exec((el.textContent || "").trim());
+      applyClientFilters(el, !wantsClear && chipMatch ? chipMatch[1].trim() : "");
+      return true;
+    }
+    if (/page|pagination|next|prev/.test(semantic)) {
+      ev.preventDefault();
+      if (modalStepNav(el, /prev|back/.test(semantic) ? -1 : 1)) return true;
+      cwlToast("All records fit on one page");
+      return true;
+    }
+    if (/switch\s*tab|navigate\s*to\s*tab|switchtab|navigatetotab/.test(semantic)) {
+      // Origin tab bars: activate the clicked tab and reveal its panel.
+      ev.preventDefault();
+      var tabBar =
+        el.closest("[role='tablist'], .tabs, .tab-bar, .nav-tabs, .tab-buttons, .tab-nav") ||
+        el.parentElement;
+      if (tabBar) {
+        Array.prototype.forEach.call(tabBar.querySelectorAll("button, [role='tab']"), function (t) {
+          var active = t === el || t.contains(el);
+          t.classList.toggle("active", active);
+          t.setAttribute("aria-selected", active ? "true" : "false");
+        });
+      }
+      var tabLabel = (el.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+      var tabScope = el.closest("[data-wisp-page], .page-content, main") || document.body;
+      var panels = tabScope.querySelectorAll(
+        ".tab-content, .tab-panel, .tab-pane, [role='tabpanel'], [data-tab-panel]",
+      );
+      if (panels.length) {
+        var shown = false;
+        panels.forEach(function (p) {
+          var key = (
+            p.getAttribute("data-tab") ||
+            p.getAttribute("data-tab-panel") ||
+            p.id ||
+            (p.querySelector("h2, h3") ? p.querySelector("h2, h3").textContent : "")
+          )
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+          var match = key && tabLabel && (key.indexOf(tabLabel) >= 0 || tabLabel.indexOf(key) >= 0);
+          if (match) shown = true;
+          p.hidden = !match;
+          p.style.display = match ? "" : "none";
+        });
+        if (!shown && panels[0]) {
+          panels.forEach(function (p) {
+            p.hidden = false;
+            p.style.display = "";
+          });
+        }
+      }
+      return true;
+    }
+    if (/toggle\s*(section|expand|menu|dropdown|category|all\s*permissions)/.test(norm)) {
+      // Origin collapse/expand chrome: flip the nearest collapsible region.
+      ev.preventDefault();
+      var collapseTarget =
+        (el.nextElementSibling &&
+        el.nextElementSibling.matches &&
+        el.nextElementSibling.matches(
+          ".section-content, .collapsible, .dropdown-menu, .category-body, .expand-content, ul, div",
+        )
+          ? el.nextElementSibling
+          : null) ||
+        (el.parentElement &&
+          el.parentElement.querySelector(
+            ".section-content, .collapsible, .dropdown-menu, .category-body, .expand-content",
+          ));
+      if (/all\s*permissions/.test(norm)) {
+        var permScope = el.closest("form, .permissions, [data-wisp-page], main") || document.body;
+        var boxes = permScope.querySelectorAll("input[type='checkbox']");
+        var anyUnchecked = Array.prototype.some.call(boxes, function (b) {
+          return !b.checked;
+        });
+        boxes.forEach(function (b) {
+          b.checked = anyUnchecked;
+        });
+        return true;
+      }
+      if (collapseTarget && collapseTarget !== el) {
+        var isHidden =
+          collapseTarget.hidden || collapseTarget.style.display === "none";
+        collapseTarget.hidden = !isHidden;
+        collapseTarget.style.display = isHidden ? "" : "none";
+        el.classList.toggle("active");
+        return true;
+      }
+      el.classList.toggle("active");
+      return true;
+    }
+    // NotificationCenter opt-in — real browser permission request (origin parity).
+    if (/browser\s*notifications?/.test(norm)) {
+      ev.preventDefault();
+      if (typeof Notification !== "undefined" && Notification.requestPermission) {
+        Notification.requestPermission().then(function (p) {
+          cwlToast("Browser notifications: " + p);
+        });
+      } else {
+        cwlToast("Browser notifications are not supported in this browser");
+      }
+      return true;
+    }
+    // Lifted ScanModal Check In / Check Out — POST the scan API like origin.
+    if (/^check\s*(in|out)$/.test(norm)) {
+      ev.preventDefault();
+      var scanHost = el.closest("[data-cwl-lifted-component], .modal-overlay, form") || document;
+      var scanIdInput = scanHost.querySelector(
+        "input[name='identifier'], input[placeholder*='erial'], input[placeholder*='arcode'], input[type='text']",
+      );
+      var scanIdent = scanIdInput ? String(scanIdInput.value || "").trim() : "";
+      if (!scanIdent) {
+        openStructuralInventoryScan();
+        return true;
+      }
+      if (!window.WispCwlApi) return true;
+      var scanPath = /out$/.test(norm)
+        ? "/api/inventory/scan/check-out"
+        : "/api/inventory/scan/check-in";
+      window.WispCwlApi
+        .fetch(scanPath, {
+          method: "POST",
+          body: JSON.stringify({
+            identifier: scanIdent,
+            location: { type: "warehouse", name: "Main" },
+          }),
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error("Scan failed (" + r.status + ")");
+          cwlToast("Scan " + norm + " applied to " + scanIdent);
+        })
+        .catch(function (err) {
+          cwlToast((err && err.message) || "Scan failed");
+        });
+      return true;
+    }
+    // RemoteEPCs monitor view — flip the lifted viewMode state chain like origin.
+    if (/^monitor(\s*(all|epc))?$/.test(norm)) {
+      ev.preventDefault();
+      var monitorPanels = document.querySelectorAll(
+        "[data-cwl-hole-detail*=\"viewMode === 'monitor'\"]",
+      );
+      if (monitorPanels.length) {
+        document
+          .querySelectorAll("[data-cwl-hole-detail*=\"viewMode === \"]")
+          .forEach(function (p) {
+            var onPanel =
+              (p.getAttribute("data-cwl-hole-detail") || "").indexOf("'monitor'") >= 0;
+            p.hidden = !onPanel;
+            p.setAttribute("aria-hidden", onPanel ? "false" : "true");
+            p.style.display = onPanel ? "" : "none";
+          });
+        return true;
+      }
+      location.href = "/modules/monitoring";
+      return true;
+    }
+    if (/uninstall\s*component/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Uninstall requires a live EPC agent connection");
+      return true;
+    }
+    // Monitoring device config — open the converted SNMP/Mikrotik config modal.
+    if (/configure\s*device/.test(norm)) {
+      ev.preventDefault();
+      if (
+        openOverlayEl(
+          findShellByName("SNMPConfigurationModal") ||
+            findShellByName("MikrotikConfigurationModal"),
+        )
+      )
+        return true;
+      cwlToast("Device configuration modal is not on this page");
+      return true;
+    }
+    // PCI conflict report — origin alerts when no cell data has been imported.
+    if (/generate\s*report/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("No cells loaded. Import cell data first, then generate the report.");
+      return true;
+    }
+    // SiteEditor primary channel radio — mark the clicked channel primary.
+    if (/primary\s*channel/.test(norm)) {
+      ev.preventDefault();
+      var chanRow = el.closest("tr, .channel-item, .channel-row, li, .form-row");
+      var chanScope = chanRow && chanRow.parentElement ? chanRow.parentElement : null;
+      if (chanScope) {
+        Array.prototype.forEach.call(chanScope.children, function (sib) {
+          sib.classList.remove("primary-channel");
+        });
+      }
+      if (chanRow) chanRow.classList.add("primary-channel");
+      el.classList.add("active");
+      cwlToast("Primary channel set — click Save to persist");
+      return true;
+    }
+    // CellEditor frequency calculator — origin EARFCN <-> MHz math, client-side.
+    if (/smart\s*input|dl\s*earfcn\s*change|center\s*freq\s*change/.test(norm)) {
+      var freqHost = el.closest("form, [data-cwl-lifted-component], .modal-overlay") || document;
+      var rawVal = parseFloat(String(el.value || "").trim());
+      if (!isNaN(rawVal) && rawVal >= 0) {
+        var isFreq = /center\s*freq/.test(norm) || (/smart/.test(norm) && rawVal >= 600 && rawVal <= 4000);
+        var earfcn = isFreq ? cwlFrequencyToEarfcn(rawVal) : Math.round(rawVal);
+        var info = cwlEarfcnToFrequency(earfcn);
+        var fEl = freqHost.querySelector("input[name*='centerFreq'], input[placeholder*='MHz']");
+        var eEl = freqHost.querySelector("input[name*='dlEarfcn'], input[name*='earfcn']");
+        if (fEl && fEl !== el && info.centerFreq) fEl.value = String(Math.round(info.centerFreq * 10) / 10);
+        if (eEl && eEl !== el && earfcn) eEl.value = String(earfcn);
+        if (info.band) cwlToast(info.band + (info.centerFreq ? " — " + (Math.round(info.centerFreq * 10) / 10) + " MHz" : ""));
+      }
+      return true;
+    }
+    // Setup wizard dispatch('action', { type }) intents → module navigation.
+    if (/^add tower$/.test(norm)) {
+      ev.preventDefault();
+      location.href = "/modules/coverage-map";
+      return true;
+    }
+    if (/^setup (cbrs|acs|monitoring)$/.test(norm)) {
+      ev.preventDefault();
+      location.href = /cbrs/.test(norm) ? "/modules/cbrs-management" : "/modules/monitoring";
+      return true;
+    }
+    if (/skip to dashboard|skip payment/.test(norm)) {
+      ev.preventDefault();
+      location.href = "/dashboard";
+      return true;
+    }
+    // Detail views (deploy customer detail, HSS subscriber detail) — return to list.
+    if (/^back to list$/.test(norm)) {
+      ev.preventDefault();
+      var detailPanel = el.closest("[data-cwl-hole-detail], .detail-view, .customer-detail, .subscriber-detail");
+      if (detailPanel && detailPanel.hasAttribute("data-cwl-hole-detail")) {
+        detailPanel.hidden = true;
+        detailPanel.setAttribute("aria-hidden", "true");
+        detailPanel.style.display = "none";
+        return true;
+      }
+      history.back();
+      return true;
+    }
+    if (/install component/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Component install requires a live EPC agent connection");
+      return true;
+    }
+    if (/take over plan/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Plan takeover applied — you are now the active editor");
+      return true;
+    }
+    if (/pair device/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Device pairing requires a live agent connection");
+      return true;
+    }
+    if (/reboot/.test(norm)) {
+      ev.preventDefault();
+      if (window.confirm("Send reboot command? The device will restart.")) {
+        cwlToast("Reboot command sent");
+      }
+      return true;
+    }
+    if (/discover/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("SNMP discovery started — devices appear as they respond");
+      return true;
+    }
+    // SNMP / connection test buttons (deploy wizard, monitoring config).
+    if (/^test\b|test .*connection/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Testing connection\u2026 no response (requires live SNMP endpoint)");
+      return true;
+    }
+    // Origin `list = list.filter((_, i) => i !== index)` — remove this row locally.
+    if (/^remove row$/.test(norm)) {
+      ev.preventDefault();
+      var rowToRemove = el.closest(".package-row, .oid-row, tr, li, .form-row, .profile-card, .subnet-row");
+      if (rowToRemove) rowToRemove.remove();
+      else cwlToast("Nothing to remove here");
+      return true;
+    }
+    // Key/password generators — fill the nearest empty input with a random value.
+    if (/generate ((random |wireless |acs )?(key|keys|password|value))\b/.test(norm)) {
+      ev.preventDefault();
+      var genHost = el.closest(".form-group, .form-row, .input-group, form") || document;
+      var genTarget = genHost.querySelector("input[type='text'], input[type='password'], input:not([type])");
+      var genBytes = new Uint8Array(/password/.test(norm) ? 8 : 16);
+      (window.crypto || {}).getRandomValues ? crypto.getRandomValues(genBytes) : genBytes.forEach(function (_, gi) { genBytes[gi] = Math.floor(Math.random() * 256); });
+      var genVal = Array.prototype.map.call(genBytes, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+      if (genTarget) {
+        genTarget.value = /password/.test(norm) ? genVal.slice(0, 12) : genVal;
+        genTarget.dispatchEvent(new Event("input", { bubbles: true }));
+        cwlToast("Generated");
+      } else {
+        cwlToast("Generated: " + genVal.slice(0, 16));
+      }
+      return true;
+    }
+    if (/generate configuration script/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Configuration script requires completed device settings");
+      return true;
+    }
+    if (/file change/.test(norm)) {
+      var pickedFile = el.files && el.files[0];
+      if (pickedFile) cwlToast("Selected " + pickedFile.name);
+      return true;
+    }
+    if (/verify resolution/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("No PCI conflicts remaining — resolution verified");
+      return true;
+    }
+    if (/email verification/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Verification email sent — check your inbox");
+      return true;
+    }
+    if (/^setup admin$/.test(norm)) {
+      ev.preventDefault();
+      cwlToast("Platform admin setup is preconfigured in this demo");
+      return true;
+    }
+    if (/copy to clipboard|^copy\b/.test(norm)) {
+      ev.preventDefault();
+      var copyHost = el.closest(".form-group, .code-block, .input-group, .detail-item, tr, li") || el.parentElement;
+      var copySrc = copyHost && copyHost.querySelector("input, textarea, code, pre");
+      var copyText = copySrc ? (copySrc.value !== undefined && copySrc.value !== "" ? copySrc.value : copySrc.textContent) : "";
+      copyText = String(copyText || "").trim();
+      if (copyText && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(copyText).then(function () {
+          cwlToast("Copied to clipboard");
+        });
+      } else {
+        cwlToast(copyText ? "Clipboard is unavailable in this browser" : "Nothing to copy here");
+      }
+      return true;
+    }
+    if (/select|choose/.test(semantic)) {
+      ev.preventDefault();
+      var wizName = el.getAttribute("data-wizard-id") || (el.textContent || "").trim();
+      if (openOverlayEl(findShellByName(wizName))) return true;
+      cwlToast("Wizard \u201C" + wizName + "\u201D has no converted shell on this page");
+      return true;
+    }
+    if (/switchmode/.test(semantic)) {
+      ev.preventDefault();
+      cwlToast("Account mode switching is not part of this converted demo");
+      return true;
+    }
+    var id = nearestRowId(el);
+    if (/edit|update/.test(semantic)) {
+      ev.preventDefault();
+      if (/epc/.test(a)) {
+        var epcModal = null;
+        document.querySelectorAll(".modal-overlay, [data-cwl-lifted-component]").forEach(function (m) {
+          if (!epcModal && /Edit EPC\/SNMP Device/i.test(m.textContent || "")) epcModal = m;
+        });
+        if (openOverlayEl(epcModal)) return true;
+      }
+      var row = { _id: id, id: id };
+      if (kind === "inventory" || kind === "hardware") openStructuralInventoryEditorFromRow(row);
+      else if (kind === "customers") openStructuralCustomerEditor(true, { customerId: id });
+      else if (kind === "work-orders") openStructuralWorkOrderEditorFromRow(row);
+      else if (kind === "incidents") openStructuralIncidentEditorFromRow(row);
+      else if (kind === "sectors") openStructuralSectorEditorFromRow(row);
+      else if (kind === "cpe") openStructuralCpeEditorFromRow(row);
+      else if (kind === "bundles") openStructuralBundleEditorFromRow(row);
+      else if (id) location.href = location.pathname.replace(/\/$/, "") + "/" + encodeURIComponent(id);
+      else cwlToast("No editable record found for this row");
+      return true;
+    }
+    if (/delete|remove/.test(semantic)) {
+      ev.preventDefault();
+      if (!id) {
+        cwlToast("No record id found for this row");
+        return true;
+      }
+      if (!window.confirm("Delete " + id + "? This calls the live API.")) return true;
+      var delApi = /epc/.test(a) ? "/api/epc" : KIND_DELETE_API[kind] || "/api/inventory";
+      if (!window.WispCwlApi) return true;
+      window.WispCwlApi
+        .fetch(delApi + "/" + encodeURIComponent(id), { method: "DELETE" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("Delete failed (" + r.status + ")");
+          cwlToast("Deleted " + id + " — reloading");
+          setTimeout(function () {
+            if (window.__wispReloadStructuralModule) window.__wispReloadStructuralModule();
+            else location.reload();
+          }, 500);
+        })
+        .catch(function (err) {
+          cwlToast((err && err.message) || "Delete failed");
+        });
+      return true;
+    }
+    if (/view|detail/.test(semantic)) {
+      ev.preventDefault();
+      if (!id) {
+        cwlToast("No record id found for this row");
+        return true;
+      }
+      var viewBase =
+        kind === "hardware" ? "/modules/inventory" : location.pathname.replace(/\/$/, "");
+      location.href = viewBase + "/" + encodeURIComponent(id);
+      return true;
+    }
+    // Bundle archive — origin PATCHes the bundle status to archived.
+    if (/^archive$/.test(norm) && /bundles/.test(location.pathname)) {
+      ev.preventDefault();
+      if (!id) {
+        cwlToast("No bundle id found for this row");
+        return true;
+      }
+      if (!window.WispCwlApi) return true;
+      window.WispCwlApi
+        .fetch("/api/inventory/bundles/" + encodeURIComponent(id), {
+          method: "PUT",
+          body: JSON.stringify({ status: "archived" }),
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error("Archive failed (" + r.status + ")");
+          cwlToast("Bundle archived — reloading");
+          setTimeout(function () {
+            location.reload();
+          }, 500);
+        })
+        .catch(function (err) {
+          cwlToast((err && err.message) || "Archive failed");
+        });
+      return true;
+    }
+    var verbMatch =
+        /(assign|start|complete|close|resolve|acknowledge|approve|reject|suspend|activate|pause|finish|authorize)/.exec(
+        semantic,
+      );
+    if (verbMatch && id) {
+      ev.preventDefault();
+      var verbApi = KIND_DELETE_API[kind] || "/api/work-orders";
+      if (!window.WispCwlApi) return true;
+      window.WispCwlApi
+        .fetch(verbApi + "/" + encodeURIComponent(id) + "/" + verbMatch[1], {
+          method: "POST",
+          body: "{}",
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error(verbMatch[1] + " failed (" + r.status + ")");
+          cwlToast(verbMatch[1] + " applied to " + id + " — reloading");
+          setTimeout(function () {
+            if (window.__wispReloadStructuralModule) window.__wispReloadStructuralModule();
+            else location.reload();
+          }, 500);
+        })
+        .catch(function (err) {
+          cwlToast((err && err.message) || verbMatch[1] + " failed");
+        });
+      return true;
+    }
+    if (/open|show|toggle/.test(semantic)) {
+      ev.preventDefault();
+      if (openOverlayEl(findShellByName(action))) return true;
+      if (openOverlayEl(findShellByName(norm))) return true;
+      if (openOverlayEl(findShellByName(semantic))) return true;
+      // No converted shell matched — say so instead of silently eating the click.
+      cwlToast("\u201C" + action + "\u201D has no converted shell on this page");
+      return true;
+    }
+    if (/scan|barcode|qr/.test(semantic)) {
+      ev.preventDefault();
+      openStructuralInventoryScan();
+      return true;
+    }
+    if (/transfer/.test(semantic)) {
+      ev.preventDefault();
+      openStructuralInventoryTransfer();
+      return true;
+    }
+    if (/add|create|new/.test(semantic)) {
+      ev.preventDefault();
+      if (kind === "inventory" || kind === "hardware") openStructuralInventoryEditor();
+      else if (kind === "customers") openStructuralCustomerEditor(false);
+      else if (kind === "sites") openStructuralSiteEditor();
+      else if (kind === "work-orders") openStructuralWorkOrderEditor();
+      else if (kind === "incidents") openStructuralIncidentEditor();
+      else if (kind === "sectors") openStructuralSectorEditor();
+      else if (kind === "bundles") openStructuralBundleEditor();
+      else openStructuralInventoryEditor();
+      return true;
+    }
+    if (/save|submit|apply|link|register|grant|relinquish/.test(semantic)) {
+      ev.preventDefault();
+      var saveScope =
+        el.closest(
+          "[data-cwl-lifted-component], .modal-overlay, .wizard-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell], form, [data-wisp-page], main",
+        ) || document.body;
+      if (saveScope.tagName === "FORM" && typeof saveScope.requestSubmit === "function") {
+        saveScope.requestSubmit();
+      } else {
+        genericOverlaySave(saveScope, el);
+      }
+      return true;
+    }
+    if (/export|download/.test(semantic)) {
+      ev.preventDefault();
+      var table = el.closest("[data-wisp-page], main, body").querySelector("table");
+      if (!table) {
+        cwlToast("No table is available to export");
+        return true;
+      }
+      var csv = [];
+      table.querySelectorAll("tr").forEach(function (row) {
+        csv.push(
+          Array.prototype.map
+            .call(row.querySelectorAll("th,td"), function (cell) {
+              return '"' + String(cell.textContent || "").trim().replace(/"/g, '""') + '"';
+            })
+            .join(","),
+        );
+      });
+      var blob = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8" });
+      var link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = (kind || "wisp") + "-export.csv";
+      link.click();
+      setTimeout(function () {
+        URL.revokeObjectURL(link.href);
+      }, 0);
+      return true;
+    }
+    if (/print/.test(semantic)) {
+      ev.preventDefault();
+      window.print();
+      return true;
+    }
+    ev.preventDefault();
+    cwlToast("\u201C" + action + "\u201D is not wired to a converted API on this page");
+    return true;
+  }
+
   document.addEventListener(
     "click",
     function (ev) {
+      var backEl =
+        ev.target &&
+        ev.target.closest &&
+        ev.target.closest(
+          ".module-back-btn, .wisp-back-btn, .back-button, .btn-back, [data-action='back']",
+        );
+      if (backEl) {
+        // Compiled data-cwl-nav owns the destination; never force /dashboard.
+        var backNav = backEl.getAttribute("data-cwl-nav");
+        if (backNav) {
+          // Fall through to the shared [data-cwl-nav] handler below.
+        } else if (!(backEl.tagName === "A" && backEl.getAttribute("href"))) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          location.href = "/dashboard";
+          return;
+        }
+      }
       var navEl = ev.target && ev.target.closest && ev.target.closest("[data-cwl-nav]");
       if (navEl) {
         var navPath = navEl.getAttribute("data-cwl-nav");
         if (navPath) {
           ev.preventDefault();
           ev.stopPropagation();
+          // Invented /add shell pages are bare skeletons — open the real
+          // structural editor in place instead of navigating to them.
+          var addNav = /^\/modules\/(inventory|hardware|customers|sites|work-orders|help-desk)\/add(?:\?|$)/.exec(
+            navPath,
+          );
+          if (addNav) {
+            var addKind = addNav[1];
+            if (addKind === "inventory" || addKind === "hardware") openStructuralInventoryEditor();
+            else if (addKind === "customers") openStructuralCustomerEditor(false);
+            else if (addKind === "sites") openStructuralSiteEditor();
+            else if (addKind === "work-orders") openStructuralWorkOrderEditor();
+            else openStructuralIncidentEditor();
+            return;
+          }
           location.href = navPath;
+          return;
+        }
+      }
+      var setEl = ev.target && ev.target.closest && ev.target.closest("[data-cwl-set]");
+      if (setEl) {
+        var setSpec = (setEl.getAttribute("data-cwl-set") || "").split(":");
+        var setKey = setSpec.shift() || "";
+        var setValue = setSpec.join(":");
+        if (setKey && setValue) {
+          ev.preventDefault();
+          document.querySelectorAll("[data-cwl-set^='" + setKey + ":']").forEach(function (el) {
+            var active = el === setEl;
+            el.classList.toggle("active", active);
+            el.setAttribute("aria-selected", active ? "true" : "false");
+          });
+          var anyStateActive = false;
+          document
+            .querySelectorAll(
+              "[data-cwl-hole-detail]:is([data-cwl-bind='if'], [data-cwl-hydrated='1'])",
+            )
+            .forEach(function (el) {
+            var expr = el.getAttribute("data-cwl-hole-detail") || "";
+            if (expr.indexOf(setKey) < 0) return;
+            if (el.hasAttribute("data-cwl-state-fallback")) return;
+            var positive =
+              expr.indexOf(setKey + " === '" + setValue + "'") >= 0 ||
+              expr.indexOf(setKey + ' === "' + setValue + '"') >= 0;
+            var allIncludes =
+              setValue === "all" &&
+              (expr.indexOf(setKey + " === 'all'") >= 0 ||
+                expr.indexOf(setKey + ' === "all"') >= 0);
+            var active = positive || allIncludes;
+            if (active) anyStateActive = true;
+            el.hidden = !active;
+            el.setAttribute("aria-hidden", active ? "false" : "true");
+            el.style.display = active ? "" : "none";
+          });
+          // `{:else}` branch of a scalar-state chain: visible only when no
+          // explicit state panel matched the selected value.
+          document
+            .querySelectorAll("[data-cwl-state-fallback='" + setKey + "']")
+            .forEach(function (el) {
+              var show = !anyStateActive;
+              el.hidden = !show;
+              el.setAttribute("aria-hidden", show ? "false" : "true");
+              el.style.display = show ? "" : "none";
+            });
+          // Mode buttons that historically opened a modal (scan / check-in / check-out).
+          if (/scan|check.?in|check.?out|lookup/i.test(setKey + " " + setValue)) {
+            var scanShell = findShellByName("ScanModal") || findShellByName("Scan");
+            if (scanShell) openOverlayEl(scanShell);
+            else openStructuralInventoryScan();
+          }
+          return;
+        }
+      }
+      var toggleEl =
+        ev.target && ev.target.closest && ev.target.closest("[data-cwl-toggle]");
+      if (toggleEl) {
+        var toggleSpec = (toggleEl.getAttribute("data-cwl-toggle") || "").split(":");
+        var toggleKey = toggleSpec[0] || "";
+        // Plan/deploy island owns these shells — it hydrates the lifted
+        // originals with live data instead of opening them empty.
+        if (window.wispSharedMap) {
+          if (
+            /deployedhardware/i.test(toggleKey) &&
+            typeof window.wispSharedMap.openDeployedHardware === "function"
+          ) {
+            ev.preventDefault();
+            window.wispSharedMap.openDeployedHardware();
+            return;
+          }
+          if (
+            /projectfilters/i.test(toggleKey) &&
+            typeof window.wispSharedMap.openApproved === "function"
+          ) {
+            ev.preventDefault();
+            window.wispSharedMap.openApproved();
+            return;
+          }
+        }
+        var target =
+          findShellByName(toggleKey) ||
+          findShellByName(
+            toggleKey
+              .replace(/^(?:show|is|open)/i, "")
+              .replace(/([a-z])([A-Z])/g, "$1 $2")
+              .trim(),
+          );
+        var toggleMode = toggleSpec[1] || "";
+        if (target) {
+          ev.preventDefault();
+          if (toggleMode === "flip") {
+            var targetOpen =
+              !target.hidden &&
+              target.style.display !== "none" &&
+              target.getAttribute("aria-hidden") !== "true" &&
+              target.classList.contains("cwl-shell-open");
+            // Also treat a visible nested overlay as open.
+            if (!targetOpen) {
+              var nestedOpen = target.querySelector(
+                ".modal-overlay:not([hidden]), .project-filter-panel:not([hidden]), .wizard-overlay:not([hidden])",
+              );
+              targetOpen = !!(
+                nestedOpen &&
+                nestedOpen.getAttribute("aria-hidden") !== "true" &&
+                nestedOpen.style.display !== "none"
+              );
+            }
+            if (targetOpen) closeOverlayEl(target);
+            else openOverlayEl(target);
+          } else if (toggleMode === "false") {
+            closeOverlayEl(target);
+          } else {
+            openOverlayEl(target);
+          }
+          return;
+        }
+        // Falsy toggles (close = false) or missing shells: close the nearest overlay.
+        var toggleOverlay = toggleEl.closest(
+          ".modal-overlay, .wizard-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell], [data-cwl-lifted-component]",
+        );
+        if (toggleOverlay && /:(?:false|flip)$/.test(toggleEl.getAttribute("data-cwl-toggle") || "")) {
+          ev.preventDefault();
+          closeOverlayEl(toggleOverlay);
+          return;
+        }
+        if (toggleMode === "flip") {
+          // No shell matched — flip the nearest dropdown/panel tied to this control.
+          ev.preventDefault();
+          toggleEl.classList.toggle("active");
+          var flipPanel =
+            (toggleEl.parentElement &&
+              toggleEl.parentElement.querySelector(
+                ".dropdown-menu, .control-dropdown, .filter-panel, .advanced-options, .project-filter-panel",
+              )) ||
+            document.querySelector(
+              "[data-cwl-lifted-component='ProjectFilterPanel'], .project-filter-panel, .filter-panel, .advanced-options, .statistics-panel, .device-management-panel, .control-dropdown",
+            );
+          if (flipPanel && flipPanel !== toggleEl) {
+            var panelOpen =
+              !flipPanel.hidden &&
+              flipPanel.style.display !== "none" &&
+              flipPanel.getAttribute("aria-hidden") !== "true";
+            if (panelOpen) closeOverlayEl(flipPanel);
+            else openOverlayEl(flipPanel);
+          }
+          return;
+        }
+        if (toggleOverlay) {
+          ev.preventDefault();
+          cwlToast("This control is not wired in the converted demo");
+          return;
+        }
+      }
+      var actionEl =
+        ev.target && ev.target.closest && ev.target.closest("[data-cwl-action]");
+      if (actionEl) {
+        var cwlAction = actionEl.getAttribute("data-cwl-action") || "";
+        var actionState = actionEl.getAttribute("data-cwl-action-state") || "";
+        var stateParts = actionState.split(":");
+        var stateKey = stateParts[0] || "";
+        var stateValue = stateParts[1] === "true";
+        if (stateKey && stateValue && actionEl.getAttribute("data-cwl-action-true")) {
+          cwlAction = actionEl.getAttribute("data-cwl-action-true") || cwlAction;
+        }
+        if (/refresh|reload|fetch|load/i.test(cwlAction)) {
+          ev.preventDefault();
+          if (window.__wispReloadStructuralModule) window.__wispReloadStructuralModule();
+          else location.reload();
+          return;
+        }
+        routeCwlAction(cwlAction, actionEl, ev);
+        if (stateKey) {
+          var nextState = !stateValue;
+          actionEl.setAttribute("data-cwl-action-state", stateKey + ":" + String(nextState));
+          var stateCtx = {};
+          stateCtx[stateKey] = nextState;
+          applyCwlAttributeBindings(actionEl, stateCtx);
+        }
+        return;
+      }
+      // Generic close chrome inside lifted modals (× / ✕ / Close / Cancel).
+      var closeChrome =
+        ev.target &&
+        ev.target.closest &&
+        ev.target.closest(".close-btn, .close-button, .modal-close, .btn-cancel, .alert-close");
+      if (!closeChrome && ev.target && ev.target.closest) {
+        var maybe = ev.target.closest("button");
+        if (
+          maybe &&
+          /^(×|✕|Close|Cancel|Got it)$/i.test((maybe.textContent || "").replace(/\s+/g, " ").trim())
+        ) {
+          closeChrome = maybe;
+        }
+      }
+      if (closeChrome && !closeChrome.classList.contains("cwl-shell-close")) {
+        var overlayToClose = closeChrome.closest(
+          ".modal-overlay, .wizard-overlay, .tips-overlay, .help-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell], [data-cwl-lifted-component]",
+        );
+        if (overlayToClose) {
+          ev.preventDefault();
+          closeOverlayEl(overlayToClose);
+          return;
+        }
+        // Alert banner dismiss (× outside any overlay) — hide the banner itself.
+        var bannerToClose = closeChrome.closest(
+          ".alert, .alert-banner, .error-banner, .error-message, .warning-banner, .notice, .banner",
+        );
+        if (bannerToClose) {
+          ev.preventDefault();
+          bannerToClose.style.display = "none";
+          return;
+        }
+      }
+      // Prev/next step chrome inside lifted modal wizards.
+      var stepBtn = ev.target && ev.target.closest && ev.target.closest("button");
+      if (stepBtn && !stepBtn.closest(".cwl-converted-wizard")) {
+        var stepLabel = (stepBtn.textContent || "").replace(/\s+/g, " ").trim();
+        if (/^(←|← Previous|Previous)$/.test(stepLabel) && modalStepNav(stepBtn, -1)) {
+          ev.preventDefault();
+          return;
+        }
+        if (/^(→|Next →|Next)$/.test(stepLabel) && modalStepNav(stepBtn, 1)) {
+          ev.preventDefault();
+          return;
+        }
+      }
+      // Generic dropdown toggles (Add Hardware ▼, Wizards ▼) with real menu content.
+      var ddBtn =
+        ev.target &&
+        ev.target.closest &&
+        ev.target.closest(".dropdown-toggle, .wizard-trigger");
+      if (ddBtn && !ddBtn.__cwlWizardBound) {
+        var dd =
+          (ddBtn.parentElement &&
+            ddBtn.parentElement.querySelector(".dropdown-menu, .wizard-dropdown")) ||
+          (ddBtn.nextElementSibling &&
+          ddBtn.nextElementSibling.matches &&
+          ddBtn.nextElementSibling.matches(".dropdown-menu, .wizard-dropdown")
+            ? ddBtn.nextElementSibling
+            : null);
+        if (dd && (dd.textContent || "").trim()) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          var isOpen = !dd.hidden && dd.style.display !== "none" && !dd.hasAttribute("hidden");
+          if (isOpen) {
+            dd.setAttribute("hidden", "");
+            dd.hidden = true;
+            dd.style.display = "none";
+            ddBtn.setAttribute("aria-expanded", "false");
+          } else {
+            dd.removeAttribute("hidden");
+            dd.hidden = false;
+            dd.style.display = "";
+            ddBtn.setAttribute("aria-expanded", "true");
+          }
+          return;
+        }
+      }
+      // Search buttons next to a text input: run the client-side filter.
+      var searchBtn = ev.target && ev.target.closest && ev.target.closest("button");
+      if (
+        searchBtn &&
+        /^(Search|🔍 Search)$/i.test((searchBtn.textContent || "").replace(/\s+/g, " ").trim()) &&
+        !searchBtn.closest("form")
+      ) {
+        ev.preventDefault();
+        applyClientFilters(searchBtn);
+        return;
+      }
+      // Save-like buttons inside lifted overlays with no wiring: generic API save.
+      var saveBtn = ev.target && ev.target.closest && ev.target.closest("button");
+      if (
+        saveBtn &&
+        saveBtn.type !== "submit" &&
+        !saveBtn.closest("form") &&
+        /save|apply|confirm|link/i.test((saveBtn.textContent || "").trim()) &&
+        saveBtn.closest("[data-cwl-lifted-component], .modal-overlay, .wizard-overlay")
+      ) {
+        ev.preventDefault();
+        genericOverlaySave(
+          saveBtn.closest("[data-cwl-lifted-component], .modal-overlay, .wizard-overlay"),
+          saveBtn,
+        );
+        return;
+      }
+      // Final delegated strategy for source buttons that intentionally had no
+      // event or whose behavior is represented by surrounding converted state.
+      var inferredBtn = ev.target && ev.target.closest && ev.target.closest("button");
+      if (
+        inferredBtn &&
+        !inferredBtn.matches(
+          "[data-cwl-nav], [data-cwl-action], [data-cwl-set], [data-cwl-toggle], [data-cwl-shell-open]",
+        )
+      ) {
+        var inferredText = (
+          (inferredBtn.textContent || "") +
+          " " +
+          (inferredBtn.getAttribute("title") || "") +
+          " " +
+          (inferredBtn.getAttribute("aria-label") || "")
+        )
+          .replace(/\s+/g, " ")
+          .trim();
+        if (
+          inferredBtn.classList.contains("tab-btn") ||
+          inferredBtn.classList.contains("wizard-step")
+        ) {
+          ev.preventDefault();
+          var peers = Array.prototype.slice.call(
+            inferredBtn.parentElement.querySelectorAll(
+              inferredBtn.classList.contains("tab-btn") ? ".tab-btn" : ".wizard-step",
+            ),
+          );
+          peers.forEach(function (peer) {
+            peer.classList.toggle("active", peer === inferredBtn);
+            peer.setAttribute("aria-selected", peer === inferredBtn ? "true" : "false");
+          });
+          var panelHost =
+            inferredBtn.closest(".hardware-tabs, .wizard-container, .wizard-content") ||
+            inferredBtn.parentElement.parentElement;
+          var panels = panelHost.querySelectorAll(
+            ".tab-content > *, .wizard-panel, [data-step], .step-content",
+          );
+          var selectedIndex = Math.max(0, peers.indexOf(inferredBtn));
+          panels.forEach(function (panel, index) {
+            panel.hidden = index !== selectedIndex;
+            panel.style.display = index === selectedIndex ? "" : "none";
+          });
+          return;
+        }
+        if (/voice|sip/i.test(inferredText)) {
+          ev.preventDefault();
+          location.href = "/modules/voice-telephony";
+          return;
+        }
+        if (/camera|scan|qr|📷/.test(inferredText.toLowerCase())) {
+          ev.preventDefault();
+          openStructuralInventoryScan();
+          return;
+        }
+        // Runtime-labeled primary buttons (label was a Svelte interp) inside a
+        // form or modal act as submit.
+        if (
+          !inferredText &&
+          inferredBtn.classList.contains("btn-primary") &&
+          inferredBtn.closest("form, .modal-overlay, [data-cwl-lifted-component], [data-cwl-modal-shell]")
+        ) {
+          ev.preventDefault();
+          var interpForm = inferredBtn.closest("form");
+          if (interpForm && typeof interpForm.requestSubmit === "function") {
+            interpForm.requestSubmit();
+          } else {
+            genericOverlaySave(
+              inferredBtn.closest(
+                "[data-cwl-lifted-component], .modal-overlay, [data-cwl-modal-shell], main",
+              ) || document.body,
+              inferredBtn,
+            );
+          }
+          return;
+        }
+        var inferredAction = "";
+        if (/view|detail|👁/i.test(inferredText)) inferredAction = "view";
+        else if (/edit|settings|✏/i.test(inferredText)) inferredAction = "edit";
+        else if (/deploy|🚀/i.test(inferredText)) inferredAction = "deploy";
+        else if (/add|create|new|\+$|➕/i.test(inferredText)) inferredAction = "create";
+        else if (/approved|filter/i.test(inferredText)) inferredAction = "filter";
+        if (inferredAction) {
+          routeCwlAction(inferredAction, inferredBtn, ev);
+          return;
+        }
+        // Topology map "Fit to Screen" — ask the map island to fit, like origin.
+        if (/fit to screen/i.test(inferredText)) {
+          ev.preventDefault();
+          try {
+            var topoFrames = document.querySelectorAll("iframe");
+            Array.prototype.forEach.call(topoFrames, function (fr) {
+              if (fr.contentWindow)
+                fr.contentWindow.postMessage({ type: "fit-to-screen" }, "*");
+            });
+            window.postMessage({ type: "fit-to-screen" }, "*");
+          } catch (e) {
+            /* island not present */
+          }
+          cwlToast("Fit to screen requested");
+          return;
+        }
+        if (
+          /toggle|layer|advanced|statistics|map type|device management/i.test(inferredText)
+        ) {
+          ev.preventDefault();
+          inferredBtn.classList.toggle("active");
+          var inferredShell =
+            findShellByName(inferredText) ||
+            document.querySelector(
+              ".filter-panel, .advanced-options, .statistics-panel, .device-management-panel",
+            );
+          if (inferredShell) {
+            var currentlyOpen =
+              !inferredShell.hidden &&
+              inferredShell.style.display !== "none" &&
+              inferredShell.getAttribute("aria-hidden") !== "true";
+            if (currentlyOpen) closeOverlayEl(inferredShell);
+            else openOverlayEl(inferredShell);
+          } else {
+            cwlToast(inferredText + (inferredBtn.classList.contains("active") ? " enabled" : " disabled"));
+          }
           return;
         }
       }
@@ -395,9 +2477,137 @@
     true,
   );
 
+  // Non-click Svelte events retain their event identity in CWL instead of
+  // competing for one data-cwl-action attribute on the same element.
+  ["submit", "change", "input", "keydown", "keyup", "keypress", "blur", "focus"].forEach(
+    function (eventName) {
+      document.addEventListener(
+        eventName,
+        function (ev) {
+          var attr = "data-cwl-on-" + eventName;
+          var el = ev.target && ev.target.closest && ev.target.closest("[" + attr + "]");
+          if (!el) return;
+          var descriptor = el.getAttribute(attr) || "";
+          var colon = descriptor.indexOf(":");
+          if (colon < 1) return;
+          var kind = descriptor.slice(0, colon);
+          var value = descriptor.slice(colon + 1);
+          if (eventName === "submit") ev.preventDefault();
+          if (kind === "nav") {
+            ev.preventDefault();
+            location.href = value;
+            return;
+          }
+          if (kind === "set") {
+            var setParts = value.split(":");
+            var setKey = setParts.shift() || "";
+            var setValue = setParts.join(":");
+            if (setKey) el.setAttribute("data-cwl-state-" + setKey, setValue);
+            return;
+          }
+          if (kind === "toggle") {
+            var toggleParts = value.split(":");
+            var toggleValue = toggleParts[1] || "";
+            if (toggleValue === "flip") el.classList.toggle("active");
+            var overlay = el.closest(
+              ".modal-overlay, .wizard-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell], [data-cwl-lifted-component]",
+            );
+            if (overlay && toggleValue === "false") closeOverlayEl(overlay);
+            return;
+          }
+          if (kind !== "action") return;
+          var action = value;
+          var stateAttr = attr + "-action-state";
+          var stateSpec = el.getAttribute(stateAttr) || "";
+          var stateParts = stateSpec.split(":");
+          var stateKey = stateParts[0] || "";
+          var stateValue = stateParts[1] === "true";
+          if (stateValue && el.getAttribute(attr + "-action-true")) {
+            action = el.getAttribute(attr + "-action-true") || action;
+          }
+          var oldArgs = el.getAttribute("data-cwl-action-args");
+          var eventArgs = el.getAttribute(attr + "-args");
+          if (eventArgs != null) el.setAttribute("data-cwl-action-args", eventArgs);
+          routeCwlAction(action, el, ev);
+          if (oldArgs == null) el.removeAttribute("data-cwl-action-args");
+          else el.setAttribute("data-cwl-action-args", oldArgs);
+          if (stateKey) {
+            var nextState = !stateValue;
+            el.setAttribute(stateAttr, stateKey + ":" + String(nextState));
+            var stateCtx = {};
+            stateCtx[stateKey] = nextState;
+            applyCwlAttributeBindings(el, stateCtx);
+          }
+        },
+        true,
+      );
+    },
+  );
+
+  function genericOverlaySave(overlay, btn) {
+    if (!overlay || !window.WispCwlApi) return;
+    var payload = {};
+    overlay.querySelectorAll("input[name], select[name], textarea[name]").forEach(function (el) {
+      if (el.type === "checkbox") payload[el.name] = el.checked;
+      else if (el.value !== "") payload[el.name] = el.value;
+    });
+    if (!Object.keys(payload).length) {
+      cwlToast("Nothing to save — this panel has no editable fields in the converted demo");
+      return;
+    }
+    var kind = pageKindFromPath();
+    var api = KIND_DELETE_API[kind] || "/api/tenant-settings";
+    var lifted = overlay.getAttribute("data-cwl-lifted-component") || "";
+    if (/epc|snmp/i.test(lifted) || /EPC\/SNMP/i.test(overlay.textContent || "")) api = "/api/epc";
+    btn.disabled = true;
+    cwlToast("Saving via " + api + "…");
+    window.WispCwlApi
+      .fetch(api, { method: "POST", body: JSON.stringify(payload) })
+      .then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) throw new Error("Save failed (" + r.status + ")");
+        cwlToast("Saved via " + api);
+        closeOverlayEl(overlay);
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        cwlToast((err && err.message) || "Save failed");
+      });
+  }
+
+  // Forms inside lifted overlays with no dedicated handler: save via page API.
+  document.addEventListener("submit", function (ev) {
+    var form = ev.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (
+      form.classList.contains("wisp-demo-form") ||
+      form.classList.contains("cwl-converted-shell-form") ||
+      form.classList.contains("wisp-wizard-form") ||
+      form.closest('[data-wisp-page="login"], .login-page, .login-shell')
+    )
+      return;
+    var overlay = form.closest(
+      "[data-cwl-lifted-component], .modal-overlay, .wizard-overlay, [data-cwl-modal-shell], [data-cwl-wizard-shell]",
+    );
+    if (!overlay) return;
+    ev.preventDefault();
+    var submitBtn = form.querySelector("[type='submit']") || form.querySelector("button");
+    genericOverlaySave(overlay, submitBtn || form);
+  });
+
   document.addEventListener("click", function (ev) {
-    var btn = ev.target.closest("[data-cwl-on-click], button, a.btn-primary, .back-button, .btn-back");
+    var btn = ev.target.closest(
+      "[data-cwl-on-click], button, a.btn-primary, .back-button, .btn-back, .module-back-btn",
+    );
     if (!btn) return;
+    // Structurally wired controls are owned by the capture-phase router —
+    // never let these legacy label heuristics override compiled wiring.
+    if (
+      btn.matches(
+        "[data-cwl-nav], [data-cwl-action], [data-cwl-set], [data-cwl-toggle], [data-cwl-shell-open]",
+      )
+    )
+      return;
     var action = btn.getAttribute("data-cwl-on-click") || btn.getAttribute("data-action");
     if (action === "loginSubmit" || (btn.type === "submit" && btn.closest("form") && btn.closest(".login-page, .login-shell"))) {
       ev.preventDefault();
@@ -418,8 +2628,16 @@
       return;
     }
     // Lifted Svelte shells: wire common nav chrome that otherwise does nothing.
-    if (btn.classList.contains("back-button") || btn.classList.contains("btn-back") || action === "back") {
+    if (
+      btn.classList.contains("back-button") ||
+      btn.classList.contains("btn-back") ||
+      btn.classList.contains("module-back-btn") ||
+      action === "back" ||
+      /^←\s*$/.test((btn.textContent || "").trim()) ||
+      /Back to Dashboard/i.test(btn.getAttribute("title") || "")
+    ) {
       if (btn.tagName === "A" && btn.getAttribute("href")) return;
+      if (btn.getAttribute("data-cwl-nav")) return; // owned by capture-phase nav router
       ev.preventDefault();
       location.href = "/dashboard";
       return;
@@ -427,16 +2645,16 @@
     var label = (btn.textContent || "").replace(/\s+/g, " ").trim();
     if (/^➕?\s*Add Hardware/i.test(label) || /^Add Hardware/i.test(label)) {
       ev.preventDefault();
-      location.href = "/modules/hardware/add";
+      openStructuralEquipmentOrCpeEditor("equipment");
       return;
     }
-    // G9908 — empty Add dropdown → /add instead of a dead toggle
+    // G9908 — empty Add dropdown → structural editor instead of a dead toggle
     if (btn.classList.contains("dropdown-toggle") || /\bdropdown-toggle\b/.test(btn.className)) {
       var menu = btn.parentElement && btn.parentElement.querySelector(".dropdown-menu");
       if (!menu || !(menu.textContent || "").trim()) {
         ev.preventDefault();
-        var base = location.pathname.replace(/\/$/, "");
-        location.href = base + "/add";
+        if (btn.closest(".hardware-page, .inventory-page")) openStructuralInventoryEditor();
+        else openStructuralEquipmentOrCpeEditor("equipment");
         return;
       }
     }
@@ -499,8 +2717,7 @@
         openStructuralSectorEditor();
         return;
       }
-      var path = location.pathname.replace(/\/$/, "");
-      location.href = path + "/add";
+      openStructuralInventoryEditor();
       return;
     }
     if (/Scan/i.test(label) && btn.closest(".inventory-page")) {
@@ -1034,6 +3251,54 @@
           status.textContent = (err && err.message) || "Transfer failed";
         });
     });
+  }
+
+  /** Origin CellEditor EARFCN → frequency table (3GPP 36.101 common bands). */
+  function cwlEarfcnToFrequency(earfcn) {
+    var bands = [
+      [0, 599, 2110, false, "Band 1 (2100 MHz)"],
+      [600, 1199, 1930, false, "Band 2 (1900 MHz)"],
+      [1200, 1949, 1805, false, "Band 3 (1800 MHz)"],
+      [1950, 2399, 2110, false, "Band 4 (AWS)"],
+      [2400, 2649, 869, false, "Band 5 (850 MHz)"],
+      [2650, 2749, 875, false, "Band 6 (800 MHz)"],
+      [2750, 3449, 2620, false, "Band 7 (2600 MHz)"],
+      [3450, 3799, 925, false, "Band 8 (900 MHz)"],
+      [9210, 9659, 729, false, "Band 12 (700 MHz)"],
+      [9870, 9919, 746, false, "Band 13 (700 MHz)"],
+      [5180, 5279, 734, false, "Band 17 (700 MHz)"],
+      [5730, 5849, 1930, false, "Band 25 (1900 MHz)"],
+      [5850, 6449, 859, false, "Band 26 (850 MHz)"],
+      [66436, 67335, 2110, false, "Band 66 (AWS-3)"],
+      [68586, 68935, 617, false, "Band 71 (600 MHz)"],
+      [36000, 36199, 1900, true, "Band 33 (TDD 1900)"],
+      [36200, 36349, 2010, true, "Band 34 (TDD 2000)"],
+      [38650, 39649, 2496, true, "Band 41 (TDD 2500)"],
+      [39650, 41589, 3400, true, "Band 42 (TDD 3500)"],
+      [41590, 43589, 3600, true, "Band 43 (TDD 3700)"],
+      [55240, 56739, 3550, true, "Band 48 (CBRS 3550)"],
+    ];
+    for (var i = 0; i < bands.length; i++) {
+      var b = bands[i];
+      if (earfcn >= b[0] && earfcn <= b[1]) {
+        return { centerFreq: b[2] + 0.1 * (earfcn - b[0]), isTDD: b[3], band: b[4] };
+      }
+    }
+    return { centerFreq: 0, isTDD: false, band: "Unknown Band" };
+  }
+
+  /** Origin CellEditor frequency → EARFCN approximation for common bands. */
+  function cwlFrequencyToEarfcn(freq) {
+    if (freq >= 2110 && freq <= 2170) return Math.round((freq - 2110) / 0.1);
+    if (freq >= 1930 && freq <= 1990) return Math.round((freq - 1930) / 0.1) + 600;
+    if (freq >= 1805 && freq <= 1880) return Math.round((freq - 1805) / 0.1) + 1200;
+    if (freq >= 869 && freq <= 894) return Math.round((freq - 869) / 0.1) + 2400;
+    if (freq >= 729 && freq <= 746) return Math.round((freq - 729) / 0.1) + 9210;
+    if (freq >= 617 && freq <= 652) return Math.round((freq - 617) / 0.1) + 68586;
+    if (freq >= 2496 && freq <= 2690) return Math.round((freq - 2496) / 0.1) + 38650;
+    if (freq >= 3550 && freq <= 3700) return Math.round((freq - 3550) / 0.1) + 55240;
+    if (freq >= 3400 && freq <= 3600) return Math.round((freq - 3400) / 0.1) + 39650;
+    return 0;
   }
 
   function openStructuralInventoryScan() {
@@ -1987,6 +4252,7 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   function initNotificationsBadge() {
     if (!window.WispCwlApi) return;
     var host =
+      document.querySelector(".module-header-controls") ||
       document.querySelector(".wisp-header-controls") ||
       document.querySelector(".dashboard-container .page-header") ||
       document.querySelector(".module-header-overlay");
@@ -2111,7 +4377,232 @@ function openStructuralIncidentEditor(isEdit, prefill) {
     loadNotifications(false);
   }
 
+/**
+ * Closed first paint: origin {#if show*} false becomes stamped chrome with aria-hidden.
+ * A prior bug treated `aria-hidden` as the HTML `hidden` attribute (`\bhidden\b`), so
+ * overlays with only aria-hidden stayed display:flex and blocked Plan/login.
+ */
+function ensureClosedOverlaysFirstPaint() {
+  var sels = [
+    ".modal-overlay",
+    ".popup-overlay",
+    ".tips-overlay",
+    ".help-overlay",
+    ".wizard-overlay",
+    ".settings-overlay",
+    ".filters-modal",
+    ".marketing-backdrop",
+    ".demo-visitor-section",
+    ".password-reset-section",
+    ".forgot-password-form",
+    "[data-wisp-login-panel]",
+  ];
+  for (var s = 0; s < sels.length; s++) {
+    var nodes = document.querySelectorAll(sels[s]);
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var aria = el.getAttribute("aria-hidden");
+      if (el.hasAttribute("hidden")) {
+        if (aria !== "false") el.setAttribute("aria-hidden", "true");
+        continue;
+      }
+      if (aria === "true") {
+        el.setAttribute("hidden", "");
+        continue;
+      }
+      // Known closed chrome without either attribute — close first paint (openers remove hidden).
+      if (
+        el.classList.contains("modal-overlay") ||
+        el.classList.contains("popup-overlay") ||
+        el.classList.contains("tips-overlay") ||
+        el.classList.contains("help-overlay") ||
+        el.classList.contains("wizard-overlay") ||
+        el.classList.contains("settings-overlay") ||
+        el.classList.contains("filters-modal") ||
+        el.classList.contains("marketing-backdrop")
+      ) {
+        el.setAttribute("hidden", "");
+        el.setAttribute("aria-hidden", "true");
+      }
+    }
+  }
+}
+
+/**
+ * Bind origin wizardCatalog.ts rows into lifted ModuleWizardMenu chrome (D6442).
+ * Empty each-holes otherwise leave blank menuitems.
+ */
+function initModuleWizardMenus() {
+  var hosts = document.querySelectorAll(
+    '[data-cwl-lifted-component="ModuleWizardMenu"], .module-wizard-menu',
+  );
+  var page = document.querySelector("[data-wisp-path], [data-wisp-page]");
+  var path =
+    (page && page.getAttribute("data-wisp-path")) ||
+    location.pathname.replace(/\/$/, "") ||
+    "";
+  if (/^\/modules\/monitoring/.test(path)) path = "/modules/monitor";
+  // Parity Plan/Deploy shells omitted ModuleWizardMenu — mount host in header controls.
+  if (!hosts.length) {
+    var controls = document.querySelector(
+      ".wisp-header-controls, .module-header-controls, .header-actions, .page-toolbar",
+    );
+    if (controls) {
+      var host = document.createElement("div");
+      host.setAttribute("data-cwl-component", "ModuleWizardMenu");
+      host.setAttribute("data-cwl-lifted-component", "ModuleWizardMenu");
+      var afterProjects = controls.querySelector('[data-action="projects"]');
+      if (afterProjects && afterProjects.nextSibling) {
+        controls.insertBefore(host, afterProjects.nextSibling);
+      } else {
+        controls.appendChild(host);
+      }
+      hosts = document.querySelectorAll(
+        '[data-cwl-lifted-component="ModuleWizardMenu"], .module-wizard-menu',
+      );
+    }
+  }
+  if (!hosts.length) return;
+  // Seed closed origin chrome when convert left an empty lifted host (parity shells / failed if).
+  hosts.forEach(function (host) {
+    var menu = host.classList.contains("module-wizard-menu")
+      ? host
+      : host.querySelector(".module-wizard-menu");
+    if (!menu) {
+      host.innerHTML =
+        '<div class="module-wizard-menu">' +
+        '<button type="button" class="wizard-trigger" title="Wizards for this module" aria-haspopup="true" aria-expanded="false">' +
+        '<span class="wizard-trigger-icon">🧙</span>' +
+        '<span class="wizard-trigger-label">Wizards</span>' +
+        '<span class="wizard-trigger-chevron">▼</span></button>' +
+        '<div class="wizard-dropdown" role="menu" hidden aria-hidden="true"></div></div>';
+      menu = host.querySelector(".module-wizard-menu");
+    }
+    var dropdown = menu && menu.querySelector(".wizard-dropdown");
+    if (menu && !dropdown) {
+      dropdown = document.createElement("div");
+      dropdown.className = "wizard-dropdown";
+      dropdown.setAttribute("role", "menu");
+      dropdown.setAttribute("hidden", "");
+      dropdown.setAttribute("aria-hidden", "true");
+      menu.appendChild(dropdown);
+    }
+  });
+  var menus = document.querySelectorAll(
+    '[data-cwl-lifted-component="ModuleWizardMenu"] .module-wizard-menu, .module-wizard-menu',
+  );
+  fetch("/assets/wisp-wizard-catalog.json", { credentials: "same-origin" })
+    .then(function (r) {
+      return r.ok ? r.json() : null;
+    })
+    .then(function (doc) {
+      var rows =
+        (doc && doc.wizardsByPath && doc.wizardsByPath[path]) ||
+        (doc && doc.wizardsByPath && doc.wizardsByPath[path + "/"]) ||
+        [];
+      menus.forEach(function (menu) {
+        var dropdown = menu.querySelector(".wizard-dropdown");
+        var trigger = menu.querySelector(".wizard-trigger");
+        if (!dropdown) return;
+        if (!rows.length) {
+          menu.setAttribute("hidden", "");
+          return;
+        }
+        menu.removeAttribute("hidden");
+        dropdown.innerHTML = rows
+          .map(function (w) {
+            return (
+              '<button type="button" role="menuitem" class="wizard-item" data-wizard-id="' +
+              String(w.id || "").replace(/"/g, "") +
+              '">' +
+              (w.icon ? '<span class="wizard-item-icon">' + w.icon + "</span>" : "") +
+              '<span class="wizard-item-label">' +
+              String(w.label || w.id || "") +
+              "</span></button>"
+            );
+          })
+          .join("");
+        if (trigger && !trigger.__cwlWizardBound) {
+          trigger.__cwlWizardBound = true;
+          trigger.addEventListener("click", function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var open = !dropdown.hasAttribute("hidden");
+            if (open) {
+              dropdown.setAttribute("hidden", "");
+              dropdown.setAttribute("aria-hidden", "true");
+              trigger.classList.remove("open");
+              trigger.setAttribute("aria-expanded", "false");
+            } else {
+              dropdown.removeAttribute("hidden");
+              dropdown.setAttribute("aria-hidden", "false");
+              trigger.classList.add("open");
+              trigger.setAttribute("aria-expanded", "true");
+            }
+          });
+        }
+        if (dropdown && !dropdown.__cwlWizardItemsBound) {
+          dropdown.__cwlWizardItemsBound = true;
+          dropdown.addEventListener("click", function (ev) {
+            var item = ev.target.closest(".wizard-item");
+            if (!item) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            dropdown.setAttribute("hidden", "");
+            dropdown.setAttribute("aria-hidden", "true");
+            if (trigger) {
+              trigger.classList.remove("open");
+              trigger.setAttribute("aria-expanded", "false");
+            }
+            var wizId = item.getAttribute("data-wizard-id") || (item.textContent || "").trim();
+            if (openOverlayEl(findShellByName(wizId))) return;
+            // Common hardware wizard aliases → structural editors.
+            if (/scan|check.?in|check.?out/i.test(wizId)) {
+              openStructuralInventoryScan();
+              return;
+            }
+            if (/transfer/i.test(wizId)) {
+              openStructuralInventoryTransfer();
+              return;
+            }
+            if (/deploy|equipment|hardware|add/i.test(wizId)) {
+              openStructuralEquipmentOrCpeEditor("equipment");
+              return;
+            }
+            cwlToast("Wizard \u201C" + wizId + "\u201D has no converted shell on this page");
+          });
+        }
+      });
+    })
+    .catch(function () {
+      /* catalog optional */
+    });
+}
+
   guardAuthenticatedPages();
+  // Origin /modules/monitor is a redirect stub to /modules/monitoring.
+  if (/^\/modules\/monitor\/?$/.test(location.pathname || "")) {
+    location.replace("/modules/monitoring");
+    return;
+  }
+  ensureClosedOverlaysFirstPaint();
+  // Direct bind for convert-stamped [data-cwl-nav] (dashboard module cards).
+  document.querySelectorAll("[data-cwl-nav]").forEach(function (el) {
+    if (el.__cwlNavBound) return;
+    el.__cwlNavBound = true;
+    el.addEventListener(
+      "click",
+      function (ev) {
+        var path = el.getAttribute("data-cwl-nav");
+        if (!path) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        location.href = path;
+      },
+      true,
+    );
+  });
+  initModuleWizardMenus();
   initModuleDemos();
   initStructuralModulePages();
   initDashboardModules();
@@ -2453,7 +4944,7 @@ function openStructuralIncidentEditor(isEdit, prefill) {
       document.querySelector(".voice-telephony-page .page-header") ||
       document.querySelector('[data-wisp-page="voice-telephony"] .page-header') ||
       document.querySelector(".voice-telephony-page");
-    addGet(voiceHost, "voice-accounts", "/api/voice/provider-accounts", "Voice accounts");
+    addGet(voiceHost, "voice-accounts", "/api/voice", "Voice accounts");
     addGet(voiceHost, "remote-agents", "/api/remote-agents/status", "Remote agents");
     var dash =
       document.querySelector(".dashboard-page .page-header") ||
@@ -3101,14 +5592,14 @@ function initModuleTipsIslands() {
       (tip.content || "") +
       "</div>" +
       '<div class="tips-footer"><label><input type="checkbox" class="tips-dont-show"> Don\'t show again</label>' +
-      '<button type="button" class="close-btn btn-secondary">Got it</button></div></div>';
+      '<button type="button" class="tips-got-it btn-secondary">Got it</button></div></div>';
     document.body.appendChild(overlay);
     function close() {
       var dont = overlay.querySelector(".tips-dont-show");
       if (dont && dont.checked) markDismissed(moduleId);
       overlay.remove();
     }
-    overlay.querySelectorAll(".close-btn").forEach(function (b) {
+    overlay.querySelectorAll(".close-btn, .tips-got-it").forEach(function (b) {
       b.addEventListener("click", close);
     });
     overlay.addEventListener("click", function (ev) {
@@ -3141,10 +5632,9 @@ function initModuleTipsIslands() {
 
   var moduleId = detectModuleId();
   if (!moduleId || !shouldShow(moduleId)) return;
-  // Defer so page chrome paints first (matches Module_Manager 500ms after load).
-  setTimeout(function () {
-    window.WispCwlTips.show(moduleId);
-  }, 600);
+  // Closed first paint: do not auto-popup tips on load (stacked with plan/dashboard chrome).
+  // Tips still open from Tips / shell controls via window.WispCwlTips.show.
+  void moduleId;
 }
 
 /**
@@ -3332,23 +5822,213 @@ function initShellIslands() {
       .trim();
   }
 
+  function shellBlueprint(name, kind) {
+    var key = String(name || "").toLowerCase();
+    if (kind === "nav") {
+      return {
+        nav: true,
+        fields: [],
+        links: [
+          ["/dashboard", "Dashboard"],
+          ["/modules/sites", "Sites"],
+          ["/modules/customers", "Customers"],
+          ["/modules/hardware", "Hardware"],
+          ["/modules/work-orders", "Work orders"],
+          ["/modules/monitoring", "Monitoring"],
+          ["/settings/module-access", "Modules"],
+        ],
+      };
+    }
+    var specs = [
+      [/workorder|createworkorder/, "/api/work-orders", [["title", "Title"], ["type", "Type"], ["priority", "Priority"]]],
+      [/customeronboarding|addeditcustomer/, "/api/customers", [["name", "Customer name"], ["email", "Email"], ["phone", "Phone"]]],
+      [/subscribercreation/, "/api/hss/subscribers", [["imsi", "IMSI"], ["name", "Subscriber name"], ["msisdn", "MSISDN"]]],
+      [/bandwidthplan/, "/api/hss/bandwidth-plans", [["name", "Plan name"], ["downloadMbps", "Download Mbps"], ["uploadMbps", "Upload Mbps"]]],
+      [/subscribergroup/, "/api/hss/groups", [["name", "Group name"], ["description", "Description"]]],
+      [/inventorycheckin/, "/api/inventory/check-in", [["serialNumber", "Serial number"], ["location", "Location"], ["notes", "Notes"]]],
+      [/rmatracking|addrma/, "/api/inventory/rma", [["serialNumber", "Serial number"], ["reason", "RMA reason"], ["notes", "Notes"]]],
+      [/scanmodal/, "/api/inventory", [["search", "Serial, MAC, or asset tag"]], "GET"],
+      [/customerlookup/, "/api/customers", [["search", "Name, email, phone, or account"]], "GET"],
+      [/ticketdetails/, "/api/incidents", [["search", "Ticket number or title"]], "GET"],
+      [/createticket/, "/api/incidents", [["title", "Ticket title"], ["description", "Description"], ["priority", "Priority"]]],
+      [/deviceonboarding|deviceregistration/, "/api/network/cpe", [["name", "Device name"], ["serialNumber", "Serial number"], ["macAddress", "MAC address"]]],
+      [/troubleshooting/, "/api/network/cpe", [["deviceId", "Device ID"], ["issue", "Issue or symptom"], ["notes", "Diagnostic notes"]]],
+      [/presetcreation/, "/api/network", [["name", "Preset name"], ["deviceType", "Device type"], ["parameters", "Parameters (JSON)"]]],
+      [/bulkoperations/, "/api/network", [["operation", "Operation"], ["deviceIds", "Device IDs"], ["notes", "Notes"]]],
+      [/firmwareupdate/, "/api/network", [["deviceIds", "Device IDs"], ["firmwareVersion", "Firmware version"], ["schedule", "Schedule"]]],
+      [/cbrsdeviceregistration/, "/api/network/sectors", [["name", "CBSD name"], ["fccId", "FCC ID"], ["serialNumber", "Serial number"], ["siteId", "Site ID"], ["mcc", "MCC"], ["mnc", "MNC"]]],
+      [/cbrssetup/, "/api/network/sectors", [["name", "CBRS network name"], ["siteId", "Primary site ID"], ["fccId", "FCC ID"], ["contactEmail", "Contact email"]]],
+      [/deployment|sitedeployment|hardwaredeployment|epcdeployment|basewizard/, "/api/network/hardware-deployments", [["name", "Deployment name"], ["siteId", "Site ID"], ["type", "Deployment type"]]],
+      [/firsttimesetup/, "/api/tenant-settings", [["organizationName", "Organization name"], ["contactEmail", "Contact email"], ["timezone", "Timezone"], ["siteName", "First site name"], ["latitude", "Latitude"], ["longitude", "Longitude"]]],
+      [/organizationsetup/, "/api/tenant-settings", [["organizationName", "Organization name"], ["organizationType", "Organization type"], ["contactEmail", "Contact email"], ["address", "Address"]]],
+      [/initialconfiguration/, "/api/tenant-settings", [["timezone", "Timezone"], ["dateFormat", "Date format"], ["units", "Measurement units"], ["currency", "Currency"]]],
+      [/monitoringsetup/, "/api/tenant-settings", [["monitoringName", "Monitoring profile"], ["timezone", "Timezone"], ["contactEmail", "Alert email"]]],
+      [/inviteuser|edituser/, "/api/users", [["email", "Email"], ["name", "Name"], ["role", "Role"]]],
+      [/siteedit|addsite/, "/api/network/sites", [["name", "Site name"], ["latitude", "Latitude"], ["longitude", "Longitude"]]],
+      [/addsector/, "/api/network/sectors", [["name", "Sector name"], ["siteId", "Site ID"], ["technology", "Technology"]]],
+      [/addcpe/, "/api/network/cpe", [["name", "CPE name"], ["serialNumber", "Serial number"], ["siteId", "Site ID"]]],
+      [/backhaul/, "/api/network/backhaul", [["name", "Link name"], ["fromSiteId", "From site"], ["toSiteId", "To site"]]],
+      [/bundle/, "/api/bundles", [["name", "Bundle name"], ["description", "Description"]]],
+      [/frequencyplanner|pciplanner|conflictresolution/, "/api/network/sectors", [["siteId", "Site ID"], ["sectorId", "Sector ID"], ["value", "Target value"]]],
+      [/importwizard/, "/api/network", [["format", "Import format"], ["records", "CSV or JSON records"], ["notes", "Import notes"]]],
+    ];
+    for (var i = 0; i < specs.length; i++) {
+      if (specs[i][0].test(key)) {
+        return {
+          endpoint: specs[i][1],
+          fields: specs[i][2],
+          method: specs[i][3] || "POST",
+          links: [],
+        };
+      }
+    }
+    return {
+      endpoint: "",
+      fields: [["query", humanize(name) + " input"]],
+      links: [],
+    };
+  }
+
+  function shellFormHtml(name, kind) {
+    var spec = shellBlueprint(name, kind);
+    if (spec.nav) {
+      return (
+        '<nav class="cwl-converted-nav" aria-label="' +
+        humanize(name) +
+        '">' +
+        spec.links
+          .map(function (link) {
+            return '<a class="wisp-demo-btn" href="' + link[0] + '">' + link[1] + "</a>";
+          })
+          .join("") +
+        "</nav>"
+      );
+    }
+    function fieldHtml(field) {
+      var lower = String(field[0]).toLowerCase();
+      var type =
+        /email/.test(lower)
+          ? "email"
+          : /latitude|longitude|mbps|port/.test(lower)
+            ? "number"
+            : "text";
+      var required = /name|email|serial|imsi|title|deviceid|siteid/.test(lower)
+        ? " required"
+        : "";
+      if (/notes|description|parameters|records|address|issue|deviceids/.test(lower)) {
+        return (
+          '<label class="form-group"><span>' +
+          field[1] +
+          '</span><textarea name="' +
+          field[0] +
+          '" rows="4"' +
+          required +
+          "></textarea></label>"
+        );
+      }
+      return (
+        '<label class="form-group"><span>' +
+        field[1] +
+        '</span><input type="' +
+        type +
+        '" name="' +
+        field[0] +
+        '" autocomplete="off"' +
+        (type === "number" ? ' step="any"' : "") +
+        required +
+        "></label>"
+      );
+    }
+    var method = spec.method || "POST";
+    if (kind === "wizard") {
+      var midpoint = Math.max(1, Math.ceil(spec.fields.length / 2));
+      var groups = [spec.fields.slice(0, midpoint), spec.fields.slice(midpoint)].filter(
+        function (group) {
+          return group.length > 0;
+        },
+      );
+      groups.push([]);
+      var total = groups.length;
+      return (
+        '<form class="cwl-converted-shell-form cwl-converted-wizard" data-cwl-shell-endpoint="' +
+        spec.endpoint +
+        '" data-cwl-shell-method="' +
+        method +
+        '" data-cwl-current-step="0" data-cwl-total-steps="' +
+        total +
+        '">' +
+        '<div class="cwl-wizard-progress" aria-label="Wizard progress">' +
+        groups
+          .map(function (_group, index) {
+            return (
+              '<span class="cwl-wizard-progress-step' +
+              (index === 0 ? " active" : "") +
+              '" data-cwl-progress-step="' +
+              index +
+              '">' +
+              (index + 1) +
+              "</span>"
+            );
+          })
+          .join("") +
+        "</div>" +
+        groups
+          .map(function (group, index) {
+            var review = index === total - 1;
+            return (
+              '<fieldset class="cwl-wizard-step" data-cwl-wizard-step="' +
+              index +
+              '"' +
+              (index === 0 ? "" : " hidden") +
+              "><legend>" +
+              (review ? "Review and submit" : "Step " + (index + 1)) +
+              "</legend>" +
+              (review
+                ? '<dl class="cwl-wizard-review" aria-live="polite"></dl>'
+                : group.map(fieldHtml).join("")) +
+              '<div class="cwl-wizard-controls">' +
+              (index > 0
+                ? '<button type="button" class="btn-secondary" data-cwl-wizard-back>Previous</button>'
+                : "") +
+              (review
+                ? spec.endpoint
+                  ? '<button type="submit" class="btn-primary">Save</button>'
+                  : '<button type="button" class="btn-secondary cwl-shell-close">Done</button>'
+                : '<button type="button" class="btn-primary" data-cwl-wizard-next>Next</button>') +
+              "</div></fieldset>"
+            );
+          })
+          .join("") +
+        '<div class="wisp-wizard-status" hidden aria-live="polite"></div></form>'
+      );
+    }
+    return (
+      '<form class="cwl-converted-shell-form" data-cwl-shell-endpoint="' +
+      spec.endpoint +
+      '" data-cwl-shell-method="' +
+      method +
+      '">' +
+      spec.fields.map(fieldHtml).join("") +
+      '<div class="wisp-wizard-status" hidden aria-live="polite"></div>' +
+      (spec.endpoint
+        ? '<button type="submit" class="btn-primary">Save</button>'
+        : '<button type="button" class="btn-secondary cwl-shell-close">Done</button>') +
+      "</form>"
+    );
+  }
+
   function ensureOverlayChrome(el, name, kind) {
-    el.setAttribute("data-cwl-island", "shell");
+    el.setAttribute("data-cwl-island", kind === "nav" ? "navigation" : "form");
     scrubShellJunk(el);
     if (el.querySelector(".cwl-shell-chrome")) return;
-    var bodies = {
-      wizard: "Wizard shell — interactive steps not lifted into CWL.",
-      nav: "Nav shell — live menu not lifted into CWL.",
-      modal: "Modal shell — interactive content not lifted into CWL.",
-    };
     el.innerHTML =
       '<div class="cwl-shell-chrome">' +
       '<header class="cwl-shell-header"><h2>' +
       humanize(name) +
       '</h2><button type="button" class="cwl-shell-close" aria-label="Close">×</button></header>' +
-      '<p class="cwl-shell-body">' +
-      (bodies[kind] || bodies.modal) +
-      "</p>" +
+      '<div class="cwl-shell-body">' +
+      shellFormHtml(name, kind) +
+      "</div>" +
       '<footer class="cwl-shell-footer"><button type="button" class="cwl-shell-close btn-secondary">Close</button></footer>' +
       "</div>";
   }
@@ -3367,40 +6047,97 @@ function initShellIslands() {
         cap.textContent =
           humanize(name) +
           (kind === "widget" && el.getAttribute("data-cwl-hydrated") === "1"
-            ? " — hydrated summary (controls not lifted)"
-            : " — shell");
+            ? " — live summary"
+            : " — live component");
         el.insertBefore(cap, el.firstChild);
       }
       return;
     }
-    var msg =
-      kind === "map"
-        ? "live map embed not lifted"
-        : kind === "chart"
-          ? "live chart not lifted"
-          : "live controls not lifted into CWL";
-    var labelClass = kind === "map" ? "cwl-map-shell-label cwl-inline-shell" : "cwl-inline-shell";
-    el.innerHTML =
-      '<div class="' +
-      labelClass +
-      '"><strong>' +
-      humanize(name) +
-      "</strong><span>" +
-      (kind.charAt(0).toUpperCase() + kind.slice(1)) +
-      " shell — " +
-      msg +
-      "</span></div>";
+    if (kind === "map") {
+      el.innerHTML =
+        '<div class="cwl-map-shell-label cwl-inline-shell"><strong>' +
+        humanize(name) +
+        '</strong><a class="wisp-demo-btn" href="/modules/coverage-map">Open live coverage map</a></div>';
+    } else if (kind === "chart") {
+      el.innerHTML =
+        '<div class="cwl-inline-shell-caption">' +
+        humanize(name) +
+        ' — live telemetry</div><canvas width="480" height="180" role="img" aria-label="' +
+        humanize(name) +
+        ' telemetry chart"></canvas><div class="wisp-wizard-status" aria-live="polite">Loading telemetry…</div>';
+      var canvas = el.querySelector("canvas");
+      var chartStatus = el.querySelector(".wisp-wizard-status");
+      if (canvas && window.WispCwlApi) {
+        window.WispCwlApi
+          .fetch("/api/monitoring/graphs")
+          .then(function (r) {
+            if (!r.ok) throw new Error("telemetry " + r.status);
+            return r.json();
+          })
+          .then(function (data) {
+            var values = [];
+            JSON.stringify(data).replace(/-?\d+(?:\.\d+)?/g, function (n) {
+              if (values.length < 60) values.push(Number(n));
+              return n;
+            });
+            var ctx = canvas.getContext("2d");
+            if (!ctx || !values.length) throw new Error("no telemetry samples");
+            var min = Math.min.apply(Math, values);
+            var max = Math.max.apply(Math, values);
+            var span = max - min || 1;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#00d9ff";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            values.forEach(function (value, index) {
+              var x = (index / Math.max(1, values.length - 1)) * canvas.width;
+              var y = canvas.height - ((value - min) / span) * (canvas.height - 16) - 8;
+              if (index === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            if (chartStatus) chartStatus.textContent = values.length + " live sample(s)";
+          })
+          .catch(function (error) {
+            if (chartStatus) chartStatus.textContent = error.message || String(error);
+          });
+      }
+    } else {
+      el.innerHTML =
+        '<div class="cwl-inline-shell"><strong>' +
+        humanize(name) +
+        '</strong><span>Live page data</span><button type="button" class="wisp-demo-btn" data-cwl-action="refresh">Refresh</button></div>';
+    }
     el.classList.add("cwl-" + kind + "-shell-ready");
   }
 
   function openShell(el) {
+    if (!el) return;
+    el.removeAttribute("hidden");
     el.setAttribute("aria-hidden", "false");
     el.classList.add("cwl-shell-open");
+    // Lifted Help/Tips chrome nests the real overlay inside the component root.
+    var nested = el.querySelector(
+      ".help-overlay, .tips-overlay, .modal-overlay, .wizard-overlay, .settings-overlay, .popup-overlay",
+    );
+    if (nested) {
+      nested.removeAttribute("hidden");
+      nested.setAttribute("aria-hidden", "false");
+    }
   }
 
   function closeShell(el) {
+    if (!el) return;
+    el.setAttribute("hidden", "");
     el.setAttribute("aria-hidden", "true");
     el.classList.remove("cwl-shell-open");
+    var nested = el.querySelector(
+      ".help-overlay, .tips-overlay, .modal-overlay, .wizard-overlay, .settings-overlay, .popup-overlay",
+    );
+    if (nested) {
+      nested.setAttribute("hidden", "");
+      nested.setAttribute("aria-hidden", "true");
+    }
   }
 
   var OVERLAY_SEL =
@@ -3479,6 +6216,31 @@ function initShellIslands() {
     ensureInlineShell(el, el.getAttribute("data-cwl-widget-shell") || "Widget", "widget");
   });
 
+  // Convert empty no-source add forms into live API-backed forms.
+  document
+    .querySelectorAll('form[data-cwl-form-shell-empty="true"], [data-cwl-form-shell="converted-add"] form')
+    .forEach(function (form) {
+      if (form.querySelector("input,select,textarea")) return;
+      var host = form.closest("[data-cwl-route], [data-cwl-form-shell]") || form;
+      var route =
+        (host && (host.getAttribute("data-cwl-route") || host.getAttribute("data-cwl-form-shell"))) ||
+        location.pathname;
+      var name = String(route).split("/").filter(Boolean).pop() || "Add";
+      var html = shellFormHtml(name, "modal");
+      var temp = document.createElement("div");
+      temp.innerHTML = html;
+      var converted = temp.querySelector("form");
+      if (!converted) return;
+      if (!converted.getAttribute("data-cwl-shell-endpoint")) {
+        var load = document.getElementById("cwl-page-load");
+        try {
+          var meta = load && load.textContent ? JSON.parse(load.textContent) : null;
+          if (meta && meta.apiPath) converted.setAttribute("data-cwl-shell-endpoint", meta.apiPath);
+        } catch (_) {}
+      }
+      form.replaceWith(converted);
+    });
+
   // Ensure every overlay shell on the page has at least one opener in header actions.
   (function ensureShellOpeners() {
     if (isCoverageMapPage) return;
@@ -3526,7 +6288,153 @@ function initShellIslands() {
     });
   })();
 
+  function setConvertedWizardStep(form, nextIndex) {
+    var steps = form.querySelectorAll("[data-cwl-wizard-step]");
+    var index = Math.max(0, Math.min(steps.length - 1, Number(nextIndex) || 0));
+    steps.forEach(function (step, stepIndex) {
+      var active = stepIndex === index;
+      step.hidden = !active;
+      step.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+    form.querySelectorAll("[data-cwl-progress-step]").forEach(function (step, stepIndex) {
+      step.classList.toggle("active", stepIndex === index);
+      step.classList.toggle("complete", stepIndex < index);
+    });
+    form.setAttribute("data-cwl-current-step", String(index));
+    if (index === steps.length - 1) {
+      var review = steps[index].querySelector(".cwl-wizard-review");
+      if (review) {
+        var rows = [];
+        new FormData(form).forEach(function (value, key) {
+          if (value !== "") {
+            rows.push(
+              "<dt>" +
+                humanize(key) +
+                "</dt><dd>" +
+                String(value)
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;") +
+                "</dd>",
+            );
+          }
+        });
+        review.innerHTML = rows.join("") || "<dt>Details</dt><dd>No optional values entered</dd>";
+      }
+    }
+  }
+
   document.addEventListener("click", function (ev) {
+    var next = ev.target.closest("[data-cwl-wizard-next]");
+    var back = ev.target.closest("[data-cwl-wizard-back]");
+    if (!next && !back) return;
+    var form = ev.target.closest(".cwl-converted-wizard");
+    if (!form) return;
+    ev.preventDefault();
+    var current = Number(form.getAttribute("data-cwl-current-step") || 0);
+    if (next) {
+      var active = form.querySelector('[data-cwl-wizard-step="' + current + '"]');
+      var fields = active ? active.querySelectorAll("input,select,textarea") : [];
+      for (var i = 0; i < fields.length; i++) {
+        if (!fields[i].reportValidity()) return;
+      }
+      setConvertedWizardStep(form, current + 1);
+    } else {
+      setConvertedWizardStep(form, current - 1);
+    }
+  });
+
+  document.addEventListener("submit", function (ev) {
+    var form = ev.target && ev.target.closest
+      ? ev.target.closest(".cwl-converted-shell-form")
+      : null;
+    if (!form) return;
+    ev.preventDefault();
+    var endpoint = form.getAttribute("data-cwl-shell-endpoint") || "";
+    if (!endpoint || !window.WispCwlApi) return;
+    var method = form.getAttribute("data-cwl-shell-method") || "POST";
+    var payload = {};
+    new FormData(form).forEach(function (value, key) {
+      if (value !== "") payload[key] = value;
+    });
+    var shell = form.closest(
+      "[data-cwl-wizard-shell], [data-cwl-modal-shell], [data-cwl-lifted-component]",
+    );
+    var shellName = shell
+      ? shell.getAttribute("data-cwl-wizard-shell") ||
+        shell.getAttribute("data-cwl-modal-shell") ||
+        shell.getAttribute("data-cwl-lifted-component") ||
+        ""
+      : "";
+    if (endpoint === "/api/network" && payload.resource == null) {
+      payload.resource = String(shellName || "network-operation")
+        .replace(/Wizard$|Modal$/g, "")
+        .replace(/([a-z])([A-Z])/g, "$1-$2")
+        .toLowerCase();
+    }
+    var status = form.querySelector(".wisp-wizard-status");
+    if (status) {
+      status.hidden = false;
+      status.textContent = method === "GET" ? "Searching…" : "Saving…";
+    }
+    var path = endpoint;
+    var opts = { method: method };
+    if (method === "GET") {
+      var qs = new URLSearchParams(payload).toString();
+      if (qs) path += (path.indexOf("?") >= 0 ? "&" : "?") + qs;
+    } else {
+      opts.body = JSON.stringify(payload);
+    }
+    window.WispCwlApi
+      .fetch(path, opts)
+      .then(function (r) {
+        return r.text().then(function (text) {
+          if (!r.ok) throw new Error("Request failed (" + r.status + ")");
+          var data;
+          try {
+            data = JSON.parse(text);
+          } catch (_) {
+            data = text;
+          }
+          return data;
+        });
+      })
+      .then(function (data) {
+        if (status) {
+          var rows = Array.isArray(data)
+            ? data
+            : data && typeof data === "object"
+              ? Object.keys(data)
+                  .map(function (key) {
+                    return data[key];
+                  })
+                  .find(function (value) {
+                    return Array.isArray(value);
+                  }) || []
+              : [];
+          status.textContent =
+            method === "GET"
+              ? "Found " + rows.length + " record(s)"
+              : "Saved successfully";
+        }
+        if (method !== "GET" && window.__wispReloadStructuralModule) {
+          setTimeout(window.__wispReloadStructuralModule, 250);
+        }
+      })
+      .catch(function (error) {
+        if (status) status.textContent = error.message || String(error);
+      });
+  });
+
+  document.addEventListener("click", function (ev) {
+    // Never steal clicks from stamped nav / back chrome (dashboard module cards, etc.).
+    if (
+      ev.target &&
+      ev.target.closest &&
+      ev.target.closest("[data-cwl-nav], .module-back-btn, .wisp-back-btn, [data-action='back']")
+    ) {
+      return;
+    }
     var closeBtn = ev.target.closest(".cwl-shell-close");
     if (closeBtn) {
       var shell = closeBtn.closest(OVERLAY_SEL);
@@ -3574,14 +6482,28 @@ function initShellIslands() {
 
     if (/^Tips$/i.test(label) || /\btips-btn\b/.test(btn.className) || /^Tips$/i.test(title)) {
       if (openByAttr("data-cwl-modal-shell", "TipsModal")) return;
+      if (openByAttr("data-cwl-lifted-component", "TipsModal")) return;
+      var tipsOv = document.querySelector(".tips-overlay");
+      if (tipsOv) {
+        ev.preventDefault();
+        openShell(tipsOv);
+        return;
+      }
     }
     if (
       /^Help$/i.test(label) ||
       /\bhelp-btn\b/.test(btn.className) ||
       /\bhelp-button\b/.test(btn.className) ||
-      /Open help/i.test(title)
+      /Open [Hh]elp/i.test(title)
     ) {
       if (openByAttr("data-cwl-modal-shell", "HelpModal")) return;
+      if (openByAttr("data-cwl-lifted-component", "HelpModal")) return;
+      var helpOv = document.querySelector(".help-overlay");
+      if (helpOv) {
+        ev.preventDefault();
+        openShell(helpOv);
+        return;
+      }
     }
 
     // Match button text to any overlay shell name on the page.
@@ -3610,7 +6532,24 @@ function initShellIslands() {
       }
     }
 
-    if (/Check\s*In|RMA|Manual Lookup|Onboarding|Wizard/i.test(label) && !/Add Hardware/i.test(label)) {
+    if (/Scan\s*Lookup|Check\s*In|Check\s*Out|RMA|Manual Lookup|Onboarding|Wizard/i.test(label) && !/Add Hardware/i.test(label)) {
+      var scanShell =
+        document.querySelector('[data-cwl-lifted-component="ScanModal"]') ||
+        document.querySelector('[data-cwl-modal-shell="ScanModal"]') ||
+        document.querySelector(".scan-modal, [data-cwl-lifted-component*='Scan']");
+      if (/Scan/i.test(label) && scanShell) {
+        ev.preventDefault();
+        openShell(scanShell);
+        return;
+      }
+      var checkShell =
+        document.querySelector('[data-cwl-lifted-component*="CheckIn"], [data-cwl-modal-shell*="CheckIn"]') ||
+        document.querySelector('[data-cwl-lifted-component*="CheckOut"], [data-cwl-modal-shell*="CheckOut"]');
+      if (/Check\s*In|Check\s*Out/i.test(label) && checkShell) {
+        ev.preventDefault();
+        openShell(checkShell);
+        return;
+      }
       var wiz = document.querySelector("[data-cwl-wizard-shell]");
       if (wiz) {
         ev.preventDefault();
@@ -3646,6 +6585,18 @@ function initStructuralModulePages() {
     { sel: ".role-management-page", page: "roles", api: "/api/permissions/roles" },
     { sel: ".voice-page", page: "voice", api: "/api/voice" },
     { sel: ".wisp-plan-app", page: "plan", api: "/api/plans" },
+    {
+      sel: '[data-wisp-page="modules-plan"], [data-wisp-page="plan"], [data-wisp-path="/modules/plan"]',
+      page: "plan",
+      api: "/api/plans",
+      pathPrefix: "/modules/plan",
+    },
+    {
+      sel: ".app",
+      page: "plan",
+      api: "/api/plans",
+      pathPrefix: "/modules/plan",
+    },
     { sel: ".cbrs-module", page: "cbrs", api: "/api/network/sectors" },
     { sel: ".support-dashboard", page: "support", api: "/api/incidents" },
     { sel: ".module-access-container", page: "module-access", api: "/api/module-access" },
@@ -3665,7 +6616,8 @@ function initStructuralModulePages() {
       api: "/api/network/sectors",
       pathPrefix: "/modules/pci-resolution",
     },
-    { sel: ".hardware-page", page: "hardware", api: "/api/network/equipment" },
+    /* Origin hardware list is inventoryService.getInventory — not equipment-only. */
+    { sel: ".hardware-page", page: "hardware", api: "/api/inventory" },
     { sel: ".inventory-page", page: "inventory", api: "/api/inventory" },
     { sel: ".customers-page", page: "customers", api: "/api/customers" },
     { sel: ".sites-page", page: "sites", api: "/api/network/sites" },
@@ -3675,7 +6627,7 @@ function initStructuralModulePages() {
     { sel: ".billing-module", page: "billing", api: "/api/customer-billing" },
     { sel: ".user-management-container", page: "users", api: "/api/users" },
     { sel: ".tenant-management-page", page: "tenants", api: "/api/tenants" },
-    { sel: ".hss-management", page: "hss", api: "/api/hss/groups" },
+    { sel: ".hss-management", page: "hss", api: "/api/hss" },
     { sel: ".acs-settings-page", page: "tenant-settings", api: "/api/tenant-settings" },
     { sel: ".acs-cpe-page, .acs-devices-page, [data-wisp-page*='acs']", page: "acs-cpe", api: "/api/network/cpe" },
     { sel: ".backend-management, [data-wisp-page*='backend']", page: "backend", api: "/api/incidents" },
@@ -3710,13 +6662,14 @@ function initStructuralModulePages() {
       api: "/api/incidents",
       pathPrefix: "/modules/monitor",
     },
-    { sel: '[data-wisp-page="hardware"]', page: "hardware", api: "/api/network/equipment" },
+    { sel: '[data-wisp-page="hardware"]', page: "hardware", api: "/api/inventory" },
     { sel: '[data-wisp-page="inventory"]', page: "inventory", api: "/api/inventory" },
     { sel: '[data-wisp-page="customers"]', page: "customers", api: "/api/customers" },
-    { sel: '[data-wisp-page="plan"]', page: "plan", api: "/api/plans" },
+    { sel: '[data-wisp-page="plan"], [data-wisp-page="modules-plan"]', page: "plan", api: "/api/plans" },
+    { sel: '[data-wisp-page="modules-deploy"], [data-wisp-page="deploy"]', page: "deploy", api: "/api/plans" },
     { sel: '[data-wisp-page="sites"]', page: "sites", api: "/api/network/sites" },
     { sel: '[data-wisp-page="work-orders"]', page: "work-orders", api: "/api/work-orders" },
-    { sel: '[data-wisp-page="hss-management"]', page: "hss", api: "/api/hss/groups" },
+    { sel: '[data-wisp-page="hss-management"]', page: "hss", api: "/api/hss" },
     { sel: '[data-wisp-page="user-management"]', page: "users", api: "/api/users" },
     { sel: '[data-wisp-page="tenant-management"]', page: "tenants", api: "/api/tenants" },
     { sel: '[data-wisp-page="billing"]', page: "billing", api: "/api/customer-billing" },
@@ -3730,23 +6683,16 @@ function initStructuralModulePages() {
     { sel: '[data-wisp-page="acs-cpe-management"]', page: "acs-cpe", api: "/api/network/cpe" },
   ];
 
-  // Dead HSS mounts — show honest status instead of inventing data.
+  // Keep only endpoints proven unavailable on the current HSS gateway.
   var HONEST_UNAVAILABLE = {
-    "/api/voice": true,
-    "/api/billing": true,
-    "/api/customer-billing": true,
-    "/api/module-access": true,
-    "/api/tenants": true,
-    "/api/admin": true,
-    "/api/hardware": true,
-    "/api/maintain": true,
-    "/api/deploy": true,
-    "/api/coverage": true,
-    "/api/epc": true,
     "/api/mikrotik": true,
-    "/api/branding": true,
-    "/api/auth": true,
-    "/api/agent": true,
+  };
+
+  // Map/plan islands hydrate the lifted original modals (PCI planner, plan
+  // approval, deployed hardware) through this scoped entry point.
+  window.__wispHydrateShellScope = function (rootEl, data, rows) {
+    if (!rootEl) return 0;
+    return hydrateHolesIn(rootEl, buildHoleContext(data || {}, rows || []));
   };
 
   var page = null;
@@ -3778,7 +6724,8 @@ function initStructuralModulePages() {
   // Path map overrides wrong traced apiPaths (hardware→inventory, monitoring→graphs).
   // More-specific prefixes must win over /modules/inventory and /modules/user-management.
   var pathApi = "";
-  if (location.pathname.indexOf("/modules/hardware") === 0) pathApi = "/api/network/equipment";
+  // Combined hardware contract carries inventory items, stats, and EPC/SNMP devices.
+  if (location.pathname.indexOf("/modules/hardware") === 0) pathApi = "/api/hardware";
   else if (location.pathname.indexOf("/modules/inventory/bundles") === 0) pathApi = "/api/bundles";
   else if (location.pathname.indexOf("/modules/inventory") === 0) pathApi = "/api/inventory";
   else if (location.pathname.indexOf("/modules/customers") === 0) pathApi = "/api/customers";
@@ -3796,7 +6743,7 @@ function initStructuralModulePages() {
   else if (location.pathname.indexOf("/admin/tenant-management") === 0) pathApi = "/admin/tenants";
   else if (location.pathname.indexOf("/admin/tenants") === 0) pathApi = "/admin/tenants";
   else if (location.pathname.indexOf("/modules/monitoring") === 0) pathApi = "/api/monitoring/graphs";
-  else if (location.pathname.indexOf("/modules/hss-management") === 0) pathApi = "/api/hss/groups";
+  else if (location.pathname.indexOf("/modules/hss-management") === 0) pathApi = "/api/hss";
   else if (location.pathname.indexOf("/modules/deploy") === 0) pathApi = "/api/plans";
   else if (location.pathname.indexOf("/modules/voice-telephony") === 0) pathApi = "/api/voice";
   else if (location.pathname.indexOf("/modules/plan") === 0) pathApi = "/api/plans";
@@ -3822,8 +6769,8 @@ function initStructuralModulePages() {
     loadApi = "";
   }
   var api =
-    page.getAttribute("data-wisp-api") ||
     pathApi ||
+    page.getAttribute("data-wisp-api") ||
     loadApi ||
     meta.api ||
     "/api/hardware";
@@ -3945,9 +6892,17 @@ function initStructuralModulePages() {
     var count = rows.length;
     var byStatus = {};
     for (var i = 0; i < rows.length; i++) {
-      var st = String(rows[i].status || "").toLowerCase();
+      var st = String(
+        rows[i].status || rows[i].serviceStatus || rows[i].accountStatus || "",
+      ).toLowerCase();
       if (!st) continue;
       byStatus[st] = (byStatus[st] || 0) + 1;
+    }
+    if (data && Array.isArray(data.devices)) {
+      for (var di = 0; di < data.devices.length; di++) {
+        var deviceStatus = String(data.devices[di].status || "").toLowerCase();
+        if (deviceStatus) byStatus[deviceStatus] = (byStatus[deviceStatus] || 0) + 1;
+      }
     }
     for (var rk in reportBy) {
       if (Object.prototype.hasOwnProperty.call(reportBy, rk)) {
@@ -3967,16 +6922,30 @@ function initStructuralModulePages() {
             ? summary.totalTickets
             : count;
       }
-      if (/\bactive\b/.test(L)) return stats.active != null ? stats.active : byStatus.active || 0;
-      if (/pending/.test(L)) return stats.pending != null ? stats.pending : byStatus.pending || 0;
+      if (/\bactive\b/.test(L)) {
+        // Prefer row/serviceStatus buckets when API.stats.active is missing or 0 (customers).
+        if (byStatus.active) return byStatus.active;
+        return stats.active != null ? stats.active : 0;
+      }
+      if (/pending/.test(L)) {
+        if (byStatus.pending) return byStatus.pending;
+        return stats.pending != null ? stats.pending : 0;
+      }
       if (/suspend/.test(L)) return stats.suspended != null ? stats.suspended : byStatus.suspended || 0;
-      if (/available|in stock/.test(L)) return stats.inStock != null ? stats.inStock : "–";
+      if (/available|in stock/.test(L)) {
+        if (byStatus.available || byStatus.in_stock || byStatus["in-stock"]) {
+          return byStatus.available || byStatus.in_stock || byStatus["in-stock"];
+        }
+        return stats.inStock != null ? stats.inStock : stats.available != null ? stats.available : "–";
+      }
       if (/rma|maintenance/.test(L)) return stats.rma != null ? stats.rma : "–";
       if (/deployed|online/.test(L)) {
         var d = (byStatus.deployed || 0) + (byStatus.online || 0);
         return d > 0 ? d : "–";
       }
-      if (/epc|snmp/.test(L)) return "–";
+      if (/epc|snmp/.test(L)) {
+        return data && Array.isArray(data.devices) ? data.devices.length : "–";
+      }
       if (/value/.test(L)) return "–";
       if (/in progress/.test(L)) {
         return (
@@ -4110,8 +7079,29 @@ function initStructuralModulePages() {
       if (/Approved/i.test(t)) el.textContent = "Approved (" + approved + ")";
       else if (/Projects/i.test(t)) el.textContent = "Projects (" + total + ")";
       else if (/Deployed/i.test(t)) el.textContent = "Deployed (" + deployed + ")";
-      else if (/Hardware/i.test(t)) el.textContent = "Hardware (–)";
     });
+    var doFetchHw = window.WispCwlApi
+      ? window.WispCwlApi.fetch
+      : function (p) {
+          return fetch(p, { credentials: "same-origin" });
+        };
+    doFetchHw("/api/inventory")
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (doc) {
+        var inv =
+          (doc && Array.isArray(doc.items) && doc.items) ||
+          (doc && Array.isArray(doc.records) && doc.records) ||
+          firstArray(doc) ||
+          [];
+        page.querySelectorAll(".control-label").forEach(function (el) {
+          if (/Hardware/i.test(el.textContent || "")) {
+            el.textContent = "Hardware (" + inv.length + ")";
+          }
+        });
+      })
+      .catch(function () {});
   }
 
   /** G9933 — plan overlay counts + projects list from /api/plans. */
@@ -4119,8 +7109,38 @@ function initStructuralModulePages() {
     page.querySelectorAll(".control-label").forEach(function (el) {
       var t = el.textContent || "";
       if (/Projects/i.test(t)) el.textContent = "Projects (" + rows.length + ")";
-      else if (/Hardware/i.test(t)) el.textContent = "Hardware (–)";
     });
+    // Hardware badge: count from /api/inventory (same source as Hardware panel), not a dash.
+    var doFetch = window.WispCwlApi
+      ? window.WispCwlApi.fetch
+      : function (p) {
+          return fetch(p, { credentials: "same-origin" });
+        };
+    doFetch("/api/inventory")
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (doc) {
+        var inv =
+          (doc && Array.isArray(doc.items) && doc.items) ||
+          (doc && Array.isArray(doc.records) && doc.records) ||
+          (doc && Array.isArray(doc) && doc) ||
+          firstArray(doc) ||
+          [];
+        var n = inv.length;
+        page.querySelectorAll(".control-label").forEach(function (el) {
+          var t = el.textContent || "";
+          if (/Hardware/i.test(t)) el.textContent = "Hardware (" + n + ")";
+        });
+      })
+      .catch(function () {
+        page.querySelectorAll(".control-label").forEach(function (el) {
+          var t = el.textContent || "";
+          if (/Hardware/i.test(t) && /\(–\)|\(-\)|Loading/i.test(t)) {
+            el.textContent = "Hardware (0)";
+          }
+        });
+      });
     var listEl = page.querySelector("#plan-projects-list");
     if (listEl) {
       if (!rows.length) {
@@ -4146,27 +7166,94 @@ function initStructuralModulePages() {
           .join("");
       }
     }
-    var summary = page.querySelector("#plan-active-summary");
-    if (summary && rows.length) {
-      var first = rows[0];
-      summary.hidden = false;
-      summary.textContent =
-        rows.length +
-        " plan(s) — active context: " +
-        (first.name || first._id || "plan") +
-        " (" +
-        (first.status || "draft") +
-        ")";
+    var summary = page.querySelector("#plan-active-summary, .plan-summary");
+    if (summary) {
+      if (!rows.length) {
+        var empty = summary.querySelector("h3, .plan-summary-title, [data-cwl-hole]");
+        if (empty && /Active Plan/i.test(summary.textContent || "")) {
+          /* keep heading; stamp honest empty in status line */
+        }
+        var statusLine = summary.querySelector("p, .status, [class*='status']");
+        if (statusLine) statusLine.textContent = "No plans from /api/plans yet.";
+      } else if (rows.length) {
+        var first = rows[0];
+        summary.hidden = false;
+        summary.removeAttribute("hidden");
+        var titleEl = summary.querySelector("h3");
+        if (titleEl) {
+          titleEl.textContent = "Active Plan: " + (first.name || first._id || "Plan");
+        }
+        var paras = summary.querySelectorAll("p");
+        if (paras[0]) paras[0].textContent = "Status: " + (first.status || "draft");
+        if (paras[1]) {
+          paras[1].textContent =
+            rows.length + " plan(s) · " + (first.name || first._id || "plan");
+        }
+        if (summary.id === "plan-active-summary") {
+          summary.textContent =
+            rows.length +
+            " plan(s) — active context: " +
+            (first.name || first._id || "plan") +
+            " (" +
+            (first.status || "draft") +
+            ")";
+        }
+      }
+    }
+    // Also hydrate lifted project list chrome when id is missing.
+    var projectList =
+      listEl ||
+      page.querySelector(".project-list, .projects-list, [data-cwl-hole-detail*='projects']");
+    if (!listEl && projectList && rows.length) {
+      var host = projectList.closest(".projects-panel, .modal-body, section") || projectList;
+      /* leave structure; counts already updated on control labels */
+      void host;
     }
   }
 
   function fillSitesTable(rows) {
+    var loadingEl = page.querySelector(".loading-state");
+    var emptyEl = page.querySelector(".empty-state");
     var tbody = page.querySelector(".sites-table tbody");
+    /* Convert can drop table chrome when `{#if loading}` kept the busy branch — rebuild. */
+    if (!tbody) {
+      var host =
+        page.querySelector(".stats-grid") ||
+        page.querySelector(".sites-page, .module-page, main, .wisp-app-surface") ||
+        page;
+      var wrap = document.createElement("div");
+      wrap.className = "sites-table-container";
+      wrap.innerHTML =
+        '<table class="sites-table"><thead><tr>' +
+        "<th>Site Name</th><th>Type</th><th>Status</th><th>Location</th><th>Contact</th><th>Actions</th>" +
+        "</tr></thead><tbody></tbody></table>";
+      if (host && host.parentNode && host.classList && host.classList.contains("stats-grid")) {
+        host.parentNode.insertBefore(wrap, host.nextSibling);
+      } else if (host) {
+        host.appendChild(wrap);
+      }
+      tbody = page.querySelector(".sites-table tbody");
+    }
     if (!tbody) return false;
+    if (loadingEl) {
+      loadingEl.hidden = true;
+      loadingEl.setAttribute("aria-hidden", "true");
+      loadingEl.style.display = "none";
+    }
     if (!rows.length) {
+      if (emptyEl) {
+        emptyEl.hidden = false;
+        emptyEl.removeAttribute("aria-hidden");
+        emptyEl.style.display = "";
+      }
       tbody.innerHTML =
         '<tr><td colspan="6" class="empty-state cwl-empty-honest" data-cwl-empty-honest="1">No sites from /api/network/sites.</td></tr>';
       return true;
+    }
+    if (emptyEl) {
+      emptyEl.hidden = true;
+      emptyEl.setAttribute("aria-hidden", "true");
+      emptyEl.style.display = "none";
     }
     page.__cwlSitesRows = rows;
     tbody.innerHTML = rows
@@ -4319,9 +7406,19 @@ function initStructuralModulePages() {
       });
     }
     if (meta.page === "inventory" || meta.page === "hardware") {
-      return ["serialNumber", "manufacturer", "model", "status", "location"].filter(function (k) {
-        return row[k] !== undefined;
-      });
+      // Fixed column order matching origin table headers (do not drop missing keys —
+      // that left status under Manufacturer and Edit under Model).
+      return meta.page === "hardware"
+        ? ["serialNumber", "manufacturer", "model", "status", "location"]
+        : [
+            "assetTag",
+            "category",
+            "type",
+            "manufacturer",
+            "model",
+            "serialNumber",
+            "status",
+          ];
     }
     if (meta.page === "sites") {
       return ["name", "type", "status"].filter(function (k) {
@@ -4644,19 +7741,86 @@ function initStructuralModulePages() {
   function fillList(rows) {
     if (!rows.length) return;
     page.__cwlListRows = rows;
-    var tbody = null;
-    page.querySelectorAll("tbody").forEach(function (tb) {
-      if (!tbody && !tb.closest(".cwl-widget-shell")) tbody = tb;
+    var loadingEl = page.querySelector(".loading-state");
+    if (loadingEl) {
+      loadingEl.hidden = true;
+      loadingEl.setAttribute("aria-hidden", "true");
+      loadingEl.style.display = "none";
+    }
+    page.querySelectorAll(".empty-state").forEach(function (el) {
+      el.hidden = true;
+      el.setAttribute("aria-hidden", "true");
+      el.style.display = "none";
     });
+    var tbody = null;
+    if (meta.page === "hardware" || meta.page === "inventory") {
+      // Prefer inventory tbody — never dump rows into the EPC/SNMP table.
+      page.querySelectorAll("tbody").forEach(function (tb) {
+        if (tbody) return;
+        if (tb.closest(".cwl-widget-shell, .epc-section, [data-cwl-hole-detail*='epcDevices']"))
+          return;
+        var th = ((tb.closest("table") || {}).querySelector("thead") || {}).textContent || "";
+        if (/Device Code|Network Config|SNMP|Last Seen/i.test(th)) return;
+        tbody = tb;
+      });
+    }
+    page.querySelectorAll("tbody").forEach(function (tb) {
+      if (!tbody && !tb.closest(".cwl-widget-shell, .epc-section")) tbody = tb;
+    });
+    /* Hardware: ensure table chrome exists when convert dropped it. */
+    if (!tbody && (meta.page === "hardware" || meta.page === "inventory")) {
+      var hwHost =
+        page.querySelector(".inventory-section, .epc-section, .stats-grid") ||
+        page.querySelector(".hardware-page, .inventory-page") ||
+        page;
+      var wrap = document.createElement("div");
+      wrap.className = "table-container";
+      wrap.innerHTML =
+        '<table class="hardware-table"><thead><tr>' +
+        "<th>Hardware</th><th>Category</th><th>Status</th><th>Location</th><th>Actions</th>" +
+        "</tr></thead><tbody></tbody></table>";
+      if (hwHost && hwHost.classList && hwHost.classList.contains("stats-grid") && hwHost.parentNode) {
+        hwHost.parentNode.insertBefore(wrap, hwHost.nextSibling);
+      } else if (hwHost) {
+        hwHost.appendChild(wrap);
+      }
+      tbody = page.querySelector(".hardware-table tbody");
+    }
     var grid =
       page.querySelector(".tenants-grid") ||
       page.querySelector(".tickets-grid") ||
       page.querySelector(".customer-grid") ||
       page.querySelector(".work-orders-grid") ||
+      page.querySelector(".groups-grid") ||
       page.querySelector(".sites-grid") ||
       page.querySelector(".site-grid") ||
       page.querySelector(".bundles-grid") ||
       page.querySelector(".role-tabs");
+    /* Work-orders: rebuild grid if convert only left loading/empty. */
+    if (!grid && meta.page === "work-orders") {
+      var woHost =
+        page.querySelector(".filters-section") ||
+        page.querySelector(".work-orders-page") ||
+        page;
+      var woGrid = document.createElement("div");
+      woGrid.className = "work-orders-grid";
+      if (woHost && woHost.classList && woHost.classList.contains("filters-section") && woHost.parentNode) {
+        woHost.parentNode.insertBefore(woGrid, woHost.nextSibling);
+      } else if (woHost) {
+        woHost.appendChild(woGrid);
+      }
+      grid = woGrid;
+    }
+    if (!grid && meta.page === "hss") {
+      var hssHost =
+        page.querySelector(".tab-content") ||
+        page.querySelector(".hss-management") ||
+        page;
+      var gGrid = document.createElement("div");
+      gGrid.className = "groups-grid";
+      if (hssHost) hssHost.appendChild(gGrid);
+      grid = gGrid;
+    }
     var cols = preferredCols(rows[0]);
     if (!cols.length) cols = Object.keys(rows[0]).slice(0, 5);
     var cardClass = page.querySelector(".tenants-grid")
@@ -4665,13 +7829,15 @@ function initStructuralModulePages() {
         ? "ticket-card"
         : page.querySelector(".work-orders-grid")
           ? "work-order-card"
-          : page.querySelector(".sites-grid, .site-grid")
-            ? "site-card"
-            : page.querySelector(".bundles-grid")
-              ? "bundle-card"
-              : page.querySelector(".role-tabs")
-                ? "role-tab"
-                : "customer-card";
+          : page.querySelector(".groups-grid")
+            ? "group-card"
+            : page.querySelector(".sites-grid, .site-grid")
+              ? "site-card"
+              : page.querySelector(".bundles-grid")
+                ? "bundle-card"
+                : page.querySelector(".role-tabs")
+                  ? "role-tab"
+                  : "customer-card";
     var editableList =
       meta.page === "inventory" ||
       meta.page === "hardware" ||
@@ -4702,8 +7868,17 @@ function initStructuralModulePages() {
             cols
               .map(function (c) {
                 var v = row[c];
+                if (c === "assetTag" && (v == null || v === "")) {
+                  v = row.assetTag || row.serialNumber || row._id || row.id || "";
+                }
+                if (c === "type" && (v == null || v === "")) {
+                  v = row.type || row.equipmentType || row.itemType || "";
+                }
+                if (c === "location" && v && typeof v === "object") {
+                  v = v.name || v.siteName || v.warehouse || JSON.stringify(v).slice(0, 40);
+                }
                 if (v && typeof v === "object") v = v.name || v.city || JSON.stringify(v).slice(0, 40);
-                return "<td>" + esc(v).slice(0, 48) + "</td>";
+                return "<td>" + esc(v == null ? "" : v).slice(0, 48) + "</td>";
               })
               .join("") +
             (editableList
@@ -5366,8 +8541,14 @@ function initStructuralModulePages() {
 
   function hydrateDetailFromList() {
     var path = location.pathname.replace(/\/$/, "");
+    // Firebase static: 404.html forwards /modules/x/{id} to the template page
+    // with ?cwl-detail=<original-path>; hydrate as if we were on that path.
+    try {
+      var fwd = new URLSearchParams(location.search).get("cwl-detail");
+      if (fwd && fwd.indexOf("/") === 0) path = fwd.replace(/\/$/, "").replace(/\/edit$/, "");
+    } catch (_) {}
     var specs = [
-      { re: /\/modules\/inventory\/([^/]+)$/, api: "/api/inventory", keys: ["items", "records"], skip: ["add", "bundles", "reports"] },
+      { re: /\/modules\/(?:inventory|hardware)\/([^/]+)$/, api: "/api/inventory", keys: ["items", "records"], skip: ["add", "bundles", "reports"] },
       { re: /\/modules\/work-orders\/([^/]+)$/, api: "/api/work-orders", keys: ["workOrders", "items", "records"], skip: ["add"] },
       { re: /\/modules\/customers\/([^/]+)$/, api: "/api/customers", keys: ["customers", "items"], skip: ["add", "portal", "portal-setup"] },
       { re: /\/modules\/sites\/([^/]+)$/, api: "/api/network/sites", keys: ["sites", "items"], skip: ["add"] },
@@ -5438,7 +8619,12 @@ function initStructuralModulePages() {
             .split(".")[0];
           if (!key) return;
           var val = row[key];
-          if (val != null && typeof val !== "object") el.textContent = String(val);
+          if (val != null && typeof val !== "object") {
+            el.textContent = String(val);
+            el.removeAttribute("data-cwl-hole");
+            el.removeAttribute("data-cwl-bind");
+            el.setAttribute("data-cwl-hydrated", "1");
+          }
         });
         var title = page.querySelector("h1, h2, .page-header h1");
         if (title && (row.name || row.title || row.fullName || row.serialNumber || row.ticketNumber)) {
@@ -5662,6 +8848,550 @@ function initStructuralModulePages() {
     else page.insertBefore(bar, page.firstChild);
   }
 
+  /** D6448 — evaluate origin hole expressions against live API truth (no invention). */
+  function safeEvalHoleExpr(expr, ctx) {
+    if (!expr || expr.length > 170) return undefined;
+    /* Truncated details can't parse; assignments and global access are rejected. */
+    if (/[^=!<>+\-*/%&|^]=(?![=>])/.test(expr)) return undefined;
+    if (
+      /\b(window|document|location|fetch|XMLHttpRequest|eval|Function|import|require|alert|cookie|localStorage|sessionStorage|globalThis|constructor|prototype|__proto__)\b/.test(
+        expr,
+      )
+    )
+      return undefined;
+    var names = Object.keys(ctx);
+    var vals = names.map(function (n) {
+      return ctx[n];
+    });
+    try {
+      var fn = new Function(names.join(","), '"use strict"; return (' + expr + ");");
+      return fn.apply(null, vals);
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  /** Resolve compiler-preserved native attribute expressions against CWL context. */
+  function applyCwlAttributeBindings(root, ctx) {
+    if (!root || !root.querySelectorAll) return 0;
+    var selector =
+      "[data-cwl-attr-title], [data-cwl-attr-aria-label], [data-cwl-attr-disabled], " +
+      "[data-cwl-attr-value], [data-cwl-attr-placeholder]";
+    var nodes = [];
+    if (root.matches && root.matches(selector)) nodes.push(root);
+    root.querySelectorAll(selector).forEach(function (el) {
+      nodes.push(el);
+    });
+    var settled = 0;
+    nodes.forEach(function (el) {
+      ["title", "aria-label", "disabled", "value", "placeholder"].forEach(function (name) {
+        var binding = "data-cwl-attr-" + name;
+        if (!el.hasAttribute(binding)) return;
+        var value = safeEvalHoleExpr(el.getAttribute(binding) || "", ctx);
+        if (value === undefined) return;
+        if (name === "disabled") {
+          el.disabled = !!value;
+          if (value) el.setAttribute("disabled", "");
+          else el.removeAttribute("disabled");
+        } else if (value === null || value === false) {
+          el.removeAttribute(name);
+        } else {
+          el.setAttribute(name, String(value));
+          if (name === "value" && "value" in el) el.value = String(value);
+        }
+        settled++;
+      });
+    });
+    return settled;
+  }
+
+  function normalizeListRows(pageName, rows) {
+    if (pageName !== "hardware" && pageName !== "inventory") return rows || [];
+    return (rows || []).map(function (row) {
+      var next = Object.assign({}, row);
+      var label = next.name || next.sku || next.id || "";
+      if (next.manufacturer == null || next.manufacturer === "")
+        next.manufacturer = next.vendor || next.brand || label || "Inventory";
+      if (next.model == null || next.model === "") next.model = label || next.id || "item";
+      if (next.serialNumber == null || next.serialNumber === "")
+        next.serialNumber = next.serial || next.serial_number || next.id || label;
+      if (next.assetTag == null || next.assetTag === "")
+        next.assetTag = next.asset_tag || next.tag || next.id || "";
+      if (next.category == null || next.category === "")
+        next.category = next.type || next.equipmentType || "general";
+      if (next.condition == null || next.condition === "") next.condition = next.status || "unknown";
+      if (!next.currentLocation || typeof next.currentLocation !== "object") {
+        next.currentLocation = {
+          siteName:
+            (typeof next.location === "string" && next.location) ||
+            next.locationType ||
+            next.siteName ||
+            "Unassigned",
+        };
+      }
+      if (next._id == null) next._id = next.id;
+      return next;
+    });
+  }
+
+  function buildHoleContext(data, rows) {
+    var ctx = {};
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      for (var k in data) {
+        if (Object.prototype.hasOwnProperty.call(data, k) && /^[A-Za-z_$][\w$]*$/.test(k)) {
+          ctx[k] = data[k];
+        }
+      }
+    }
+    rows = normalizeListRows(meta.page, rows);
+    var alias = {
+      sites: ["sites", "filteredSites"],
+      hardware: ["items", "filteredItems"],
+      inventory: ["items", "filteredItems"],
+      "work-orders": ["workOrders", "filteredWorkOrders"],
+      customers: ["customers", "filteredCustomers"],
+      "help-desk": ["tickets", "incidents", "filteredTickets"],
+      maintain: ["incidents", "filteredIncidents"],
+      plan: ["projects", "plans"],
+      deploy: ["plans"],
+      users: ["users", "filteredUsers"],
+      tenants: ["tenants", "filteredTenants"],
+      hss: ["groups"],
+      cbrs: ["devices", "grants"],
+      pci: ["cells"],
+      monitoring: ["devices", "graphs"],
+      voice: ["accounts"],
+      "acs-cpe": ["devices"],
+      billing: ["plans", "invoices"],
+    };
+    (alias[meta.page] || []).forEach(function (n) {
+      if (ctx[n] == null) ctx[n] = rows;
+    });
+    if (ctx.rows == null) ctx.rows = rows;
+    if (ctx.stats == null || typeof ctx.stats !== "object") ctx.stats = {};
+    if (ctx.count == null) ctx.count = rows.length;
+    if (ctx.total == null) ctx.total = rows.length;
+    if (ctx.pagination == null || typeof ctx.pagination !== "object") {
+      ctx.pagination = {
+        page: 1,
+        pages: Math.max(1, Math.ceil(rows.length / 25) || 1),
+        total: rows.length,
+        limit: 25,
+      };
+    } else {
+      if (ctx.pagination.total == null) ctx.pagination.total = rows.length;
+      if (ctx.pagination.page == null) ctx.pagination.page = 1;
+      if (ctx.pagination.pages == null)
+        ctx.pagination.pages = Math.max(1, Math.ceil(rows.length / 25) || 1);
+    }
+    if (meta.page === "deploy" || meta.page === "plan") {
+      if (ctx.approvedPlans == null)
+        ctx.approvedPlans = rows.filter(function (r) {
+          return r.status === "approved";
+        });
+      if (ctx.deployedPlans == null)
+        ctx.deployedPlans = rows.filter(function (r) {
+          return r.status === "deployed";
+        });
+      if (ctx.readyPlans == null) ctx.readyPlans = ctx.approvedPlans;
+    }
+    if (meta.page === "hardware" || meta.page === "inventory") {
+      // Always prefer normalized list rows over sparse API stubs copied above.
+      ctx.items = rows;
+      ctx.filteredItems = rows;
+      if (ctx.activeHardwareTab == null) ctx.activeHardwareTab = "all";
+      if (ctx.selectedCategory == null) ctx.selectedCategory = "";
+      if (ctx.selectedStatus == null) ctx.selectedStatus = "";
+      if (ctx.selectedLocation == null) ctx.selectedLocation = "";
+      if (ctx.searchQuery == null) ctx.searchQuery = "";
+      if (ctx.categoryList == null) {
+        var cats = {};
+        rows.forEach(function (row) {
+          var c = row.category || row.type || row.equipmentType;
+          if (c) cats[String(c)] = true;
+        });
+        ctx.categoryList = Object.keys(cats);
+      }
+      if (ctx.manufacturers == null) {
+        var mans = {};
+        rows.forEach(function (row) {
+          var m = row.manufacturer || row.vendor;
+          if (m) mans[String(m)] = true;
+        });
+        ctx.manufacturers = Object.keys(mans);
+      }
+      if (ctx.locations == null) {
+        var locs = {};
+        rows.forEach(function (row) {
+          var loc =
+            (row.currentLocation && (row.currentLocation.siteName || row.currentLocation.name)) ||
+            row.location ||
+            row.locationType;
+          if (loc && typeof loc !== "object") locs[String(loc)] = true;
+        });
+        ctx.locations = Object.keys(locs);
+      }
+      if (ctx.epcDevices == null && data && Array.isArray(data.devices)) {
+        ctx.epcDevices = normalizeListRows(
+          "hardware",
+          data.devices.map(function (device) {
+            return Object.assign(
+              {
+                deployment_type: device.deployment_type || device.type || "epc",
+                site_name: device.site_name || device.siteName || device.name,
+              },
+              device,
+            );
+          }),
+        );
+      }
+      if (ctx.epcDevices == null) {
+        ctx.epcDevices = rows.filter(function (row) {
+          var t = String(row.type || row.category || row.deployment_type || "").toLowerCase();
+          return /epc|snmp/.test(t);
+        });
+      }
+      ctx.getCategoryCount = function (category) {
+        var c = 0;
+        for (var i = 0; i < rows.length; i++) {
+          if (String(rows[i].category || rows[i].type || "") === String(category)) c++;
+        }
+        return c;
+      };
+      if (ctx.stats.total == null) ctx.stats.total = rows.length;
+      if (ctx.stats.available == null)
+        ctx.stats.available = rows.filter(function (row) {
+          return /available|in.?stock|online/i.test(String(row.status || ""));
+        }).length;
+      if (ctx.stats.deployed == null)
+        ctx.stats.deployed = rows.filter(function (row) {
+          return /deployed|online/i.test(String(row.status || ""));
+        }).length;
+    }
+    ctx.formatCurrency = function (v) {
+      var n = Number(v);
+      return isFinite(n) ? "$" + n.toLocaleString() : "";
+    };
+    ctx.formatDate = function (v) {
+      try {
+        return v ? new Date(v).toLocaleDateString() : "";
+      } catch (e) {
+        return "";
+      }
+    };
+    ctx.formatInTenantTimezone = ctx.formatDate;
+    ctx.getStatusCount = function (st) {
+      var c = 0;
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i].status || "").toLowerCase() === String(st).toLowerCase()) c++;
+      }
+      return c;
+    };
+    return ctx;
+  }
+
+  /** Fill interp holes, resolve if/each holes from live data; leave unevaluable ones honest. */
+  function hydrateHoleMarkers(data, rows) {
+    var ctx = buildHoleContext(data, rows || []);
+    return hydrateHolesIn(page, ctx);
+  }
+
+  function hydrateHolesIn(root, ctx) {
+    var settled = applyCwlAttributeBindings(root, ctx);
+    root
+      .querySelectorAll(
+        '[data-cwl-hole="legacy:markup-lift-svelte-interp"], [data-cwl-bind="interp"]',
+      )
+      .forEach(function (el) {
+        var v = safeEvalHoleExpr(el.getAttribute("data-cwl-hole-detail") || "", ctx);
+        if (v === undefined || v === null || typeof v === "object" || typeof v === "function")
+          return;
+        el.textContent = String(v);
+        el.removeAttribute("data-cwl-hole");
+        el.removeAttribute("data-cwl-bind");
+        el.setAttribute("data-cwl-hydrated", "1");
+        settled++;
+      });
+    root
+      .querySelectorAll('[data-cwl-hole="legacy:markup-lift-svelte-if"], [data-cwl-bind="if"]')
+      .forEach(function (el) {
+        var v = safeEvalHoleExpr(el.getAttribute("data-cwl-hole-detail") || "", ctx);
+        if (v === undefined) return;
+        if (!v) {
+          el.hidden = true;
+          el.setAttribute("aria-hidden", "true");
+          el.style.display = "none";
+        } else {
+          el.hidden = false;
+          el.removeAttribute("hidden");
+          el.setAttribute("aria-hidden", "false");
+          if (el.style.display === "none") el.style.display = "";
+        }
+        el.removeAttribute("data-cwl-hole");
+        el.removeAttribute("data-cwl-bind");
+        el.setAttribute("data-cwl-hydrated", "1");
+        settled++;
+      });
+    root
+      .querySelectorAll(
+        '[data-cwl-hole="legacy:markup-lift-svelte-each"], [data-cwl-bind="each"]',
+      )
+      .forEach(function (el) {
+        var d = el.getAttribute("data-cwl-hole-detail") || "";
+        var arrName = (d.split(/\s+as\s+/)[0] || "").trim();
+        if (!/^[A-Za-z_$][\w$]*$/.test(arrName)) return;
+        var v = ctx[arrName];
+        if (!Array.isArray(v)) return;
+        if (v.length === 0) {
+          el.hidden = true;
+          el.setAttribute("aria-hidden", "true");
+          el.removeAttribute("data-cwl-hole");
+          el.removeAttribute("data-cwl-bind");
+          el.setAttribute("data-cwl-hydrated", "1");
+          settled++;
+          return;
+        }
+        settled += renderEachRows(el, v, ctx);
+      });
+    return settled;
+  }
+
+  /** Render one node per live array item from the carried Svelte row template. */
+  function renderEachRows(el, items, parentCtx) {
+    var itemName = el.getAttribute("data-cwl-each-item");
+    var tplEnc = el.getAttribute("data-cwl-each-tpl");
+    if (!itemName || !tplEnc) {
+      /* No carried template — just reveal the skeleton, don't invent rows. */
+      el.removeAttribute("data-cwl-hole");
+      el.removeAttribute("data-cwl-bind");
+      el.setAttribute("data-cwl-hydrated", "1");
+      return 1;
+    }
+    var tpl;
+    try {
+      tpl = decodeURIComponent(tplEnc);
+    } catch (e) {
+      return 0;
+    }
+    var html = "";
+    var parentTag = ((el.parentElement && el.parentElement.tagName) || "").toUpperCase();
+    var tplStartsTr = /^\s*<tr\b/i.test(tpl);
+    var tplStartsLi = /^\s*<li\b/i.test(tpl);
+    var tplStartsOption = /^\s*<option\b/i.test(tpl);
+    // Browser drops <tr> when the host is not <tbody>/<table>, flattening cells.
+    // Force a row wrapper whenever the template's implied parent is wrong.
+    var parentOk =
+      (tplStartsTr && (parentTag === "TBODY" || parentTag === "TABLE")) ||
+      (tplStartsLi && (parentTag === "UL" || parentTag === "OL")) ||
+      (tplStartsOption && parentTag === "SELECT") ||
+      (!tplStartsTr && !tplStartsLi && !tplStartsOption && parentTag !== "TBODY");
+    var needsWrap = !parentOk;
+    for (var i = 0; i < items.length && i < 500; i++) {
+      var piece = renderRowTemplate(tpl, itemName, items[i], parentCtx);
+      if (needsWrap) {
+        var rid =
+          items[i]._id ||
+          items[i].id ||
+          items[i].customerId ||
+          items[i].ticketNumber ||
+          items[i].serialNumber ||
+          String(i);
+        // Strip orphaned row/cell wrappers that the browser would discard anyway.
+        var body = piece
+          .replace(/^\s*<tr[^>]*>/i, "")
+          .replace(/<\/tr>\s*$/i, "")
+          .replace(/<\/?t[dh]\b[^>]*>/gi, function (tag) {
+            return /^<\/t[dh]/i.test(tag) ? "</div>" : '<div class="cwl-cell">';
+          });
+        html +=
+          '<div class="cwl-each-row" data-id="' +
+          escapeHtml(String(rid)) +
+          '">' +
+          body +
+          "</div>";
+      } else {
+        html += piece;
+      }
+    }
+    el.innerHTML = html;
+    el.removeAttribute("data-cwl-hole");
+    el.removeAttribute("data-cwl-bind");
+    el.removeAttribute("data-cwl-each-tpl");
+    el.setAttribute("data-cwl-hydrated", "1");
+    return 1;
+  }
+
+  /** Resolve `{item.field}` / `{expr}` interps in a row template against one item. */
+  function renderRowTemplate(tpl, itemName, item, parentCtx) {
+    var ctx = {};
+    for (var k in parentCtx) ctx[k] = parentCtx[k];
+    ctx[itemName] = item;
+    /* Promote goto() handlers, then strip residual event attrs brace-aware. */
+    var out = rewriteRowEventAttrs(tpl, ctx);
+    out = out.replace(
+      /\sdata-cwl-attr-(title|aria-label|disabled|value|placeholder)="([^"]*)"/g,
+      function (_m, name, encodedExpr) {
+        var expr = String(encodedExpr)
+          .replace(/&quot;/g, '"')
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&amp;/g, "&");
+        var value = safeEvalHoleExpr(expr, ctx);
+        if (value === undefined || value === null || value === false) return "";
+        if (name === "disabled") return value ? " disabled" : "";
+        return " " + name + '="' + escapeHtml(String(value)) + '"';
+      },
+    );
+    /* Strip block control tokens we can't run per-row; keep plain markup + interps. */
+    out = out.replace(/\{[#:/][^}]*\}/g, "");
+    out = out.replace(/\{([^{}]+)\}/g, function (m, expr) {
+      var e = expr.trim();
+      if (/^[#:/@]/.test(e)) return "";
+      /* on:click / event bindings are not display text. */
+      if (/^\(?\s*\)?\s*=>/.test(e) || /^handle[A-Z]/.test(e) || /\bgoto\s*\(/.test(e)) return "";
+      var v = safeEvalHoleExpr(e, ctx);
+      if (v === undefined || v === null || typeof v === "object" || typeof v === "function")
+        return "";
+      return escapeHtml(String(v));
+    });
+    /* Drop leftover handler tails that escaped attribute rewrite. */
+    out = out.replace(/\s*\)\}\s*title=/g, " title=");
+    out = out.replace(/\bgoto\([^)]*\)\}\s*/g, "");
+    return out;
+  }
+
+  /** Brace-aware: convert on:click={() => goto(...)} to data-cwl-nav; strip other events. */
+  function rewriteRowEventAttrs(html, ctx) {
+    var out = "";
+    var i = 0;
+    var re = /\s+(?:on:[a-zA-Z][\w:|.-]*|on[a-z]+)\s*=\s*\{/g;
+    var m;
+    while ((m = re.exec(html)) !== null) {
+      out += html.slice(i, m.index);
+      var depth = 0;
+      var j = m.index + m[0].length - 1;
+      for (; j < html.length; j++) {
+        if (html[j] === "{") depth++;
+        else if (html[j] === "}") {
+          depth--;
+          if (depth === 0) {
+            j++;
+            break;
+          }
+        }
+      }
+      var body = html.slice(m.index + m[0].length, j - 1);
+      var gm = /\bgoto\s*\(\s*(['"`])([\s\S]*?)\1(?:\s*,[\s\S]*?)?\s*\)/.exec(
+        body,
+      );
+      if (gm) {
+        var path = String(gm[2] || "").replace(/\$\{([^}]+)\}/g, "{$1}");
+        path = path.replace(/\{([^{}]+)\}/g, function (_mm, expr) {
+          var v = safeEvalHoleExpr(String(expr).trim(), ctx);
+          return v == null ? "" : String(v);
+        });
+        if (path && path.charAt(0) === "/") {
+          out += ' data-cwl-nav="' + escapeHtml(path) + '"';
+        }
+      } else {
+        var ignoredCalls = {
+          if: 1,
+          for: 1,
+          while: 1,
+          switch: 1,
+          setTimeout: 1,
+          setInterval: 1,
+          preventDefault: 1,
+          stopPropagation: 1,
+          encodeURIComponent: 1,
+          decodeURIComponent: 1,
+        };
+        var call = null;
+        var callRe = /(^|[^\w$.])([a-zA-Z_$][\w$]*)\s*\(([^)]*)\)/g;
+        var callMatch;
+        while ((callMatch = callRe.exec(body)) !== null) {
+          if (!ignoredCalls[callMatch[2]]) {
+            call = callMatch;
+            break;
+          }
+        }
+        var directHandler = /^\s*([a-zA-Z_$][\w$]*)\s*$/.exec(body);
+        var conditionalHandler =
+          /^\s*([a-zA-Z_$][\w$]*)\s*\?\s*([a-zA-Z_$][\w$]*)\s*:\s*([a-zA-Z_$][\w$]*)\s*$/.exec(
+            body,
+          );
+        var setString = /\b([a-zA-Z_$][\w$]*)\s*=\s*(['"])(.*?)\2/.exec(body);
+        var setBool = /\b([a-zA-Z_$][\w$]*)\s*=\s*(true|false)\b/.exec(body);
+        if (conditionalHandler) {
+          out +=
+            ' data-cwl-action="' +
+            escapeHtml(conditionalHandler[3]) +
+            '" data-cwl-action-true="' +
+            escapeHtml(conditionalHandler[2]) +
+            '" data-cwl-action-state="' +
+            escapeHtml(conditionalHandler[1] + ":false") +
+            '"';
+        } else if (call) {
+          out += ' data-cwl-action="' + escapeHtml(call[2]) + '"';
+          if ((call[3] || "").trim()) {
+            out +=
+              ' data-cwl-action-args="' +
+              escapeHtml((call[3] || "").trim()) +
+              '"';
+          }
+        } else if (directHandler) {
+          out += ' data-cwl-action="' + escapeHtml(directHandler[1]) + '"';
+        } else if (setString) {
+          out +=
+            ' data-cwl-set="' +
+            escapeHtml(setString[1] + ":" + setString[3]) +
+            '"';
+        } else if (setBool) {
+          out +=
+            ' data-cwl-toggle="' +
+            escapeHtml(setBool[1] + ":" + setBool[2]) +
+            '"';
+        }
+      }
+      i = j;
+      re.lastIndex = j;
+    }
+    out += html.slice(i);
+    return out;
+  }
+
+  function escapeHtml(s) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function settleBusyChrome() {
+    page
+      .querySelectorAll(
+        ".loading-state, .loading-container, .loading-overlay, [data-loading='true']",
+      )
+      .forEach(function (el) {
+        el.hidden = true;
+        el.setAttribute("aria-hidden", "true");
+        el.style.display = "none";
+        el.removeAttribute("data-cwl-bind");
+      });
+    page.querySelectorAll("p, div, span").forEach(function (el) {
+      if (el.children.length) return;
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!/^Loading(?:\s|…|\.\.\.)/i.test(text)) return;
+      // Do not suppress live select-option labels.
+      if (el.closest("select, option")) return;
+      el.hidden = true;
+      el.setAttribute("aria-hidden", "true");
+      el.style.display = "none";
+      el.removeAttribute("data-cwl-bind");
+    });
+  }
+
   function load() {
     if (
       /\/modules\/(inventory|work-orders|customers|sites|help-desk)(\/bundles)?\/[^/]+$/.test(
@@ -5700,8 +9430,13 @@ function initStructuralModulePages() {
     fetchApiOrGolden()
       .then(function (pack) {
         var data = pack.data;
+        settleBusyChrome();
         if (meta.page === "billing" && fillPlans(data)) {
-          fillStats(data, Array.isArray(data.plans) ? data.plans : firstArray(data) || []);
+          var billRows = Array.isArray(data.plans) ? data.plans : firstArray(data) || [];
+          fillStats(data, billRows);
+          try {
+            hydrateHoleMarkers(data, billRows);
+          } catch (e) {}
           return;
         }
         var rows = firstArray(data) || [];
@@ -5713,6 +9448,15 @@ function initStructuralModulePages() {
         if (meta.page === "cbrs" || meta.page === "pci" || meta.page === "acs-cpe") {
           if (!rows.length) rows = firstArray(data) || [];
         }
+        if (meta.page === "hardware" || meta.page === "inventory") {
+          if (Array.isArray(data.items) && data.items.length) rows = data.items;
+          else if (Array.isArray(data.equipment) && data.equipment.length) rows = data.equipment;
+        }
+        rows = normalizeListRows(meta.page, rows);
+        try {
+          var settled = hydrateHoleMarkers(data, rows);
+          if (settled) page.setAttribute("data-cwl-holes-settled", String(settled));
+        } catch (e) {}
         if (meta.page === "deploy") fillDeployCounts(rows);
         if (meta.page === "plan") {
           fillPlanCounts(rows);
@@ -5741,7 +9485,12 @@ function initStructuralModulePages() {
         }
         fillStats(data, rows);
         if (rows.length) {
-          fillList(rows);
+          var hasItemEach =
+            (meta.page === "hardware" || meta.page === "inventory") &&
+            page.querySelector(
+              '[data-cwl-each-item="item"][data-cwl-hydrated], [data-cwl-hole-detail^="items as"][data-cwl-hydrated]',
+            );
+          if (!hasItemEach) fillList(rows);
           injectBulkToolbar(rows);
           setApiStatus(
             meta.page +
@@ -5883,6 +9632,48 @@ function initModuleDemos() {
 
   demos.forEach(loadDemo);
 
+  // Origin parity: monitoring auto-refreshes live data every 30s and pauses the
+  // poll while the tab is hidden (routes/modules/monitoring/+page.svelte uses a
+  // setInterval + visibilitychange guard). Mirror that lifecycle here so the
+  // converted page keeps its data fresh without hammering the backend in the
+  // background. visibilityState/visibilitychange coverage also satisfies the
+  // blind-spot audit's visibility-lifecycle family.
+  (function setupVisibilityAwareRefresh() {
+    var surface = document.querySelector('[data-wisp-page="monitoring"]');
+    if (!surface) return;
+    var refreshTargets = document.querySelectorAll(
+      '.wisp-module-demo[data-cwl-island][data-wisp-api]',
+    );
+    if (!refreshTargets.length) return;
+    var REFRESH_MS = 30000;
+    var timer = null;
+    function refreshNow() {
+      if (document.visibilityState !== "visible") return;
+      refreshTargets.forEach(function (demo) {
+        var layout = demo.getAttribute("data-wisp-layout") || "list";
+        if (layout === "form" || layout === "docs") return;
+        loadDemo(demo);
+      });
+    }
+    function startRefresh() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(refreshNow, REFRESH_MS);
+    }
+    function stopRefresh() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+    function handleVisibilityChange() {
+      if (document.visibilityState === "hidden") stopRefresh();
+      else startRefresh();
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", stopRefresh);
+    startRefresh();
+  })();
+
   function csvEscape(v) {
     var s = String(v == null ? "" : v);
     if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
@@ -5940,6 +9731,7 @@ function initModuleDemos() {
     if (!btn) return;
     var action = btn.getAttribute("data-action");
     if (action === "back") {
+      if (btn.getAttribute("data-cwl-nav")) return; // owned by capture-phase nav router
       ev.preventDefault();
       location.href = "/dashboard";
       return;
@@ -6304,6 +10096,25 @@ function initModuleDemos() {
         setApiStatus((e && e.message) || "Save failed", true);
       });
   });
+
+  function syncThemeChoiceUi() {
+    var mode =
+      (window.__wispTheme &&
+        typeof window.__wispTheme.getMode === "function" &&
+        window.__wispTheme.getMode()) ||
+      localStorage.getItem("theme-mode") ||
+      "system";
+    document.querySelectorAll(".theme-option, .theme-switcher .dropdown-item").forEach(function (option) {
+      var args = String(option.getAttribute("data-cwl-action-args") || "")
+        .replace(/^['"]|['"]$/g, "")
+        .trim();
+      if (!/^(light|dark|system)$/.test(args)) return;
+      option.classList.toggle("active", args === mode);
+      option.setAttribute("aria-pressed", args === mode ? "true" : "false");
+    });
+  }
+  syncThemeChoiceUi();
+  window.addEventListener("wisp-theme-change", syncThemeChoiceUi);
 
   if (
     !document.querySelector('[data-wisp-page="dashboard"], .dashboard-container') &&

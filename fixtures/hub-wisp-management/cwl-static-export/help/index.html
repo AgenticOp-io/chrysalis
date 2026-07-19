@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="help" data-wisp-path="/help" data-cwl-island="client"><div class="help-container">
   <div class="help-header">
-    <button type="button" class="help-back-link" title="Back to main app">← Back to main app</button>
+    <button type="button" class="help-back-link" title="Back to main app" data-cwl-nav="/dashboard">← Back to main app</button>
     <div class="help-header-brand">
       <div class="help-logo-section">
         <img src="/wisptools-logo.svg" alt="WISP Management" class="help-logo" />
@@ -13,26 +13,108 @@
     <p class="help-header-desc">Complete guide to using the platform. Use the Help button in each module for context-specific tips.</p>
     <p class="help-docs-link"><a href="/docs">Reference &amp; Project Status → /docs</a></p>
   </div>
-  
+
   <div class="help-layout">
     <aside class="help-sidebar">
       <nav>
-        <button
-            class="topic-btn">
-            <span class="topic-title"></span>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:overview"
+          >
+            <span class="topic-title">Overview</span>
           </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:getting-started"
+          >
+            <span class="topic-title">Getting Started</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:user-management"
+          >
+            <span class="topic-title">User Management</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:help-desk"
+          >
+            <span class="topic-title">Help Desk</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:work-orders"
+          >
+            <span class="topic-title">Work Orders</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:customers-portal"
+          >
+            <span class="topic-title">Customers & Portal</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:inventory"
+          >
+            <span class="topic-title">Inventory</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:coverage-map"
+          >
+            <span class="topic-title">Coverage Map</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:hss-subscribers"
+          >
+            <span class="topic-title">HSS & Subscribers</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:pci-resolution"
+          >
+            <span class="topic-title">PCI Resolution</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:cbrs"
+          >
+            <span class="topic-title">CBRS Management</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:wizards"
+          >
+            <span class="topic-title">Wizards & Quick Actions</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:roles"
+          >
+            <span class="topic-title">User Roles</span>
+          </button>
+
+          <button
+            class="topic-btn" data-cwl-set="selectedTopic:troubleshooting"
+          >
+            <span class="topic-title">Troubleshooting</span>
+          </button>
+
       </nav>
     </aside>
-    
+
     <main class="help-content">
-      <article>
+      <div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'overview'">
+        <article>
           <h2>Welcome to WISP Multitool</h2>
           <p class="lead">Your complete wireless ISP management platform.</p>
-          
+
           <section>
             <h3>What is WISP Multitool?</h3>
             <p><strong>WISP Multitool</strong> is an all-in-one platform designed for wireless Internet service providers (WISPs) to manage every aspect of their operations:</p>
-            
+
             <ul>
               <li><strong>Network Planning</strong> - PCI resolution, CBRS spectrum, coverage mapping</li>
               <li><strong>Field Operations</strong> - Mobile app for technicians, work orders, inventory</li>
@@ -43,23 +125,23 @@
               <li><strong>Wizards & Quick Tips</strong> - Guided wizards (site deployment, subscribers, RMA, onboarding) and in-module help</li>
             </ul>
           </section>
-          
+
           <section>
             <h3>Platform Components</h3>
-            
+
             <div class="component-grid">
               <div class="component-card">
                 <div class="component-icon">🌐</div>
                 <h4>Web Platform</h4>
                 <p>Browser-based management console for administrators, engineers, and support staff.</p>
               </div>
-              
+
               <div class="component-card">
                 <div class="component-icon">📱</div>
                 <h4>Mobile App</h4>
                 <p>Android app for field technicians with work orders, equipment scanning, and GPS navigation.</p>
               </div>
-              
+
               <div class="component-card">
                 <div class="component-icon">☁️</div>
                 <h4>Cloud Backend</h4>
@@ -67,26 +149,26 @@
               </div>
             </div>
           </section>
-          
+
           <section>
             <h3>Who Uses WISP Multitool?</h3>
-            
+
             <div class="role-cards">
               <div class="role-card">
                 <h4>🏢 Owner / Admin</h4>
                 <p>Manage users, configure system, view all modules, control organization settings.</p>
               </div>
-              
+
               <div class="role-card">
                 <h4>👷 Network Engineer</h4>
                 <p>Plan network coverage, configure CBRS, manage HSS subscribers, optimize PCI.</p>
               </div>
-              
+
               <div class="role-card">
                 <h4>🔧 Field Technician</h4>
                 <p>Use mobile app for work orders, equipment deployment, inventory checkout, site visits.</p>
               </div>
-              
+
               <div class="role-card">
                 <h4>🎧 Help Desk</h4>
                 <p>Create support tickets, assist customers, lookup subscribers, troubleshoot CPE devices.</p>
@@ -94,11 +176,11 @@
             </div>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'getting-started'" hidden aria-hidden="true">
         <article>
           <h2>🚀 Getting Started</h2>
-          
+
           <section>
             <h3>1. First Login</h3>
             <ol>
@@ -108,7 +190,7 @@
               <li>Select or create your organization (tenant)</li>
             </ol>
           </section>
-          
+
           <section>
             <h3>2. Dashboard Overview</h3>
             <p>After login, you'll see the main dashboard with module cards and a header with:</p>
@@ -121,7 +203,7 @@
             <p>Module cards include: <strong>PCI Resolution</strong>, <strong>CBRS Management</strong>, <strong>ACS CPE Management</strong>, <strong>HSS Management</strong>, <strong>Coverage Map</strong>, <strong>Inventory</strong>, <strong>Work Orders</strong>, <strong>Help Desk</strong>, <strong>Customers</strong>, <strong>User Management</strong>, and more.</p>
             <p><em>Note: Available modules depend on your user role and tenant configuration. First-time visitors see quick tips (Field App, Docs, Quick access).</em></p>
           </section>
-          
+
           <section>
             <h3>3. Inviting Team Members</h3>
             <ol>
@@ -133,7 +215,7 @@
               <li>User receives email and can accept invitation</li>
             </ol>
           </section>
-          
+
           <section>
             <h3>4. Mobile App Setup</h3>
             <p><strong>For Field Technicians:</strong></p>
@@ -146,12 +228,12 @@
             </ol>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'user-management'" hidden aria-hidden="true">
         <article>
           <h2>👥 User Management</h2>
           <p class="lead">Manage your team members, roles, and permissions.</p>
-          
+
           <section>
             <h3>Inviting Users</h3>
             <ol>
@@ -171,7 +253,7 @@
             </ol>
             <p class="tip">💡 <strong>Tip:</strong> Invited users will appear with "Pending" status until they accept the invitation and login.</p>
           </section>
-          
+
           <section>
             <h3>Editing User Roles</h3>
             <ol>
@@ -182,7 +264,7 @@
             </ol>
             <p class="warning">⚠️ <strong>Note:</strong> Owner role cannot be changed. Only one owner per organization.</p>
           </section>
-          
+
           <section>
             <h3>Suspending Users</h3>
             <p>Temporarily disable a user's access without removing them:</p>
@@ -193,7 +275,7 @@
               <li>To re-enable, click <strong>"Activate User"</strong></li>
             </ol>
           </section>
-          
+
           <section>
             <h3>Removing Users</h3>
             <ol>
@@ -205,12 +287,12 @@
             <p class="warning">⚠️ <strong>Warning:</strong> Cannot remove the owner. Transfer ownership first.</p>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'help-desk'" hidden aria-hidden="true">
         <article>
           <h2>🎧 Help Desk Module</h2>
           <p class="lead">Customer support ticketing and equipment troubleshooting.</p>
-          
+
           <section>
             <h3>Creating Support Tickets</h3>
             <ol>
@@ -228,7 +310,7 @@
               <li>Click <strong>"Create Ticket"</strong></li>
             </ol>
           </section>
-          
+
           <section>
             <h3>Assigning Tickets</h3>
             <p>Help desk staff can assign tickets to field technicians:</p>
@@ -239,7 +321,7 @@
               <li>Technician receives push notification on mobile app</li>
             </ol>
           </section>
-          
+
           <section>
             <h3>Filtering Tickets</h3>
             <p>Use filters to find specific tickets:</p>
@@ -249,7 +331,7 @@
               <li><strong>Search</strong> - Search by ticket number, title, or customer name</li>
             </ul>
           </section>
-          
+
           <section>
             <h3>Customer Lookup</h3>
             <ol>
@@ -260,22 +342,22 @@
             </ol>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'roles'" hidden aria-hidden="true">
         <article>
           <h2>🔐 User Roles & Permissions</h2>
           <p class="lead">Understanding the role-based access control system.</p>
-          
+
           <section>
             <h3>Role Hierarchy</h3>
-            
+
             <div class="role-detail">
               <h4>🏢 Platform Admin</h4>
               <p><strong>Who:</strong> System administrator (admin@wisptools.io)</p>
               <p><strong>Access:</strong> ALL tenants, ALL modules, ALL permissions</p>
               <p><strong>Can:</strong> Manage all tenants, create owners, override any permission</p>
             </div>
-            
+
             <div class="role-detail">
               <h4>👑 Owner</h4>
               <p><strong>Who:</strong> Organization creator</p>
@@ -283,7 +365,7 @@
               <p><strong>Can:</strong> Manage users, configure modules, full administrative control</p>
               <p><strong>Cannot:</strong> Be changed or removed (permanent role)</p>
             </div>
-            
+
             <div class="role-detail">
               <h4>⚙️ Admin</h4>
               <p><strong>Who:</strong> Assistant administrators</p>
@@ -291,7 +373,7 @@
               <p><strong>Can:</strong> Manage users, configure permissions, access enabled modules</p>
               <p><strong>Cannot:</strong> Change owner role, delete organization</p>
             </div>
-            
+
             <div class="role-detail">
               <h4>👷 Engineer</h4>
               <p><strong>Who:</strong> Network engineers</p>
@@ -299,7 +381,7 @@
               <p><strong>Can:</strong> Configure network, manage subscribers, view all work orders</p>
               <p><strong>Cannot:</strong> Manage users, access help desk</p>
             </div>
-            
+
             <div class="role-detail">
               <h4>🔧 Field Technician (Installer)</h4>
               <p><strong>Who:</strong> Field workers</p>
@@ -307,7 +389,7 @@
               <p><strong>Can:</strong> Deploy equipment, complete tickets, checkout inventory</p>
               <p><strong>Cannot:</strong> View other techs' tickets, configure network</p>
             </div>
-            
+
             <div class="role-detail">
               <h4>🎧 Help Desk</h4>
               <p><strong>Who:</strong> Customer support staff</p>
@@ -315,7 +397,7 @@
               <p><strong>Can:</strong> Create tickets, assign to techs, troubleshoot CPE</p>
               <p><strong>Cannot:</strong> Manage users, configure network</p>
             </div>
-            
+
             <div class="role-detail">
               <h4>👁️ Viewer</h4>
               <p><strong>Who:</strong> Read-only users, auditors</p>
@@ -324,7 +406,7 @@
               <p><strong>Cannot:</strong> Make any changes</p>
             </div>
           </section>
-          
+
           <section>
             <h3>Configuring Module Access</h3>
             <ol>
@@ -337,17 +419,17 @@
             <p class="tip">💡 <strong>Tip:</strong> Use the reset button to restore default permissions for a role.</p>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'customers-portal'" hidden aria-hidden="true">
         <article>
           <h2>Customers & Customer Portal</h2>
           <p class="lead">Customer records, branded portal, billing, and support tickets.</p>
-          
+
           <section>
             <h3>Customers Module</h3>
             <p>Manage customer records with service type (4G/5G, FWA, WiFi, Fiber), LTE auth (IMSI, Ki, OPc), MAC address, and QoS. Use the <strong>Customer Onboarding</strong> wizard from Quick access or the Customers module for guided setup.</p>
           </section>
-          
+
           <section>
             <h3>Customer Portal Setup</h3>
             <p>Enable a branded customer portal so customers can sign in and access:</p>
@@ -359,18 +441,18 @@
             </ul>
             <p>Configure portal branding (logo, colors) and enable the portal in <strong>Customers → Portal setup</strong>. Use <strong>Settings</strong> for organization-wide branding if needed.</p>
           </section>
-          
+
           <section>
             <h3>Billing</h3>
             <p>Customer billing is available from the Customers module (billing modal per customer) and in the customer portal. Billing cycles and invoicing can be extended when prioritized.</p>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'wizards'" hidden aria-hidden="true">
         <article>
           <h2>Wizards & Quick Actions</h2>
           <p class="lead">Guided flows and in-module quick tips.</p>
-          
+
           <section>
             <h3>Available Wizards</h3>
             <p>Open wizards from the dashboard <strong>Quick access</strong> dropdown or from the <strong>Wizards</strong> page:</p>
@@ -386,17 +468,17 @@
               <li><strong>First-time / Organization / Initial Configuration</strong> - Setup and tenant wizards</li>
             </ul>
           </section>
-          
+
           <section>
             <h3>Quick Tips in Modules</h3>
             <p>Each module can show a <strong>Help</strong> button that opens context-specific tips (e.g. Monitoring, Deploy, CBRS, Plan, Inventory). Use it for step-by-step guidance without leaving the module.</p>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'work-orders'" hidden aria-hidden="true">
         <article>
           <h2>📋 Work Orders & Field Operations</h2>
-          
+
           <section>
             <h3>Creating Work Orders</h3>
             <ol>
@@ -415,7 +497,7 @@
               <li>Click <strong>"Create"</strong></li>
             </ol>
           </section>
-          
+
           <section>
             <h3>Assigning Work Orders</h3>
             <ol>
@@ -426,7 +508,7 @@
               <li>Status changes to "Assigned"</li>
             </ol>
           </section>
-          
+
           <section>
             <h3>Mobile App Workflow</h3>
             <p><strong>Field Technician receives notification:</strong></p>
@@ -441,26 +523,26 @@
             </ol>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'troubleshooting'" hidden aria-hidden="true">
         <article>
           <h2>🔧 Troubleshooting</h2>
-          
+
           <section>
             <h3>Common Issues</h3>
-            
+
             <div class="troubleshoot-item">
               <h4>❌ Can't see a module on dashboard</h4>
               <p><strong>Cause:</strong> Module not enabled for your role</p>
               <p><strong>Solution:</strong> Ask your administrator to enable the module in Settings → Module Access</p>
             </div>
-            
+
             <div class="troubleshoot-item">
               <h4>❌ API calls fail with 403 Forbidden</h4>
               <p><strong>Cause:</strong> Insufficient permissions for the action</p>
               <p><strong>Solution:</strong> Contact your administrator to update your role or permissions</p>
             </div>
-            
+
             <div class="troubleshoot-item">
               <h4>❌ Mobile app not receiving notifications</h4>
               <p><strong>Solutions:</strong></p>
@@ -471,24 +553,24 @@
                 <li>Check system notification settings</li>
               </ul>
             </div>
-            
+
             <div class="troubleshoot-item">
               <h4>❌ Browser notifications not showing</h4>
               <p><strong>Solution:</strong> Open the <strong>Notifications</strong> panel (bell icon on dashboard), click <strong>Enable notifications</strong>, and allow when the browser prompts. Notifications then appear for new unread items.</p>
             </div>
-            
+
             <div class="troubleshoot-item">
               <h4>❌ Want to change light/dark theme</h4>
               <p><strong>Solution:</strong> Click the <strong>Settings</strong> (gear) icon on the dashboard header and choose theme in the settings modal.</p>
             </div>
-            
+
             <div class="troubleshoot-item">
               <h4>❌ Work order not appearing in mobile app</h4>
               <p><strong>Cause:</strong> Work order not assigned to your user</p>
               <p><strong>Solution:</strong> Field technicians only see tickets assigned to them. Ask help desk to assign the ticket.</p>
             </div>
           </section>
-          
+
           <section>
             <h3>Getting Help</h3>
             <p>If you encounter issues:</p>
@@ -501,32 +583,1535 @@
             </ol>
           </section>
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'pci-resolution'" hidden aria-hidden="true">
         <article>
-          
+
+<h3>📊 PCI Resolution & Network Optimization</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Detect and resolve Physical Cell ID (PCI) conflicts in LTE networks, optimize neighbor relationships, and implement Self-Organizing Network (SON) features.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#map-features">🗺️ Map Features</a></li>
+    <li><a href="#technical-details">📐 Technical Details</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#network-management">📞 Network Management</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>PCI Conflict Detection:</strong> Automatically identifies cells with conflicting PCIs</li>
+  <li><strong>Neighbor Analysis:</strong> Analyzes cell adjacency and interference</li>
+  <li><strong>AI-Powered Recommendations:</strong> Uses Google Gemini AI for optimization suggestions</li>
+  <li><strong>Visual Network Map:</strong> Interactive ArcGIS map showing cell sites and conflicts</li>
+  <li><strong>Export Capabilities:</strong> Generate reports and Nokia configuration scripts</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Import Cell Data</h4>
+<p>Click the <strong>"📊 Manage Towers"</strong> button to:</p>
+<ul>
+  <li>Add cell sites manually</li>
+  <li>Import from CSV files</li>
+  <li>Import from KML files (Google Earth)</li>
+</ul>
+
+<p><strong>CSV Format Example:</strong></p>
+<pre><code>eNodeB,Cell ID,PCI,Latitude,Longitude,Azimuth,Height
+12345,0,150,40.7128,-74.0060,0,30
+12345,1,151,40.7128,-74.0060,120,30
+12345,2,152,40.7128,-74.0060,240,30</code></pre>
+
+<h4>Step 2: Analyze Network</h4>
+<p>Click <strong>"🔍 Analyze Network"</strong> to:</p>
+<ul>
+  <li>Detect PCI conflicts (same PCI within interference range)</li>
+  <li>Calculate neighbor relationships</li>
+  <li>Identify potential interference</li>
+  <li>Generate conflict severity ratings (High/Medium/Low)</li>
+</ul>
+
+<h4>Step 3: Review Conflicts</h4>
+<p>The conflict table shows:</p>
+<ul>
+  <li><strong>Severity:</strong> High (same PCI neighbors), Medium (mod3 conflicts), Low (mod6 conflicts)</li>
+  <li><strong>Affected Cells:</strong> Which cells are involved</li>
+  <li><strong>Distance:</strong> How far apart the conflicting cells are</li>
+  <li><strong>Recommendations:</strong> Suggested PCI changes</li>
+</ul>
+
+<h4>Step 4: Get AI Recommendations</h4>
+<p>Click <strong>"🤖 Get AI Recommendations"</strong> for:</p>
+<ul>
+  <li>Intelligent PCI reallocation suggestions</li>
+  <li>Network-wide optimization strategies</li>
+  <li>Prioritized conflict resolution</li>
+</ul>
+
+<h4>Step 5: Optimize Network</h4>
+<p>Click <strong>"✨ Optimize Network"</strong> to:</p>
+<ul>
+  <li>Automatically resolve all PCI conflicts</li>
+  <li>Reassign PCIs based on neighbor relationships</li>
+  <li>Maintain existing PCIs where possible</li>
+  <li>Generate before/after comparison</li>
+</ul>
+
+<h4>Step 6: Export Results</h4>
+<p>Click <strong>"📤 Export"</strong> for:</p>
+<ul>
+  <li><strong>Conflict Report (PDF):</strong> Detailed analysis and recommendations</li>
+  <li><strong>CSV Export:</strong> Updated cell data with new PCIs</li>
+  <li><strong>Nokia Configuration:</strong> Ready-to-use CLI commands for Nokia eNodeBs</li>
+</ul>
+
+<h4 id="map-features">🗺️ Map Features</h4>
+<ul>
+  <li><strong>Color Coding:</strong> Cells colored by PCI conflict status</li>
+  <li><strong>Click Cells:</strong> View detailed cell information</li>
+  <li><strong>Right-Click:</strong> Add sites, edit sectors, delete sectors</li>
+  <li><strong>Neighbor Lines:</strong> Shows cell adjacency relationships</li>
+  <li><strong>Basemap Options:</strong> Streets, Satellite, Hybrid, Topographic</li>
+</ul>
+
+<h4 id="technical-details">📐 Technical Details</h4>
+
+<h4>PCI Conflict Rules:</h4>
+<ul>
+  <li><strong>Mod3 Conflict:</strong> PCIs with same value mod 3 (can cause confusion)</li>
+  <li><strong>Mod6 Conflict:</strong> PCIs with same value mod 6 (can cause interference)</li>
+  <li><strong>Direct Conflict:</strong> Identical PCIs within range (must be fixed)</li>
+</ul>
+
+<h4>Interference Range Calculation:</h4>
+<ul>
+  <li>Based on cell height, azimuth, and distance</li>
+  <li>Typical range: 2-5 km for interference detection</li>
+  <li>Adjustable in analysis settings</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>No conflicts detected but cells are close:</h4>
+<p>Increase the interference range in analysis settings</p>
+
+<h4>Optimization changes too many PCIs:</h4>
+<p>Review AI recommendations first and apply selectively</p>
+
+<h4>Map not loading:</h4>
+<p>Check ArcGIS API key in environment variables</p>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li>Import all cell data before analysis</li>
+  <li>Review AI recommendations before auto-optimization</li>
+  <li>Export backup before applying PCI changes</li>
+  <li>Test PCI changes on small clusters first</li>
+  <li>Coordinate with network operations before deployment</li>
+  <li>Use Nokia export for quick configuration deployment</li>
+</ul>
+
+<h4 id="network-management">📞 Network Management</h4>
+<p>Use the <strong>"🌐 Networks"</strong> button to:</p>
+<ul>
+  <li>Create multiple isolated networks</li>
+  <li>Switch between different deployments</li>
+  <li>Keep production and staging separate</li>
+  <li>Manage different geographical areas</li>
+</ul>
+
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'cbrs'" hidden aria-hidden="true">
         <article>
-          
+
+<h3>📡 CBRS Management Module</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Manage Citizens Broadband Radio Service (CBRS) spectrum for the 3.5 GHz band (3550-3700 MHz) with integrated support for Google SAS and Federated Wireless.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#cbrs-basics">CBRS Basics</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#device-states">Device States</a></li>
+    <li><a href="#grant-management">Grant Management</a></li>
+    <li><a href="#api-integration">API Integration</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#compliance">Compliance & Regulations</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#support">Support & Resources</a></li>
+  </ul>
+</div>
+
+<h4 id="overview">Overview</h4>
+
+The CBRS (Citizens Broadband Radio Service) Management module provides comprehensive spectrum management capabilities for the 3.5 GHz CBRS band (3550-3700 MHz) with integrated support for:
+
+- **Google SAS (Spectrum Access System)** - Google's commercial SAS platform
+- **Federated Wireless** - Enhanced SAS with advanced analytics and optimization
+
+<h4>🎯 Key Features</h4>
+<ul>
+  <li><strong>CBSD Device Management:</strong>
+    <ul>
+      <li>Register and manage Citizens Broadband Service Devices (CBSDs)</li>
+      <li>Support for both Category A (indoor) and Category B (outdoor) devices</li>
+      <li>Real-time device status monitoring</li>
+      <li>GPS-based device mapping with ArcGIS integration</li>
+    </ul>
+  </li>
+  <li><strong>Spectrum Authorization:</strong>
+    <ul>
+      <li>Request spectrum grants from SAS providers</li>
+      <li>Automated heartbeat management</li>
+      <li>Real-time grant status tracking</li>
+      <li>Grant relinquishment and renewal</li>
+    </ul>
+  </li>
+  <li><strong>Geographic Visualization:</strong>
+    <ul>
+      <li>Interactive ArcGIS map showing CBSD locations</li>
+      <li>Color-coded device status indicators</li>
+      <li>Multi-site coordination visualization</li>
+      <li>Coverage area analysis</li>
+    </ul>
+  </li>
+  <li><strong>Analytics & Monitoring:</strong>
+    <ul>
+      <li>Real-time device performance metrics</li>
+      <li>Spectrum utilization tracking</li>
+      <li>Interference detection and monitoring</li>
+      <li>Historical data analysis</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="cbrs-basics">CBRS Basics</h4>
+
+### What is CBRS?
+
+Citizens Broadband Radio Service (CBRS) is a 150 MHz wide broadcast radio frequency band in the United States (3550-3700 MHz). It operates under an innovative three-tiered spectrum sharing framework:
+
+1. **Incumbent Access** - Federal and fixed satellite service users (highest priority)
+2. **Priority Access License (PAL)** - Licensed users with protected spectrum
+3. **General Authorized Access (GAA)** - Unlicensed users on available spectrum
+
+### Spectrum Access System (SAS)
+
+The SAS is a cloud-based database and spectrum management system that:
+- Protects incumbent users from harmful interference
+- Manages spectrum assignments for PAL and GAA users
+- Provides dynamic spectrum allocation
+- Enforces FCC rules and regulations
+
+<h4 id="getting-started">Getting Started</h4>
+
+### 1. Add a CBSD Device
+
+<p>Click <strong>"+ Add CBSD Device"</strong> and provide:</p>
+<ul>
+  <li><strong>CBSD Serial Number</strong> - Unique device identifier</li>
+  <li><strong>FCC ID</strong> - FCC equipment authorization identifier</li>
+  <li><strong>Category</strong> - A (indoor, lower power) or B (outdoor, higher power)</li>
+  <li><strong>SAS Provider</strong> - Google SAS or Federated Wireless</li>
+  <li><strong>Installation Parameters:</strong>
+    <ul>
+      <li>Latitude and Longitude (decimal degrees)</li>
+      <li>Height above ground (meters)</li>
+      <li>Antenna gain (dBi)</li>
+    </ul>
+  </li>
+</ul>
+
+<h4>Step 2: Register with SAS</h4>
+
+<p>Once added, devices must be registered with the selected SAS provider:</p>
+<ol>
+  <li>Select device from the list</li>
+  <li>Click <strong>"Register"</strong> button</li>
+  <li>SAS validates device and installation parameters</li>
+  <li>Upon success, device receives a CBSD ID</li>
+</ol>
+
+<h4>Step 3: Request Spectrum Grant</h4>
+
+<p>After registration, request a spectrum grant:</p>
+<ol>
+  <li>Select registered device</li>
+  <li>Click <strong>"Request New Grant"</strong></li>
+  <li>Specify:
+    <ul>
+      <li>Maximum EIRP (Effective Isotropic Radiated Power)</li>
+      <li>Frequency range (within 3550-3700 MHz)</li>
+    </ul>
+  </li>
+  <li>SAS evaluates request and assigns available spectrum</li>
+</ol>
+
+<h4>Step 4: Automated Heartbeat</h4>
+
+<p>Once granted, the system automatically:</p>
+<ul>
+  <li>Sends periodic heartbeats to SAS</li>
+  <li>Maintains spectrum authorization</li>
+  <li>Updates transmit expiration times</li>
+  <li>Reports device status</li>
+</ul>
+
+<h4 id="device-states">Device States</h4>
+
+<h4>UNREGISTERED</h4>
+<p>Device is created but not yet registered with SAS. Cannot transmit.</p>
+
+<h4>REGISTERED</h4>
+<p>Device is registered with SAS and can request spectrum grants.</p>
+
+<h4>GRANTED</h4>
+<p>Device has one or more active spectrum grants but is not authorized to transmit.</p>
+
+<h4>AUTHORIZED</h4>
+<p>Device is authorized to transmit on granted frequencies. Active heartbeat required.</p>
+
+<h4>SUSPENDED</h4>
+<p>Spectrum grant is temporarily suspended. Cannot transmit until restored.</p>
+
+<h4>DEREGISTERED</h4>
+<p>Device is removed from SAS registration. All grants are terminated.</p>
+
+<h4 id="grant-management">Grant Management</h4>
+
+<h4>Requesting Grants</h4>
+
+<p>When requesting a grant, consider:</p>
+
+<p><strong>Frequency Range</strong></p>
+<ul>
+  <li>Must be within CBRS band (3550-3700 MHz)</li>
+  <li>Typically 10-20 MHz channels</li>
+  <li>Avoid incumbent protection zones</li>
+</ul>
+
+<p><strong>Maximum EIRP</strong></p>
+<ul>
+  <li>Category A: Up to 30 dBm/10MHz</li>
+  <li>Category B: Up to 47 dBm/10MHz</li>
+  <li>SAS may reduce based on interference analysis</li>
+</ul>
+
+<p><strong>Channel Type</strong></p>
+<ul>
+  <li><strong>PAL</strong> - Priority Access License (if you hold PAL)</li>
+  <li><strong>GAA</strong> - General Authorized Access (most common)</li>
+</ul>
+
+<h4>Heartbeat Requirements</h4>
+
+<p>SAS requires periodic heartbeats (typically 60-240 seconds) to:</p>
+<ul>
+  <li>Confirm device operational status</li>
+  <li>Renew transmit authorization</li>
+  <li>Update interference measurements</li>
+  <li>Receive SAS commands</li>
+</ul>
+
+<p><strong>Heartbeat Process:</strong></p>
+<ol>
+  <li>System automatically sends heartbeats</li>
+  <li>SAS responds with transmit authorization</li>
+  <li>Authorization expires if heartbeat missed</li>
+  <li>Device must stop transmitting if expired</li>
+</ol>
+
+<h4>Relinquishing Grants</h4>
+
+<p>Relinquish grants when:</p>
+<ul>
+  <li>Device is no longer transmitting</li>
+  <li>Spectrum is not needed</li>
+  <li>Preparing for deregistration</li>
+  <li>Changing frequency assignments</li>
+</ul>
+
+<h4 id="api-integration">API Integration</h4>
+
+<h4>Google SAS</h4>
+
+<p><strong>Features:</strong></p>
+<ul>
+  <li>WinnForum compliant SAS implementation</li>
+  <li>Integration with Google Cloud Platform</li>
+  <li>Real-time spectrum coordination</li>
+  <li>Automated interference protection</li>
+</ul>
+
+<p><strong>Best For:</strong></p>
+<ul>
+  <li>Standard CBRS deployments</li>
+  <li>Cost-effective spectrum management</li>
+  <li>Google Cloud integration</li>
+  <li>Basic compliance requirements</li>
+</ul>
+
+<h4>Federated Wireless</h4>
+
+<p><strong>Features:</strong></p>
+<ul>
+  <li>Enhanced spectrum optimization</li>
+  <li>Advanced interference monitoring</li>
+  <li>Multi-site coordination</li>
+  <li>Real-time analytics and insights</li>
+  <li>Automated power optimization</li>
+</ul>
+
+<p><strong>Best For:</strong></p>
+<ul>
+  <li>Enterprise deployments</li>
+  <li>Multi-site networks</li>
+  <li>Advanced analytics needs</li>
+  <li>Maximum spectrum efficiency</li>
+</ul>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+
+<h4>Device Installation</h4>
+
+<ol>
+  <li><strong>Accurate GPS Coordinates</strong>
+    <ul>
+      <li>Use professional GPS equipment</li>
+      <li>Verify coordinates before registration</li>
+      <li>Update if device is relocated</li>
+    </ul>
+  </li>
+  <li><strong>Height Measurements</strong>
+    <ul>
+      <li>Measure from ground level (AGL)</li>
+      <li>Include antenna height</li>
+      <li>Account for building height for rooftop installations</li>
+    </ul>
+  </li>
+  <li><strong>Antenna Parameters</strong>
+    <ul>
+      <li>Accurate antenna gain critical for power calculations</li>
+      <li>Provide azimuth and downtilt if directional</li>
+      <li>Keep documentation updated</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>Spectrum Management</h4>
+
+<ol>
+  <li><strong>Request Appropriate Bandwidth</strong>
+    <ul>
+      <li>Match to actual needs</li>
+      <li>Consider traffic patterns</li>
+      <li>Plan for growth</li>
+    </ul>
+  </li>
+  <li><strong>Monitor Grant Status</strong>
+    <ul>
+      <li>Check expiration times</li>
+      <li>Renew before expiration</li>
+      <li>Monitor heartbeat success rate</li>
+    </ul>
+  </li>
+  <li><strong>Handle Suspensions Gracefully</strong>
+    <ul>
+      <li>Implement immediate transmit stop</li>
+      <li>Wait for SAS clearance</li>
+      <li>Log suspension events</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>Network Optimization</h4>
+
+<ol>
+  <li><strong>Use Available Spectrum Efficiently</strong>
+    <ul>
+      <li>Deploy only needed CBSDs</li>
+      <li>Use appropriate power levels</li>
+      <li>Avoid over-provisioning</li>
+    </ul>
+  </li>
+  <li><strong>Coordinate Multiple Sites</strong>
+    <ul>
+      <li>Use Federated Wireless multi-site coordination</li>
+      <li>Plan frequency reuse</li>
+      <li>Monitor inter-site interference</li>
+    </ul>
+  </li>
+  <li><strong>Regular Maintenance</strong>
+    <ul>
+      <li>Update device firmware</li>
+      <li>Verify GPS sync</li>
+      <li>Test emergency shutdown procedures</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="compliance">Compliance & Regulations</h4>
+
+<h4>FCC Requirements</h4>
+
+<p>All CBSD operations must comply with FCC Part 96 rules:</p>
+<ul>
+  <li>Use certified CBSD equipment (FCC ID required)</li>
+  <li>Register all devices with SAS</li>
+  <li>Respond to SAS commands immediately</li>
+  <li>Maintain accurate installation records</li>
+  <li>Stop transmitting when required</li>
+</ul>
+
+<h4>Incumbent Protection</h4>
+
+<p>SAS automatically protects:</p>
+<ul>
+  <li>Federal radar systems (Navy shipboard radar)</li>
+  <li>Fixed Satellite Service (FSS) earth stations</li>
+  <li>Grandfathered Fixed Service operations</li>
+</ul>
+
+<p><strong>Protection Zones:</strong></p>
+<ul>
+  <li>Coastal areas (0-80 km inland)</li>
+  <li>FSS earth station locations</li>
+  <li>Military installation perimeters</li>
+</ul>
+
+<h4>Record Keeping</h4>
+
+<p>Maintain records of:</p>
+<ul>
+  <li>Device registration details</li>
+  <li>Grant requests and approvals</li>
+  <li>Heartbeat logs</li>
+  <li>Suspension/termination events</li>
+  <li>Installation changes</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Device Won't Register</h4>
+
+<p><strong>Check:</strong></p>
+<ul>
+  <li>FCC ID is valid and certified for CBRS</li>
+  <li>GPS coordinates are accurate</li>
+  <li>Device category matches equipment specs</li>
+  <li>No duplicate serial numbers</li>
+  <li>SAS API credentials are valid</li>
+</ul>
+
+<h4>Grant Request Denied</h4>
+
+<p><strong>Possible Causes:</strong></p>
+<ul>
+  <li>Requested frequency unavailable</li>
+  <li>Excessive interference predicted</li>
+  <li>In incumbent protection zone</li>
+  <li>Installation parameters invalid</li>
+  <li>Power level too high</li>
+</ul>
+
+<p><strong>Solutions:</strong></p>
+<ul>
+  <li>Request different frequency range</li>
+  <li>Reduce max EIRP</li>
+  <li>Verify installation parameters</li>
+  <li>Check for nearby PAL holders</li>
+  <li>Contact SAS provider support</li>
+</ul>
+
+<h4>Heartbeat Failures</h4>
+
+<p><strong>Check:</strong></p>
+<ul>
+  <li>Network connectivity</li>
+  <li>SAS API endpoint accessibility</li>
+  <li>System clock synchronization</li>
+  <li>Certificate validity (if using SSL)</li>
+  <li>Grant expiration status</li>
+</ul>
+
+<p><strong>Actions:</strong></p>
+<ul>
+  <li>Review error logs</li>
+  <li>Test network connection</li>
+  <li>Verify API credentials</li>
+  <li>Restart heartbeat service</li>
+  <li>Contact SAS support if persistent</li>
+</ul>
+
+<h4>Unexpected Suspension</h4>
+
+<p><strong>Causes:</strong></p>
+<ul>
+  <li>Incumbent activity detected</li>
+  <li>Interference reported</li>
+  <li>Missed heartbeats</li>
+  <li>SAS maintenance</li>
+  <li>Policy violation</li>
+</ul>
+
+<p><strong>Response:</strong></p>
+<ol>
+  <li>Immediately stop transmitting</li>
+  <li>Check SAS messages</li>
+  <li>Wait for AUTHORIZED state</li>
+  <li>Resume only when cleared</li>
+  <li>Investigate root cause</li>
+</ol>
+
+<h4 id="support">Support & Resources</h4>
+
+<h4>Documentation</h4>
+<ul>
+  <li><a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-B/part-96" target="_blank">FCC Part 96 Rules</a></li>
+  <li><a href="https://www.wirelessinnovation.org/cbrs-spectrum-access-system" target="_blank">WinnForum SAS Specifications</a></li>
+  <li><a href="https://cloud.google.com/spectrum-access-system" target="_blank">Google SAS Documentation</a></li>
+  <li><a href="https://www.federatedwireless.com/" target="_blank">Federated Wireless Portal</a></li>
+</ul>
+
+<h4>Getting Help</h4>
+<ul>
+  <li>Technical support: support@yourcompany.com</li>
+  <li>SAS Provider support links in module settings</li>
+  <li>Community forums and user groups</li>
+  <li>Professional services for deployment assistance</li>
+</ul>
+
+<h4>Additional Training</h4>
+<ul>
+  <li>CBRS fundamentals course</li>
+  <li>SAS integration workshop</li>
+  <li>Network planning services</li>
+  <li>Compliance training</li>
+</ul>
+
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'inventory'" hidden aria-hidden="true">
         <article>
-          
+
+<h3>📦 Inventory Management</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Centralized asset tracking with location management, maintenance history, and warranty tracking for all network equipment and hardware.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#inventory-management">📊 Inventory Management</a></li>
+    <li><a href="#maintenance-tracking">🔧 Maintenance Tracking</a></li>
+    <li><a href="#bundles-kits">📦 Bundles and Kits</a></li>
+    <li><a href="#checkin-wizard">🧙 Check-in Wizard</a></li>
+    <li><a href="#reports">📊 Reports</a></li>
+    <li><a href="#mobile-integration">🔍 Mobile App Integration</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>Equipment Tracking:</strong> Track all network equipment, CPE devices, and hardware</li>
+  <li><strong>Location Management:</strong> Assign equipment to sites, vehicles, warehouses, or field technicians</li>
+  <li><strong>QR Code Scanning:</strong> Quick lookup and checkout using mobile app scanner</li>
+  <li><strong>Maintenance History:</strong> Track repairs, firmware updates, and service records</li>
+  <li><strong>Warranty Tracking:</strong> Monitor warranty expiration dates and service contracts</li>
+  <li><strong>Inventory Reports:</strong> Generate reports for audits, depreciation, and planning</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Add Equipment to Inventory</h4>
+<ol>
+  <li>Navigate to <strong>Inventory</strong> module</li>
+  <li>Click <strong>"Add Equipment"</strong> button</li>
+  <li>Enter equipment details:
+    <ul>
+      <li><strong>Serial Number</strong> - Unique identifier (required)</li>
+      <li><strong>Model/Type</strong> - Equipment model and manufacturer</li>
+      <li><strong>Category</strong> - Router, Radio, Antenna, CPE, etc.</li>
+      <li><strong>Purchase Date</strong> - When equipment was acquired</li>
+      <li><strong>Warranty Expiration</strong> - Warranty end date</li>
+      <li><strong>Initial Location</strong> - Warehouse, vehicle, or site</li>
+    </ul>
+  </li>
+  <li>Click <strong>"Save"</strong> to add equipment</li>
+</ol>
+
+<h4>Step 2: Generate QR Codes</h4>
+<p>Each equipment item automatically gets a QR code:</p>
+<ul>
+  <li>QR code appears on equipment detail page</li>
+  <li>Print QR code labels for physical equipment</li>
+  <li>Use mobile app scanner to quickly lookup equipment</li>
+  <li>QR codes link directly to equipment records</li>
+</ul>
+
+<h4>Step 3: Check Out Equipment</h4>
+<p>When deploying equipment to field:</p>
+<ol>
+  <li>Select equipment from inventory list</li>
+  <li>Click <strong>"Check Out"</strong> button</li>
+  <li>Select destination:
+    <ul>
+      <li><strong>Field Technician</strong> - Assign to specific tech</li>
+      <li><strong>Vehicle</strong> - Assign to service vehicle</li>
+      <li><strong>Site</strong> - Deploy to tower site</li>
+    </ul>
+  </li>
+  <li>Add notes (optional)</li>
+  <li>Click <strong>"Check Out"</strong></li>
+</ol>
+
+<h4>Step 4: Deploy Equipment</h4>
+<p>When installing equipment at customer site:</p>
+<ol>
+  <li>Use mobile app to scan QR code</li>
+  <li>Select <strong>"Deploy"</strong> action</li>
+  <li>Enter deployment details:
+    <ul>
+      <li>Customer site location</li>
+      <li>Installation date</li>
+      <li>Installation notes</li>
+    </ul>
+  </li>
+  <li>Equipment status changes to "Deployed"</li>
+  <li>Location updates automatically</li>
+</ol>
+
+<h4 id="inventory-management">📊 Inventory Management</h4>
+
+<h4>Viewing Inventory</h4>
+<p>The inventory list shows:</p>
+<ul>
+  <li><strong>Equipment Details:</strong> Serial number, model, category</li>
+  <li><strong>Current Location:</strong> Where equipment is currently located</li>
+  <li><strong>Status:</strong> Available, Checked Out, Deployed, Maintenance</li>
+  <li><strong>Last Updated:</strong> When location or status last changed</li>
+</ul>
+
+<h4>Filtering and Search</h4>
+<ul>
+  <li><strong>Search:</strong> Search by serial number, model, or location</li>
+  <li><strong>Filter by Status:</strong> Available, Checked Out, Deployed, Maintenance</li>
+  <li><strong>Filter by Category:</strong> Router, Radio, Antenna, CPE, etc.</li>
+  <li><strong>Filter by Location:</strong> Warehouse, Vehicle, Site, Technician</li>
+</ul>
+
+<h4>Equipment Actions</h4>
+<ul>
+  <li><strong>View Details:</strong> Click equipment row for full information</li>
+  <li><strong>Edit:</strong> Update equipment information</li>
+  <li><strong>Check Out:</strong> Assign to technician or vehicle</li>
+  <li><strong>Check In:</strong> Return equipment to warehouse</li>
+  <li><strong>Deploy:</strong> Install at customer site</li>
+  <li><strong>Maintenance:</strong> Mark for repair or service</li>
+  <li><strong>Delete:</strong> Remove from inventory (requires confirmation)</li>
+</ul>
+
+<h4 id="maintenance-tracking">🔧 Maintenance Tracking</h4>
+
+<h4>Adding Maintenance Records</h4>
+<ol>
+  <li>Open equipment details</li>
+  <li>Click <strong>"Add Maintenance Record"</strong></li>
+  <li>Enter maintenance information:
+    <ul>
+      <li><strong>Type:</strong> Repair, Firmware Update, Inspection, etc.</li>
+      <li><strong>Date:</strong> When maintenance was performed</li>
+      <li><strong>Technician:</strong> Who performed the work</li>
+      <li><strong>Description:</strong> What was done</li>
+      <li><strong>Cost:</strong> Maintenance cost (optional)</li>
+    </ul>
+  </li>
+  <li>Save maintenance record</li>
+</ol>
+
+<h4>Maintenance History</h4>
+<p>View all maintenance records for equipment:</p>
+<ul>
+  <li>Chronological list of all maintenance</li>
+  <li>Filter by maintenance type</li>
+  <li>Export maintenance history for reporting</li>
+  <li>Track total maintenance costs</li>
+</ul>
+
+<h4 id="bundles-kits">📦 Bundles and Kits</h4>
+
+<h4>Creating Equipment Bundles</h4>
+<p>Group related equipment for easier deployment:</p>
+<ol>
+  <li>Navigate to <strong>Bundles</strong> section</li>
+  <li>Click <strong>"Create Bundle"</strong></li>
+  <li>Enter bundle name and description</li>
+  <li>Add equipment items to bundle</li>
+  <li>Save bundle</li>
+</ol>
+
+<h4>Using Bundles</h4>
+<ul>
+  <li>Check out entire bundle at once</li>
+  <li>Deploy bundle to customer site</li>
+  <li>Track bundle as single unit</li>
+  <li>Individual items still tracked separately</li>
+</ul>
+
+<h4 id="checkin-wizard">🧙 Check-in Wizard</h4>
+
+<div class="info">
+  <strong>Purpose:</strong> Step-by-step guided workflow for checking in received inventory items with proper location assignment, verification, and labeling.
+</div>
+
+<h4>Accessing the Wizard</h4>
+<ol>
+  <li>Navigate to <strong>Inventory</strong> module</li>
+  <li>Click <strong>"📦 Check-in Wizard"</strong> button (primary action button)</li>
+  <li>Wizard opens with welcome screen</li>
+</ol>
+
+<h4>Wizard Overview</h4>
+<p>The Check-in Wizard guides you through:</p>
+<ul>
+  <li>Scanning or entering item serial number</li>
+  <li>Verifying item details</li>
+  <li>Setting storage location</li>
+  <li>Printing asset tag label</li>
+  <li>Completing check-in</li>
+</ul>
+
+<h4>Check-in Methods</h4>
+
+<h4>Barcode Scan</h4>
+<ul>
+  <li>Use camera to scan barcode/QR code</li>
+  <li>Automatic item lookup</li>
+  <li>Fastest method for bulk check-ins</li>
+</ul>
+
+<h4>Manual Entry</h4>
+<ul>
+  <li>Enter serial number manually</li>
+  <li>Enter purchase order ID (optional)</li>
+  <li>Lookup item in system</li>
+</ul>
+
+<h4>Bulk Check-in</h4>
+<ul>
+  <li>Check in multiple items at once</li>
+  <li>Streamlined workflow</li>
+  <li>Efficient for large shipments</li>
+</ul>
+
+<h4>Wizard Steps</h4>
+<ol>
+  <li><strong>Welcome:</strong> Overview of check-in process</li>
+  <li><strong>Scan Item:</strong> Identify item via scan or manual entry</li>
+  <li><strong>Verify:</strong> Review and update item details</li>
+  <li><strong>Set Location:</strong> Choose storage location (warehouse, tower, NOC, vehicle, other)</li>
+  <li><strong>Print Label:</strong> Preview and print asset tag</li>
+  <li><strong>Complete:</strong> Review summary and finish</li>
+</ol>
+
+<h4>Location Types</h4>
+<ul>
+  <li><strong>Warehouse:</strong> Section and shelf</li>
+  <li><strong>Tower Site:</strong> Site, rack, and rack unit</li>
+  <li><strong>NOC:</strong> Room and rack</li>
+  <li><strong>Vehicle:</strong> Vehicle ID and name</li>
+  <li><strong>Other:</strong> Custom description</li>
+</ul>
+
+<h4>Tips for Using the Wizard</h4>
+<ul>
+  <li>Have serial numbers or barcodes ready</li>
+  <li>Know storage location before starting</li>
+  <li>Print labels immediately for easy tracking</li>
+  <li>Link to purchase orders when available</li>
+  <li>Add notes for any special handling requirements</li>
+</ul>
+
+<div class="success">
+  <strong>✅ Quick Access:</strong> The Check-in Wizard can also be accessed from the "Scan Check In" modal by selecting "Wizard Mode" option.
+</div>
+
+<h4 id="reports">📊 Reports</h4>
+
+<h4>Available Reports</h4>
+<ul>
+  <li><strong>Inventory Summary:</strong> Total equipment by category and status</li>
+  <li><strong>Location Report:</strong> Equipment distribution by location</li>
+  <li><strong>Maintenance Report:</strong> Maintenance history and costs</li>
+  <li><strong>Warranty Report:</strong> Equipment with expiring warranties</li>
+  <li><strong>Deployment Report:</strong> Equipment deployed at customer sites</li>
+</ul>
+
+<h4>Exporting Reports</h4>
+<ul>
+  <li>Export to CSV for Excel analysis</li>
+  <li>Print PDF reports</li>
+  <li>Schedule automated reports</li>
+  <li>Email reports to stakeholders</li>
+</ul>
+
+<h4 id="mobile-integration">🔍 Mobile App Integration</h4>
+
+<h4>QR Code Scanner</h4>
+<p>Field technicians can use mobile app to:</p>
+<ul>
+  <li>Scan QR codes on equipment</li>
+  <li>View equipment details instantly</li>
+  <li>Check out equipment to vehicle</li>
+  <li>Deploy equipment at customer sites</li>
+  <li>Add maintenance records</li>
+  <li>Update equipment status</li>
+</ul>
+
+<h4>Field Workflow</h4>
+<ol>
+  <li>Scan equipment QR code with mobile app</li>
+  <li>View equipment details and history</li>
+  <li>Check out equipment to vehicle</li>
+  <li>Navigate to customer site</li>
+  <li>Install equipment</li>
+  <li>Deploy equipment via mobile app</li>
+  <li>Add installation notes and photos</li>
+</ol>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Label Everything:</strong> Print and attach QR codes to all equipment</li>
+  <li><strong>Regular Audits:</strong> Periodically verify equipment locations</li>
+  <li><strong>Update Status:</strong> Keep equipment status current</li>
+  <li><strong>Track Maintenance:</strong> Record all repairs and updates</li>
+  <li><strong>Monitor Warranties:</strong> Review warranty expiration regularly</li>
+  <li><strong>Use Bundles:</strong> Group common equipment for faster deployment</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Equipment not appearing in inventory:</h4>
+<ul>
+  <li>Verify equipment was added correctly</li>
+  <li>Check filters aren't hiding equipment</li>
+  <li>Ensure you have permission to view inventory</li>
+</ul>
+
+<h4>Can't check out equipment:</h4>
+<ul>
+  <li>Verify equipment status is "Available"</li>
+  <li>Check equipment isn't already checked out</li>
+  <li>Ensure you have checkout permissions</li>
+</ul>
+
+<h4>QR code not scanning:</h4>
+<ul>
+  <li>Verify QR code is printed clearly</li>
+  <li>Check mobile app has camera permissions</li>
+  <li>Ensure QR code hasn't been damaged</li>
+  <li>Try manual serial number lookup</li>
+</ul>
+
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'coverage-map'" hidden aria-hidden="true">
         <article>
-          
+
+<h3>🗺️ Coverage Map Module</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> The Coverage Map is a comprehensive network asset management and visualization system that consolidates all network equipment (towers, sectors, CPE devices, and inventory) into a single interactive ArcGIS-powered map interface. This module serves as the <strong>central hub</strong> for viewing and managing your entire network infrastructure across all modules (CBRS, ACS, PCI Resolution, etc.).
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#map-features">🗺️ Map Features</a></li>
+    <li><a href="#site-management">Site Management</a></li>
+    <li><a href="#sector-configuration">Sector Configuration</a></li>
+    <li><a href="#cpe-management">📡 CPE Management</a></li>
+    <li><a href="#backhaul-management">🔗 Backhaul Management</a></li>
+    <li><a href="#equipment-inventory">📦 Equipment Inventory</a></li>
+    <li><a href="#filtering-search">🔍 Filtering and Search</a></li>
+    <li><a href="#reports-export">📊 Reports and Export</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>Interactive Map:</strong> ArcGIS-powered map with satellite, street, and hybrid views</li>
+  <li><strong>Tower Site Management:</strong> Add, edit, and manage tower sites with GPS coordinates</li>
+  <li><strong>Sector Management:</strong> Configure sectors per tower with azimuth, tilt, and frequency</li>
+  <li><strong>CPE Device Mapping:</strong> View and manage customer premise equipment locations</li>
+  <li><strong>Backhaul Links:</strong> Visualize and manage point-to-point backhaul connections</li>
+  <li><strong>Equipment Inventory:</strong> Track equipment deployed at each site</li>
+  <li><strong>Coverage Visualization:</strong> View coverage areas and signal strength</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Add a Tower Site</h4>
+<ol>
+  <li>Navigate to <strong>Coverage Map</strong> module</li>
+  <li>Click <strong>"Add Site"</strong> button</li>
+  <li>Enter site information:
+    <ul>
+      <li><strong>Site Name</strong> - Unique identifier</li>
+      <li><strong>Address</strong> - Physical location</li>
+      <li><strong>GPS Coordinates</strong> - Latitude and longitude (or click on map)</li>
+      <li><strong>Site Type</strong> - Tower, Building, Pole, etc.</li>
+      <li><strong>Height</strong> - Tower height in meters</li>
+    </ul>
+  </li>
+  <li>Click <strong>"Save"</strong> to create site</li>
+</ol>
+
+<h4>Step 2: Add Sectors</h4>
+<ol>
+  <li>Click on a tower site marker on the map</li>
+  <li>Click <strong>"Add Sector"</strong> from site popup</li>
+  <li>Enter sector details:
+    <ul>
+      <li><strong>Azimuth</strong> - Direction (0-360 degrees)</li>
+      <li><strong>Tilt</strong> - Antenna tilt angle</li>
+      <li><strong>Frequency</strong> - Operating frequency band</li>
+      <li><strong>Technology</strong> - LTE, 5G, WiMAX, etc.</li>
+      <li><strong>Power</strong> - Transmit power</li>
+    </ul>
+  </li>
+  <li>Save sector</li>
+</ol>
+
+<h4>Step 3: Add CPE Devices</h4>
+<ol>
+  <li>Click <strong>"Add CPE"</strong> button</li>
+  <li>Enter CPE information:
+    <ul>
+      <li><strong>Serial Number</strong> - Device identifier</li>
+      <li><strong>Customer</strong> - Associated customer</li>
+      <li><strong>Location</strong> - GPS coordinates or click on map</li>
+      <li><strong>Model</strong> - CPE device model</li>
+      <li><strong>Status</strong> - Active, Inactive, Maintenance</li>
+    </ul>
+  </li>
+  <li>Save CPE device</li>
+</ol>
+
+<h4 id="map-features">🗺️ Map Features</h4>
+
+<h4>Map Controls</h4>
+<ul>
+  <li><strong>Zoom:</strong> Mouse wheel or +/- buttons</li>
+  <li><strong>Pan:</strong> Click and drag map</li>
+  <li><strong>Basemap:</strong> Switch between street, satellite, hybrid, topographic</li>
+  <li><strong>Search:</strong> Search for addresses or coordinates</li>
+  <li><strong>Measure:</strong> Measure distances between points</li>
+  <li><strong>Draw:</strong> Draw coverage areas and zones</li>
+</ul>
+
+<h4>Map Layers</h4>
+<ul>
+  <li><strong>Tower Sites:</strong> Network infrastructure sites</li>
+  <li><strong>Sectors:</strong> Antenna sectors with coverage arcs</li>
+  <li><strong>CPE Devices:</strong> Customer premise equipment</li>
+  <li><strong>Backhaul Links:</strong> Point-to-point connections</li>
+  <li><strong>Coverage Areas:</strong> Signal coverage visualization</li>
+  <li><strong>Equipment:</strong> Deployed equipment markers</li>
+</ul>
+
+<h4 id="site-management">Site Management</h4>
+
+<h4>Viewing Site Details</h4>
+<p>Click on any site marker to see:</p>
+<ul>
+  <li>Site information and address</li>
+  <li>List of sectors configured</li>
+  <li>Deployed equipment inventory</li>
+  <li>Connected CPE devices</li>
+  <li>Backhaul links</li>
+  <li>Site actions menu</li>
+</ul>
+
+<h4>Editing Sites</h4>
+<ol>
+  <li>Click site marker</li>
+  <li>Click <strong>"Edit Site"</strong></li>
+  <li>Update site information</li>
+  <li>Move marker on map to update coordinates</li>
+  <li>Save changes</li>
+</ol>
+
+<h4 id="sector-configuration">Sector Configuration</h4>
+
+<h4>Adding Sectors</h4>
+<p>Each tower can have multiple sectors:</p>
+<ul>
+  <li>Typically 3-6 sectors per tower</li>
+  <li>Each sector covers 60-120 degrees</li>
+  <li>Sectors can overlap for redundancy</li>
+  <li>Visual coverage arcs shown on map</li>
+</ul>
+
+<h4>Sector Parameters</h4>
+<ul>
+  <li><strong>Azimuth:</strong> Direction sector is pointing (0-360°)</li>
+  <li><strong>Tilt:</strong> Antenna downtilt angle</li>
+  <li><strong>Frequency:</strong> Operating frequency band</li>
+  <li><strong>Technology:</strong> LTE, 5G, WiMAX, etc.</li>
+  <li><strong>Power:</strong> Transmit power in dBm</li>
+  <li><strong>Height:</strong> Antenna height above ground</li>
+</ul>
+
+<h4 id="cpe-management">📡 CPE Management</h4>
+
+<h4>Adding CPE Devices</h4>
+<p>CPE devices represent customer equipment:</p>
+<ul>
+  <li>Link to customer accounts</li>
+  <li>Track installation location</li>
+  <li>Monitor connection status</li>
+  <li>View signal strength</li>
+  <li>Manage firmware updates</li>
+</ul>
+
+<h4>CPE Status</h4>
+<ul>
+  <li><strong>Active:</strong> Device is online and operational</li>
+  <li><strong>Inactive:</strong> Device is offline or disconnected</li>
+  <li><strong>Maintenance:</strong> Device requires service</li>
+  <li><strong>Pending:</strong> Device awaiting installation</li>
+</ul>
+
+<h4 id="backhaul-management">🔗 Backhaul Management</h4>
+
+<h4>Adding Backhaul Links</h4>
+<ol>
+  <li>Click <strong>"Add Backhaul Link"</strong></li>
+  <li>Select origin-convert-all site</li>
+  <li>Select destination site</li>
+  <li>Enter link details:
+    <ul>
+      <li><strong>Link Type:</strong> Point-to-point, Point-to-multipoint</li>
+      <li><strong>Frequency:</strong> Operating frequency</li>
+      <li><strong>Bandwidth:</strong> Link capacity</li>
+      <li><strong>Status:</strong> Active, Planned, Maintenance</li>
+    </ul>
+  </li>
+  <li>Save backhaul link</li>
+</ol>
+
+<h4>Visualizing Backhaul</h4>
+<ul>
+  <li>Lines connect origin-convert-all and destination sites</li>
+  <li>Color coding by status (green=active, red=down, yellow=maintenance)</li>
+  <li>Click link to view details</li>
+  <li>Monitor link utilization</li>
+</ul>
+
+<h4 id="equipment-inventory">📦 Equipment Inventory</h4>
+
+<h4>Site Equipment</h4>
+<p>Track equipment deployed at each site:</p>
+<ul>
+  <li>Radios and antennas</li>
+  <li>Switches and routers</li>
+  <li>Power systems</li>
+  <li>Enclosures and mounting hardware</li>
+</ul>
+
+<h4>Adding Equipment</h4>
+<ol>
+  <li>Click site marker</li>
+  <li>Click <strong>"Add Equipment"</strong></li>
+  <li>Select equipment from inventory</li>
+  <li>Enter deployment date</li>
+  <li>Add notes</li>
+  <li>Save equipment assignment</li>
+</ol>
+
+<h4 id="filtering-search">🔍 Filtering and Search</h4>
+
+<h4>Filter Panel</h4>
+<p>Use filters to focus on specific elements:</p>
+<ul>
+  <li><strong>Site Type:</strong> Filter by tower, building, pole</li>
+  <li><strong>Technology:</strong> Filter by LTE, 5G, WiMAX</li>
+  <li><strong>Status:</strong> Filter by active, inactive, maintenance</li>
+  <li><strong>Coverage Area:</strong> Show/hide coverage visualization</li>
+</ul>
+
+<h4>Search Functionality</h4>
+<ul>
+  <li>Search by site name</li>
+  <li>Search by address</li>
+  <li>Search by customer name</li>
+  <li>Search by equipment serial number</li>
+</ul>
+
+<h4 id="reports-export">📊 Reports and Export</h4>
+
+<h4>Available Reports</h4>
+<ul>
+  <li><strong>Site Inventory:</strong> Equipment at each site</li>
+  <li><strong>Coverage Analysis:</strong> Coverage areas and gaps</li>
+  <li><strong>CPE Distribution:</strong> CPE devices by location</li>
+  <li><strong>Backhaul Network:</strong> Backhaul link topology</li>
+</ul>
+
+<h4>Export Options</h4>
+<ul>
+  <li>Export map as image (PNG, PDF)</li>
+  <li>Export site data to CSV</li>
+  <li>Export coverage data for analysis</li>
+  <li>Print map with annotations</li>
+</ul>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Accurate Coordinates:</strong> Use GPS for precise site locations</li>
+  <li><strong>Regular Updates:</strong> Keep site information current</li>
+  <li><strong>Documentation:</strong> Add notes and photos to sites</li>
+  <li><strong>Coverage Planning:</strong> Use coverage visualization for planning</li>
+  <li><strong>Equipment Tracking:</strong> Keep equipment inventory updated</li>
+  <li><strong>Backhaul Monitoring:</strong> Track backhaul link status</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Map not loading:</h4>
+<ul>
+  <li>Check ArcGIS API key is configured</li>
+  <li>Verify internet connection</li>
+  <li>Clear browser cache</li>
+  <li>Check browser console for errors</li>
+</ul>
+
+<h4>Sites not appearing:</h4>
+<ul>
+  <li>Check filters aren't hiding sites</li>
+  <li>Verify site coordinates are valid</li>
+  <li>Zoom out to see all sites</li>
+  <li>Check site status filter</li>
+</ul>
+
+<h4>Can't add sectors:</h4>
+<ul>
+  <li>Verify site is selected</li>
+  <li>Check you have edit permissions</li>
+  <li>Ensure site exists and is saved</li>
+</ul>
+
         </article>
-      
-      
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === 'hss-subscribers'" hidden aria-hidden="true">
         <article>
-          
+
+<h3>🔐 HSS & Subscriber Management</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Manage Home Subscriber Server (HSS) database for LTE/5G networks. Create, configure, and manage subscriber profiles, authentication credentials, and service access for mobile network subscribers.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#subscriber-management">📱 Subscriber Management</a></li>
+    <li><a href="#authentication">🔐 Authentication</a></li>
+    <li><a href="#group-management">👥 Group Management</a></li>
+    <li><a href="#epc-deployment">🌐 EPC Deployment</a></li>
+    <li><a href="#mme-connection">🔌 MME Connection</a></li>
+    <li><a href="#monitoring">📊 Monitoring</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#technical-details">📚 Technical Details</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>Subscriber Management:</strong> Create, edit, and delete subscriber profiles</li>
+  <li><strong>Authentication:</strong> Manage authentication vectors (AUTN, RAND, XRES, CK, IK)</li>
+  <li><strong>Service Profiles:</strong> Configure APN (Access Point Name) and service access</li>
+  <li><strong>Group Management:</strong> Organize subscribers into groups for bulk operations</li>
+  <li><strong>EPC Integration:</strong> Deploy and manage Evolved Packet Core (EPC) systems</li>
+  <li><strong>MME Connection:</strong> Connect Mobile Management Entities (MMEs) to HSS</li>
+  <li><strong>Monitoring:</strong> Track subscriber activity and authentication events</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Add a Subscriber</h4>
+<ol>
+  <li>Navigate to <strong>HSS Management</strong> module</li>
+  <li>Click <strong>"Add Subscriber"</strong> button</li>
+  <li>Enter subscriber information:
+    <ul>
+      <li><strong>IMSI</strong> - International Mobile Subscriber Identity (15 digits, required)</li>
+      <li><strong>MSISDN</strong> - Mobile Station International Subscriber Directory Number (phone number, optional)</li>
+      <li><strong>Ki</strong> - Authentication key (128-bit hex, required)</li>
+      <li><strong>OP/OPc</strong> - Operator variant key (optional, for enhanced security)</li>
+      <li><strong>APN</strong> - Access Point Name (default: internet)</li>
+      <li><strong>QoS Profile</strong> - Quality of Service settings</li>
+    </ul>
+  </li>
+  <li>Click <strong>"Create Subscriber"</strong></li>
+</ol>
+
+<h4>Step 2: Configure APN</h4>
+<p>Access Point Names define network access:</p>
+<ul>
+  <li><strong>Default APN:</strong> Usually "internet" for data access</li>
+  <li><strong>Custom APNs:</strong> Create APNs for specific services</li>
+  <li><strong>APN Settings:</strong> Configure IP allocation, DNS, and routing</li>
+</ul>
+
+<h4>Step 3: Assign to Group</h4>
+<ol>
+  <li>Select subscriber from list</li>
+  <li>Click <strong>"Edit"</strong></li>
+  <li>Select subscriber group</li>
+  <li>Groups help organize subscribers for bulk operations</li>
+  <li>Save changes</li>
+</ol>
+
+<h4 id="subscriber-management">📱 Subscriber Management</h4>
+
+<h4>Subscriber Fields</h4>
+<ul>
+  <li><strong>IMSI:</strong> Unique 15-digit identifier (MCC + MNC + MSIN)</li>
+  <li><strong>MSISDN:</strong> Phone number (E.164 format)</li>
+  <li><strong>Ki:</strong> 128-bit authentication key (hex format)</li>
+  <li><strong>OP/OPc:</strong> Operator variant key for enhanced security</li>
+  <li><strong>APN:</strong> Access Point Name for data services</li>
+  <li><strong>QoS:</strong> Quality of Service profile</li>
+  <li><strong>Status:</strong> Active, Suspended, Deleted</li>
+</ul>
+
+<h4>Editing Subscribers</h4>
+<ol>
+  <li>Click subscriber from list</li>
+  <li>Click <strong>"Edit"</strong> button</li>
+  <li>Update subscriber information</li>
+  <li><strong>Note:</strong> Changing Ki requires re-authentication</li>
+  <li>Save changes</li>
+</ol>
+
+<h4>Suspending Subscribers</h4>
+<p>Temporarily disable subscriber access:</p>
+<ol>
+  <li>Select subscriber</li>
+  <li>Click <strong>"Suspend"</strong></li>
+  <li>Subscriber cannot authenticate</li>
+  <li>Click <strong>"Activate"</strong> to restore access</li>
+</ol>
+
+<h4 id="authentication">🔐 Authentication</h4>
+
+<h4>How Authentication Works</h4>
+<p>The HSS generates authentication vectors for MMEs:</p>
+<ol>
+  <li>MME requests authentication vector from HSS</li>
+  <li>HSS generates RAND (random challenge)</li>
+  <li>HSS calculates AUTN, XRES, CK, IK using Ki</li>
+  <li>HSS sends authentication vector to MME</li>
+  <li>MME challenges subscriber with RAND</li>
+  <li>Subscriber calculates RES using Ki</li>
+  <li>MME compares RES with XRES</li>
+  <li>If match, subscriber is authenticated</li>
+</ol>
+
+<h4>Security Best Practices</h4>
+<ul>
+  <li><strong>Secure Ki Storage:</strong> Encrypt Ki values in database</li>
+  <li><strong>Unique Ki:</strong> Each subscriber must have unique Ki</li>
+  <li><strong>OP/OPc:</strong> Use operator variant keys for enhanced security</li>
+  <li><strong>Regular Rotation:</strong> Consider rotating Ki periodically</li>
+  <li><strong>Access Control:</strong> Limit who can view/edit Ki values</li>
+</ul>
+
+<h4 id="group-management">👥 Group Management</h4>
+
+<h4>Creating Groups</h4>
+<ol>
+  <li>Navigate to <strong>Groups</strong> section</li>
+  <li>Click <strong>"Create Group"</strong></li>
+  <li>Enter group name and description</li>
+  <li>Set group settings (APN, QoS, etc.)</li>
+  <li>Save group</li>
+</ol>
+
+<h4>Using Groups</h4>
+<ul>
+  <li>Assign subscribers to groups</li>
+  <li>Apply group settings to all members</li>
+  <li>Bulk operations on group members</li>
+  <li>Organize by service tier or location</li>
+</ul>
+
+<h4 id="epc-deployment">🌐 EPC Deployment</h4>
+
+<h4>What is EPC?</h4>
+<p>Evolved Packet Core (EPC) is the core network for LTE:</p>
+<ul>
+  <li><strong>HSS:</strong> Home Subscriber Server (this module)</li>
+  <li><strong>MME:</strong> Mobility Management Entity</li>
+  <li><strong>SGW:</strong> Serving Gateway</li>
+  <li><strong>PGW:</strong> Packet Data Network Gateway</li>
+  <li><strong>PCRF:</strong> Policy and Charging Rules Function</li>
+</ul>
+
+<h4>Deploying EPC</h4>
+<ol>
+  <li>Navigate to <strong>EPC Deployment</strong> section</li>
+  <li>Select deployment type (Cloud, On-Premise, Hybrid)</li>
+  <li>Configure network settings</li>
+  <li>Deploy HSS component</li>
+  <li>Connect MMEs to HSS</li>
+  <li>Test authentication flow</li>
+</ol>
+
+<h4 id="mme-connection">🔌 MME Connection</h4>
+
+<h4>Connecting MMEs</h4>
+<p>MMEs connect to HSS via S6a interface:</p>
+<ol>
+  <li>Configure MME with HSS address</li>
+  <li>Set up Diameter protocol connection</li>
+  <li>Configure TLS/SSL for security</li>
+  <li>Test connection</li>
+  <li>Monitor authentication requests</li>
+</ol>
+
+<h4>MME Configuration</h4>
+<ul>
+  <li><strong>HSS Address:</strong> IP address or hostname</li>
+  <li><strong>Port:</strong> Diameter port (usually 3868)</li>
+  <li><strong>Realm:</strong> Diameter realm</li>
+  <li><strong>TLS:</strong> Enable TLS for secure connection</li>
+  <li><strong>Heartbeat:</strong> Configure watchdog/heartbeat</li>
+</ul>
+
+<h4 id="monitoring">📊 Monitoring</h4>
+
+<h4>Subscriber Activity</h4>
+<p>Monitor subscriber activity:</p>
+<ul>
+  <li>Authentication success/failure rates</li>
+  <li>Active sessions</li>
+  <li>Data usage</li>
+  <li>Location updates</li>
+</ul>
+
+<h4>HSS Performance</h4>
+<ul>
+  <li>Authentication request rate</li>
+  <li>Response times</li>
+  <li>Error rates</li>
+  <li>Database performance</li>
+</ul>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Unique IMSIs:</strong> Ensure each subscriber has unique IMSI</li>
+  <li><strong>Secure Ki:</strong> Protect authentication keys</li>
+  <li><strong>Regular Backups:</strong> Backup subscriber database regularly</li>
+  <li><strong>Monitor Activity:</strong> Track authentication events</li>
+  <li><strong>Group Organization:</strong> Use groups for easier management</li>
+  <li><strong>Documentation:</strong> Document APN configurations</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Subscriber cannot authenticate:</h4>
+<ul>
+  <li>Verify Ki is correct</li>
+  <li>Check IMSI format (15 digits)</li>
+  <li>Verify subscriber status is Active</li>
+  <li>Check MME connection to HSS</li>
+  <li>Review authentication logs</li>
+</ul>
+
+<h4>MME connection failed:</h4>
+<ul>
+  <li>Verify HSS address and port</li>
+  <li>Check firewall rules</li>
+  <li>Test Diameter connection</li>
+  <li>Verify TLS certificates</li>
+  <li>Check HSS service status</li>
+</ul>
+
+<h4>Authentication failures:</h4>
+<ul>
+  <li>Verify Ki matches subscriber device</li>
+  <li>Check OP/OPc configuration</li>
+  <li>Review authentication algorithm</li>
+  <li>Check for Ki mismatch</li>
+  <li>Verify MME configuration</li>
+</ul>
+
+<h4 id="technical-details">📚 Technical Details</h4>
+
+<h4>IMSI Format</h4>
+<p>IMSI consists of:</p>
+<ul>
+  <li><strong>MCC:</strong> Mobile Country Code (3 digits)</li>
+  <li><strong>MNC:</strong> Mobile Network Code (2-3 digits)</li>
+  <li><strong>MSIN:</strong> Mobile Subscriber Identification Number (9-10 digits)</li>
+</ul>
+<p>Example: 310150123456789 (MCC: 310, MNC: 150, MSIN: 123456789)</p>
+
+<h4>Authentication Algorithms</h4>
+<ul>
+  <li><strong>MILENAGE:</strong> Standard 3GPP authentication algorithm</li>
+  <li><strong>TUAK:</strong> Alternative authentication algorithm</li>
+  <li><strong>Custom:</strong> Proprietary algorithms (not recommended)</li>
+</ul>
+
+<h4>APN Configuration</h4>
+<ul>
+  <li><strong>APN Name:</strong> Access Point Name identifier</li>
+  <li><strong>IP Type:</strong> IPv4, IPv6, or both</li>
+  <li><strong>QoS:</strong> Quality of Service profile</li>
+  <li><strong>Charging:</strong> Charging characteristics</li>
+</ul>
+
         </article>
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedTopic === '__fallback'" data-cwl-state-fallback="selectedTopic" hidden aria-hidden="true">
+        <article>
+          <h2>Documentation Coming Soon</h2>
+          <p>Detailed documentation for <strong><span data-cwl-bind="interp" data-cwl-hole-detail="topics.find(t => t.id === selectedTopic)?.title || selectedTopic"></span></strong> will be added here.</p>
+          <p>In the meantime, explore the module and use tooltips for guidance.</p>
+        </article>
+      </div>
     </main>
   </div>
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/help"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/help"}</script>

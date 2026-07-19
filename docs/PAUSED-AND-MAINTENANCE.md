@@ -112,6 +112,7 @@ Pre-Phase-27 operator deploy and chimera showcase. **Not** the default build que
 
 | When | Run |
 | --- | --- |
+| **From-scratch POC redo (G9992)** | `pnpm run hub:wisp-poc-from-scratch` (+ `--deploy-firebase`) — [`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md) |
 | Operator refresh / chimera deploy | `wisp:deploy:gce`, `wisp:operator-verify -- --require` |
 | Full POC regression (local or CI) | `.github/workflows/wisp-poc-regression.yml` |
 | Phase 14 closed verify | `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**) |

@@ -1,272 +1,1135 @@
-<div class="inventory-page">
+<div class="wisp-app-surface" data-wisp-page="inventory" data-wisp-path="/modules/inventory" data-cwl-island="client"><div class="inventory-page">
   <!-- Header -->
   <div class="page-header">
     <div class="header-left">
-        <button class="back-button">
+        <button class="back-button" data-cwl-nav="/dashboard" type="button">
         ← Back to Dashboard
       </button>
       <h1>📦 Inventory Management</h1>
       <p class="subtitle">Centralized asset tracking and management</p>
     </div>
-    
+
     <div class="header-actions">
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-set="scanMode:lookup">
         🔍 Scan Lookup
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-set="scanMode:check-in">
         📥 Scan Check In
       </button>
-      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
-      <button class="btn-secondary">
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
+      <button class="btn-secondary" data-cwl-set="scanMode:check-out">
         📤 Scan Check Out
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-toggle="showManualEntry:true" aria-label="Show Manual Entry">
         🔍 Manual Lookup
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-nav="/modules/inventory/bundles">
         📦 Bundles
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-nav="/modules/inventory/reports">
         📊 View Reports
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-action="handleExport" aria-label="Export">
         📥 Export CSV
       </button>
-      <button class="btn-primary">
+      <button class="btn-primary" data-cwl-nav="/modules/inventory/add">
         ➕ Add Item
       </button>
     </div>
   </div>
-  
+
   <!-- Alerts -->
-  
-  
-  
-  
+
   <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card">
       <div class="stat-icon">📦</div>
       <div>
-        <div class="stat-value"></div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.totalItems"></span></div>
         <div class="stat-label">Total Items</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon">✅</div>
       <div>
         <div class="stat-value">
-          12
+          <span data-cwl-bind="interp" data-cwl-hole-detail="getStatusCount('available')"></span>
         </div>
         <div class="stat-label">Available</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon">🚀</div>
       <div>
         <div class="stat-value">
-          
+          <span data-cwl-bind="interp" data-cwl-hole-detail="getStatusCount('deployed')"></span>
         </div>
         <div class="stat-label">Deployed</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon">💰</div>
       <div>
-        <div class="stat-value"></div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatCurrency(stats.totalValue)"></span></div>
         <div class="stat-label">Total Value</div>
       </div>
     </div>
   </div>
-  
+
   <!-- Filters -->
   <div class="filters-section">
     <div class="filters-row">
       <div class="search-box">
         <input
           type="text"
-          placeholder="🔍 Search by serial number, model, manufacturer..."
+          placeholder="🔍 Search by serial number, model, manufacturer..." data-cwl-on-keydown="action:applyFilters"
         />
       </div>
-      
+
       <select>
         <option>All Categories</option>
-        <option></option><option></option><option></option><option></option>
+
+          <option value="Radio Equipment">Radio Equipment</option>
+
+          <option value="Antennas">Antennas</option>
+
+          <option value="Power Systems">Power Systems</option>
+
+          <option value="Networking Equipment">Networking Equipment</option>
+
+          <option value="Transmission Equipment">Transmission Equipment</option>
+
+          <option value="Environmental Control">Environmental Control</option>
+
+          <option value="Monitoring & Control">Monitoring & Control</option>
+
+          <option value="Structural & Housing">Structural & Housing</option>
+
+          <option value="Test Equipment">Test Equipment</option>
+
+          <option value="CPE Devices">CPE Devices</option>
+
+          <option value="SIM Cards">SIM Cards</option>
+
+          <option value="Cables & Accessories">Cables & Accessories</option>
+
+          <option value="Tools">Tools</option>
+
+          <option value="Spare Parts">Spare Parts</option>
+
+          <option value="Other">Other</option>
+
       </select>
-      
+
       <select>
         <option>All Statuses</option>
-        <option></option><option></option><option></option><option></option><option></option>
+
+          <option value="available">available</option>
+
+          <option value="deployed">deployed</option>
+
+          <option value="reserved">reserved</option>
+
+          <option value="in-transit">in-transit</option>
+
+          <option value="maintenance">maintenance</option>
+
+          <option value="rma">rma</option>
+
+          <option value="retired">retired</option>
+
+          <option value="lost">lost</option>
+
+          <option value="sold">sold</option>
+
       </select>
-      
+
       <select>
         <option>All Locations</option>
-        
+
+          <option value="warehouse">warehouse</option>
+
+          <option value="tower">tower</option>
+
+          <option value="noc">noc</option>
+
+          <option value="vehicle">vehicle</option>
+
+          <option value="customer">customer</option>
+
+          <option value="rma">rma</option>
+
+          <option value="vendor">vendor</option>
+
+          <option value="other">other</option>
+
       </select>
-      
-      <button class="btn-primary">Apply</button>
-      <button class="btn-secondary">Clear</button>
+
+      <button class="btn-primary" data-cwl-action="applyFilters" aria-label="Apply Filters">Apply</button>
+      <button class="btn-secondary" data-cwl-action="clearFilters" aria-label="Clear Filters">Clear</button>
     </div>
   </div>
-  
+
   <!-- Loading State -->
-  
+
     <!-- Inventory Table -->
     <div class="table-container">
       <table class="inventory-table">
         <thead>
           <tr>
-            <th>Asset Tag</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Manufacturer</th>
-            <th>Model</th>
-            <th>Serial Number</th>
-            <th>Status</th>
-            <th>Condition</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'assetTag'">Asset Tag</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'category'">Category</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'equipmentType'">Type</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'manufacturer'">Manufacturer</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'model'">Model</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'serialNumber'">Serial Number</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'status'">Status</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'condition'">Condition</th>
             <th>Location</th>
-            <th>Last Updated</th>
+            <th data-cwl-action="handleSort" data-cwl-action-args="'updatedAt'">Last Updated</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          
+
+            <div data-cwl-bind="each" data-cwl-hole-detail="items as item" data-cwl-each-item="item" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bitem.assetTag%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%3Cspan%20class%3D%22category-badge%22%3E%7Bitem.category%7D%3C%2Fspan%3E%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bitem.equipmentType%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bitem.manufacturer%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bitem.model%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%3Ccode%3E%7Bitem.serialNumber%7D%3C%2Fcode%3E%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22status-badge%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20style%3D%22background-color%3A%20%7BgetStatusColor(item.status)%7D20%3B%20color%3A%20%7BgetStatusColor(item.status)%7D%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bitem.status%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22condition-badge%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BgetConditionEmoji(item.condition)%7D%20%7Bitem.condition%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22location-cell%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22location-type%22%3E%7Bitem.currentLocation%3F.type%20%3D%3D%3D%20'unassigned'%20%3F%20'Unassigned'%20%3A%20(item.currentLocation%3F.type%20%3F%3F%20'%E2%80%94')%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20item.currentLocation%3F.siteName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22location-name%22%3E%7Bitem.currentLocation.siteName%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%20if%20item.currentLocation%3F.type%20%3D%3D%3D%20'unassigned'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22location-name%22%3EAssign%20during%20deploy%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7BformatDate(item.updatedAt)%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22action-buttons%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-icon%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22View%20Details%22%20data-cwl-nav%3D%22%2Fmodules%2Finventory%2F%7Bitem._id%7D%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%91%81%EF%B8%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-icon%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Edit%20Equipment%22%20data-cwl-nav%3D%22%2Fmodules%2Finventory%2F%7Bitem._id%7D%2Fedit%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%8F%EF%B8%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-icon%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Print%20Asset%20Tag%22%20data-cwl-action%3D%22handlePrintTag%22%20data-cwl-action-args%3D%22item%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%8F%B7%EF%B8%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                <td></td>
+                <td><span class="category-badge"></span></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><code></code></td>
+                <td>
+                  <span
+                    class="status-badge"
+                    style="background-color: 20; color: "
+                  >
+
+                  </span>
+                </td>
+                <td>
+                  <span class="condition-badge">
+
+                  </span>
+                </td>
+                <td>
+                  <div class="location-cell">
+                    <div class="location-type"></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="item.currentLocation?.siteName"><div class="location-name"></div></div><div data-cwl-bind="if" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned'"><div class="location-name">Assign during deploy</div></div>
+                  </div>
+                </td>
+                <td></td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn-icon"
+                      title="View Details"
+                    >
+                      👁️
+                    </button>
+                    <button
+                      class="btn-icon"
+                      title="Edit Equipment"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      class="btn-icon"
+                      title="Print Asset Tag" data-cwl-action="handlePrintTag" data-cwl-action-args="item"
+                    >
+                      🏷️
+                    </button>
+                  </div>
+                </td>
+              </tr></div>
+
+            <div hidden aria-hidden="true"><tr>
+              <td colspan="11" class="empty-state">
+                <div>
+                  <p>📦 No inventory items found</p>
+                  <button class="btn-primary" data-cwl-nav="/modules/inventory/add">
+                    Add Your First Item
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </div>
         </tbody>
       </table>
     </div>
-    
+
     <!-- Pagination -->
-    <div class="pagination">
-        <button 
-          class="btn-secondary"
-        >
+    <div data-cwl-bind="if" data-cwl-hole-detail="pagination.pages > 1"><div class="pagination">
+        <button
+          class="btn-secondary" data-cwl-attr-disabled="pagination.page === 1" data-cwl-action="goToPage" data-cwl-action-args="pagination.page - 1"
+         aria-label="Go To Page">
           ← Previous
         </button>
-        
+
         <span class="pagination-info">
-          Page 1 of 2 
-          (24 items)
+          Page <span data-cwl-bind="interp" data-cwl-hole-detail="pagination.page"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="pagination.pages"></span>
+          (<span data-cwl-bind="interp" data-cwl-hole-detail="pagination.total"></span> items)
         </span>
-        
-        <button 
-          class="btn-secondary"
-        >
+
+        <button
+          class="btn-secondary" data-cwl-attr-disabled="pagination.page === pagination.pages" data-cwl-action="goToPage" data-cwl-action-args="pagination.page + 1"
+         aria-label="Go To Page">
           Next →
         </button>
-      </div>
-  
-  
+      </div></div>
+
+    <div class="loading-state" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading inventory...</p>
+    </div>
+
   <!-- Manual Barcode Entry Modal -->
-  
+
+  <div class="modal-overlay" data-cwl-toggle="showManualEntry:false" hidden aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔍 Manual Equipment Lookup</h3>
+        <button class="close-btn" data-cwl-toggle="showManualEntry:false" aria-label="Show Manual Entry">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">
+          Enter a barcode, QR code, asset tag, or serial number to find equipment.
+          <br><small>For camera scanning, use the mobile app.</small>
+        </p>
+        <div class="form-group">
+          <label for="manualBarcode">Search Value</label>
+          <input
+            id="manualBarcode"
+            type="text"
+            placeholder="Enter barcode, asset tag, or serial number..." data-cwl-on-keydown="action:handleManualBarcodeEntry"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-cwl-toggle="showManualEntry:false" aria-label="Show Manual Entry">
+          Cancel
+        </button>
+        <button class="btn btn-primary" data-cwl-action="handleManualBarcodeEntry" data-cwl-attr-disabled="!manualBarcode.trim()" aria-label="Manual Barcode Entry">
+          Lookup Equipment
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Asset Tag Viewer -->
-  
-  
+  <div data-cwl-bind="if" data-cwl-hole-detail="selectedItemForTag"><div data-cwl-component="AssetTagViewer" data-cwl-lifted-component="AssetTagViewer"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🏷️ Asset Tag</h2>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="asset-tag">
+          <div class="tag-header">
+            <h3>ASSET TAG</h3>
+            <div class="asset-number"><span data-cwl-bind="interp" data-cwl-hole-detail="item.assetTag || 'No Asset Tag'"></span></div>
+          </div>
+
+          <div class="qr-section">
+            <div data-cwl-bind="if" data-cwl-hole-detail="qrCodeDataURL"><img alt="QR Code" class="qr-code" /></div>
+              <div class="qr-placeholder">QR Code</div>
+
+          </div>
+
+          <div class="details-section">
+            <div class="detail-row">
+              <span class="label">Serial Number:</span>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.serialNumber"></span></span>
+            </div>
+
+              <div class="detail-row" hidden aria-hidden="true">
+                <span class="label">Manufacturer:</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.manufacturer"></span></span>
+              </div>
+
+              <div class="detail-row" hidden aria-hidden="true">
+                <span class="label">Model:</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.model"></span></span>
+              </div>
+
+              <div class="detail-row" hidden aria-hidden="true">
+                <span class="label">Location:</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.siteName || item.currentLocation.type"></span></span>
+              </div>
+
+          </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Close</button>
+      <button class="btn-primary" data-cwl-action="handlePrint" aria-label="Print">
+        🖨️ Print Label
+      </button>
+    </div>
+  </div>
+</div></div></div>
+
   <!-- Scan Modal -->
-  
-  
+
+    <div hidden aria-hidden="true"><div data-cwl-component="ScanModal" data-cwl-lifted-component="ScanModal"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'check-in'" hidden aria-hidden="true">
+            📥 Check In Item
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'check-out'" hidden aria-hidden="true">
+            📤 Check Out Item
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode">
+            🔍 Look Up Item
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Scanner Section -->
+        <div class="scanner-section">
+          <div class="input-group">
+            <label>Scan or Enter Identifier</label>
+            <div class="input-with-buttons">
+              <input
+                type="text"
+                placeholder="Barcode, QR Code, Asset Tag, or Serial Number" data-cwl-on-keypress="action:handleKeyPress" data-cwl-attr-disabled="loading || scanning"
+              />
+              <div data-cwl-bind="if" data-cwl-hole-detail="barcodeDetector"><button
+                  class="btn btn-icon" data-cwl-action="startCamera" data-cwl-action-true="stopCamera" data-cwl-action-state="usingCamera:false" data-cwl-attr-title="usingCamera ? 'Stop Camera' : 'Start Camera'"
+                 aria-label="Start Camera">
+
+                    📷
+
+                </button></div>
+              <button
+                class="btn btn-icon" data-cwl-action="lookupItem" data-cwl-attr-disabled="!identifier || loading"
+               aria-label="Lookup Item">
+                🔍
+              </button>
+            </div>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="usingCamera && videoElement"><div class="video-container">
+              <video
+                autoplay
+                playsinline
+                class="scanner-video"
+              >
+                <track kind="captions" srclang="en" label="No captions available" />
+              </video>
+            </div></div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="scannedItem"><div class="item-details">
+            <h3>Item Details</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Asset Tag:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.assetTag || 'N/A'"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Serial Number:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.serialNumber"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Category:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.category"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Type:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.equipmentType"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Manufacturer:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.manufacturer || 'N/A'"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Model:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.model || 'N/A'"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Status:</label>
+                <span class="badge badge-"><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.status"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Current Location:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="scannedItem.currentLocation?.type || 'N/A'"></span></span>
+              </div>
+            </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="mode !== 'lookup'"><div class="location-section">
+                <h3>New Location</h3>
+
+                <div class="form-group">
+                  <label>Location Type</label>
+                  <select>
+                    <option value="warehouse">Warehouse</option>
+                    <option value="tower">Tower Site</option>
+                    <option value="noc">NOC</option>
+                    <option value="vehicle">Vehicle</option>
+                    <option value="customer">Customer</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                  <div class="form-group">
+                    <label>Warehouse Name</label>
+                    <input
+                      type="text"
+                      placeholder="Main Warehouse"
+                    />
+                  </div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'tower' || locationType === 'noc'"><div class="form-group">
+                    <label>Site ID</label>
+                    <input
+                      type="text"
+                      placeholder="Site ID"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Rack</label>
+                    <input
+                      type="text"
+                      placeholder="Rack Number"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Rack Unit</label>
+                    <input
+                      type="text"
+                      placeholder="RU (e.g., 10-15)"
+                    />
+                  </div></div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'vehicle'" hidden aria-hidden="true">
+                  <div class="form-group">
+                    <label>Vehicle ID</label>
+                    <input
+                      type="text"
+                      placeholder="Vehicle ID"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Vehicle Name</label>
+                    <input
+                      type="text"
+                      placeholder="Vehicle Name"
+                    />
+                  </div>
+                </div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'customer'" hidden aria-hidden="true">
+                  <div class="form-group">
+                    <label>Customer ID</label>
+                    <input
+                      type="text"
+                      placeholder="Customer ID"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Customer Name</label>
+                    <input
+                      type="text"
+                      placeholder="Customer Name"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Service Address</label>
+                    <input
+                      type="text"
+                      placeholder="Service Address"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Notes (optional)</label>
+                  <textarea
+                    placeholder="Additional notes about this check-in/out"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'check-in'" hidden aria-hidden="true">
+                  <button
+                    class="btn btn-primary" data-cwl-action="handleCheckIn" data-cwl-attr-disabled="loading"
+                   aria-label="Check In">
+                    ✓ Check In
+                  </button>
+                </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'check-out'" hidden aria-hidden="true">
+                  <button
+                    class="btn btn-primary" data-cwl-action="handleCheckOut" data-cwl-attr-disabled="loading"
+                   aria-label="Check Out">
+                    ✓ Check Out
+                  </button>
+                </div>
+                <button class="btn btn-secondary" data-cwl-action="close" aria-label="Close">Cancel</button>
+              </div></div>
+              <div class="modal-actions">
+                <button class="btn btn-secondary" data-cwl-action="close" aria-label="Close">Close</button>
+              </div>
+
+          </div></div>
+      </div>
+    </div>
+  </div></div>
+  </div>
+
   <!-- Check-in Wizard -->
-  <div data-cwl-component="InventoryCheckInWizard" data-cwl-lifted-component="InventoryCheckInWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+  <div data-cwl-component="InventoryCheckInWizard" data-cwl-lifted-component="InventoryCheckInWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">📦 Inventory Check-in Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+      <div class="wizard-panel">
+        <h3>Welcome to Inventory Check-in! 📦</h3>
+        <p>This wizard will guide you through checking in inventory items.</p>
+
+        <div class="info-box">
+          <h4>Check-in Process:</h4>
+          <ul>
+            <li>✅ Scan or enter item serial number</li>
+            <li>✅ Verify item details</li>
+            <li>✅ Set storage location</li>
+            <li>✅ Print label (optional)</li>
+            <li>✅ Complete check-in</li>
+          </ul>
+        </div>
+
+        <div class="info-box">
+          <h4>Check-in Methods:</h4>
+          <ul>
+            <li><strong>Barcode Scan:</strong> Scan item barcode with camera</li>
+            <li><strong>Manual Entry:</strong> Enter serial number manually</li>
+            <li><strong>Bulk:</strong> Check in multiple items at once</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><!-- Scan Item -->
+      <div class="wizard-panel">
+        <h3>Scan or Enter Item</h3>
+        <p>How would you like to identify the item?</p>
+
+        <div class="method-grid">
+          <button
+            class="method-card" data-cwl-action="selectScanMethod" data-cwl-action-args="'barcode'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Scan Method">
+            <div class="method-icon">📷</div>
+            <h4>Scan Barcode</h4>
+            <p>Use camera to scan barcode/QR code</p>
+          </button>
+
+          <button
+            class="method-card" data-cwl-action="selectScanMethod" data-cwl-action-args="'manual'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Scan Method">
+            <div class="method-icon">✏️</div>
+            <h4>Manual Entry</h4>
+            <p>Enter serial number manually</p>
+          </button>
+
+          <button
+            class="method-card" data-cwl-action="selectScanMethod" data-cwl-action-args="'bulk'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Scan Method">
+            <div class="method-icon">📊</div>
+            <h4>Bulk Check-in</h4>
+            <p>Check in multiple items</p>
+          </button>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="scanMethod === 'manual'"><div class="form-section">
+            <div class="form-group">
+              <label>
+                Serial Number <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter serial number" data-cwl-on-keydown="action:lookupItem" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Purchase Order ID</label>
+              <input
+                type="text"
+                placeholder="Optional: Link to purchase order" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button
+              class="wizard-btn-primary" data-cwl-action="lookupItem" data-cwl-attr-disabled="isLoading || !scannedSerial.trim()"
+             aria-label="Lookup Item">
+              Lookup Item →
+            </button>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="scanMethod === 'barcode'"><div class="form-section">
+            <div class="info-box">
+              <p>📷 Camera scanning will be activated. Point camera at barcode/QR code.</p>
+            </div>
+
+            <div class="form-group">
+              <label>Or Enter Barcode Manually</label>
+              <input
+                type="text"
+                placeholder="Enter barcode" data-cwl-on-keydown="action:lookupItem" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button
+              class="wizard-btn-primary" data-cwl-action="lookupItem" data-cwl-attr-disabled="isLoading || (!scannedBarcode.trim() &amp;&amp; !scannedSerial.trim())"
+             aria-label="Lookup Item">
+              Lookup Item →
+            </button>
+          </div></div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><!-- Verify -->
+      <div class="wizard-panel">
+        <h3>Verify Item Details</h3>
+        <p>Review and update item information if needed.</p>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="itemDetails"><div class="item-details">
+            <div class="form-group">
+              <label>
+                Item Name <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., TP-Link Router" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Category</label>
+              <select data-cwl-attr-disabled="isLoading">
+                <option>-- Select Category --</option>
+                <option value="Radio Equipment">Radio Equipment</option>
+                <option value="Antennas">Antennas</option>
+                <option value="Power Systems">Power Systems</option>
+                <option value="Networking Equipment">Networking Equipment</option>
+                <option value="CPE Devices">CPE Devices</option>
+                <option value="Cables & Accessories">Cables & Accessories</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Manufacturer</label>
+              <input
+                type="text"
+                placeholder="e.g., TP-Link" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Model</label>
+              <input
+                type="text"
+                placeholder="e.g., CPE610" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Serial Number</label>
+              <input
+                type="text" data-cwl-attr-value="itemDetails.serialNumber"
+                disabled
+              />
+            </div>
+          </div></div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><!-- Set Location -->
+      <div class="wizard-panel">
+        <h3>Set Storage Location</h3>
+        <p>Where will this item be stored?</p>
+
+        <div class="form-group">
+          <label>Location Type</label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option value="warehouse">Warehouse</option>
+            <option value="tower">Tower Site</option>
+            <option value="noc">NOC</option>
+            <option value="vehicle">Vehicle</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'warehouse'">
+          <div class="form-group">
+            <label>Section</label>
+            <input
+              type="text"
+              placeholder="e.g., A, B, C" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+          <div class="form-group">
+            <label>Shelf</label>
+            <input
+              type="text"
+              placeholder="e.g., Shelf 1" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'tower'" hidden aria-hidden="true">
+          <div class="form-group">
+            <label>Site</label>
+            <select data-cwl-attr-disabled="isLoading">
+              <option>-- Select Site --</option>
+              <div data-cwl-bind="each" data-cwl-hole-detail="availableSites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Rack</label>
+            <input
+              type="text"
+              placeholder="e.g., Rack 1" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+          <div class="form-group">
+            <label>Rack Unit</label>
+            <input
+              type="text"
+              placeholder="e.g., U12" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'noc'" hidden aria-hidden="true">
+          <div class="form-group">
+            <label>Room</label>
+            <input
+              type="text"
+              placeholder="e.g., Server Room A" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+          <div class="form-group">
+            <label>Rack</label>
+            <input
+              type="text"
+              placeholder="e.g., Rack 1" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="locationType === 'vehicle'" hidden aria-hidden="true">
+          <div class="form-group">
+            <label>Vehicle ID</label>
+            <input
+              type="text"
+              placeholder="e.g., VEH-001" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+          <div class="form-group">
+            <label>Vehicle Name</label>
+            <input
+              type="text"
+              placeholder="e.g., Service Truck 1" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="locationType === '__fallback'" data-cwl-state-fallback="locationType" hidden aria-hidden="true">
+          <div class="form-group">
+            <label>Description</label>
+            <input
+              type="text"
+              placeholder="Describe location" data-cwl-attr-disabled="isLoading"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea
+            placeholder="Any additional notes..."
+            rows="3" data-cwl-attr-disabled="isLoading"
+          ></textarea>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4"><!-- Print Label -->
+      <div class="wizard-panel">
+        <h3>Print Label</h3>
+        <p>Print asset tag label for this item.</p>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="itemDetails"><div class="label-preview">
+            <div class="label-content">
+              <h4><span data-cwl-bind="interp" data-cwl-hole-detail="itemDetails.name || itemDetails.serialNumber"></span></h4>
+              <p class="serial">SN: <span data-cwl-bind="interp" data-cwl-hole-detail="itemDetails.serialNumber"></span></p>
+
+                <div hidden aria-hidden="true"><p class="category"><span data-cwl-bind="interp" data-cwl-hole-detail="itemDetails.category"></span></p>
+              </div>
+            </div>
+          </div></div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox" data-cwl-attr-disabled="isLoading"
+            />
+            Print label after check-in
+          </label>
+        </div>
+
+        <div class="info-box">
+          <p>💡 Label will be printed automatically after check-in completes.</p>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 5"><!-- Complete -->
+      <div class="wizard-panel">
+        <h3>🎉 Check-in Complete!</h3>
+        <p>Item has been successfully checked in.</p>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="itemDetails"><div class="checkin-summary">
+            <h4>Check-in Summary</h4>
+            <div class="summary-row">
+              <span class="label">Item:</span>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="itemDetails.name || itemDetails.serialNumber"></span></span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Serial Number:</span>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="itemDetails.serialNumber"></span></span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Location:</span>
+              <span class="value">
+                warehouse -
+                <span data-cwl-bind="interp" data-cwl-hole-detail="locationType === 'warehouse' ? ` $"></span>
+              </span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Status:</span>
+              <span class="value">Available</span>
+            </div>
+          </div></div>
+
+        <div class="next-steps">
+          <h4>What's Next?</h4>
+          <a href="/modules/inventory" class="next-step-item">
+            <span class="icon">📋</span>
+            <div>
+              <strong>View Inventory</strong>
+              <p>Check the Inventory module to see your item</p>
+            </div>
+          </a>
+
+            <div class="next-step-item">
+              <span class="icon">🏷️</span>
+              <div>
+                <strong>Label Printed</strong>
+                <p>Asset tag label has been printed</p>
+              </div>
+            </div>
+
+        </div>
+      </div></div>
   </div>
-  
+
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
+        ← Previous
+      </button></div>
+      <button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">
+        Cancel
+      </button>
+
     <div class="footer-actions">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1 && scanMethod === 'bulk'"><!-- Bulk check-in skips to location step --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4"><button
+          class="wizard-btn-primary" data-cwl-action="completeCheckIn" data-cwl-attr-disabled="isLoading || !itemDetails"
+         aria-label="Complete Check In">
+          ✅ Complete Check-in
+        </button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">
+          Next →
+        </button></div>
+        <button class="wizard-btn-primary" data-cwl-action="complete" data-cwl-attr-disabled="isLoading" aria-label="Complete">
+          Finish →
+        </button>
+
     </div>
   </div>
 </div></div>
   <!-- RMA Tracking Wizard -->
-  <div data-cwl-component="RMATrackingWizard" data-cwl-lifted-component="RMATrackingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+  <div data-cwl-component="RMATrackingWizard" data-cwl-lifted-component="RMATrackingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">📋 RMA Tracking Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>RMA (Return Merchandise Authorization)</h3>
+        <p>Mark an inventory item as sent for RMA and record the RMA number, vendor, and reason.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Select the item being sent for RMA</li>
+            <li>Enter RMA number and vendor</li>
+            <li>Record reason and optional expected return date</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="wizard-panel">
+        <h3>Select Item</h3>
+        <div class="form-group">
+          <label>Search</label>
+          <input type="text" placeholder="Serial, asset tag, model..." data-cwl-attr-disabled="isLoading" />
+        </div>
+
+          <div class="item-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="filteredItems.slice(0, 50) as item"><button
+                type="button"
+                class="item-card">
+                <span class="item-serial"></span>
+                <span class="item-meta"> · </span>
+              </button></div>
+          </div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedItem"><div class="info-box success">
+              <p>Selected: <strong><span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem.serialNumber || selectedItem.assetTag"></span></strong> — <span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem.model || selectedItem.equipmentType"></span></p>
+            </div></div>
+
+          <div hidden aria-hidden="true"><p class="hint">No items found. Add inventory first or clear the search.</p>
+        </div>
+          <div hidden aria-hidden="true"><p>Loading inventory...</p>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="wizard-panel">
+        <h3>RMA Details</h3>
+        <div data-cwl-bind="if" data-cwl-hole-detail="selectedItem"><p class="hint">Item: <span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem.serialNumber || selectedItem.assetTag"></span> — <span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem.model || selectedItem.equipmentType"></span></p></div>
+        <div class="form-group">
+          <label>RMA Number <span class="required">*</span></label>
+          <input type="text" placeholder="e.g. RMA-2024-001" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Vendor <span class="required">*</span></label>
+          <input type="text" placeholder="Vendor or manufacturer" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Reason</label>
+          <input type="text" placeholder="e.g. Defective, warranty repair" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Expected Return Date</label>
+          <input type="date" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea rows="2" placeholder="Additional notes" data-cwl-attr-disabled="isLoading"></textarea>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><div class="wizard-panel">
+
+          <h3>Review & submit</h3>
+          <div class="summary-row"><span class="label">Item</span><span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem?.serialNumber || selectedItem?.assetTag"></span> — <span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem?.model"></span></span></div>
+          <div class="summary-row"><span class="label">RMA Number</span><span class="value"></span></div>
+          <div class="summary-row"><span class="label">Vendor</span><span class="value"></span></div>
+          <div class="summary-row"><span class="label">Reason</span><span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="rmaReason || '—'"></span></span></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="expectedReturnDate"><div class="summary-row"><span class="label">Expected Return</span><span class="value"></span></div></div>
+          <button type="button" class="wizard-btn-primary" data-cwl-action="submitRMA" data-cwl-attr-disabled="isLoading" aria-label="Submit RMA">
+            Mark as RMA
+          </button>
+
+      </div></div>
   </div>
 
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
     <div class="footer-actions">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3 && success"><button class="wizard-btn-primary" data-cwl-action="handleClose" aria-label="Close">Done</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div>
     </div>
   </div>
 </div></div>
 </div>
 
 <!-- Help Button - Fixed Position -->
-<button class="help-button" aria-label="Open Help" title="Help">
+<button class="help-button" data-cwl-toggle="showHelpModal:true" aria-label="Open Help" title="Help">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -275,106 +1138,654 @@
 </button>
 
 <!-- Help Modal -->
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
 
-<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
-    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
-      <div class="help-header">
-        <h2 id="help-modal-title"></h2>
-        <button class="close-btn" aria-label="Close">×</button>
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
-      <div class="help-body">
-        
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
       </div>
     </div>
-  </div></div>
-<div data-cwl-component="TransferModal" data-cwl-lifted-component="TransferModal" data-cwl-orphan-modal="1"></div>
-<div data-cwl-component="BundleDetailsModal" data-cwl-lifted-component="BundleDetailsModal" data-cwl-orphan-modal="1"><div class="modal-overlay" hidden aria-hidden="true">
-    <div class="modal-content" on:click|stopPropagation>
-      <div class="modal-header">
-        <div class="header-left">
-          <span class="bundle-icon"></span>
-          <div>
-            <h2></h2>
-            <p class="bundle-type"></p>
+  </div></div></div>
+
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title">Inventory Management Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="help-body">
+
+<h3>📦 Inventory Management</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Centralized asset tracking with location management, maintenance history, and warranty tracking for all network equipment and hardware.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#inventory-management">📊 Inventory Management</a></li>
+    <li><a href="#maintenance-tracking">🔧 Maintenance Tracking</a></li>
+    <li><a href="#bundles-kits">📦 Bundles and Kits</a></li>
+    <li><a href="#checkin-wizard">🧙 Check-in Wizard</a></li>
+    <li><a href="#reports">📊 Reports</a></li>
+    <li><a href="#mobile-integration">🔍 Mobile App Integration</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>Equipment Tracking:</strong> Track all network equipment, CPE devices, and hardware</li>
+  <li><strong>Location Management:</strong> Assign equipment to sites, vehicles, warehouses, or field technicians</li>
+  <li><strong>QR Code Scanning:</strong> Quick lookup and checkout using mobile app scanner</li>
+  <li><strong>Maintenance History:</strong> Track repairs, firmware updates, and service records</li>
+  <li><strong>Warranty Tracking:</strong> Monitor warranty expiration dates and service contracts</li>
+  <li><strong>Inventory Reports:</strong> Generate reports for audits, depreciation, and planning</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Add Equipment to Inventory</h4>
+<ol>
+  <li>Navigate to <strong>Inventory</strong> module</li>
+  <li>Click <strong>"Add Equipment"</strong> button</li>
+  <li>Enter equipment details:
+    <ul>
+      <li><strong>Serial Number</strong> - Unique identifier (required)</li>
+      <li><strong>Model/Type</strong> - Equipment model and manufacturer</li>
+      <li><strong>Category</strong> - Router, Radio, Antenna, CPE, etc.</li>
+      <li><strong>Purchase Date</strong> - When equipment was acquired</li>
+      <li><strong>Warranty Expiration</strong> - Warranty end date</li>
+      <li><strong>Initial Location</strong> - Warehouse, vehicle, or site</li>
+    </ul>
+  </li>
+  <li>Click <strong>"Save"</strong> to add equipment</li>
+</ol>
+
+<h4>Step 2: Generate QR Codes</h4>
+<p>Each equipment item automatically gets a QR code:</p>
+<ul>
+  <li>QR code appears on equipment detail page</li>
+  <li>Print QR code labels for physical equipment</li>
+  <li>Use mobile app scanner to quickly lookup equipment</li>
+  <li>QR codes link directly to equipment records</li>
+</ul>
+
+<h4>Step 3: Check Out Equipment</h4>
+<p>When deploying equipment to field:</p>
+<ol>
+  <li>Select equipment from inventory list</li>
+  <li>Click <strong>"Check Out"</strong> button</li>
+  <li>Select destination:
+    <ul>
+      <li><strong>Field Technician</strong> - Assign to specific tech</li>
+      <li><strong>Vehicle</strong> - Assign to service vehicle</li>
+      <li><strong>Site</strong> - Deploy to tower site</li>
+    </ul>
+  </li>
+  <li>Add notes (optional)</li>
+  <li>Click <strong>"Check Out"</strong></li>
+</ol>
+
+<h4>Step 4: Deploy Equipment</h4>
+<p>When installing equipment at customer site:</p>
+<ol>
+  <li>Use mobile app to scan QR code</li>
+  <li>Select <strong>"Deploy"</strong> action</li>
+  <li>Enter deployment details:
+    <ul>
+      <li>Customer site location</li>
+      <li>Installation date</li>
+      <li>Installation notes</li>
+    </ul>
+  </li>
+  <li>Equipment status changes to "Deployed"</li>
+  <li>Location updates automatically</li>
+</ol>
+
+<h4 id="inventory-management">📊 Inventory Management</h4>
+
+<h4>Viewing Inventory</h4>
+<p>The inventory list shows:</p>
+<ul>
+  <li><strong>Equipment Details:</strong> Serial number, model, category</li>
+  <li><strong>Current Location:</strong> Where equipment is currently located</li>
+  <li><strong>Status:</strong> Available, Checked Out, Deployed, Maintenance</li>
+  <li><strong>Last Updated:</strong> When location or status last changed</li>
+</ul>
+
+<h4>Filtering and Search</h4>
+<ul>
+  <li><strong>Search:</strong> Search by serial number, model, or location</li>
+  <li><strong>Filter by Status:</strong> Available, Checked Out, Deployed, Maintenance</li>
+  <li><strong>Filter by Category:</strong> Router, Radio, Antenna, CPE, etc.</li>
+  <li><strong>Filter by Location:</strong> Warehouse, Vehicle, Site, Technician</li>
+</ul>
+
+<h4>Equipment Actions</h4>
+<ul>
+  <li><strong>View Details:</strong> Click equipment row for full information</li>
+  <li><strong>Edit:</strong> Update equipment information</li>
+  <li><strong>Check Out:</strong> Assign to technician or vehicle</li>
+  <li><strong>Check In:</strong> Return equipment to warehouse</li>
+  <li><strong>Deploy:</strong> Install at customer site</li>
+  <li><strong>Maintenance:</strong> Mark for repair or service</li>
+  <li><strong>Delete:</strong> Remove from inventory (requires confirmation)</li>
+</ul>
+
+<h4 id="maintenance-tracking">🔧 Maintenance Tracking</h4>
+
+<h4>Adding Maintenance Records</h4>
+<ol>
+  <li>Open equipment details</li>
+  <li>Click <strong>"Add Maintenance Record"</strong></li>
+  <li>Enter maintenance information:
+    <ul>
+      <li><strong>Type:</strong> Repair, Firmware Update, Inspection, etc.</li>
+      <li><strong>Date:</strong> When maintenance was performed</li>
+      <li><strong>Technician:</strong> Who performed the work</li>
+      <li><strong>Description:</strong> What was done</li>
+      <li><strong>Cost:</strong> Maintenance cost (optional)</li>
+    </ul>
+  </li>
+  <li>Save maintenance record</li>
+</ol>
+
+<h4>Maintenance History</h4>
+<p>View all maintenance records for equipment:</p>
+<ul>
+  <li>Chronological list of all maintenance</li>
+  <li>Filter by maintenance type</li>
+  <li>Export maintenance history for reporting</li>
+  <li>Track total maintenance costs</li>
+</ul>
+
+<h4 id="bundles-kits">📦 Bundles and Kits</h4>
+
+<h4>Creating Equipment Bundles</h4>
+<p>Group related equipment for easier deployment:</p>
+<ol>
+  <li>Navigate to <strong>Bundles</strong> section</li>
+  <li>Click <strong>"Create Bundle"</strong></li>
+  <li>Enter bundle name and description</li>
+  <li>Add equipment items to bundle</li>
+  <li>Save bundle</li>
+</ol>
+
+<h4>Using Bundles</h4>
+<ul>
+  <li>Check out entire bundle at once</li>
+  <li>Deploy bundle to customer site</li>
+  <li>Track bundle as single unit</li>
+  <li>Individual items still tracked separately</li>
+</ul>
+
+<h4 id="checkin-wizard">🧙 Check-in Wizard</h4>
+
+<div class="info">
+  <strong>Purpose:</strong> Step-by-step guided workflow for checking in received inventory items with proper location assignment, verification, and labeling.
+</div>
+
+<h4>Accessing the Wizard</h4>
+<ol>
+  <li>Navigate to <strong>Inventory</strong> module</li>
+  <li>Click <strong>"📦 Check-in Wizard"</strong> button (primary action button)</li>
+  <li>Wizard opens with welcome screen</li>
+</ol>
+
+<h4>Wizard Overview</h4>
+<p>The Check-in Wizard guides you through:</p>
+<ul>
+  <li>Scanning or entering item serial number</li>
+  <li>Verifying item details</li>
+  <li>Setting storage location</li>
+  <li>Printing asset tag label</li>
+  <li>Completing check-in</li>
+</ul>
+
+<h4>Check-in Methods</h4>
+
+<h4>Barcode Scan</h4>
+<ul>
+  <li>Use camera to scan barcode/QR code</li>
+  <li>Automatic item lookup</li>
+  <li>Fastest method for bulk check-ins</li>
+</ul>
+
+<h4>Manual Entry</h4>
+<ul>
+  <li>Enter serial number manually</li>
+  <li>Enter purchase order ID (optional)</li>
+  <li>Lookup item in system</li>
+</ul>
+
+<h4>Bulk Check-in</h4>
+<ul>
+  <li>Check in multiple items at once</li>
+  <li>Streamlined workflow</li>
+  <li>Efficient for large shipments</li>
+</ul>
+
+<h4>Wizard Steps</h4>
+<ol>
+  <li><strong>Welcome:</strong> Overview of check-in process</li>
+  <li><strong>Scan Item:</strong> Identify item via scan or manual entry</li>
+  <li><strong>Verify:</strong> Review and update item details</li>
+  <li><strong>Set Location:</strong> Choose storage location (warehouse, tower, NOC, vehicle, other)</li>
+  <li><strong>Print Label:</strong> Preview and print asset tag</li>
+  <li><strong>Complete:</strong> Review summary and finish</li>
+</ol>
+
+<h4>Location Types</h4>
+<ul>
+  <li><strong>Warehouse:</strong> Section and shelf</li>
+  <li><strong>Tower Site:</strong> Site, rack, and rack unit</li>
+  <li><strong>NOC:</strong> Room and rack</li>
+  <li><strong>Vehicle:</strong> Vehicle ID and name</li>
+  <li><strong>Other:</strong> Custom description</li>
+</ul>
+
+<h4>Tips for Using the Wizard</h4>
+<ul>
+  <li>Have serial numbers or barcodes ready</li>
+  <li>Know storage location before starting</li>
+  <li>Print labels immediately for easy tracking</li>
+  <li>Link to purchase orders when available</li>
+  <li>Add notes for any special handling requirements</li>
+</ul>
+
+<div class="success">
+  <strong>✅ Quick Access:</strong> The Check-in Wizard can also be accessed from the "Scan Check In" modal by selecting "Wizard Mode" option.
+</div>
+
+<h4 id="reports">📊 Reports</h4>
+
+<h4>Available Reports</h4>
+<ul>
+  <li><strong>Inventory Summary:</strong> Total equipment by category and status</li>
+  <li><strong>Location Report:</strong> Equipment distribution by location</li>
+  <li><strong>Maintenance Report:</strong> Maintenance history and costs</li>
+  <li><strong>Warranty Report:</strong> Equipment with expiring warranties</li>
+  <li><strong>Deployment Report:</strong> Equipment deployed at customer sites</li>
+</ul>
+
+<h4>Exporting Reports</h4>
+<ul>
+  <li>Export to CSV for Excel analysis</li>
+  <li>Print PDF reports</li>
+  <li>Schedule automated reports</li>
+  <li>Email reports to stakeholders</li>
+</ul>
+
+<h4 id="mobile-integration">🔍 Mobile App Integration</h4>
+
+<h4>QR Code Scanner</h4>
+<p>Field technicians can use mobile app to:</p>
+<ul>
+  <li>Scan QR codes on equipment</li>
+  <li>View equipment details instantly</li>
+  <li>Check out equipment to vehicle</li>
+  <li>Deploy equipment at customer sites</li>
+  <li>Add maintenance records</li>
+  <li>Update equipment status</li>
+</ul>
+
+<h4>Field Workflow</h4>
+<ol>
+  <li>Scan equipment QR code with mobile app</li>
+  <li>View equipment details and history</li>
+  <li>Check out equipment to vehicle</li>
+  <li>Navigate to customer site</li>
+  <li>Install equipment</li>
+  <li>Deploy equipment via mobile app</li>
+  <li>Add installation notes and photos</li>
+</ol>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Label Everything:</strong> Print and attach QR codes to all equipment</li>
+  <li><strong>Regular Audits:</strong> Periodically verify equipment locations</li>
+  <li><strong>Update Status:</strong> Keep equipment status current</li>
+  <li><strong>Track Maintenance:</strong> Record all repairs and updates</li>
+  <li><strong>Monitor Warranties:</strong> Review warranty expiration regularly</li>
+  <li><strong>Use Bundles:</strong> Group common equipment for faster deployment</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Equipment not appearing in inventory:</h4>
+<ul>
+  <li>Verify equipment was added correctly</li>
+  <li>Check filters aren't hiding equipment</li>
+  <li>Ensure you have permission to view inventory</li>
+</ul>
+
+<h4>Can't check out equipment:</h4>
+<ul>
+  <li>Verify equipment status is "Available"</li>
+  <li>Check equipment isn't already checked out</li>
+  <li>Ensure you have checkout permissions</li>
+</ul>
+
+<h4>QR code not scanning:</h4>
+<ul>
+  <li>Verify QR code is printed clearly</li>
+  <li>Check mobile app has camera permissions</li>
+  <li>Ensure QR code hasn't been damaged</li>
+  <li>Try manual serial number lookup</li>
+</ul>
+
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="TransferModal" data-cwl-lifted-component="TransferModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && item" hidden aria-hidden="true"><div
+  class="modal-overlay"
+  role="presentation"
+  aria-hidden="true"
+  tabindex="-1" data-cwl-action="handleOverlayClick"
+>
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Transfer equipment"
+    tabindex="0" data-cwl-on-keydown="action:handleOverlayKeydown"
+  >
+    <div class="modal-header">
+      <h3>📦 Transfer Equipment</h3>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Item Info -->
+      <div class="item-info">
+        <h4>Item Details</h4>
+        <div class="item-details">
+          <span class="item-name"><span data-cwl-bind="interp" data-cwl-hole-detail="item.manufacturer"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="item.model"></span></span>
+          <span class="item-serial">SN: <span data-cwl-bind="interp" data-cwl-hole-detail="item.serialNumber"></span></span>
+          <span class="item-location">📍 Currently at: <span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation?.siteName || item.currentLocation?.type"></span></span>
+        </div>
+      </div>
+
+      <!-- Transfer Form -->
+      <form data-cwl-on-submit="action:handleTransfer">
+        <!-- New Location -->
+        <div class="form-section">
+          <h4>📍 New Location</h4>
+
+          <div class="form-group">
+            <label>Location Type *</label>
+            <select data-cwl-on-change="action:handleLocationTypeChange"
+            >
+              <option value="warehouse">Warehouse</option>
+              <option value="tower">Tower Site</option>
+              <option value="noc">NOC</option>
+              <option value="vehicle">Vehicle</option>
+              <option value="customer">Customer Site</option>
+              <option value="rma">RMA</option>
+              <option value="vendor">Vendor</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="transferData.newLocation.type === 'tower'"><div class="form-group">
+              <label>Site</label>
+              <select data-cwl-attr-value="transferData.newLocation.siteId" data-cwl-on-change="action:handleSiteChange">
+                <option>Select site...</option>
+                <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%20(%7Bsite.type%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
+              </select>
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="transferData.newLocation.type === 'warehouse'"><div class="form-grid">
+              <div class="form-group">
+                <label>Warehouse Name</label>
+                <input type="text" placeholder="Main Warehouse" />
+              </div>
+              <div class="form-group">
+                <label>Section</label>
+                <input type="text" placeholder="A" />
+              </div>
+              <div class="form-group">
+                <label>Aisle</label>
+                <input type="text" placeholder="1" />
+              </div>
+              <div class="form-group">
+                <label>Shelf</label>
+                <input type="text" placeholder="B" />
+              </div>
+              <div class="form-group">
+                <label>Bin</label>
+                <input type="text" placeholder="1" />
+              </div>
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="transferData.newLocation.type === 'tower'"><div class="form-grid">
+              <div class="form-group">
+                <label>Rack</label>
+                <input type="text" placeholder="Rack-01" />
+              </div>
+              <div class="form-group">
+                <label>Rack Unit</label>
+                <input type="text" placeholder="U10" />
+              </div>
+              <div class="form-group">
+                <label>Cabinet</label>
+                <input type="text" placeholder="Cab-01" />
+              </div>
+              <div class="form-group">
+                <label>Position</label>
+                <input type="text" placeholder="Top" />
+              </div>
+            </div></div>
+        </div>
+
+        <!-- Transfer Details -->
+        <div class="form-section">
+          <h4>📋 Transfer Details</h4>
+
+          <div class="form-group">
+            <label>Reason for Transfer *</label>
+            <select>
+              <option>Select reason...</option>
+              <option value="deployment">Deployment to Site</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="repair">Repair</option>
+              <option value="upgrade">Upgrade</option>
+              <option value="relocation">Site Relocation</option>
+              <option value="storage">Storage</option>
+              <option value="rma">RMA Return</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Moved By</label>
+            <input type="text" placeholder="Your name" />
+          </div>
+
+          <div class="form-group">
+            <label>Additional Notes</label>
+            <textarea
+              placeholder="Any additional notes about this transfer..."
+              rows="3"
+            ></textarea>
           </div>
         </div>
-        <button class="close-btn">✕</button>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isSaving" aria-label="Close">
+        Cancel
+      </button>
+      <button class="btn btn-primary" data-cwl-action="handleTransfer" data-cwl-attr-disabled="isSaving" aria-label="Transfer">
+        Transfer Item
+      </button>
+    </div>
+  </div>
+</div></div></div>
+<div data-cwl-component="BundleDetailsModal" data-cwl-lifted-component="BundleDetailsModal" data-cwl-orphan-modal="1"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="header-left">
+          <span class="bundle-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getBundleTypeEmoji(bundle.bundleType)"></span></span>
+          <div>
+            <h2><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.name"></span></h2>
+            <p class="bundle-type"><span data-cwl-bind="interp" data-cwl-hole-detail="getBundleTypeLabel(bundle.bundleType)"></span></p>
+          </div>
+        </div>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
       </div>
-      
+
       <div class="modal-body">
-        
-        
-        
-        
+
+          <div class="section" hidden aria-hidden="true">
+            <h3>Description</h3>
+            <p><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.description"></span></p>
+          </div>
+
         <div class="section">
           <h3>Bundle Statistics</h3>
           <div class="stats-grid">
             <div class="stat">
               <span class="stat-label">Items</span>
-              <span class="stat-value"></span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.items?.length || 0"></span></span>
             </div>
             <div class="stat">
               <span class="stat-label">Total Cost</span>
-              <span class="stat-value"></span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatCurrency(bundle.estimatedTotalCost)"></span></span>
             </div>
             <div class="stat">
               <span class="stat-label">Status</span>
-              <span class="stat-value badge badge-"></span>
+              <span class="stat-value badge badge-"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.status"></span></span>
             </div>
             <div class="stat">
               <span class="stat-label">Used</span>
-              <span class="stat-value"> times</span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.usageCount || 0"></span> times</span>
             </div>
             <div class="stat">
               <span class="stat-label">Last Used</span>
-              <span class="stat-value"></span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(bundle.lastUsedAt)"></span></span>
             </div>
             <div class="stat">
               <span class="stat-label">Updated</span>
-              <span class="stat-value"></span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(bundle.updatedAt)"></span></span>
             </div>
           </div>
         </div>
-        
-        
-        
-        
-        
-        
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="bundle.items && bundle.items.length > 0"><div class="section">
+            <h3>Bundle Items (<span data-cwl-bind="interp" data-cwl-hole-detail="bundle.items.length"></span>)</h3>
+            <div class="items-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Equipment Type</th>
+                    <th>Qty</th>
+                    <th>Manufacturer</th>
+                    <th>Model</th>
+                    <th>Cost per Unit</th>
+                    <th>Total Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="bundle.items as item"><tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr></div>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" style="text-align: right; font-weight: 600;">Total:</td>
+                    <td style="font-weight: 600;"><span data-cwl-bind="interp" data-cwl-hole-detail="formatCurrency(bundle.estimatedTotalCost)"></span></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div></div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="bundle.tags && bundle.tags.length > 0"><div class="section">
+            <h3>Tags</h3>
+            <div class="tags-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="bundle.tags as tag"><span class="tag"></span></div>
+            </div>
+          </div></div>
+
+          <div class="section" hidden aria-hidden="true">
+            <h3>Notes</h3>
+            <p class="notes"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.notes"></span></p>
+          </div>
+
       </div>
-      
+
       <div class="modal-footer">
-        <button class="btn-secondary">
+        <button class="btn-secondary" data-cwl-action="close" aria-label="Close">
           Close
         </button>
-        
+        <div data-cwl-bind="if" data-cwl-hole-detail="bundle.status === 'active'"><button class="btn-primary" data-cwl-action="useBundle" data-cwl-attr-disabled="loading" aria-label="Use Bundle">
+            ✓ Use Bundle
+          </button></div>
       </div>
     </div>
   </div></div>
-<div data-cwl-component="CreateBundleModal" data-cwl-lifted-component="CreateBundleModal" data-cwl-orphan-modal="1"><div class="modal-overlay" hidden aria-hidden="true">
-    <div class="modal-content" on:click|stopPropagation>
+<div data-cwl-component="CreateBundleModal" data-cwl-lifted-component="CreateBundleModal" data-cwl-orphan-modal="1"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div class="modal-content">
       <div class="modal-header">
         <h2>➕ Create Hardware Bundle</h2>
-        <button class="close-btn">✕</button>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
       </div>
-      
+
       <div class="modal-body">
-        
-        
+
         <div class="form-section">
           <h3>Basic Information</h3>
-          
+
           <div class="form-group">
             <label>Bundle Name *</label>
-            <input 
+            <input
               type="text"
               placeholder="e.g., Standard Site Deployment Kit"
               required
             />
           </div>
-          
+
           <div class="form-group">
             <label>Description</label>
             <textarea
@@ -382,78 +1793,95 @@
               rows="3"
             ></textarea>
           </div>
-          
+
           <div class="form-group">
             <label>Bundle Type</label>
             <select>
-              
+
+                <option value=standard>📦 Standard</option>
+
+                <option value=custom>🔧 Custom</option>
+
+                <option value=site-deployment>🏗️ Site Deployment</option>
+
+                <option value=cpe-installation>📡 CPE Installation</option>
+
+                <option value=maintenance-kit>🔧 Maintenance Kit</option>
+
+                <option value=emergency-kit>🚨 Emergency Kit</option>
+
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Tags</label>
             <div class="tag-input-group">
-              <input 
+              <input
                 id="tag-input"
-                type="text" 
-                placeholder="Add a tag..."
+                type="text"
+                placeholder="Add a tag..." data-cwl-on-keypress="action:addTag"
               />
-              <button class="btn-sm">Add</button>
+              <button class="btn-sm" data-cwl-action="addTag" aria-label="Add Tag">Add</button>
             </div>
-            
+            <div data-cwl-bind="if" data-cwl-hole-detail="formData.tags && formData.tags.length > 0"><div class="tags-list">
+                <div data-cwl-bind="each" data-cwl-hole-detail="formData.tags as tag"><span class="tag">
+
+                    <button class="tag-remove" data-cwl-action="removeTag" data-cwl-action-args="tag" aria-label="Remove Tag">✕</button>
+                  </span></div>
+              </div></div>
           </div>
         </div>
-        
+
         <div class="form-section">
           <h3>Bundle Items</h3>
-          
+
           <div class="add-item-form">
             <div class="form-row">
               <div class="form-group">
                 <label>Category</label>
                 <select>
-                  <option></option><option></option><option></option><option></option>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="categoryList as category" data-cwl-each-item="category" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bcategory%7D%3E%7Bcategory%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
                 </select>
               </div>
-              
+
               <div class="form-group">
                 <label>Equipment Type *</label>
                 <select required>
                   <option>Select type...</option>
-                  <option></option><option></option><option></option><option></option>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="availableTypes as type" data-cwl-each-item="type" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Btype%7D%3E%7Btype%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
                 </select>
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label>Quantity *</label>
-                <input 
+                <input
                   type="number"
                   min="1"
                   required
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>Manufacturer</label>
-                <input 
+                <input
                   type="text"
                   placeholder="e.g., Ubiquiti"
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>Model</label>
-                <input 
+                <input
                   type="text"
                   placeholder="e.g., AirFiber 5X"
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>Estimated Cost per Unit</label>
-                <input 
+                <input
                   type="number"
                   min="0"
                   step="0.01"
@@ -461,15 +1889,56 @@
                 />
               </div>
             </div>
-            
-            <button class="btn-add" type="button">
+
+            <button class="btn-add" data-cwl-action="addItem" type="button" aria-label="Add Item">
               ➕ Add Item
             </button>
           </div>
-          
-          
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="formData.items && formData.items.length > 0"><div class="items-list">
+              <h4>Bundle Items (<span data-cwl-bind="interp" data-cwl-hole-detail="formData.items.length"></span>)</h4>
+              <div class="items-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Type</th>
+                      <th>Qty</th>
+                      <th>Manufacturer</th>
+                      <th>Model</th>
+                      <th>Cost</th>
+                      <th>Total</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <div data-cwl-bind="each" data-cwl-hole-detail="formData.items as item, index"><tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>$<span data-cwl-bind="interp" data-cwl-hole-detail="(item.estimatedCost || 0).toFixed(2)"></span></td>
+                        <td>$<span data-cwl-bind="interp" data-cwl-hole-detail="((item.estimatedCost || 0) * (item.quantity || 1)).toFixed(2)"></span></td>
+                        <td>
+                          <button class="btn-remove" data-cwl-action="removeItem" data-cwl-action-args="index" aria-label="Remove Item">
+                            🗑️
+                          </button>
+                        </td>
+                      </tr></div>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="6" style="text-align: right; font-weight: 600;">Total:</td>
+                      <td style="font-weight: 600;">$<span data-cwl-bind="interp" data-cwl-hole-detail="totalCost.toFixed(2)"></span></td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div></div>
         </div>
-        
+
         <div class="form-section">
           <h3>Notes</h3>
           <textarea
@@ -478,40 +1947,167 @@
           ></textarea>
         </div>
       </div>
-      
+
       <div class="modal-footer">
-        <button class="btn-secondary">
+        <button class="btn-secondary" data-cwl-action="close" data-cwl-attr-disabled="loading" aria-label="Close">
           Cancel
         </button>
-        <button class="btn-primary">
+        <button class="btn-primary" data-cwl-action="handleSubmit" data-cwl-attr-disabled="loading" aria-label="Submit">
           Create Bundle
         </button>
       </div>
     </div>
   </div></div>
-<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div 
-    class="auth-overlay" 
-    role="presentation"
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
-    <div 
-      class="auth-modal" 
+    <div
+      class="auth-modal"
       role="dialog"
       aria-labelledby="auth-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
     >
       <div class="auth-header">
         <h2 id="auth-modal-title">
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
         </h2>
-        <button class="close-btn">×</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="auth-body">
-        
-        
-        
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"inventory","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"inventory"}</script>

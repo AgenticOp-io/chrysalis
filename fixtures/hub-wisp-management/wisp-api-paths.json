@@ -8,27 +8,49 @@
       "id": "ADMIN",
       "path": "/admin",
       "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "GET"
       ],
-      "sourceFile": "routes/admin/general",
-      "note": "synced from server.js → routes/admin/general"
+      "sourceFile": "routes/admin/general.js",
+      "note": "extracted from routes/admin/general.js"
     },
     {
       "id": "ADMIN_TENANTS",
       "path": "/admin/tenants",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/admin/tenants",
-      "note": "synced from server.js → routes/admin/tenants"
+      "sourceFile": "routes/admin/tenants.js",
+      "note": "extracted from routes/admin/tenants.js"
+    },
+    {
+      "id": "ADMIN_TENANTS_TENANTID",
+      "path": "/admin/tenants/:tenantId",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/admin/tenants.js",
+      "note": "extracted from routes/admin/tenants.js"
+    },
+    {
+      "id": "ADMIN_TENANTS_TENANTID_ASSIGN_OWNER",
+      "path": "/admin/tenants/:tenantId/assign-owner",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/admin/tenants.js",
+      "note": "extracted from routes/admin/tenants.js"
+    },
+    {
+      "id": "ADMIN_TENANTS_TENANTID_USERS",
+      "path": "/admin/tenants/:tenantId/users",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/admin/tenants.js",
+      "note": "extracted from routes/admin/tenants.js"
     },
     {
       "id": "ADMIN_PREFIX",
@@ -56,6 +78,15 @@
       "note": "synced from server.js → routes/agent"
     },
     {
+      "id": "AGENT_MANIFEST",
+      "path": "/api/agent/manifest",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/agent.js",
+      "note": "extracted from routes/agent.js"
+    },
+    {
       "id": "AUTH",
       "path": "/api/auth",
       "methods": [
@@ -69,6 +100,51 @@
       "note": "synced from server.js → routes/auth"
     },
     {
+      "id": "AUTH_LOGIN",
+      "path": "/api/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/auth/index.js",
+      "note": "extracted from routes/auth/index.js"
+    },
+    {
+      "id": "AUTH_LOGOUT",
+      "path": "/api/auth/logout",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/auth/index.js",
+      "note": "extracted from routes/auth/index.js"
+    },
+    {
+      "id": "AUTH_ME",
+      "path": "/api/auth/me",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/auth/index.js",
+      "note": "extracted from routes/auth/index.js"
+    },
+    {
+      "id": "AUTH_REFRESH",
+      "path": "/api/auth/refresh",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/auth/index.js",
+      "note": "extracted from routes/auth/index.js"
+    },
+    {
+      "id": "AUTH_STATUS",
+      "path": "/api/auth/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/auth/index.js",
+      "note": "extracted from routes/auth/index.js"
+    },
+    {
       "id": "BILLING_ALIAS",
       "path": "/api/billing",
       "methods": [
@@ -76,6 +152,115 @@
       ],
       "note": "Alias of customer-billing for demo UI",
       "sourceFile": "billing-api"
+    },
+    {
+      "id": "BILLING_ANALYTICS",
+      "path": "/api/billing/analytics",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_INVOICES",
+      "path": "/api/billing/invoices",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_INVOICES_TENANTID",
+      "path": "/api/billing/invoices/:tenantId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_PAYMENT_METHODS",
+      "path": "/api/billing/payment-methods",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_PAYMENT_METHODS_PAYMENTMETHODID",
+      "path": "/api/billing/payment-methods/:paymentMethodId",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_PAYMENT_METHODS_TENANTID",
+      "path": "/api/billing/payment-methods/:tenantId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_PLANS",
+      "path": "/api/billing/plans",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_SUBSCRIPTION_SUBSCRIPTIONID_CANCEL",
+      "path": "/api/billing/subscription/:subscriptionId/cancel",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_SUBSCRIPTION_TENANTID",
+      "path": "/api/billing/subscription/:tenantId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_SUBSCRIPTION_CREATE",
+      "path": "/api/billing/subscription/create",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_SUBSCRIPTIONS",
+      "path": "/api/billing/subscriptions",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
+    },
+    {
+      "id": "BILLING_WEBHOOK_PAYPAL",
+      "path": "/api/billing/webhook/paypal",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "billing-api.js",
+      "note": "extracted from billing-api.js"
     },
     {
       "id": "BRANDING",
@@ -95,13 +280,67 @@
       "path": "/api/bundles",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/hardwareBundles",
-      "note": "backend routes/hardwareBundles"
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
+    },
+    {
+      "id": "BUNDLES_ID",
+      "path": "/api/bundles/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
+    },
+    {
+      "id": "BUNDLES_ID_ITEMS",
+      "path": "/api/bundles/:id/items",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
+    },
+    {
+      "id": "BUNDLES_ID_ITEMS_ITEMID",
+      "path": "/api/bundles/:id/items/:itemId",
+      "methods": [
+        "DELETE",
+        "PUT"
+      ],
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
+    },
+    {
+      "id": "BUNDLES_ID_USE",
+      "path": "/api/bundles/:id/use",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
+    },
+    {
+      "id": "BUNDLES_SEARCH_QUERY",
+      "path": "/api/bundles/search/:query",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
+    },
+    {
+      "id": "BUNDLES_TYPE_BUNDLETYPE",
+      "path": "/api/bundles/type/:bundleType",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/hardwareBundles.js",
+      "note": "extracted from routes/hardwareBundles.js"
     },
     {
       "id": "COVERAGE",
@@ -116,13 +355,56 @@
       "path": "/api/customer-billing",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/customer-billing",
-      "note": "backend routes/customer-billing"
+      "sourceFile": "routes/customer-billing.js",
+      "note": "extracted from routes/customer-billing.js"
+    },
+    {
+      "id": "CUSTOMER_BILLING_CUSTOMERID",
+      "path": "/api/customer-billing/:customerId",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/customer-billing.js",
+      "note": "extracted from routes/customer-billing.js"
+    },
+    {
+      "id": "CUSTOMER_BILLING_CUSTOMERID_INVOICES",
+      "path": "/api/customer-billing/:customerId/invoices",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-billing.js",
+      "note": "extracted from routes/customer-billing.js"
+    },
+    {
+      "id": "CUSTOMER_BILLING_CUSTOMERID_PAYMENTS",
+      "path": "/api/customer-billing/:customerId/payments",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-billing.js",
+      "note": "extracted from routes/customer-billing.js"
+    },
+    {
+      "id": "CUSTOMER_BILLING_DUNNING_RUN",
+      "path": "/api/customer-billing/dunning/run",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-billing.js",
+      "note": "extracted from routes/customer-billing.js"
+    },
+    {
+      "id": "CUSTOMER_BILLING_GENERATE_INVOICES",
+      "path": "/api/customer-billing/generate-invoices",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-billing.js",
+      "note": "extracted from routes/customer-billing.js"
     },
     {
       "id": "CUSTOMER_PORTAL",
@@ -138,17 +420,225 @@
       "note": "synced from server.js → routes/customer-portal-api"
     },
     {
+      "id": "CUSTOMER_PORTAL_AUTH_LOGIN",
+      "path": "/api/customer-portal/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_AUTH_ME",
+      "path": "/api/customer-portal/auth/me",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_AUTH_RESET_PASSWORD",
+      "path": "/api/customer-portal/auth/reset-password",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_AUTH_SIGNUP",
+      "path": "/api/customer-portal/auth/signup",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_BILLING",
+      "path": "/api/customer-portal/billing",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_BILLING_CREATE_PAYMENT_INTENT",
+      "path": "/api/customer-portal/billing/create-payment-intent",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_BILLING_INVOICES_INVOICEID",
+      "path": "/api/customer-portal/billing/invoices/:invoiceId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_BILLING_SETTINGS",
+      "path": "/api/customer-portal/billing/settings",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_SERVICE",
+      "path": "/api/customer-portal/service",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_TICKETS",
+      "path": "/api/customer-portal/tickets",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_TICKETS_ID",
+      "path": "/api/customer-portal/tickets/:id",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
+      "id": "CUSTOMER_PORTAL_TICKETS_ID_COMMENTS",
+      "path": "/api/customer-portal/tickets/:id/comments",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customer-portal-api.js",
+      "note": "extracted from routes/customer-portal-api.js"
+    },
+    {
       "id": "CUSTOMERS",
       "path": "/api/customers",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/customers",
-      "note": "backend routes/customers"
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_ID",
+      "path": "/api/customers/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_ID_COMPLAINTS",
+      "path": "/api/customers/:id/complaints",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_ID_COMPLAINTS_COMPLAINTID",
+      "path": "/api/customers/:id/complaints/:complaintId",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_ID_CREATE_SUBSCRIBER",
+      "path": "/api/customers/:id/create-subscriber",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_ID_SERVICE_HISTORY",
+      "path": "/api/customers/:id/service-history",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_ID_SUBSCRIBER",
+      "path": "/api/customers/:id/subscriber",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_BULK_IMPORT",
+      "path": "/api/customers/bulk-import",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_SEARCH_EMAIL_EMAIL",
+      "path": "/api/customers/search/email/:email",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_SEARCH_IMSI_IMSI",
+      "path": "/api/customers/search/imsi/:imsi",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_SEARCH_PHONE_PHONE",
+      "path": "/api/customers/search/phone/:phone",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
+    },
+    {
+      "id": "CUSTOMERS_STATS_SUMMARY",
+      "path": "/api/customers/stats/summary",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/customers.js",
+      "note": "extracted from routes/customers.js"
     },
     {
       "id": "DEPLOY",
@@ -164,6 +654,69 @@
       "note": "backend routes/epc-deployment"
     },
     {
+      "id": "DEPLOY_EPC_ID",
+      "path": "/api/deploy/:epc_id",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
+      "id": "DEPLOY_EPC_ID_LINK_DEVICE",
+      "path": "/api/deploy/:epc_id/link-device",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
+      "id": "DEPLOY_BACKFILL_HARDWARE_DEPLOYMENTS",
+      "path": "/api/deploy/backfill-hardware-deployments",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
+      "id": "DEPLOY_CHECKIN",
+      "path": "/api/deploy/checkin",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
+      "id": "DEPLOY_DELETE_EPC_EPC_ID",
+      "path": "/api/deploy/delete-epc/:epc_id",
+      "methods": [
+        "DELETE"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
+      "id": "DEPLOY_LINK_DEVICE",
+      "path": "/api/deploy/link-device",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
+      "id": "DEPLOY_REGISTER_EPC",
+      "path": "/api/deploy/register-epc",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/deployment/epc-management.js",
+      "note": "extracted from routes/deployment/epc-management.js"
+    },
+    {
       "id": "DEVICE_ASSIGNMENT",
       "path": "/api/device-assignment",
       "methods": [
@@ -175,6 +728,33 @@
       ],
       "sourceFile": "routes/device-assignment",
       "note": "backend routes/device-assignment"
+    },
+    {
+      "id": "DEVICE_ASSIGNMENT_ASSIGN",
+      "path": "/api/device-assignment/assign",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/device-assignment.js",
+      "note": "extracted from routes/device-assignment.js"
+    },
+    {
+      "id": "DEVICE_ASSIGNMENT_MANUAL_IP",
+      "path": "/api/device-assignment/manual-ip",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/device-assignment.js",
+      "note": "extracted from routes/device-assignment.js"
+    },
+    {
+      "id": "DEVICE_ASSIGNMENT_UNASSIGNED",
+      "path": "/api/device-assignment/unassigned",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/device-assignment.js",
+      "note": "extracted from routes/device-assignment.js"
     },
     {
       "id": "EPC",
@@ -203,6 +783,15 @@
       "note": "synced from server.js → routes/epc-management"
     },
     {
+      "id": "EPC_MANAGEMENT_DELETE",
+      "path": "/api/epc-management/delete",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-management.js",
+      "note": "extracted from routes/epc-management.js"
+    },
+    {
       "id": "EPC_UPDATES",
       "path": "/api/epc-updates",
       "methods": [
@@ -212,6 +801,204 @@
         "PATCH",
         "DELETE"
       ]
+    },
+    {
+      "id": "EPC_EPC_ID_COMMANDS",
+      "path": "/api/epc/:epc_id/commands",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPC_ID_COMMANDS_COMMAND_ID_RESULT",
+      "path": "/api/epc/:epc_id/commands/:command_id/result",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPC_ID_COMMANDS_HISTORY",
+      "path": "/api/epc/:epc_id/commands/history",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPC_ID_LOGS",
+      "path": "/api/epc/:epc_id/logs",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-logs.js",
+      "note": "extracted from routes/epc-logs.js"
+    },
+    {
+      "id": "EPC_EPC_ID_SERVICE_ACTION",
+      "path": "/api/epc/:epc_id/service/:action",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPC_ID_STATUS",
+      "path": "/api/epc/:epc_id/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPC_ID_STATUS_HISTORY",
+      "path": "/api/epc/:epc_id/status/history",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPC_ID_TRIGGER_SNMP_DISCOVERY",
+      "path": "/api/epc/:epc_id/trigger-snmp-discovery",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_EPCID_METRICS_HISTORY",
+      "path": "/api/epc/:epcId/metrics/history",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epcMetrics.js",
+      "note": "extracted from routes/epcMetrics.js"
+    },
+    {
+      "id": "EPC_EPCID_STATUS",
+      "path": "/api/epc/:epcId/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epcMetrics.js",
+      "note": "extracted from routes/epcMetrics.js"
+    },
+    {
+      "id": "EPC_ID",
+      "path": "/api/epc/:id",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc.js",
+      "note": "extracted from routes/epc.js"
+    },
+    {
+      "id": "EPC_ALERTS",
+      "path": "/api/epc/alerts",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epcMetrics.js",
+      "note": "extracted from routes/epcMetrics.js"
+    },
+    {
+      "id": "EPC_CHECKIN",
+      "path": "/api/epc/checkin",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-checkin.js",
+      "note": "extracted from routes/epc-checkin.js"
+    },
+    {
+      "id": "EPC_CHECKIN_COMMANDS_COMMAND_ID_RESULT",
+      "path": "/api/epc/checkin/commands/:command_id/result",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-checkin.js",
+      "note": "extracted from routes/epc-checkin.js"
+    },
+    {
+      "id": "EPC_CHECKIN_MONITORING_DEVICES",
+      "path": "/api/epc/checkin/monitoring-devices",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-checkin.js",
+      "note": "extracted from routes/epc-checkin.js"
+    },
+    {
+      "id": "EPC_CHECKIN_PING_METRICS",
+      "path": "/api/epc/checkin/ping-metrics",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-checkin.js",
+      "note": "extracted from routes/epc-checkin.js"
+    },
+    {
+      "id": "EPC_CHECKIN_SNMP_METRICS",
+      "path": "/api/epc/checkin/snmp-metrics",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-checkin.js",
+      "note": "extracted from routes/epc-checkin.js"
+    },
+    {
+      "id": "EPC_CHECKIN_SNMP_SUBNETS",
+      "path": "/api/epc/checkin/snmp-subnets",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc-checkin.js",
+      "note": "extracted from routes/epc-checkin.js"
+    },
+    {
+      "id": "EPC_COMMANDS",
+      "path": "/api/epc/commands",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-commands.js",
+      "note": "extracted from routes/epc-commands.js"
+    },
+    {
+      "id": "EPC_LIST",
+      "path": "/api/epc/list",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc.js",
+      "note": "extracted from routes/epc.js"
+    },
+    {
+      "id": "EPC_METRICS",
+      "path": "/api/epc/metrics",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epcMetrics.js",
+      "note": "extracted from routes/epcMetrics.js"
+    },
+    {
+      "id": "EPC_METRICS_ID",
+      "path": "/api/epc/metrics/:id",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc.js",
+      "note": "extracted from routes/epc.js"
     },
     {
       "id": "EPC_SNMP",
@@ -227,17 +1014,68 @@
       "note": "synced from server.js → routes/epc-snmp"
     },
     {
+      "id": "EPC_SNMP_DEVICES_ID_GRAPHS",
+      "path": "/api/epc/snmp/devices/:id/graphs",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/epc-snmp.js",
+      "note": "extracted from routes/epc-snmp.js"
+    },
+    {
+      "id": "EPC_SNMP_DISCOVERED",
+      "path": "/api/epc/snmp/discovered",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/epc-snmp.js",
+      "note": "extracted from routes/epc-snmp.js"
+    },
+    {
+      "id": "EPC_STATUS",
+      "path": "/api/epc/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/epc.js",
+      "note": "extracted from routes/epc.js"
+    },
+    {
       "id": "EQUIPMENT_PRICING",
       "path": "/api/equipment-pricing",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
+        "POST"
+      ],
+      "sourceFile": "routes/equipment-pricing.js",
+      "note": "extracted from routes/equipment-pricing.js"
+    },
+    {
+      "id": "EQUIPMENT_PRICING_ID",
+      "path": "/api/equipment-pricing/:id",
+      "methods": [
         "DELETE"
       ],
-      "sourceFile": "routes/equipment-pricing",
-      "note": "synced from server.js → routes/equipment-pricing"
+      "sourceFile": "routes/equipment-pricing.js",
+      "note": "extracted from routes/equipment-pricing.js"
+    },
+    {
+      "id": "EQUIPMENT_PRICING_IMPORT_FROM_INVENTORY",
+      "path": "/api/equipment-pricing/import-from-inventory",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/equipment-pricing.js",
+      "note": "extracted from routes/equipment-pricing.js"
+    },
+    {
+      "id": "EQUIPMENT_PRICING_PRICE",
+      "path": "/api/equipment-pricing/price",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/equipment-pricing.js",
+      "note": "extracted from routes/equipment-pricing.js"
     },
     {
       "id": "HARDWARE",
@@ -265,26 +1103,139 @@
       "path": "/api/incidents",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/incidents",
-      "note": "synced from server.js → routes/incidents"
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_ID",
+      "path": "/api/incidents/:id",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_ID_ACKNOWLEDGE",
+      "path": "/api/incidents/:id/acknowledge",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_ID_CLOSE",
+      "path": "/api/incidents/:id/close",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_ID_CONVERT_TO_TICKET",
+      "path": "/api/incidents/:id/convert-to-ticket",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_ID_NOTES",
+      "path": "/api/incidents/:id/notes",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_ID_RESOLVE",
+      "path": "/api/incidents/:id/resolve",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
+    },
+    {
+      "id": "INCIDENTS_STATS_DASHBOARD",
+      "path": "/api/incidents/stats/dashboard",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/incidents.js",
+      "note": "extracted from routes/incidents.js"
     },
     {
       "id": "INSTALLATION_DOCUMENTATION",
       "path": "/api/installation-documentation",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
+        "POST"
+      ],
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION_ID",
+      "path": "/api/installation-documentation/:id",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION_ID_APPROVE",
+      "path": "/api/installation-documentation/:id/approve",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION_ID_PAYMENT_APPROVE",
+      "path": "/api/installation-documentation/:id/payment-approve",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION_ID_PHOTOS",
+      "path": "/api/installation-documentation/:id/photos",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION_ID_PHOTOS_PHOTOID",
+      "path": "/api/installation-documentation/:id/photos/:photoId",
+      "methods": [
         "DELETE"
       ],
-      "sourceFile": "routes/installation-documentation",
-      "note": "synced from server.js → routes/installation-documentation"
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
+    },
+    {
+      "id": "INSTALLATION_DOCUMENTATION_ID_SUBMIT",
+      "path": "/api/installation-documentation/:id/submit",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/installation-documentation.js",
+      "note": "extracted from routes/installation-documentation.js"
     },
     {
       "id": "INTERNAL",
@@ -297,17 +1248,188 @@
       "sourceFile": "routes/internal"
     },
     {
+      "id": "INTERNAL_CRON_BILLING",
+      "path": "/api/internal/cron/billing",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/internal.js",
+      "note": "extracted from routes/internal.js"
+    },
+    {
+      "id": "INTERNAL_FIRST_TENANT",
+      "path": "/api/internal/first-tenant",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/internal.js",
+      "note": "extracted from routes/internal.js"
+    },
+    {
+      "id": "INTERNAL_PLANS",
+      "path": "/api/internal/plans",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/internal.js",
+      "note": "extracted from routes/internal.js"
+    },
+    {
+      "id": "INTERNAL_TENANT_DETAILS_TENANTID",
+      "path": "/api/internal/tenant-details/:tenantId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/internal.js",
+      "note": "extracted from routes/internal.js"
+    },
+    {
+      "id": "INTERNAL_TENANT_SETTINGS",
+      "path": "/api/internal/tenant-settings",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/internal.js",
+      "note": "extracted from routes/internal.js"
+    },
+    {
+      "id": "INTERNAL_USER_TENANTS_USERID",
+      "path": "/api/internal/user-tenants/:userId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/internal.js",
+      "note": "extracted from routes/internal.js"
+    },
+    {
       "id": "INVENTORY",
       "path": "/api/inventory",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/inventory",
-      "note": "backend routes/inventory"
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ID",
+      "path": "/api/inventory/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ID_DEPLOY",
+      "path": "/api/inventory/:id/deploy",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ID_MAINTENANCE",
+      "path": "/api/inventory/:id/maintenance",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ID_RETURN",
+      "path": "/api/inventory/:id/return",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ID_TRANSFER",
+      "path": "/api/inventory/:id/transfer",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ALERTS_LOW_STOCK",
+      "path": "/api/inventory/alerts/low-stock",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ALERTS_MAINTENANCE_DUE",
+      "path": "/api/inventory/alerts/maintenance-due",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_ALERTS_WARRANTY_EXPIRING",
+      "path": "/api/inventory/alerts/warranty-expiring",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_BULK_IMPORT",
+      "path": "/api/inventory/bulk-import",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_BULK_UPDATE",
+      "path": "/api/inventory/bulk-update",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_BY_LOCATION_LOCATIONTYPE",
+      "path": "/api/inventory/by-location/:locationType",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_BY_SITE_SITEID",
+      "path": "/api/inventory/by-site/:siteId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_EXPORT_CSV",
+      "path": "/api/inventory/export/csv",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
     },
     {
       "id": "INVENTORY_SCAN_CHECKIN",
@@ -315,7 +1437,8 @@
       "methods": [
         "POST"
       ],
-      "note": "Scan check-in (G9951)"
+      "note": "extracted from routes/inventory.js",
+      "sourceFile": "routes/inventory.js"
     },
     {
       "id": "INVENTORY_SCAN_CHECKOUT",
@@ -323,7 +1446,8 @@
       "methods": [
         "POST"
       ],
-      "note": "Scan check-out (G9951)"
+      "note": "extracted from routes/inventory.js",
+      "sourceFile": "routes/inventory.js"
     },
     {
       "id": "INVENTORY_SCAN_LOOKUP",
@@ -331,7 +1455,17 @@
       "methods": [
         "POST"
       ],
-      "note": "Scan lookup (G9951)"
+      "note": "extracted from routes/inventory.js",
+      "sourceFile": "routes/inventory.js"
+    },
+    {
+      "id": "INVENTORY_STATS",
+      "path": "/api/inventory/stats",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/inventory.js",
+      "note": "extracted from routes/inventory.js"
     },
     {
       "id": "INVENTORY_TRANSFER",
@@ -355,6 +1489,24 @@
       "note": "backend routes/maintain"
     },
     {
+      "id": "MAINTAIN_DASHBOARD_ACTIVITY",
+      "path": "/api/maintain/dashboard/activity",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/maintain.js",
+      "note": "extracted from routes/maintain.js"
+    },
+    {
+      "id": "MAINTAIN_DASHBOARD_STATS",
+      "path": "/api/maintain/dashboard/stats",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/maintain.js",
+      "note": "extracted from routes/maintain.js"
+    },
+    {
       "id": "ME",
       "path": "/api/me",
       "methods": [
@@ -376,6 +1528,97 @@
       "note": "backend routes/mikrotik"
     },
     {
+      "id": "MIKROTIK_DEVICES",
+      "path": "/api/mikrotik/devices",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DEVICES_ID",
+      "path": "/api/mikrotik/devices/:id",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DEVICES_ID_COMMAND",
+      "path": "/api/mikrotik/devices/:id/command",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DEVICES_ID_CREDENTIALS",
+      "path": "/api/mikrotik/devices/:id/credentials",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DEVICES_ID_METRICS",
+      "path": "/api/mikrotik/devices/:id/metrics",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DEVICES_ID_TEST_CONNECTION",
+      "path": "/api/mikrotik/devices/:id/test-connection",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DEVICES_CREDENTIALS",
+      "path": "/api/mikrotik/devices/credentials",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DISCOVER",
+      "path": "/api/mikrotik/discover",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_DISCOVERY",
+      "path": "/api/mikrotik/discovery",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
+      "id": "MIKROTIK_STATUS",
+      "path": "/api/mikrotik/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mikrotik.js",
+      "note": "extracted from routes/mikrotik.js"
+    },
+    {
       "id": "MME",
       "path": "/api/mme",
       "methods": [
@@ -389,6 +1632,42 @@
       "note": "synced from server.js → routes/mme-status"
     },
     {
+      "id": "MME_CUSTOMER_COUNT",
+      "path": "/api/mme/customer-count",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mme-status.js",
+      "note": "extracted from routes/mme-status.js"
+    },
+    {
+      "id": "MME_ONLINE_SUBSCRIBERS",
+      "path": "/api/mme/online-subscribers",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mme-status.js",
+      "note": "extracted from routes/mme-status.js"
+    },
+    {
+      "id": "MME_STATUS",
+      "path": "/api/mme/status",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/mme-status.js",
+      "note": "extracted from routes/mme-status.js"
+    },
+    {
+      "id": "MME_STATUS_BATCH",
+      "path": "/api/mme/status/batch",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/mme-status.js",
+      "note": "extracted from routes/mme-status.js"
+    },
+    {
       "id": "MOBILE",
       "path": "/api/mobile",
       "methods": [
@@ -400,6 +1679,15 @@
       ],
       "sourceFile": "routes/mobile-tasks",
       "note": "synced from server.js → routes/mobile-tasks"
+    },
+    {
+      "id": "MOBILE_TASKS",
+      "path": "/api/mobile/tasks",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/mobile-tasks.js",
+      "note": "extracted from routes/mobile-tasks.js"
     },
     {
       "id": "MODULE_ACCESS",
@@ -423,14 +1711,103 @@
       "note": "backend routes/monitoring"
     },
     {
+      "id": "MONITORING_EPC_LIST",
+      "path": "/api/monitoring/epc/list",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
+    },
+    {
       "id": "MONITORING_GRAPHS",
       "path": "/api/monitoring/graphs",
       "methods": [
-        "GET",
-        "POST"
+        "GET"
       ],
-      "sourceFile": "routes/monitoring-graphs",
-      "note": "backend routes/monitoring-graphs"
+      "sourceFile": "routes/monitoring-graphs.js",
+      "note": "extracted from routes/monitoring-graphs.js"
+    },
+    {
+      "id": "MONITORING_GRAPHS_DEVICES",
+      "path": "/api/monitoring/graphs/devices",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring-graphs.js",
+      "note": "extracted from routes/monitoring-graphs.js"
+    },
+    {
+      "id": "MONITORING_GRAPHS_PING_DEVICEID",
+      "path": "/api/monitoring/graphs/ping/:deviceId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring-graphs.js",
+      "note": "extracted from routes/monitoring-graphs.js"
+    },
+    {
+      "id": "MONITORING_GRAPHS_SNMP_DEVICEID",
+      "path": "/api/monitoring/graphs/snmp/:deviceId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring-graphs.js",
+      "note": "extracted from routes/monitoring-graphs.js"
+    },
+    {
+      "id": "MONITORING_MIKROTIK_DEVICES",
+      "path": "/api/monitoring/mikrotik/devices",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
+    },
+    {
+      "id": "MONITORING_MONITORING_DASHBOARD",
+      "path": "/api/monitoring/monitoring/dashboard",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
+    },
+    {
+      "id": "MONITORING_MONITORING_TOPOLOGY",
+      "path": "/api/monitoring/monitoring/topology",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
+    },
+    {
+      "id": "MONITORING_SNMP_DEVICES",
+      "path": "/api/monitoring/snmp/devices",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
+    },
+    {
+      "id": "MONITORING_SNMP_DISCOVERED",
+      "path": "/api/monitoring/snmp/discovered",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
+    },
+    {
+      "id": "MONITORING_SNMP_METRICS_LATEST",
+      "path": "/api/monitoring/snmp/metrics/latest",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/monitoring.js",
+      "note": "extracted from routes/monitoring.js"
     },
     {
       "id": "NETWORK",
@@ -449,17 +1826,79 @@
       "id": "NETWORK_CPE",
       "path": "/api/network/cpe",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ],
-      "note": "Module_Manager CPE list (G9951)"
+      "note": "extracted from routes/network.js",
+      "sourceFile": "routes/network.js"
+    },
+    {
+      "id": "NETWORK_CPE_ID",
+      "path": "/api/network/cpe/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
     },
     {
       "id": "NETWORK_EQUIPMENT",
       "path": "/api/network/equipment",
       "methods": [
+        "GET",
+        "POST"
+      ],
+      "note": "extracted from routes/network.js",
+      "sourceFile": "routes/network.js"
+    },
+    {
+      "id": "NETWORK_EQUIPMENT_ID",
+      "path": "/api/network/equipment/:id",
+      "methods": [
+        "DELETE",
+        "PUT"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_EQUIPMENT_BULK_IMPORT",
+      "path": "/api/network/equipment/bulk-import",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_GEOCODE",
+      "path": "/api/network/geocode",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_HARDWARE_DEPLOYMENTS",
+      "path": "/api/network/hardware-deployments",
+      "methods": [
         "GET"
       ],
-      "note": "Module_Manager equipment (G9951)"
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_HARDWARE_DEPLOYMENTS_ID",
+      "path": "/api/network/hardware-deployments/:id",
+      "methods": [
+        "DELETE",
+        "PUT"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
     },
     {
       "id": "NETWORK_IMPORT_CBRS",
@@ -467,36 +1906,114 @@
       "methods": [
         "POST"
       ],
-      "note": "CBRS import stub (G9951)"
+      "note": "extracted from routes/network.js",
+      "sourceFile": "routes/network.js"
+    },
+    {
+      "id": "NETWORK_REVERSE_GEOCODE",
+      "path": "/api/network/reverse-geocode",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
     },
     {
       "id": "NETWORK_SECTORS",
       "path": "/api/network/sectors",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ],
-      "note": "Module_Manager coverageMapService sectors (G9951)"
+      "note": "extracted from routes/network.js",
+      "sourceFile": "routes/network.js"
+    },
+    {
+      "id": "NETWORK_SECTORS_ID",
+      "path": "/api/network/sectors/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
     },
     {
       "id": "NETWORK_SITES",
       "path": "/api/network/sites",
       "methods": [
+        "GET",
+        "POST"
+      ],
+      "note": "extracted from routes/network.js",
+      "sourceFile": "routes/network.js"
+    },
+    {
+      "id": "NETWORK_SITES_ID",
+      "path": "/api/network/sites/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_SITES_SITEID_HARDWARE",
+      "path": "/api/network/sites/:siteId/hardware",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_SITES_SITEID_SECTORS",
+      "path": "/api/network/sites/:siteId/sectors",
+      "methods": [
         "GET"
       ],
-      "note": "Module_Manager coverageMapService sites (G9951)"
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
+    },
+    {
+      "id": "NETWORK_SITES_BULK_IMPORT",
+      "path": "/api/network/sites/bulk-import",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/network.js",
+      "note": "extracted from routes/network.js"
     },
     {
       "id": "NOTIFICATIONS",
       "path": "/api/notifications",
       "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "GET"
       ],
-      "sourceFile": "routes/notifications",
-      "note": "backend routes/notifications"
+      "sourceFile": "routes/notifications.js",
+      "note": "extracted from routes/notifications.js"
+    },
+    {
+      "id": "NOTIFICATIONS_ID_READ",
+      "path": "/api/notifications/:id/read",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/notifications.js",
+      "note": "extracted from routes/notifications.js"
+    },
+    {
+      "id": "NOTIFICATIONS_COUNT",
+      "path": "/api/notifications/count",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/notifications.js",
+      "note": "extracted from routes/notifications.js"
     },
     {
       "id": "PERMISSIONS",
@@ -510,6 +2027,53 @@
       ],
       "sourceFile": "routes/permissions",
       "note": "backend routes/permissions"
+    },
+    {
+      "id": "PERMISSIONS_CHECK",
+      "path": "/api/permissions/check",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/permissions.js",
+      "note": "extracted from routes/permissions.js"
+    },
+    {
+      "id": "PERMISSIONS_ME",
+      "path": "/api/permissions/me",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/permissions.js",
+      "note": "extracted from routes/permissions.js"
+    },
+    {
+      "id": "PERMISSIONS_ROLE_ROLE",
+      "path": "/api/permissions/role/:role",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/permissions.js",
+      "note": "extracted from routes/permissions.js"
+    },
+    {
+      "id": "PERMISSIONS_ROLES",
+      "path": "/api/permissions/roles",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/permissions.js",
+      "note": "extracted from routes/permissions.js"
+    },
+    {
+      "id": "PERMISSIONS_USER_USERID",
+      "path": "/api/permissions/user/:userId",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/permissions.js",
+      "note": "extracted from routes/permissions.js"
     },
     {
       "id": "PLANS",
@@ -559,6 +2123,131 @@
       "note": "synced from server.js → routes/portal-content"
     },
     {
+      "id": "PORTAL_CONTENT_TENANTID_ALERTS",
+      "path": "/api/portal-content/:tenantId/alerts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_ALERTS_ALERTID",
+      "path": "/api/portal-content/:tenantId/alerts/:alertId",
+      "methods": [
+        "DELETE",
+        "PUT"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_ALERTS_ACTIVE",
+      "path": "/api/portal-content/:tenantId/alerts/active",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_CHAT_SETTINGS",
+      "path": "/api/portal-content/:tenantId/chat-settings",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_FAQ",
+      "path": "/api/portal-content/:tenantId/faq",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_FAQ_FAQID",
+      "path": "/api/portal-content/:tenantId/faq/:faqId",
+      "methods": [
+        "DELETE",
+        "PUT"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_FAQ_PUBLISHED",
+      "path": "/api/portal-content/:tenantId/faq/published",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_KNOWLEDGE_BASE",
+      "path": "/api/portal-content/:tenantId/knowledge-base",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_KNOWLEDGE_BASE_ARTICLEID",
+      "path": "/api/portal-content/:tenantId/knowledge-base/:articleId",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_CONTENT_TENANTID_KNOWLEDGE_BASE_PUBLISHED",
+      "path": "/api/portal-content/:tenantId/knowledge-base/published",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/portal-content.js",
+      "note": "extracted from routes/portal-content.js"
+    },
+    {
+      "id": "PORTAL_DOMAIN_DOMAIN",
+      "path": "/api/portal/domain/:domain",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/portal-domain.js",
+      "note": "extracted from routes/portal-domain.js"
+    },
+    {
+      "id": "PORTAL_SUBDOMAIN_SUBDOMAIN",
+      "path": "/api/portal/subdomain/:subdomain",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/portal-domain.js",
+      "note": "extracted from routes/portal-domain.js"
+    },
+    {
+      "id": "PORTAL_TENANT_TENANTID",
+      "path": "/api/portal/tenant/:tenantId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/portal-domain.js",
+      "note": "extracted from routes/portal-domain.js"
+    },
+    {
       "id": "REMOTE_AGENTS",
       "path": "/api/remote-agents",
       "methods": [
@@ -570,6 +2259,24 @@
       ],
       "sourceFile": "routes/remote-agents-status",
       "note": "synced from server.js → routes/remote-agents-status"
+    },
+    {
+      "id": "REMOTE_AGENTS_STATUS",
+      "path": "/api/remote-agents/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/remote-agents-status.js",
+      "note": "extracted from routes/remote-agents-status.js"
+    },
+    {
+      "id": "REMOTE_AGENTS_STATUS_UNLINKED",
+      "path": "/api/remote-agents/status/unlinked",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/remote-agents-status.js",
+      "note": "extracted from routes/remote-agents-status.js"
     },
     {
       "id": "SNMP_MONITORING",
@@ -589,13 +2296,39 @@
       "path": "/api/subcontractors",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/subcontractors",
-      "note": "synced from server.js → routes/subcontractors"
+      "sourceFile": "routes/subcontractors.js",
+      "note": "extracted from routes/subcontractors.js"
+    },
+    {
+      "id": "SUBCONTRACTORS_ID",
+      "path": "/api/subcontractors/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/subcontractors.js",
+      "note": "extracted from routes/subcontractors.js"
+    },
+    {
+      "id": "SUBCONTRACTORS_ID_APPROVE",
+      "path": "/api/subcontractors/:id/approve",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/subcontractors.js",
+      "note": "extracted from routes/subcontractors.js"
+    },
+    {
+      "id": "SUBCONTRACTORS_ID_EXPIRED_ITEMS",
+      "path": "/api/subcontractors/:id/expired-items",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/subcontractors.js",
+      "note": "extracted from routes/subcontractors.js"
     },
     {
       "id": "SYSTEM",
@@ -611,43 +2344,194 @@
       "note": "synced from server.js → routes/system"
     },
     {
+      "id": "SYSTEM_RESOURCES",
+      "path": "/api/system/resources",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
+      "id": "SYSTEM_SERVICES_SERVICENAME_RESTART",
+      "path": "/api/system/services/:serviceName/restart",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
+      "id": "SYSTEM_SERVICES_SERVICENAME_START",
+      "path": "/api/system/services/:serviceName/start",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
+      "id": "SYSTEM_SERVICES_SERVICENAME_STOP",
+      "path": "/api/system/services/:serviceName/stop",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
+      "id": "SYSTEM_SERVICES_STATUS",
+      "path": "/api/system/services/status",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
+      "id": "SYSTEM_SYSTEM_REBOOT",
+      "path": "/api/system/system/reboot",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
+      "id": "SYSTEM_SYSTEM_RESTART_ALL",
+      "path": "/api/system/system/restart-all",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/system.js",
+      "note": "extracted from routes/system.js"
+    },
+    {
       "id": "TENANT_SETTINGS",
       "path": "/api/tenant-settings",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "PUT"
       ],
-      "sourceFile": "routes/tenant-settings",
-      "note": "synced from server.js → routes/tenant-settings"
+      "sourceFile": "routes/tenant-settings.js",
+      "note": "extracted from routes/tenant-settings.js"
     },
     {
       "id": "TENANTS",
       "path": "/api/tenants",
       "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/tenants",
-      "note": "backend routes/tenants"
+      "sourceFile": "routes/tenants.js",
+      "note": "extracted from routes/tenants.js"
+    },
+    {
+      "id": "TENANTS_TENANTID",
+      "path": "/api/tenants/:tenantId",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/tenants.js",
+      "note": "extracted from routes/tenants.js"
     },
     {
       "id": "USERS",
       "path": "/api/users",
       "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
+        "GET"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_USERID_ACTIVATE",
+      "path": "/api/users/:userId/activate",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_USERID_ACTIVITY",
+      "path": "/api/users/:userId/activity",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_USERID_MODULES",
+      "path": "/api/users/:userId/modules",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_USERID_ROLE",
+      "path": "/api/users/:userId/role",
+      "methods": [
+        "PUT"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_USERID_SUSPEND",
+      "path": "/api/users/:userId/suspend",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_USERID_TENANT_TENANTID",
+      "path": "/api/users/:userId/tenant/:tenantId",
+      "methods": [
         "DELETE"
       ],
-      "sourceFile": "routes/users",
-      "note": "backend routes/users"
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_BULK_IMPORT",
+      "path": "/api/users/bulk-import",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_INVITE",
+      "path": "/api/users/invite",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_TENANT_TENANTID",
+      "path": "/api/users/tenant/:tenantId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
+    },
+    {
+      "id": "USERS_TENANT_TENANTID_VISIBLE",
+      "path": "/api/users/tenant/:tenantId/visible",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/users/index.js",
+      "note": "extracted from routes/users/index.js"
     },
     {
       "id": "VOICE",
@@ -663,30 +2547,219 @@
       "note": "backend routes/voice-sip"
     },
     {
+      "id": "VOICE_ACTIONS_CREATE_PORT_ORDER",
+      "path": "/api/voice/actions/create-port-order",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_ACTIONS_PROVISION_EMERGENCY_ADDRESS",
+      "path": "/api/voice/actions/provision-emergency-address",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_EMERGENCY_ADDRESSES",
+      "path": "/api/voice/emergency-addresses",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_PORT_ORDERS",
+      "path": "/api/voice/port-orders",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_PORT_ORDERS_ID_EVENTS",
+      "path": "/api/voice/port-orders/:id/events",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_PROVIDER_ACCOUNTS",
+      "path": "/api/voice/provider-accounts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_SCHEMA",
+      "path": "/api/voice/schema",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_SERVICE_LOCATIONS",
+      "path": "/api/voice/service-locations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_TELEPHONE_NUMBERS",
+      "path": "/api/voice/telephone-numbers",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
+      "id": "VOICE_TELEPHONE_NUMBERS_ID",
+      "path": "/api/voice/telephone-numbers/:id",
+      "methods": [
+        "PATCH"
+      ],
+      "sourceFile": "routes/voice-sip.js",
+      "note": "extracted from routes/voice-sip.js"
+    },
+    {
       "id": "WORK_ORDERS",
       "path": "/api/work-orders",
       "methods": [
         "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/work-orders",
-      "note": "backend routes/work-orders"
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ID",
+      "path": "/api/work-orders/:id",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ID_ASSIGN",
+      "path": "/api/work-orders/:id/assign",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ID_CLOSE",
+      "path": "/api/work-orders/:id/close",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ID_COMPLETE",
+      "path": "/api/work-orders/:id/complete",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ID_LOG",
+      "path": "/api/work-orders/:id/log",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ID_START",
+      "path": "/api/work-orders/:id/start",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ALERTS_SLA_BREACH",
+      "path": "/api/work-orders/alerts/sla-breach",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_ASSIGNED_USERID",
+      "path": "/api/work-orders/assigned/:userId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_BULK_IMPORT",
+      "path": "/api/work-orders/bulk-import",
+      "methods": [
+        "POST"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_SITE_SITEID",
+      "path": "/api/work-orders/site/:siteId",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
+    },
+    {
+      "id": "WORK_ORDERS_STATS_DASHBOARD",
+      "path": "/api/work-orders/stats/dashboard",
+      "methods": [
+        "GET"
+      ],
+      "sourceFile": "routes/work-orders.js",
+      "note": "extracted from routes/work-orders.js"
     },
     {
       "id": "SETUP_ADMIN",
       "path": "/setup-admin",
       "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
+        "POST"
       ],
-      "sourceFile": "routes/setup",
-      "note": "synced from server.js → routes/setup"
+      "sourceFile": "routes/setup/index.js",
+      "note": "extracted from routes/setup/index.js"
     }
   ],
   "externalBases": {
@@ -695,6 +2768,6 @@
     "API_PROXY_CF": "https://us-central1-wisptools-production.cloudfunctions.net/apiProxy",
     "USER_TENANTS_CF": "https://usertenants-nxulhoqnyq-uc.a.run.app"
   },
-  "syncedAt": "2026-07-15T13:04:16.289Z",
+  "syncedAt": "2026-07-19T05:32:56.204Z",
   "backendRoot": "C:/Users/david/AgenticOps/products/wisptools/backend-services"
 }

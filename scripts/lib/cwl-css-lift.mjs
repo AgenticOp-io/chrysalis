@@ -4,7 +4,7 @@
  */
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { loadWispPipelineConfig, resolveWispRoot } from "../wisp-cwl-pipeline.mjs";
 
 export const WISP_CWL_CSS_LIFT_KIND = "chrysalis.wisp.css-lift";
@@ -50,6 +50,32 @@ export async function runWispCwlCssLift(opts = {}) {
     cleanBundleDir: true,
   });
 
+  // Root +layout.svelte imports app.css, which in turn imports the centralized
+  // theme and modal styles. Route-scoped Svelte CSS extraction cannot see that
+  // global import graph, so carry it as a first-class bundle for every route.
+  const globalCssSources = [
+    join(wispRoot, "src/lib/config/theme.css"),
+    join(wispRoot, "src/lib/styles/modal.css"),
+    join(wispRoot, "src/app.css"),
+  ];
+  const missingGlobalCss = globalCssSources.filter((path) => !existsSync(path));
+  if (missingGlobalCss.length) {
+    return { ...base, skip: "origin-global-css-missing", missingGlobalCss };
+  }
+  const globalCss = globalCssSources
+    .map((path) =>
+      readFileSync(path, "utf8")
+        // Imports are already expanded above (theme/modal), while the ArcGIS
+        // theme is switched by the runtime to match the resolved theme.
+        .replace(/^\s*@import\s+[^;]+;\s*$/gm, ""),
+    )
+    .join("\n\n");
+  writeFileSync(
+    join(outCssDir, "wisp-origin-global.css"),
+    `/* Lifted from root +layout.svelte → app.css import graph. */\n${globalCss}\n`,
+    "utf8",
+  );
+
   return {
     ...base,
     ok: true,
@@ -57,6 +83,7 @@ export async function runWispCwlCssLift(opts = {}) {
     bundles: result.bundles.length,
     fallbackBundle: result.fallbackBundle !== null,
     urlAssetsCopied: written.assetPaths.length,
+    globalThemeCss: true,
     selectorsDropped: result.selectorsDropped,
   };
 }

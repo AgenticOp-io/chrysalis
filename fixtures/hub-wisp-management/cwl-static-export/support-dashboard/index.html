@@ -2,46 +2,45 @@
     <header class="dashboard-header">
       <div class="header-content">
         <h1>🎧 Customer Support Dashboard</h1>
-        <p class="subtitle">Demo Tenant - Support Portal</p>
+        <p class="subtitle"> - Support Portal</p>
       </div>
       <div class="header-actions">
-        <button class="btn-secondary">
+        <button class="btn-secondary" data-cwl-nav="/modules/customers/portal-setup">
           ⚙️ Portal Settings
         </button>
       </div>
     </header>
 
-    
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card alerts">
           <div class="stat-icon">🚨</div>
           <div class="stat-content">
-            <div class="stat-value"></div>
+            <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.activeAlerts"></span></div>
             <div class="stat-label">Active Alerts</div>
           </div>
         </div>
-        
+
         <div class="stat-card tickets">
           <div class="stat-icon">🎫</div>
           <div class="stat-content">
-            <div class="stat-value"></div>
+            <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.pendingTickets"></span></div>
             <div class="stat-label">Pending Tickets</div>
           </div>
         </div>
-        
+
         <div class="stat-card chats">
           <div class="stat-icon">💬</div>
           <div class="stat-content">
-            <div class="stat-value"></div>
+            <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.openChats"></span></div>
             <div class="stat-label">Open Chats</div>
           </div>
         </div>
-        
+
         <div class="stat-card customers">
           <div class="stat-icon">👥</div>
           <div class="stat-content">
-            <div class="stat-value"></div>
+            <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.totalCustomers"></span></div>
             <div class="stat-label">Customers</div>
           </div>
         </div>
@@ -51,32 +50,32 @@
       <div class="quick-actions">
         <h2>Quick Actions</h2>
         <div class="actions-grid">
-          <button class="action-card">
+          <button class="action-card" data-cwl-nav="/modules/customers/portal-setup?tab=alerts">
             <span class="action-icon">🚨</span>
             <span class="action-label">Manage Alerts</span>
           </button>
-          
-          <button class="action-card">
+
+          <button class="action-card" data-cwl-nav="/modules/customers/portal-setup?tab=faq">
             <span class="action-icon">❓</span>
             <span class="action-label">Edit FAQ</span>
           </button>
-          
-          <button class="action-card">
+
+          <button class="action-card" data-cwl-nav="/modules/customers/portal-setup?tab=knowledge">
             <span class="action-icon">📚</span>
             <span class="action-label">Knowledge Base</span>
           </button>
-          
-          <button class="action-card">
+
+          <button class="action-card" data-cwl-nav="/modules/customers/portal-setup?tab=chat">
             <span class="action-icon">💬</span>
             <span class="action-label">Chat Settings</span>
           </button>
-          
-          <button class="action-card">
+
+          <button class="action-card" data-cwl-nav="/modules/help-desk">
             <span class="action-icon">🎫</span>
             <span class="action-label">Help Desk</span>
           </button>
-          
-          <button class="action-card">
+
+          <button class="action-card" data-cwl-nav="/modules/customers">
             <span class="action-icon">👥</span>
             <span class="action-label">Customers</span>
           </button>
@@ -84,19 +83,55 @@
       </div>
 
       <!-- Active Alerts Section -->
-      
+
+        <div class="section">
+          <div class="section-header">
+            <h2>🚨 Active Alerts</h2>
+            <button class="btn-link" data-cwl-nav="/modules/customers/portal-setup?tab=alerts">
+              Manage All →
+            </button>
+          </div>
+          <div class="alerts-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="activeAlerts as alert" data-cwl-each-item="alert" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22alert-item%20%7Balert.type%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22alert-icon%22%3E%7BgetAlertIcon(alert.type)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22alert-content%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Balert.title%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%3E%7Balert.message%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22alert-status%22%3E%7Balert.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div class="alert-item ">
+                <span class="alert-icon"></span>
+                <div class="alert-content">
+                  <h4></h4>
+                  <p></p>
+                </div>
+                <span class="alert-status"></span>
+              </div></div>
+          </div>
+        </div>
 
       <!-- Recent Tickets Section -->
       <div class="section">
         <div class="section-header">
           <h2>🎫 Recent Support Tickets</h2>
-          <button class="btn-link">
+          <button class="btn-link" data-cwl-nav="/modules/help-desk">
             View All →
           </button>
         </div>
-        
-        
+
+          <div class="tickets-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="recentTickets as ticket" data-cwl-each-item="ticket" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-item%22%20data-cwl-nav%3D%22%2Fmodules%2Fhelp-desk%3Fticket%3D%7Bticket._id%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-main%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Bticket.subject%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22ticket-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bticket.customerName%20%7C%7C%20'Customer'%7D%20%E2%80%A2%20%7BformatDate(ticket.createdAt)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-badges%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22priority-badge%20%7BgetTicketPriorityClass(ticket.priority)%7D%22%3E%7Bticket.priority%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7BgetStatusClass(ticket.status)%7D%22%3E%7Bticket.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div class="ticket-item">
+                <div class="ticket-main">
+                  <h4></h4>
+                  <p class="ticket-meta">
+                     •
+                  </p>
+                </div>
+                <div class="ticket-badges">
+                  <span class="priority-badge "></span>
+                  <span class="status-badge "></span>
+                </div>
+              </div></div>
+          </div>
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>No recent tickets</p>
+          </div>
+
       </div>
-    
+
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/support-dashboard","apiPath":"/api/maintain","api_ok":true,"api_surface":"wisp-api-native","api_resource":"maintain","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/support-dashboard"}</script>

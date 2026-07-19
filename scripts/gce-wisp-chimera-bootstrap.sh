@@ -105,11 +105,12 @@ if [[ -z "${native_api}" && -f "${POC_DIR}/wisp-pipeline.config.json" ]]; then
   fi
 fi
 if [[ "${native_api}" == "1" || "${WISP_CWL_NATIVE_PREFIXES:-}" == "*" ]]; then
-  expected_api_hdr="cwl-native-api"
+  # Live-first (D6450): real backend preferred, native seeded API as fallback.
+  expected_api_hdr="live-backend|cwl-native-api|cwl-native-api-fallback"
 else
-  expected_api_hdr="backend"
+  expected_api_hdr="backend|live-backend"
 fi
-if [[ "${api_hdr}" != "${expected_api_hdr}" ]]; then
+if ! echo "${api_hdr}" | grep -Eq "^(${expected_api_hdr})$"; then
   log "ERROR: /api/tenants missing x-chrysalis-wisp-proxy: ${expected_api_hdr} (got '${api_hdr}') — tail ${LOG}" >&2
   tail -20 "${LOG}" >&2 || true
   exit 1

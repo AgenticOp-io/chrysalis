@@ -59,6 +59,10 @@
     activePlan: null,
     activePlanId: null,
     projects: [],
+    stagedFeatures: [],
+    productionHardware: [],
+    visibleProjects: [],
+    projectOverlays: [],
     layerFilters: {
       showTowers: true,
       showSectors: true,
@@ -80,6 +84,44 @@
     filterMode: "all",
     lastMarketingRect: null,
   };
+
+  /** Origin MapCapabilities.ts — deploy is interactive (tasks/progress), not read-only. */
+  function capabilitiesForMode(mode) {
+    if (mode === "deploy") {
+      return {
+        mode: "deploy",
+        canAddTemporary: false,
+        canEditTemporary: false,
+        canDeleteTemporary: false,
+        canApprove: false,
+        canAssignTasks: true,
+        canMarkProgress: true,
+        readOnly: false,
+      };
+    }
+    if (mode === "monitor") {
+      return {
+        mode: "monitor",
+        canAddTemporary: false,
+        canEditTemporary: false,
+        canDeleteTemporary: false,
+        canApprove: false,
+        canAssignTasks: false,
+        canMarkProgress: false,
+        readOnly: true,
+      };
+    }
+    return {
+      mode: "plan",
+      canAddTemporary: true,
+      canEditTemporary: true,
+      canDeleteTemporary: true,
+      canApprove: true,
+      canAssignTasks: false,
+      canMarkProgress: false,
+      readOnly: false,
+    };
+  }
 
   function apiFetch(path, opts) {
     opts = opts || {};
@@ -153,9 +195,14 @@
         ? {
             targetRadiusMiles: marketing.targetRadiusMiles || null,
             lastResultCount: marketing.lastResultCount || null,
+            lastBoundingBox: marketing.lastBoundingBox || null,
+            lastCenter: marketing.lastCenter || null,
             addresses: Array.isArray(marketing.addresses) ? marketing.addresses : [],
           }
         : null;
+    // Mirror origin SharedMap.svelte state-update payload so the coverage-map
+    // island can render staged plan features + production hardware and honor
+    // mode capabilities (deploy is NOT read-only in origin MapCapabilities).
     postToMapBoth("state-update", {
       mode: mapState.mode,
       state: {
@@ -163,8 +210,81 @@
         activePlanId: mapState.activePlanId,
         activePlan: activePlanSummary(plan),
         activePlanMarketing: activePlanMarketing,
-        capabilities: { mode: mapState.mode, readOnly: mapState.mode === "deploy" },
+        stagedSummary: mapState.stagedSummary || { total: 0, byType: {}, byStatus: {} },
+        stagedFeatures: Array.isArray(mapState.stagedFeatures) ? mapState.stagedFeatures : [],
+        productionHardware: Array.isArray(mapState.productionHardware)
+          ? mapState.productionHardware
+          : [],
+        visibleProjects: Array.isArray(mapState.visibleProjects) ? mapState.visibleProjects : [],
+        projectOverlays: Array.isArray(mapState.projectOverlays) ? mapState.projectOverlays : [],
+        layerFilters: mapState.layerFilters,
+        lastUpdated: mapState.lastUpdated || Date.now(),
+        capabilities: capabilitiesForMode(mapState.mode),
       },
+    });
+  }
+
+  function summarizeStaged(features) {
+    var byType = {};
+    var byStatus = {};
+    (features || []).forEach(function (f) {
+      if (!f) return;
+      var t = String(f.type || f.kind || "feature");
+      var s = String(f.status || "unknown");
+      byType[t] = (byType[t] || 0) + 1;
+      byStatus[s] = (byStatus[s] || 0) + 1;
+    });
+    return { total: (features || []).length, byType: byType, byStatus: byStatus };
+  }
+
+  /** Load plan features + production hardware like origin MapLayerManager.loadPlan. */
+  function loadPlanMapLayers(plan) {
+    var planId = planIdOf(plan);
+    var hardwareP = apiFetch("/api/network/equipment")
+      .then(function (r) {
+        return r.ok ? r.json() : [];
+      })
+      .then(function (data) {
+        var rows = Array.isArray(data)
+          ? data
+          : Array.isArray(data && data.equipment)
+            ? data.equipment
+            : Array.isArray(data && data.items)
+              ? data.items
+              : [];
+        mapState.productionHardware = rows;
+        return rows;
+      })
+      .catch(function () {
+        mapState.productionHardware = mapState.productionHardware || [];
+        return mapState.productionHardware;
+      });
+    var featuresP = planId
+      ? apiFetch("/api/plans/" + encodeURIComponent(planId) + "/features")
+          .then(function (r) {
+            return r.ok ? r.json() : [];
+          })
+          .then(function (data) {
+            var rows = Array.isArray(data)
+              ? data
+              : Array.isArray(data && data.features)
+                ? data.features
+                : Array.isArray(data && data.items)
+                  ? data.items
+                  : [];
+            mapState.stagedFeatures = rows;
+            mapState.stagedSummary = summarizeStaged(rows);
+            return rows;
+          })
+          .catch(function () {
+            mapState.stagedFeatures = mapState.stagedFeatures || [];
+            mapState.stagedSummary = summarizeStaged(mapState.stagedFeatures);
+            return mapState.stagedFeatures;
+          })
+      : Promise.resolve([]);
+    return Promise.all([hardwareP, featuresP]).then(function () {
+      mapState.lastUpdated = Date.now();
+      postStateToIframe();
     });
   }
 
@@ -173,6 +293,7 @@
     mapState.activePlan = plan || null;
     mapState.activePlanId = plan ? plan.id || plan._id || null : null;
     postStateToIframe();
+    loadPlanMapLayers(plan);
     postToMapBoth("select-plan", {
       planId: mapState.activePlanId,
       lat: plan && (plan.lat != null ? plan.lat : plan.location && plan.location.lat),
@@ -235,7 +356,7 @@
       (p.location && (p.location.lat != null || p.location.lng != null));
     var st = normalizeStatus(p.status);
     var mapLifecycle =
-      ["draft", "approved", "deployed", "ready", "authorized"].indexOf(st) >= 0;
+      ["draft", "approved", "deployed", "ready", "authorized", "active", "rejected", "cancelled"].indexOf(st) >= 0;
     if (mapLifecycle) return true;
     if (hasGeo) return true;
     // Priced rows without geometry are service catalog, not map projects.
@@ -285,46 +406,138 @@
     return out;
   }
 
+  function projectHardwareCount(p) {
+    var scope = (p && p.scope) || {};
+    var n = 0;
+    ["towers", "sectors", "cpeDevices", "equipment"].forEach(function (k) {
+      if (Array.isArray(scope[k])) n += scope[k].length;
+    });
+    return n;
+  }
+
+  /** Mirror of the origin plan +page.svelte project list rows (same classes, same
+   *  status-conditional buttons) so the modal looks and acts like the original. */
+  function renderProjectRow(p) {
+    var name = escapeHtml(p.name || p.title || "Untitled plan");
+    var status = normalizeStatus(p.status);
+    var statusCls = escapeHtml(status);
+    var id = escapeHtml(planIdOf(p));
+    var created = "";
+    if (p.createdAt) {
+      var dt = new Date(p.createdAt);
+      if (!isNaN(dt.getTime())) created = dt.toLocaleDateString();
+    }
+    var actions = "";
+    actions +=
+      '<button class="action-btn marketing-btn" type="button" data-plan-action="download-csv" title="Download all addresses from this project as CSV">📥 Download CSV</button>';
+    if (status === "draft") {
+      actions +=
+        '<button class="action-btn start-btn" type="button" data-plan-action="start" title="Start Project - Begin working on this project">▶️ Start</button>';
+    }
+    if (status === "ready") {
+      actions +=
+        '<button class="action-btn approve-btn" type="button" data-plan-action="approve" title="Approve Project - Mark as ready for deployment">✅ Approve</button>' +
+        '<button class="action-btn reject-btn" type="button" data-plan-action="reject" title="Reject Project - Send back for revision">❌ Reject</button>';
+    }
+    if (status !== "authorized") {
+      actions +=
+        '<button class="action-btn delete-btn" type="button" data-plan-action="delete" title="Delete Project">🗑️ Delete</button>';
+    }
+    if (status === "active") {
+      actions +=
+        '<button class="action-btn finish-btn" type="button" data-plan-action="finish" title="Finish Project - Mark as ready for deployment">✅ Finish</button>' +
+        '<button class="action-btn pause-btn" type="button" data-plan-action="pause" title="Pause Project - Save progress and pause work">⏸️ Pause</button>' +
+        '<button class="action-btn cancel-btn" type="button" data-plan-action="cancel" title="Cancel Project - Cancel this project">❌ Cancel</button>' +
+        '<span class="active-indicator" title="This project is currently active - all map changes will be saved to this project">🔄 Active</span>';
+    }
+    var visible = p.showOnMap !== false;
+    actions +=
+      '<button class="action-btn ' +
+      (visible ? "visibility-active" : "visibility-inactive") +
+      (status === "authorized" ? " disabled" : "") +
+      '" type="button" data-plan-action="toggle-visibility" title="' +
+      (status === "authorized"
+        ? "Authorized projects are always visible in production"
+        : visible
+          ? "Hide on map"
+          : "Show on map") +
+      '"' +
+      (status === "authorized" ? " disabled" : "") +
+      ">" +
+      (visible ? "👁️ Visible" : "👁️‍🗨️ Hidden") +
+      "</button>";
+    if (["ready", "approved", "rejected", "cancelled"].indexOf(status) >= 0) {
+      actions +=
+        '<button class="action-btn reopen-btn" type="button" data-plan-action="reopen" title="Reopen this project for additional planning work">♻️ Reopen</button>';
+    }
+    if (status === "approved") {
+      actions +=
+        '<button class="action-btn authorize-btn" type="button" data-plan-action="authorize" title="Authorize Project - Promote this project to production">🚀 Authorize</button>' +
+        '<span class="approved-indicator" title="This project has been approved and is ready for deployment">✅ Approved</span>';
+    }
+    if (status === "authorized") {
+      actions +=
+        '<span class="authorized-indicator" title="This project has been authorized and merged into production">🚀 Authorized</span>';
+    }
+    if (status === "rejected") {
+      actions +=
+        '<span class="rejected-indicator" title="This project was rejected and needs revision">❌ Rejected</span>';
+    }
+    if (status === "cancelled") {
+      actions += '<span class="cancelled-indicator" title="This project was cancelled">🚫 Cancelled</span>';
+    }
+    return (
+      '<div class="project-item" data-plan-id="' +
+      id +
+      '">' +
+      '<button type="button" class="project-content" data-plan-action="select">' +
+      '<div class="project-header"><h3>' +
+      name +
+      '</h3><span class="status-badge ' +
+      statusCls +
+      '">' +
+      escapeHtml(p.status || "draft") +
+      "</span></div>" +
+      '<p class="project-description">' +
+      escapeHtml(p.description || "") +
+      "</p>" +
+      '<div class="project-meta">' +
+      (created ? "<span>Created: " + escapeHtml(created) + "</span>" : "") +
+      "<span>Hardware: " +
+      projectHardwareCount(p) +
+      " items</span></div>" +
+      "</button>" +
+      '<div class="project-actions">' +
+      actions +
+      "</div></div>"
+    );
+  }
+
   function renderProjects(listEl) {
     if (!listEl) return;
     var projects = filterProjectsForView(mapState.projects || []);
     if (!projects.length) {
       listEl.innerHTML =
-        '<p class="plan-panel-empty">No plan projects match this filter. Create one from Create, or change the filter.</p>';
+        '<div class="empty-state"><div class="empty-icon">📁</div><h3>No Projects Yet</h3>' +
+        "<p>Create your first deployment project to get started.</p>" +
+        '<button class="btn-primary" type="button" data-plan-action="create">Create Project</button></div>';
       return;
     }
-    listEl.innerHTML = projects
-      .map(function (p) {
-        var name = escapeHtml(p.name || p.title || "Untitled plan");
-        var status = escapeHtml(p.status || "draft");
-        var id = escapeHtml(planIdOf(p));
-        return (
-          '<article class="plan-project-item" data-plan-id="' +
-          id +
-          '"><h3>' +
-          name +
-          "</h3><p>Status: " +
-          status +
-          '</p><div class="plan-project-actions">' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="select">Select</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="approve">Approve</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="reject">Reject</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="authorize">Authorize</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="feature">Add feature</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="toggle-visibility">Toggle visibility</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="requirements">Requirements</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="analyze">Analyze</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="purchase-order">Purchase order</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="patch-feature">Patch feature</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="delete-feature">Delete feature</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="delete-requirement">Remove requirement</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="start">Start</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="deploy">Deploy</button>' +
-          '<button type="button" class="wisp-control-btn" data-plan-action="delete">Delete</button>' +
-          "</div></article>"
-        );
-      })
-      .join("");
+    listEl.innerHTML = projects.map(renderProjectRow).join("");
+  }
+
+  /** Every list currently showing projects (side drawer and/or the lifted origin modal). */
+  function projectListEls() {
+    var els = [];
+    var drawer = qs("#plan-projects-list");
+    if (drawer) els.push(drawer);
+    var modalList = planProjectModalList();
+    if (modalList) els.push(modalList);
+    return els;
+  }
+
+  function rerenderProjectLists() {
+    projectListEls().forEach(renderProjects);
   }
 
   function findPlanById(id) {
@@ -340,8 +553,15 @@
     listEl.innerHTML = '<p class="plan-panel-loading">Loading projects…</p>';
     function applyData(data) {
       var projects = projectsFromApi(data);
+      // Keep demo-local creations (ids prefixed "local-") that the API cannot persist.
+      var i;
+      for (i = 0; i < (mapState.projects || []).length; i++) {
+        var keep = mapState.projects[i];
+        if (/^local-/.test(planIdOf(keep))) projects.push(keep);
+      }
       mapState.projects = projects;
       renderProjects(listEl);
+      rerenderProjectLists();
       if (!mapState.activePlan && projects.length) {
         setActivePlan(projects[0], { center: false });
       }
@@ -394,7 +614,7 @@
       }
     }
     var listEl = qs("#plan-projects-list");
-    if (listEl) renderProjects(listEl);
+    rerenderProjectLists();
     var bodyObj = plan
       ? Object.assign({}, plan, { id: id, _id: id, status: status })
       : { id: id, status: status };
@@ -433,8 +653,93 @@
       .catch(function () {
         return false;
       })
-      .then(function () {
-        return loadProjects(listEl);
+      .then(function (persisted) {
+        // Demo API may not persist writes; keep the optimistic local state
+        // instead of reloading stale data over it.
+        if (persisted) return loadProjects(listEl);
+        rerenderProjectLists();
+        return mapState.projects;
+      });
+  }
+
+  /** PUT a partial update (origin planService.updatePlan) and refresh lists. */
+  function putPlanPatch(id, patch, listEl) {
+    var plan = findPlanById(id);
+    if (plan) {
+      Object.assign(plan, patch);
+      if (mapState.activePlan && planIdOf(mapState.activePlan) === String(id)) {
+        Object.assign(mapState.activePlan, patch);
+        setActivePlan(mapState.activePlan, { center: false });
+      }
+    }
+    rerenderProjectLists();
+    var body = JSON.stringify(Object.assign({ id: id, _id: id }, plan || {}, patch));
+    return apiFetch("/api/plans/" + encodeURIComponent(id), { method: "PUT", body: body })
+      .then(function (r) {
+        if (r && r.ok) return true;
+        return apiFetch("/api/plans", { method: "PUT", body: body }).then(function (r2) {
+          return !!(r2 && r2.ok);
+        });
+      })
+      .catch(function () {
+        return false;
+      })
+      .then(function (persisted) {
+        if (persisted) return loadProjects(listEl || qs("#plan-projects-list"));
+        rerenderProjectLists();
+        return mapState.projects;
+      });
+  }
+
+  /** Origin downloadProjectAddressesCSV: marketing addresses → CSV file download. */
+  function downloadPlanAddressesCSV(id, plan) {
+    function toCsv(addresses) {
+      if (!addresses.length) {
+        toastSummary(
+          '<h3>Download CSV</h3><p class="cwl-empty-honest" data-cwl-empty-honest="1">No addresses found in this project.</p>',
+        );
+        return;
+      }
+      var cols = ["address", "city", "state", "zip", "lat", "lng", "status"];
+      var lines = [cols.join(",")];
+      addresses.forEach(function (a) {
+        lines.push(
+          cols
+            .map(function (c) {
+              var v = a[c] != null ? a[c] : c === "lng" && a.lon != null ? a.lon : "";
+              v = String(v).replace(/"/g, '""');
+              return /[",\n]/.test(v) ? '"' + v + '"' : v;
+            })
+            .join(","),
+        );
+      });
+      var blob = new Blob([lines.join("\n")], { type: "text/csv" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download =
+        ((plan && (plan.name || plan.title)) || "plan").replace(/[^\w-]+/g, "_") +
+        "_addresses.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () {
+        URL.revokeObjectURL(a.href);
+      }, 5000);
+    }
+    apiFetch("/api/plans/" + encodeURIComponent(id) + "/marketing/addresses")
+      .then(function (r) {
+        return r && r.ok ? r.json() : null;
+      })
+      .then(function (body) {
+        var addrs =
+          (body && (body.addresses || body.items)) ||
+          (Array.isArray(body) ? body : null) ||
+          (plan && plan.marketing && plan.marketing.addresses) ||
+          [];
+        toCsv(addrs);
+      })
+      .catch(function () {
+        toCsv((plan && plan.marketing && plan.marketing.addresses) || []);
       });
   }
 
@@ -445,15 +750,16 @@
     if (mapState.activePlanId && String(mapState.activePlanId) === String(id)) {
       setActivePlan(mapState.projects[0] || null, { center: false });
     }
+    rerenderProjectLists();
     var listEl = qs("#plan-projects-list");
-    if (listEl) renderProjects(listEl);
     apiFetch("/api/plans/" + encodeURIComponent(id), { method: "DELETE" })
       .then(function (r) {
         if (!(r && r.ok)) throw new Error("plan delete " + (r && r.status));
         return loadProjects(listEl);
       })
       .catch(function () {
-        return loadProjects(listEl);
+        // Demo API may not persist deletes; keep the optimistic local removal.
+        rerenderProjectLists();
       });
   }
 
@@ -462,13 +768,19 @@
     if (!btn) return;
     ev.preventDefault();
     ev.stopPropagation();
+    var action = btn.getAttribute("data-plan-action");
+    if (action === "create") {
+      closeProjectModalOverlay();
+      openCreateProjectModal(listEl || qs("#plan-projects-list"));
+      return;
+    }
     var article = btn.closest("[data-plan-id]");
     if (!article) return;
     var id = article.getAttribute("data-plan-id");
     var plan = findPlanById(id);
-    var action = btn.getAttribute("data-plan-action");
     if (action === "select") {
       setActivePlan(plan || { id: id }, { center: true });
+      if (btn.closest(".modal-overlay")) closeProjectModalOverlay();
       return;
     }
     if (action === "approve") {
@@ -699,6 +1011,28 @@
       deletePlanLocal(id);
       return;
     }
+    // Origin lifecycle: finishProject → ready, pauseProject → draft (+hidden),
+    // cancelProject → cancelled, reopenProject → active.
+    if (action === "finish") {
+      putPlanPatch(id, { status: "ready" }, listEl);
+      return;
+    }
+    if (action === "pause") {
+      putPlanPatch(id, { status: "draft", showOnMap: false }, listEl);
+      return;
+    }
+    if (action === "cancel") {
+      putPlanPatch(id, { status: "cancelled" }, listEl);
+      return;
+    }
+    if (action === "reopen") {
+      putPlanPatch(id, { status: "active" }, listEl);
+      return;
+    }
+    if (action === "download-csv") {
+      downloadPlanAddressesCSV(id, plan);
+      return;
+    }
   }
 
   function ensureLayerPanel(root) {
@@ -868,13 +1202,109 @@
       else document.body.appendChild(box);
     }
     box.hidden = false;
+    var kind = String(detail.kind || detail.type || "").toLowerCase();
+    var name = detail.name || detail.id || "Feature";
+    var status = detail.status ? " · " + escapeHtml(detail.status) : "";
+    var caps = capabilitiesForMode(mapState.mode);
+    var actions = [];
+    if (kind === "tower" || kind === "site") {
+      actions.push(
+        '<button type="button" class="btn-secondary btn-sm" data-map-asset-action="open-hardware">View hardware</button>',
+      );
+      if (caps.canEditTemporary || caps.canAssignTasks) {
+        actions.push(
+          '<button type="button" class="btn-primary btn-sm" data-map-asset-action="edit-site">Edit site</button>',
+        );
+      }
+    } else if (kind === "sector") {
+      actions.push(
+        '<button type="button" class="btn-secondary btn-sm" data-map-asset-action="open-pci">PCI tools</button>',
+      );
+      if (caps.canEditTemporary) {
+        actions.push(
+          '<button type="button" class="btn-primary btn-sm" data-map-asset-action="edit-sector">Edit sector</button>',
+        );
+      }
+    } else if (kind === "marketing") {
+      actions.push(
+        '<button type="button" class="btn-secondary btn-sm" data-map-asset-action="open-marketing">Marketing</button>',
+      );
+    } else if (caps.canAssignTasks || caps.canMarkProgress) {
+      actions.push(
+        '<button type="button" class="btn-primary btn-sm" data-map-asset-action="open-hardware">Open in hardware</button>',
+      );
+    }
+    actions.push(
+      '<button type="button" class="btn-secondary btn-sm" data-map-asset-action="center">Center map</button>',
+      '<button type="button" class="btn-secondary btn-sm" data-map-asset-action="dismiss">Dismiss</button>',
+    );
     box.innerHTML =
       "<h3>Map selection</h3><p>" +
-      escapeHtml(detail.name || detail.id || "Feature") +
+      escapeHtml(name) +
       "</p><p>" +
-      escapeHtml(detail.kind || "") +
-      (detail.status ? " · " + escapeHtml(detail.status) : "") +
-      "</p>";
+      escapeHtml(detail.kind || detail.type || "") +
+      status +
+      "</p>" +
+      (actions.length
+        ? '<div class="map-asset-actions" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem">' +
+          actions.join("") +
+          "</div>"
+        : "");
+    box._mapAssetDetail = detail;
+    if (box.getAttribute("data-asset-wired") !== "1") {
+      box.setAttribute("data-asset-wired", "1");
+      box.addEventListener("click", function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest("[data-map-asset-action]") : null;
+        if (!btn) return;
+        ev.preventDefault();
+        var action = btn.getAttribute("data-map-asset-action");
+        var d = box._mapAssetDetail || {};
+        if (action === "dismiss") {
+          box.hidden = true;
+          return;
+        }
+        if (action === "center" && d.lat != null && (d.lng != null || d.lon != null)) {
+          postToMapBoth("center-map-on-location", {
+            lat: Number(d.lat),
+            lon: Number(d.lng != null ? d.lng : d.lon),
+            zoom: 14,
+          });
+          return;
+        }
+        if (action === "open-hardware" && window.wispSharedMap && window.wispSharedMap.openHardware) {
+          window.wispSharedMap.openHardware();
+          return;
+        }
+        if (action === "open-pci" && window.wispSharedMap && window.wispSharedMap.openPci) {
+          window.wispSharedMap.openPci();
+          return;
+        }
+        if (action === "open-marketing" && window.wispSharedMap && window.wispSharedMap.openMarketing) {
+          window.wispSharedMap.openMarketing();
+          return;
+        }
+        if (action === "edit-site" || action === "edit-sector") {
+          // Prefer a lifted origin modal if the page carries one; else re-post
+          // object-action so island listeners / future handlers can react.
+          var shell =
+            document.querySelector('[data-cwl-lifted-component*="Tower"]') ||
+            document.querySelector('[data-cwl-lifted-component*="Sector"]') ||
+            document.querySelector('[data-cwl-lifted-component*="Site"]');
+          if (shell && window.openLiftedShell) {
+            try {
+              window.openLiftedShell(shell);
+            } catch (_e) {
+              /* fall through */
+            }
+          }
+          postToMapBoth("object-action", {
+            objectId: d.id,
+            action: action,
+            data: d,
+          });
+        }
+      });
+    }
   }
 
   function num(v) {
@@ -1165,7 +1595,110 @@
     }
   }
 
+  /** Open the lifted origin "➕ Create New Project" modal when the page carries it. */
+  function openCreateProjectLifted(listEl) {
+    var content = document.querySelector(".modal-content.create-modal");
+    var overlay = content ? content.closest(".modal-overlay") : null;
+    if (!overlay) return false;
+    overlay.hidden = false;
+    overlay.removeAttribute("aria-hidden");
+    overlay.style.display = "flex";
+    function closeIt() {
+      overlay.hidden = true;
+      overlay.setAttribute("aria-hidden", "true");
+      overlay.style.display = "none";
+    }
+    function submitCreate() {
+      var nameEl = qs("#projectName", overlay);
+      var descEl = qs("#projectDescription", overlay);
+      var lookupEl = qs("#project-location-lookup", overlay);
+      var name = ((nameEl && nameEl.value) || "").trim();
+      if (!name) {
+        if (nameEl) nameEl.focus();
+        return;
+      }
+      var payload = {
+        name: name,
+        description: ((descEl && descEl.value) || "").trim(),
+        status: "draft",
+        kind: "plan-project",
+      };
+      var loc = ((lookupEl && lookupEl.value) || "").trim();
+      var m = loc.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+      if (m) {
+        payload.lat = Number(m[1]);
+        payload.lng = Number(m[2]);
+      }
+      apiFetch("/api/plans", { method: "POST", body: JSON.stringify(payload) })
+        .then(function (r) {
+          if (!r.ok) throw new Error("create " + r.status);
+          return r.json().catch(function () {
+            return payload;
+          });
+        })
+        .then(function (created) {
+          closeIt();
+          return loadProjects(listEl || qs("#plan-projects-list")).then(function () {
+            var id = planIdOf(created) || (created && created.id);
+            var plan = id && findPlanById(id);
+            if (!plan) {
+              // Demo API may not persist creates; keep the new project locally.
+              plan = Object.assign({ id: "local-" + Date.now(), kind: "plan-project" }, payload);
+              mapState.projects.push(plan);
+              rerenderProjectLists();
+            }
+            setActivePlan(plan, { center: true });
+          });
+        })
+        .catch(function () {
+          var alertEl = qs(".alert-error", overlay);
+          if (alertEl) {
+            alertEl.hidden = false;
+            alertEl.removeAttribute("aria-hidden");
+          }
+        });
+    }
+    if (!overlay.__wispWired) {
+      overlay.__wispWired = true;
+      overlay.addEventListener("click", function (ev) {
+        if (ev.target === overlay) {
+          closeIt();
+          return;
+        }
+        var chrome = ev.target.closest("[data-cwl-action]");
+        if (chrome === overlay) chrome = null;
+        var act = chrome ? chrome.getAttribute("data-cwl-action") || "" : "";
+        if (/closeCreateProjectModal/.test(act)) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          closeIt();
+          return;
+        }
+        if (/^createProject$/.test(act)) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          submitCreate();
+        }
+      });
+      overlay.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape") closeIt();
+      });
+      var form = qs("form", overlay);
+      if (form) {
+        form.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          submitCreate();
+        });
+      }
+    }
+    var focusEl = qs("#projectName", overlay);
+    if (focusEl) focusEl.focus();
+    return true;
+  }
+
   function openCreateProjectModal(listEl) {
+    if (openCreateProjectLifted(listEl)) return;
     var body =
       '<form class="wisp-wizard-form" id="wisp-create-project-form">' +
       '<div class="form-group"><label for="cp-name">Project name *</label>' +
@@ -1247,6 +1780,35 @@
   }
 
   function openFrequencyModal() {
+    // True rendering: the lifted FrequencyPlannerModal from the origin page.
+    var lifted = openLiftedShell("FrequencyPlannerModal", null);
+    if (lifted) {
+      loadSitesAndSectors().then(function (data) {
+        var sectors = (data.sectors || []).filter(function (s) {
+          var st = String(s.status || "").toLowerCase();
+          return st === "active" || st === "deployed" || st === "online" || !st;
+        });
+        var conflicts = pciConflictGroups(sectors);
+        if (window.__wispHydrateShellScope) {
+          window.__wispHydrateShellScope(
+            lifted,
+            {
+              sectors: sectors,
+              cells: sectors,
+              conflicts: conflicts,
+              plan: null,
+              isAnalyzing: false,
+              isOptimizing: false,
+              loading: false,
+              isLoading: false,
+              activeTab: "analysis",
+            },
+            sectors,
+          );
+        }
+      });
+      return;
+    }
     openModal("Frequency planner", '<p class="plan-panel-loading">Loading /api/network/sectors…</p>');
     loadSitesAndSectors().then(function (data) {
       var sectors = (data.sectors || []).filter(function (s) {
@@ -1360,7 +1922,74 @@
     });
   }
 
+  /**
+   * Open a converted-original (lifted) modal shell and hydrate its holes with
+   * live data. Returns false when the shell is absent so callers can fall
+   * back to a synthetic surface. The lifted markup is the true rendering of
+   * the origin Svelte component — always prefer it.
+   */
+  function openLiftedShell(name, data, rows) {
+    var S = window.WispCwlShell;
+    if (!S || typeof S.find !== "function") return null;
+    var el = S.find(name);
+    if (!el) return null;
+    S.open(el);
+    // Hole hydration is single-shot (settled holes drop their bind markers),
+    // so only hydrate here when the caller passes final data. Callers doing
+    // async loads pass null and hydrate once the API responds.
+    if (data && window.__wispHydrateShellScope) {
+      try {
+        window.__wispHydrateShellScope(el, data, rows || []);
+      } catch (e) {
+        /* leave unhydrated holes honest */
+      }
+    }
+    return el;
+  }
+
+  function pciConflictGroups(sectors) {
+    var byPci = {};
+    sectors.forEach(function (s) {
+      if (s.pci == null) return;
+      var k = String(s.pci);
+      if (!byPci[k]) byPci[k] = [];
+      byPci[k].push(s);
+    });
+    var groups = [];
+    Object.keys(byPci).forEach(function (pci) {
+      if (byPci[pci].length > 1) groups.push({ pci: pci, sectors: byPci[pci], cells: byPci[pci] });
+    });
+    return groups;
+  }
+
   function openPciModal() {
+    // True rendering: the lifted PCIPlannerModal from the origin Svelte page.
+    var lifted = openLiftedShell("PCIPlannerModal", null);
+    if (lifted) {
+      loadSitesAndSectors().then(function (data) {
+        var sectors = (data.sectors || []).filter(function (s) {
+          var st = String(s.status || "").toLowerCase();
+          return st === "active" || st === "deployed" || st === "online" || !st;
+        });
+        var conflicts = pciConflictGroups(sectors);
+        if (window.__wispHydrateShellScope) {
+          window.__wispHydrateShellScope(
+            lifted,
+            {
+              cells: sectors,
+              sectors: sectors,
+              conflicts: conflicts,
+              isAnalyzing: false,
+              loading: false,
+              isLoading: false,
+              activeTab: "analysis",
+            },
+            sectors,
+          );
+        }
+      });
+      return;
+    }
     openModal("PCI planner", '<p class="plan-panel-loading">Loading sectors for PCI analysis…</p>');
     loadSitesAndSectors().then(function (data) {
       var sectors = (data.sectors || []).filter(function (s) {
@@ -1633,10 +2262,75 @@
     });
   }
 
+  /** The lifted origin "📁 Deployment Projects" modal overlay from plan +page.svelte. */
+  function planProjectModalOverlay() {
+    var content = document.querySelector(".modal-content.project-modal");
+    return content ? content.closest(".modal-overlay") : null;
+  }
+
+  function planProjectModalList() {
+    var overlay = planProjectModalOverlay();
+    if (!overlay || overlay.hidden) return null;
+    return qs(".project-list", overlay);
+  }
+
+  function closeProjectModalOverlay() {
+    var overlay = planProjectModalOverlay();
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
+    overlay.style.display = "none";
+  }
+
+  /** Open the lifted origin project modal and render live projects into it. */
+  function openProjectModalLifted() {
+    var overlay = planProjectModalOverlay();
+    if (!overlay) return false;
+    overlay.hidden = false;
+    overlay.removeAttribute("aria-hidden");
+    overlay.style.display = "flex";
+    if (!overlay.__wispWired) {
+      overlay.__wispWired = true;
+      overlay.addEventListener("click", function (ev) {
+        if (ev.target === overlay) {
+          closeProjectModalOverlay();
+          return;
+        }
+        var chrome = ev.target.closest("[data-cwl-action]");
+        if (chrome === overlay) chrome = null;
+        if (chrome) {
+          var act = chrome.getAttribute("data-cwl-action") || "";
+          if (/closeProjectModal/.test(act)) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeProjectModalOverlay();
+            return;
+          }
+          if (/openCreateProject/.test(act)) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeProjectModalOverlay();
+            openCreateProjectModal(qs("#plan-projects-list"));
+            return;
+          }
+        }
+        handlePlanAction(ev, qs(".project-list", overlay));
+      });
+      overlay.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape") closeProjectModalOverlay();
+      });
+    }
+    var list = qs(".project-list", overlay);
+    if (list) {
+      list.innerHTML = '<p class="plan-panel-loading">Loading projects…</p>';
+      loadProjects(list);
+    }
+    return true;
+  }
+
   function openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, modeHint) {
     if (hardwarePanel) hardwarePanel.hidden = true;
     if (layersPanel) layersPanel.hidden = true;
-    if (!projectsPanel) return;
     if (modeHint === "deploy-projects") {
       mapState.filterMode = "ready+approved+draft";
     } else if (modeHint) {
@@ -1644,8 +2338,87 @@
     } else {
       mapState.filterMode = "all";
     }
+    // Prefer the lifted origin modal (true rendering); fall back to the side drawer.
+    if (openProjectModalLifted()) {
+      if (projectsPanel) projectsPanel.hidden = true;
+      return;
+    }
+    if (!projectsPanel) return;
     projectsPanel.hidden = false;
     loadProjects(listEl);
+  }
+
+  /** Open the lifted PlanApprovalModal (true origin rendering) for a plan. */
+  function openPlanApprovalLifted(plan) {
+    if (!plan) return false;
+    var normalized = Object.assign({}, plan);
+    if (!normalized.scope || typeof normalized.scope !== "object") {
+      normalized.scope = {};
+    }
+    normalized.scope = Object.assign(
+      { towers: [], sectors: [], cpeDevices: [], equipment: [] },
+      normalized.scope,
+    );
+    var lifted = openLiftedShell("PlanApprovalModal", {
+      show: true,
+      plan: normalized,
+      isProcessing: false,
+      rejectionReason: "",
+      getRejectionReasonLabel: function (x) {
+        return String(x || "");
+      },
+    });
+    return !!lifted;
+  }
+
+  /** Open the lifted DeployedHardwareModal with live deployment data. */
+  function openDeployedHardwareLifted() {
+    var lifted = openLiftedShell("DeployedHardwareModal", null);
+    if (!lifted) return false;
+    function rowsOf(body, keys) {
+      if (!body) return [];
+      if (Array.isArray(body)) return body;
+      for (var i = 0; i < keys.length; i++) {
+        if (Array.isArray(body[keys[i]])) return body[keys[i]];
+      }
+      return [];
+    }
+    Promise.all([
+      apiFetch("/api/network/hardware-deployments")
+        .then(function (r) {
+          return r && r.ok ? r.json() : null;
+        })
+        .catch(function () {
+          return null;
+        }),
+      apiFetch("/api/epc")
+        .then(function (r) {
+          return r && r.ok ? r.json() : null;
+        })
+        .catch(function () {
+          return null;
+        }),
+    ]).then(function (pair) {
+      var deployments = rowsOf(pair[0], ["deployments", "items", "hardware"]);
+      var epcDevices = rowsOf(pair[1], ["devices", "items", "epcs"]);
+      if (window.__wispHydrateShellScope) {
+        window.__wispHydrateShellScope(
+          lifted,
+          {
+            deployments: deployments,
+            epcDevices: epcDevices,
+            loading: false,
+            activeTab: "hardware",
+            getPlanName: function (id) {
+              var p = findPlanById(id);
+              return (p && (p.name || p.title)) || String(id || "");
+            },
+          },
+          deployments,
+        );
+      }
+    });
+    return true;
   }
 
   function initMapShell(pageSel, mode) {
@@ -1680,6 +2453,21 @@
       });
     }
 
+    function startMarketingDraw() {
+      if (!mapState.activePlanId) {
+        toastSummary(
+          '<h3>Find Addresses</h3><p class="cwl-empty-honest" data-cwl-empty-honest="1">Select a plan project first, then draw a rectangle on the map.</p>',
+        );
+        openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "all");
+        return;
+      }
+      postToMapBoth("enable-rectangle-drawing", { planId: mapState.activePlanId });
+      postToMapBoth("marketing-draw", { planId: mapState.activePlanId });
+      toastSummary(
+        "<h3>Find Addresses</h3><p>Draw a rectangle on the map. Discovery uses POST /api/plans/marketing/discover, with spatial fallback over /api/network/*.</p>",
+      );
+    }
+
     page.addEventListener("click", function (ev) {
       var helpLink = ev.target.closest("a.help-link");
       if (helpLink) {
@@ -1690,21 +2478,46 @@
         );
         return;
       }
-      var btn = ev.target.closest("[data-action]");
+      var btn =
+        ev.target.closest("[data-action]") ||
+        ev.target.closest("[data-cwl-action]") ||
+        ev.target.closest("[data-cwl-toggle]");
       if (!btn || !page.contains(btn)) return;
-      var action = btn.getAttribute("data-action");
-      if (action === "back") {
+      var action =
+        btn.getAttribute("data-action") ||
+        btn.getAttribute("data-cwl-action") ||
+        "";
+      var toggleKey = (btn.getAttribute("data-cwl-toggle") || "").split(":")[0] || "";
+      // Map converted Svelte handler names onto the plan/deploy island actions.
+      var mapped = String(action || toggleKey || "")
+        .replace(/^(?:handle|open|show)/i, "")
+        .toLowerCase();
+      if (/^back$/i.test(action)) {
         location.href = "/dashboard";
         return;
       }
-      if (action === "help") {
+      if (action === "help" || /helpmodal/i.test(toggleKey)) {
         openModal(
           "Help",
           "<p>Plan and deploy operator help.</p><p><a href=\"/help\">Help center</a> · <a href=\"/docs\">Documentation</a></p>",
         );
         return;
       }
-      if (action === "projects") {
+      if (
+        action === "projects" ||
+        /openprojectlist|projectlist/i.test(action) ||
+        /planapproval|openplanapproval/i.test(action) ||
+        mapped === "planapproval" ||
+        mapped === "projectlist"
+      ) {
+        ev.preventDefault();
+        // True rendering first: origin PlanApprovalModal for the active plan.
+        if (
+          /planapproval/i.test(action + mapped) &&
+          openPlanApprovalLifted(mapState.activePlan || mapState.projects[0])
+        ) {
+          return;
+        }
         openProjectsPanel(
           projectsPanel,
           layersPanel,
@@ -1714,12 +2527,34 @@
         );
         return;
       }
-      if (action === "approved") {
+      if (
+        action === "approved" ||
+        /projectfilters/i.test(toggleKey) ||
+        /projectfilters/i.test(action)
+      ) {
+        ev.preventDefault();
         openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "approved");
+        var filterPanel = page.querySelector(
+          "[data-cwl-lifted-component='ProjectFilterPanel'], .project-filter-panel",
+        );
+        if (filterPanel) {
+          filterPanel.hidden = false;
+          filterPanel.removeAttribute("hidden");
+          filterPanel.setAttribute("aria-hidden", "false");
+          filterPanel.style.display = "";
+        }
         return;
       }
-      if (action === "deployed") {
+      if (
+        action === "deployed" ||
+        /deployedhardware/i.test(toggleKey) ||
+        /deployedhardware/i.test(action)
+      ) {
+        ev.preventDefault();
+        // True rendering first: origin DeployedHardwareModal.
+        if (openDeployedHardwareLifted()) return;
         openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "deployed");
+        openHardwarePanel(page, layersPanel, projectsPanel);
         return;
       }
       if (action === "close-projects") {
@@ -1734,7 +2569,13 @@
         if (hardwarePanel) hardwarePanel.hidden = true;
         return;
       }
-      if (action === "hardware") {
+      if (
+        action === "hardware" ||
+        /openhardwareview|hardwareview/i.test(action) ||
+        /deployedhardware/i.test(toggleKey)
+      ) {
+        ev.preventDefault();
+        if (openDeployedHardwareLifted()) return;
         openHardwarePanel(page, layersPanel, projectsPanel);
         return;
       }
@@ -1748,34 +2589,39 @@
         postToMapBoth("layer-filters-changed", mapState.layerFilters);
         return;
       }
-      if (action === "marketing") {
-        if (!mapState.activePlanId) {
-          toastSummary(
-            '<h3>Find Addresses</h3><p class="cwl-empty-honest" data-cwl-empty-honest="1">Select a plan project first, then draw a rectangle on the map.</p>',
-          );
-          openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "all");
-          return;
-        }
-        postToMapBoth("enable-rectangle-drawing", { planId: mapState.activePlanId });
-        postToMapBoth("marketing-draw", { planId: mapState.activePlanId });
-        toastSummary(
-          "<h3>Find Addresses</h3><p>Draw a rectangle on the map. Discovery uses POST /api/plans/marketing/discover, with spatial fallback over /api/network/*.</p>",
-        );
+      if (action === "marketing" || /openmarketingtools|marketingtools/i.test(action)) {
+        ev.preventDefault();
+        startMarketingDraw();
         return;
       }
-      if (action === "create-project") {
+      if (action === "create-project" || /opencreateproject|createproject/i.test(action)) {
+        ev.preventDefault();
         openCreateProjectModal(listEl);
         return;
       }
-      if (action === "pci") {
+      if (
+        action === "pci" ||
+        /pciplanner|openpciplanner/i.test(action)
+      ) {
+        ev.preventDefault();
         openPciModal();
         return;
       }
-      if (action === "frequency") {
+      if (
+        action === "frequency" ||
+        /frequencyplanner|openfrequencyplanner/i.test(action)
+      ) {
+        ev.preventDefault();
         openFrequencyModal();
         return;
       }
-      if (action === "deploy-plan") {
+      if (
+        action === "deploy-plan" ||
+        /pushactiveplanto field|pushactiveplantofield|pushactiveplan/i.test(
+          String(action).replace(/\s+/g, ""),
+        )
+      ) {
+        ev.preventDefault();
         deployActivePlan();
         return;
       }
@@ -1786,6 +2632,53 @@
       postStateToIframe: postStateToIframe,
       setActivePlan: setActivePlan,
       state: mapState,
+      openPci: openPciModal,
+      openFrequency: openFrequencyModal,
+      deployActivePlan: deployActivePlan,
+      openProjects: function () {
+        openProjectsPanel(
+          projectsPanel,
+          layersPanel,
+          hardwarePanel,
+          listEl,
+          mode === "deploy" ? "deploy-projects" : "all",
+        );
+      },
+      openApproved: function () {
+        openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "approved");
+        var filterPanel = page.querySelector(
+          "[data-cwl-lifted-component='ProjectFilterPanel'], .project-filter-panel",
+        );
+        if (filterPanel) {
+          filterPanel.hidden = false;
+          filterPanel.removeAttribute("hidden");
+          filterPanel.setAttribute("aria-hidden", "false");
+          filterPanel.style.display = "";
+        }
+      },
+      openHardware: function () {
+        if (openDeployedHardwareLifted()) return;
+        openHardwarePanel(page, layersPanel, projectsPanel);
+      },
+      openDeployedHardware: function () {
+        if (openDeployedHardwareLifted()) return;
+        openHardwarePanel(page, layersPanel, projectsPanel);
+      },
+      openPlanApproval: function (plan) {
+        if (openPlanApprovalLifted(plan || mapState.activePlan || mapState.projects[0]))
+          return;
+        openProjectsPanel(
+          projectsPanel,
+          layersPanel,
+          hardwarePanel,
+          listEl,
+          mode === "deploy" ? "deploy-projects" : "all",
+        );
+      },
+      openCreateProject: function () {
+        openCreateProjectModal(listEl);
+      },
+      openMarketing: startMarketingDraw,
     };
   }
 

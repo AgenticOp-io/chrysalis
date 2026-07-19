@@ -1,28 +1,1654 @@
-<div class="wisp-plan-app" data-wisp-page="plan" data-cwl-island="client">
-  <div class="map-fullscreen">
-    <iframe id="plan-map-iframe" class="plan-map-iframe" title="Plan map" src="/modules/coverage-map?mode=plan&hideStats=true&planMode=true"></iframe>
+<div class="wisp-app-surface" data-wisp-page="plan" data-wisp-path="/modules/plan" data-cwl-island="client"><div class="app">
+    <!-- Full Screen Map -->
+    <div class="map-fullscreen">
+      <iframe id="plan-map-iframe" class="plan-map-iframe" title="Plan map" src="/modules/coverage-map?mode=plan&hideStats=true&planMode=true" data-cwl-island="shared-map" data-cwl-map-mode="plan" data-cwl-lifted-component="SharedMap"></iframe>
+    </div>
+
+    <!-- Enhanced Header Overlay -->
+    <div class="module-header-overlay" style="background: var(--gradient-primary);">
+      <div class="module-header-left">
+        <button class="module-back-btn" data-cwl-nav="/dashboard" title="Back to Dashboard" type="button">
+          ←
+        </button>
+        <h1>📋 Plan</h1>
+      </div>
+      <div class="module-header-controls">
+        <button class="help-button" data-cwl-toggle="showHelpModal:true" aria-label="Open Help" title="Help">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+          <button class="module-control-btn" data-cwl-action="openHardwareView" title="View All Hardware">
+          <span class="control-icon">🔧</span>
+          <span class="control-label">Hardware</span>
+        </button>
+        <button class="module-control-btn" data-cwl-action="openProjectList" title="Project List">
+          <span class="control-icon">📁</span>
+          <span class="control-label">Projects</span>
+        </button>
+        <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
+        <button
+          class="module-control-btn marketing-btn"
+            type="button" data-cwl-action="openMarketingTools" data-cwl-attr-title="isDrawingRectangle ? &quot;Click and drag on map to draw a rectangle&quot; : &quot;Draw a rectangle on the map to discover addresses&quot;" data-cwl-attr-disabled="!marketingAvailable || isDiscoveringAddresses"
+        >
+          <span class="control-icon">🔍</span>
+          <span class="control-label">Find Addresses</span>
+        </button>
+        <button
+          class="module-control-btn filter-btn"
+          type="button" data-cwl-toggle="showFilterPanel:flip"
+          title="Toggle Layer Filters"
+        >
+          <span class="control-icon">🎛️</span>
+          <span class="control-label">Layers</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="contextActivePlan"><div class="plan-summary">
+        <h3>Active Plan: <span data-cwl-bind="interp" data-cwl-hole-detail="contextActivePlan.name"></span></h3>
+        <p class="summary-line">
+          Status: <span data-cwl-bind="interp" data-cwl-hole-detail="contextActivePlan.status ?? 'draft'"></span> • <span data-cwl-bind="interp" data-cwl-hole-detail="contextActivePlan.showOnMap === false ? 'Hidden' : 'Visible'"></span>
+        </p>
+        <p class="summary-line">
+          0 staged features • 0 production assets
+        </p>
+        <div data-cwl-bind="if" data-cwl-hole-detail="marketingCount > 0"><p class="summary-line">0 marketing leads</p></div>
+      </div></div>
   </div>
-  <div class="wisp-header-overlay">
-    <div class="wisp-header-left">
-      <button type="button" class="wisp-back-btn" data-action="back" title="Back to Dashboard" aria-label="Back to Dashboard">←</button>
-      <h1>📋 Plan</h1>
+
+  <!-- Filter Panel (non-modal) -->
+
+    <div
+      class="filter-panel-container"
+      role="dialog"
+      aria-label="Layer Filters"
+     hidden aria-hidden="true">
+      <div data-cwl-component="PlanLayerFilterPanel" data-cwl-lifted-component="PlanLayerFilterPanel"><div class="filter-panel">
+  <h3>🔍 Map Layers</h3>
+
+  <div class="filter-options">
+    <label class="filter-checkbox">
+      <input
+        type="checkbox" data-cwl-on-change="action:toggleLayer" data-cwl-on-change-args="'showMarketing'"
+      />
+      <span class="filter-icon">📍</span>
+      <span>Marketing Addresses</span>
+    </label>
+
+    <label class="filter-checkbox">
+      <input
+        type="checkbox" data-cwl-on-change="action:toggleLayer" data-cwl-on-change-args="'showPlanFeatures'"
+      />
+      <span class="filter-icon">📋</span>
+      <span>Plan Features</span>
+    </label>
+
+    <label class="filter-checkbox">
+      <input
+        type="checkbox" data-cwl-on-change="action:toggleLayer" data-cwl-on-change-args="'showNetworkAssets'"
+      />
+      <span class="filter-icon">📡</span>
+      <span>Network Assets</span>
+    </label>
+
+    <label class="filter-checkbox">
+      <input
+        type="checkbox" data-cwl-on-change="action:toggleLayer" data-cwl-on-change-args="'showBackhaul'"
+      />
+      <span class="filter-icon">🔗</span>
+      <span>Backhaul Links</span>
+    </label>
+  </div>
+</div></div>
     </div>
-    <div class="wisp-header-controls">
-      <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
-      <button type="button" class="wisp-control-btn" data-action="hardware" title="View hardware on map context"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
-      <button type="button" class="wisp-control-btn" data-action="projects" title="Project list"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
-      <button type="button" class="wisp-control-btn" data-action="create-project" title="Create plan project"><span class="control-icon">➕</span><span class="control-label">Create</span></button>
-      <button type="button" class="wisp-control-btn" data-action="layers" title="Layer filters"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
-      <button type="button" class="wisp-control-btn marketing-btn" data-action="marketing" title="Find addresses"><span class="control-icon">🔍</span><span class="control-label">Find Addresses</span></button>
+
+  <!-- Click outside to close filter panel -->
+
+    <div
+      class="filter-panel-overlay" data-cwl-toggle="showFilterPanel:false"
+      role="presentation"
+     hidden aria-hidden="true"></div>
+
+  <!-- Hardware View Modal -->
+
+  <div
+    class="modal-overlay"
+    role="presentation"
+    aria-hidden="true"
+    tabindex="-1" data-cwl-action="handleHardwareOverlayClick"
+   hidden>
+    <div
+      class="modal-content hardware-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="All hardware"
+      tabindex="0" data-cwl-on-keydown="action:handleHardwareOverlayKeydown"
+    >
+        <div class="modal-header">
+          <h2>🔧 All Existing Hardware</h2>
+          <button class="close-btn" data-cwl-action="closeHardwareModal" aria-label="Close Hardware Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="hardware-summary">
+              <div class="summary-cards">
+                <div class="summary-card">
+                  <div class="card-icon">📡</div>
+                  <div class="card-content">
+                    <div class="card-value"><span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByType('tower').length"></span></div>
+                    <div class="card-label">Tower Sites</div>
+                  </div>
+                </div>
+                <div class="summary-card">
+                  <div class="card-icon">📶</div>
+                  <div class="card-content">
+                    <div class="card-value"><span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByType('sector').length"></span></div>
+                    <div class="card-label">Sectors</div>
+                  </div>
+                </div>
+                <div class="summary-card">
+                  <div class="card-icon">📱</div>
+                  <div class="card-content">
+                    <div class="card-value"><span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByType('cpe').length"></span></div>
+                    <div class="card-label">CPE Devices</div>
+                  </div>
+                </div>
+                <div class="summary-card">
+                  <div class="card-icon">🔧</div>
+                  <div class="card-content">
+                    <div class="card-value"><span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByType('equipment').length"></span></div>
+                    <div class="card-label">Equipment</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hardware-tabs">
+              <div class="tab-buttons">
+                <button class="tab-btn active">By Module</button>
+                <button class="tab-btn">By Type</button>
+              </div>
+
+              <div class="tab-content">
+                <div class="module-breakdown">
+                  <h4>📱 ACS Managed (<span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByModule('acs').length"></span>)</h4>
+                  <div class="hardware-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="getHardwareByModule('acs') as hardware"><div class="hardware-item readonly">
+                        <div class="item-icon">📱</div>
+                        <div class="item-info">
+                          <div class="item-name"></div>
+                          <div class="item-details"> • </div>
+                        </div>
+                        <div class="item-badge readonly">Read Only</div>
+                      </div></div>
+                  </div>
+
+                  <h4>🏢 HSS Managed (<span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByModule('hss').length"></span>)</h4>
+                  <div class="hardware-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="getHardwareByModule('hss') as hardware"><div class="hardware-item readonly">
+                        <div class="item-icon">🏢</div>
+                        <div class="item-info">
+                          <div class="item-name"></div>
+                          <div class="item-details"> • </div>
+                        </div>
+                        <div class="item-badge readonly">Read Only</div>
+                      </div></div>
+                  </div>
+
+                  <h4>📦 Inventory (<span data-cwl-bind="interp" data-cwl-hole-detail="getHardwareByModule('inventory').length"></span>)</h4>
+                  <div class="hardware-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="getHardwareByModule('inventory') as hardware"><div class="hardware-item readonly">
+                        <div class="item-icon">📦</div>
+                        <div class="item-info">
+                          <div class="item-name"></div>
+                          <div class="item-details"> • </div>
+                        </div>
+                        <div class="item-badge readonly">Read Only</div>
+                      </div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="loading-state" hidden aria-hidden="true">
+              <div class="spinner"></div>
+              <p>Loading hardware data...</p>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" data-cwl-action="closeHardwareModal" aria-label="Close Hardware Modal">Close</button>
+          <button class="btn-primary" data-cwl-nav="/modules/inventory">
+            View Full Inventory
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Project List Modal -->
+
+    <div
+      class="modal-overlay"
+      role="presentation"
+      aria-hidden="true"
+      tabindex="-1" data-cwl-action="handleProjectOverlayClick"
+     hidden>
+      <div
+        class="modal-content project-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Deployment projects"
+        tabindex="0" data-cwl-on-keydown="action:handleProjectOverlayKeydown"
+      >
+        <div class="modal-header">
+          <h2>📁 Deployment Projects</h2>
+          <button class="close-btn" data-cwl-action="closeProjectModal" aria-label="Close Project Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="project-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="projects as project" data-cwl-each-item="project" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22project-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20type%3D%22button%22%20class%3D%22project-content%22%20data-cwl-action%3D%22selectProject%22%20data-cwl-action-args%3D%22project%22%20aria-label%3D%22Select%20Project%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22project-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bproject.name%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7Bproject.status%7D%22%3E%7Bproject.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22project-description%22%3E%7Bproject.description%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22project-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3ECreated%3A%20%7Bnew%20Date(project.createdAt).toLocaleDateString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EHardware%3A%20%7Bproject.scope.towers.length%20%2B%20project.scope.sectors.length%20%2B%20project.scope.cpeDevices.length%20%2B%20project.scope.equipment.length%7D%20items%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22project-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22action-btn%20marketing-btn%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%20data-cwl-action%3D%22downloadProjectAddressesCSV%22%20data-cwl-action-args%3D%22project%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Download%20all%20addresses%20from%20this%20project%20as%20CSV%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%A5%20Download%20CSV%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'draft'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20start-btn%22%20data-cwl-action%3D%22startProject%22%20data-cwl-action-args%3D%22project%22%20title%3D%22Start%20Project%20-%20Begin%20working%20on%20this%20project%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%96%B6%EF%B8%8F%20Start%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'ready'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20approve-btn%22%20data-cwl-action%3D%22approveProject%22%20data-cwl-action-args%3D%22project%22%20title%3D%22Approve%20Project%20-%20Mark%20as%20ready%20for%20deployment%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%85%20Approve%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20reject-btn%22%20data-cwl-action%3D%22rejectProject%22%20data-cwl-action-args%3D%22project%22%20title%3D%22Reject%20Project%20-%20Send%20back%20for%20revision%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9D%8C%20Reject%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20!%3D%3D%20'authorized'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20delete-btn%22%20data-cwl-action%3D%22deleteProject%22%20data-cwl-action-args%3D%22project%22%20title%3D%22Delete%20Project%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%97%91%EF%B8%8F%20Delete%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'active'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20finish-btn%22%20data-cwl-action%3D%22finishProject%22%20title%3D%22Finish%20Project%20-%20Mark%20as%20ready%20for%20deployment%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%85%20Finish%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20pause-btn%22%20data-cwl-action%3D%22pauseProject%22%20title%3D%22Pause%20Project%20-%20Save%20progress%20and%20pause%20work%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%8F%B8%EF%B8%8F%20Pause%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22action-btn%20cancel-btn%22%20data-cwl-action%3D%22cancelProject%22%20title%3D%22Cancel%20Project%20-%20Cancel%20this%20project%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9D%8C%20Cancel%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22active-indicator%22%20title%3D%22This%20project%20is%20currently%20active%20-%20all%20map%20changes%20will%20be%20saved%20to%20this%20project%22%3E%F0%9F%94%84%20Active%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22action-btn%20%7Bproject.showOnMap%20%3F%20'visibility-active'%20%3A%20'visibility-inactive'%7D%20%7Bproject.status%20%3D%3D%3D%20'authorized'%20%3F%20'disabled'%20%3A%20''%7D%22%20data-cwl-action%3D%22togglePlanVisibility%22%20data-cwl-action-args%3D%22project%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%7Bproject.status%20%3D%3D%3D%20'authorized'%20%3F%20%22Authorized%20projects%20are%20always%20visible%20in%20production%22%20%3A%20project.showOnMap%20%3F%20%22Hide%20on%20map%22%20%3A%20%22Show%20on%20map%22%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20disabled%3D%7Bproject.status%20%3D%3D%3D%20'authorized'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bproject.showOnMap%20%3F%20%22%F0%9F%91%81%EF%B8%8F%20Visible%22%20%3A%20%22%F0%9F%91%81%EF%B8%8F%E2%80%8D%F0%9F%97%A8%EF%B8%8F%20Hidden%22%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20%5B'ready'%2C'approved'%2C'rejected'%2C'cancelled'%5D.includes(project.status)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22action-btn%20reopen-btn%22%20data-cwl-action%3D%22reopenProject%22%20data-cwl-action-args%3D%22project%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Reopen%20this%20project%20for%20additional%20planning%20work%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%99%BB%EF%B8%8F%20Reopen%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'approved'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22action-btn%20authorize-btn%22%20data-cwl-action%3D%22authorizeProject%22%20data-cwl-action-args%3D%22project%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Authorize%20Project%20-%20Promote%20this%20project%20to%20production%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%9A%80%20Authorize%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22approved-indicator%22%20title%3D%22This%20project%20has%20been%20approved%20and%20is%20ready%20for%20deployment%22%3E%E2%9C%85%20Approved%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'authorized'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22authorized-indicator%22%20title%3D%22This%20project%20has%20been%20authorized%20and%20merged%20into%20production%22%3E%F0%9F%9A%80%20Authorized%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'rejected'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22rejected-indicator%22%20title%3D%22This%20project%20was%20rejected%20and%20needs%20revision%22%3E%E2%9D%8C%20Rejected%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20project.status%20%3D%3D%3D%20'cancelled'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22cancelled-indicator%22%20title%3D%22This%20project%20was%20cancelled%22%3E%F0%9F%9A%AB%20Cancelled%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div class="project-item">
+                <button type="button" class="project-content" data-cwl-action="selectProject" data-cwl-action-args="project" aria-label="Select Project">
+                  <div class="project-header">
+                    <h3></h3>
+                    <span class="status-badge "></span>
+                  </div>
+                  <p class="project-description"></p>
+                  <div class="project-meta">
+                    <span>Created: </span>
+                    <span>Hardware:  items</span>
+                  </div>
+                </button>
+
+                <div class="project-actions">
+                  <button
+                    class="action-btn marketing-btn"
+                    type="button" data-cwl-action="downloadProjectAddressesCSV" data-cwl-action-args="project"
+                    title="Download all addresses from this project as CSV"
+                  >
+                    📥 Download CSV
+                  </button>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'draft'"><button class="action-btn start-btn" data-cwl-action="startProject" data-cwl-action-args="project" title="Start Project - Begin working on this project">
+                      ▶️ Start
+                    </button></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'ready'"><button class="action-btn approve-btn" data-cwl-action="approveProject" data-cwl-action-args="project" title="Approve Project - Mark as ready for deployment">
+                      ✅ Approve
+                    </button>
+                    <button class="action-btn reject-btn" data-cwl-action="rejectProject" data-cwl-action-args="project" title="Reject Project - Send back for revision">
+                      ❌ Reject
+                    </button></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status !== 'authorized'"><button class="action-btn delete-btn" data-cwl-action="deleteProject" data-cwl-action-args="project" title="Delete Project">
+                      🗑️ Delete
+                    </button></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'active'"><button class="action-btn finish-btn" data-cwl-action="finishProject" title="Finish Project - Mark as ready for deployment">
+                      ✅ Finish
+                    </button>
+                    <button class="action-btn pause-btn" data-cwl-action="pauseProject" title="Pause Project - Save progress and pause work">
+                      ⏸️ Pause
+                    </button>
+                    <button class="action-btn cancel-btn" data-cwl-action="cancelProject" title="Cancel Project - Cancel this project">
+                      ❌ Cancel
+                    </button>
+                    <span class="active-indicator" title="This project is currently active - all map changes will be saved to this project">🔄 Active</span></div>
+
+                  <button
+                    class="action-btn  " data-cwl-action="togglePlanVisibility" data-cwl-action-args="project" aria-label="Toggle Plan Visibility">
+
+                  </button>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="['ready','approved','rejected','cancelled'].includes(project.status)"><button
+                      class="action-btn reopen-btn" data-cwl-action="reopenProject" data-cwl-action-args="project"
+                      title="Reopen this project for additional planning work"
+                    >
+                      ♻️ Reopen
+                    </button></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'approved'"><button
+                      class="action-btn authorize-btn" data-cwl-action="authorizeProject" data-cwl-action-args="project"
+                      title="Authorize Project - Promote this project to production"
+                    >
+                      🚀 Authorize
+                    </button>
+                    <span class="approved-indicator" title="This project has been approved and is ready for deployment">✅ Approved</span></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'authorized'"><span class="authorized-indicator" title="This project has been authorized and merged into production">🚀 Authorized</span></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'rejected'"><span class="rejected-indicator" title="This project was rejected and needs revision">❌ Rejected</span></div>
+
+                  <div data-cwl-bind="if" data-cwl-hole-detail="project.status === 'cancelled'"><span class="cancelled-indicator" title="This project was cancelled">🚫 Cancelled</span></div>
+                </div>
+              </div></div>
+
+              <div class="empty-state" hidden aria-hidden="true">
+                <div class="empty-icon">📁</div>
+                <h3>No Projects Yet</h3>
+                <p>Create your first deployment project to get started.</p>
+                <button class="btn-primary" data-cwl-action="openCreateProject" aria-label="Open Create Project">Create Project</button>
+              </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" type="button" data-cwl-action="closeProjectModal" aria-label="Close Project Modal">Close</button>
+          <button class="btn-primary" type="button" data-cwl-action="openCreateProject" aria-label="Open Create Project">Create New Project</button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Create Project Modal -->
+
+    <div
+      class="modal-overlay"
+      role="presentation"
+      aria-hidden="true"
+      tabindex="-1" data-cwl-action="handleCreateProjectOverlayClick"
+     hidden>
+      <div
+        class="modal-content create-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Create new project"
+        tabindex="0" data-cwl-on-keydown="action:handleCreateProjectOverlayKeydown"
+      >
+        <div class="modal-header">
+          <h2>➕ Create New Project</h2>
+          <button class="close-btn" data-cwl-action="closeCreateProjectModal" aria-label="Close Create Project Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="alert alert-success" hidden aria-hidden="true">
+              <strong>Success:</strong>
+            </div>
+
+          <form data-cwl-on-submit="action:createProject">
+            <div class="form-group">
+              <label for="projectName">Project Name *</label>
+              <input
+                id="projectName"
+                type="text"
+                placeholder="Enter project name"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="projectDescription">Description</label>
+              <textarea
+                id="projectDescription"
+                placeholder="Describe the project scope and objectives"
+                rows="3" data-cwl-attr-disabled="isLoading"
+              ></textarea>
+            </div>
+
+            <div class="form-section">
+              <h3>Project Location</h3>
+              <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem;">
+                Enter coordinates (lat, lon), city, state, or zip code to center the map.
+                Once you zoom the map to your desired location, the project will be created at the map center.
+              </p>
+
+              <!-- Location Lookup Field -->
+              <div class="location-lookup-section" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                <label for="project-location-lookup" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                  <strong>📍 Location Lookup</strong>
+                  <span style="font-size: 0.85rem; font-weight: normal; color: #999; display: block; margin-top: 0.25rem;">
+                    Enter coordinates (lat, lon), city, state, or zip code
+                  </span>
+                </label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input
+                    id="project-location-lookup"
+                    type="text"
+                    placeholder="e.g., 40.7128, -74.0060 or New York, NY or 10001" data-cwl-attr-disabled="isLoading || isLookingUpProjectLocation" data-cwl-on-keydown="action:handleProjectLocationLookup"
+                    style="flex: 1; padding: 0.5rem; border: 1px solid #555; border-radius: 4px; background: rgba(255,255,255,0.1); color: #fff; font-size: 0.9rem;"
+                  />
+                  <button
+                    type="button" data-cwl-action="handleProjectLocationLookup" data-cwl-attr-disabled="!projectLocationLookup.trim() || isLoading || isLookingUpProjectLocation"
+                    style="padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; white-space: nowrap;"
+                   aria-label="Project Location Lookup">
+                    Lookup & Center Map
+                  </button>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="projectLocationLookupError"><div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(255,0,0,0.2); color: #ff6b6b; border-radius: 4px; font-size: 0.85rem;">
+                    <span data-cwl-bind="interp" data-cwl-hole-detail="projectLocationLookupError"></span>
+                  </div></div>
+              </div>
+
+              <div style="padding: 1rem; background: rgba(0,123,255,0.1); border-radius: 6px; border: 1px solid rgba(0,123,255,0.3);">
+                <strong style="color: #4dabf7;">💡 Tip:</strong>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #ccc;">
+                  After using the lookup, zoom and pan the map to your desired project location.
+                  The project will be created at the current map center when you click "Create Project".
+                </p>
+
+                  <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);" hidden aria-hidden="true">
+                    <strong style="color: #4dabf7;">Current Map Center:</strong>
+                    <span style="color: #ccc; font-family: monospace; margin-left: 0.5rem;">
+                      <span data-cwl-bind="interp" data-cwl-hole-detail="latestMapExtent.center.lat.toFixed(6)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="latestMapExtent.center.lon.toFixed(6)"></span>
+                    </span>
+                  </div>
+
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Marketing Coverage</h3>
+              <div class="form-group">
+                <label for="projectRadius">Target Radius (miles)</label>
+                <input
+                  id="projectRadius"
+                  type="number"
+                  min="0.5"
+                  step="0.5" data-cwl-attr-disabled="isLoading"
+                />
+                <small>This radius is used when discovering serviceable addresses for outreach.</small>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" data-cwl-action="closeCreateProjectModal" data-cwl-attr-disabled="isLoading" aria-label="Close Create Project Modal">Cancel</button>
+          <button class="btn-primary" data-cwl-action="createProject" data-cwl-attr-disabled="isLoading" aria-label="Create Project">
+            Create Project
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Missing Hardware Modal -->
+
+    <div
+      class="modal-overlay"
+      role="presentation"
+      aria-hidden="true"
+      tabindex="-1" data-cwl-action="handleMissingHardwareOverlayClick"
+     hidden>
+      <div
+        class="modal-content missing-hardware-modal"
+        role="dialog"
+        aria-modal="true" data-cwl-attr-aria-label="`Missing hardware analysis for $`"
+        tabindex="0" data-cwl-on-keydown="action:handleMissingHardwareOverlayKeydown"
+      >
+        <div class="modal-header">
+          <h2>🛒 Missing Hardware Analysis - <span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.name"></span></h2>
+          <button class="close-btn" data-cwl-action="closeMissingHardwareModal" aria-label="Close Missing Hardware Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="analysis-summary">
+            <div class="summary-card">
+              <div class="card-icon">💰</div>
+              <div class="card-content">
+                <div class="card-value">$<span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.purchasePlan.totalEstimatedCost.toLocaleString()"></span></div>
+                <div class="card-label">Total Estimated Cost</div>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="card-icon">📦</div>
+              <div class="card-content">
+                <div class="card-value"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.purchasePlan.missingHardware.length"></span></div>
+                <div class="card-label">Missing Items</div>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="card-icon">⚠️</div>
+              <div class="card-content">
+                <div class="card-value"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.purchasePlan.missingHardware.filter(item => item.priority === 'c"></span></div>
+                <div class="card-label">Critical Items</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="missing-hardware-list">
+
+              <div class="hardware-requirements">
+                <h4>Hardware Requirements</h4>
+                <div class="requirements-list">
+                  <div data-cwl-bind="each" data-cwl-hole-detail="selectedProject.hardwareRequirements.needed as requirement, index"><div class="requirement-item">
+                      <div class="requirement-info">
+                        <div class="requirement-name"></div>
+                        <div class="requirement-details">
+                            • Qty:  •  priority
+                        </div>
+                      </div>
+                      <div class="requirement-cost">$</div>
+                    </div></div>
+                </div>
+              </div>
+
+              <div class="missing-items">
+                <h4>Missing Hardware</h4>
+                <div class="missing-list">
+                  <div data-cwl-bind="each" data-cwl-hole-detail="selectedProject.purchasePlan.missingHardware as item"><div class="missing-item">
+                      <div class="item-header">
+                        <div class="item-info">
+                          <div class="item-name"> </div>
+                          <div class="item-details">Qty:  • $ •  priority</div>
+                        </div>
+                        <div class="priority-badge "></div>
+                      </div>
+                      <div class="item-reason"></div>
+                      <div data-cwl-bind="if" data-cwl-hole-detail="item.alternatives && item.alternatives.length > 0"><div class="alternatives">
+                          <h5>Alternatives:</h5>
+                          <div class="alternatives-list">
+                            <div data-cwl-bind="each" data-cwl-hole-detail="item.alternatives as alt"><div class="alternative-item">
+                                <span class="alt-name"> </span>
+                                <span class="alt-cost">$</span>
+                                <span class="alt-availability "></span>
+                              </div></div>
+                          </div>
+                        </div></div>
+                    </div></div>
+                </div>
+              </div>
+
+              <div class="empty-state" hidden aria-hidden="true">
+                <div class="empty-icon">✅</div>
+                <h3>No Missing Hardware</h3>
+                <p>All required hardware is available in inventory.</p>
+                <button class="btn-primary" data-cwl-action="analyzeMissingHardware" aria-label="Analyze Missing Hardware">Re-analyze</button>
+              </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" data-cwl-action="closeMissingHardwareModal" aria-label="Close Missing Hardware Modal">Close</button>
+          <button class="btn-secondary" data-cwl-action="analyzeMissingHardware" aria-label="Analyze Missing Hardware">Re-analyze</button>
+          <button class="btn-primary" data-cwl-action="generatePurchaseOrder" data-cwl-attr-disabled="selectedProject.purchasePlan.missingHardware.length === 0" aria-label="Generate Purchase Order">
+            Generate Purchase Order
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Marketing Modal (deprecated - kept for backward compatibility) -->
+
+    <div hidden aria-hidden="true"><div data-cwl-component="PlanMarketingModal" data-cwl-lifted-component="PlanMarketingModal"><div class="marketing-backdrop" role="presentation" aria-hidden="false" hidden>
+  <div
+    class="marketing-panel"
+    role="dialog"
+    aria-modal="false" data-cwl-attr-aria-label="`Marketing discovery for $`"
+    tabindex="0"
+  >
+    <div class="modal-header">
+      <h2>📍 Find Addresses - <span data-cwl-bind="interp" data-cwl-hole-detail="plan.name"></span></h2>
+      <div class="header-actions">
+        <button class="close-btn" type="button" data-cwl-action="closeModal" aria-label="Close marketing wizard">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <nav class="wizard-steps" aria-label="Marketing discovery steps">
+        <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+            type="button"
+            class="wizard-step" data-cwl-action="goToStep" data-cwl-action-args="index" aria-label="Go To Step">
+            <span class="step-index"></span>
+            <span class="step-label"></span>
+          </button></div>
+      </nav>
+
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><section class="wizard-panel">
+          <header>
+            <h3>Review & Run Discovery</h3>
+            <p>The system will: (1) Find building footprints in map view → (2) Calculate centroids → (3) Reverse geocode with ArcGIS → (4) Deduplicate → (5) Place markers</p>
+          </header>
+
+          <!-- Combined information from both steps -->
+          <div class="review-grid">
+
+              <div hidden aria-hidden="true">
+                <span class="label">Map Center</span>
+                <span class="value">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(latestExtent.center.lat)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(latestExtent.center.lon)"></span>
+                </span>
+              </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="extentSpanMiles"><div>
+                <span class="label">Search Area</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="extentSpanMiles.width.toFixed(1)"></span> × <span data-cwl-bind="interp" data-cwl-hole-detail="extentSpanMiles.height.toFixed(1)"></span> mi</span>
+              </div></div>
+            <div>
+              <span class="label">Algorithms</span>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedAlgorithmLabels.join(', ')"></span></span>
+            </div>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="latestExtent?.boundingBox && extentSpanMiles"><div class="extent-summary-prominent" style="margin-top: 1rem;">
+              <h4>📍 Search Area Details</h4>
+              <div class="extent-details">
+                <span>
+                  <strong>Bounds:</strong> lat <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(latestExtent.boundingBox.south, 4)"></span> → <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(latestExtent.boundingBox.north, 4)"></span>,
+                  lon <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(latestExtent.boundingBox.west, 4)"></span> → <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(latestExtent.boundingBox.east, 4)"></span>
+                </span>
+                <span><strong>Span:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="extentSpanMiles.width.toFixed(1)"></span> × <span data-cwl-bind="interp" data-cwl-hole-detail="extentSpanMiles.height.toFixed(1)"></span> miles</span>
+                <div data-cwl-bind="if" data-cwl-hole-detail="Math.max(extentSpanMiles.width, extentSpanMiles.height) > 100"><span class="extent-warning">⚠️ Large area - will be auto-constrained to 50×50 miles max</span></div>
+              </div>
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="info"><div class="alert alert-info">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="info"></span>
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="pendingExtentChange"><div class="alert alert-reminder">
+              Map view changed since the last run. Move the map to your next target area and run discovery again to capture it.
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="!hasMapExtent"><div class="alert alert-warning">
+              <strong>⚠️ Map extent not available.</strong> Please zoom the map to define the search area before running discovery.
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="summary"><div class="summary-grid">
+              <div class="summary-card">
+                <span class="label">Total Candidates</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="summary.totalCandidates"></span></span>
+              </div>
+              <div class="summary-card">
+                <span class="label">Geocoded</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="summary.geocodedCount"></span></span>
+              </div>
+              <div class="summary-card">
+                <span class="label">New This Run</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="summary.newlyAdded ?? 0"></span></span>
+              </div>
+              <div class="summary-card">
+                <span class="label">Saved Total</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="summary.totalUniqueAddresses ?? getTotalSavedAddresses()"></span></span>
+              </div>
+              <div data-cwl-bind="if" data-cwl-hole-detail="getTotalRunCount()"><div class="summary-card">
+                  <span class="label">Runs Completed</span>
+                  <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="getTotalRunCount()"></span></span>
+                </div></div>
+            <div class="summary-card">
+                <span class="label">Radius</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="summary.radiusMiles"></span> mi</span>
+              </div>
+
+                <div class="summary-card" hidden aria-hidden="true">
+                  <span class="label">Center</span>
+                  <span class="value">
+                    <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(summary.center.lat, 4)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="formatCoord(summary.center.lon, 4)"></span>
+                  </span>
+                </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="summary.algorithmsUsed?.length"><div class="summary-card full-width">
+                <span class="label">Algorithms Used</span>
+                <ul class="algorithm-list">
+                  <div data-cwl-bind="each" data-cwl-hole-detail="summary.algorithmsUsed as algId"><li></li></div>
+                </ul>
+              </div></div>
+            </div></div>
+
+          <div class="results">
+            <div class="results-note">
+              <p>
+                Addresses discovered in this run are saved with the plan and rendered on the coverage map as
+                marketing leads. Review them from the map or export the CSV once the run completes.
+              </p>
+              <ul>
+                <li><strong>New this run:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="getNewlyAddedThisRun()"></span></li>
+                <li><strong>Total saved (all runs):</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="getTotalSavedAddresses()"></span></li>
+                <li><strong>Geocoded this run:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="summary?.geocodedCount ?? 0"></span></li>
+                <div data-cwl-bind="if" data-cwl-hole-detail="getTotalRunCount()"><li><strong>Runs completed:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="getTotalRunCount()"></span></li></div>
+
+                  <div hidden aria-hidden="true"><div data-cwl-bind="each" data-cwl-hole-detail="Object.entries(summary.algorithmStats) as [algId, stats]"><li>
+                      <strong>:</strong>
+                       candidates ( geocoded)
+                    </li></div>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="plan.marketing?.lastRunAt"><li><strong>Last run:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="new Date(plan.marketing.lastRunAt).toLocaleString()"></span></li></div>
+              </ul>
+            </div>
+          </div>
+        </section></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" type="button" data-cwl-action="closeModal" data-cwl-attr-disabled="isLoading" aria-label="Close Modal">
+        Cancel
+      </button>
+
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="btn-tertiary" type="button" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
+          Back
+        </button></div>
+
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="btn-primary" type="button" data-cwl-action="nextStep" data-cwl-attr-disabled="!canAdvance || isLoading" aria-label="Next Step">
+          Next
+        </button></div>
+        <div class="run-actions">
+          <button class="btn-primary" type="button" data-cwl-action="discoverAddresses" data-cwl-attr-disabled="!canRun || isLoading" aria-label="Discover Addresses">
+            <span data-cwl-bind="interp" data-cwl-hole-detail="isLoading ? 'Discovering…' : results.length ? 'Re-run Discovery' : 'Run Discover"></span>
+          </button>
+          <button
+            class="btn-secondary"
+            type="button" data-cwl-action="downloadLatestCsv" data-cwl-attr-disabled="isLoading || (!results.length &amp;&amp; !summary)"
+           aria-label="Download Latest Csv">
+            ⬇️ Download This Run
+          </button>
+          <button
+            class="btn-secondary"
+            type="button" data-cwl-action="downloadAllCsv" data-cwl-attr-disabled="isLoading || (!getAllSavedAddresses().length &amp;&amp; !getTotalSavedAddresses())"
+           aria-label="Download All Csv">
+            ⬇️ Download All Addresses
+          </button>
+        </div>
+
     </div>
   </div>
-  <aside id="plan-projects-panel" class="plan-side-panel" hidden aria-label="Plan projects">
-    <div class="plan-panel-header">
-      <h2>Plan projects</h2>
-      <button type="button" class="plan-panel-close" data-action="close-projects" aria-label="Close">✕</button>
+</div></div>
+  </div>
+
+  <!-- Marketing Results Popup -->
+
+    <div hidden aria-hidden="true"><div data-cwl-component="PlanMarketingResultsPopup" data-cwl-lifted-component="PlanMarketingResultsPopup">n
+
+<div class="popup-overlay" data-cwl-action="close" data-cwl-on-keydown="action:close" role="presentation" tabindex="-1" hidden aria-hidden="true">
+  <div class="popup-content" role="dialog" aria-modal="true" aria-label="Marketing Address Discovery Results">
+    <div class="popup-header">
+      <h2>🔍 Address Discovery Results</h2>
+      <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
     </div>
-    <div id="plan-projects-list" class="plan-projects-list"><p class="plan-panel-loading">Loading projects…</p></div>
-  </aside>
-  <div id="plan-active-summary" class="plan-summary" hidden></div>
+
+    <div class="popup-body">
+
+        <div class="results-summary">
+          <p><strong><span data-cwl-bind="interp" data-cwl-hole-detail="addresses.length"></span></strong> address<span data-cwl-bind="interp" data-cwl-hole-detail="addresses.length !== 1 ? 'es' : ''"></span> found</p>
+        </div>
+
+        <div class="results-list">
+          <div data-cwl-bind="each" data-cwl-hole-detail="addresses.slice(0, 100) as addr (addr.latitude + ',' + addr.longitude)"><div class="result-item">
+              <div class="result-address">
+
+                  <em>No address information</em>
+
+                  <div hidden aria-hidden="true"><strong></strong>
+
+                    <div hidden aria-hidden="true"><br>
+                  </div>
+                </div>
+              </div>
+              <div class="result-location">
+                <div data-cwl-bind="if" data-cwl-hole-detail="addr.city || addr.state || addr.postalCode"><span data-cwl-bind="interp" data-cwl-hole-detail="[addr.city, addr.state, addr.postalCode].filter(Boolean).join(', ')"></span></div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="addr.latitude !== undefined && addr.longitude !== undefined"><br><small>📍 , </small></div>
+              </div>
+
+                <div class="result-source" hidden aria-hidden="true">
+                  <small>Source: </small>
+                </div>
+
+            </div></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="addresses.length > 100"><div class="results-more">
+              <p>... and <span data-cwl-bind="interp" data-cwl-hole-detail="addresses.length - 100"></span> more address<span data-cwl-bind="interp" data-cwl-hole-detail="addresses.length - 100 !== 1 ? 'es' : ''"></span></p>
+            </div></div>
+        </div>
+
+        <div class="empty-state" hidden aria-hidden="true">
+          <p>No addresses found in the selected area.</p>
+        </div>
+
+        <div class="loading-state" hidden aria-hidden="true">
+          <div class="spinner"></div>
+          <p>Discovering addresses...</p>
+        </div>
+
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn-secondary" data-cwl-action="close" aria-label="Close">Close</button>
+
+        <button class="btn-primary" data-cwl-action="exportToCSV" aria-label="Export To CSV">
+          📥 Download CSV (<span data-cwl-bind="interp" data-cwl-hole-detail="addresses.length"></span>)
+        </button>
+
+    </div>
+  </div>
+</div></div>
+  </div>
+
+  <!-- Add Hardware Requirement Modal -->
+
+    <div
+      class="modal-overlay"
+      role="presentation"
+      aria-hidden="true"
+      tabindex="-1" data-cwl-action="handleAddRequirementOverlayClick"
+     hidden>
+      <div
+        class="modal-content add-requirement-modal"
+        role="dialog"
+        aria-modal="true" data-cwl-attr-aria-label="`Add hardware requirement for $`"
+        tabindex="0" data-cwl-on-keydown="action:handleAddRequirementOverlayKeydown"
+      >
+        <div class="modal-header">
+          <h2>📋 Add Hardware Requirement - <span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.name"></span></h2>
+          <button class="close-btn" data-cwl-action="closeAddRequirementModal" aria-label="Close Add Requirement Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <form data-cwl-on-submit="action:addHardwareRequirement">
+            <div class="form-group">
+              <label for="category">Category *</label>
+              <select id="category" required>
+                <option>Select category...</option>
+                <div data-cwl-bind="each" data-cwl-hole-detail="categories as category" data-cwl-each-item="category" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bcategory%7D%3E%7Bcategory%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="equipmentType">Equipment Type *</label>
+              <select id="equipmentType" required>
+                <option>Select equipment type...</option>
+                <div data-cwl-bind="each" data-cwl-hole-detail="availableTypes as type" data-cwl-each-item="type" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Btype%7D%3E%7Btype%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="manufacturer">Manufacturer</label>
+                <input
+                  id="manufacturer"
+                  type="text"
+                  placeholder="e.g., Ubiquiti, Cisco"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="model">Model</label>
+                <input
+                  id="model"
+                  type="text"
+                  placeholder="e.g., NanoStation M5"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="quantity">Quantity *</label>
+                <input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="priority">Priority *</label>
+                <select id="priority" required>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" data-cwl-action="closeAddRequirementModal" aria-label="Close Add Requirement Modal">Cancel</button>
+          <button class="btn-primary" data-cwl-action="addHardwareRequirement" data-cwl-attr-disabled="!newRequirement.equipmentType.trim()" aria-label="Add Hardware Requirement">
+            Add Requirement
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Planning Report Modal -->
+
+    <div
+      class="modal-overlay"
+      role="presentation"
+      aria-hidden="true"
+      tabindex="-1" data-cwl-action="handleReportOverlayClick"
+     hidden>
+      <div
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Planning reports dialog"
+        tabindex="0" data-cwl-on-keydown="action:handleReportOverlayKeydown"
+      >
+        <div class="modal-header">
+          <h2>📊 Planning Reports</h2>
+          <button class="close-btn" data-cwl-action="closeReportModal" aria-label="Close Report Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="report-section">
+            <h3>📡 Tower Sites</h3>
+            <p>Complete inventory of all tower sites with coverage analysis and capacity planning data.</p>
+            <button class="btn-primary" data-cwl-nav="/modules/coverage-map">
+              View Tower Sites
+            </button>
+          </div>
+
+          <div class="report-section">
+            <h3>📶 Sector Analysis</h3>
+            <p>Detailed sector coverage maps, interference analysis, and optimization recommendations.</p>
+            <button class="btn-primary" data-cwl-nav="/modules/coverage-map">
+              View Sector Analysis
+            </button>
+          </div>
+
+          <div class="report-section">
+            <h3>📱 CPE Planning</h3>
+            <p>Customer premises equipment planning, signal strength analysis, and deployment recommendations.</p>
+            <button class="btn-primary" data-cwl-nav="/modules/coverage-map">
+              View CPE Planning
+            </button>
+          </div>
+
+          <div class="report-section">
+            <h3>🔧 Equipment Inventory</h3>
+            <p>Complete equipment inventory with maintenance schedules and replacement planning.</p>
+            <button class="btn-primary" data-cwl-nav="/modules/inventory">
+              View Equipment Inventory
+            </button>
+          </div>
+
+          <div class="report-section">
+            <h3>📋 Work Orders</h3>
+            <p>Planning work orders, maintenance schedules, and deployment tasks.</p>
+            <button class="btn-primary" data-cwl-nav="/modules/work-orders">
+              View Work Orders
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" data-cwl-action="closeReportModal" aria-label="Close Report Modal">Close</button>
+          <button class="btn-primary" data-cwl-nav="/modules/coverage-map">
+            Open Full Coverage Map
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Global Settings Button - Hidden in plan mode, shown in coverage-map iframe instead -->
+
+  <!-- Help Modal -->
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title">Plan Module Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="help-body">
+
+<h3>📋 Plan Module</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Create and manage network expansion projects. Plan new tower sites, sectors, and infrastructure before deployment. Discover marketing addresses and visualize planned network coverage.
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"plan","apiPath":"/api/plans","api_ok":true,"api_surface":"wisp-api-native","api_resource":"plans","api_op":"list","tracedApiStatus":200}</script>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#project-workflow">📊 Project Workflow</a></li>
+    <li><a href="#map-features">🗺️ Map Features</a></li>
+    <li><a href="#hardware-requirements">📦 Hardware Requirements</a></li>
+    <li><a href="#marketing-discovery">📈 Marketing Address Discovery</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#next-steps">📚 Next Steps</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>Project Management:</strong> Create, edit, and manage network expansion projects</li>
+  <li><strong>Marketing Address Discovery:</strong> Find potential customer addresses in target areas</li>
+  <li><strong>Hardware Planning:</strong> Plan required equipment and inventory for projects</li>
+  <li><strong>Visual Planning:</strong> Draw coverage areas and plan tower locations on map</li>
+  <li><strong>Project Workflow:</strong> Move projects from draft → ready → approved → deployed</li>
+  <li><strong>Hardware Requirements:</strong> Track equipment needed for each project</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Create a New Project</h4>
+<ol>
+  <li>Click <strong>"New Project"</strong> button</li>
+  <li>Enter project details:
+    <ul>
+      <li><strong>Project Name</strong> - Descriptive name (e.g., "Downtown Expansion")</li>
+      <li><strong>Description</strong> - Project goals and scope</li>
+      <li><strong>Location</strong> - Target area address or coordinates</li>
+      <li><strong>Target Radius</strong> - Coverage area in miles (default: 5 miles)</li>
+    </ul>
+  </li>
+  <li>Click <strong>"Create Project"</strong></li>
+  <li>Project starts in <strong>"Draft"</strong> status</li>
+</ol>
+
+<h4>Step 2: Discover Marketing Addresses</h4>
+<ol>
+  <li>With a project active, click <strong>"Discover Addresses"</strong></li>
+  <li>Draw a rectangle on the map or use project center</li>
+  <li>System discovers potential customer addresses in the area</li>
+  <li>Review discovered addresses:
+    <ul>
+      <li>Address details and coordinates</li>
+      <li>Estimated serviceability</li>
+      <li>Distance from planned towers</li>
+    </ul>
+  </li>
+  <li>Addresses are saved to the project</li>
+</ol>
+
+<h4>Step 3: Plan Tower Sites</h4>
+<ol>
+  <li>Right-click on map where you want a tower</li>
+  <li>Select <strong>"Add to Plan" → "Add Site"</strong></li>
+  <li>Enter tower details:
+    <ul>
+      <li>Site name and type</li>
+      <li>Height and location</li>
+      <li>FCC ID (if applicable)</li>
+    </ul>
+  </li>
+  <li>Tower is linked to the active project</li>
+  <li>Repeat for all planned towers</li>
+</ol>
+
+<h4>Step 4: Plan Sectors</h4>
+<ol>
+  <li>Right-click on a planned tower</li>
+  <li>Select <strong>"Add to Plan" → "Add Sector"</strong></li>
+  <li>Configure sector parameters:
+    <ul>
+      <li>Azimuth (direction)</li>
+      <li>Beamwidth and tilt</li>
+      <li>Frequency band</li>
+      <li>Technology (LTE, CBRS, FWA)</li>
+    </ul>
+  </li>
+  <li>Sector is linked to project</li>
+</ol>
+
+<h4>Step 5: Add Hardware Requirements</h4>
+<ol>
+  <li>Click <strong>"Hardware Requirements"</strong> button</li>
+  <li>Click <strong>"Add Requirement"</strong></li>
+  <li>Enter equipment details:
+    <ul>
+      <li>Category (Radio, Antenna, Router, etc.)</li>
+      <li>Manufacturer and model</li>
+      <li>Quantity needed</li>
+      <li>Priority (Low, Medium, High, Critical)</li>
+    </ul>
+  </li>
+  <li>Save requirement</li>
+  <li>Repeat for all needed equipment</li>
+</ol>
+
+<h4>Step 6: Finalize Project</h4>
+<ol>
+  <li>Review all planned sites, sectors, and requirements</li>
+  <li>Click <strong>"Finalize Project"</strong></li>
+  <li>Project status changes to <strong>"Ready"</strong></li>
+  <li>Project moves to <strong>Deploy</strong> module for approval</li>
+</ol>
+
+<h4 id="project-workflow">📊 Project Workflow</h4>
+
+<h4>Project Statuses</h4>
+<ul>
+  <li><strong>Draft:</strong> Project is being planned (Plan module only)</li>
+  <li><strong>Ready:</strong> Project is finalized and ready for approval</li>
+  <li><strong>Approved:</strong> Project approved for deployment</li>
+  <li><strong>Authorized:</strong> Project authorized to begin deployment</li>
+  <li><strong>Deployed:</strong> Project deployment completed</li>
+  <li><strong>Archived:</strong> Project completed or cancelled</li>
+</ul>
+
+<h4>Workflow Steps</h4>
+<ol>
+  <li><strong>Plan Module:</strong> Create project, plan sites, add requirements</li>
+  <li><strong>Plan Module:</strong> Finalize project (status: Ready)</li>
+  <li><strong>Deploy Module:</strong> Review and approve project</li>
+  <li><strong>Deploy Module:</strong> Authorize deployment</li>
+  <li><strong>Deploy Module:</strong> Deploy hardware and mark as deployed</li>
+</ol>
+
+<h4 id="map-features">🗺️ Map Features</h4>
+
+<h4>Planning Mode</h4>
+<p>In Plan module, the map shows:</p>
+<ul>
+  <li><strong>Planned Sites:</strong> Tower sites created in this project</li>
+  <li><strong>Planned Sectors:</strong> Sectors linked to project</li>
+  <li><strong>Marketing Addresses:</strong> Discovered potential customer locations</li>
+  <li><strong>Existing Network:</strong> Current deployed infrastructure (read-only)</li>
+  <li><strong>Hardware Inventory:</strong> Available equipment for deployment</li>
+</ul>
+
+<h4>Drawing Tools</h4>
+<ul>
+  <li><strong>Rectangle Tool:</strong> Draw area for marketing address discovery</li>
+  <li><strong>Right-Click Menu:</strong> Add sites, sectors, CPE to project</li>
+  <li><strong>Layer Filters:</strong> Show/hide planned vs. deployed assets</li>
+</ul>
+
+<h4 id="hardware-requirements">📦 Hardware Requirements</h4>
+
+<h4>Adding Requirements</h4>
+<p>Track equipment needed for project:</p>
+<ul>
+  <li>Radio equipment (base stations, CPE)</li>
+  <li>Antennas and mounting hardware</li>
+  <li>Routers and switches</li>
+  <li>Power systems and batteries</li>
+  <li>Cables and connectors</li>
+</ul>
+
+<h4>Requirement Priority</h4>
+<ul>
+  <li><strong>Critical:</strong> Must have before deployment starts</li>
+  <li><strong>High:</strong> Needed early in deployment</li>
+  <li><strong>Medium:</strong> Needed during deployment</li>
+  <li><strong>Low:</strong> Nice to have, can be added later</li>
+</ul>
+
+<h4>Checking Inventory</h4>
+<ol>
+  <li>View hardware requirements list</li>
+  <li>System shows available inventory</li>
+  <li>Identify missing equipment</li>
+  <li>Order or allocate equipment before deployment</li>
+</ol>
+
+<h4 id="marketing-discovery">📈 Marketing Address Discovery</h4>
+
+<h4>How It Works</h4>
+<p>Uses Microsoft Footprints API to discover addresses:</p>
+<ol>
+  <li>Draw rectangle on map or use project center</li>
+  <li>System queries address database</li>
+  <li>Returns potential customer locations</li>
+  <li>Addresses saved to project for review</li>
+</ol>
+
+<h4>Using Discovered Addresses</h4>
+<ul>
+  <li>Review address list</li>
+  <li>Filter by distance from towers</li>
+  <li>Export addresses for marketing campaigns</li>
+  <li>Use for coverage planning</li>
+  <li>Prioritize high-value areas</li>
+</ul>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Start with Location:</strong> Choose target area first</li>
+  <li><strong>Discover Early:</strong> Find addresses before planning towers</li>
+  <li><strong>Plan Coverage:</strong> Ensure towers cover discovered addresses</li>
+  <li><strong>Track Requirements:</strong> Add all needed equipment</li>
+  <li><strong>Review Before Finalizing:</strong> Double-check all planned assets</li>
+  <li><strong>Coordinate with Deploy:</strong> Ensure inventory is available</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Can't create project:</h4>
+<ul>
+  <li>Verify you have tenant selected</li>
+  <li>Check project name is unique</li>
+  <li>Ensure location coordinates are valid</li>
+</ul>
+
+<h4>Marketing discovery not working:</h4>
+<ul>
+  <li>Verify Microsoft Footprints API is configured</li>
+  <li>Check rectangle is drawn correctly</li>
+  <li>Ensure area is not too large (max 50 miles radius)</li>
+</ul>
+
+<h4>Planned sites not showing:</h4>
+<ul>
+  <li>Verify project is active (selected)</li>
+  <li>Check layer filters show planned assets</li>
+  <li>Ensure sites are linked to project</li>
+</ul>
+
+<h4 id="next-steps">📚 Next Steps</h4>
+
+<p>After finalizing your project:</p>
+<ul>
+  <li>Project moves to <strong>Deploy</strong> module for approval</li>
+  <li>Once approved, hardware can be deployed</li>
+  <li>Deployed assets appear in <strong>Monitor</strong> module</li>
+</ul>
+
+      </div>
+    </div>
+  </div></div>
+
+<!-- MapLayerManager: overlay/visibleProjects/projectOverlays wired. Staging CRUD (site/equipment add/edit/delete from plan) planned – see docs/PROJECT_WORKFLOW_STATUS.md --></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="HSSImportModal" data-cwl-lifted-component="HSSImportModal" data-cwl-orphan-modal="1"><div
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    tabindex="0"
+    aria-label="HSS data import dialog" data-cwl-action="handleOverlayClick" data-cwl-on-keydown="action:handleOverlayKeydown"
+   hidden aria-hidden="true">
+    <div class="modal-content hss-import-modal" role="document">
+      <div class="modal-header">
+        <h2>🏠 HSS Data Import</h2>
+        <div class="header-actions">
+          <button class="export-btn" data-cwl-action="exportToInventory" data-cwl-attr-disabled="!importData" title="Export to Inventory">
+            📥 Export
+          </button>
+          <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+
+          <!-- Tabs -->
+          <div class="tabs">
+            <button
+              class="tab-btn" data-cwl-set="activeTab:subscribers"
+            >
+              <span data-cwl-bind="interp" data-cwl-hole-detail="getTabIcon('subscribers')"></span> Subscribers
+              <div data-cwl-bind="if" data-cwl-hole-detail="getDataCount('subscribers') > 0"><span class="count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('subscribers')"></span></span></div>
+            </button>
+            <button
+              class="tab-btn" data-cwl-set="activeTab:groups"
+            >
+              <span data-cwl-bind="interp" data-cwl-hole-detail="getTabIcon('groups')"></span> Groups
+              <div data-cwl-bind="if" data-cwl-hole-detail="getDataCount('groups') > 0"><span class="count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('groups')"></span></span></div>
+            </button>
+            <button
+              class="tab-btn" data-cwl-set="activeTab:plans"
+            >
+              <span data-cwl-bind="interp" data-cwl-hole-detail="getTabIcon('plans')"></span> Plans
+              <div data-cwl-bind="if" data-cwl-hole-detail="getDataCount('plans') > 0"><span class="count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('plans')"></span></span></div>
+            </button>
+            <button
+              class="tab-btn" data-cwl-set="activeTab:epcs"
+            >
+              <span data-cwl-bind="interp" data-cwl-hole-detail="getTabIcon('epcs')"></span> EPCs
+              <div data-cwl-bind="if" data-cwl-hole-detail="getDataCount('epcs') > 0"><span class="count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('epcs')"></span></span></div>
+            </button>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'subscribers'">
+              <div class="subscribers-content">
+                <h3>Subscribers (<span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('subscribers')"></span>)</h3>
+                <p>LTE/5G subscriber profiles with IMSI, authentication keys, and QoS settings</p>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="importData?.subscribers?.length > 0"><div class="data-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="importData.subscribers as subscriber"><div class="data-item">
+                        <div class="item-header">
+                          <strong></strong>
+                          <span class="status-badge">
+
+                          </span>
+                        </div>
+                        <div class="item-details">
+                          <div class="detail-row">
+                            <span class="label">IMSI:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">MSISDN:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">QCI:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">APN:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">Bandwidth:</span>
+                            <span class="value">Mbps UL / Mbps DL</span>
+                          </div>
+                        </div>
+                      </div></div>
+                  </div></div>
+                  <div class="no-data">
+                    <p>No subscribers found</p>
+                  </div>
+
+              </div>
+
+            </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'groups'" hidden aria-hidden="true">
+              <div class="groups-content">
+                <h3>Subscriber Groups (<span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('groups')"></span>)</h3>
+                <p>Organizational groups for subscriber management</p>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="importData?.groups?.length > 0"><div class="data-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="importData.groups as group"><div class="data-item">
+                        <div class="item-header">
+                          <strong></strong>
+                          <span class="count-badge"> subscribers</span>
+                        </div>
+                        <div class="item-details">
+                          <div class="detail-row">
+                            <span class="label">Description:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">Created:</span>
+                            <span class="value"></span>
+                          </div>
+                        </div>
+                      </div></div>
+                  </div></div>
+                  <div class="no-data">
+                    <p>No groups found</p>
+                  </div>
+
+              </div>
+
+            </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'plans'" hidden aria-hidden="true">
+              <div class="plans-content">
+                <h3>Bandwidth Plans (<span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('plans')"></span>)</h3>
+                <p>Speed tiers and QoS parameters for subscribers</p>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="importData?.plans?.length > 0"><div class="data-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="importData.plans as plan"><div class="data-item">
+                        <div class="item-header">
+                          <strong></strong>
+                          <span class="count-badge"> subscribers</span>
+                        </div>
+                        <div class="item-details">
+                          <div class="detail-row">
+                            <span class="label">Speed:</span>
+                            <span class="value">Mbps UL / Mbps DL</span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">Data Limit:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">Price:</span>
+                            <span class="value">$</span>
+                          </div>
+                        </div>
+                      </div></div>
+                  </div></div>
+                  <div class="no-data">
+                    <p>No bandwidth plans found</p>
+                  </div>
+
+              </div>
+
+            </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'epcs'" hidden aria-hidden="true">
+              <div class="epcs-content">
+                <h3>EPC Instances (<span data-cwl-bind="interp" data-cwl-hole-detail="getDataCount('epcs')"></span>)</h3>
+                <p>Evolved Packet Core deployment instances</p>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="importData?.epcs?.length > 0"><div class="data-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="importData.epcs as epc"><div class="data-item">
+                        <div class="item-header">
+                          <strong></strong>
+                          <span class="status-badge">
+
+                          </span>
+                        </div>
+                        <div class="item-details">
+                          <div class="detail-row">
+                            <span class="label">Location:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">MCC/MNC:</span>
+                            <span class="value">/</span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">TAC:</span>
+                            <span class="value"></span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="label">Contact:</span>
+                            <span class="value"> ()</span>
+                          </div>
+                        </div>
+                      </div></div>
+                  </div></div>
+                  <div class="no-data">
+                    <p>No EPC instances found</p>
+                  </div>
+
+              </div>
+            </div>
+          </div>
+
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"plan"}</script>

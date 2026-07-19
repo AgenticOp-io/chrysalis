@@ -1,0 +1,152 @@
+/**
+ * CWL-only ArcGIS island chrome (DESIGN D6443).
+ * Origin look/layout: `original-css/modules_coverage-map.css`
+ * (`.fullscreen-map`, `.floating-controls`, `.coverage-map-container`, `.map-container`).
+ * This sheet only styles island markers that do not exist in Module_Manager CSS.
+ */
+#arcgis-map-view.map-container,
+.coverage-map-container > .map-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.coverage-map-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.coverage-map-container .esri-view,
+.coverage-map-container .esri-view-root,
+.coverage-map-container .esri-view-surface,
+#arcgis-map-view .esri-view,
+#arcgis-map-view .esri-view-root,
+#arcgis-map-view .esri-view-surface {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  background: rgba(26, 35, 50, 0.9);
+  color: #e2e8f0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.map-loading[hidden],
+.map-loading.hidden {
+  display: none;
+}
+
+.map-honesty {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: min(36rem, 90vw);
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  background: rgba(26, 35, 50, 0.92);
+  color: #f0c674;
+  font-size: 0.85rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.map-honesty[hidden] {
+  display: none;
+}
+
+/**
+ * Author CSS from Module_Manager sets `.modal-overlay` / `.help-overlay` / `.tips-overlay`
+ * to `display: flex`, which beats the UA `[hidden] { display: none }` rule.
+ * Origin Svelte removes those nodes via `{#if show}`; CWL keeps them with `hidden`.
+ * Without this, closed overlays paint full-screen and look like stuck popups (D6443).
+ */
+.modal-overlay[hidden],
+.help-overlay[hidden],
+.tips-overlay[hidden],
+.device-panel[hidden],
+.filter-panel[hidden],
+.plan-draft-menu[hidden],
+.context-menu[hidden],
+.tower-actions-menu[hidden],
+.sector-actions-menu[hidden],
+.backhaul-actions-menu[hidden],
+[hidden] {
+  display: none !important;
+}
+
+/**
+ * CWL modal shells must stay closed until explicitly opened (D6443).
+ * Coverage-map no longer loads wisp-cwl-app.css; without this, empty Add* shells
+ * filled by initShellIslands paint on top of the map and look like stuck popups.
+ */
+.cwl-modal-shell,
+.cwl-wizard-shell,
+[data-cwl-modal-shell],
+[data-cwl-wizard-shell] {
+  display: none !important;
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 1rem;
+}
+
+.cwl-modal-shell.cwl-shell-open,
+.cwl-wizard-shell.cwl-shell-open,
+[data-cwl-modal-shell].cwl-shell-open,
+[data-cwl-wizard-shell].cwl-shell-open {
+  display: flex !important;
+}
+
+.cwl-shell-chrome {
+  max-width: min(32rem, 94vw);
+  max-height: 85vh;
+  overflow: auto;
+  background: #1a2332;
+  color: #e2e8f0;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  padding: 1rem 1.25rem;
+}
+
+.cwl-shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.cwl-shell-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.cwl-shell-close {
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: inherit;
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.55rem;
+}
+
+.cwl-nav-shell:not(.cwl-shell-open) {
+  display: none !important;
+}

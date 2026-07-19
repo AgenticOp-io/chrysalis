@@ -1,21 +1,19 @@
-<div class="wisp-app-surface" data-wisp-page="modules-sites" data-wisp-path="/modules/sites" data-cwl-island="client"><div class="sites-page">
+<div class="wisp-app-surface" data-wisp-page="sites" data-wisp-path="/modules/sites" data-cwl-island="client"><div class="sites-page">
     <div class="page-header">
       <div>
         <h1>🏢 Site Management</h1>
         <p class="subtitle">Manage all network sites, towers, buildings, and facilities</p>
       </div>
       <div class="header-actions">
-        <button class="btn-primary">
+        <button class="btn-primary" data-cwl-action="handleCreateNew" aria-label="Create New">
           ➕ Create New Site
         </button>
-        <button class="btn-secondary" title="Refresh">
+        <button class="btn-secondary" data-cwl-action="loadSites" title="Refresh">
           🔄 Refresh
         </button>
       </div>
     </div>
-    
-    
-    
+
     <!-- Filters and Search -->
     <div class="filters-section">
       <div class="search-box">
@@ -26,7 +24,7 @@
         />
         <span class="search-icon">🔍</span>
       </div>
-      
+
       <div class="filter-group">
         <label>Type:</label>
         <select>
@@ -39,7 +37,7 @@
           <option value="other">📍 Other</option>
         </select>
       </div>
-      
+
       <div class="filter-group">
         <label>Status:</label>
         <select>
@@ -51,29 +49,29 @@
         </select>
       </div>
     </div>
-    
+
     <!-- Summary Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value">3</div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="sites.length"></span></div>
         <div class="stat-label">Total Sites</div>
       </div>
       <div class="stat-card active">
-        <div class="stat-value">3</div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="sites.filter(s => s.status === 'active').length"></span></div>
         <div class="stat-label">Active</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">3</div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="sites.filter(s => s.type === 'tower').length"></span></div>
         <div class="stat-label">Towers</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">3</div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="sites.filter(s => s.type === 'building').length"></span></div>
         <div class="stat-label">Buildings</div>
       </div>
     </div>
-    
+
     <!-- Sites Table -->
-    
+
       <div class="sites-table-container">
         <table class="sites-table">
           <thead>
@@ -87,25 +85,104 @@
             </tr>
           </thead>
           <tbody>
-            
+            <div data-cwl-bind="each" data-cwl-hole-detail="filteredSites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22site-name%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bsite.name%20%7C%7C%20'Unnamed%20Site'%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.owner%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csmall%3E%7Bsite.owner%7D%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22type-badge%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BgetSiteTypeIcon(site.type)%7D%20%7Bsite.type%20%7C%7C%20'unknown'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Bsite.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BgetStatusBadge(site.status)%7D%20%7Bsite.status%20%7C%7C%20'unknown'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22location-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.location%3F.address%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%3E%7Bsite.location.address%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.location%3F.city%20%7C%7C%20site.location%3F.state%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22location-secondary%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bsite.location%3F.city%7D%7Bsite.location%3F.city%20%26%26%20site.location%3F.state%20%3F%20'%2C%20'%20%3A%20''%7D%7Bsite.location%3F.state%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.location%3F.zipCode%7D%20%7Bsite.location.zipCode%7D%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.location%3F.latitude%20%26%26%20site.location%3F.longitude%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22coordinates%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bsite.location.latitude.toFixed(6)%7D%2C%20%7Bsite.location.longitude.toFixed(6)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22contact-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BgetContactInfo(site)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22action-buttons%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-icon%22%20data-cwl-action%3D%22handleEdit%22%20data-cwl-action-args%3D%22site%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Edit%20Site%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%8F%EF%B8%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22deploy-menu%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-icon%20btn-deploy%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Deploy%20Equipment%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%9A%80%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22deploy-dropdown%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20data-cwl-action%3D%22handleDeployEPC%22%20data-cwl-action-args%3D%22site%22%20aria-label%3D%22Deploy%20EPC%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%96%A5%EF%B8%8F%20Deploy%20EPC%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20data-cwl-action%3D%22handleDeploySector%22%20data-cwl-action-args%3D%22site%22%20aria-label%3D%22Deploy%20Sector%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%A1%20Deploy%20LTE%2F5G%20Sector%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20data-cwl-action%3D%22handleDeployCPE%22%20data-cwl-action-args%3D%22site%22%20aria-label%3D%22Deploy%20CPE%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%B1%20Deploy%20FWA%20(CPE)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20data-cwl-action%3D%22handleDeployBackhaul%22%20data-cwl-action-args%3D%22site%22%20aria-label%3D%22Deploy%20Backhaul%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%94%97%20Deploy%20Backhaul%20(Wireless%2FFiber)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                <td>
+                  <div class="site-name">
+                    <strong></strong>
+
+                      <div hidden aria-hidden="true"><small></small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="type-badge">
+
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge status-">
+
+                  </span>
+                </td>
+                <td>
+                  <div class="location-info">
+                    <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.address"><div></div></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.city || site.location?.state"><div class="location-secondary">
+
+                        <span data-cwl-bind="if" data-cwl-hole-detail="site.location?.zipCode"></span>
+                      </div></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.latitude && site.location?.longitude"><div class="coordinates">
+                        ,
+                      </div></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="contact-info">
+
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn-icon" data-cwl-action="handleEdit" data-cwl-action-args="site"
+                      title="Edit Site"
+                    >
+                      ✏️
+                    </button>
+                    <div class="deploy-menu">
+                      <button
+                        class="btn-icon btn-deploy"
+                        title="Deploy Equipment"
+                      >
+                        🚀
+                      </button>
+                      <div class="deploy-dropdown">
+                        <button data-cwl-action="handleDeployEPC" data-cwl-action-args="site" aria-label="Deploy EPC">
+                          🖥️ Deploy EPC
+                        </button>
+                        <button data-cwl-action="handleDeploySector" data-cwl-action-args="site" aria-label="Deploy Sector">
+                          📡 Deploy LTE/5G Sector
+                        </button>
+                        <button data-cwl-action="handleDeployCPE" data-cwl-action-args="site" aria-label="Deploy CPE">
+                          📱 Deploy FWA (CPE)
+                        </button>
+                        <button data-cwl-action="handleDeployBackhaul" data-cwl-action-args="site" aria-label="Deploy Backhaul">
+                          🔗 Deploy Backhaul (Wireless/Fiber)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr></div>
           </tbody>
         </table>
       </div>
-    
+
+      <div class="empty-state" hidden aria-hidden="true">
+        <p>No sites found</p>
+
+          <p class="help-text">Try adjusting your search or filters</p>
+
+          <div hidden aria-hidden="true"><button class="btn-primary" data-cwl-action="handleCreateNew" aria-label="Create New">
+            Create Your First Site
+          </button>
+        </div>
+      </div>
+
   </div>
-  
+
   <!-- Site Edit Modal -->
-  <div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" hidden aria-hidden="true">
+  <div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>
-        
+        <div data-cwl-bind="if" data-cwl-hole-detail="site">✏️ Edit Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></div>
+          ➕ Create New Site
+
       </h2>
-      <button class="close-btn">✕</button>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
-    
-    
-    
+
     <div class="modal-body">
       <!-- Address Search -->
       <div class="section">
@@ -113,17 +190,17 @@
         <div class="search-group">
           <input
             type="text"
-            placeholder="Enter address to search..."
+            placeholder="Enter address to search..." data-cwl-on-keydown="action:handleSearchAddress"
           />
-          <button 
-            class="btn-secondary"
-          >
+          <button
+            class="btn-secondary" data-cwl-action="handleSearchAddress" data-cwl-attr-disabled="isSearching"
+           aria-label="Search Address">
             Search
           </button>
         </div>
         <p class="help-text">Or enter GPS coordinates below</p>
       </div>
-      
+
       <!-- Basic Info -->
       <div class="section">
         <h3>📋 Basic Information</h3>
@@ -132,15 +209,105 @@
             <label>Site Name *</label>
             <input type="text" placeholder="Main Tower Site" required />
           </div>
-          
+
           <div class="form-group" style="grid-column: 1 / -1;">
             <label>Site Types * (Select all that apply)</label>
             <div class="type-checkboxes">
-              
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">📡</span>
+                    Tower
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">🖥️</span>
+                    NOC
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">🏢</span>
+                    HQ
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">🏭</span>
+                    Warehouse
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">🏗️</span>
+                    Building / Rooftop
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">📡</span>
+                    Pole / Monopole
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">🌐</span>
+                    Internet Access Point
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">🌍</span>
+                    Internet
+                  </span>
+                </label>
+
+                <label class="type-checkbox">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:removeRow"
+                  />
+                  <span class="type-label">
+                    <span class="type-icon">📍</span>
+                    Other
+                  </span>
+                </label>
+
             </div>
             <p class="help-text">Small operators can select multiple types (e.g., NOC + Tower, HQ + NOC)</p>
           </div>
-          
+
           <div class="form-group">
             <label>Status</label>
             <select>
@@ -150,21 +317,36 @@
               <option value="planned">📅 Planned</option>
             </select>
           </div>
-          
-          
-          
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="formData.types.includes('tower') || formData.types.includes('pole')"><div class="form-group">
+            <label>Height (feet)</label>
+            <input type="number" placeholder="100" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Structure Type</label>
+            <select>
+              <option>-- Select --</option>
+              <option value="self-supporting">Self-Supporting</option>
+              <option value="guyed">Guyed</option>
+              <option value="monopole">Monopole</option>
+              <option value="building-mounted">Building-Mounted</option>
+              <option value="other">Other</option>
+            </select>
+          </div></div>
+
           <div class="form-group">
             <label>Owner</label>
             <input type="text" placeholder="Tower Company LLC" />
           </div>
-          
+
           <div class="form-group">
             <label>FCC ID</label>
             <input type="text" placeholder="FCC-12345" />
           </div>
         </div>
       </div>
-      
+
       <!-- Location -->
       <div class="section">
         <h3>📍 GPS Coordinates</h3>
@@ -173,47 +355,98 @@
             <label>Latitude *</label>
             <input type="number" step="0.000001" required />
           </div>
-          
+
           <div class="form-group">
             <label>Longitude *</label>
             <input type="number" step="0.000001" required />
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Street Address</label>
           <input type="text" placeholder="123 Tower Rd" />
         </div>
-        
+
         <div class="form-grid">
           <div class="form-group">
             <label>City</label>
             <input type="text" placeholder="New York" />
           </div>
-          
+
           <div class="form-group">
             <label>State</label>
             <input type="text" placeholder="NY" />
           </div>
-          
+
           <div class="form-group">
             <label>ZIP Code</label>
             <input type="text" placeholder="10001" />
           </div>
-          
+
           <div class="form-group">
             <label>Country</label>
             <input type="text" placeholder="US" />
           </div>
         </div>
       </div>
-      
+
       <!-- Tower Contact (for tower/pole sites) -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="formData.type === 'tower' || formData.type === 'pole'"><div class="section">
+        <h3>🏢 Tower Owner Contact</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" placeholder="Tower Company LLC" />
+          </div>
+
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" placeholder="John Doe" />
+          </div>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-1234" />
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="contact@tower.com" />
+          </div>
+        </div>
+      </div></div>
+
       <!-- Building Contact (for building sites) -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="formData.type === 'building'"><div class="section">
+        <h3>🏢 Building Owner Contact</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" placeholder="Building Management Co" />
+          </div>
+
+          <div class="form-group">
+            <label>Building Manager</label>
+            <input type="text" placeholder="Jane Smith" />
+          </div>
+
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" placeholder="John Doe" />
+          </div>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-1234" />
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="contact@building.com" />
+          </div>
+        </div>
+      </div></div>
+
       <!-- Site Contact (for all site types) -->
       <div class="section">
         <h3>👷 On-Site Contact</h3>
@@ -222,24 +455,24 @@
             <label>Name</label>
             <input type="text" placeholder="Jane Smith" />
           </div>
-          
+
           <div class="form-group">
             <label>Role</label>
             <input type="text" placeholder="Site Manager" />
           </div>
-          
+
           <div class="form-group">
             <label>Phone</label>
             <input type="tel" placeholder="555-5678" />
           </div>
-          
+
           <div class="form-group">
             <label>Email</label>
             <input type="email" placeholder="manager@site.com" />
           </div>
         </div>
       </div>
-      
+
       <!-- General Contact (fallback) -->
       <div class="section">
         <h3>📞 General Contact (Fallback)</h3>
@@ -249,19 +482,19 @@
             <label>Name</label>
             <input type="text" placeholder="Contact Name" />
           </div>
-          
+
           <div class="form-group">
             <label>Phone</label>
             <input type="tel" placeholder="555-0000" />
           </div>
-          
+
           <div class="form-group">
             <label>Email</label>
             <input type="email" placeholder="contact@example.com" />
           </div>
         </div>
       </div>
-      
+
       <!-- Access Information -->
       <div class="section">
         <h3>🔐 Site Access</h3>
@@ -270,52 +503,1167 @@
             <label>Gate Code</label>
             <input type="text" placeholder="1234#" />
           </div>
-          
+
           <div class="form-group">
             <label>Access Hours</label>
             <input type="text" placeholder="24/7 or Mon-Fri 8am-5pm" />
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Access Instructions</label>
-          <textarea 
+          <textarea
             placeholder="Call 30 minutes before arrival. Gate code required. Enter through main gate."
             rows="3"
           ></textarea>
         </div>
-        
+
         <div class="form-group">
           <label>Safety Notes</label>
-          <textarea 
+          <textarea
             placeholder="High voltage equipment. PPE required. Confined space. Lockout/tagout required."
             rows="3"
           ></textarea>
         </div>
       </div>
     </div>
-    
+
     <div class="modal-footer">
-      <button class="btn-secondary">Cancel</button>
-      <button class="btn-primary">
-        
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (site ? '💾 Save Changes' : '✅ Create Site')"></span>
       </button>
     </div>
   </div>
 </div></div>
-  
+
   <!-- EPC Deployment Modal -->
-  
-  
+
+    <div hidden aria-hidden="true"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div class="modal-content epc-deployment-modal">
+      <div class="modal-header">
+        <h2>🚀 Server Deployment</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Step Progress Indicator -->
+        <div class="step-indicator">
+          <div data-cwl-bind="each" data-cwl-hole-detail="Array(totalSteps) as _, i">
+            <div class="step-indicator-item">
+              <div class="step-indicator-number"></div>
+              <div class="step-indicator-line"></div>
+            </div></div>
+        </div>
+
+        <!-- Step Content -->
+        <div class="step-content">
+          <!-- Step 1: Deployment Type -->
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="step-panel">
+              <h3>Step 1: Select Deployment Type</h3>
+              <p class="step-description">Choose what components to deploy on the server</p>
+              <div class="deployment-type-options">
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="epc" />
+                  <div class="option-content">
+                    <div class="option-icon">📡</div>
+                    <div class="option-info">
+                      <strong>EPC Core Only</strong>
+                      <p>Deploy Open5GS EPC components (MME, SGW, PGW, PCRF)</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="snmp" />
+                  <div class="option-content">
+                    <div class="option-icon">📊</div>
+                    <div class="option-info">
+                      <strong>SNMP/Mikrotik Agent Only</strong>
+                      <p>Deploy SNMP agent and Mikrotik monitoring modules</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="both" />
+                  <div class="option-content">
+                    <div class="option-icon">🔄</div>
+                    <div class="option-info">
+                      <strong>Both EPC + SNMP</strong>
+                      <p>Deploy both EPC Core and SNMP/Mikrotik monitoring agents</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          <!-- Step 2: Site Information --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="step-panel">
+              <h3>Step 2: Site Information</h3>
+              <p class="step-description">Select a site to deploy the remote EPC/SNMP agent. Site selection is required to link device codes.</p>
+              <div class="form-section">
+                <div class="form-group">
+                  <label for="siteSelect">Select Site *</label>
+
+                    <select id="siteSelect" required>
+                      <option>-- Select a site --</option>
+                      <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%20%7C%7C%20site._id%7D%3E%7Bsite.name%20%7C%7C%20'Unnamed%20Site'%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+                    </select>
+
+                    <div hidden aria-hidden="true"><select id="siteSelect" disabled>
+                      <option>No sites available. Please create a site first.</option>
+                    </select>
+                    <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                      You need to create a site in the Coverage Map module before deploying remotes.
+                    </p>
+                  </div>
+                    <div hidden aria-hidden="true"><select id="siteSelect" disabled>
+                      <option>Loading sites...</option>
+                    </select>
+                  </div>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="selectedSiteId && selectedSite"><div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" data-cwl-attr-value="epcConfig.siteName" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" data-cwl-attr-value="epcConfig.location.address || 'N/A'" readonly />
+                  </div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="epcConfig.contact.name || epcConfig.contact.email"><div class="form-group">
+                      <label>Contact</label>
+                      <input type="text" data-cwl-attr-value="epcConfig.contact.name || 'N/A'" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label>Email</label>
+                      <input type="text" data-cwl-attr-value="epcConfig.contact.email || 'N/A'" readonly />
+                    </div></div></div>
+                  <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                    Select a site above to auto-fill site information.
+                  </p>
+
+              </div>
+            </div>
+
+          <!-- Step 3: EPC Network Configuration (if EPC selected) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('network')"><div class="step-panel">
+              <h3>Step 3: EPC Network Configuration</h3>
+              <p class="step-description">Configure network parameters for EPC</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="mcc">MCC *</label>
+                    <input id="mcc" type="text" placeholder="001" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="mnc">MNC *</label>
+                    <input id="mnc" type="text" placeholder="01" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="tac">TAC *</label>
+                    <input id="tac" type="text" placeholder="1" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Step 4: HSS Configuration (if EPC selected) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('hss')"><div class="step-panel">
+              <h3>Step 4: HSS Configuration</h3>
+              <p class="step-description">Configure HSS connection settings</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="hssHost">HSS Host</label>
+                    <input id="hssHost" type="text" placeholder="HSS host" />
+                  </div>
+                  <div class="form-group">
+                    <label for="hssPort">HSS Port</label>
+                    <input id="hssPort" type="text" placeholder="3868" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="diameterRealm">Diameter Realm</label>
+                  <input id="diameterRealm" type="text" placeholder="example.com" />
+                </div>
+              </div>
+            </div>
+
+          <!-- SNMP Configuration (if SNMP selected) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('snmp')"><div class="step-panel">
+              <h3>Step 1: SNMP/Mikrotik Configuration</h3>
+              <p class="step-description">Configure SNMP agent and monitoring</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpVersion">SNMP Version</label>
+                    <select id="snmpVersion">
+                      <option value="2c">SNMPv2c (Recommended)</option>
+                      <option value="1">SNMPv1</option>
+                      <option value="3">SNMPv3 (Secure)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCommunity">Community String</label>
+                    <input id="snmpCommunity" type="text" placeholder="public" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpPort">SNMP Port</label>
+                    <input id="snmpPort" type="number" placeholder="161" />
+                  </div>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="epcConfig.snmpConfig.version === '3'"><div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpUsername">SNMPv3 Username</label>
+                      <input id="snmpUsername" type="text" placeholder="Enter username" />
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthProtocol">Auth Protocol</label>
+                      <select id="snmpAuthProtocol">
+                        <option value="SHA">SHA</option>
+                        <option value="MD5">MD5</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthKey">Auth Key</label>
+                      <input id="snmpAuthKey" type="password" placeholder="Enter auth key" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpPrivProtocol">Privacy Protocol</label>
+                      <select id="snmpPrivProtocol">
+                        <option value="AES">AES</option>
+                        <option value="DES">DES</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpPrivKey">Privacy Key</label>
+                      <input id="snmpPrivKey" type="password" placeholder="Enter privacy key" />
+                    </div>
+                  </div></div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpReportingInterval">Reporting Interval (seconds)</label>
+                    <input id="snmpReportingInterval" type="number" placeholder="60" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCloudApiUrl">Cloud API URL</label>
+                    <input id="snmpCloudApiUrl" type="text" placeholder="https://hss.wisptools.io:3003" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable SNMP Traps
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- APT Repository Configuration --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('apt')"><div class="step-panel">
+              <h3>Step 1: APT Repository Configuration</h3>
+              <p class="step-description">Configure remote updates repository</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="aptRepositoryUrl">Repository URL</label>
+                    <input id="aptRepositoryUrl" type="text" placeholder="https://hss.wisptools.io/apt" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable APT Repository
+                    </label>
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Auto-update Enabled
+                    </label>
+                  </div>
+                </div>
+
+                  <div class="form-row" hidden aria-hidden="true">
+                    <div class="form-group">
+                      <label for="aptUpdateSchedule">Update Schedule</label>
+                      <select id="aptUpdateSchedule">
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="aptUpdateTime">Update Time (HH:MM)</label>
+                      <input id="aptUpdateTime" type="text" placeholder="02:00" pattern="[0-9]:[0-9]" />
+                    </div>
+                    <div class="form-group checkbox-group">
+                      <label>
+                        <input type="checkbox" />
+                        Security Updates Only
+                      </label>
+                    </div>
+                  </div>
+
+              </div>
+            </div>
+
+          <!-- Review Step --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('review')"><div class="step-panel">
+              <h3>Step 1: Review Configuration</h3>
+              <p class="step-description">Review your deployment configuration</p>
+              <div class="review-section">
+                <div class="review-item">
+                  <strong>Deployment Type:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="deploymentType === 'both' ? 'EPC + SNMP' : deploymentType.toUpperCase()"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Site Name:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.siteName"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Device Code:</strong>
+                  <span style="color: #999; font-style: italic;">Will be entered in device configuration after hardware boots</span>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="deploymentType === 'epc' || deploymentType === 'both'"><div class="review-item">
+                    <strong>EPC Network:</strong>
+                    <span>MCC: <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.networkConfig.mcc"></span>, MNC: <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.networkConfig.mnc"></span>, TAC: <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.networkConfig.tac"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>HSS:</strong>
+                    <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.hssConfig.hssHost"></span>:<span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.hssConfig.hssPort"></span></span>
+                  </div></div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="deploymentType === 'snmp' || deploymentType === 'both'"><div class="review-item">
+                    <strong>SNMP Version:</strong>
+                    <span>SNMPv<span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.snmpConfig.version"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>SNMP Community:</strong>
+                    <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.snmpConfig.community"></span></span>
+                  </div></div>
+                <div class="review-item">
+                  <strong>Location:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.location.address"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.location.city"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.location.state"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Contact:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.contact.name"></span> (<span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.contact.email"></span>)</span>
+                </div>
+
+                  <div class="review-item" hidden aria-hidden="true">
+                    <strong>APT Repository:</strong>
+                    <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.aptConfig.repositoryUrl"></span></span>
+                  </div>
+
+              </div>
+            </div>
+
+          <!-- Final Step: Download (Script/ISO Selection) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('download')"><div class="step-panel">
+              <h3>Step 1: Deploy Hardware</h3>
+              <p class="step-description">Choose your deployment method</p>
+              <div class="download-options">
+                <label class="download-option">
+                  <input type="radio" name="deploymentOption" value="link" />
+                  <div class="option-content">
+                    <div class="option-icon">🔗</div>
+                    <div class="option-info">
+                      <strong>Link Existing Device</strong>
+                      <p>Enter the 8-character device code shown on your hardware's screen</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="download-option">
+                  <input type="radio" name="deploymentOption" value="iso" />
+                  <div class="option-content">
+                    <div class="option-icon">💿</div>
+                    <div class="option-info">
+                      <strong>Download ISO Image</strong>
+                      <p>Download a bootable ISO to install on new hardware</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="download-option">
+                  <input type="radio" name="deploymentOption" value="script" />
+                  <div class="option-content">
+                    <div class="option-icon">📜</div>
+                    <div class="option-info">
+                      <strong>Download Script</strong>
+                      <p>Download a bash script to run on an existing Ubuntu server</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'link'"><div class="device-code-entry">
+                  <h4>Enter Device Code</h4>
+                  <p class="hint">The device code is displayed on the hardware's screen after booting from the ISO.</p>
+                  <div class="code-input-group">
+                    <input
+                      type="text"
+                      placeholder="e.g., AB12CD34"
+                      maxlength="8"
+                      class="device-code-input"
+                      style="text-transform: uppercase; font-family: monospace; font-size: 24px; letter-spacing: 4px; text-align: center;"
+                    />
+                  </div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="linkedDeviceInfo"><div class="link-success">
+                      <span class="success-icon">✅</span>
+                      <div>
+                        <strong>Device Linked Successfully!</strong>
+                        <p>EPC ID: <span data-cwl-bind="interp" data-cwl-hole-detail="linkedDeviceInfo.epc_id"></span></p>
+                        <p>The device will automatically configure itself.</p>
+                      </div>
+                    </div></div>
+                </div></div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'script' && deploymentScript"><div class="script-preview">
+                  <h5>Script Preview:</h5>
+                  <pre><code><span data-cwl-bind="interp" data-cwl-hole-detail="deploymentScript.substring(0, 300)"></span>...</code></pre>
+                </div></div>
+            </div></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="modal-actions">
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 1"><button class="btn btn-secondary" data-cwl-action="prevStep" aria-label="Prev Step">
+              ← Previous
+            </button></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep < totalSteps"><button class="btn btn-primary" data-cwl-action="handleNextClick" data-cwl-attr-disabled="loading" aria-label="Next Click">
+
+                Next →
+
+            </button></div>
+            <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'link'"><button class="btn btn-primary" data-cwl-action="linkDeviceByCode" data-cwl-attr-disabled="linkingDevice || !deviceCode || deviceCode.length !== 8 || linkedDeviceInfo" aria-label="Link Device By Code">
+                <div data-cwl-bind="if" data-cwl-hole-detail="linkedDeviceInfo">✅ Device Linked</div>
+                  🔗 Link Device
+
+              </button></div>
+              <button class="btn btn-primary" data-cwl-action="downloadDeployment" data-cwl-attr-disabled="loading || !deploymentOption" aria-label="Download Deployment">
+                <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'script'">📥 Download Script</div><div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'iso'">💿 Download ISO</div>
+                  Select an Option
+
+              </button>
+
+        </div>
+      </div>
+    </div>
+  </div></div>
+  </div>
+
   <!-- Sector Deployment Modal -->
-  
-  
+
+    <div hidden aria-hidden="true"><div data-cwl-component="AddSectorModal" data-cwl-lifted-component="AddSectorModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div class="modal-content">
+    <div class="modal-header">
+      <h2>📶 <span data-cwl-bind="interp" data-cwl-hole-detail="sectorToEdit ? 'Edit Sector' : 'Add Sector'"></span></h2>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Site Selection -->
+      <div class="section">
+        <h3>📡 Tower Site</h3>
+        <div class="form-group">
+          <label>Select Site *</label>
+          <select data-cwl-attr-disabled="!!sectorToEdit">
+            <option>-- Select a tower site --</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%20(%7Bsite.type%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
+          </select>
+          <div data-cwl-bind="if" data-cwl-hole-detail="sectorToEdit"><p class="help-text">⚠️ Site cannot be changed when editing</p></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedSiteData"><p class="help-text">
+              📍 <span data-cwl-bind="interp" data-cwl-hole-detail="selectedSiteData.location.latitude.toFixed(4)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="selectedSiteData.location.longitude.toFixed(4)"></span>
+            </p></div>
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="section">
+        <h3>📋 Sector Configuration</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Sector Name *</label>
+            <input type="text" placeholder="Alpha Sector" />
+          </div>
+
+          <div class="form-group">
+            <label>Technology *</label>
+            <select data-cwl-on-change="action:handleTechnologyChange">
+              <option value="LTE">LTE</option>
+              <option value="CBRS">CBRS</option>
+              <option value="FWA">Fixed Wireless (FWA)</option>
+              <option value="5G">5G NR</option>
+              <option value="WiFi">WiFi</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="planned">Planned</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- RF Configuration -->
+      <div class="section">
+        <h3>📡 RF Configuration</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Azimuth (degrees) *</label>
+            <input type="number" min="0" max="360" />
+            <p class="help-text">0° = North, 90° = East, 180° = South, 270° = West</p>
+          </div>
+
+          <div class="form-group">
+            <label>Beamwidth (degrees) *</label>
+            <input type="number" min="0" max="360" />
+            <p class="help-text">Typical: 65° (LTE), 90° (CBRS), 30° (FWA)</p>
+          </div>
+
+          <div class="form-group">
+            <label>Mechanical Tilt (degrees)</label>
+            <input type="number" min="-90" max="90" />
+            <p class="help-text">Downtilt angle (negative = down)</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Band / Frequency Name</label>
+            <input type="text" placeholder="Band 71 (600MHz)" />
+          </div>
+
+          <div class="form-group">
+            <label>Center Frequency (MHz)</label>
+            <input type="number" placeholder="617" />
+          </div>
+
+          <div class="form-group">
+            <label>Bandwidth (MHz)</label>
+            <input type="number" placeholder="10" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipment -->
+      <div class="section">
+        <h3>📻 Equipment Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Antenna Manufacturer</label>
+            <input type="text" placeholder="Commscope" />
+          </div>
+
+          <div class="form-group">
+            <label>Antenna Model</label>
+            <input type="text" placeholder="SBNHH-1D65C" />
+          </div>
+
+          <div class="form-group">
+            <label>Antenna Serial Number</label>
+            <input type="text" placeholder="SN123456" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Radio Manufacturer</label>
+            <input type="text" placeholder="Nokia" />
+          </div>
+
+          <div class="form-group">
+            <label>Radio Model</label>
+            <input type="text" placeholder="AEQE" />
+          </div>
+
+          <div class="form-group">
+            <label>Radio Serial Number</label>
+            <input type="text" placeholder="RN789012" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button
+        class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving"
+       aria-label="Save">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (sectorToEdit ? '✅ Save Changes' : '✅ Create Sector')"></span>
+      </button>
+    </div>
+  </div>
+</div></div>
+  </div>
+
   <!-- CPE/FWA Deployment Modal -->
-  
-  
+
+    <div hidden aria-hidden="true"><div data-cwl-component="AddCPEModal" data-cwl-lifted-component="AddCPEModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>📱 Add CPE Device</h2>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Address Search -->
+      <div class="section">
+        <h3>🔍 Customer Location</h3>
+        <div class="search-group">
+          <input
+            type="text"
+            placeholder="Enter customer address..." data-cwl-on-keydown="action:handleSearchAddress"
+          />
+          <button class="btn-secondary" data-cwl-action="handleSearchAddress" data-cwl-attr-disabled="isSearching" aria-label="Search Address">
+            Search
+          </button>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Latitude *</label>
+            <input type="number" step="0.000001" />
+          </div>
+
+          <div class="form-group">
+            <label>Longitude *</label>
+            <input type="number" step="0.000001" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" placeholder="123 Main St, City, State" />
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="section">
+        <h3>📋 Equipment Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Device Name *</label>
+            <input type="text" placeholder="Smith Residence FWA" />
+          </div>
+
+          <div class="form-group">
+            <label>Manufacturer *</label>
+            <input type="text" placeholder="Telrad" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Model *</label>
+            <input type="text" placeholder="CPE7000" />
+          </div>
+
+          <div class="form-group">
+            <label>Serial Number *</label>
+            <input type="text" placeholder="CPE-123456" />
+          </div>
+
+          <div class="form-group">
+            <label>MAC Address</label>
+            <input type="text" placeholder="00:11:22:33:44:55" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Installation -->
+      <div class="section">
+        <h3>📡 Installation Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pointing Azimuth (degrees) *</label>
+            <input type="number" min="0" max="360" />
+            <p class="help-text">Direction CPE antenna is pointed</p>
+          </div>
+
+          <div class="form-group">
+            <label>Beamwidth (degrees)</label>
+            <input type="number" />
+            <p class="help-text">Default: 30° for FWA CPE</p>
+          </div>
+
+          <div class="form-group">
+            <label>Height Above Ground (feet)</label>
+            <input type="number" placeholder="25" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Technology</label>
+            <select>
+              <option value="FWA">Fixed Wireless (FWA)</option>
+              <option value="LTE">LTE</option>
+              <option value="CBRS">CBRS</option>
+              <option value="5G">5G NR</option>
+              <option value="WiFi">WiFi</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Band / Frequency</label>
+            <input type="text" placeholder="5GHz" />
+          </div>
+
+          <div class="form-group">
+            <label>Connected to Site</label>
+            <select>
+              <option>None / Unknown</option>
+              <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriber Info -->
+      <div class="section">
+        <h3>👤 Subscriber Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Subscriber Name</label>
+            <input type="text" placeholder="John Smith" />
+          </div>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="555-1234" />
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="customer@example.com" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" placeholder="ACCT-1001" />
+          </div>
+
+          <div class="form-group">
+            <label>Service Type</label>
+            <select>
+              <option value="residential">Residential</option>
+              <option value="business">Business</option>
+              <option value="temporary">Temporary</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="inventory">Inventory</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
+        ✅ Create CPE
+      </button>
+    </div>
+  </div>
+</div></div>
+  </div>
+
   <!-- Backhaul Deployment Modal -->
-  
+
+    <div hidden aria-hidden="true"><div data-cwl-component="AddBackhaulLinkModal" data-cwl-lifted-component="AddBackhaulLinkModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🔗 <span data-cwl-bind="interp" data-cwl-hole-detail="backhaulToEdit ? 'Edit Backhaul Link' : 'Add Backhaul Link'"></span></h2>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="!canCreateBackhaul"><div class="warning-banner">
+        ⚠️ Need at least 2 sites to create backhaul. Add more tower sites or NOC first.
+      </div></div>
+
+    <div class="modal-body">
+      <!-- Link Endpoints -->
+      <div class="section">
+        <h3>🔗 Link Endpoints</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>From Site (A) *</label>
+            <select data-cwl-attr-disabled="!canCreateBackhaul || !!backhaulToEdit">
+              <option>-- Select site --</option>
+              <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%20(%7Bsite.type%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
+            </select>
+            <div data-cwl-bind="if" data-cwl-hole-detail="backhaulToEdit"><p class="help-text">⚠️ Sites cannot be changed when editing</p></div>
+          </div>
+
+          <div class="form-group">
+            <label>To Site (B) *</label>
+            <select data-cwl-attr-disabled="!canCreateBackhaul || !!backhaulToEdit">
+              <option>-- Select site --</option>
+              <div data-cwl-bind="each" data-cwl-hole-detail="availableToSites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%20(%7Bsite.type%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Link Name *</label>
+          <input
+            type="text"
+            placeholder="↔" data-cwl-attr-disabled="!canCreateBackhaul"
+          />
+        </div>
+      </div>
+
+      <!-- Backhaul Type -->
+      <div class="section">
+        <h3>📡 Backhaul Type</h3>
+        <div class="form-group">
+          <select data-cwl-attr-disabled="!canCreateBackhaul">
+            <option value="fiber">🌐 Fiber Optic</option>
+            <option value="fixed-wireless-licensed">📡 Fixed Wireless (Licensed Spectrum)</option>
+            <option value="fixed-wireless-unlicensed">📡 Fixed Wireless (Unlicensed WiFi/60GHz)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Wireless Configuration -->
+      <div data-cwl-bind="if" data-cwl-hole-detail="isWireless && canCreateBackhaul"><div class="section wireless-section">
+          <h3>📡 Fixed Wireless Configuration</h3>
+
+          <!-- Site A Configuration -->
+          <div class="site-config">
+            <h4>📍 <span data-cwl-bind="interp" data-cwl-hole-detail="fromSiteName"></span> (Site A)</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Azimuth (auto-calculated)</label>
+                <input type="number" min="0" max="360" />
+                <p class="help-text">Pointing toward <span data-cwl-bind="interp" data-cwl-hole-detail="toSiteName"></span></p>
+              </div>
+
+              <div class="form-group">
+                <label>Antenna Height (feet)</label>
+                <input type="number" placeholder="150" />
+              </div>
+
+              <div class="form-group">
+                <label>Antenna Gain (dBi)</label>
+                <input type="number" placeholder="23" />
+              </div>
+
+              <div class="form-group">
+                <label>TX Power (dBm)</label>
+                <input type="number" placeholder="20" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Site B Configuration -->
+          <div class="site-config">
+            <h4>📍 <span data-cwl-bind="interp" data-cwl-hole-detail="toSiteName"></span> (Site B)</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Azimuth (auto-calculated)</label>
+                <input type="number" min="0" max="360" />
+                <p class="help-text">Pointing toward <span data-cwl-bind="interp" data-cwl-hole-detail="fromSiteName"></span></p>
+              </div>
+
+              <div class="form-group">
+                <label>Antenna Height (feet)</label>
+                <input type="number" placeholder="150" />
+              </div>
+
+              <div class="form-group">
+                <label>Antenna Gain (dBi)</label>
+                <input type="number" placeholder="23" />
+              </div>
+
+              <div class="form-group">
+                <label>TX Power (dBm)</label>
+                <input type="number" placeholder="20" />
+              </div>
+            </div>
+          </div>
+
+          <!-- RF Parameters -->
+          <h4>📻 RF Parameters</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Frequency (MHz) *</label>
+              <input type="number" placeholder="5800" />
+              <p class="help-text">
+                <div data-cwl-bind="if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-unlicensed'">WiFi: 5150-5850 | 60GHz: 57000-71000</div>
+                  Licensed: 6, 11, 18, 23, 80 GHz
+
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label>Channel Bandwidth (MHz)</label>
+              <input type="number" placeholder="80" />
+            </div>
+
+            <div class="form-group">
+              <label>Beamwidth (degrees)</label>
+              <input type="number" placeholder="10" />
+              <p class="help-text">Antenna beamwidth (5-15° typical)</p>
+            </div>
+          </div>
+
+          <!-- Licensed Spectrum -->
+          <div data-cwl-bind="if" data-cwl-hole-detail="formData.backhaulType === 'fixed-wireless-licensed'"><div class="license-section">
+              <h4>📜 FCC Licensing Information</h4>
+              <p class="section-help">Required FCC licensing details for licensed wireless backhaul links</p>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>License Type *</label>
+                  <select>
+                    <option>-- Select --</option>
+                    <option value="point-to-point">Point-to-Point</option>
+                    <option value="point-to-multipoint">Point-to-Multipoint</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>FCC Call Sign *</label>
+                  <input type="text" placeholder="WXYZ123" />
+                  <p class="help-text">FCC-assigned call sign</p>
+                </div>
+
+                <div class="form-group">
+                  <label>FCC License Number</label>
+                  <input type="text" placeholder="Additional license identifier" />
+                  <p class="help-text">Additional license number if different from call sign</p>
+                </div>
+
+                <div class="form-group">
+                  <label>FCC File Number</label>
+                  <input type="text" placeholder="0000123456" />
+                  <p class="help-text">FCC application/file number</p>
+                </div>
+
+                <div class="form-group">
+                  <label>License Status</label>
+                  <select>
+                    <option value="active">✅ Active</option>
+                    <option value="pending">⏳ Pending</option>
+                    <option value="expired">❌ Expired</option>
+                    <option value="suspended">⚠️ Suspended</option>
+                    <option value="revoked">🚫 Revoked</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Part Number</label>
+                  <select>
+                    <option>-- Select --</option>
+                    <option value="Part 101">Part 101 - Fixed Microwave Services</option>
+                    <option value="Part 90">Part 90 - Private Land Mobile Radio</option>
+                    <option value="Part 22">Part 22 - Public Mobile Services</option>
+                    <option value="Part 24">Part 24 - Personal Communications Services</option>
+                    <option value="Part 27">Part 27 - Miscellaneous Wireless Services</option>
+                    <option value="Part 94">Part 94 - Private Operational-Fixed Microwave Service</option>
+                    <option value="Part 97">Part 97 - Amateur Radio Service</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Frequency Band</label>
+                  <input type="text" placeholder="6 GHz, 11 GHz, 18 GHz, 23 GHz, 80 GHz" />
+                  <p class="help-text">Authorized frequency band (e.g., "6 GHz", "18-23 GHz")</p>
+                </div>
+
+                <div class="form-group">
+                  <label>Authorized Bandwidth</label>
+                  <input type="text" placeholder="50 MHz, 100 MHz" />
+                  <p class="help-text">Total authorized bandwidth for this license</p>
+                </div>
+
+                <div class="form-group">
+                  <label>Emission Designator</label>
+                  <input type="text" placeholder="8K00F1D" />
+                  <p class="help-text">FCC emission designator code</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>License Holder Name *</label>
+                <input type="text" placeholder="Company Name" />
+              </div>
+
+              <div class="form-group">
+                <label>License Holder Address</label>
+                <textarea
+                  placeholder="123 Business St, City, State ZIP"
+                  rows="2"
+                ></textarea>
+                <p class="help-text">Full address of license holder as registered with FCC</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>License Expiration Date</label>
+                  <input type="date" />
+                  <p class="help-text">When the license expires</p>
+                </div>
+
+                <div class="form-group">
+                  <label>Renewal Date</label>
+                  <input type="date" />
+                  <p class="help-text">Recommended renewal date (before expiration)</p>
+                </div>
+              </div>
+            </div></div>
+        </div></div>
+
+      <!-- Fiber Configuration -->
+      <div data-cwl-bind="if" data-cwl-hole-detail="isFiber && canCreateBackhaul"><div class="section fiber-section">
+          <h3>🌐 Fiber Optic Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Provider *</label>
+              <input type="text" placeholder="AT&T, Verizon, Zayo" />
+            </div>
+
+            <div class="form-group">
+              <label>Circuit ID</label>
+              <input type="text" placeholder="CIRCUIT-123456" />
+            </div>
+
+            <div class="form-group">
+              <label>Speed</label>
+              <select>
+                <option value="100M">100 Mbps</option>
+                <option value="1G">1 Gbps</option>
+                <option value="10G">10 Gbps</option>
+                <option value="100G">100 Gbps</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Handoff Type</label>
+              <select>
+                <option value="single-mode">Single-Mode Fiber</option>
+                <option value="multi-mode">Multi-Mode Fiber</option>
+                <option value="ethernet">Ethernet</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Connector</label>
+              <select>
+                <option value="LC">LC</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+                <option value="RJ45">RJ45</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Fiber Count</label>
+              <input type="number" placeholder="2" />
+            </div>
+          </div>
+        </div></div>
+
+      <!-- Common Fields -->
+      <div data-cwl-bind="if" data-cwl-hole-detail="canCreateBackhaul"><div class="section">
+          <h3>⚙️ Link Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Capacity (Mbps) *</label>
+              <input type="number" placeholder="1000" />
+            </div>
+
+            <div class="form-group">
+              <label>Equipment Manufacturer</label>
+              <input type="text" placeholder="Cisco, Ubiquiti" />
+            </div>
+
+            <div class="form-group">
+              <label>Equipment Model</label>
+              <input type="text" placeholder="ASR9000, AirFiber60" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Monthly Cost ($)</label>
+              <input type="number" />
+            </div>
+
+            <div class="form-group">
+              <label>Contract (months)</label>
+              <input type="number" />
+            </div>
+
+            <div class="form-group">
+              <label>Status</label>
+              <select>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="planned">Planned</option>
+              </select>
+            </div>
+          </div>
+        </div></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving || !canCreateBackhaul" aria-label="Save">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (backhaulToEdit ? '✅ Save Changes' : '✅ Create Backhaul"></span>
+      </button>
+    </div>
+  </div>
+</div></div>
+  </div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/sites","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/sites"}</script>

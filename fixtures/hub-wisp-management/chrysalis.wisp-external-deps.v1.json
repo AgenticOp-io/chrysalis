@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.wisp.external-deps",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-17T02:35:24.445Z",
+  "generatedAt": "2026-07-17T04:30:18.550Z",
   "protocol": {
     "id": "wisp-external-deps-v1",
     "decision": "D6445",

@@ -1,0 +1,524 @@
+{
+  "kind": "chrysalis.wisp.module-tips",
+  "schemaVersion": 1,
+  "source": "Module_Manager/src/lib/config/moduleTips.ts",
+  "generatedAt": "2026-07-19T05:32:56.294Z",
+  "moduleCount": 14,
+  "tipCount": 81,
+  "tips": {
+    "dashboard": [
+      {
+        "id": "dashboard-field-app",
+        "title": "📱 WISP Field App",
+        "icon": "📱",
+        "content": "<h4>Mobile app for field operations</h4>\r\n        <p>Install the <strong>WISP Field App</strong> on your Android device for:</p>\r\n        <ul>\r\n          <li><strong>Plans & deployments</strong> – View and update plans in the field</li>\r\n          <li><strong>Check-in/out</strong> – Equipment and site check-ins</li>\r\n          <li><strong>Work orders</strong> – Create and complete work orders</li>\r\n          <li><strong>Notifications</strong> – Stay updated on assignments and alerts</li>\r\n        </ul>\r\n        <p></p>\r\n        <p><strong>💡 Tip:</strong> Ask your administrator for the APK if the download link is not shown.</p>"
+      },
+      {
+        "id": "dashboard-docs",
+        "title": "📖 Documentation & Help",
+        "icon": "📖",
+        "content": "<h4>Get help and documentation</h4>\r\n        <p>Use the <strong>📖 Docs</strong> icon (top right) to open:</p>\r\n        <ul>\r\n          <li><strong>Getting Started</strong> – New users and administrators</li>\r\n          <li><strong>Using WISP Management</strong> – Dashboard, wizards, and end-user help</li>\r\n          <li><strong>Project Status</strong> – Current status and next steps</li>\r\n        </ul>\r\n        <p>Each module has a <strong>Help</strong> button for module-specific docs. The <strong>⚙️ Settings</strong> gear opens theme, branding, and tenant options.</p>"
+      },
+      {
+        "id": "dashboard-quick-access",
+        "title": "⚡ Quick access",
+        "icon": "⚡",
+        "content": "<h4>Wizards and shortcuts</h4>\r\n        <p>Use the <strong>Quick access</strong> dropdown in the header to:</p>\r\n        <ul>\r\n          <li>Open any wizard (Plan, Deploy, CBRS, Customers, HSS, Inventory, etc.)</li>\r\n          <li>Jump to <strong>All wizards</strong> for the full list</li>\r\n        </ul>\r\n        <p>You can also go to <strong>Dashboard → module cards</strong> to open Plan, Deploy, Monitor, Customers, Hardware, and more.</p>"
+      },
+      {
+        "id": "dashboard-overview",
+        "title": "Overview",
+        "icon": "📚",
+        "content": "<h4>What is WISP Multitool?</h4>\r\n        <p>All-in-one platform for WISPs: <strong>Network Planning</strong> (PCI, CBRS, coverage), <strong>Field Operations</strong> (mobile app, work orders, inventory), <strong>Customer Support</strong> (help desk, subscribers), <strong>Customers & Portal</strong> (records, billing, tickets), <strong>Device Management</strong> (ACS CPE, HSS), <strong>Team Management</strong> (roles, permissions), and <strong>Wizards & Quick Tips</strong>.</p>"
+      },
+      {
+        "id": "dashboard-first-login",
+        "title": "First login",
+        "icon": "🚀",
+        "content": "<h4>Getting started</h4>\r\n        <ol>\r\n          <li>Go to the platform URL and click <strong>Sign in with Google</strong></li>\r\n          <li>Authorize with your Google account</li>\r\n          <li>Select or create your organization (tenant)</li>\r\n        </ol>"
+      },
+      {
+        "id": "dashboard-header",
+        "title": "Dashboard header",
+        "icon": "📌",
+        "content": "<h4>Header tools</h4>\r\n        <p><strong>Docs</strong> – Opens full help. <strong>Settings</strong> – Theme, branding, module access. <strong>Notifications</strong> – In-app and browser (enable in panel). <strong>Quick access</strong> – Jump to wizards. First-time visitors see quick tips.</p>"
+      },
+      {
+        "id": "dashboard-inviting",
+        "title": "Inviting team members",
+        "icon": "👥",
+        "content": "<h4>Add users</h4>\r\n        <p>Go to <strong>User Management</strong> → <strong>Invite User</strong>. Enter email, select role (Admin, Engineer, Installer, Help Desk, Viewer), then <strong>Send Invitation</strong>. User appears as Pending until they accept.</p>"
+      },
+      {
+        "id": "dashboard-mobile-app",
+        "title": "Mobile app setup",
+        "icon": "📱",
+        "content": "<h4>Field technicians</h4>\r\n        <p>Install the WISP Field App APK, grant Camera/Location/Notifications, sign in with the same Google account, select your organization. Technicians then receive work orders and can check in equipment.</p>"
+      },
+      {
+        "id": "dashboard-roles",
+        "title": "User roles (summary)",
+        "icon": "🔐",
+        "content": "<h4>Who can do what</h4>\r\n        <p><strong>Owner</strong> – Full control, cannot be changed. <strong>Admin</strong> – Manage users and modules. <strong>Engineer</strong> – PCI, CBRS, HSS, ACS. <strong>Field Technician</strong> – Mobile app, assigned work orders. <strong>Help Desk</strong> – Tickets, CPE troubleshooting. <strong>Viewer</strong> – Read-only. Configure in <strong>Settings → Module Access</strong>.</p>"
+      },
+      {
+        "id": "dashboard-wizards",
+        "title": "Wizards in small bites",
+        "icon": "🧙",
+        "content": "<h4>Guided flows</h4>\r\n        <p><strong>Site Deployment</strong>, <strong>Subscriber Creation/Group/Bandwidth Plan</strong>, <strong>RMA Tracking</strong>, <strong>Customer Onboarding</strong>, <strong>Device Onboarding/Registration</strong> (ACS & CBRS), <strong>Conflict Resolution</strong> (PCI), <strong>Work Order Creation</strong>, <strong>Troubleshooting (ACS)</strong>, <strong>First-time/Organization/Initial Configuration</strong>. Open from Quick access or the Wizards page.</p>"
+      },
+      {
+        "id": "dashboard-troubleshooting",
+        "title": "Troubleshooting",
+        "icon": "🔧",
+        "content": "<h4>Common fixes</h4>\r\n        <p><strong>Can't see a module</strong> – Ask admin to enable it in Settings → Module Access. <strong>403 Forbidden</strong> – Role or permissions need updating. <strong>Mobile notifications</strong> – Check app permissions and FCM. <strong>Browser notifications</strong> – Enable in the Notifications panel. <strong>Theme</strong> – Settings (gear) → choose light/dark.</p>"
+      }
+    ],
+    "monitoring": [
+      {
+        "id": "monitoring-1",
+        "title": "📊 Getting Started with Monitoring",
+        "icon": "📊",
+        "content": "<h4>Before devices appear in Monitor:</h4>\r\n        <p>Devices must be configured in the <strong>Deploy</strong> module first:</p>\r\n        <ol>\r\n          <li>Go to <strong>Deploy</strong> module</li>\r\n          <li>Right-click on deployed equipment</li>\r\n          <li>Select <strong>\"Configure SNMP\"</strong></li>\r\n          <li>Enter SNMP credentials and test connection</li>\r\n          <li>Device will then appear in Monitor module</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> If no devices are showing, check that SNMP is configured in Deploy module.</p>"
+      },
+      {
+        "id": "monitoring-2",
+        "title": "📈 Viewing Performance Metrics",
+        "icon": "📈",
+        "content": "<h4>Performance Graphs Tab</h4>\r\n        <p>View detailed metrics for any device:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Graphs\"</strong> tab</li>\r\n          <li>Select device from dropdown</li>\r\n          <li>View metrics:\r\n            <ul>\r\n              <li>CPU usage over time</li>\r\n              <li>Memory utilization</li>\r\n              <li>Network throughput</li>\r\n              <li>Interface statistics</li>\r\n            </ul>\r\n          </li>\r\n          <li>Adjust time range (1 hour, 24 hours, 7 days)</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Use graphs to identify performance issues and capacity planning.</p>"
+      },
+      {
+        "id": "monitoring-3",
+        "title": "🚨 Understanding Alerts",
+        "icon": "🚨",
+        "content": "<h4>Network Dashboard</h4>\r\n        <p>The dashboard shows:</p>\r\n        <ul>\r\n          <li><strong>System Health:</strong> Overall network status</li>\r\n          <li><strong>Active Alerts:</strong> Critical warnings and errors</li>\r\n          <li><strong>Service Status:</strong> SNMP, EPC, and other services</li>\r\n          <li><strong>Key Metrics:</strong> Uptime, device counts, performance</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Check the dashboard regularly to catch issues early.</p>"
+      },
+      {
+        "id": "monitoring-4",
+        "title": "📡 Monitoring SNMP Devices",
+        "icon": "📡",
+        "content": "<h4>SNMP Devices Tab</h4>\r\n        <p>View all SNMP-enabled devices:</p>\r\n        <ol>\r\n          <li>Click <strong>\"SNMP Devices\"</strong> tab</li>\r\n          <li>View device list with:\r\n            <ul>\r\n              <li>Device name and type</li>\r\n              <li>Online/Offline status</li>\r\n              <li>IP address</li>\r\n              <li>Last seen timestamp</li>\r\n              <li>Uptime percentage</li>\r\n            </ul>\r\n          </li>\r\n          <li>Click device to view detailed information</li>\r\n          <li>View performance graphs for specific devices</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Devices show as offline if they haven't checked in within 5 minutes.</p>"
+      },
+      {
+        "id": "monitoring-5",
+        "title": "🖥️ Monitoring EPC Systems",
+        "icon": "🖥️",
+        "content": "<h4>EPC Devices Tab</h4>\r\n        <p>Monitor Evolved Packet Core systems:</p>\r\n        <ol>\r\n          <li>Click <strong>\"EPC Devices\"</strong> tab</li>\r\n          <li>View EPC systems:\r\n            <ul>\r\n              <li>MME connections</li>\r\n              <li>HSS status</li>\r\n              <li>Active subscribers</li>\r\n              <li>System health metrics</li>\r\n            </ul>\r\n          </li>\r\n          <li>Click device for detailed view</li>\r\n          <li>Monitor CPU, memory, and uptime</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> EPC devices must be deployed in Deploy module before they appear here.</p>"
+      },
+      {
+        "id": "monitoring-6",
+        "title": "🗺️ Geographic Map View",
+        "icon": "🗺️",
+        "content": "<h4>Map Tab</h4>\r\n        <p>Visualize device locations on map:</p>\r\n        <ul>\r\n          <li><strong>Green markers:</strong> Online devices</li>\r\n          <li><strong>Red markers:</strong> Offline devices</li>\r\n          <li><strong>Orange markers:</strong> Maintenance mode</li>\r\n        </ul>\r\n        <p>Actions:</p>\r\n        <ol>\r\n          <li>Click marker for device details</li>\r\n          <li>Right-click for site details</li>\r\n          <li>View all equipment at a site</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Use the map to quickly identify which sites need attention. Open <strong>Help</strong> in this module for more.</p>"
+      }
+    ],
+    "deploy": [
+      {
+        "id": "deploy-1",
+        "title": "📋 Reviewing and Approving Plans",
+        "icon": "📋",
+        "content": "<h4>Step 1: Review Ready Plans</h4>\r\n        <p>Plans come from the Plan module:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Projects\"</strong> button in header</li>\r\n          <li>View projects in <strong>\"Ready\"</strong> status</li>\r\n          <li>Review each plan:\r\n            <ul>\r\n              <li>Project name and description</li>\r\n              <li>Planned sites and sectors</li>\r\n              <li>Hardware requirements</li>\r\n              <li>Marketing addresses discovered</li>\r\n            </ul>\r\n          </li>\r\n          <li>Select a plan to review details</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Only \"Ready\" plans can be approved for deployment.</p>"
+      },
+      {
+        "id": "deploy-2",
+        "title": "✅ Approving or Rejecting Plans",
+        "icon": "✅",
+        "content": "<h4>Step 2: Make Approval Decision</h4>\r\n        <p>After reviewing a plan:</p>\r\n        <ol>\r\n          <li>Select the ready plan</li>\r\n          <li>Review all planned assets carefully</li>\r\n          <li>Click <strong>\"Approve\"</strong> or <strong>\"Reject\"</strong></li>\r\n          <li>If approved:\r\n            <ul>\r\n              <li>Plan status changes to <strong>\"Approved\"</strong></li>\r\n              <li>Plan becomes available for deployment</li>\r\n              <li>You can authorize deployment</li>\r\n            </ul>\r\n          </li>\r\n          <li>If rejected:\r\n            <ul>\r\n              <li>Add rejection reason</li>\r\n              <li>Plan returns to Plan module for revision</li>\r\n            </ul>\r\n          </li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Verify inventory availability before approving.</p>"
+      },
+      {
+        "id": "deploy-3",
+        "title": "🔐 Authorizing Deployment",
+        "icon": "🔐",
+        "content": "<h4>Step 3: Authorize Approved Plans</h4>\r\n        <p>Before deployment can begin:</p>\r\n        <ol>\r\n          <li>Select an approved plan</li>\r\n          <li>Verify inventory is available for all requirements</li>\r\n          <li>Click <strong>\"Authorize Deployment\"</strong></li>\r\n          <li>Plan status changes to <strong>\"Authorized\"</strong></li>\r\n          <li>Deployment can now begin</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Authorization locks the plan and allows field deployment to start.</p>"
+      },
+      {
+        "id": "deploy-4",
+        "title": "🔧 Deploying Hardware to Sites",
+        "icon": "🔧",
+        "content": "<h4>Step 4: Deploy Equipment</h4>\r\n        <p>Deploy hardware from inventory to sites:</p>\r\n        <ol>\r\n          <li>Right-click on a tower site marker on the map</li>\r\n          <li>Select <strong>\"View Equipment\"</strong> or <strong>\"Deploy Hardware\"</strong></li>\r\n          <li>Choose equipment from inventory:\r\n            <ul>\r\n              <li>Filter by equipment type</li>\r\n              <li>View available quantities</li>\r\n              <li>Select items to deploy</li>\r\n            </ul>\r\n          </li>\r\n          <li>Enter deployment details (date, installer, notes)</li>\r\n          <li>Click <strong>\"Deploy\"</strong></li>\r\n          <li>Equipment status changes to \"Deployed\"</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Equipment must be in inventory before it can be deployed.</p>"
+      },
+      {
+        "id": "deploy-5",
+        "title": "📡 Deploying EPC Systems",
+        "icon": "📡",
+        "content": "<h4>Step 5: Deploy EPC/SNMP Agents</h4>\r\n        <p>To deploy remote EPC/SNMP agents:</p>\r\n        <ol>\r\n          <li>Click the <strong>EPC Deployment</strong> button in header</li>\r\n          <li>Select a <strong>site</strong> from the dropdown (required)</li>\r\n          <li>Choose deployment type:\r\n            <ul>\r\n              <li><strong>EPC Core Only:</strong> Open5GS EPC components</li>\r\n              <li><strong>SNMP Only:</strong> Monitoring agents</li>\r\n              <li><strong>Both:</strong> EPC + SNMP together</li>\r\n            </ul>\r\n          </li>\r\n          <li>Configure network and HSS settings</li>\r\n          <li>Generate deployment script or ISO</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Site selection is required - create sites in Coverage Map first if needed.</p>"
+      },
+      {
+        "id": "deploy-6",
+        "title": "🔍 Configuring SNMP Monitoring",
+        "icon": "🔍",
+        "content": "<h4>Step 6: Set Up SNMP Monitoring</h4>\r\n        <p>Enable monitoring for deployed equipment:</p>\r\n        <ol>\r\n          <li>Right-click on deployed equipment on the map</li>\r\n          <li>Select <strong>\"Configure SNMP\"</strong></li>\r\n          <li>Enter SNMP credentials:\r\n            <ul>\r\n              <li>SNMP community string (v2c) or username (v3)</li>\r\n              <li>Device IP address</li>\r\n              <li>SNMP version</li>\r\n            </ul>\r\n          </li>\r\n          <li>Test connection</li>\r\n          <li>Save configuration</li>\r\n          <li>Device appears in Monitor module</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> SNMP must be configured before devices show up in Monitoring module.</p>"
+      },
+      {
+        "id": "deploy-7",
+        "title": "📊 PCI and Frequency Planning",
+        "icon": "📊",
+        "content": "<h4>Planning Tools</h4>\r\n        <p>Use built-in planning tools to optimize your network:</p>\r\n        <ul>\r\n          <li><strong>PCI Planner:</strong> Plan Physical Cell ID assignments for LTE sectors\r\n            <ul>\r\n              <li>Prevents PCI conflicts</li>\r\n              <li>Optimizes cell identification</li>\r\n            </ul>\r\n          </li>\r\n          <li><strong>Frequency Planner:</strong> Optimize frequency assignments across network\r\n            <ul>\r\n              <li>Prevents interference</li>\r\n              <li>Maximizes spectrum efficiency</li>\r\n            </ul>\r\n          </li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Run these planners before deploying to avoid conflicts.</p>"
+      }
+    ],
+    "coverage-map": [
+      {
+        "id": "coverage-1",
+        "title": "🗺️ Getting Started with Coverage Map",
+        "icon": "🗺️",
+        "content": "<h4>Coverage Map is Your Central Hub</h4>\r\n        <p>The Coverage Map consolidates all network equipment into a single interactive map:</p>\r\n        <ul>\r\n          <li><strong>Tower Sites:</strong> Add and manage tower locations</li>\r\n          <li><strong>Sectors:</strong> Configure sectors per tower</li>\r\n          <li><strong>CPE Devices:</strong> View customer equipment locations</li>\r\n          <li><strong>Backhaul Links:</strong> Visualize network connections</li>\r\n          <li><strong>Equipment Inventory:</strong> Track deployed equipment at sites</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> This is the central hub for viewing your entire network infrastructure.</p>"
+      },
+      {
+        "id": "coverage-2",
+        "title": "📡 Adding Tower Sites",
+        "icon": "📡",
+        "content": "<h4>Step 1: Add a Tower Site</h4>\r\n        <ol>\r\n          <li>Click <strong>\"Add Site\"</strong> button</li>\r\n          <li>Enter site information:\r\n            <ul>\r\n              <li>Site name and address</li>\r\n              <li>GPS coordinates (or click on map)</li>\r\n              <li>Site type (Tower, Building, Pole, etc.)</li>\r\n              <li>Tower height in meters</li>\r\n            </ul>\r\n          </li>\r\n          <li>Click <strong>\"Save\"</strong></li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> You can click directly on the map to set GPS coordinates automatically.</p>"
+      },
+      {
+        "id": "coverage-3",
+        "title": "📶 Adding Sectors",
+        "icon": "📶",
+        "content": "<h4>Step 2: Add Sectors to Sites</h4>\r\n        <ol>\r\n          <li>Click on a tower site marker on the map</li>\r\n          <li>Click <strong>\"Add Sector\"</strong> from site popup</li>\r\n          <li>Enter sector details:\r\n            <ul>\r\n              <li><strong>Azimuth:</strong> Direction (0-360°)</li>\r\n              <li><strong>Tilt:</strong> Antenna downtilt angle</li>\r\n              <li><strong>Frequency:</strong> Operating frequency band</li>\r\n              <li><strong>Technology:</strong> LTE, 5G, WiMAX, etc.</li>\r\n              <li><strong>Power:</strong> Transmit power in dBm</li>\r\n            </ul>\r\n          </li>\r\n          <li>Save sector</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Plan 3-6 sectors per tower for 360° coverage.</p>"
+      },
+      {
+        "id": "coverage-4",
+        "title": "📱 Managing CPE Devices",
+        "icon": "📱",
+        "content": "<h4>Step 3: Add CPE Devices</h4>\r\n        <p>Customer Premise Equipment represents customer devices:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Add CPE\"</strong> button</li>\r\n          <li>Enter CPE information:\r\n            <ul>\r\n              <li>Serial number and model</li>\r\n              <li>Associated customer</li>\r\n              <li>Location (GPS or click map)</li>\r\n              <li>Status (Active, Inactive, Maintenance)</li>\r\n            </ul>\r\n          </li>\r\n          <li>Save CPE device</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> CPE devices link to customer accounts and track installation locations.</p>"
+      },
+      {
+        "id": "coverage-5",
+        "title": "🔗 Managing Backhaul Links",
+        "icon": "🔗",
+        "content": "<h4>Step 4: Add Backhaul Connections</h4>\r\n        <p>Visualize point-to-point network connections:</p>\r\n        <ol>\r\n          <li>Click on a site marker</li>\r\n          <li>Select <strong>\"Add Backhaul\"</strong></li>\r\n          <li>Choose source and destination sites</li>\r\n          <li>Enter link details:\r\n            <ul>\r\n              <li>Link type (Point-to-point, Point-to-multipoint)</li>\r\n              <li>Frequency and bandwidth</li>\r\n              <li>Status (Active, Planned, Maintenance)</li>\r\n            </ul>\r\n          </li>\r\n          <li>Save backhaul link</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Backhaul links show how sites connect to your network backbone.</p>"
+      },
+      {
+        "id": "coverage-6",
+        "title": "📦 Viewing Site Equipment",
+        "icon": "📦",
+        "content": "<h4>Step 5: Manage Equipment at Sites</h4>\r\n        <p>View and manage equipment deployed at each site:</p>\r\n        <ol>\r\n          <li>Click on a site marker</li>\r\n          <li>Click <strong>\"View Equipment\"</strong> or <strong>\"Deploy Hardware\"</strong></li>\r\n          <li>See all equipment at that site:\r\n            <ul>\r\n              <li>Radios and antennas</li>\r\n              <li>Routers and switches</li>\r\n              <li>EPC systems</li>\r\n              <li>SNMP monitoring devices</li>\r\n            </ul>\r\n          </li>\r\n          <li>Add or remove equipment as needed</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Equipment must be in inventory before it can be deployed to sites.</p>"
+      }
+    ],
+    "inventory": [
+      {
+        "id": "inventory-1",
+        "title": "📦 Adding Equipment to Inventory",
+        "icon": "📦",
+        "content": "<h4>Step 1: Add Equipment</h4>\r\n        <ol>\r\n          <li>Navigate to <strong>Inventory</strong> module</li>\r\n          <li>Click <strong>\"Add Equipment\"</strong> button</li>\r\n          <li>Enter equipment details:\r\n            <ul>\r\n              <li><strong>Serial Number</strong> (required, unique identifier)</li>\r\n              <li><strong>Model/Type</strong> and Manufacturer</li>\r\n              <li><strong>Category:</strong> Router, Radio, Antenna, CPE, etc.</li>\r\n              <li><strong>Purchase Date</strong> and Warranty Expiration</li>\r\n              <li><strong>Initial Location:</strong> Warehouse, vehicle, or site</li>\r\n            </ul>\r\n          </li>\r\n          <li>Click <strong>\"Save\"</strong></li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Each item automatically gets a QR code for quick lookup.</p>"
+      },
+      {
+        "id": "inventory-2",
+        "title": "📱 Using QR Codes",
+        "icon": "📱",
+        "content": "<h4>Step 2: QR Code Scanning</h4>\r\n        <p>QR codes make equipment tracking easy:</p>\r\n        <ul>\r\n          <li>QR code appears on equipment detail page</li>\r\n          <li>Print QR code labels for physical equipment</li>\r\n          <li>Use mobile app scanner to quickly lookup equipment</li>\r\n          <li>QR codes link directly to equipment records</li>\r\n          <li>Scan QR code to check out, deploy, or update status</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Use QR codes in the field to quickly check equipment status and location.</p>"
+      },
+      {
+        "id": "inventory-3",
+        "title": "🚚 Checking Out Equipment",
+        "icon": "🚚",
+        "content": "<h4>Step 3: Check Out Equipment</h4>\r\n        <p>When deploying equipment to field:</p>\r\n        <ol>\r\n          <li>Select equipment from inventory list</li>\r\n          <li>Click <strong>\"Check Out\"</strong> button</li>\r\n          <li>Select destination:\r\n            <ul>\r\n              <li><strong>Field Technician</strong> - Assign to specific tech</li>\r\n              <li><strong>Vehicle</strong> - Assign to service vehicle</li>\r\n              <li><strong>Site</strong> - Deploy to tower site</li>\r\n            </ul>\r\n          </li>\r\n          <li>Add notes (optional)</li>\r\n          <li>Click <strong>\"Check Out\"</strong></li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Track equipment location at all times for better inventory management.</p>"
+      },
+      {
+        "id": "inventory-4",
+        "title": "🔧 Maintenance Tracking",
+        "icon": "🔧",
+        "content": "<h4>Step 4: Track Maintenance</h4>\r\n        <p>Record maintenance history for equipment:</p>\r\n        <ol>\r\n          <li>Open equipment details</li>\r\n          <li>Click <strong>\"Add Maintenance Record\"</strong></li>\r\n          <li>Enter maintenance information:\r\n            <ul>\r\n              <li>Type (Repair, Firmware Update, Inspection)</li>\r\n              <li>Date and technician</li>\r\n              <li>Description and cost</li>\r\n            </ul>\r\n          </li>\r\n          <li>Save maintenance record</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Track maintenance history to identify recurring issues and warranty status.</p>"
+      },
+      {
+        "id": "inventory-5",
+        "title": "📊 Inventory Reports",
+        "icon": "📊",
+        "content": "<h4>Step 5: Generate Reports</h4>\r\n        <p>Create reports for inventory management:</p>\r\n        <ul>\r\n          <li><strong>Inventory Summary:</strong> Total equipment by category and status</li>\r\n          <li><strong>Location Report:</strong> Equipment distribution by location</li>\r\n          <li><strong>Maintenance Report:</strong> Maintenance history and costs</li>\r\n          <li><strong>Warranty Report:</strong> Equipment with expiring warranties</li>\r\n          <li><strong>Deployment Report:</strong> Equipment deployed at customer sites</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Export reports to CSV for Excel analysis or schedule automated reports.</p>"
+      },
+      {
+        "id": "inventory-6",
+        "title": "RMA tracking",
+        "icon": "↩️",
+        "content": "<h4>Returns and tracking</h4>\r\n        <p>Use the <strong>RMA Tracking</strong> wizard (Quick access or Wizards page) to log returns, track RMA status, and link equipment to RMA records.</p>"
+      }
+    ],
+    "plan": [
+      {
+        "id": "plan-1",
+        "title": "📋 Creating a New Project",
+        "icon": "📋",
+        "content": "<h4>Step 1: Create a New Project</h4>\r\n        <p>To start planning your network expansion:</p>\r\n        <ol>\r\n          <li>Click the <strong>\"Projects\"</strong> button in the header</li>\r\n          <li>Click <strong>\"New Project\"</strong> button</li>\r\n          <li>Enter project details:\r\n            <ul>\r\n              <li><strong>Project Name</strong> - Descriptive name (e.g., \"Downtown Expansion\")</li>\r\n              <li><strong>Description</strong> - Project goals and scope</li>\r\n              <li><strong>Location</strong> - Target area address or coordinates</li>\r\n              <li><strong>Target Radius</strong> - Coverage area in miles (default: 5 miles)</li>\r\n            </ul>\r\n          </li>\r\n          <li>Click <strong>\"Create Project\"</strong></li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Projects start in \"Draft\" status and can be edited until submitted.</p>"
+      },
+      {
+        "id": "plan-2",
+        "title": "🔍 Discovering Marketing Addresses",
+        "icon": "🔍",
+        "content": "<h4>Step 2: Find Potential Customers</h4>\r\n        <p>Discover addresses in your target area:</p>\r\n        <ol>\r\n          <li>With a project active, click <strong>\"Find Addresses\"</strong> button</li>\r\n          <li>Draw a rectangle on the map to define the search area</li>\r\n          <li>System discovers potential customer addresses automatically</li>\r\n          <li>Review discovered addresses:\r\n            <ul>\r\n              <li>Address details and coordinates</li>\r\n              <li>Estimated serviceability</li>\r\n              <li>Distance from planned towers</li>\r\n            </ul>\r\n          </li>\r\n          <li>Addresses are automatically saved to your project</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Use this to identify potential customers before deploying infrastructure.</p>"
+      },
+      {
+        "id": "plan-3",
+        "title": "📡 Planning Tower Sites",
+        "icon": "📡",
+        "content": "<h4>Step 3: Add Tower Sites to Plan</h4>\r\n        <p>Plan where to deploy towers:</p>\r\n        <ol>\r\n          <li>Right-click on the map where you want a tower</li>\r\n          <li>Select <strong>\"Add to Plan\" → \"Add Site\"</strong></li>\r\n          <li>Enter tower details:\r\n            <ul>\r\n              <li>Site name and type (Tower, Building, Pole)</li>\r\n              <li>Height and location coordinates</li>\r\n              <li>FCC ID (if applicable)</li>\r\n            </ul>\r\n          </li>\r\n          <li>Tower is automatically linked to your active project</li>\r\n          <li>Repeat for all planned tower locations</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Plan towers strategically to maximize coverage of discovered addresses.</p>"
+      },
+      {
+        "id": "plan-4",
+        "title": "📶 Planning Sectors",
+        "icon": "📶",
+        "content": "<h4>Step 4: Configure Sectors per Tower</h4>\r\n        <p>Add sectors to each planned tower:</p>\r\n        <ol>\r\n          <li>Right-click on a planned tower marker</li>\r\n          <li>Select <strong>\"Add to Plan\" → \"Add Sector\"</strong></li>\r\n          <li>Configure sector parameters:\r\n            <ul>\r\n              <li><strong>Azimuth</strong> - Direction (0-360 degrees)</li>\r\n              <li><strong>Beamwidth</strong> - Coverage angle</li>\r\n              <li><strong>Tilt</strong> - Antenna tilt angle</li>\r\n              <li><strong>Frequency Band</strong> - Operating frequency</li>\r\n              <li><strong>Technology</strong> - LTE, CBRS, FWA, etc.</li>\r\n            </ul>\r\n          </li>\r\n          <li>Sector is linked to your project</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Plan 3-6 sectors per tower for 360° coverage.</p>"
+      },
+      {
+        "id": "plan-5",
+        "title": "📦 Adding Hardware Requirements",
+        "icon": "📦",
+        "content": "<h4>Step 5: Plan Required Equipment</h4>\r\n        <p>Track what equipment you'll need:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Hardware\"</strong> button in the header</li>\r\n          <li>Click <strong>\"Add Requirement\"</strong></li>\r\n          <li>Enter equipment details:\r\n            <ul>\r\n              <li>Category (Radio, Antenna, Router, etc.)</li>\r\n              <li>Equipment type and model</li>\r\n              <li>Quantity needed</li>\r\n              <li>Priority level</li>\r\n            </ul>\r\n          </li>\r\n          <li>Requirements are tracked for inventory planning</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Add all hardware requirements before submitting for approval.</p>"
+      },
+      {
+        "id": "plan-6",
+        "title": "✅ Submitting Plans for Approval",
+        "icon": "✅",
+        "content": "<h4>Step 6: Submit Plan for Review</h4>\r\n        <p>When your plan is complete:</p>\r\n        <ol>\r\n          <li>Review all planned sites, sectors, and hardware</li>\r\n          <li>Click <strong>\"Projects\"</strong> button</li>\r\n          <li>Select your project</li>\r\n          <li>Click <strong>\"Submit for Approval\"</strong> or change status to <strong>\"Ready\"</strong></li>\r\n          <li>Plan moves to Deploy module for approval</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Plans must be approved in Deploy module before hardware can be deployed. Use <strong>Quick access</strong> on the dashboard to jump to wizards.</p>"
+      },
+      {
+        "id": "plan-7",
+        "title": "🗺️ Using the Plan Layer",
+        "icon": "🗺️",
+        "content": "<h4>Visualizing Your Plan</h4>\r\n        <p>The plan layer shows all your planned infrastructure:</p>\r\n        <ul>\r\n          <li><strong>Planned Sites:</strong> Tower locations marked on map</li>\r\n          <li><strong>Planned Sectors:</strong> Coverage areas for each sector</li>\r\n          <li><strong>Equipment Requirements:</strong> Tracked in hardware view</li>\r\n          <li><strong>Marketing Addresses:</strong> Discovered customer locations</li>\r\n          <li><strong>Coverage Areas:</strong> Visualize planned coverage</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Use the Layers button to toggle visibility of different plan elements.</p>"
+      }
+    ],
+    "hss-management": [
+      {
+        "id": "hss-1",
+        "title": "🔐 Adding Subscribers",
+        "icon": "🔐",
+        "content": "<h4>Step 1: Add a Subscriber</h4>\r\n        <p>Create subscriber profiles for LTE/5G networks:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Add Subscriber\"</strong> button</li>\r\n          <li>Enter subscriber information:\r\n            <ul>\r\n              <li><strong>IMSI:</strong> 15-digit identifier (MCC + MNC + MSIN)</li>\r\n              <li><strong>MSISDN:</strong> Phone number (E.164 format, optional)</li>\r\n              <li><strong>Ki:</strong> 128-bit authentication key (hex format, required)</li>\r\n              <li><strong>OP/OPc:</strong> Operator variant key (optional)</li>\r\n              <li><strong>APN:</strong> Access Point Name (default: internet)</li>\r\n            </ul>\r\n          </li>\r\n          <li>Click <strong>\"Create Subscriber\"</strong></li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> IMSI must be unique and Ki is required for authentication.</p>"
+      },
+      {
+        "id": "hss-2",
+        "title": "📱 Managing Subscriber Groups",
+        "icon": "📱",
+        "content": "<h4>Step 2: Organize Subscribers</h4>\r\n        <p>Group subscribers for bulk operations:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Groups\"</strong> tab</li>\r\n          <li>Create or select a group</li>\r\n          <li>Assign subscribers to groups</li>\r\n          <li>Use groups for:\r\n            <ul>\r\n              <li>Bulk operations (suspend, activate, delete)</li>\r\n              <li>Service profile management</li>\r\n              <li>Bandwidth plan assignments</li>\r\n            </ul>\r\n          </li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Groups help organize subscribers by service tier or location.</p>"
+      },
+      {
+        "id": "hss-3",
+        "title": "🌐 Deploying EPC Systems",
+        "icon": "🌐",
+        "content": "<h4>Step 3: Deploy EPC</h4>\r\n        <p>Deploy Evolved Packet Core systems:</p>\r\n        <ol>\r\n          <li>Click <strong>\"Deploy EPC\"</strong> button</li>\r\n          <li>Configure EPC parameters:\r\n            <ul>\r\n              <li>MME connection settings</li>\r\n              <li>HSS integration</li>\r\n              <li>Network configuration</li>\r\n            </ul>\r\n          </li>\r\n          <li>Deploy EPC system</li>\r\n          <li>Verify EPC connectivity</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> EPC systems must be deployed before subscribers can connect.</p>"
+      },
+      {
+        "id": "hss-4",
+        "title": "🔌 Connecting MME",
+        "icon": "🔌",
+        "content": "<h4>Step 4: Connect MME</h4>\r\n        <p>Connect Mobile Management Entities to HSS:</p>\r\n        <ol>\r\n          <li>Click <strong>\"MME Connections\"</strong> tab</li>\r\n          <li>Add MME connection</li>\r\n          <li>Enter MME details:\r\n            <ul>\r\n              <li>MME hostname or IP</li>\r\n              <li>Port number</li>\r\n              <li>Authentication credentials</li>\r\n            </ul>\r\n          </li>\r\n          <li>Test connection</li>\r\n          <li>Save MME connection</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> MME connections enable subscriber authentication and session management.</p>"
+      },
+      {
+        "id": "hss-5",
+        "title": "Bandwidth plans",
+        "icon": "📊",
+        "content": "<h4>Service tiers</h4>\r\n        <p>Create bandwidth plans for subscriber tiers. Use the <strong>Bandwidth Plan</strong> wizard from Quick access. Assign plans to groups or individual subscribers for QoS and rate limiting.</p>"
+      }
+    ],
+    "cbrs-management": [
+      {
+        "id": "cbrs-0",
+        "title": "📡 Get Started with CBRS",
+        "icon": "📡",
+        "content": "<h4>First-time setup</h4>\r\n        <p>Configure Google SAS access for your tenant:</p>\r\n        <ol>\r\n          <li>Run the <strong>Setup Wizard</strong> (or use the banner link when config is incomplete)</li>\r\n          <li>Sign in with Google and select your User ID / network</li>\r\n          <li>Complete the connection test step</li>\r\n          <li>Add your first CBSD device using <strong>\"+ Add CBSD Device\"</strong></li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> CBRS Management uses Google SAS in shared-platform mode. Ensure your Google account is registered for SAS access. Use the module <strong>Help</strong> button for full docs.</p>"
+      },
+      {
+        "id": "cbrs-1",
+        "title": "📡 Registering CBSD Devices",
+        "icon": "📡",
+        "content": "<h4>Step 1: Add CBSD Device</h4>\r\n        <p>Register Citizens Broadband Service Devices:</p>\r\n        <ol>\r\n          <li>Click <strong>\"+ Add CBSD Device\"</strong></li>\r\n          <li>Enter device information:\r\n            <ul>\r\n              <li><strong>CBSD Serial Number:</strong> Unique identifier</li>\r\n              <li><strong>FCC ID:</strong> FCC equipment authorization</li>\r\n              <li><strong>Category:</strong> A (indoor) or B (outdoor)</li>\r\n              <li><strong>SAS Provider:</strong> Google SAS or Federated Wireless</li>\r\n              <li><strong>Location:</strong> GPS coordinates</li>\r\n            </ul>\r\n          </li>\r\n          <li>Save device</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Category B devices have higher power limits and require outdoor installation.</p>"
+      },
+      {
+        "id": "cbrs-2",
+        "title": "📊 Requesting Spectrum Grants",
+        "icon": "📊",
+        "content": "<h4>Step 2: Request Spectrum</h4>\r\n        <p>Get spectrum authorization from SAS:</p>\r\n        <ol>\r\n          <li>Select registered CBSD device</li>\r\n          <li>Click <strong>\"Request Grant\"</strong></li>\r\n          <li>SAS evaluates request:\r\n            <ul>\r\n              <li>Checks for incumbent protection</li>\r\n              <li>Assigns available spectrum</li>\r\n              <li>Returns grant with frequency and power</li>\r\n            </ul>\r\n          </li>\r\n          <li>Monitor grant status</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Grants are automatically renewed via heartbeat messages.</p>"
+      },
+      {
+        "id": "cbrs-3",
+        "title": "🗺️ Geographic Visualization",
+        "icon": "🗺️",
+        "content": "<h4>Step 3: View Device Map</h4>\r\n        <p>Visualize CBSD locations on interactive map:</p>\r\n        <ul>\r\n          <li><strong>Color-coded status:</strong> Green (authorized), Yellow (pending), Red (error)</li>\r\n          <li><strong>Click markers:</strong> View device details and grant status</li>\r\n          <li><strong>Multi-site coordination:</strong> See all devices in your network</li>\r\n          <li><strong>Coverage analysis:</strong> Visualize coverage areas</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Use the map to coordinate multi-site deployments and avoid interference.</p>"
+      }
+    ],
+    "pci-resolution": [
+      {
+        "id": "pci-1",
+        "title": "📊 Importing Cell Data",
+        "icon": "📊",
+        "content": "<h4>Step 1: Import Cell Data</h4>\r\n        <p>Add cell sites to analyze:</p>\r\n        <ol>\r\n          <li>Click <strong>\"📊 Manage Towers\"</strong> button</li>\r\n          <li>Choose import method:\r\n            <ul>\r\n              <li><strong>Manual Entry:</strong> Add sites one by one</li>\r\n              <li><strong>CSV Import:</strong> Upload CSV file with cell data</li>\r\n              <li><strong>KML Import:</strong> Import from Google Earth KML files</li>\r\n            </ul>\r\n          </li>\r\n          <li>Required fields: eNodeB, Cell ID, PCI, Latitude, Longitude</li>\r\n          <li>Save imported data</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> CSV format: eNodeB,Cell ID,PCI,Latitude,Longitude,Azimuth,Height</p>"
+      },
+      {
+        "id": "pci-2",
+        "title": "🔍 Analyzing Network",
+        "icon": "🔍",
+        "content": "<h4>Step 2: Detect PCI Conflicts</h4>\r\n        <p>Analyze network for PCI conflicts:</p>\r\n        <ol>\r\n          <li>Click <strong>\"🔍 Analyze Network\"</strong></li>\r\n          <li>System detects:\r\n            <ul>\r\n              <li><strong>High Severity:</strong> Same PCI in neighboring cells</li>\r\n              <li><strong>Medium Severity:</strong> Mod3 conflicts (PCI % 3)</li>\r\n              <li><strong>Low Severity:</strong> Mod6 conflicts (PCI % 6)</li>\r\n            </ul>\r\n          </li>\r\n          <li>Review conflict table with affected cells</li>\r\n          <li>See distance between conflicting cells</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> High severity conflicts cause the most interference and should be resolved first.</p>"
+      },
+      {
+        "id": "pci-3",
+        "title": "🤖 AI Recommendations",
+        "icon": "🤖",
+        "content": "<h4>Step 3: Get AI Optimization</h4>\r\n        <p>Use Google Gemini AI for intelligent recommendations:</p>\r\n        <ol>\r\n          <li>Click <strong>\"🤖 Get AI Recommendations\"</strong></li>\r\n          <li>AI analyzes:\r\n            <ul>\r\n              <li>Network topology</li>\r\n              <li>Neighbor relationships</li>\r\n              <li>Interference patterns</li>\r\n            </ul>\r\n          </li>\r\n          <li>Receive prioritized PCI reallocation suggestions</li>\r\n          <li>Review AI recommendations</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> AI recommendations consider network-wide optimization, not just individual conflicts.</p>"
+      },
+      {
+        "id": "pci-4",
+        "title": "✨ Optimizing Network",
+        "icon": "✨",
+        "content": "<h4>Step 4: Resolve Conflicts</h4>\r\n        <p>Automatically resolve all PCI conflicts:</p>\r\n        <ol>\r\n          <li>Click <strong>\"✨ Optimize Network\"</strong></li>\r\n          <li>System automatically:\r\n            <ul>\r\n              <li>Reassigns conflicting PCIs</li>\r\n              <li>Maintains existing PCIs where possible</li>\r\n              <li>Considers neighbor relationships</li>\r\n            </ul>\r\n          </li>\r\n          <li>Review before/after comparison</li>\r\n          <li>Export updated configuration</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Optimization maintains existing PCIs when possible to minimize changes.</p>"
+      },
+      {
+        "id": "pci-5",
+        "title": "📤 Exporting Results",
+        "icon": "📤",
+        "content": "<h4>Step 5: Export Configuration</h4>\r\n        <p>Export optimized PCI assignments:</p>\r\n        <ul>\r\n          <li><strong>Conflict Report (PDF):</strong> Detailed analysis and recommendations</li>\r\n          <li><strong>CSV Export:</strong> Updated cell data with new PCIs</li>\r\n          <li><strong>Nokia Configuration:</strong> Ready-to-use CLI commands for Nokia eNodeBs</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Use Nokia configuration export to directly apply changes to your eNodeBs.</p>"
+      }
+    ],
+    "sites": [
+      {
+        "id": "sites-1",
+        "title": "🏗️ Managing Sites",
+        "icon": "🏗️",
+        "content": "<h4>Site Management Overview</h4>\r\n        <p>The Sites module lets you manage all your tower sites and locations:</p>\r\n        <ul>\r\n          <li><strong>View Sites:</strong> See all sites with filters for type and status</li>\r\n          <li><strong>Edit Sites:</strong> Right-click or use the edit button to modify site details</li>\r\n          <li><strong>Add Sectors:</strong> Add coverage sectors to sites</li>\r\n          <li><strong>Add CPE:</strong> Add customer premises equipment</li>\r\n          <li><strong>Add Backhauls:</strong> Create backhaul links between sites</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Sites are the foundation of your network - organize them well!</p>"
+      },
+      {
+        "id": "sites-2",
+        "title": "📍 Site Location & Details",
+        "icon": "📍",
+        "content": "<h4>Site Information</h4>\r\n        <p>Each site contains important information:</p>\r\n        <ul>\r\n          <li><strong>Location:</strong> GPS coordinates and address</li>\r\n          <li><strong>Type:</strong> Tower, building, or other structure type</li>\r\n          <li><strong>Status:</strong> Active, inactive, or maintenance</li>\r\n          <li><strong>Contact:</strong> Site contact information</li>\r\n          <li><strong>Equipment:</strong> Hardware deployed at the site</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Keep site information up-to-date for accurate network planning.</p>"
+      },
+      {
+        "id": "sites-3",
+        "title": "📡 Adding Sectors & Equipment",
+        "icon": "📡",
+        "content": "<h4>Site Components</h4>\r\n        <p>Enhance your sites with:</p>\r\n        <ol>\r\n          <li><strong>Sectors:</strong> Coverage areas with frequency bands</li>\r\n          <li><strong>CPE Devices:</strong> Customer equipment at locations</li>\r\n          <li><strong>Backhaul Links:</strong> Connections between sites</li>\r\n        </ol>\r\n        <p><strong>💡 Tip:</strong> Use the right-click menu on sites to quickly add components.</p>"
+      }
+    ],
+    "customers": [
+      {
+        "id": "customers-1",
+        "title": "👥 Customers, Billing & Portal",
+        "icon": "👥",
+        "content": "<h4>Customers module</h4>\r\n        <p>Manage customers, billing, and the <strong>Customer Portal</strong>:</p>\r\n        <ul>\r\n          <li><strong>Customers tab:</strong> Add and edit customers, view portal status</li>\r\n          <li><strong>Billing tab:</strong> Service plans, billing, and usage</li>\r\n          <li><strong>Portal tab:</strong> Enable the branded customer portal; set login, tickets, and help</li>\r\n        </ul>\r\n        <p><strong>Customer Portal</strong> – Customers can log in to view tickets, service info, and billing. Use <strong>Portal setup</strong> to configure branding and enable features.</p>\r\n        <p><strong>💡 Tip:</strong> Use the <strong>📖 Docs</strong> icon on the dashboard for full documentation.</p>"
+      },
+      {
+        "id": "customers-2",
+        "title": "Customer records",
+        "icon": "📋",
+        "content": "<h4>Add/Edit customers</h4>\r\n        <p>Customer records include <strong>service type</strong> (4G/5G, FWA, WiFi, Fiber), <strong>LTE auth</strong> (IMSI, Ki, OPc), <strong>MAC address</strong>, and <strong>QoS</strong>. Use the <strong>Customer Onboarding</strong> wizard from Quick access for guided setup.</p>"
+      },
+      {
+        "id": "customers-3",
+        "title": "Portal setup",
+        "icon": "🌐",
+        "content": "<h4>Branded customer portal</h4>\r\n        <p>Enable in <strong>Customers → Portal setup</strong>. Configure logo and colors. Customers get <strong>Dashboard</strong>, <strong>Billing</strong>, <strong>Tickets</strong>, <strong>Knowledge base / FAQ</strong>. Use Settings for org-wide branding.</p>"
+      },
+      {
+        "id": "customers-4",
+        "title": "Billing",
+        "icon": "💰",
+        "content": "<h4>Customer billing</h4>\r\n        <p>Billing modal per customer in Customers module; billing view in the customer portal. Billing cycles and invoicing can be extended when prioritized.</p>"
+      }
+    ],
+    "user-management": [
+      {
+        "id": "user-mgmt-1",
+        "title": "Inviting users",
+        "icon": "👥",
+        "content": "<h4>Add team members</h4>\r\n        <p>Go to <strong>User Management</strong> → <strong>Invite User</strong>. Enter email, select role (Admin, Engineer, Installer, Help Desk, Viewer), click <strong>Send Invitation</strong>. User appears as Pending until they accept and login.</p>"
+      },
+      {
+        "id": "user-mgmt-2",
+        "title": "Editing user roles",
+        "icon": "✏️",
+        "content": "<h4>Change role</h4>\r\n        <p>Click <strong>Edit</strong> next to the user → select new role → <strong>Update Role</strong>. Changes apply immediately. Owner role cannot be changed; only one owner per organization.</p>"
+      },
+      {
+        "id": "user-mgmt-3",
+        "title": "Suspending users",
+        "icon": "⏸️",
+        "content": "<h4>Temporarily disable access</h4>\r\n        <p>Edit user → <strong>Suspend User</strong>. User can still login but API calls fail. To re-enable: <strong>Activate User</strong>.</p>"
+      },
+      {
+        "id": "user-mgmt-4",
+        "title": "Removing users",
+        "icon": "🗑️",
+        "content": "<h4>Remove from organization</h4>\r\n        <p>Edit user → <strong>Remove from Organization</strong> → confirm. Cannot be undone. Cannot remove the owner; transfer ownership first.</p>"
+      },
+      {
+        "id": "user-mgmt-5",
+        "title": "Module access",
+        "icon": "🔐",
+        "content": "<h4>Configure per-role access</h4>\r\n        <p><strong>Settings → Module Access</strong>. See roles vs. modules matrix; check/uncheck to enable or disable modules per role. Save Configuration. Use reset to restore default permissions for a role.</p>"
+      }
+    ],
+    "maintain": [
+      {
+        "id": "maintain-1",
+        "title": "🎫 Help Desk & Tickets",
+        "icon": "🎫",
+        "content": "<h4>Managing Support Tickets</h4>\r\n        <p>The Maintain module helps you manage customer support and maintenance:</p>\r\n        <ul>\r\n          <li><strong>Create Tickets:</strong> Click \"Create Ticket\" to open a new support request</li>\r\n          <li><strong>View Tickets:</strong> See all tickets with filters for status and priority</li>\r\n          <li><strong>Update Status:</strong> Change ticket status as you work on issues</li>\r\n          <li><strong>Customer Lookup:</strong> Quickly find customer information</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Use the filters to quickly find tickets by status, priority, or search term. Customer Portal users can submit tickets from their portal.</p>"
+      },
+      {
+        "id": "maintain-create-ticket",
+        "title": "Creating support tickets",
+        "icon": "📝",
+        "content": "<h4>New ticket</h4>\r\n        <p>Click <strong>Create Ticket</strong>. Enter <strong>Title</strong>, <strong>Type</strong> (Troubleshoot, Repair, Installation, Other), <strong>Priority</strong>, <strong>Description</strong>, and optional <strong>Customer</strong>. Click Create Ticket.</p>"
+      },
+      {
+        "id": "maintain-assign-ticket",
+        "title": "Assigning tickets",
+        "icon": "👤",
+        "content": "<h4>Assign to technician</h4>\r\n        <p>Open ticket details → <strong>Assign</strong> → select field technician. Technician receives a push notification on the mobile app.</p>"
+      },
+      {
+        "id": "maintain-filters",
+        "title": "Filtering tickets",
+        "icon": "🔍",
+        "content": "<h4>Find tickets</h4>\r\n        <p>Filter by <strong>Status</strong> (Open, Assigned, In Progress, Resolved, Closed), <strong>Priority</strong> (Critical–Low), or <strong>Search</strong> by ticket number, title, or customer name.</p>"
+      },
+      {
+        "id": "maintain-customer-lookup",
+        "title": "Customer lookup",
+        "icon": "🔎",
+        "content": "<h4>Find customer</h4>\r\n        <p>Click <strong>Customer Lookup</strong>. Search by phone, email, or IMSI. View customer info, service status, active equipment, and recent tickets.</p>"
+      },
+      {
+        "id": "maintain-work-order-create",
+        "title": "Creating work orders",
+        "icon": "📋",
+        "content": "<h4>New work order</h4>\r\n        <p>From Work Orders or Help Desk → <strong>Create Work Order</strong>. Fill <strong>Title</strong>, <strong>Type</strong> (Installation, Repair, Maintenance), <strong>Priority</strong>, <strong>Site</strong>, <strong>Customer</strong>, <strong>Description</strong>. Click Create.</p>"
+      },
+      {
+        "id": "maintain-work-order-assign",
+        "title": "Assigning work orders",
+        "icon": "📲",
+        "content": "<h4>Send to field</h4>\r\n        <p>Open work order → <strong>Assign</strong> → select field technician. Technician gets a push notification; status becomes Assigned.</p>"
+      },
+      {
+        "id": "maintain-mobile-workflow",
+        "title": "Mobile app workflow",
+        "icon": "📱",
+        "content": "<h4>Field technician flow</h4>\r\n        <p>Technician gets push → opens app → views work order → navigates via GPS → completes work → sets status to Resolved → adds notes and photos.</p>"
+      },
+      {
+        "id": "maintain-2",
+        "title": "👥 Customer Management",
+        "icon": "👥",
+        "content": "<h4>Customer Information</h4>\r\n        <p>Manage customer data in the Customers tab:</p>\r\n        <ul>\r\n          <li><strong>View Customers:</strong> See all customers with contact information</li>\r\n          <li><strong>Add Customers:</strong> Create new customer records</li>\r\n          <li><strong>Edit Customers:</strong> Update customer information</li>\r\n          <li><strong>Search:</strong> Find customers by name, email, or phone</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Keep customer information up-to-date for better support.</p>"
+      },
+      {
+        "id": "maintain-3",
+        "title": "🔧 Maintenance Scheduling",
+        "icon": "🔧",
+        "content": "<h4>Scheduled Maintenance</h4>\r\n        <p>Plan and track maintenance activities:</p>\r\n        <ul>\r\n          <li><strong>Schedule Maintenance:</strong> Plan regular maintenance tasks</li>\r\n          <li><strong>Track Progress:</strong> Monitor maintenance completion</li>\r\n          <li><strong>View History:</strong> See past maintenance activities</li>\r\n        </ul>\r\n        <p><strong>💡 Tip:</strong> Regular maintenance helps prevent issues before they occur.</p>"
+      }
+    ],
+    "voice-telephony": [
+      {
+        "id": "voice-1",
+        "title": "Voice / SIP & UC",
+        "icon": "📞",
+        "content": "<h4>Numbers, E911, and porting</h4>\r\n        <p>This module stores <strong>provider accounts</strong>, <strong>telephone numbers</strong> (E.164), <strong>service locations</strong> for geocode/E911, and <strong>port orders</strong>. Link TNs to customers using the same <code>customerId</code> as the Customers module.</p>\r\n        <p><strong>Webhook:</strong> <code>POST /api/voice/webhooks/:provider</code> — set <code>VOICE_WEBHOOK_SECRET</code> on the backend for HMAC verification.</p>"
+      },
+      {
+        "id": "voice-2",
+        "title": "Coverage Map",
+        "icon": "🗺️",
+        "content": "<h4>Service locations on the map</h4>\r\n        <p>From <strong>Service locations</strong>, use <strong>Coverage map</strong> when lat/lon exist to open the map centered on that point (<code>focusLat</code> / <code>focusLng</code>).</p>"
+      }
+    ]
+  }
+}

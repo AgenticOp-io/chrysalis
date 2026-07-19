@@ -1,20 +1,36 @@
-[
-  {
-    "uid": "xbQzgkx9FQaqUkaocW8MjVXfUAZ2",
-    "email": "demo@wisptools.io",
-    "displayName": "WISPTools Demo",
-    "photoURL": "",
-    "phoneNumber": "",
-    "disabled": false,
-    "emailVerified": true,
-    "createdAt": "Fri, 29 May 2026 01:16:31 GMT",
-    "lastLoginAt": "Thu, 16 Jul 2026 05:46:09 GMT",
-    "tenants": [
-      {
-        "tenantId": "6a166eb07089304417ec967a",
-        "role": "owner",
-        "status": "active"
-      }
-    ]
-  }
-]
+{
+  "ok": true,
+  "users": [
+    {
+      "id": "u1",
+      "name": "Admin",
+      "email": "admin@example.com",
+      "status": "active"
+    },
+    {
+      "id": "u2",
+      "name": "Ops",
+      "email": "ops@example.com",
+      "status": "active"
+    }
+  ],
+  "roles": [
+    {
+      "id": "r1",
+      "name": "admin",
+      "status": "active"
+    }
+  ],
+  "items": [
+    {
+      "id": "u1",
+      "name": "Admin",
+      "status": "active"
+    },
+    {
+      "id": "u2",
+      "name": "Ops",
+      "status": "active"
+    }
+  ]
+}

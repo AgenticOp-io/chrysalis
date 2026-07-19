@@ -1,28 +1,163 @@
-<div class="wisp-app-surface" data-wisp-page="modules-tenant-management-cbrs-platform" data-wisp-path="/modules/tenant-management/cbrs-platform" data-cwl-island="client">
-
-<div class="admin-page">
+<div class="wisp-app-surface" data-wisp-page="tenant-management" data-wisp-path="/modules/tenant-management/cbrs-platform" data-cwl-island="client"><div class="admin-page">
   <div class="page-header">
     <div class="header-content">
       <a href="/dashboard" class="back-link">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          </modules/tenant-management/cbrs-platform d="M19 12H5M12 19l-7-7 7-7"/>
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         ← Back to Dashboard
       </a>
-      
+
       <div class="header-title">
         <h1>🔑 CBRS Platform Configuration</h1>
         <p class="subtitle">Configure shared SAS API keys for all tenants</p>
       </div>
     </div>
   </div>
-  
+
   <div class="page-content">
-    
+
+      <div class="alert alert-success" hidden aria-hidden="true">
+        <span class="alert-icon">✅</span>
+        <span class="alert-message"><span data-cwl-bind="interp" data-cwl-hole-detail="successMessage"></span></span>
+        <button class="alert-close">✕</button>
+      </div>
+
+    <div class="info-card">
+      <div class="info-icon">💡</div>
+      <div class="info-content">
+        <h3>About Shared Platform Mode</h3>
+        <p>
+          Configure your platform's shared SAS API keys here. Tenants who choose "Shared Platform" mode
+          will use these keys with their own unique User ID / Customer ID for tenant isolation.
+        </p>
+        <p class="info-secondary">
+          This allows you to share one SAS subscription across all tenants, significantly reducing costs
+          while maintaining proper tenant isolation through User IDs and Customer IDs.
+        </p>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="card-header">
+        <h2>🔵 Google SAS Configuration</h2>
+        <span class="status-badge">Platform-wide</span>
+      </div>
+
+      <form data-cwl-on-submit="action:handleSave">
+        <div class="form-group">
+          <label>
+            API Endpoint
+            <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="https://sas.googleapis.com/v1"
+            required
+          />
+          <span class="form-hint">Google SAS API endpoint URL</span>
+        </div>
+
+        <div class="form-group">
+          <label>
+            Platform API Key
+            <span class="required">*</span>
+          </label>
+          <input
+            type="password"
+            placeholder="Enter your Google SAS API key"
+            required
+          />
+          <span class="form-hint">
+            This API key will be shared by all tenants using "Shared Platform" mode.
+            Each tenant will have their own Google User ID for isolation.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Certificate Path (Optional)</label>
+          <input
+            type="text"
+            placeholder="/path/to/certificate.pem"
+          />
+          <span class="form-hint">Path to client certificate for mutual TLS (if required)</span>
+        </div>
+      </form>
+    </div>
+
+    <div class="config-card">
+      <div class="card-header">
+        <h2>🟢 Federated Wireless Configuration</h2>
+        <span class="status-badge">Platform-wide</span>
+      </div>
+
+      <form data-cwl-on-submit="action:handleSave">
+        <div class="form-group">
+          <label>
+            API Endpoint
+            <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="https://sas.federatedwireless.com/api/v1"
+            required
+          />
+          <span class="form-hint">Federated Wireless SAS API endpoint URL</span>
+        </div>
+
+        <div class="form-group">
+          <label>
+            Platform API Key
+            <span class="required">*</span>
+          </label>
+          <input
+            type="password"
+            placeholder="Enter your Federated Wireless API key"
+            required
+          />
+          <span class="form-hint">
+            This API key will be shared by all tenants using "Shared Platform" mode.
+            Each tenant will have their own Customer ID for isolation.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Certificate Path (Optional)</label>
+          <input
+            type="text"
+            placeholder="/path/to/certificate.pem"
+          />
+          <span class="form-hint">Path to client certificate (if required)</span>
+        </div>
+      </form>
+    </div>
+
+      <div class="test-result" hidden aria-hidden="true">
+
+      </div>
+
+    <div class="security-warning">
+      <div class="warning-icon">🔒</div>
+      <div class="warning-content">
+        <strong>Security Notice:</strong> These API keys are shared across all tenants in "Shared Platform" mode.
+        Store them securely and never expose them in client-side code. All SAS API calls should go through
+        your backend (Firebase Functions) to keep these keys protected.
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button type="button" class="btn btn-secondary" data-cwl-action="handleTest" aria-label="Test">
+        🧪 Test Configuration
+      </button>
+      <button type="button" class="btn btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
+
           💾 Save Platform Configuration
-        
+
+          <div hidden aria-hidden="true"><span class="spinner"></span>
+          Saving...
+        </div>
       </button>
     </div>
   </div>
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/tenant-management/cbrs-platform","apiPath":"/api/tenants","api_ok":true,"api_surface":"wisp-api-native","api_resource":"tenants","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/tenant-management/cbrs-platform"}</script>

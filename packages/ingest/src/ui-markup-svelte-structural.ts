@@ -47,6 +47,9 @@ export const DEFAULT_SHOWCASE_LOAD_BOOLS: Readonly<Record<string, boolean>> = {
   isLoading: false,
   loading: false,
   error: false,
+  /** Demo showcase user is an authorized admin — render the module content,
+   * not the Access Denied fallback; runtime auth re-gates on the live site. */
+  hasPlatformAdminAccess: true,
   success: false,
   statusLoading: false,
   statusError: false,
@@ -103,6 +106,8 @@ export const DEFAULT_STRUCTURAL_INLINE_COMPONENTS: ReadonlySet<string> = new Set
   "TowerActionsMenu",
   "SectorActionsMenu",
   "BackhaulActionsMenu",
+  // Module header wizards — real trigger chrome + client catalog bind (D6442); not empty nav shells.
+  "ModuleWizardMenu",
   // Coverage-map Add*/edit modals — lift closed chrome (D6443/D6444), not empty shells that block the map.
   "AddSiteModal",
   "AddNOCModal",
@@ -123,6 +128,22 @@ export const DEFAULT_STRUCTURAL_INLINE_COMPONENTS: ReadonlySet<string> = new Set
   "TransferModal",
   "CustomerBillingModal",
   "AddEditCustomerModal",
+  "PlanMarketingModal",
+  "PlanMarketingResultsPopup",
+  "PCIPlannerModal",
+  "FrequencyPlannerModal",
+  "PlanApprovalModal",
+  "DeployedHardwareModal",
+  "SiteDetailsModal",
+  "SiteEquipmentModal",
+  "ProjectFilterPanel",
+  "PlanLayerFilterPanel",
+  "DeploymentWizard",
+  "SiteDeploymentWizard",
+  "AnalysisModal",
+  "ConflictsModal",
+  "RecommendationsModal",
+  "OptimizationResultModal",
 ]);
 
 /** Page-local UI toggles whose closed chrome must remain in the DOM (hidden), not deleted. */
@@ -131,6 +152,14 @@ const UI_TOGGLE_OVERLAY_RE =
 
 export function isUiToggleOverlayIfHeader(header: string): boolean {
   return UI_TOGGLE_OVERLAY_RE.test(header);
+}
+
+/**
+ * True when an open tag carries the HTML boolean `hidden` attribute.
+ * Must not treat `aria-hidden` as closed paint (D6443 / overlay first-paint).
+ */
+export function hasBooleanHiddenAttr(openTag: string): boolean {
+  return /(?:^|\s)hidden(?:\s|=|>|$)/i.test(openTag);
 }
 
 /** Stamp closed-state attributes on the first element root (translate closed, do not invent). */
@@ -180,11 +209,15 @@ export function stampClosedUiChrome(html: string): string {
   }
   const open = trimmed.slice(0, i);
   const rest = trimmed.slice(i);
-  if (/\bhidden\b/i.test(open)) {
+  if (hasBooleanHiddenAttr(open)) {
     if (!/\baria-hidden\b/i.test(open)) {
       return `${lead}${open.replace(/>$/, ' aria-hidden="true">')}${rest}`;
     }
     return html;
+  }
+  // aria-hidden alone still paints when origin CSS uses display:flex on overlays.
+  if (/\baria-hidden\b/i.test(open)) {
+    return `${lead}${open.replace(/>$/, " hidden>")}${rest}`;
   }
   return `${lead}${open.replace(/>$/, ' hidden aria-hidden="true">')}${rest}`;
 }
@@ -263,7 +296,7 @@ export const DEFAULT_CHART_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
  */
 export const DEFAULT_NAV_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
   "MainMenu",
-  "ModuleWizardMenu",
+  // ModuleWizardMenu is structural-inline (DEFAULT_STRUCTURAL_INLINE_COMPONENTS) — empty nav shells hid Wizards on Plan/Deploy.
   "AdminBreadcrumb",
   "NotificationCenter",
   "VerticalMenu",
@@ -302,6 +335,9 @@ export const DEFAULT_WIZARD_SHELL_COMPONENTS: ReadonlySet<string> = new Set([
   "FirstTimeSetupWizard",
   "OrganizationSetupWizard",
   "InitialConfigurationWizard",
+  "CBRSSetupWizard",
+  "MonitoringSetupWizard",
+  "BaseWizard",
 ]);
 
 /**
@@ -563,6 +599,337 @@ export function findPascalComponentTagEnd(source: string, start: number): number
 }
 
 /**
+ * Brace-aware rewrite of Svelte event attributes.
+ * Converts `on:click={() => goto('/path')}` (and template-literal goto) into
+ * `data-cwl-nav="/path"`; strips other handlers without leaving residue text.
+ */
+/**
+ * Script functions whose body is plain navigation (`goto('/x')` plus at most
+ * dispatch/close bookkeeping) — resolve their names to nav targets so
+ * `on:click={setupCbrs}` compiles to data-cwl-nav instead of an unbound action.
+ */
+export function extractHandlerNavTargets(source: string): Readonly<Record<string, string>> {
+  const script = extractScriptBlocks(source);
+  const out: Record<string, string> = {};
+  const fnRe = /function\s+([a-zA-Z_$][\w$]*)\s*\([^)]*\)\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = fnRe.exec(script))) {
+    const open = m.index + m[0].length - 1;
+    let depth = 0;
+    let end = -1;
+    for (let i = open; i < script.length; i++) {
+      const ch = script[i];
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          end = i;
+          break;
+        }
+      }
+    }
+    if (end < 0) continue;
+    const body = script.slice(open + 1, end);
+    const gotos = [...body.matchAll(/\bgoto\s*\(\s*(['"])([^'"$]*)\1\s*\)/g)];
+    if (gotos.length !== 1) continue;
+    // Only bookkeeping besides the goto: dispatch(...), handleClose(), close flags.
+    const residue = body
+      .replace(/\bgoto\s*\(\s*(['"])[^'"$]*\1\s*\)\s*;?/g, "")
+      .replace(/\bdispatch\s*\([^;]*\)\s*;?/g, "")
+      .replace(/\bhandleClose\s*\(\s*\)\s*;?/g, "")
+      .replace(/\b[a-zA-Z_$][\w$]*\s*=\s*(?:false|true|null)\s*;?/g, "")
+      .replace(/\/\/[^\n]*/g, "")
+      .trim();
+    if (residue.length > 0) continue;
+    out[m[1]!] = gotos[0]![2]!;
+  }
+  return out;
+}
+
+export function rewriteSvelteEventAttributes(
+  html: string,
+  handlerNavTargets: Readonly<Record<string, string>> = {},
+): string {
+  let out = "";
+  let i = 0;
+  const attrRe = /\s+(?:on:[a-zA-Z][\w:|.-]*|on[a-z]+)\s*=\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = attrRe.exec(html)) !== null) {
+    out += html.slice(i, m.index);
+    let depth = 0;
+    let j = m.index + m[0].length - 1;
+    for (; j < html.length; j++) {
+      const ch = html[j];
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          j++;
+          break;
+        }
+      }
+    }
+    const body = html.slice(m.index + m[0].length, j - 1);
+    const eventMatch = /on:([a-zA-Z][\w.-]*)|on([a-z]+)/i.exec(m[0]);
+    const eventName = (eventMatch?.[1] ?? eventMatch?.[2] ?? "click")
+      .split("|")[0]!
+      .toLowerCase();
+    const clickEvent = eventName === "click";
+    // Accessibility duplicates (on:keydown mirroring on:click) must not emit
+    // the same data-cwl-* attribute twice on one tag.
+    const tagStart = out.lastIndexOf("<");
+    const currentTag = tagStart >= 0 ? out.slice(tagStart) : "";
+    const emitOnce = (attr: string) => {
+      // Dedupe by attribute *name* (first writer wins), not full string —
+      // on:click={toggle} + on:blur={handleBlur} must not emit two data-cwl-action=.
+      const nameMatch = /^\s*([^\s=]+)\s*=/.exec(attr);
+      const attrName = nameMatch?.[1];
+      if (attrName) {
+        const nameRe = new RegExp(
+          `(?:^|\\s)${attrName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*=`,
+        );
+        if (nameRe.test(currentTag) || nameRe.test(out.slice(tagStart >= 0 ? tagStart : 0))) {
+          return;
+        }
+      } else if (currentTag.includes(attr) || out.includes(attr)) {
+        return;
+      }
+      out += attr;
+    };
+    const emitBehavior = (kind: "action" | "nav" | "set" | "toggle", value: string) => {
+      const safe = value.replace(/"/g, "&quot;");
+      if (clickEvent) {
+        const attrName =
+          kind === "action"
+            ? "data-cwl-action"
+            : kind === "nav"
+              ? "data-cwl-nav"
+              : kind === "set"
+                ? "data-cwl-set"
+                : "data-cwl-toggle";
+        emitOnce(` ${attrName}="${safe}"`);
+      } else {
+        emitOnce(` data-cwl-on-${eventName}="${kind}:${safe}"`);
+      }
+    };
+    const gotoMatch =
+      /\bgoto\s*\(\s*(['"`])([\s\S]*?)\1(?:\s*,[\s\S]*?)?\s*\)/.exec(body);
+    if (gotoMatch) {
+      let path = String(gotoMatch[2] ?? "").trim();
+      // Template-literal `${item._id}` → `{item._id}` for each-row client render.
+      path = path.replace(/\$\{([^}]+)\}/g, "{$1}");
+      // Origin aliases that have no dedicated page — map to the converted surface.
+      if (path === "/admin/tenants") path = "/admin/tenant-management";
+      if (path && !/[;()]/.test(path.replace(/\{[^}]+\}/g, ""))) {
+        emitBehavior("nav", path);
+      }
+    } else {
+      const ignoredCalls = new Set([
+        "if",
+        "for",
+        "while",
+        "switch",
+        "setTimeout",
+        "setInterval",
+        "clearTimeout",
+        "clearInterval",
+        "preventDefault",
+        "stopPropagation",
+        "encodeURIComponent",
+        "decodeURIComponent",
+        "console",
+        "log",
+        "warn",
+        "error",
+        "String",
+        "Number",
+        "Boolean",
+        "requestAnimationFrame",
+        // `async () => …` / `await fn()` keywords look like calls to the regex.
+        "async",
+        "await",
+        "parseInt",
+        "parseFloat",
+        "isNaN",
+        "isFinite",
+      ]);
+      const calls = [
+        ...body.matchAll(/(^|[^\w$.])([a-zA-Z_$][\w$]*)\s*\(([^)]*)\)/g),
+      ];
+      // `dispatch('close')` etc. carry intent in the first string argument —
+      // promote it to the action name instead of emitting the noise `dispatch`.
+      // Generic `dispatch('action', { type: 'add-tower' })` carries intent in
+      // the payload `type` — use it so the action name is never just "action".
+      let dispatchCall = /\bdispatch\s*\(\s*(['"`])([\w-]+)\1/.exec(body);
+      if (dispatchCall && dispatchCall[2] === "action") {
+        const typed = /\btype\s*:\s*(['"`])([\w-]+)\1/.exec(body);
+        if (typed) dispatchCall = [dispatchCall[0], typed[1]!, typed[2]!] as unknown as RegExpExecArray;
+      }
+      const call = calls.find(
+        (candidate) =>
+          !ignoredCalls.has(candidate[2]!) && candidate[2] !== "dispatch",
+      );
+      const directHandler = /^\s*([a-zA-Z_$][\w$]*)\s*$/.exec(body);
+      // `condition ? truthyHandler : falsyHandler` — preserve both branches as
+      // declarative CWL state instead of silently dropping the event.
+      const conditionalHandler =
+        /^\s*([a-zA-Z_$][\w$]*)\s*\?\s*([a-zA-Z_$][\w$]*)\s*:\s*([a-zA-Z_$][\w$]*)\s*$/.exec(
+          body,
+        );
+      const setString = /\b([a-zA-Z_$][\w$]*)\s*=\s*(['"])(.*?)\2/.exec(body);
+      const setBool = /\b([a-zA-Z_$][\w$]*)\s*=\s*(true|false)\b/.exec(body);
+      // `list = list.filter((_, i) => i !== index)` — row removal by index.
+      const removeRowAssign =
+        /\b([\w$]+(?:\.[\w$]+)*)\s*=\s*\1\s*\.filter\s*\(/.exec(body);
+      // `settings.acsPassword = Math.random()…` — inline random generator.
+      const randomAssign =
+        /\b(?:[\w$]+\.)*([\w$]+)\s*=\s*Math\.random\s*\(\)/.exec(body);
+      // `showFilters = !showFilters` — flip toggle.
+      const flipBool = /\b([a-zA-Z_$][\w$]*)\s*=\s*!\s*([a-zA-Z_$][\w$]*)\b/.exec(body);
+      if (conditionalHandler) {
+        emitBehavior("action", conditionalHandler[3]!);
+        const prefix = clickEvent ? "data-cwl-action" : `data-cwl-on-${eventName}-action`;
+        emitOnce(` ${prefix}-true="${conditionalHandler[2]!.replace(/"/g, "")}"`);
+        emitOnce(` ${prefix}-state="${conditionalHandler[1]!.replace(/"/g, "")}:false"`);
+      } else if (!call && dispatchCall) {
+        emitBehavior("action", dispatchCall[2]!);
+      } else if (call && handlerNavTargets[call[2]!] && !call[3]!.trim()) {
+        emitBehavior("nav", handlerNavTargets[call[2]!]!);
+      } else if (call) {
+        const actionName = call[2]!.replace(/"/g, "");
+        if (clickEvent) {
+          emitOnce(` data-cwl-action="${actionName}"`);
+          if (call[3]!.trim()) {
+            emitOnce(
+              ` data-cwl-action-args="${call[3]!.trim().replace(/"/g, "&quot;")}"`,
+            );
+          }
+        } else {
+          emitOnce(` data-cwl-on-${eventName}="action:${actionName}"`);
+          if (call[3]!.trim()) {
+            emitOnce(
+              ` data-cwl-on-${eventName}-args="${call[3]!.trim().replace(/"/g, "&quot;")}"`,
+            );
+          }
+        }
+      } else if (directHandler && handlerNavTargets[directHandler[1]!]) {
+        emitBehavior("nav", handlerNavTargets[directHandler[1]!]!);
+      } else if (directHandler) {
+        emitBehavior("action", directHandler[1]!);
+      } else if (removeRowAssign) {
+        emitBehavior("action", "removeRow");
+      } else if (randomAssign) {
+        const prop = randomAssign[1]!;
+        emitBehavior(
+          "action",
+          `generate${prop.charAt(0).toUpperCase()}${prop.slice(1)}`,
+        );
+      } else if (setString) {
+        emitBehavior("set", `${setString[1]!}:${setString[3]!}`);
+      } else if (setBool) {
+        emitBehavior("toggle", `${setBool[1]!}:${setBool[2]!}`);
+      } else if (flipBool && flipBool[1] === flipBool[2]) {
+        emitBehavior("toggle", `${flipBool[1]!}:flip`);
+      }
+    }
+    i = j;
+    attrRe.lastIndex = j;
+  }
+  out += html.slice(i);
+  // A control with an explicit navigation target must have exactly one owner.
+  // Remove legacy/backfill behavior attrs that otherwise compete with the
+  // capture-phase data-cwl-nav router.
+  return out.replace(/<(?:button|a)\b[^>]*>/gi, (tag) => {
+    let normalized = tag;
+    if (/\sdata-cwl-nav="/i.test(normalized)) {
+      normalized = normalized
+        .replace(/\s+data-cwl-action="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action-args="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action-true="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action-state="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-set="href:[^"]*"/gi, "")
+        .replace(/\s+data-action="[^"]*"/gi, "");
+    }
+    // Runtime-only labels can disappear when an interp/if is lifted. Preserve
+    // an accessible semantic label directly from the converted action.
+    if (
+      /^<button\b/i.test(normalized) &&
+      !/\s(?:aria-label|title)=/i.test(normalized)
+    ) {
+      const action = /\sdata-cwl-action="([^"]+)"/i.exec(normalized)?.[1];
+      if (action) {
+        const words = action
+          .replace(/^(?:handle|on)(?=[A-Z])/, "")
+          .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+          .replace(/[-_]+/g, " ")
+          .trim();
+        const label = words ? words[0]!.toUpperCase() + words.slice(1) : "";
+        if (label) {
+          normalized = normalized.replace(/>$/, ` aria-label="${label.replace(/"/g, "&quot;")}">`);
+        }
+      }
+    }
+    return normalized;
+  });
+}
+
+/**
+ * Preserve safe dynamic native attributes as CWL bindings. These expressions
+ * are evaluated against the same bounded runtime context used by interp/if
+ * bindings; unsupported dynamic attributes remain honest conversion holes.
+ */
+export function rewriteSvelteDynamicAttributes(html: string): string {
+  const supported = new Set(["title", "aria-label", "disabled", "value", "placeholder"]);
+  let out = "";
+  let i = 0;
+  const attrRe = /\s+([a-zA-Z_:][\w:.-]*)\s*=\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = attrRe.exec(html)) !== null) {
+    const name = m[1]!.toLowerCase();
+    if (!supported.has(name)) continue;
+    out += html.slice(i, m.index);
+    let depth = 0;
+    let j = m.index + m[0].length - 1;
+    let quote: '"' | "'" | "`" | null = null;
+    for (; j < html.length; j++) {
+      const ch = html[j]!;
+      if (quote !== null) {
+        if (ch === "\\") {
+          j++;
+          continue;
+        }
+        if (ch === quote) quote = null;
+        continue;
+      }
+      if (ch === '"' || ch === "'" || ch === "`") {
+        quote = ch;
+        continue;
+      }
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          j++;
+          break;
+        }
+      }
+    }
+    const expr = html.slice(m.index + m[0].length, j - 1).trim();
+    if (expr && expr.length <= 240) {
+      out += ` data-cwl-attr-${name}="${expr
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")}"`;
+    }
+    i = j;
+    attrRe.lastIndex = j;
+  }
+  out += html.slice(i);
+  return out;
+}
+
+/**
  * Remove leftover Svelte self-close tails after shell substitution
  * (e.g. ` true}` + `/>` from `on:select={() => x = true}`).
  */
@@ -586,10 +953,19 @@ export function scrubStructuralMarkupArtifacts(html: string): string {
   s = s.replace(/\bform\}>/g, "form>");
   s = s.replace(/\)\}>/g, ">");
   s = s.replace(/"\}(?=[\s>])/g, '"');
-  // Broken SVG open tags like `</modules/inventory d="…">`
-  s = s.replace(/<\/modules\/[^>\s"]+\s+d=/gi, "<path d=");
-  // G9911 — broken SVG closes like `<//modules/inventory>`
-  s = s.replace(/<\/?\/modules\/[^>]*>/gi, "</path>");
+  // Broken SVG open tags like `</modules/inventory d="…">`, `</login fill="…">`.
+  // Use RegExp ctor — a `/<\/?\/…>/` literal can be misread and match normal `</p>` closes.
+  s = s.replace(
+    new RegExp(
+      "</[a-z][\\w/-]*\\s+((?:d|fill|stroke|stroke-width|stroke-linecap|stroke-linejoin|fill-rule|clip-rule|transform|opacity)=)",
+      "gi",
+    ),
+    "<path $1",
+  );
+  // G9911 — broken SVG closes like `<//modules/inventory>` / `<//dashboard>` only (two slashes).
+  s = s.replace(new RegExp("<//[a-z][\\w/-]*>", "gi"), "</path>");
+  // Residual Svelte event attrs without `=` (e.g. on:click|stopPropagation)
+  s = s.replace(/\s+on:[a-zA-Z][\w|:.]*(?=[\s/>])/g, "");
   // G9914 — residual Svelte directives left in static HTML (do not strip <script>/<style>)
   s = s.replace(/<svelte:head>[\s\S]*?<\/svelte:head>/gi, "");
   s = s.replace(/<svelte:window\b[^>]*?\/>/gi, "");
@@ -598,15 +974,27 @@ export function scrubStructuralMarkupArtifacts(html: string): string {
   s = s.replace(/<svelte:body\b[\s\S]*?<\/svelte:body>/gi, "");
   s = s.replace(/<svelte:document\b[^>]*?\/>/gi, "");
   s = s.replace(/<svelte:document\b[\s\S]*?<\/svelte:document>/gi, "");
-  // Literal `\r` / `\n` sequences left in markup text
+  // Literal `\r` / `\n` sequences left in markup text (poisoned CWL round-trip)
   s = s.replace(/\\r\\n/g, "\n");
   s = s.replace(/\\r/g, "");
   s = s.replace(/\\n/g, "\n");
+  // Real CR from Windows Svelte sources
+  s = s.replace(/\r\n/g, "\n");
+  s = s.replace(/\r/g, "\n");
+  // Residual JS template-literal fragments after naive `{…}` strip (e.g. `$`}` from
+  // `{fullName || `${first} ${last}`}` when the first `}` closed early).
+  s = s.replace(/\$`\}/g, "");
+  s = s.replace(/\$\{[^}]*\}/g, "");
+  // Residual Svelte class:directive (e.g. class:open) left after attr scrub
+  s = s.replace(/\s+class:[a-zA-Z_][\w-]*(?=[\s/>])/g, "");
   // Mojibake after ← (e.g. ←)
   s = s.replace(/←[\u0080-\u009F\uFFFD\u0090]+/g, "←");
   // G9920 — orphan `}` / handler tails after closed shell divs
   s = s.replace(/(<\/(?:div|nav)>)\s*[^<\n]*?\}\s*\/>/g, "$1");
   s = s.replace(/(<\/(?:div|nav)>)\s*\}/g, "$1");
+  // Generated CWL/static exports should be diff-clean even when source markup
+  // contains whitespace-only indentation lines or trailing spaces.
+  s = s.replace(/[ \t]+$/gm, "");
   return s;
 }
 
@@ -614,6 +1002,12 @@ export interface LiftStructuralSvelteOptions {
   readonly loadBools?: Readonly<Record<string, boolean>>;
   /** When true (default for convert-site), merge {@link DEFAULT_SHOWCASE_LOAD_BOOLS}. */
   readonly applyShowcaseLoadBools?: boolean;
+  /**
+   * Compile supported dynamic constructs to CWL runtime bindings instead of
+   * reporting them as incomplete conversion holes. Unsupported components
+   * remain honest holes.
+   */
+  readonly promoteRuntimeBindings?: boolean;
   readonly passthroughComponents?: ReadonlySet<string>;
   /** Basename → absolute `.svelte` path for static inlining. */
   readonly componentSources?: ReadonlyMap<string, string>;
@@ -624,6 +1018,11 @@ export interface LiftStructuralSvelteOptions {
    * panels so original CSS classes exist in the DOM (D6442).
    */
   readonly structuralInlineComponents?: ReadonlySet<string>;
+  /**
+   * Extra scalar values (component props resolved at the call site) merged over
+   * script-extracted scalars — settles `{title}` / `{@html content}` in lifts.
+   */
+  readonly scalarOverrides?: Readonly<Record<string, string | number | boolean>>;
   readonly modalShellComponents?: ReadonlySet<string>;
   readonly mapShellComponents?: ReadonlySet<string>;
   readonly chartShellComponents?: ReadonlySet<string>;
@@ -632,12 +1031,67 @@ export interface LiftStructuralSvelteOptions {
   readonly widgetShellComponents?: ReadonlySet<string>;
 }
 
+const RUNTIME_BINDING_REASONS = new Map<string, string>([
+  [HOLE_INTERP, "interp"],
+  [HOLE_IF, "if"],
+  [HOLE_EACH, "each"],
+]);
+
+/**
+ * Reclassify dynamic Svelte constructs supported by the CWL client runtime.
+ * A runtime binding is complete conversion work, not an unresolved hole.
+ */
+export function promoteSvelteHolesToRuntimeBindings(html: string): {
+  readonly html: string;
+  readonly promoted: number;
+} {
+  let promoted = 0;
+  const out = html.replace(
+    /\sdata-cwl-hole="(legacy:markup-lift-svelte-(?:interp|if|each))"/g,
+    (full, reason: string) => {
+      const kind = RUNTIME_BINDING_REASONS.get(reason);
+      if (!kind) return full;
+      promoted += 1;
+      return ` data-cwl-bind="${kind}"`;
+    },
+  );
+  return { html: out, promoted };
+}
+
 function holeMarker(reason: string, detail: string, inner = ""): string {
   const safeDetail = detail.replace(/"/g, "'").slice(0, 200);
   if (inner.trim().length > 0) {
     return `<div data-cwl-hole="${reason}" data-cwl-hole-detail="${safeDetail}">${inner}</div>`;
   }
   return `<span data-cwl-hole="${reason}" data-cwl-hole-detail="${safeDetail}"></span>`;
+}
+
+/**
+ * Each-hole that keeps the raw row template (bindings intact) so the client can
+ * render one node per live array item — turns a dead skeleton into real rows.
+ * The visible `inner` stays as an idle skeleton until hydrate replaces it.
+ */
+function eachHoleMarker(
+  header: string,
+  rawRowTemplate: string,
+  inner: string,
+  itemName: string | null,
+): string {
+  const safeDetail = header.replace(/"/g, "'").slice(0, 200);
+  // Only templates with resolvable `{item.field}` bindings are worth carrying.
+  const canRender =
+    itemName !== null &&
+    new RegExp(`\\{\\s*${itemName}(\\.|\\b)`).test(rawRowTemplate) &&
+    rawRowTemplate.length < 8000;
+  const attrs = canRender
+    ? ` data-cwl-each-item="${itemName}" data-cwl-each-tpl="${encodeURIComponent(
+        rawRowTemplate,
+      )}"`
+    : "";
+  if (inner.trim().length > 0) {
+    return `<div data-cwl-hole="${HOLE_EACH}" data-cwl-hole-detail="${safeDetail}"${attrs}>${inner}</div>`;
+  }
+  return `<div data-cwl-hole="${HOLE_EACH}" data-cwl-hole-detail="${safeDetail}"${attrs}></div>`;
 }
 
 function pushHole(holes: SvelteMarkupLiftHole[], reason: string, detail: string): void {
@@ -723,6 +1177,91 @@ interface SvelteBlockMatch {
   readonly header: string;
   readonly trueBody: string;
   readonly elseBody: string | null;
+  /** Raw `{:else}` / `{:else if …}` chain through end of last branch (before `{/if}`). */
+  readonly elseChainRaw: string | null;
+}
+
+/**
+ * When an `{#if}` is false, prefer rewriting the full else-if chain so later
+ * passes can resolve tabs/empty guards (do not keep only the final `{:else}`).
+ */
+function idleBranchFromElseChain(elseChainRaw: string | null, elseBody: string | null): string {
+  const chain = (elseChainRaw ?? "").trimStart();
+  if (chain) {
+    if (/^\{:else\}/i.test(chain)) {
+      return chain.replace(/^\{:else\}/i, "");
+    }
+    if (/^\{:else\s+if\b/i.test(chain)) {
+      // elseChainRaw excludes the closing `{/if}` — re-wrap so expand can re-enter.
+      return `${chain.replace(/^\{:else\s+if\b/i, "{#if")}{/if}`;
+    }
+  }
+  return elseBody ?? "";
+}
+
+/**
+ * Split an `{:else if …}` / `{:else}` chain (depth-0 markers only) into
+ * ordered branches. `header` is null for the terminal `{:else}`.
+ */
+function parseElseChain(
+  elseChainRaw: string | null,
+): Array<{ header: string | null; body: string }> {
+  const chain = elseChainRaw ?? "";
+  const branches: Array<{ header: string | null; body: string }> = [];
+  let i = 0;
+  let depth = 0;
+  let current: { header: string | null; bodyStart: number } | null = null;
+  const flush = (end: number) => {
+    if (current !== null) {
+      branches.push({ header: current.header, body: chain.slice(current.bodyStart, end) });
+      current = null;
+    }
+  };
+  while (i < chain.length) {
+    if (chain[i] !== "{") {
+      i++;
+      continue;
+    }
+    const slice = chain.slice(i);
+    if (/^\{#(if|each)\b/i.test(slice)) {
+      depth++;
+      i += 2;
+      continue;
+    }
+    if (/^\{\/(if|each)\}/i.test(slice)) {
+      depth--;
+      i += 2;
+      continue;
+    }
+    if (depth === 0 && /^\{:else\s+if\b/i.test(slice)) {
+      flush(i);
+      let j = i + 1;
+      let d = 1;
+      for (; j < chain.length; j++) {
+        if (chain[j] === "{") d++;
+        else if (chain[j] === "}") {
+          d--;
+          if (d === 0) {
+            j++;
+            break;
+          }
+        }
+      }
+      const header = chain.slice(i, j).replace(/^\{:else\s+if\b/i, "").replace(/\}$/, "").trim();
+      current = { header, bodyStart: j };
+      i = j;
+      continue;
+    }
+    if (depth === 0 && /^\{:else\}/i.test(slice)) {
+      flush(i);
+      current = { header: null, bodyStart: i + "{:else}".length };
+      i += "{:else}".length;
+      continue;
+    }
+    i++;
+  }
+  flush(chain.length);
+  return branches;
 }
 
 /** Find the next `{#if …}` or `{#each …}` block with balanced nesting. */
@@ -748,9 +1287,9 @@ export function findNextSvelteBlock(source: string, from = 0): SvelteBlockMatch 
   }
   const header = source.slice(start + 2 + kind.length, i - 1).trim();
   const bodyStart = i;
-  /** Index where the true branch ends (start of `{:else}` / `{:else if}`), if any. */
+  /** Index where the true branch ends (start of first `{:else}` / `{:else if}`). */
   let elseMarkerAt: number | null = null;
-  /** Index where the else branch body starts (after the else header). */
+  /** Index where the first else branch body starts (after that else header). */
   let elseBodyStart: number | null = null;
   depth = 1;
   while (i < source.length) {
@@ -771,6 +1310,8 @@ export function findNextSvelteBlock(source: string, from = 0): SvelteBlockMatch 
           elseMarkerAt === null ? source.slice(bodyStart, i) : source.slice(bodyStart, elseMarkerAt);
         const elseBody =
           elseBodyStart === null ? null : source.slice(elseBodyStart, i);
+        const elseChainRaw =
+          elseMarkerAt === null ? null : source.slice(elseMarkerAt, i);
         const close = slice.match(/^\{\/(if|each)\}/i)!;
         return {
           kind,
@@ -779,19 +1320,21 @@ export function findNextSvelteBlock(source: string, from = 0): SvelteBlockMatch 
           header,
           trueBody,
           elseBody,
+          elseChainRaw,
         };
       }
       i += 2;
       continue;
     }
     if (kind === "if" && depth === 1 && /^\{:else\}/i.test(slice)) {
-      elseMarkerAt = i;
-      elseBodyStart = i + "{:else}".length;
-      i = elseBodyStart;
+      if (elseMarkerAt === null) {
+        elseMarkerAt = i;
+        elseBodyStart = i + "{:else}".length;
+      }
+      i += "{:else}".length;
       continue;
     }
     if (kind === "if" && depth === 1 && /^\{:else\s+if\b/i.test(slice)) {
-      elseMarkerAt = i;
       let d = 1;
       let j = i + 1;
       for (; j < source.length; j++) {
@@ -804,7 +1347,10 @@ export function findNextSvelteBlock(source: string, from = 0): SvelteBlockMatch 
           }
         }
       }
-      elseBodyStart = j;
+      if (elseMarkerAt === null) {
+        elseMarkerAt = i;
+        elseBodyStart = j;
+      }
       i = j;
       continue;
     }
@@ -848,7 +1394,85 @@ export function extractScriptScalarsFromSvelte(source: string): {
       scalars[name] = Number(m[2]);
     }
   }
+  // Static template literals (no interpolation) — help/docs HTML blobs.
+  const tplRe =
+    /(?:export\s+)?(?:const|let)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::[^=]+)?=\s*`((?:[^`$\\]|\\[\s\S]|\$(?!\{))*)`\s*[;\n,]/g;
+  while ((m = tplRe.exec(script))) {
+    const name = m[1]!;
+    if (!(name in scalars)) scalars[name] = m[2]!;
+  }
+  // Aliases (`const helpContent = planDocs;`) — copy resolved scalar values.
+  const aliasRe =
+    /(?:export\s+)?(?:const|let)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::[^=]+)?=\s*([a-zA-Z_$][\w$]*)\s*[;\n]/g;
+  while ((m = aliasRe.exec(script))) {
+    const name = m[1]!;
+    const ref = m[2]!;
+    if (!(name in scalars) && ref in scalars) scalars[name] = scalars[ref]!;
+    if (!(name in bools) && ref in bools) bools[name] = bools[ref]!;
+  }
   return { bools, scalars };
+}
+
+/**
+ * Parse literal / statically-resolvable props off a PascalCase component tag
+ * (`<HelpModal title="Plan Help" content={helpContent} show={showHelpModal}>`)
+ * so inlined component lifts can settle prop-driven text (D6443 / help modals).
+ */
+export function parseComponentTagProps(
+  tagText: string,
+  pageScalars: Readonly<Record<string, string | number | boolean>>,
+  pageBools: Readonly<Record<string, boolean>>,
+): { scalars: Record<string, string | number | boolean>; bools: Record<string, boolean> } {
+  const scalars: Record<string, string | number | boolean> = {};
+  const bools: Record<string, boolean> = {};
+  // Quoted literal props: title="Plan Module Help"
+  const litRe = /\s([a-zA-Z_][\w-]*)\s*=\s*(['"])([^'"]*)\2/g;
+  let m: RegExpExecArray | null;
+  while ((m = litRe.exec(tagText))) {
+    const name = m[1]!;
+    if (name.startsWith("on") || name.includes(":")) continue;
+    scalars[name] = m[3]!;
+  }
+  // Brace props: content={helpContent} / show={true} / count={3}
+  const braceRe = /\s([a-zA-Z_][\w-]*)\s*=\s*\{/g;
+  while ((m = braceRe.exec(tagText))) {
+    const name = m[1]!;
+    if (name.startsWith("on") || name.includes(":")) continue;
+    const open = m.index + m[0].length - 1;
+    let depth = 0;
+    let end = -1;
+    for (let i = open; i < tagText.length; i++) {
+      if (tagText[i] === "{") depth++;
+      else if (tagText[i] === "}") {
+        depth--;
+        if (depth === 0) {
+          end = i;
+          break;
+        }
+      }
+    }
+    if (end < 0) continue;
+    const expr = tagText.slice(open + 1, end).trim();
+    if (expr === "true" || expr === "false") {
+      bools[name] = expr === "true";
+      scalars[name] = expr === "true";
+    } else if (/^-?\d+(?:\.\d+)?$/.test(expr)) {
+      scalars[name] = Number(expr);
+    } else {
+      const strLit = /^(['"])([\s\S]*)\1$/.exec(expr);
+      if (strLit) {
+        scalars[name] = strLit[2]!;
+      } else if (/^[a-zA-Z_$][\w$]*$/.test(expr)) {
+        if (Object.prototype.hasOwnProperty.call(pageScalars, expr)) {
+          scalars[name] = pageScalars[expr]!;
+        }
+        if (Object.prototype.hasOwnProperty.call(pageBools, expr)) {
+          bools[name] = pageBools[expr]!;
+        }
+      }
+    }
+  }
+  return { scalars, bools };
 }
 
 /**
@@ -882,6 +1506,45 @@ export function extractConstObjectArraysFromSvelte(
     const lit = script.slice(openIdx, i);
     const rows = parseLooseObjectArrayLiteral(lit);
     if (rows.length > 0) out[name] = rows;
+  }
+  return out;
+}
+
+/**
+ * Pull `const NAME = { key: 'Label', … }` flat string maps from Svelte `<script>`.
+ * Settles `{ROLE_NAMES[role]}` style interps after string-each substitution.
+ */
+export function extractConstStringMapsFromSvelte(
+  source: string,
+): Readonly<Record<string, Readonly<Record<string, string>>>> {
+  const script = extractScriptBlocks(source);
+  const out: Record<string, Record<string, string>> = {};
+  const re = /(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*\{([^{}]*)\}/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(script))) {
+    const pairs = [...m[2]!.matchAll(/(['"]?)([\w-]+)\1\s*:\s*(['"])([^'"]*)\3/g)];
+    if (pairs.length > 0) {
+      out[m[1]!] = Object.fromEntries(pairs.map((p) => [p[2]!, p[4]!]));
+    }
+  }
+  return out;
+}
+
+/**
+ * Pull `const name = ['a', 'b', …]` string arrays from Svelte `<script>` (origin truth).
+ * Expands `{#each statuses as status}` filter dropdowns without leaving holes.
+ */
+export function extractConstStringArraysFromSvelte(
+  source: string,
+): Readonly<Record<string, ReadonlyArray<string>>> {
+  const script = extractScriptBlocks(source);
+  const out: Record<string, string[]> = {};
+  const re =
+    /(?:export\s+)?(?:const|let)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::[^=]+)?=\s*\[((?:\s*(?:'[^']*'|"[^"]*")\s*,?)+)\s*\]/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(script))) {
+    const items = [...m[2]!.matchAll(/'([^']*)'|"([^"]*)"/g)].map((x) => x[1] ?? x[2] ?? "");
+    if (items.length > 0) out[m[1]!] = items;
   }
   return out;
 }
@@ -987,14 +1650,74 @@ function expandEachTemplateForRow(
     const v = row[prop];
     return v == null ? "" : String(v);
   });
-  // onclick={() => handleModuleClick(module)} → navigate via data-cwl-nav
-  if (typeof row.path === "string" && row.path) {
+  // Event expressions reference row values without Svelte interpolation braces
+  // (`selectedTopic = topic.id`, `goto(w.path)`). Resolve primitive values before
+  // the event rewriter so they become concrete set/nav descriptors.
+  for (const [prop, value] of Object.entries(row)) {
+    if (!["string", "number", "boolean"].includes(typeof value)) continue;
     t = t.replace(
-      /\s(?:onclick|on:click)=\{[^}]+\}/g,
-      ` data-cwl-nav="${String(row.path).replace(/"/g, "")}"`,
+      new RegExp(`\\b${itemName}\\.${prop.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g"),
+      JSON.stringify(value),
+    );
+  }
+  // Quote bare URL attrs expanded from {item.href} so scrub does not eat `href=/…`.
+  t = t.replace(
+    /\s(href|src|action|data-cwl-nav)\s*=\s*(\/(?:[^>\s"']*))(?=[\s>])/gi,
+    (_m, attr: string, url: string) => ` ${attr}="${url.replace(/"/g, "")}"`,
+  );
+  // Resolve row-local handlers after row values are known. This includes
+  // catalog-driven wizard navigation whose source first assigns a local `url`.
+  t = rewriteSvelteEventAttributes(t);
+  const rowPath =
+    typeof row.modulePath === "string" && row.modulePath
+      ? row.modulePath
+      : typeof row.path === "string"
+        ? row.path
+        : "";
+  if (rowPath && row.id) {
+    const wizardPath = `${rowPath}${rowPath.includes("?") ? "&" : "?"}wizard=${encodeURIComponent(String(row.id))}`;
+    if (row.openHere === true) {
+      t = t.replace(
+        /\sdata-cwl-action="(?:goto|if)"(?:\sdata-cwl-action-args="[^"]*")?/g,
+        ` data-cwl-action="open-${String(row.id).replace(/"/g, "")}"`,
+      );
+    } else {
+      t = t.replace(
+        /\sdata-cwl-action="goto"(?:\sdata-cwl-action-args="[^"]*")?/g,
+        ` data-cwl-nav="${wizardPath.replace(/"/g, "")}"`,
+      );
+    }
+  } else if (rowPath) {
+    t = t.replace(
+      /\sdata-cwl-action="[^"]+"(?:\sdata-cwl-action-args="[^"]*")?/g,
+      ` data-cwl-nav="${String(rowPath).replace(/"/g, "")}"`,
     );
   }
   return t;
+}
+
+const BUSY_TOGGLE_IDENT_RE =
+  /^(isSigningIn|isSaving|saving|loading[A-Z]\w*|isLoading|loading)$/i;
+
+/** Empty-state guards — keep list/table chrome; stamp the empty branch closed for hydrate. */
+function isEmptyStateLengthGuard(header: string): boolean {
+  return /\.length\s*===\s*0\b/.test(header) || /\.length\s*==\s*0\b/.test(header);
+}
+
+/**
+ * Compound `!isLoading && …` / `!loading && …` — when busy is settled false, keep the
+ * idle content (hardware inventory table). Do not stampClosed the whole section.
+ */
+function resolveNegatedBusyCompound(
+  header: string,
+  loadBools: Readonly<Record<string, boolean>>,
+): boolean | null {
+  const m = /^!\s*(isLoading|loading)\b/.exec(header.trim());
+  if (!m) return null;
+  const key = m[1]!;
+  if (!Object.prototype.hasOwnProperty.call(loadBools, key)) return null;
+  // !isLoading when isLoading===false → show true branch
+  return loadBools[key] !== true;
 }
 
 function expandControlFlow(
@@ -1002,6 +1725,8 @@ function expandControlFlow(
   loadBools: Readonly<Record<string, boolean>>,
   holes: SvelteMarkupLiftHole[],
   staticArrays: Readonly<Record<string, ReadonlyArray<Readonly<Record<string, unknown>>>>> = {},
+  scalarValues: Readonly<Record<string, string | number | boolean>> = {},
+  stringArrays: Readonly<Record<string, ReadonlyArray<string>>> = {},
 ): string {
   let s = source;
   let guard = 0;
@@ -1027,19 +1752,56 @@ function expandControlFlow(
         replacement = staticArrays[named[1]!]!
           .map((row) => expandEachTemplateForRow(block.trueBody, itemName, row))
           .join("\n");
+      } else if (named && stringArrays[named[1]!]?.length) {
+        // Origin `const statuses = ['open', …]` — expand filter options from script truth.
+        const itemName = named[2]!;
+        const attrRe = new RegExp(`=\\{${itemName}\\}`, "g");
+        const textRe = new RegExp(`\\{${itemName}\\}`, "g");
+        const headerIdentRe = new RegExp(`(?<![.\\w'])${itemName}(?![\\w'])`, "g");
+        replacement = stringArrays[named[1]!]!
+          .map((item) => {
+            const quoted = `'${item.replace(/'/g, "\\'")}'`;
+            return block.trueBody
+              .replace(attrRe, `="${item.replace(/"/g, "&quot;")}"`)
+              .replace(textRe, item)
+              .replace(/\{[^{}]*\}/g, (mus) => mus.replace(headerIdentRe, quoted));
+          })
+          .join("");
       } else {
         pushHole(holes, HOLE_EACH, block.header.slice(0, 120));
-        const cleanedInner = block.trueBody.replace(/\{[a-zA-Z_$][^}]*\}/g, "").trim();
-        replacement = holeMarker(HOLE_EACH, block.header.slice(0, 120), cleanedInner);
+        const rowTpl = rewriteSvelteEventAttributes(block.trueBody);
+        const cleanedInner = rowTpl
+          .replace(/\{[a-zA-Z_$][^}]*\}/g, "")
+          .replace(/\s+data-cwl-nav="[^"]*"/g, "")
+          .trim();
+        replacement = eachHoleMarker(block.header, rowTpl, cleanedInner, named?.[2] ?? null);
       }
     } else {
       // if — resolve simple idents and !ident against loadBools (D6443 login form).
       const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
       const negated = /^!\s*([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
+      const strEq = /^([a-zA-Z_][a-zA-Z0-9_]*)\s*===\s*['"]([^'"]*)['"]$/.exec(block.header);
+      const tabAndCompanion =
+        /^([a-zA-Z_][a-zA-Z0-9_]*)\s*===\s*['"]([^'"]*)['"]\s*&&\s*[a-zA-Z_][a-zA-Z0-9_]*$/.exec(
+          block.header,
+        );
+      const busyCompound = resolveNegatedBusyCompound(block.header, loadBools);
+      const idle = () => idleBranchFromElseChain(block.elseChainRaw, block.elseBody);
+      const litCmp =
+        /^(['"])([\s\S]*?)\1\s*(===|!==|==|!=)\s*(['"])([\s\S]*?)\4$/.exec(block.header);
       if (/^true$/i.test(block.header)) {
         replacement = block.trueBody;
       } else if (/^false$/i.test(block.header)) {
-        replacement = block.elseBody ?? "";
+        replacement = idle();
+      } else if (litCmp) {
+        // Literal comparison from string-array each substitution — pure origin truth.
+        const eq = litCmp[2] === litCmp[5];
+        const on = litCmp[3]!.startsWith("!") ? !eq : eq;
+        replacement = on ? block.trueBody : idle();
+      } else if (busyCompound !== null) {
+        replacement = busyCompound
+          ? block.trueBody
+          : idle() || stampClosedUiChrome(block.trueBody);
       } else if (
         negated &&
         Object.prototype.hasOwnProperty.call(loadBools, negated[1]!)
@@ -1047,7 +1809,7 @@ function expandControlFlow(
         // `{#if !showPasswordReset}` must show the form when showPasswordReset is false —
         // never stampClosed the trueBody (that hid email/password on management login).
         const on = loadBools[negated[1]!] === true;
-        replacement = !on ? block.trueBody : (block.elseBody ?? "");
+        replacement = !on ? block.trueBody : idle();
       } else if (
         simple &&
         Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)
@@ -1055,14 +1817,10 @@ function expandControlFlow(
         const on = loadBools[simple[1]!] === true;
         if (isUiToggleOverlayIfHeader(block.header) && !on) {
           // Busy/loading toggles: keep else (idle CTA); only stamp the busy branch.
-          if (
-            /^(isSigningIn|isSaving|saving|loading[A-Z]|isLoading|loading)$/i.test(simple[1]!) ||
-            /^(isSigningIn|isSaving|saving|loading)/i.test(block.header)
-          ) {
+          if (BUSY_TOGGLE_IDENT_RE.test(simple[1]!)) {
+            const idleHtml = idle();
             replacement =
-              (block.elseBody && block.elseBody.trim().length > 0
-                ? block.elseBody
-                : "") +
+              (idleHtml.trim().length > 0 ? idleHtml : "") +
               (block.trueBody.trim().length > 0
                 ? stampClosedUiChrome(block.trueBody)
                 : "");
@@ -1071,17 +1829,114 @@ function expandControlFlow(
             replacement = stampClosedUiChrome(block.trueBody);
           }
         } else {
-          replacement = on ? block.trueBody : (block.elseBody ?? "");
+          replacement = on ? block.trueBody : idle();
         }
+      } else if (
+        strEq &&
+        Object.prototype.hasOwnProperty.call(scalarValues, strEq[1]!) &&
+        typeof scalarValues[strEq[1]!] === "string"
+      ) {
+        const ident = strEq[1]!;
+        const current = String(scalarValues[ident]);
+        const identEq = new RegExp(`^${ident}\\s*===\\s*['"]([^'"]*)['"]$`);
+        const chainBranches = parseElseChain(block.elseChainRaw);
+        const isStateChain =
+          chainBranches.length > 0 &&
+          chainBranches.every((b) => b.header === null || identEq.test(b.header.trim()));
+        const standaloneStatePanel =
+          chainBranches.length === 0 && (block.elseChainRaw ?? "").trim() === "";
+        if (standaloneStatePanel && current !== strEq[2]) {
+          // Standalone `{#if mapView === 'graphs'}` off-state: keep the branch in
+          // the DOM as a hidden state panel (monitoring/hardware tab panels) so
+          // data-cwl-set toggles reveal it — never drop origin markup.
+          const detail = `${ident} === '${strEq[2]!.replace(/'/g, "\\'")}'`;
+          replacement = `<div data-cwl-bind="if" data-cwl-hole-detail="${detail.replace(/"/g, "&quot;")}" hidden aria-hidden="true">${block.trueBody}</div>`;
+        } else if (isStateChain && chainBranches.some((b) => b.header !== null)) {
+          // Scalar-state switcher (help topics, tab chains): keep every branch in
+          // the DOM as a state panel. data-cwl-set clicks toggle visibility; the
+          // initializer picks the visible branch (origin truth, no dropped docs).
+          const all = [{ header: block.header, body: block.trueBody }, ...chainBranches];
+          const values = all.map((b) =>
+            b.header ? (identEq.exec(b.header.trim())?.[1] ?? "") : null,
+          );
+          const anyActive = values.some((v) => v === current);
+          replacement = all
+            .map((b, idx) => {
+              const value = values[idx] ?? null;
+              const active = value === null ? !anyActive : value === current;
+              const detail =
+                value === null
+                  ? `${ident} === '__fallback'`
+                  : `${ident} === '${value.replace(/'/g, "\\'")}'`;
+              const fallbackAttr =
+                value === null ? ` data-cwl-state-fallback="${ident}"` : "";
+              const closed = active ? "" : ` hidden aria-hidden="true"`;
+              return `<div data-cwl-bind="if" data-cwl-hole-detail="${detail.replace(/"/g, "&quot;")}"${fallbackAttr}${closed}>${b.body}</div>`;
+            })
+            .join("");
+        } else {
+          const on = current === strEq[2];
+          if (on) {
+            replacement = block.trueBody;
+          } else {
+            // Off-state tab body (mixed chain, e.g. `{:else if tab === 'all' && …}`):
+            // keep the true branch hidden in the DOM so tab clicks reveal origin
+            // markup (hardware epc tab / SNMPDevicesPanel) — never drop it.
+            const detail = `${ident} === '${strEq[2]!.replace(/'/g, "\\'")}'`;
+            replacement =
+              `<div data-cwl-bind="if" data-cwl-hole-detail="${detail.replace(/"/g, "&quot;")}" hidden aria-hidden="true">${block.trueBody}</div>` +
+              idle();
+          }
+        }
+      } else if (
+        tabAndCompanion &&
+        Object.prototype.hasOwnProperty.call(scalarValues, tabAndCompanion[1]!) &&
+        typeof scalarValues[tabAndCompanion[1]!] === "string" &&
+        String(scalarValues[tabAndCompanion[1]!]) === tabAndCompanion[2]
+      ) {
+        // `activeTab === 'overview' && schema` — companion data loads later; keep tab chrome.
+        replacement = block.trueBody;
+      } else if (simple && /Message$/i.test(simple[1]!)) {
+        // Toast/banner messages default closed until hydrate.
+        replacement = stampClosedUiChrome(block.trueBody);
+      } else if (/^[a-zA-Z_][\w]*\?\.[\w.?[\]]*$/.test(block.header)) {
+        // Optional presence (`mapState?.activePlan`) — closed until hydrate (D6448).
+        replacement =
+          (idle().trim().length > 0 ? idle() : "") +
+          (block.trueBody.trim().length > 0 ? stampClosedUiChrome(block.trueBody) : "");
+      } else if (
+        /^[a-zA-Z_][\w]*\.[a-zA-Z_][\w.]*$/.test(block.header) &&
+        !/\.length\b/.test(block.header)
+      ) {
+        // Nested field presence (`plan.description`) — keep else / stamp true.
+        replacement =
+          (idle().trim().length > 0 ? idle() : "") +
+          (block.trueBody.trim().length > 0 ? stampClosedUiChrome(block.trueBody) : "");
+      } else if (isEmptyStateLengthGuard(block.header)) {
+        // `{#if items.length === 0}` / sites empty — keep table/list else; stamp empty.
+        const idleHtml = idle();
+        replacement =
+          (idleHtml.trim().length > 0 ? idleHtml : "") +
+          (block.trueBody.trim().length > 0 ? stampClosedUiChrome(block.trueBody) : "");
       } else if (isUiToggleOverlayIfHeader(block.header) && simple) {
         // Unknown show* — default closed chrome.
         replacement = stampClosedUiChrome(block.trueBody);
       } else if (isUiToggleOverlayIfHeader(block.header) && negated) {
         // Unknown !show* — assume show is false → main content visible.
         replacement = block.trueBody;
+      } else if (isUiToggleOverlayIfHeader(block.header)) {
+        // Compound toggles (`showFilters && !isDeployMode`) — keep closed chrome (D6442).
+        replacement = stampClosedUiChrome(block.trueBody);
+      } else if (/^[a-zA-Z_][\w]*\.length\s*>\s*0$/.test(block.header)) {
+        // Prop arrays (`wizards.length > 0`) — keep trigger chrome; rows bind later (D6442).
+        replacement = block.trueBody;
       } else {
         pushHole(holes, HOLE_IF, block.header.slice(0, 120));
-        replacement = holeMarker(HOLE_IF, block.header.slice(0, 120), block.trueBody.trim());
+        // Keep the else chain alive: re-wrapped `{:else if}` / `{:else}` bodies
+        // re-enter this loop, so runtime-bound branches never swallow the rest
+        // of the chain (monitoring epc list dropped behind epcLoadError hole).
+        replacement =
+          holeMarker(HOLE_IF, block.header.slice(0, 120), block.trueBody.trim()) + idle();
       }
     }
     s = s.slice(0, block.start) + replacement + s.slice(block.end);
@@ -1136,6 +1991,8 @@ function tryInlineStructuralComponent(
   loadBools: Readonly<Record<string, boolean>>,
   passthrough: ReadonlySet<string>,
   depth: number,
+  propScalars: Readonly<Record<string, string | number | boolean>> = {},
+  propBools: Readonly<Record<string, boolean>> = {},
 ): string | null {
   if (depth > 6) return null;
   if (!structuralInline.has(name) || !componentSources?.has(name)) return null;
@@ -1144,14 +2001,26 @@ function tryInlineStructuralComponent(
     if (!existsSync(path) || !statSync(path).isFile()) return null;
     const raw = readFileSync(path, "utf8");
     // Open `{#if show}` chrome so closed-source panels still lift into the DOM.
-    const inlineBools = { ...loadBools, show: true };
+    const inlineBools = { ...loadBools, ...propBools, show: true };
+    // The component's own `.svelte` imports are source truth for its children
+    // (HSSManagementModal → SubscriberList). Charts/maps stay runtime islands.
+    const nestedInline = new Set(structuralInline);
+    const impRe = /import\s+([A-Za-z_$][\w$]*)\s+from\s+['"][^'"]+\.svelte['"]/g;
+    let im: RegExpExecArray | null;
+    while ((im = impRe.exec(raw))) {
+      const child = im[1]!;
+      if (!componentSources.has(child)) continue;
+      if (/(?:Chart|Map)$/.test(child)) continue;
+      nestedInline.add(child);
+    }
     const lifted = liftStructuralSveltePageHtml(raw, {
       ...opts,
       loadBools: inlineBools,
+      scalarOverrides: { ...(opts.scalarOverrides ?? {}), ...propScalars },
       applyShowcaseLoadBools: false,
       passthroughComponents: passthrough,
       componentSources,
-      structuralInlineComponents: structuralInline,
+      structuralInlineComponents: nestedInline,
       _inlineDepth: depth + 1,
     } as LiftStructuralSvelteOptions & { _inlineDepth?: number });
     if (lifted === null || typeof lifted.html !== "string" || lifted.html.trim().length < 8) {
@@ -1196,10 +2065,17 @@ export function liftStructuralSveltePageHtml(
     opts.applyShowcaseLoadBools === true
       ? DEFAULT_SHOWCASE_LOAD_BOOLS
       : ({} as Record<string, boolean>);
-  const scriptScalars = extractScriptScalarsFromSvelte(source);
-  const loadBools = { ...showcase, ...scriptScalars.bools, ...(opts.loadBools ?? {}) };
+  // Windows Module_Manager sources are CRLF; normalize before structural rewrite so
+  // CR never becomes a JSON `\r` escape that later incomplete unescapes leave as text.
+  const normalizedSource = source.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const scriptScalars = extractScriptScalarsFromSvelte(normalizedSource);
+  // Showcase settle must win over origin `let loading = true` initializers — those are
+  // pre-fetch busy flags, not first-paint truth for static CWL (G9500 / sites table).
+  // Order: script defaults → showcase → explicit opts.
+  const loadBools = { ...scriptScalars.bools, ...showcase, ...(opts.loadBools ?? {}) };
   const scalarValues: Record<string, string | number | boolean> = {
     ...scriptScalars.scalars,
+    ...(opts.scalarOverrides ?? {}),
   };
   const passthrough = opts.passthroughComponents ?? DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS;
   const staticInline = opts.staticInlineComponents ?? DEFAULT_STATIC_INLINE_COMPONENTS;
@@ -1222,7 +2098,7 @@ export function liftStructuralSveltePageHtml(
     return null;
   };
 
-  const staticHtml = liftStaticSveltePageHtml(source, loadBools);
+  const staticHtml = liftStaticSveltePageHtml(normalizedSource, loadBools);
   if (staticHtml !== null) {
     return {
       html: staticHtml,
@@ -1233,15 +2109,25 @@ export function liftStructuralSveltePageHtml(
   }
 
   const holes: SvelteMarkupLiftHole[] = [];
-  let s = stripSvelteNonMarkup(source);
+  let s = stripSvelteNonMarkup(normalizedSource);
 
   // Literal @html strings
   s = s.replace(/\{@html\s+"([^"]*)"\s*\}/g, "$1");
+  // `{@html content}` where `content` resolved to a static string (script const,
+  // alias, inlined $lib docs, or component prop) — emit the HTML directly.
+  s = s.replace(/\{@html\s+([a-zA-Z_$][\w$]*)\s*\}/g, (full, ident: string) =>
+    Object.prototype.hasOwnProperty.call(scalarValues, ident) &&
+    typeof scalarValues[ident] === "string"
+      ? String(scalarValues[ident])
+      : full,
+  );
 
   // Balanced if/each (fixes nested blocks that left orphan `{/if}` → fake `/if` interps)
   // Expand `{#each modules as module}` from origin `const modules = […]` (D6442/D6443).
-  const staticArrays = extractConstObjectArraysFromSvelte(source);
-  s = expandControlFlow(s, loadBools, holes, staticArrays);
+  const staticArrays = extractConstObjectArraysFromSvelte(normalizedSource);
+  const stringArrays = extractConstStringArraysFromSvelte(normalizedSource);
+  const stringMaps = extractConstStringMapsFromSvelte(normalizedSource);
+  s = expandControlFlow(s, loadBools, holes, staticArrays, scalarValues, stringArrays);
 
   // Component tags (PascalCase) — brace-aware so `() =>` does not truncate (G9904)
   s = s.replace(/<\/([A-Z][A-Za-z0-9_]*)>/g, (_m, name) =>
@@ -1264,6 +2150,7 @@ export function liftStructuralSveltePageHtml(
             // Origin iframe → /modules/coverage-map ArcGIS (D6442 / D6448-ST).
             out += sharedMapIslandMarkup(tagText);
           } else {
+            const tagProps = parseComponentTagProps(tagText, scalarValues, loadBools);
             const structural = tryInlineStructuralComponent(
               n,
               opts.componentSources,
@@ -1272,6 +2159,8 @@ export function liftStructuralSveltePageHtml(
               loadBools,
               passthrough,
               inlineDepth,
+              tagProps.scalars,
+              tagProps.bools,
             );
             if (structural !== null) {
               out += structural;
@@ -1312,11 +2201,12 @@ export function liftStructuralSveltePageHtml(
     s = out;
   }
 
-  // Event handlers and binds on attributes
-  if (/\bon[a-z]+\s*=\s*\{/i.test(s) || /\bbind:[a-zA-Z]/.test(s)) {
-    pushHole(holes, HOLE_EVENT, "event-or-bind attributes stripped");
-  }
-  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*\{[^}]*\}/g, "");
+  // Event handlers and binds on attributes — brace-aware; promote goto() to data-cwl-nav.
+  // Events compile to data-cwl-nav/action/set/toggle below. Native form values
+  // remain usable after bind:* is removed, so neither is an unsupported hole.
+  // Named handlers that only navigate resolve to their goto target (nav, not action).
+  s = rewriteSvelteEventAttributes(s, extractHandlerNavTargets(normalizedSource));
+  s = rewriteSvelteDynamicAttributes(s);
   s = s.replace(/\s+bind:[a-zA-Z][a-zA-Z0-9_]*\s*=\s*\{[^}]*\}/g, "");
   s = s.replace(/\s+bind:[a-zA-Z][a-zA-Z0-9_]*/g, "");
   s = s.replace(/\s+transition:[a-zA-Z][a-zA-Z0-9_]*(?:\s*=\s*\{[^}]*\})?/g, "");
@@ -1396,11 +2286,63 @@ export function liftStructuralSveltePageHtml(
         i++;
         continue;
       }
+      // Brace-aware close that respects `…${…}…` template literals (customer.fullName || `…`).
       let depth = 0;
       let j = i;
+      let quote: '"' | "'" | null = null;
+      let tick = false;
+      let tickExpr = 0;
       for (; j < s.length; j++) {
-        if (s[j] === "{") depth++;
-        else if (s[j] === "}") {
+        const ch = s[j]!;
+        if (quote !== null) {
+          if (ch === "\\") {
+            j++;
+            continue;
+          }
+          if (ch === quote) quote = null;
+          continue;
+        }
+        if (tick) {
+          if (ch === "\\") {
+            j++;
+            continue;
+          }
+          if (tickExpr > 0) {
+            if (ch === "'" || ch === '"') {
+              quote = ch;
+              continue;
+            }
+            if (ch === "{") tickExpr++;
+            else if (ch === "}") {
+              tickExpr--;
+              if (tickExpr === 0 && depth === 0) {
+                j++;
+                break;
+              }
+            }
+            continue;
+          }
+          if (ch === "`") {
+            tick = false;
+            continue;
+          }
+          if (ch === "$" && s[j + 1] === "{") {
+            tickExpr = 1;
+            j++;
+            continue;
+          }
+          continue;
+        }
+        if (ch === "'" || ch === '"') {
+          quote = ch;
+          continue;
+        }
+        if (ch === "`") {
+          tick = true;
+          continue;
+        }
+        if (ch === "{") depth++;
+        else if (ch === "}") {
           depth--;
           if (depth === 0) {
             j++;
@@ -1427,6 +2369,39 @@ export function liftStructuralSveltePageHtml(
       // Origin script scalars (const/let) — honest text, not invented.
       if (Object.prototype.hasOwnProperty.call(scalarValues, expr)) {
         out += String(scalarValues[expr]);
+        i = j;
+        continue;
+      }
+      // `{arr.length}` for origin `const arr = […]` — settle from script truth.
+      const lenOf = /^([a-zA-Z_][a-zA-Z0-9_]*)\.length$/.exec(expr);
+      if (lenOf && staticArrays[lenOf[1]!]) {
+        out += String(staticArrays[lenOf[1]!]!.length);
+        i = j;
+        continue;
+      }
+      if (lenOf && stringArrays[lenOf[1]!]) {
+        out += String(stringArrays[lenOf[1]!]!.length);
+        i = j;
+        continue;
+      }
+      // `{ROLE_NAMES['owner']}` — origin const map lookup (post string-each substitution).
+      const mapLookup = /^([A-Za-z_$][\w$]*)\[\s*(['"])([\w-]+)\2\s*\]$/.exec(expr);
+      if (mapLookup && stringMaps[mapLookup[1]!]?.[mapLookup[3]!] !== undefined) {
+        out += stringMaps[mapLookup[1]!]![mapLookup[3]!]!;
+        i = j;
+        continue;
+      }
+      // `activeTab === 'x' ? 'A' : 'B'` — settle from origin scalar initializer.
+      const scalarTern =
+        /^([a-zA-Z_][a-zA-Z0-9_]*)\s*===\s*(['"])([^'"]*)\2\s*\?\s*(['"])([\s\S]*?)\4\s*:\s*(['"])([\s\S]*?)\6$/.exec(
+          expr,
+        );
+      if (
+        scalarTern &&
+        Object.prototype.hasOwnProperty.call(scalarValues, scalarTern[1]!) &&
+        typeof scalarValues[scalarTern[1]!] === "string"
+      ) {
+        out += String(scalarValues[scalarTern[1]!]) === scalarTern[3] ? scalarTern[5]! : scalarTern[7]!;
         i = j;
         continue;
       }
@@ -1464,15 +2439,24 @@ export function liftStructuralSveltePageHtml(
     s = out;
   }
 
-  s = s.replace(/\s+[a-zA-Z_:][\w:.-]*\s*=\s*(?:""|'')?(?=[\s/>])/g, "");
+  // Drop truly empty attrs only. Do not treat `href=/path` as empty (`/` is a value).
+  s = s.replace(/\s+[a-zA-Z_:][\w:.-]*\s*=\s*(?:""|'')?(?=[\s>])/g, "");
   s = scrubStructuralMarkupArtifacts(s);
   s = s.trim().replace(/\n{3,}/g, "\n\n");
   if (s.length === 0 || !/<[a-z]/i.test(s)) return null;
 
+  const promoted = opts.promoteRuntimeBindings
+    ? promoteSvelteHolesToRuntimeBindings(s)
+    : { html: s, promoted: 0 };
+  const resultHoles =
+    promoted.promoted > 0
+      ? holes.filter((hole) => !RUNTIME_BINDING_REASONS.has(hole.reason))
+      : holes;
+
   return {
-    html: s,
-    classNames: extractHtmlClassNames(s),
+    html: promoted.html,
+    classNames: extractHtmlClassNames(promoted.html),
     liftMode: "structural-shell",
-    holes,
+    holes: resultHoles,
   };
 }

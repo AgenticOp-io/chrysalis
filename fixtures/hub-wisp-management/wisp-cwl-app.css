@@ -12,8 +12,31 @@
 .modal-overlay[hidden],
 .modal[hidden],
 .filters-modal[hidden],
+.tips-overlay[hidden],
+.help-overlay[hidden],
+.marketing-backdrop[hidden],
+.popup-overlay[hidden],
+.demo-visitor-panel[hidden],
+.password-reset-form[hidden],
 [hidden] {
   display: none !important;
+}
+
+/* Tips "Got it" must not inherit help/modal .close-btn 32×32 icon sizing. */
+.tips-footer .btn-secondary,
+.tips-footer .tips-got-it {
+  width: auto !important;
+  height: auto !important;
+  min-width: 5.5rem;
+  padding: 0.5rem 1.1rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1.25 !important;
+  border-radius: 0.5rem !important;
+  background: var(--brand-primary, #0ea5e9) !important;
+  color: #0b1220 !important;
+  border: none !important;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 /* Module interior pages (Phase 27c shells) */
@@ -587,4 +610,108 @@ select[data-cwl-filter-shell] {
   border-radius: 0.35rem;
   font-size: 0.8rem;
   color: #cde;
+}
+
+.cwl-converted-wizard {
+  display: grid;
+  gap: 1rem;
+}
+
+.cwl-wizard-progress {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cwl-wizard-progress-step {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #9bb;
+}
+
+.cwl-wizard-progress-step.active,
+.cwl-wizard-progress-step.complete {
+  border-color: #00d9ff;
+  background: rgba(0, 217, 255, 0.16);
+  color: #fff;
+}
+
+.cwl-wizard-step {
+  display: grid;
+  gap: 0.75rem;
+  border: 0;
+  padding: 0;
+}
+
+.cwl-wizard-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.cwl-wizard-review {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.4fr) 1fr;
+  gap: 0.4rem 0.75rem;
+}
+
+.cwl-wizard-review dt {
+  color: #9bb;
+}
+
+.cwl-wizard-review dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.modal-overlay.cwl-shell-open,
+.wizard-overlay.cwl-shell-open,
+.tips-overlay.cwl-shell-open,
+.help-overlay.cwl-shell-open,
+[data-cwl-modal-shell].cwl-shell-open,
+[data-cwl-wizard-shell].cwl-shell-open,
+[data-cwl-lifted-component].cwl-shell-open {
+  display: flex !important;
+  visibility: visible !important;
+  pointer-events: auto;
+}
+
+.cwl-each-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  margin: 0.35rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.45rem;
+  background: rgba(15, 20, 25, 0.35);
+}
+
+.cwl-toast {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translate(-50%, 1rem);
+  z-index: 9999;
+  max-width: min(90vw, 30rem);
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  background: rgba(12, 18, 28, 0.95);
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  color: #e8f0f8;
+  font-size: 0.9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cwl-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }

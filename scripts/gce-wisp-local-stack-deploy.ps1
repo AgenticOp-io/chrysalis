@@ -65,9 +65,11 @@ try {
     "wisp-cwl-chimera-gateway.mjs", "wisp-cwl-chimera-serve.mjs", "wisp-cwl-gateway-config.mjs",
     "wisp-cwl-post-g7790.mjs", "wisp-pipeline.config.json", "favicon.svg",
     "wisp-cwl-login.css", "wisp-cwl-app.css", "wisp-cwl-client.js", "wisp-firebase-config.json",
-    "wisp-cwl-modules.css", "wisp-cwl-modules.js", "wisp-cwl-map.js", "wisp-arcgis-config.json",
+    "wisp-cwl-modules.css", "wisp-cwl-modules.js", "wisp-cwl-map.js",
+    "wisp-cwl-map-island.css", "wisp-cwl-arcgis.bundle.js", "wisp-cwl-arcgis.bundle.css",
+    "wisp-arcgis-config.json",
     "wisptools-logo.svg", "routes.webir.json", "api-proxy.webir.json",
-    "wisp-cwl-original-css-map.json", "original-css"
+    "wisp-cwl-original-css-map.json", "original-css", "lib"
   )
   $present = $tarFiles | Where-Object { Test-Path $_ }
   tar -czf $tarball @present

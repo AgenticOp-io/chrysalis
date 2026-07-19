@@ -5,7 +5,7 @@
   "previewPath": "C:\\Users\\david\\AgenticOps\\engines\\PHP_converter\\fixtures\\hub-wisp-management\\cwl-preview.json",
   "routeCount": 87,
   "uiHoleCount": 0,
-  "apiProxyRouteCount": 230,
+  "apiProxyRouteCount": 454,
   "totalUiHoles": 0,
   "maxHoles": 120,
   "withinBudget": true,
@@ -14,5 +14,5 @@
   "backendConversion": "native-cwl-handlers",
   "backendPolicy": "native CWL handlers — backend-services lifted to api-proxy.cwl (Phase 27b)",
   "upstreamProxyHoles": 0,
-  "generatedAt": "2026-07-15T13:04:16.423Z"
+  "generatedAt": "2026-07-18T16:39:34.797Z"
 }

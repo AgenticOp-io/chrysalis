@@ -93,6 +93,7 @@ export function stageWispCwlStaticExportClient(opts = {}) {
 
   const assetResult = copyWispCwlStaticAssets(clientDir, { wispRoot });
   const wrappedPages = wrapExportedHtmlDocuments(clientDir);
+  writeStaticDetailRouter404(clientDir);
 
   const ok = existsSync(join(clientDir, "index.html"));
   return {
@@ -241,6 +242,43 @@ export function wrapExportedHtmlDocuments(clientDir) {
   };
   walk(clientDir);
   return wrapped;
+}
+
+/**
+ * Firebase Hosting has no dynamic routes: /modules/inventory/{id} 404s even
+ * though the export ships detail templates (e.g. modules/inventory/preview).
+ * Serve a 404.html that client-side routes known detail URLs to their
+ * template page, preserving the requested path so the client hydrates by id.
+ * @param {string} clientDir
+ */
+export function writeStaticDetailRouter404(clientDir) {
+  const rules = [
+    { re: "^/modules/inventory/bundles/[^/]+$", tpl: "/modules/inventory/preview" },
+    { re: "^/modules/inventory/[^/]+(?:/edit)?$", tpl: "/modules/inventory/preview" },
+    { re: "^/modules/work-orders/[^/]+(?:/edit)?$", tpl: "/modules/work-orders/preview" },
+    { re: "^/modules/customers/[^/]+(?:/edit)?$", tpl: "/modules/customers" },
+    { re: "^/modules/sites/[^/]+(?:/edit)?$", tpl: "/modules/sites" },
+    { re: "^/modules/help-desk/[^/]+(?:/edit)?$", tpl: "/modules/help-desk" },
+    { re: "^/modules/hardware/[^/]+$", tpl: "/modules/inventory/preview" },
+  ];
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WISP Management</title><script>
+(function () {
+  var rules = ${JSON.stringify(rules)};
+  var path = location.pathname.replace(/\\/$/, "");
+  for (var i = 0; i < rules.length; i++) {
+    if (new RegExp(rules[i].re).test(path)) {
+      try { sessionStorage.setItem("cwlDetailPath", path); } catch (_) {}
+      location.replace(rules[i].tpl + "?cwl-detail=" + encodeURIComponent(path));
+      return;
+    }
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    document.body.innerHTML =
+      '<div style="font-family:system-ui;padding:4rem;text-align:center"><h1>Page not found</h1><p><a href="/dashboard">Back to dashboard</a></p></div>';
+  });
+})();
+</script></head><body></body></html>\n`;
+  writeFileSync(join(clientDir, "404.html"), html, "utf8");
 }
 
 async function main() {

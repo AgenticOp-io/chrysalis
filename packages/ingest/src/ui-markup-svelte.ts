@@ -22,14 +22,20 @@ export function liftStaticSveltePageHtml(
       .map((item: string) => inner.replace(new RegExp(`\\{${itemName}\\}`, "g"), item))
       .join("");
   });
-  s = s.replace(/\{#if\s+true\s*\}([\s\S]*?)\{:else\}([\s\S]*?)\{\/if\}/gi, (_m, t) => t);
-  s = s.replace(/\{#if\s+false\s*\}([\s\S]*?)\{:else\}([\s\S]*?)\{\/if\}/gi, (_m, _t, f) => f);
+  // Tempered branch bodies: never swallow `{:else if …}` chains or nested
+  // `{#if}` blocks — those must fall through to the structural lift, which
+  // parses chains correctly (backend-management admin gate regression).
+  const BRANCH = String.raw`((?:(?!\{:else|\{#if\b|\{\/if\})[\s\S])*?)`;
+  s = s.replace(new RegExp(String.raw`\{#if\s+true\s*\}${BRANCH}\{:else\}${BRANCH}\{\/if\}`, "gi"), (_m, t) => t);
+  s = s.replace(new RegExp(String.raw`\{#if\s+false\s*\}${BRANCH}\{:else\}${BRANCH}\{\/if\}`, "gi"), (_m, _t, f) => f);
   s = s.replace(
-    /\{#if\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}([\s\S]*?)\{:else\}([\s\S]*?)\{\/if\}/gi,
+    new RegExp(String.raw`\{#if\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}${BRANCH}\{:else\}${BRANCH}\{\/if\}`, "gi"),
     (m, name, t, f) => (Object.prototype.hasOwnProperty.call(loadBools, name) ? (loadBools[name] ? t : f) : m),
   );
-  s = s.replace(/\{#if\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}([\s\S]*?)\{\/if\}/gi, (m, name, body) =>
-    Object.prototype.hasOwnProperty.call(loadBools, name) ? (loadBools[name] ? body : "") : m,
+  s = s.replace(
+    new RegExp(String.raw`\{#if\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}${BRANCH}\{\/if\}`, "gi"),
+    (m, name, body) =>
+      Object.prototype.hasOwnProperty.call(loadBools, name) ? (loadBools[name] ? body : "") : m,
   );
   if (/\{[#/@]/.test(s) || /\{[a-zA-Z_]/.test(s)) return null;
   // PascalCase tags are Svelte components — not static HTML (§3 / D6367).

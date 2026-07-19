@@ -1,29 +1,31 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-dashboard" data-wisp-path="/modules/customers/portal/dashboard" data-cwl-island="client"><div class="dashboard">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/dashboard" data-cwl-island="client"><div class="dashboard">
     <div class="dashboard-header">
-      <h1>Welcome, Alex!</h1>
+      <h1>Welcome, <span data-cwl-bind="interp" data-cwl-hole-detail="customer?.firstName || 'Customer'"></span>!</h1>
       <p class="subtitle">Manage your tickets and view your service information</p>
     </div>
-    
+
     <div class="dashboard-stats">
-      <div class="stat-card">
-          <div class="stat-value"></div>
+
+        <div class="stat-card" hidden aria-hidden="true">
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.totalTickets"></span></div>
           <div class="stat-label">Total Tickets</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value"></div>
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.openTickets"></span></div>
           <div class="stat-label">Open Tickets</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value"></div>
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.resolvedTickets"></span></div>
           <div class="stat-label">Resolved</div>
         </div>
+
       <div class="stat-card">
-        <div class="stat-value">active</div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo?.serviceStatus || 'N/A'"></span></div>
         <div class="stat-label">Service Status</div>
       </div>
     </div>
-    
-    <div class="dashboard-actions">
+
+      <div class="dashboard-actions" hidden aria-hidden="true">
         <a href="/modules/customers/portal/tickets/new" class="btn-primary">
           Create New Ticket
         </a>
@@ -31,39 +33,53 @@
           View All Tickets
         </a>
       </div>
-    
-    <div class="support-tools">
-        <div class="support-card">
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="featureFlags.faq || featureFlags.serviceStatus || featureFlags.billing || featureFlags.tickets || featureFlags.knowledge"><div class="support-tools">
+
+          <div class="support-card" hidden aria-hidden="true">
             <h3>Billing &amp; Account</h3>
             <p>View your plan, billing cycle, balance, and next billing date.</p>
             <a class="support-link" href="/modules/customers/portal/billing">View Billing</a>
             <a class="support-link secondary" href="/modules/customers/portal/billing/settings">Billing settings</a>
           </div>
-        <div class="support-card">
+
+          <div class="support-card" hidden aria-hidden="true">
             <h3>Service Status &amp; Outages</h3>
             <p>Check real-time service health, scheduled maintenance, and network alerts.</p>
             <a class="support-link" href="/modules/customers/portal/service">View Status</a>
           </div>
-        <div class="support-card">
+
+          <div class="support-card" hidden aria-hidden="true">
             <h3>FAQ &amp; Help Center</h3>
             <p>Browse answers to the most common account, billing, and technical questions.</p>
             <a class="support-link" href="/modules/customers/portal/faq">Visit FAQ</a>
           </div>
-        
-        
-      </div>
-    
-    <div class="recent-tickets">
+
+          <div class="support-card" hidden aria-hidden="true">
+            <h3>Knowledge Base</h3>
+            <p>Step-by-step guides and tutorials curated by <span data-cwl-bind="interp" data-cwl-hole-detail="$portalBranding?.company?.displayName || 'our team'"></span>.</p>
+            <a class="support-link" href="/modules/customers/portal/knowledge">Browse Articles</a>
+          </div>
+
+          <div class="support-card" hidden aria-hidden="true">
+            <h3>Live Chat Support</h3>
+            <p>Connect with a support specialist for hands-on troubleshooting.</p>
+            <a class="support-link" href="/modules/customers/portal/live-chat">Start Chat</a>
+          </div>
+
+      </div></div>
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="featureFlags.tickets && tickets.length > 0"><div class="recent-tickets">
         <h2>Recent Tickets</h2>
         <div class="tickets-list">
-          <div class="ticket-card">
+          <div data-cwl-bind="each" data-cwl-hole-detail="tickets.slice(0, 5) as ticket"><div class="ticket-card">
               <div class="ticket-header">
                 <span class="ticket-number"></span>
-                <span 
-                  class="ticket-status" 
+                <span
+                  class="ticket-status"
                   style="background: "
                 >
-                  
+
                 </span>
               </div>
               <h3 class="ticket-title"></h3>
@@ -72,23 +88,32 @@
                 <span>Priority: </span>
                 <span>Created: </span>
               </div>
-            </div>
+            </div></div>
         </div>
-      </div>
-    
-    <div class="service-info">
+      </div></div>
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="serviceInfo"><div class="service-info">
         <h2>Service Information</h2>
         <div class="info-card">
           <div class="info-row">
             <span class="info-label">Service Status:</span>
-            <span class="info-value">active</span>
+            <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceStatus || 'N/A'"></span></span>
           </div>
-          <div class="info-row">
+
+            <div class="info-row" hidden aria-hidden="true">
               <span class="info-label">Service Plan:</span>
-              <span class="info-value">Residential 100</span>
+              <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.servicePlan"></span></span>
             </div>
-          
+
+            <div class="info-row" hidden aria-hidden="true">
+              <span class="info-label">Service Address:</span>
+              <span class="info-value">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.street || ''"></span>
+                <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.city || ''"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.state || ''"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.zipCode || ''"></span>
+              </span>
+            </div>
+
         </div>
-      </div>
+      </div></div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/dashboard","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/dashboard"}</script>

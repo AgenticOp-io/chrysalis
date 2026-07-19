@@ -7,6 +7,8 @@ import {
   liftStaticSveltePageHtml,
   liftStructuralSveltePageHtml,
   liftUiMarkup,
+  stampClosedUiChrome,
+  hasBooleanHiddenAttr,
   svelteKitMarkupAdapter,
   svelteKitPageFileToRouteId,
 } from "@chrysalis/ingest";
@@ -22,6 +24,33 @@ describe("liftStaticSveltePageHtml", () => {
 
   test("returns null for dynamic blocks", () => {
     expect(liftStaticSveltePageHtml("<div>{name}</div>")).toBeNull();
+  });
+});
+
+describe("stampClosedUiChrome (boolean hidden vs aria-hidden)", () => {
+  test("hasBooleanHiddenAttr ignores aria-hidden", () => {
+    expect(hasBooleanHiddenAttr('<div aria-hidden="true">')).toBe(false);
+    expect(hasBooleanHiddenAttr('<div hidden aria-hidden="true">')).toBe(true);
+    expect(hasBooleanHiddenAttr("<div hidden>")).toBe(true);
+  });
+
+  test("aria-hidden alone still gets boolean hidden (overlay paint)", () => {
+    const stamped = stampClosedUiChrome(
+      `<div class="modal-overlay" role="presentation" aria-hidden="true" tabindex="-1">body</div>`,
+    );
+    expect(hasBooleanHiddenAttr(stamped.slice(0, stamped.indexOf(">") + 1))).toBe(true);
+    expect(stamped).toMatch(/\bhidden\b/);
+    expect(stamped).toContain('aria-hidden="true"');
+  });
+
+  test("scrubs poisoned \\\\r text and class:directive (Wizards chrome)", async () => {
+    const { scrubStructuralMarkupArtifacts } = await import("@chrysalis/ingest");
+    const cleaned = scrubStructuralMarkupArtifacts(
+      `<div class="module-wizard-menu">\\r\n    <button class:open\\r\n      title="Wizards">\\r\n      <span>Wizards</span>\\r\n    </button>\\r\n  </div>`,
+    );
+    expect(cleaned).not.toMatch(/\\r/);
+    expect(cleaned).not.toMatch(/\bclass:open\b/);
+    expect(cleaned).toContain("Wizards");
   });
 });
 
@@ -41,6 +70,22 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
     expect(r?.holes.some((h) => h.reason === "legacy:markup-lift-svelte-interp")).toBe(true);
   });
 
+  test("supported dynamics compile to runtime bindings in one-pass mode", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<main>
+  <h1>{title}</h1>
+  {#if selected}<section>{selected.name}</section>{/if}
+  {#each rows as row}<p>{row.name}</p>{/each}
+</main>`,
+      { applyShowcaseLoadBools: false, promoteRuntimeBindings: true },
+    );
+    expect(r?.html).toContain('data-cwl-bind="interp"');
+    expect(r?.html).toContain('data-cwl-bind="if"');
+    expect(r?.html).toContain('data-cwl-bind="each"');
+    expect(r?.html).not.toContain("data-cwl-hole=");
+    expect(r?.holes).toEqual([]);
+  });
+
   test("modal shell components collapse without component holes (G9660)", () => {
     const r = liftStructuralSveltePageHtml(`<TipsModal><main class="app">body</main></TipsModal>`);
     expect(r?.html).toContain('data-cwl-modal-shell="TipsModal"');
@@ -49,9 +94,31 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
     expect(r?.holes.some((h) => h.detail === "TipsModal")).toBe(false);
   });
 
+  test("WISP setup and base wizards compile to runtime shells", () => {
+    for (const name of ["CBRSSetupWizard", "MonitoringSetupWizard", "BaseWizard"]) {
+      const r = liftStructuralSveltePageHtml(`<${name} />`, {
+        promoteRuntimeBindings: true,
+      });
+      expect(r?.html).toContain(`data-cwl-wizard-shell="${name}"`);
+      expect(r?.html).not.toContain("data-cwl-hole=");
+      expect(r?.holes).toEqual([]);
+    }
+  });
+
+  test("template-literal interp does not leave $`} junk (customers fullName)", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<h3>{customer.fullName || \`\${customer.firstName} \${customer.lastName}\`}</h3>`,
+      { applyShowcaseLoadBools: false },
+    );
+    expect(r?.html ?? "").not.toMatch(/\$`\}/);
+    expect(r?.html ?? "").not.toContain("$`}");
+    expect(r?.html ?? "").toMatch(/data-cwl-hole="legacy:markup-lift-svelte-interp"|<h3>\s*<\/h3>|<h3>\s*<span/);
+  });
+
   test("map and chart shells collapse without component holes (G9680)", () => {
     const map = liftStructuralSveltePageHtml(`<SharedMap />`);
-    expect(map?.html).toContain('data-cwl-map-shell="SharedMap"');
+    // SharedMap lifts to coverage-map iframe island (D6442), not an empty map shell.
+    expect(map?.html).toMatch(/data-cwl-(?:map-shell|lifted-component)="SharedMap"/);
     expect(map?.html).not.toContain("legacy:markup-lift-svelte-component");
     const chart = liftStructuralSveltePageHtml(`<TR069RSSIChart />`);
     expect(chart?.html).toContain('data-cwl-chart-shell="TR069RSSIChart"');
@@ -72,7 +139,9 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
         on:select={() => showEPCWizard = true}
       />
 </div>`);
-    expect(r?.html).toContain('data-cwl-nav-shell="ModuleWizardMenu"');
+    // Without componentSources, structural inline cannot read the .svelte file → component hole.
+    expect(r?.html).toMatch(/ModuleWizardMenu/);
+    expect(r?.html).toMatch(/data-cwl-hole(?:-detail)?="(?:legacy:markup-lift-svelte-component"|ModuleWizardMenu)/);
     expect(r?.html).not.toMatch(/true\}\s*\/>/);
     expect(r?.html).not.toContain("true}");
     expect(r?.html).not.toMatch(/\n\s*\/>/);
@@ -143,6 +212,119 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
     expect(r?.html).not.toContain(">err<");
     expect(r?.holes.some((h) => h.detail === "isLoading")).toBe(false);
     expect(r?.holes.some((h) => h.detail === "error")).toBe(false);
+  });
+
+  test("showcase settle wins over script let loading = true (sites table)", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<script>let loading = true;</script>
+{#if loading}
+  <div class="loading-state"><p>Loading sites...</p></div>
+{:else if filteredSites.length === 0}
+  <div class="empty-state"><p>No sites found</p></div>
+{:else}
+  <div class="sites-table-container"><table class="sites-table"><tbody></tbody></table></div>
+{/if}`,
+      { applyShowcaseLoadBools: true },
+    );
+    expect(r?.html).toContain("sites-table");
+    expect(r?.html).not.toContain("Loading sites...");
+  });
+
+  test("empty length===0 keeps table else; !isLoading compound keeps inventory (hardware)", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<script>
+  let isLoading = true;
+  let activeHardwareTab = 'all';
+</script>
+{#if isLoading}
+  <div class="loading-state"><p>Loading hardware...</p></div>
+{:else}
+  <p class="idle">ready</p>
+{/if}
+{#if !isLoading && (activeHardwareTab === 'inventory' || activeHardwareTab === 'all')}
+  {#if items.length === 0 && activeHardwareTab === 'inventory'}
+    <div class="empty-state"><p>No inventory</p></div>
+  {:else}
+    <table class="hardware-table"><tbody></tbody></table>
+  {/if}
+{/if}
+{#if activeHardwareTab === 'epc'}
+  <div class="epc-only">epc</div>
+{:else}
+  <div class="all-tab">all</div>
+{/if}`,
+      { applyShowcaseLoadBools: true },
+    );
+    expect(r?.html).toContain("hardware-table");
+    expect(r?.html).toContain("all-tab");
+    expect(r?.html).not.toContain("epc-only");
+    expect(r?.html).toMatch(/loading-state[^>]*\bhidden\b/);
+  });
+
+  test("loading else-if chain keeps first idle tab not only final else (voice)", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<script>
+  let loading = true;
+  let activeTab = 'overview';
+</script>
+{#if loading}
+  <div class="loading-state">wait</div>
+{:else if activeTab === 'overview' && schema}
+  <div class="overview-panel"><div class="table-wrap"><table><tbody></tbody></table></div></div>
+{:else if activeTab === 'accounts'}
+  <div class="accounts-panel">accounts</div>
+{:else if activeTab === 'locations'}
+  <div class="locations-panel">locations</div>
+{/if}`,
+      { applyShowcaseLoadBools: true },
+    );
+    expect(r?.html).toContain("overview-panel");
+    expect(r?.html).not.toContain("locations-panel");
+    expect(r?.html).not.toContain(">wait<");
+  });
+
+  test("string-array each expands filter options from script truth", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<script>const statuses = ['open', 'assigned', 'completed'];</script>
+<select>
+  <option value="">All</option>
+  {#each statuses as status}
+    <option value={status}>{status}</option>
+  {/each}
+</select>`,
+      { applyShowcaseLoadBools: true },
+    );
+    expect(r?.html).toContain('value="open"');
+    expect(r?.html).toContain(">completed<");
+    expect(r?.html).not.toContain("data-cwl-hole");
+  });
+
+  test("arr.length and scalar-ternary interps settle from script truth", () => {
+    const r = liftStructuralSveltePageHtml(
+      `<script>
+  const steps = [{ id: 'a' }, { id: 'b' }];
+  let activeTab = 'all';
+</script>
+<p class="count">{steps.length}</p>
+<p class="tab">{activeTab === 'all' ? 'Everything' : 'Some'}</p>`,
+      { applyShowcaseLoadBools: true },
+    );
+    expect(r?.html).toContain(">2<");
+    expect(r?.html).toContain("Everything");
+  });
+
+  test("optional presence and *Message stamp closed (deploy banners)", () => {
+    const r = liftStructuralSveltePageHtml(
+      `{#if mapState?.activePlan}<div class="plan-banner">plan</div>{/if}
+{#if deploymentMessage}<div class="toast">msg</div>{/if}
+{#if plan.description}<p class="desc">d</p>{/if}
+<main class="ok">done</main>`,
+      { applyShowcaseLoadBools: true },
+    );
+    expect(r?.html).toContain('class="ok"');
+    expect(r?.html).toMatch(/plan-banner[^>]*\bhidden\b|hidden[\s\S]*plan-banner/);
+    expect(r?.html).toMatch(/toast[^>]*\bhidden\b|hidden[\s\S]*toast/);
+    expect(r?.holes.some((h) => h.detail === "deploymentMessage")).toBe(false);
   });
 
   test("if blocks keep true-branch shell with hole", () => {
@@ -250,6 +432,92 @@ describe("liftUiMarkup (sveltekit fixture)", () => {
         resolve(FIXTURE, "src/routes/portal/login/+page.svelte"),
       ),
     ).toBe("/portal/login");
+  });
+});
+
+describe("rewriteSvelteEventAttributes", () => {
+  test("converts nested goto template literals to data-cwl-nav without residue", async () => {
+    const { rewriteSvelteEventAttributes, liftStructuralSveltePageHtml } = await import(
+      "@chrysalis/ingest"
+    );
+    const raw = `<button class="btn-icon" on:click={() => goto(\`/modules/inventory/\${item._id}\`)} title="View">👁</button>`;
+    const rewritten = rewriteSvelteEventAttributes(raw);
+    expect(rewritten).toContain('data-cwl-nav="/modules/inventory/{item._id}"');
+    expect(rewritten).not.toContain("on:click");
+    expect(rewritten).not.toContain("goto(");
+    expect(rewritten).toContain('title="View"');
+
+    const lifted = liftStructuralSveltePageHtml(
+      `<script>let items=[];</script>{#each items as item (item._id)}<button on:click={() => goto(\`/modules/inventory/\${item._id}\`)} title="View">👁</button>{/each}`,
+      { promoteRuntimeBindings: true, applyShowcaseLoadBools: true },
+    );
+    expect(lifted?.html ?? "").not.toMatch(/goto\(/);
+    expect(lifted?.html ?? "").toMatch(/data-cwl-nav=|data-cwl-each-tpl=/);
+  });
+
+  test("ignores event plumbing and preserves the meaningful handler", async () => {
+    const { rewriteSvelteEventAttributes } = await import("@chrysalis/ingest");
+    const submit = rewriteSvelteEventAttributes(
+      `<form onsubmit={(e) => { e.preventDefault(); handleTicketCreated(e); }}>`,
+    );
+    expect(submit).toContain('data-cwl-on-submit="action:handleTicketCreated"');
+    expect(submit).not.toContain('data-cwl-action="preventDefault"');
+
+    const propagationOnly = rewriteSvelteEventAttributes(
+      `<div onclick={(e) => e.stopPropagation()}>content</div>`,
+    );
+    expect(propagationOnly).not.toContain("data-cwl-action");
+    expect(propagationOnly).not.toContain("onclick");
+
+    const delayedSet = rewriteSvelteEventAttributes(
+      `<button onblur={() => setTimeout(() => (open = false), 150)}>Close</button>`,
+    );
+    expect(delayedSet).toContain('data-cwl-on-blur="toggle:open:false"');
+    expect(delayedSet).not.toContain('data-cwl-action="setTimeout"');
+
+    const direct = rewriteSvelteEventAttributes(
+      `<button onclick={loadAllRemoteAgents}>Refresh</button>`,
+    );
+    expect(direct).toContain('data-cwl-action="loadAllRemoteAgents"');
+
+    const accessible = rewriteSvelteEventAttributes(
+      `<button on:click={selectItem} on:keydown={handleKeydown}>Select</button>`,
+    );
+    expect(accessible).toContain('data-cwl-action="selectItem"');
+    expect(accessible).toContain('data-cwl-on-keydown="action:handleKeydown"');
+    expect(accessible.match(/\sdata-cwl-action="/g)).toHaveLength(1);
+  });
+
+  test("converts conditional handlers and removes competing legacy wiring", async () => {
+    const { rewriteSvelteEventAttributes } = await import("@chrysalis/ingest");
+    const camera = rewriteSvelteEventAttributes(
+      `<button on:click={usingCamera ? stopCamera : startCamera}>Camera</button>`,
+    );
+    expect(camera).toContain('data-cwl-action="startCamera"');
+    expect(camera).toContain('data-cwl-action-true="stopCamera"');
+    expect(camera).toContain('data-cwl-action-state="usingCamera:false"');
+    expect(camera).toContain('aria-label="Start Camera"');
+    expect(camera).not.toContain("on:click");
+
+    const back = rewriteSvelteEventAttributes(
+      `<button data-action="back" data-cwl-set="href:/dashboard" on:click={() => goto('/dashboard')}>Back</button>`,
+    );
+    expect(back).toContain('data-cwl-nav="/dashboard"');
+    expect(back).not.toContain("data-action=");
+    expect(back).not.toContain("data-cwl-set=");
+  });
+
+  test("preserves supported dynamic attributes as CWL bindings", async () => {
+    const { rewriteSvelteDynamicAttributes } = await import("@chrysalis/ingest");
+    const rewritten = rewriteSvelteDynamicAttributes(
+      `<button title={usingCamera ? 'Stop Camera' : 'Start Camera'} aria-label={label} disabled={loading}>Camera</button>`,
+    );
+    expect(rewritten).toContain(
+      "data-cwl-attr-title=\"usingCamera ? 'Stop Camera' : 'Start Camera'\"",
+    );
+    expect(rewritten).toContain('data-cwl-attr-aria-label="label"');
+    expect(rewritten).toContain('data-cwl-attr-disabled="loading"');
+    expect(rewritten).not.toContain("title={");
   });
 });
 

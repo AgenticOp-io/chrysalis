@@ -6,18 +6,50 @@
         <code>INC-DEMO-*</code>, <code>DEMO-SN-*</code>. Prefer editing and resolving over deleting.
         Use one pre-provisioned demo login — see the operator runbook in the repo.
       </p>
-      <p class="tenant">
-          Organization: <strong>Demo Tenant</strong>
-          <span class="muted">(t1)</span>
-        </p>
+      <div data-cwl-bind="if" data-cwl-hole-detail="$currentTenant"><p class="tenant">
+          Organization: <strong><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.displayName"></span></strong>
+          <span class="muted">(<span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.id"></span>)</span>
+        </p></div>
     </header>
 
     <div class="grid">
-      <a class="card">
-          <h2></h2>
-          <p></p>
-          
+
+        <a class="card" href="/modules/customers">
+          <h2>Customers</h2>
+          <p>Browse Alex Rivera, Jordan Chen, and the sample lead.</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="'Try edit / search — data is real MongoDB.'"><span class="hint">Try edit / search — data is real MongoDB.</span></div>
         </a>
+
+        <a class="card" href="/modules/work-orders">
+          <h2>Work orders</h2>
+          <p>Open TKT-DEMO-001 and TKT-DEMO-002.</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="'Status and assignment update through the API.'"><span class="hint">Status and assignment update through the API.</span></div>
+        </a>
+
+        <a class="card" href="/modules/maintain">
+          <h2>Maintain (incidents)</h2>
+          <p>INC-DEMO-001 and INC-DEMO-002 under Incidents.</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="'Switch to the Incidents tab after opening.'"><span class="hint">Switch to the Incidents tab after opening.</span></div>
+        </a>
+
+        <a class="card" href="/modules/inventory">
+          <h2>Inventory</h2>
+          <p>Warehouse spare and deployed CPE demo rows.</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="'Filter by serial DEMO-SN-*'"><span class="hint">Filter by serial DEMO-SN-*</span></div>
+        </a>
+
+        <a class="card" href="/modules/monitoring">
+          <h2>Monitoring</h2>
+          <p>Dashboard shell (live metrics may be empty on demo).</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="'Use after SNMP/ping agents if configured.'"><span class="hint">Use after SNMP/ping agents if configured.</span></div>
+        </a>
+
+        <a class="card" href="/dashboard">
+          <h2>Dashboard</h2>
+          <p>Return to the main module grid.</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="''"><span class="hint"></span></div>
+        </a>
+
     </div>
 
     <section class="doc">
@@ -42,4 +74,4 @@
       </ul>
     </section>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/demo"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/demo"}</script>

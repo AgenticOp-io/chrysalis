@@ -4,8 +4,8 @@
  * Translates Express `app.use('/api/...')` registrations into the CWL API manifest —
  * does not invent routes that are not mounted.
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const SYNC_API_PATHS_KIND = "chrysalis.wisp.sync-api-paths";
@@ -27,6 +27,81 @@ export function extractExpressApiMounts(serverJs) {
     out.push({ path: m[1], source: m[2].replace(/^\.\//, "") });
   }
   // Also catch registerBrandingRoutes style — branding may use helper; skip unless explicit.
+  return out;
+}
+
+function resolveRouteModule(backendRoot, fromFile, request) {
+  if (!request?.startsWith(".")) return null;
+  const base = resolve(dirname(fromFile), request);
+  const candidates = extname(base)
+    ? [base]
+    : [base, `${base}.js`, join(base, "index.js")];
+  return (
+    candidates.find(
+      (candidate) => existsSync(candidate) && statSync(candidate).isFile(),
+    ) ?? null
+  );
+}
+
+function joinRoutePath(prefix, child) {
+  const left = String(prefix || "").replace(/\/+$/, "");
+  const right = String(child || "").replace(/^\/+/, "");
+  if (!right) return left || "/";
+  return `${left}/${right}`.replace(/\/+/g, "/");
+}
+
+/**
+ * Recursively extract concrete Express router methods beneath one app mount.
+ * Supports direct router verbs and `router.use(prefix, importedRouter)`.
+ * @param {string} backendRoot
+ * @param {string} mountPath
+ * @param {string} sourceFile
+ * @param {Set<string>} [seen]
+ */
+export function extractExpressRouterRoutes(
+  backendRoot,
+  mountPath,
+  sourceFile,
+  seen = new Set(),
+) {
+  const abs = resolveRouteModule(backendRoot, join(backendRoot, "server.js"), `./${sourceFile}`);
+  if (!abs || seen.has(`${abs}|${mountPath}`)) return [];
+  seen.add(`${abs}|${mountPath}`);
+  const raw = readFileSync(abs, "utf8");
+  const out = [];
+
+  const verbRe = /\brouter\.(get|post|put|patch|delete)\(\s*(['"`])([^'"`]+)\2/g;
+  let match;
+  while ((match = verbRe.exec(raw)) !== null) {
+    out.push({
+      path: joinRoutePath(mountPath, match[3]),
+      method: match[1].toUpperCase(),
+      source: abs.slice(backendRoot.length + 1).replace(/\\/g, "/"),
+    });
+  }
+
+  const imports = new Map();
+  const importRe =
+    /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*require\(\s*(['"])(\.[^'"]+)\2\s*\)/g;
+  while ((match = importRe.exec(raw)) !== null) imports.set(match[1], match[3]);
+
+  const useRe =
+    /\brouter\.use\(\s*(['"`])([^'"`]*)\1\s*,\s*([A-Za-z_$][\w$]*)\s*\)/g;
+  while ((match = useRe.exec(raw)) !== null) {
+    const request = imports.get(match[3]);
+    if (!request) continue;
+    const childAbs = resolveRouteModule(backendRoot, abs, request);
+    if (!childAbs) continue;
+    const childSource = childAbs.slice(backendRoot.length + 1).replace(/\\/g, "/");
+    out.push(
+      ...extractExpressRouterRoutes(
+        backendRoot,
+        joinRoutePath(mountPath, match[2]),
+        childSource,
+        seen,
+      ),
+    );
+  }
   return out;
 }
 
@@ -68,6 +143,20 @@ export function syncWispApiPathsFromBackend(opts = {}) {
     byPath.set(p.path, { ...p });
   }
 
+  const concreteRoutes = mounts.flatMap((mount) =>
+    extractExpressRouterRoutes(backendRoot, mount.path, mount.source),
+  );
+  const concreteByPath = new Map();
+  for (const route of concreteRoutes) {
+    const row = concreteByPath.get(route.path) ?? {
+      path: route.path,
+      sourceFile: route.source,
+      methods: [],
+    };
+    if (!row.methods.includes(route.method)) row.methods.push(route.method);
+    concreteByPath.set(route.path, row);
+  }
+
   let added = 0;
   let updated = 0;
   for (const mount of mounts) {
@@ -97,6 +186,26 @@ export function syncWispApiPathsFromBackend(opts = {}) {
       added++;
     }
   }
+  for (const route of concreteByPath.values()) {
+    const id =
+      route.path
+        .replace(/^\/api\/?/, "")
+        .replace(/^\//, "")
+        .replace(/[^a-zA-Z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .toUpperCase() || "API_ROOT";
+    const existing = byPath.get(route.path);
+    byPath.set(route.path, {
+      ...(existing ?? {}),
+      id: existing?.id ?? id,
+      path: route.path,
+      methods: route.methods.sort(),
+      sourceFile: route.sourceFile,
+      note: `extracted from ${route.sourceFile}`,
+    });
+    if (existing) updated++;
+    else added++;
+  }
 
   const paths = [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
   const out = {
@@ -115,6 +224,8 @@ export function syncWispApiPathsFromBackend(opts = {}) {
     ok: true,
     manifestPath,
     mountCount: mounts.length,
+    concreteRouteCount: concreteRoutes.length,
+    concretePathCount: concreteByPath.size,
     pathCount: paths.length,
     added,
     updated,

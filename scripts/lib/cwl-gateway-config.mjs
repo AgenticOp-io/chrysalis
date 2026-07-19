@@ -40,6 +40,9 @@ export function patchOperatorGceDeployPipelineConfig(config) {
       cwlNativePrefixes: "*",
       nativeApi: true,
       apiMode: "runtime-cwl-native",
+      // Live-first API: proxy /api to the real HSS backend (MongoDB) with
+      // gateway-held demo auth; native seeded API is the fallback only.
+      liveApi: true,
     },
   };
 }

@@ -67,6 +67,26 @@ export function syncWispOriginalCssAssets(opts) {
     copyFileSync(wispMap, fixtureMap);
   }
 
+  // Root +layout.svelte imports app.css globally. The UI asset lift above is
+  // route-scoped and therefore cannot infer this import graph from +page files.
+  const globalCssSources = [
+    join(wispRoot, "src/lib/config/theme.css"),
+    join(wispRoot, "src/lib/styles/modal.css"),
+    join(wispRoot, "src/app.css"),
+  ];
+  const globalCssPath = join(fixtureCss, "wisp-origin-global.css");
+  if (globalCssSources.every(existsSync)) {
+    mkdirSync(fixtureCss, { recursive: true });
+    const globalCss = globalCssSources
+      .map((path) => readFileSync(path, "utf8").replace(/^\s*@import\s+[^;]+;\s*$/gm, ""))
+      .join("\n\n");
+    writeFileSync(
+      globalCssPath,
+      `/* Lifted from root +layout.svelte → app.css import graph. */\n${globalCss}\n`,
+      "utf8",
+    );
+  }
+
   if (bundleDir) {
     if (existsSync(fixtureCss)) {
       mkdirSync(join(bundleDir, "original-css"), { recursive: true });
@@ -85,6 +105,9 @@ export function syncWispOriginalCssAssets(opts) {
     ok: existsSync(mapPath) && existsSync(hardwareCss),
     mapPath,
     hardwareCssPresent: existsSync(hardwareCss),
+    globalThemeCssPresent: existsSync(
+      join(bundleDir ?? fixtureDir, "original-css", "wisp-origin-global.css"),
+    ),
   };
 }
 
@@ -131,6 +154,17 @@ export function prepareWispCwlDeployBundle(opts = {}) {
 
   copyFileSync(join(scriptRoot, "scripts/wisp-cwl-chimera-gateway.mjs"), join(bundleDir, "wisp-cwl-chimera-gateway.mjs"));
   copyFileSync(join(scriptRoot, "scripts/wisp-cwl-chimera-serve.mjs"), join(bundleDir, "wisp-cwl-chimera-serve.mjs"));
+  // The public gateway/serve files are compatibility shims. Ship their real
+  // implementations beside them so the standalone Linux bundle is runnable.
+  const bundleLibDir = join(bundleDir, "lib");
+  mkdirSync(bundleLibDir, { recursive: true });
+  for (const name of [
+    "cwl-chimera-gateway.mjs",
+    "cwl-chimera-serve.mjs",
+    "cwl-gateway-config.mjs",
+  ]) {
+    copyFileSync(join(scriptRoot, "scripts/lib", name), join(bundleLibDir, name));
+  }
   for (const name of WISP_CWL_GCE_GATEWAY_SUPPORT_FILES) {
     const src = join(scriptRoot, "scripts", name);
     if (name === "wisp-pipeline.config.json") {
@@ -160,17 +194,46 @@ export function prepareWispCwlDeployBundle(opts = {}) {
     "wisp-cwl-modules.css",
     "wisp-cwl-modules.js",
     "wisp-cwl-map.js",
+    "wisp-cwl-map-island.css",
+    "wisp-cwl-arcgis.bundle.js",
+    "wisp-cwl-arcgis.bundle.css",
     "wisp-arcgis-config.json",
     "wisptools-logo.svg",
   ]) {
     const shellSrc = join(fixtureDir, shellAsset);
-    if (existsSync(shellSrc)) copyFileSync(shellSrc, join(bundleDir, shellAsset));
+    if (!existsSync(shellSrc)) continue;
+    if (shellAsset === "wisp-firebase-config.json") {
+      // On GCE the chimera gateway is the API authority. Prefer same-origin so
+      // browser CORS/auth never bypasses the deployed CWL gateway for HSS.
+      const clientConfig = JSON.parse(readFileSync(shellSrc, "utf8"));
+      writeFileSync(
+        join(bundleDir, shellAsset),
+        `${JSON.stringify(
+          {
+            ...clientConfig,
+            preferDirectBackend: false,
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+    } else {
+      copyFileSync(shellSrc, join(bundleDir, shellAsset));
+    }
   }
 
   // Lifted Module_Manager CSS — required for CWL-native visual depth (D6407 / G9890).
   syncWispOriginalCssAssets({ wispRoot, fixtureDir, bundleDir });
 
-  if (isWispFullSiteProgramClosed()) {
+  // D6443/D6444 restart: structural convert owns routes.cwl. Do not re-apply
+  // Phase 30 parity shells or force-settle bind (they overwrite origin lifts).
+  const structuralOnly =
+    opts.structuralOnly === true || process.env.CHRYSALIS_WISP_STRUCTURAL_ONLY === "1";
+
+  if (structuralOnly) {
+    // CSS already synced above; keep routes as converted.
+  } else if (isWispFullSiteProgramClosed()) {
     applyWispPostG7790Chain();
     applyWispPhase28gIntegrationsUi();
     applyWispPhase31BulkLift();
@@ -261,6 +324,9 @@ export function verifyWispGceDeployBundle(bundle) {
     "routes.webir.json",
     "api-proxy.webir.json",
     "wisp-cwl-chimera-gateway.mjs",
+    "lib/cwl-chimera-gateway.mjs",
+    "lib/cwl-chimera-serve.mjs",
+    "lib/cwl-gateway-config.mjs",
     "wisp-cwl-gateway-config.mjs",
     "wisp-cwl-post-g7790.mjs",
     "wisp-pipeline.config.json",
@@ -271,6 +337,9 @@ export function verifyWispGceDeployBundle(bundle) {
     "wisp-cwl-modules.css",
     "wisp-cwl-modules.js",
     "wisp-cwl-map.js",
+    "wisp-cwl-map-island.css",
+    "wisp-cwl-arcgis.bundle.js",
+    "wisp-cwl-arcgis.bundle.css",
     "wisp-arcgis-config.json",
     "wisptools-logo.svg",
   ];
@@ -284,7 +353,10 @@ export function verifyWispGceDeployBundle(bundle) {
     (deployConfig.gce?.operatorUi === "svelte-chimera"
       ? deployConfig.gce?.svelteSidecar === true
       : deployConfig.gce?.operatorUi === "cwl-native" && deployConfig.gce?.svelteSidecar === false);
-  const gatewayText = readFileSync(join(dir, "wisp-cwl-chimera-gateway.mjs"), "utf8");
+  const gatewayText = [
+    readFileSync(join(dir, "wisp-cwl-chimera-gateway.mjs"), "utf8"),
+    readFileSync(join(dir, "lib/cwl-chimera-gateway.mjs"), "utf8"),
+  ].join("\n");
   const wrapOk =
     gatewayText.includes("wrapWispCwlHtmlDocument") &&
     gatewayText.includes("wisp-cwl-login.css") &&
@@ -313,6 +385,7 @@ function commandExists(cmd) {
  * @param {boolean} [opts.skipLift]
  * @param {string} [opts.wispRoot]
  * @param {boolean} [opts.tunnelThroughIap]
+ * @param {boolean} [opts.structuralOnly]
  */
 export function runWispGceDeploy(opts = {}) {
   // Default: CWL-native conversion experience (D6405). Sidecar only if explicitly requested.
@@ -330,7 +403,13 @@ export function runWispGceDeploy(opts = {}) {
       }
     : patchOperatorGceDeployPipelineConfig(loadWispPipelineConfig());
   const gce = config.gce ?? {};
-  const bundle = prepareWispCwlDeployBundle({ wispRoot: opts.wispRoot });
+  const bundle = prepareWispCwlDeployBundle({
+    wispRoot: opts.wispRoot,
+    skipLift: true,
+    structuralOnly:
+      opts.structuralOnly === true ||
+      process.env.CHRYSALIS_WISP_STRUCTURAL_ONLY === "1",
+  });
   if (!bundle.ok) return { ok: false, skip: bundle.skip ?? "bundle-failed" };
   if (!commandExists("gcloud")) return { ok: false, skip: "gcloud-unavailable" };
 
@@ -358,12 +437,18 @@ export function runWispGceDeploy(opts = {}) {
   if (svelte && !skipSidecar) args.push("-SvelteFallback", svelte);
   if (opts.tunnelThroughIap) args.push("-TunnelThroughIap");
 
+  const deployEnv = {
+    ...process.env,
+    ...(opts.structuralOnly === true
+      ? { CHRYSALIS_WISP_STRUCTURAL_ONLY: "1" }
+      : {}),
+  };
   let r;
   if (process.platform === "win32") {
     r = spawnSync(
       "powershell",
       ["-ExecutionPolicy", "Bypass", "-File", join(scriptRoot, "scripts/gce-wisp-local-stack-deploy.ps1"), ...args],
-      { cwd: scriptRoot, encoding: "utf8", shell: false },
+      { cwd: scriptRoot, encoding: "utf8", shell: false, env: deployEnv },
     );
   } else {
     const shArgs = [
@@ -379,7 +464,12 @@ export function runWispGceDeploy(opts = {}) {
     if (wispRoot) shArgs.push("--wisp-root", wispRoot);
     if (svelte && !skipSidecar) shArgs.push("--svelte-fallback", svelte);
     if (opts.tunnelThroughIap) shArgs.push("--tunnel-through-iap");
-    r = spawnSync("bash", shArgs, { cwd: scriptRoot, encoding: "utf8", shell: false });
+    r = spawnSync("bash", shArgs, {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: false,
+      env: deployEnv,
+    });
   }
 
   const ok = r.status === 0;
@@ -421,6 +511,60 @@ export async function runWispCwlPipeline(opts = {}) {
     opts.deployFirebase === true ||
     process.env.CHRYSALIS_WISP_DEPLOY_FIREBASE === "1";
   const reportPath = resolve(opts.reportPath ?? join(scriptRoot, config.reportPath ?? "reports/wisp/wisp-cwl-pipeline.json"));
+
+  // Compatibility API: normal pipeline runs now share the canonical one-pass
+  // compiler. Bundle-only remains here because the GCE deploy shell invokes it
+  // after compilation to package the already-generated CWL.
+  if (!opts.bundleOnly && process.env.CHRYSALIS_WISP_LEGACY_PIPELINE !== "1") {
+    if (deployFirebase) {
+      return {
+        kind: WISP_CWL_PIPELINE_KIND,
+        schemaVersion: WISP_CWL_PIPELINE_SCHEMA_VERSION,
+        ok: false,
+        skip: "firebase-disabled-use-gce",
+        wispRoot,
+      };
+    }
+    const { runWispCwlOnePass } = await import("./wisp-cwl-one-pass.mjs");
+    return runWispCwlOnePass({
+      wispRoot,
+      bundle: true,
+      deployGce: !ci && deployGce,
+    });
+  }
+
+  // GCE deployment calls `--bundle-only` after one-pass compilation. Package
+  // the existing structural CWL directly; running legacy full-build here would
+  // reapply Phase 30/32 demo shells and overwrite the converted site.
+  if (
+    opts.bundleOnly &&
+    process.env.CHRYSALIS_WISP_STRUCTURAL_ONLY === "1"
+  ) {
+    const bundle = prepareWispCwlDeployBundle({
+      wispRoot,
+      skipLift: true,
+      structuralOnly: true,
+    });
+    const report = {
+      kind: WISP_CWL_PIPELINE_KIND,
+      schemaVersion: WISP_CWL_PIPELINE_SCHEMA_VERSION,
+      ok: bundle.ok === true,
+      mode: "structural-bundle-only",
+      wispRoot,
+      skipLift: true,
+      steps: [
+        {
+          step: "deploy-bundle",
+          ok: bundle.ok === true,
+          detail: bundle,
+        },
+      ],
+      generatedAt: new Date().toISOString(),
+    };
+    mkdirSync(dirname(reportPath), { recursive: true });
+    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    return report;
+  }
 
   const runtimeDist = join(scriptRoot, "packages/runtime-cwl/dist/index.js");
   if (!existsSync(runtimeDist)) {

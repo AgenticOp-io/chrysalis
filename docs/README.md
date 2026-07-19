@@ -17,6 +17,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |
 | [**Whole-site CWL conversion**](./WHOLE-SITE-CWL-CONVERSION.md) | **Closed (G9450)** — package pipeline close; regression `hub:whole-site-cwl-close-smoke` |
 | [**Svelte → CWL lessons**](./SVELTE-CWL-CONVERSION-LESSONS.md) | **Active (D6405)** — what failed (sidecar/demos) + actual-build rules |
+| [**Future: origin corpus → piecemeal convert**](./FUTURE-ORIGIN-CORPUS-CONVERT.md) | **Locked (D6444 / G9993)** — ingest all files → code DB → convert queue → demo |
 | [**Multi-origin lift expansion**](./MULTI-ORIGIN-LIFT-EXPANSION.md) | **Active (G9840–G9880)** — extrapolate Svelte lessons to all languages + LLM/IS |
 | [Site → CWL → LLM](./SITE-TO-CWL-LLM-PROGRAM.md) | `chrysalis port-site`, trajectories, WVB |
 | [Verified Migration Federation](./SITE-PORT-FEDERATION-PROGRAM.md) | VMF, Open Legacy Index, hub API |
@@ -84,7 +85,7 @@ Closed strategic-plan phases, CWL language waves, and WISP programs remain in-tr
 | [Strategic plan ship log](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) | G5680–G6257 reinforcement history |
 | [CWL full-stack build log](./archive/CWL-FULLSTACK-BUILD-LOG.md) | Queues 6–437 build log |
 
-**WISP showcase (subordinate):** [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) · [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md) — optional operator regression only.
+**WISP conversion:** [`WISP-CWL-CONSOLIDATED-PIPELINE.md`](./WISP-CWL-CONSOLIDATED-PIPELINE.md) (includes **GCE vs Firebase deploy targets**) · [`WISP-CWL-COMPLETENESS-PLAN.md`](./WISP-CWL-COMPLETENESS-PLAN.md) · [`WISP-CWL-SCRIPT-INVENTORY.md`](./WISP-CWL-SCRIPT-INVENTORY.md). Historical showcase material: [`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md) (**G9992**) · [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) · [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md).
 
 **WPTP umbrella:** [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) and `WPTP-D*.md` exit reports.
 

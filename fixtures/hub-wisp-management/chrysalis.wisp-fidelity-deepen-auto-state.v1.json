@@ -22,6 +22,7 @@
     "GET /admin/tenants/6a166eb07089304417ec967a/users",
     "GET /api/agent/manifest",
     "GET /api/auth/check-email-verified/:email",
+    "GET /api/auth/check-email-verified/demo@wisptools.io",
     "GET /api/auth/me",
     "GET /api/auth/status",
     "GET /api/billing/analytics",
@@ -51,12 +52,16 @@
     "GET /api/customer-portal/tickets/:id",
     "GET /api/customers/",
     "GET /api/customers/6a5993caad923e3601e03d78",
+    "GET /api/customers/6a5993caad923e3601e03d78/subscriber",
     "GET /api/customers/:id/subscriber",
     "GET /api/customers/search/email/:email",
     "GET /api/customers/search/email/cwl-trace-1784247475447%40example.com",
+    "GET /api/customers/search/email/demo@wisptools.io",
     "GET /api/customers/search/imsi/001014247885212",
+    "GET /api/customers/search/imsi/6a5993caad923e3601e03d78",
     "GET /api/customers/search/imsi/:imsi",
     "GET /api/customers/search/phone/555-0100",
+    "GET /api/customers/search/phone/6a5993caad923e3601e03d78",
     "GET /api/customers/search/phone/:phone",
     "GET /api/customers/stats/summary",
     "GET /api/device-assignment/unassigned",
@@ -97,9 +102,11 @@
     "GET /api/inventory/alerts/low-stock",
     "GET /api/inventory/alerts/maintenance-due",
     "GET /api/inventory/alerts/warranty-expiring",
+    "GET /api/inventory/by-location/6a5993caad923e3601e03d6f",
     "GET /api/inventory/by-location/:locationType",
     "GET /api/inventory/by-location/warehouse",
     "GET /api/inventory/by-site/6a596f4dad923e3601e03063",
+    "GET /api/inventory/by-site/6a5993caad923e3601e03d6f",
     "GET /api/inventory/by-site/:siteId",
     "GET /api/inventory/export/csv",
     "GET /api/inventory/stats",
@@ -151,13 +158,21 @@
     "GET /api/plans/6a596f48ad923e3601e0301b/features",
     "GET /api/plans/6a597136ad923e3601e0339f/features",
     "GET /api/plans/6a5993caad923e3601e03d71",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/features",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/marketing/addresses",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/marketing/progress/6a599bc3ad923e3601e03e55",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/missing-hardware",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/sites",
     "GET /api/plans/:id/features",
     "GET /api/plans/:id/marketing/addresses",
     "GET /api/plans/:id/marketing/progress/:requestId",
     "GET /api/plans/:id/missing-hardware",
     "GET /api/plans/:id/sites",
+    "GET /api/plans/deployment-photos/6a599bc3ad923e3601e03e55/6a599bc3ad923e3601e03e55",
     "GET /api/plans/deployment-photos/:planId/:fileId",
     "GET /api/plans/hardware/existing",
+    "GET /api/plans/mobile/6a599bc3ad923e3601e03e55",
+    "GET /api/plans/mobile/6a599bc3ad923e3601e03e55/6a599bc3ad923e3601e03e55",
     "GET /api/plans/mobile/:userId",
     "GET /api/plans/mobile/:userId/:planId",
     "GET /api/plans/mobile/cwl-demo",
@@ -204,9 +219,11 @@
     "GET /api/work-orders/",
     "GET /api/work-orders/6a5993c9ad923e3601e03d6d",
     "GET /api/work-orders/alerts/sla-breach",
+    "GET /api/work-orders/assigned/6a5993c9ad923e3601e03d6d",
     "GET /api/work-orders/assigned/:userId",
     "GET /api/work-orders/assigned/cwl-demo",
     "GET /api/work-orders/site/6a596f4dad923e3601e03063",
+    "GET /api/work-orders/site/6a5993c9ad923e3601e03d6d",
     "GET /api/work-orders/site/:siteId",
     "GET /api/work-orders/stats/dashboard",
     "PATCH /api/voice/telephone-numbers/6a5978c9ad923e3601e03b48",
@@ -301,24 +318,7 @@
     "PUT /api/portal-content/6a166eb07089304417ec967a/chat-settings",
     "PUT /api/portal-content/6a166eb07089304417ec967a/faq/6a597916ad923e3601e03b7d",
     "PUT /api/portal-content/6a166eb07089304417ec967a/knowledge-base/6a5979a5ad923e3601e03cda",
-    "PUT /api/tenant-settings",
-    "GET /api/auth/check-email-verified/demo@wisptools.io",
-    "GET /api/customers/6a5993caad923e3601e03d78/subscriber",
-    "GET /api/customers/search/email/demo@wisptools.io",
-    "GET /api/customers/search/imsi/6a5993caad923e3601e03d78",
-    "GET /api/customers/search/phone/6a5993caad923e3601e03d78",
-    "GET /api/inventory/by-location/6a5993caad923e3601e03d6f",
-    "GET /api/inventory/by-site/6a5993caad923e3601e03d6f",
-    "GET /api/plans/6a599bc3ad923e3601e03e55/features",
-    "GET /api/plans/6a599bc3ad923e3601e03e55/marketing/addresses",
-    "GET /api/plans/6a599bc3ad923e3601e03e55/marketing/progress/6a599bc3ad923e3601e03e55",
-    "GET /api/plans/6a599bc3ad923e3601e03e55/missing-hardware",
-    "GET /api/plans/6a599bc3ad923e3601e03e55/sites",
-    "GET /api/plans/deployment-photos/6a599bc3ad923e3601e03e55/6a599bc3ad923e3601e03e55",
-    "GET /api/plans/mobile/6a599bc3ad923e3601e03e55",
-    "GET /api/plans/mobile/6a599bc3ad923e3601e03e55/6a599bc3ad923e3601e03e55",
-    "GET /api/work-orders/assigned/6a5993c9ad923e3601e03d6d",
-    "GET /api/work-orders/site/6a5993c9ad923e3601e03d6d"
+    "PUT /api/tenant-settings"
   ],
   "rounds": [
     {
@@ -731,14 +731,188 @@
         "batch-mut": 0
       },
       "at": "2026-07-17T03:06:14.096Z"
+    },
+    {
+      "batchId": "n11v",
+      "passRange": [
+        461,
+        470
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 38,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 48,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T03:57:57.212Z"
+    },
+    {
+      "batchId": "n11w",
+      "passRange": [
+        471,
+        480
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 28,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 38,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T03:57:59.782Z"
+    },
+    {
+      "batchId": "n11x",
+      "passRange": [
+        481,
+        490
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 18,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 28,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T03:58:02.772Z"
+    },
+    {
+      "batchId": "n11y",
+      "passRange": [
+        491,
+        500
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 38,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 48,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T03:59:23.677Z"
+    },
+    {
+      "batchId": "n11z",
+      "passRange": [
+        501,
+        510
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 28,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 38,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T03:59:26.455Z"
+    },
+    {
+      "batchId": "n12a",
+      "passRange": [
+        511,
+        520
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 18,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 28,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T03:59:29.604Z"
+    },
+    {
+      "batchId": "n12b",
+      "passRange": [
+        521,
+        530
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 38,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 48,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T04:30:15.583Z"
+    },
+    {
+      "batchId": "n12c",
+      "passRange": [
+        531,
+        540
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 28,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 38,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T04:30:18.373Z"
+    },
+    {
+      "batchId": "n12d",
+      "passRange": [
+        541,
+        550
+      ],
+      "improvement": 0,
+      "newlyGreen": [],
+      "tried": 10,
+      "remainingFresh": 18,
+      "byTier": {
+        "static-get": 0,
+        "param-get": 28,
+        "golden-mut": 0,
+        "batch-mut": 0
+      },
+      "at": "2026-07-17T04:30:21.467Z"
     }
   ],
-  "updatedAt": "2026-07-17T03:06:14.500Z",
+  "updatedAt": "2026-07-17T04:30:21.467Z",
   "lastRound": {
-    "batchId": "n11v",
+    "batchId": "n12d",
+    "passRange": [
+      541,
+      550
+    ],
     "improvement": 0,
-    "reason": "no-fresh-routes",
-    "at": "2026-07-17T03:06:14.500Z"
+    "newlyGreen": [],
+    "tried": 10,
+    "remainingFresh": 18,
+    "byTier": {
+      "static-get": 0,
+      "param-get": 28,
+      "golden-mut": 0,
+      "batch-mut": 0
+    },
+    "at": "2026-07-17T04:30:21.467Z"
   },
   "patternsProbed": [
     "DELETE /api/bundles/6a596013ad923e3601dfda9a/items/6a596016ad923e3601dfdac2",
@@ -762,6 +936,7 @@
     "GET /api/agent",
     "GET /api/agent/manifest",
     "GET /api/auth",
+    "GET /api/auth/check-email-verified/demo@wisptools.io",
     "GET /api/auth/me",
     "GET /api/auth/status",
     "GET /api/billing",
@@ -796,10 +971,14 @@
     "GET /api/customer-portal/tickets",
     "GET /api/customers/",
     "GET /api/customers/6a5993caad923e3601e03d78",
+    "GET /api/customers/6a5993caad923e3601e03d78/subscriber",
     "GET /api/customers/:id",
     "GET /api/customers/search/email/cwl-trace-1784247475447%40example.com",
+    "GET /api/customers/search/email/demo@wisptools.io",
     "GET /api/customers/search/imsi/001014247885212",
+    "GET /api/customers/search/imsi/6a5993caad923e3601e03d78",
     "GET /api/customers/search/phone/555-0100",
+    "GET /api/customers/search/phone/6a5993caad923e3601e03d78",
     "GET /api/customers/stats/summary",
     "GET /api/deploy",
     "GET /api/device-assignment",
@@ -842,8 +1021,10 @@
     "GET /api/inventory/alerts/low-stock",
     "GET /api/inventory/alerts/maintenance-due",
     "GET /api/inventory/alerts/warranty-expiring",
+    "GET /api/inventory/by-location/6a5993caad923e3601e03d6f",
     "GET /api/inventory/by-location/warehouse",
     "GET /api/inventory/by-site/6a596f4dad923e3601e03063",
+    "GET /api/inventory/by-site/6a5993caad923e3601e03d6f",
     "GET /api/inventory/export/csv",
     "GET /api/inventory/scan/check-in",
     "GET /api/inventory/scan/check-out",
@@ -902,9 +1083,16 @@
     "GET /api/plans/6a596f48ad923e3601e0301b/features",
     "GET /api/plans/6a597136ad923e3601e0339f/features",
     "GET /api/plans/6a5993caad923e3601e03d71",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/features",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/marketing/addresses",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/marketing/progress/6a599bc3ad923e3601e03e55",
+    "GET /api/plans/6a599bc3ad923e3601e03e55/sites",
     "GET /api/plans/:id",
+    "GET /api/plans/deployment-photos/6a599bc3ad923e3601e03e55/6a599bc3ad923e3601e03e55",
     "GET /api/plans/hardware/existing",
     "GET /api/plans/marketing/discover",
+    "GET /api/plans/mobile/6a599bc3ad923e3601e03e55",
+    "GET /api/plans/mobile/6a599bc3ad923e3601e03e55/6a599bc3ad923e3601e03e55",
     "GET /api/plans/mobile/cwl-demo",
     "GET /api/portal-content/6a166eb07089304417ec967a/alerts",
     "GET /api/portal-content/6a166eb07089304417ec967a/alerts/active",
@@ -956,8 +1144,10 @@
     "GET /api/work-orders/6a5993c9ad923e3601e03d6d",
     "GET /api/work-orders/:id",
     "GET /api/work-orders/alerts/sla-breach",
+    "GET /api/work-orders/assigned/6a5993c9ad923e3601e03d6d",
     "GET /api/work-orders/assigned/cwl-demo",
     "GET /api/work-orders/site/6a596f4dad923e3601e03063",
+    "GET /api/work-orders/site/6a5993c9ad923e3601e03d6d",
     "GET /api/work-orders/stats/dashboard",
     "PATCH /api/voice/telephone-numbers/6a5978c9ad923e3601e03b48",
     "POST /admin/tenants/6a166eb07089304417ec967a/assign-owner",
@@ -1060,13 +1250,13 @@
     "GET /api/auth/check-email-verified/:email",
     "GET /api/bundles/search/:query",
     "GET /api/bundles/type/:bundleType",
+    "GET /api/customer-billing/:customerId",
+    "GET /api/customer-portal/billing/invoices/:invoiceId",
+    "GET /api/customer-portal/tickets/:id",
     "GET /api/customers/:id/subscriber",
     "GET /api/customers/search/email/:email",
     "GET /api/customers/search/imsi/:imsi",
     "GET /api/customers/search/phone/:phone",
-    "GET /api/customer-billing/:customerId",
-    "GET /api/customer-portal/billing/invoices/:invoiceId",
-    "GET /api/customer-portal/tickets/:id",
     "GET /api/epc/:epc_id/commands",
     "GET /api/epc/:epc_id/commands/history",
     "GET /api/epc/:epc_id/logs",
@@ -1084,27 +1274,9 @@
     "GET /api/mikrotik/devices/:id/metrics",
     "GET /api/monitoring/graphs/ping/:deviceId",
     "GET /api/monitoring/graphs/snmp/:deviceId",
-    "GET /api/plans/:id/features",
     "GET /api/network/sites/:siteId/hardware",
     "GET /api/network/sites/:siteId/sectors",
-    "GET /api/permissions/role/:role",
-    "GET /api/permissions/user/:userId",
-    "GET /api/plans/:id/marketing/addresses",
-    "GET /api/plans/:id/marketing/progress/:requestId",
-    "GET /api/plans/:id/sites",
-    "GET /api/plans/deployment-photos/:planId/:fileId",
-    "GET /api/plans/mobile/:userId",
-    "GET /api/plans/:id/missing-hardware",
-    "GET /api/plans/mobile/:userId/:planId",
-    "GET /api/work-orders/assigned/:userId",
-    "GET /api/portal/domain/:domain",
-    "GET /api/portal/subdomain/:subdomain",
-    "GET /api/subcontractors/:id",
-    "GET /api/subcontractors/:id/expired-items",
-    "GET /api/users/:userId",
-    "GET /api/users/:userId/activity",
-    "GET /api/voice/port-orders/:id/events",
-    "GET /api/work-orders/site/:siteId"
+    "GET /api/permissions/role/:role"
   ],
   "skipPatternsAttempted": [
     "GET /api/customer-billing/:customerId",

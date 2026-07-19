@@ -26,7 +26,14 @@ export function generateWispApiProxyCwl(opts = {}) {
     return { kind: WISP_API_PROXY_CWL_KIND, schemaVersion: WISP_API_PROXY_CWL_SCHEMA_VERSION, ok: false, skip: "missing-manifest" };
   }
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  const paths = manifest.paths ?? [];
+  const paths = [...(manifest.paths ?? [])].sort((a, b) => {
+    const score = (entry) => {
+      const parts = String(entry.path ?? "").split("/").filter(Boolean);
+      const dynamic = parts.filter((part) => part.startsWith(":") || part.includes("*")).length;
+      return dynamic * 1000 - parts.length;
+    };
+    return score(a) - score(b) || String(a.path).localeCompare(String(b.path));
+  });
   const lines =
     mode === "native"
       ? [
@@ -45,7 +52,9 @@ export function generateWispApiProxyCwl(opts = {}) {
     const slug = entry.id.toLowerCase().replace(/[^a-z0-9]+/g, "_");
     const resource = slug.replace(/_/g, "-");
     const methods = entry.methods ?? ["GET", "POST", "PUT", "PATCH", "DELETE"];
-    const backendSource = `backend-services/routes/${slug.replace(/_/g, "-")}`;
+    const backendSource = entry.sourceFile
+      ? `backend-services/${entry.sourceFile}`
+      : `backend-services/routes/${slug.replace(/_/g, "-")}`;
     for (const method of methods) {
       const handler = `wisp_api_${slug}_${method.toLowerCase()}`;
       lines.push(`@route ${method} "${entry.path}"`);
@@ -73,19 +82,6 @@ export function generateWispApiProxyCwl(opts = {}) {
       lines.push("}", "");
     }
   }
-  lines.push(`@route ANY "/api/*"`);
-  lines.push(`handler wisp_api_catchall {`);
-  if (mode === "native") {
-    lines.push("  effects: none;");
-    lines.push('  status 404;');
-    lines.push('  return { ok: false, error: "not_found", surface: "wisp-api-native" };');
-  } else {
-    lines.push("  effects: upstream backend;");
-    lines.push('  upstream-path "/api";');
-    lines.push("  hole hub-cwl:upstream-proxy;");
-  }
-  lines.push("}", "");
-
   const text = lines.join("\n");
   writeFileSync(outPath, text, "utf8");
   return {
@@ -94,7 +90,7 @@ export function generateWispApiProxyCwl(opts = {}) {
     ok: true,
     mode,
     pathCount: paths.length,
-    routeEntries: paths.reduce((n, p) => n + (p.methods?.length ?? 1), 0) + 1,
+    routeEntries: paths.reduce((n, p) => n + (p.methods?.length ?? 1), 0),
     outPath,
     manifestPath,
     generatedAt: new Date().toISOString(),

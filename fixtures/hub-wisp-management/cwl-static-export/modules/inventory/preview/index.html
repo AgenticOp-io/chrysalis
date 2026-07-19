@@ -1,66 +1,65 @@
-<div class="wisp-app-surface" data-wisp-page="modules-inventory-:id" data-wisp-path="/modules/inventory/:id" data-cwl-island="client"><div class="item-detail-page">
+<div class="wisp-app-surface" data-wisp-page="inventory" data-wisp-path="/modules/inventory/:id" data-cwl-island="client"><div class="item-detail-page">
   <div class="page-header">
     <div class="header-left">
-      <button class="back-btn">
+      <button class="back-btn" data-cwl-nav="/modules/inventory">
         ← Back to Inventory
       </button>
       <h1>📦 Equipment Details</h1>
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="item"><p class="subtitle"><span data-cwl-bind="interp" data-cwl-hole-detail="item.manufacturer"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="item.model"></span> - <span data-cwl-bind="interp" data-cwl-hole-detail="item.serialNumber"></span></p></div>
     </div>
 
     <div class="header-actions">
-      <button class="btn btn-secondary">
+      <button class="btn btn-secondary" data-cwl-action="handleShowQR" data-cwl-attr-disabled="!item" aria-label="Show QR">
         📱 View QR Code
       </button>
-      <button class="btn btn-secondary">
+      <button class="btn btn-secondary" data-cwl-action="handlePrintTag" data-cwl-attr-disabled="!item" aria-label="Print Tag">
         🖨️ Print Tag
       </button>
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" data-cwl-action="handleEdit" data-cwl-attr-disabled="!item" aria-label="Edit">
         ✏️ Edit
       </button>
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" data-cwl-action="handleTransfer" data-cwl-attr-disabled="!item" aria-label="Transfer">
         📦 Transfer
       </button>
     </div>
   </div>
 
-  
-    <div class="content-grid">
+  <div data-cwl-bind="if" data-cwl-hole-detail="item"><div class="content-grid">
       <!-- Basic Information -->
       <div class="info-card">
         <h3>📋 Basic Information</h3>
         <div class="info-grid">
           <div class="info-item">
             <label>Asset Tag</label>
-            <span class="value">N/A</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.assetTag || 'N/A'"></span></span>
           </div>
           <div class="info-item">
             <label>Serial Number</label>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.serialNumber"></span></span>
           </div>
           <div class="info-item">
             <label>Category</label>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.category"></span></span>
           </div>
           <div class="info-item">
             <label>Equipment Type</label>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.equipmentType"></span></span>
           </div>
           <div class="info-item">
             <label>Manufacturer</label>
-            <span class="value">N/A</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.manufacturer || 'N/A'"></span></span>
           </div>
           <div class="info-item">
             <label>Model</label>
-            <span class="value">N/A</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.model || 'N/A'"></span></span>
           </div>
           <div class="info-item">
             <label>Status</label>
-            <span class="status-badge"></span>
+            <span class="status-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="item.status"></span></span>
           </div>
           <div class="info-item">
             <label>Condition</label>
-            <span class="condition-badge"></span>
+            <span class="condition-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="item.condition"></span></span>
           </div>
         </div>
       </div>
@@ -71,28 +70,157 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Location Type</label>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned' ? 'Unassigned' : (item.currentLocati"></span></span>
           </div>
-          
-          
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned'"><div class="info-item">
+              <span class="value">Assign during deploy</span>
+            </div></div><div data-cwl-bind="if" data-cwl-hole-detail="item.currentLocation?.siteName"><div class="info-item">
+              <label>Site Name</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.siteName"></span></span>
+            </div></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.warehouse"><div class="info-item">
+              <label>Warehouse</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.warehouse.name || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Section</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.warehouse.section || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Aisle</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.warehouse.aisle || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Shelf</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.warehouse.shelf || 'N/A'"></span></span>
+            </div></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.tower"><div class="info-item">
+              <label>Rack</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.tower.rack || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Rack Unit</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.tower.rackUnit || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Cabinet</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.currentLocation.tower.cabinet || 'N/A'"></span></span>
+            </div></div>
         </div>
       </div>
 
       <!-- Purchase Information -->
-      
+
+        <div class="info-card" hidden aria-hidden="true">
+          <h3>💰 Purchase Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Vendor</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.purchaseInfo.vendor || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Purchase Date</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.purchaseInfo.purchaseDate)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Purchase Price</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatCurrency(item.purchaseInfo.purchasePrice)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>PO Number</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.purchaseInfo.purchaseOrderNumber || 'N/A'"></span></span>
+            </div>
+          </div>
+        </div>
 
       <!-- Warranty Information -->
-      
+
+        <div class="info-card" hidden aria-hidden="true">
+          <h3>🛡️ Warranty Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Provider</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.warranty.provider || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Start Date</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.warranty.startDate)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>End Date</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.warranty.endDate)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Type</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.warranty.type || 'N/A'"></span></span>
+            </div>
+          </div>
+        </div>
 
       <!-- Technical Specifications -->
-      
+
+        <div class="info-card" hidden aria-hidden="true">
+          <h3>⚙️ Technical Specifications</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Power Requirements</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.technicalSpecs.powerRequirements || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>IP Address</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.technicalSpecs.ipAddress || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Management URL</label>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.technicalSpecs.managementUrl || 'N/A'"></span></span>
+            </div>
+          </div>
+        </div>
 
       <!-- Module Integration -->
-      
+
+        <div class="info-card" hidden aria-hidden="true">
+          <h3>🔗 Module Integration</h3>
+          <div class="info-grid">
+
+              <div class="info-item" hidden aria-hidden="true">
+                <label>ACS Device ID</label>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.modules.acs.deviceId"></span></span>
+              </div>
+              <div class="info-item">
+                <label>ACS Last Sync</label>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.modules.acs.lastSync)"></span></span>
+              </div>
+
+              <div class="info-item" hidden aria-hidden="true">
+                <label>CBRS CBSD ID</label>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.modules.cbrs.cbsdId"></span></span>
+              </div>
+              <div class="info-item">
+                <label>CBRS Last Sync</label>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.modules.cbrs.lastSync)"></span></span>
+              </div>
+
+              <div class="info-item" hidden aria-hidden="true">
+                <label>Coverage Map Site ID</label>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="item.modules.coverageMap.siteId"></span></span>
+              </div>
+              <div class="info-item">
+                <label>Map Last Sync</label>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.modules.coverageMap.lastSync)"></span></span>
+              </div>
+
+          </div>
+        </div>
 
       <!-- Notes -->
-      
+
+        <div class="info-card full-width" hidden aria-hidden="true">
+          <h3>📝 Notes</h3>
+          <div class="notes-content">
+            <span data-cwl-bind="interp" data-cwl-hole-detail="item.notes"></span>
+          </div>
+        </div>
 
       <!-- Metadata -->
       <div class="info-card full-width">
@@ -100,18 +228,36 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Created</label>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.createdAt)"></span></span>
           </div>
           <div class="info-item">
             <label>Last Updated</label>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(item.updatedAt)"></span></span>
           </div>
         </div>
       </div>
+    </div></div>
+    <div class="loading" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading equipment details...</p>
     </div>
-  
+
 </div>
 
 <!-- QR Code Modal -->
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+
+<div class="modal-overlay" data-cwl-toggle="showQRCode:false" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📱 QR Code - <span data-cwl-bind="interp" data-cwl-hole-detail="item.assetTag || item.serialNumber"></span></h3>
+      <button class="close-btn" data-cwl-toggle="showQRCode:false" aria-label="Show QRCode">✕</button>
+    </div>
+    <div class="modal-body">
+      <div data-cwl-bind="if" data-cwl-hole-detail="qrCodeDataURL"><div class="qr-container">
+          <img alt="QR Code" class="qr-image" />
+          <p class="qr-info">Scan with mobile app to view equipment details</p>
+        </div></div>
+    </div>
+  </div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/inventory/:id"}</script>

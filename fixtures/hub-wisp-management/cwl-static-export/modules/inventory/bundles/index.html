@@ -1,117 +1,468 @@
-<div class="wisp-app-surface" data-wisp-page="modules-inventory-:id" data-wisp-path="/modules/inventory/:id" data-cwl-island="client"><div class="item-detail-page">
+<div class="wisp-app-surface" data-wisp-page="inventory" data-wisp-path="/modules/inventory/bundles" data-cwl-island="client"><div class="bundles-page">
+  <!-- Header -->
   <div class="page-header">
     <div class="header-left">
-      <button class="back-btn">
+      <button class="back-button" data-cwl-nav="/modules/inventory" type="button">
         ← Back to Inventory
       </button>
-      <h1>📦 Equipment Details</h1>
-      
+      <h1>📦 Hardware Bundles</h1>
+      <p class="subtitle">Create and manage hardware bundles for easy planning and deployment</p>
     </div>
 
     <div class="header-actions">
-      <button class="btn btn-secondary">
-        📱 View QR Code
-      </button>
-      <button class="btn btn-secondary">
-        🖨️ Print Tag
-      </button>
-      <button class="btn btn-primary">
-        ✏️ Edit
-      </button>
-      <button class="btn btn-primary">
-        📦 Transfer
+      <button class="btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+        ➕ Create Bundle
       </button>
     </div>
   </div>
 
-  
-    <div class="content-grid">
-      <!-- Basic Information -->
-      <div class="info-card">
-        <h3>📋 Basic Information</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Asset Tag</label>
-            <span class="value">N/A</span>
+  <!-- Alerts -->
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Search bundles..." data-cwl-on-input="action:handleSearch"
+      />
+    </div>
+
+    <select data-cwl-on-change="action:applyFilters">
+
+        <option>All Types</option>
+
+        <option value=standard>Standard</option>
+
+        <option value=custom>Custom</option>
+
+        <option value=site-deployment>Site Deployment</option>
+
+        <option value=cpe-installation>CPE Installation</option>
+
+        <option value=maintenance-kit>Maintenance Kit</option>
+
+        <option value=emergency-kit>Emergency Kit</option>
+
+    </select>
+
+    <select data-cwl-on-change="action:applyFilters">
+
+        <option value=active>Active</option>
+
+        <option value=archived>Archived</option>
+
+        <option value=draft>Draft</option>
+
+    </select>
+
+    <div class="results-count">
+      <span data-cwl-bind="interp" data-cwl-hole-detail="bundles.length"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="pagination.total"></span> bundles
+    </div>
+  </div>
+
+  <!-- Bundles List -->
+
+    <div class="bundles-grid">
+      <div data-cwl-bind="each" data-cwl-hole-detail="bundles as bundle (bundle._id)" data-cwl-each-item="bundle" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-icon%22%3E%7BgetBundleTypeEmoji(bundle.bundleType)%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-title%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bbundle.name%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22bundle-type%22%3E%7BgetBundleTypeLabel(bundle.bundleType)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-status%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge%20badge-%7Bbundle.status%7D%22%3E%7Bbundle.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%7B%23if%20bundle.description%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22bundle-description%22%3E%7Bbundle.description%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-stats%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22stat%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22stat-label%22%3EItems%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22stat-value%22%3E%7Bbundle.items%3F.length%20%7C%7C%200%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22stat%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22stat-label%22%3ETotal%20Cost%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22stat-value%22%3E%7BformatCurrency(bundle.estimatedTotalCost)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20bundle.usageCount%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22stat%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22stat-label%22%3EUsed%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22stat-value%22%3E%7Bbundle.usageCount%7D%20times%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%7B%23if%20bundle.tags%20%26%26%20bundle.tags.length%20%3E%200%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-tags%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23each%20bundle.tags%20as%20tag%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22tag%22%3E%7Btag%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Feach%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-secondary%22%20data-cwl-action%3D%22openDetailsModal%22%20data-cwl-action-args%3D%22bundle%22%20aria-label%3D%22Open%20Details%20Modal%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%91%81%EF%B8%8F%20View%20Details%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-secondary%22%20data-cwl-nav%3D%22%2Fmodules%2Finventory%2Fbundles%2F%7Bbundle._id%7D%2Fedit%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%8F%EF%B8%8F%20Edit%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20bundle.status%20%3D%3D%3D%20'active'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-warning%22%20data-cwl-action%3D%22handleArchive%22%20data-cwl-action-args%3D%22bundle%22%20aria-label%3D%22Archive%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%A6%20Archive%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-danger%22%20data-cwl-action%3D%22handleDelete%22%20data-cwl-action-args%3D%22bundle%22%20aria-label%3D%22Delete%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%97%91%EF%B8%8F%20Delete%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22bundle-footer%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22footer-text%22%3EUpdated%3A%20%7BformatDate(bundle.updatedAt)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20bundle.lastUsedAt%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22footer-text%22%3ELast%20used%3A%20%7BformatDate(bundle.lastUsedAt)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20"><div class="bundle-card">
+          <div class="bundle-header">
+            <div class="bundle-icon"></div>
+            <div class="bundle-title">
+              <h3></h3>
+              <span class="bundle-type"></span>
+            </div>
+            <div class="bundle-status">
+              <span class="badge badge-"></span>
+            </div>
           </div>
-          <div class="info-item">
-            <label>Serial Number</label>
-            <span class="value"></span>
+
+            <div hidden aria-hidden="true"><p class="bundle-description"></p>
           </div>
-          <div class="info-item">
-            <label>Category</label>
-            <span class="value"></span>
+
+          <div class="bundle-stats">
+            <div class="stat">
+              <span class="stat-label">Items:</span>
+              <span class="stat-value"></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Total Cost:</span>
+              <span class="stat-value"></span>
+            </div>
+
+              <div class="stat" hidden aria-hidden="true">
+                <span class="stat-label">Used:</span>
+                <span class="stat-value"> times</span>
+              </div>
+
           </div>
-          <div class="info-item">
-            <label>Equipment Type</label>
-            <span class="value"></span>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="bundle.tags && bundle.tags.length > 0"><div class="bundle-tags">
+              <div data-cwl-bind="each" data-cwl-hole-detail="bundle.tags as tag"><span class="tag"></span></div>
+            </div></div>
+
+          <div class="bundle-actions">
+            <button class="btn-secondary" data-cwl-action="openDetailsModal" data-cwl-action-args="bundle" aria-label="Open Details Modal">
+              👁️ View Details
+            </button>
+            <button class="btn-secondary">
+              ✏️ Edit
+            </button>
+            <div data-cwl-bind="if" data-cwl-hole-detail="bundle.status === 'active'"><button class="btn-warning" data-cwl-action="handleArchive" data-cwl-action-args="bundle" aria-label="Archive">
+                📦 Archive
+              </button></div>
+            <button class="btn-danger" data-cwl-action="handleDelete" data-cwl-action-args="bundle" aria-label="Delete">
+              🗑️ Delete
+            </button>
           </div>
-          <div class="info-item">
-            <label>Manufacturer</label>
-            <span class="value">N/A</span>
+
+          <div class="bundle-footer">
+            <span class="footer-text">Updated: </span>
+
+              <div hidden aria-hidden="true"><span class="footer-text">Last used: </span>
+            </div>
           </div>
-          <div class="info-item">
-            <label>Model</label>
-            <span class="value">N/A</span>
+        </div></div>
+    </div>
+
+    <!-- Pagination -->
+    <div data-cwl-bind="if" data-cwl-hole-detail="pagination.pages > 1"><div class="pagination">
+        <button
+          class="btn-page" data-cwl-attr-disabled="pagination.page === 1" data-cwl-action="handlePageChange" data-cwl-action-args="pagination.page - 1"
+         aria-label="Page Change">
+          ← Previous
+        </button>
+        <span class="pagination-info">
+          Page <span data-cwl-bind="interp" data-cwl-hole-detail="pagination.page"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="pagination.pages"></span>
+        </span>
+        <button
+          class="btn-page" data-cwl-attr-disabled="pagination.page === pagination.pages" data-cwl-action="handlePageChange" data-cwl-action-args="pagination.page + 1"
+         aria-label="Page Change">
+          Next →
+        </button>
+      </div></div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <span class="empty-icon">📦</span>
+      <h3>No bundles found</h3>
+      <p>Create your first hardware bundle to get started</p>
+      <button class="btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+        ➕ Create Bundle
+      </button>
+    </div>
+
+    <div class="loading-container" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading bundles...</p>
+    </div>
+
+</div>
+
+<!-- Modals -->
+
+  <div hidden aria-hidden="true"><div data-cwl-component="CreateBundleModal" data-cwl-lifted-component="CreateBundleModal"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>➕ Create Hardware Bundle</h2>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-group">
+            <label>Bundle Name *</label>
+            <input
+              type="text"
+              placeholder="e.g., Standard Site Deployment Kit"
+              required
+            />
           </div>
-          <div class="info-item">
-            <label>Status</label>
-            <span class="status-badge"></span>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              placeholder="Describe this bundle and when to use it..."
+              rows="3"
+            ></textarea>
           </div>
-          <div class="info-item">
-            <label>Condition</label>
-            <span class="condition-badge"></span>
+
+          <div class="form-group">
+            <label>Bundle Type</label>
+            <select>
+
+                <option value=standard>📦 Standard</option>
+
+                <option value=custom>🔧 Custom</option>
+
+                <option value=site-deployment>🏗️ Site Deployment</option>
+
+                <option value=cpe-installation>📡 CPE Installation</option>
+
+                <option value=maintenance-kit>🔧 Maintenance Kit</option>
+
+                <option value=emergency-kit>🚨 Emergency Kit</option>
+
+            </select>
           </div>
+
+          <div class="form-group">
+            <label>Tags</label>
+            <div class="tag-input-group">
+              <input
+                id="tag-input"
+                type="text"
+                placeholder="Add a tag..." data-cwl-on-keypress="action:addTag"
+              />
+              <button class="btn-sm" data-cwl-action="addTag" aria-label="Add Tag">Add</button>
+            </div>
+            <div data-cwl-bind="if" data-cwl-hole-detail="formData.tags && formData.tags.length > 0"><div class="tags-list">
+                <div data-cwl-bind="each" data-cwl-hole-detail="formData.tags as tag"><span class="tag">
+
+                    <button class="tag-remove" data-cwl-action="removeTag" data-cwl-action-args="tag" aria-label="Remove Tag">✕</button>
+                  </span></div>
+              </div></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Bundle Items</h3>
+
+          <div class="add-item-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Category</label>
+                <select>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="categoryList as category" data-cwl-each-item="category" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bcategory%7D%3E%7Bcategory%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Equipment Type *</label>
+                <select required>
+                  <option>Select type...</option>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="availableTypes as type" data-cwl-each-item="type" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Btype%7D%3E%7Btype%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Quantity *</label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Manufacturer</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Ubiquiti"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Model</label>
+                <input
+                  type="text"
+                  placeholder="e.g., AirFiber 5X"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Estimated Cost per Unit</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <button class="btn-add" data-cwl-action="addItem" type="button" aria-label="Add Item">
+              ➕ Add Item
+            </button>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="formData.items && formData.items.length > 0"><div class="items-list">
+              <h4>Bundle Items (<span data-cwl-bind="interp" data-cwl-hole-detail="formData.items.length"></span>)</h4>
+              <div class="items-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Type</th>
+                      <th>Qty</th>
+                      <th>Manufacturer</th>
+                      <th>Model</th>
+                      <th>Cost</th>
+                      <th>Total</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <div data-cwl-bind="each" data-cwl-hole-detail="formData.items as item, index"><tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>$<span data-cwl-bind="interp" data-cwl-hole-detail="(item.estimatedCost || 0).toFixed(2)"></span></td>
+                        <td>$<span data-cwl-bind="interp" data-cwl-hole-detail="((item.estimatedCost || 0) * (item.quantity || 1)).toFixed(2)"></span></td>
+                        <td>
+                          <button class="btn-remove" data-cwl-action="removeItem" data-cwl-action-args="index" aria-label="Remove Item">
+                            🗑️
+                          </button>
+                        </td>
+                      </tr></div>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="6" style="text-align: right; font-weight: 600;">Total:</td>
+                      <td style="font-weight: 600;">$<span data-cwl-bind="interp" data-cwl-hole-detail="totalCost.toFixed(2)"></span></td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div></div>
+        </div>
+
+        <div class="form-section">
+          <h3>Notes</h3>
+          <textarea
+            placeholder="Additional notes about this bundle..."
+            rows="3"
+          ></textarea>
         </div>
       </div>
 
-      <!-- Current Location -->
-      <div class="info-card">
-        <h3>📍 Current Location</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Location Type</label>
-            <span class="value"></span>
-          </div>
-          
-          
-          
-        </div>
-      </div>
-
-      <!-- Purchase Information -->
-      
-
-      <!-- Warranty Information -->
-      
-
-      <!-- Technical Specifications -->
-      
-
-      <!-- Module Integration -->
-      
-
-      <!-- Notes -->
-      
-
-      <!-- Metadata -->
-      <div class="info-card full-width">
-        <h3>📊 Metadata</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Created</label>
-            <span class="value"></span>
-          </div>
-          <div class="info-item">
-            <label>Last Updated</label>
-            <span class="value"></span>
-          </div>
-        </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-cwl-action="close" data-cwl-attr-disabled="loading" aria-label="Close">
+          Cancel
+        </button>
+        <button class="btn-primary" data-cwl-action="handleSubmit" data-cwl-attr-disabled="loading" aria-label="Submit">
+          Create Bundle
+        </button>
       </div>
     </div>
-  
+  </div></div>
 </div>
 
-<!-- QR Code Modal -->
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+  <div hidden aria-hidden="true"><div data-cwl-component="BundleDetailsModal" data-cwl-lifted-component="BundleDetailsModal"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="header-left">
+          <span class="bundle-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getBundleTypeEmoji(bundle.bundleType)"></span></span>
+          <div>
+            <h2><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.name"></span></h2>
+            <p class="bundle-type"><span data-cwl-bind="interp" data-cwl-hole-detail="getBundleTypeLabel(bundle.bundleType)"></span></p>
+          </div>
+        </div>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+          <div class="section" hidden aria-hidden="true">
+            <h3>Description</h3>
+            <p><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.description"></span></p>
+          </div>
+
+        <div class="section">
+          <h3>Bundle Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="stat-label">Items</span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.items?.length || 0"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Total Cost</span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatCurrency(bundle.estimatedTotalCost)"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Status</span>
+              <span class="stat-value badge badge-"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.status"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Used</span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.usageCount || 0"></span> times</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Last Used</span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(bundle.lastUsedAt)"></span></span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Updated</span>
+              <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(bundle.updatedAt)"></span></span>
+            </div>
+          </div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="bundle.items && bundle.items.length > 0"><div class="section">
+            <h3>Bundle Items (<span data-cwl-bind="interp" data-cwl-hole-detail="bundle.items.length"></span>)</h3>
+            <div class="items-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Equipment Type</th>
+                    <th>Qty</th>
+                    <th>Manufacturer</th>
+                    <th>Model</th>
+                    <th>Cost per Unit</th>
+                    <th>Total Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="bundle.items as item"><tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr></div>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" style="text-align: right; font-weight: 600;">Total:</td>
+                    <td style="font-weight: 600;"><span data-cwl-bind="interp" data-cwl-hole-detail="formatCurrency(bundle.estimatedTotalCost)"></span></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div></div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="bundle.tags && bundle.tags.length > 0"><div class="section">
+            <h3>Tags</h3>
+            <div class="tags-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="bundle.tags as tag"><span class="tag"></span></div>
+            </div>
+          </div></div>
+
+          <div class="section" hidden aria-hidden="true">
+            <h3>Notes</h3>
+            <p class="notes"><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.notes"></span></p>
+          </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" data-cwl-action="close" aria-label="Close">
+          Close
+        </button>
+        <div data-cwl-bind="if" data-cwl-hole-detail="bundle.status === 'active'"><button class="btn-primary" data-cwl-action="useBundle" data-cwl-attr-disabled="loading" aria-label="Use Bundle">
+            ✓ Use Bundle
+          </button></div>
+      </div>
+    </div>
+  </div></div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/inventory/bundles"}</script>

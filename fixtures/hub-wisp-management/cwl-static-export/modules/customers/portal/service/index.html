@@ -1,7 +1,7 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-service" data-wisp-path="/modules/customers/portal/service" data-cwl-island="client"><div class="service-page">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/service" data-cwl-island="client"><div class="service-page">
     <p class="back-link"><a href="/modules/customers/portal/dashboard">← Back to Dashboard</a></p>
     <h1>Service Information</h1>
-    
+
     <div class="service-details">
       <div class="info-section">
         <h2>Service Status</h2>
@@ -9,19 +9,51 @@
           <div class="info-row">
             <span class="info-label">Status:</span>
             <span class="info-value status-">
-              active
+              <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo?.serviceStatus || 'N/A'"></span>
             </span>
           </div>
-          <div class="info-row">
+
+            <div class="info-row" hidden aria-hidden="true">
               <span class="info-label">Service Plan:</span>
-              <span class="info-value">Residential 100</span>
+              <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.servicePlan"></span></span>
             </div>
+
         </div>
       </div>
-      
-      
-      
-      
+
+        <div class="info-section" hidden aria-hidden="true">
+          <h2>Service Address</h2>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="info-label">Address:</span>
+              <span class="info-value">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.street || ''"></span>
+                <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.city || ''"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.state || ''"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="serviceInfo.serviceAddress.zipCode || ''"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+      <div data-cwl-bind="if" data-cwl-hole-detail="serviceInfo?.equipment && serviceInfo.equipment.length > 0"><div class="info-section">
+          <h2>Equipment</h2>
+          <div class="equipment-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="serviceInfo.equipment as equipment"><div class="equipment-card">
+                <div class="equipment-header">
+                  <span class="equipment-type"></span>
+
+                    <div hidden aria-hidden="true"><span class="equipment-serial">SN: </span>
+                  </div>
+                </div>
+
+                  <div class="equipment-detail" hidden aria-hidden="true">Model: </div>
+
+                  <div class="equipment-detail" hidden aria-hidden="true">
+                    Installed:
+                  </div>
+
+              </div></div>
+          </div>
+        </div></div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/service","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/service"}</script>

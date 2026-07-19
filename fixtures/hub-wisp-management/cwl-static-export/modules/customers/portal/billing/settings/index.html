@@ -1,12 +1,8 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-billing-settings" data-wisp-path="/modules/customers/portal/billing/settings" data-cwl-island="client"><div class="billing-settings-page">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/billing/settings" data-cwl-island="client"><div class="billing-settings-page">
     <h1>Billing settings</h1>
     <p class="subtitle">Payment method and invoice preferences</p>
 
-    
-    
-
-    <form class="settings-form">
-      
+    <form data-cwl-on-submit="action:handleSave" class="settings-form">
 
       <section class="settings-section">
         <h2>Invoice delivery</h2>
@@ -31,25 +27,25 @@
         <div class="info-rows">
           <div class="info-row">
             <span class="label">Company name</span>
-            <span class="value">—</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="invoiceFormat.companyName || '—'"></span></span>
           </div>
           <div class="info-row">
             <span class="label">Payment due (days)</span>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="invoiceFormat.dueDays"></span></span>
           </div>
           <div class="info-row">
             <span class="label">Currency</span>
-            <span class="value"></span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="invoiceFormat.currency"></span></span>
           </div>
         </div>
       </section>
 
       <div class="actions">
-        <button type="submit" class="btn-primary">
+        <button type="submit" class="btn-primary" data-cwl-attr-disabled="saving">
           Save settings
         </button>
         <a href="/modules/customers/portal/billing" class="btn-secondary">Back to Billing</a>
       </div>
     </form>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/billing/settings","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/billing/settings"}</script>

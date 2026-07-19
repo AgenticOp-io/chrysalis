@@ -1,199 +1,24 @@
-[
-  {
-    "_id": "6a58ea61ad923e3601dfd72e",
-    "name": "CWL Equip 1784212065830",
-    "type": "backhaul",
-    "status": "active",
-    "manufacturer": "Trace",
-    "model": "N10b",
-    "serialNumber": "EQ-N10B-1784212065830",
-    "location": {
-      "latitude": 39.74,
-      "longitude": -104.99,
-      "country": "US",
-      "_id": "6a58ea61ad923e3601dfd72f"
-    },
-    "tenantId": "6a166eb07089304417ec967a",
-    "notes": "chrysalis-deepen-n10b",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-16T14:27:45.859Z",
-    "updatedAt": "2026-07-16T14:27:45.860Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a595e52ad923e3601dfd8f0",
-    "name": "CWL Equip 1784241746274",
-    "type": "backhaul",
-    "status": "active",
-    "manufacturer": "Trace",
-    "model": "N10d",
-    "serialNumber": "EQ-N10D-1784241746274",
-    "location": {
-      "latitude": 39.74,
-      "longitude": -104.99,
-      "country": "US",
-      "_id": "6a595e52ad923e3601dfd8f1"
-    },
-    "tenantId": "6a166eb07089304417ec967a",
-    "notes": "chrysalis-n10d-equipment-create",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-16T22:42:26.591Z",
-    "updatedAt": "2026-07-16T22:42:26.592Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a595e86ad923e3601dfd988",
-    "name": "CWL Equip 1784241797894",
-    "type": "backhaul",
-    "status": "active",
-    "manufacturer": "Trace",
-    "model": "N10d",
-    "serialNumber": "EQ-N10D-1784241797894",
-    "location": {
-      "latitude": 39.74,
-      "longitude": -104.99,
-      "country": "US",
-      "_id": "6a595e86ad923e3601dfd989"
-    },
-    "tenantId": "6a166eb07089304417ec967a",
-    "notes": "chrysalis-n10d-equipment-create",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-16T22:43:18.210Z",
-    "updatedAt": "2026-07-16T22:43:18.211Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a595ff9ad923e3601dfda50",
-    "name": "CWL Equip Bulk 1784242169350",
-    "type": "backhaul",
-    "status": "active",
-    "manufacturer": "Trace",
-    "model": "Bulk",
-    "serialNumber": "EQ-BULK-1784242169350",
-    "location": {
-      "latitude": 39.74,
-      "longitude": -104.99,
-      "country": "US",
-      "_id": "6a595ff9ad923e3601dfda51"
-    },
-    "tenantId": "6a166eb07089304417ec967a",
-    "notes": "chrysalis-equipment-bulk-import",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-16T22:49:29.647Z",
-    "updatedAt": "2026-07-16T22:49:29.648Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a596018ad923e3601dfdaf4",
-    "name": "CWL Equip Bulk 1784242200547",
-    "type": "backhaul",
-    "status": "active",
-    "manufacturer": "Trace",
-    "model": "Bulk",
-    "serialNumber": "EQ-BULK-1784242200547",
-    "location": {
-      "latitude": 39.74,
-      "longitude": -104.99,
-      "country": "US",
-      "_id": "6a596018ad923e3601dfdaf5"
-    },
-    "tenantId": "6a166eb07089304417ec967a",
-    "notes": "chrysalis-equipment-bulk-import",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-16T22:50:00.848Z",
-    "updatedAt": "2026-07-16T22:50:00.851Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a58ea61ad923e3601dfd731",
-    "name": "CWL Map Equip 1784212065916",
-    "type": "backhaul",
-    "status": "active",
-    "manufacturer": "Trace",
-    "model": "Map",
-    "serialNumber": "EQ-MAP-1784212065916",
-    "location": {
-      "latitude": 39.75,
-      "longitude": -104.98,
-      "country": "US",
-      "_id": "6a58ea61ad923e3601dfd732"
-    },
-    "tenantId": "6a166eb07089304417ec967a",
-    "notes": "chrysalis-map-equipment-create",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-16T14:27:45.945Z",
-    "updatedAt": "2026-07-16T14:27:45.945Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a596f65ad923e3601e0308b",
-    "name": "EQB 1784246116493",
-    "type": "radio",
-    "status": "active",
-    "manufacturer": "CWL",
-    "model": "M",
-    "serialNumber": "EQB-1784246116493",
-    "tenantId": "6a166eb07089304417ec967a",
-    "createdBy": "System",
-    "createdAt": "2026-07-16T23:55:17.142Z",
-    "updatedAt": "2026-07-16T23:55:17.143Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a596faead923e3601e03124",
-    "name": "EQB 1784246189002",
-    "type": "radio",
-    "status": "active",
-    "manufacturer": "CWL",
-    "model": "M",
-    "serialNumber": "EQB-1784246189002",
-    "tenantId": "6a166eb07089304417ec967a",
-    "createdBy": "System",
-    "createdAt": "2026-07-16T23:56:30.421Z",
-    "updatedAt": "2026-07-16T23:56:30.422Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a5993a2ad923e3601e03d09",
-    "name": "Eq 1784255392330",
-    "type": "router",
-    "status": "active",
-    "tenantId": "6a166eb07089304417ec967a",
-    "createdBy": "System",
-    "createdAt": "2026-07-17T02:29:54.707Z",
-    "updatedAt": "2026-07-17T02:29:54.709Z",
-    "__v": 0
-  },
-  {
-    "_id": "6a5971a3ad923e3601e03421",
-    "name": "OwnE 1784246690725",
-    "type": "radio",
-    "status": "active",
-    "manufacturer": "CWL",
-    "model": "M",
-    "serialNumber": "OE-1784246690725",
-    "tenantId": "6a166eb07089304417ec967a",
-    "createdBy": "System",
-    "createdAt": "2026-07-17T00:04:51.453Z",
-    "updatedAt": "2026-07-17T00:04:51.564Z",
-    "__v": 0,
-    "notes": "own-put",
-    "updatedBy": "System"
-  },
-  {
-    "_id": "6a59743bad923e3601e034f4",
-    "name": "OwnE 1784247353418",
-    "type": "radio",
-    "status": "active",
-    "manufacturer": "CWL",
-    "model": "M",
-    "serialNumber": "OE-1784247353418",
-    "tenantId": "6a166eb07089304417ec967a",
-    "createdBy": "demo@wisptools.io",
-    "createdAt": "2026-07-17T00:15:55.810Z",
-    "updatedAt": "2026-07-17T00:15:55.918Z",
-    "__v": 0,
-    "notes": "chrysalis-n10o-1784247353418",
-    "updatedBy": "demo@wisptools.io"
-  }
-]
+{
+  "ok": true,
+  "equipment": [
+    {
+      "id": "eq-1",
+      "name": "Core Switch",
+      "status": "online",
+      "locationType": "noc",
+      "lat": 39.78,
+      "lng": -98.52,
+      "location": {
+        "latitude": 39.78,
+        "longitude": -98.52
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "eq-1",
+      "name": "Core Switch",
+      "status": "online"
+    }
+  ]
+}

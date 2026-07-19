@@ -3,22 +3,24 @@
   <ol class="breadcrumb-list">
     <!-- Home/Admin Management link -->
     <li class="breadcrumb-item">
-      <a 
-        class="breadcrumb-link"
+      <a
+        class="breadcrumb-link" data-cwl-action="handleClick" data-cwl-action-args="homeItem.path"
       >
         <span class="breadcrumb-icon">⚙️</span>
-        
+        <span data-cwl-bind="interp" data-cwl-hole-detail="homeItem.label"></span>
       </a>
     </li>
-    
+
     <!-- Additional breadcrumb items -->
-    <li class="breadcrumb-separator">/</li>
+    <div data-cwl-bind="each" data-cwl-hole-detail="items as item, index"><li class="breadcrumb-separator">/</li>
       <li class="breadcrumb-item">
-        
-      </li><li class="breadcrumb-separator">/</li>
-      <li class="breadcrumb-item">
-        
-      </li>
+        <div data-cwl-bind="if" data-cwl-hole-detail="item.path && index < items.length - 1"><a class="breadcrumb-link" data-cwl-action="handleClick" data-cwl-action-args="item.path"
+          >
+
+          </a></div>
+          <span class="breadcrumb-current"></span>
+
+      </li></div>
   </ol>
 </nav></div>
     <div class="admin-header">
@@ -26,28 +28,143 @@
       <p>Manage all tenants and system settings</p>
     </div>
 
-    
+      <div class="loading" hidden aria-hidden="true">
+        <p>Loading tenants...</p>
+      </div>
 
     <div class="admin-content">
       <div class="tenants-list">
-        <h2>All Tenants (2)</h2>
-        
-        
+        <h2>All Tenants (<span data-cwl-bind="interp" data-cwl-hole-detail="tenants.length"></span>)</h2>
+
+          <div class="tenants-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Organization</th>
+                  <th>Subdomain</th>
+                  <th>Contact Email</th>
+                  <th>Users</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="tenants as tenant (tenant.id)" data-cwl-each-item="tenant" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%20class%3Aselected%3D%7BselectedTenant%3F.id%20%3D%3D%3D%20tenant.id%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Btenant.displayName%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csmall%3E%7Btenant.name%7D%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Btenant.subdomain%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Btenant.contactEmail%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Btenant.userCount%20%7C%7C%200%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Btenant.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Btenant.status%20%7C%7C%20'active'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7BformatDate(tenant.createdAt)%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20class%3D%22actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn%20btn-sm%20btn-secondary%22%20data-cwl-action%3D%22selectTenant%22%20data-cwl-action-args%3D%22tenant%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22View%20Details%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20View%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn%20btn-sm%20btn-warning%22%20data-cwl-action%3D%22suspendTenant%22%20data-cwl-action-args%3D%22tenant%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20disabled%3D%7BisLoading%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%7Btenant.status%20%3D%3D%3D%20'suspended'%20%3F%20'Activate%20Tenant'%20%3A%20'Suspend%20Tenant'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Btenant.status%20%3D%3D%3D%20'suspended'%20%3F%20'Activate'%20%3A%20'Suspend'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn%20btn-sm%20btn-danger%22%20data-cwl-action%3D%22showDeleteDialog%22%20data-cwl-action-args%3D%22tenant%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20disabled%3D%7BisLoading%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Delete%20Tenant%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Delete%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td>
+                      <strong></strong>
+                      <br>
+                      <small></small>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      <span class="status-badge status-">
+
+                      </span>
+                    </td>
+                    <td></td>
+                    <td class="actions">
+            <button
+              class="btn btn-sm btn-secondary" data-cwl-action="selectTenant" data-cwl-action-args="tenant"
+              title="View Details"
+            >
+              View
+            </button>
+                      <button
+                        class="btn btn-sm btn-warning" data-cwl-action="suspendTenant" data-cwl-action-args="tenant" aria-label="Suspend Tenant">
+
+                      </button>
+                      <button
+                        class="btn btn-sm btn-danger" data-cwl-action="showDeleteDialog" data-cwl-action-args="tenant" title="Delete Tenant"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>No tenants found.</p>
+          </div>
+
       </div>
 
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="selectedTenant"><div class="tenant-details">
+          <h2>Tenant Details</h2>
+          <div class="details-card">
+            <div class="detail-row">
+              <strong>Organization Name:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.name"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>Display Name:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.displayName"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>Subdomain:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.subdomain"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>Contact Email:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.contactEmail"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>CWMP URL:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.cwmpUrl"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>Status:</strong>
+              <span class="status-badge status-">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.status || 'active'"></span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <strong>User Count:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.userCount || 0"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>Created:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(selectedTenant.createdAt)"></span></span>
+            </div>
+            <div class="detail-row">
+              <strong>Last Updated:</strong>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(selectedTenant.updatedAt)"></span></span>
+            </div>
+          </div>
+
+          <div class="details-actions">
+            <button
+              class="btn btn-warning" data-cwl-action="suspendTenant" data-cwl-action-args="selectedTenant!" data-cwl-attr-disabled="isLoading"
+             aria-label="Suspend Tenant">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.status === 'suspended' ? 'Activate Tenant' : 'Suspend Tenant'"></span>
+            </button>
+            <button
+              class="btn btn-danger" data-cwl-action="showDeleteDialog" data-cwl-action-args="selectedTenant!" data-cwl-attr-disabled="isLoading"
+             aria-label="Show Delete Dialog">
+              Delete Tenant
+            </button>
+            <button
+              class="btn btn-secondary"
+            >
+              Close
+            </button>
+          </div>
+        </div></div>
     </div>
 
     <!-- Remote Agents Status Section (Global/System-wide) -->
     <div class="remote-agents-section">
       <div class="section-header">
         <h2>📡 Remote Agents Status (System-wide)</h2>
-        <button class="btn btn-secondary">
+        <button class="btn btn-secondary" data-cwl-action="loadAllRemoteAgents" data-cwl-attr-disabled="loadingAgents" aria-label="Load All Remote Agents">
           Refresh
         </button>
       </div>
 
-        
           <div class="agents-table-container">
             <table class="agents-table">
               <thead>
@@ -63,41 +180,88 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <div data-cwl-bind="each" data-cwl-hole-detail="remoteAgents as agent (agent.epc_id || agent.device_id)" data-cwl-each-item="agent" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bagent.tenant_name%20%7C%7C%20agent.tenant_id%20%7C%7C%20'Unknown'%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22agent-type-badge%20type-%7Bagent.type%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%3F%20'EPC'%20%3A%20'SNMP'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ccode%3E%7Bagent.epc_id%20%7C%7C%20agent.device_id%20%7C%7C%20'N%2FA'%7D%3C%2Fcode%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3F%20(agent.device_code%20%7C%7C%20agent.site_name%20%7C%7C%20'N%2FA')%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3A%20(agent.name%20%7C%7C%20agent.ip_address%20%7C%7C%20'N%2FA')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7BgetFirstCheckin(agent)%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3F%20(agent.last_checkin%20%3F%20formatDate(agent.last_checkin)%20%3A%20'Never')%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3A%20(agent.discovered_at%20%3F%20formatDate(agent.discovered_at)%20%3A%20'N%2FA')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20agent.time_since_checkin%20!%3D%3D%20null%20%26%26%20agent.time_since_checkin%20!%3D%3D%20undefined%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csmall%20class%3D%22time-ago%22%3E%7BformatTimeAgo(agent.time_since_checkin)%7D%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Bagent.checkin_status%20%7C%7C%20agent.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3F%20(agent.checkin_status%20%7C%7C%20agent.status%20%7C%7C%20'unknown')%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3A%20(agent.status%20%7C%7C%20'discovered')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20agent.hardware_linked%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22linked-badge%20linked%22%3E%E2%9C%93%20Linked%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20agent.hardware_link_type%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbr%3E%3Csmall%3E(%7Bagent.hardware_link_type%7D)%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22linked-badge%20unlinked%22%3E%E2%9C%97%20Unlinked%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
                     <td>
                       <strong></strong>
                     </td>
                     <td>
                       <span class="agent-type-badge type-">
-                        
+
                       </span>
                     </td>
                     <td>
                       <code></code>
                     </td>
                     <td>
-                      
+
                     </td>
                     <td></td>
                     <td>
-                      
-                      
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="agent.time_since_checkin !== null && agent.time_since_checkin !== undefined"><br>
+                        <small class="time-ago"></small></div>
                     </td>
                     <td>
                       <span class="status-badge status-">
-                        
+
                       </span>
                     </td>
                     <td>
-                      
+
+                        <span class="linked-badge unlinked">✗ Unlinked</span>
+
+                        <div hidden aria-hidden="true"><span class="linked-badge linked">✓ Linked</span>
+
+                          <div hidden aria-hidden="true"><br><small>()</small>
+                        </div>
+                      </div>
                     </td>
-                  </tr>
+                  </tr></div>
               </tbody>
             </table>
           </div>
-        
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>No remote agents found across all tenants.</p>
+          </div>
+
+          <div class="loading" hidden aria-hidden="true">
+            <p>Loading remote agents...</p>
+          </div>
+
       </div>
 
-    
+      <div class="modal-overlay" data-cwl-action="cancelDelete" hidden aria-hidden="true">
+        <div class="modal">
+          <h2>⚠️ Confirm Deletion</h2>
+          <p>
+            Are you sure you want to delete the tenant <strong>"<span data-cwl-bind="interp" data-cwl-hole-detail="tenantToDelete.displayName"></span>"</strong>?
+          </p>
+          <p class="warning-text">
+            This action cannot be undone. All data associated with this tenant will be permanently deleted,
+            including:
+          </p>
+          <ul>
+            <li>All user associations</li>
+            <li>All customers</li>
+            <li>All work orders</li>
+            <li>All inventory</li>
+            <li>All network configurations</li>
+          </ul>
+          <div class="modal-actions">
+            <button
+              class="btn btn-danger" data-cwl-action="deleteTenant" data-cwl-attr-disabled="isLoading"
+             aria-label="Delete Tenant">
+              Yes, Delete Tenant
+            </button>
+            <button
+              class="btn btn-secondary" data-cwl-action="cancelDelete" data-cwl-attr-disabled="isLoading"
+             aria-label="Cancel Delete">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/system-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/admin/system-management"}</script>

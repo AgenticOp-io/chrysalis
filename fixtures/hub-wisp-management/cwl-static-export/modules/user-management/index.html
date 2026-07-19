@@ -1,33 +1,30 @@
-<div class="user-management-container">
+<div class="wisp-app-surface" data-wisp-page="user-management" data-wisp-path="/modules/user-management" data-cwl-island="client"><div class="user-management-container">
   <div class="header">
-    <button class="btn-back">
+    <button class="btn-back" data-cwl-nav="/dashboard" type="button">
       ← Back to Modules
     </button>
-    
+
     <div class="title-section">
       <h1>👥 User Management</h1>
       <p class="subtitle">
-        
+
           Manage all users across all organizations
-        
+
       </p>
     </div>
-    
-    
-  </div>
 
-  
+  </div>
 
   <div class="filters">
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input
         type="text"
-        placeholder="Search by name or email..."
+        placeholder="Search by name or email..." data-cwl-on-input="action:handleSearch"
       />
     </div>
 
-    <select class="select">
+    <select data-cwl-on-change="action:handleRoleFilterChange" class="select">
       <option value="all">All Roles</option>
       <option value="owner">Owner</option>
       <option value="admin">Admin</option>
@@ -37,7 +34,7 @@
       <option value="viewer">Viewer</option>
     </select>
 
-    <select class="select">
+    <select data-cwl-on-change="action:handleStatusFilterChange" class="select">
       <option value="all">All Status</option>
       <option value="active">Active</option>
       <option value="suspended">Suspended</option>
@@ -45,11 +42,10 @@
     </select>
 
     <div class="results-count">
-       of 2 users
+      <span data-cwl-bind="interp" data-cwl-hole-detail="filteredUsers.length"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="users.length"></span> users
     </div>
   </div>
 
-  
     <div class="table-container">
       <table class="user-table">
         <thead>
@@ -59,18 +55,452 @@
             <th>Status</th>
             <th>Last Login</th>
             <th>Added</th>
-            
+
           </tr>
         </thead>
         <tbody>
-          
+          <div data-cwl-bind="each" data-cwl-hole-detail="filteredUsers as user (user.uid)" data-cwl-each-item="user" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-cell%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20user.photoURL%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cimg%20src%3D%7Buser.photoURL%7D%20alt%3D%7Buser.displayName%7D%20class%3D%22user-avatar%22%20%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-avatar-placeholder%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Buser.displayName%3F.charAt(0)%20%7C%7C%20user.email.charAt(0).toUpperCase()%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-name%22%3E%7Buser.displayName%20%7C%7C%20'No%20name'%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-email%22%3E%7Buser.email%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge%20%7BgetRoleBadgeClass(user.role)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BROLE_NAMES%5Buser.role%5D%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge%20%7BgetStatusBadgeClass(user.status)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Buser.status.replace('_'%2C%20'%20')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20class%3D%22time-cell%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BformatTimeAgo(user.lastLoginAt)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20class%3D%22time-cell%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BformatTimeAgo(user.addedAt)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20canManageUsers%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn%20btn-sm%20btn-ghost%22%20data-cwl-action%3D%22openEditModal%22%20data-cwl-action-args%3D%22user%22%20aria-label%3D%22Open%20Edit%20Modal%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%8F%EF%B8%8F%20Edit%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20"><tr>
+              <td>
+                <div class="user-cell">
+
+                    <div class="user-avatar-placeholder">
+
+                    </div>
+
+                    <div hidden aria-hidden="true"><img class="user-avatar" />
+                  </div>
+                  <div class="user-info">
+                    <div class="user-name"></div>
+                    <div class="user-email"></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge ">
+
+                </span>
+              </td>
+              <td>
+                <span class="badge ">
+
+                </span>
+              </td>
+              <td class="time-cell">
+
+              </td>
+              <td class="time-cell">
+
+              </td>
+
+            </tr></div>
         </tbody>
       </table>
     </div>
-  
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <span class="empty-icon">👤</span>
+      <h3>No users found</h3>
+      <div data-cwl-bind="if" data-cwl-hole-detail="searchQuery || roleFilter !== 'all' || statusFilter !== 'all'"><p>Try adjusting your filters</p>
+        <button class="btn btn-secondary" data-cwl-action="applyFilters" aria-label="Apply Filters">
+          Clear Filters
+        </button></div>
+        <p>No team members available in your view.</p>
+
+    </div>
+
 </div>
 
+  <div hidden aria-hidden="true"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
+  class="modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  tabindex="0"
+  aria-label="Add user dialog" data-cwl-action="handleBackdropClick" data-cwl-on-keydown="action:handleBackdropKeydown"
+>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h2>➕ Add Team Member</h2>
+      <button class="close-btn" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">✕</button>
+    </div>
 
+      <form data-cwl-on-submit="action:handleSubmit">
 
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="user@example.com"
+            required data-cwl-attr-disabled="loading"
+          />
+          <p class="hint">They'll receive login instructions at this email</p>
+        </div>
 
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"user-management","apiPath":"/api/users","api_ok":true,"api_surface":"wisp-api-native","api_resource":"users","api_op":"list","tracedApiStatus":200}</script>
+        <div class="form-group">
+          <label for="displayName">Display Name (optional)</label>
+          <input
+            id="displayName"
+            type="text"
+            placeholder="John Smith" data-cwl-attr-disabled="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role *</label>
+          <select id="role" data-cwl-attr-disabled="loading">
+
+              <option value="admin">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['admin']"></span>
+              </option>
+
+              <option value="engineer">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['engineer']"></span>
+              </option>
+
+              <option value="installer">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['installer']"></span>
+              </option>
+
+              <option value="helpdesk">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['helpdesk']"></span>
+              </option>
+
+              <option value="support">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['support']"></span>
+              </option>
+
+              <option value="viewer">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['viewer']"></span>
+              </option>
+
+          </select>
+          <div data-cwl-bind="if" data-cwl-hole-detail="role"><p class="role-description"><span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_DESCRIPTIONS[role]"></span></p></div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-icon">ℹ️</span>
+          <div class="info-content">
+            <p><strong>What happens next:</strong></p>
+            <ul>
+              <li>User receives a welcome email at <strong>wisptools.io</strong></li>
+              <li>They can sign in with Google or create a password</li>
+              <li>Once signed in, they'll have access to your organization</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" data-cwl-attr-disabled="loading">
+
+              Add User
+
+          </button>
+        </div>
+      </form>
+
+  </div>
+</div></div>
+</div>
+
+  <div hidden aria-hidden="true"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
+  class="modal-backdrop"
+  role="presentation"
+  aria-hidden="true"
+  tabindex="-1" data-cwl-action="handleBackdropClick"
+>
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Edit user dialog"
+    tabindex="0" data-cwl-on-keydown="action:handleBackdropKeydown"
+  >
+    <div class="modal-header">
+      <h2>Edit User</h2>
+      <button class="close-btn" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="user-info-section">
+        <div class="user-avatar-large">
+
+            <div class="avatar-placeholder">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="user.displayName?.charAt(0) || user.email.charAt(0).toUpperCase()"></span>
+            </div>
+
+            <div hidden aria-hidden="true"><img />
+          </div>
+        </div>
+        <h3><span data-cwl-bind="interp" data-cwl-hole-detail="user.displayName || 'No name'"></span></h3>
+        <p class="user-email"><span data-cwl-bind="interp" data-cwl-hole-detail="user.email"></span></p>
+        <span class="status-badge status-"><span data-cwl-bind="interp" data-cwl-hole-detail="user.status.replace('_', ' ')"></span></span>
+      </div>
+
+        <div class="form-section">
+          <label for="role">Role</label>
+          <div data-cwl-bind="if" data-cwl-hole-detail="isOwner"><div class="role-locked">
+              <span class="lock-icon">🔒</span>
+              <div>
+                <div class="role-name"><span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES.owner"></span></div>
+                <div class="role-hint">Owner role cannot be changed</div>
+              </div>
+            </div></div>
+            <select
+              id="role" data-cwl-attr-disabled="loading"
+            >
+
+                <option value="admin">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['admin']"></span>
+                </option>
+
+                <option value="engineer">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['engineer']"></span>
+                </option>
+
+                <option value="installer">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['installer']"></span>
+                </option>
+
+                <option value="helpdesk">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['helpdesk']"></span>
+                </option>
+
+                <option value="support">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['support']"></span>
+                </option>
+
+                <option value="viewer">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['viewer']"></span>
+                </option>
+
+            </select>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedRole !== user.role"><button class="btn btn-primary btn-sm mt-2" data-cwl-action="handleUpdateRole" data-cwl-attr-disabled="loading" aria-label="Update Role">
+
+                  Update Role
+
+              </button></div>
+
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="!isOwner"><div class="actions-section">
+            <h4>Actions</h4>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="user.status === 'active'"><button class="btn btn-warning btn-block" data-cwl-action="handleSuspend" data-cwl-attr-disabled="loading" aria-label="Suspend">
+                🚫 Suspend User
+              </button></div><div data-cwl-bind="if" data-cwl-hole-detail="user.status === 'suspended'"><button class="btn btn-success btn-block" data-cwl-action="handleActivate" data-cwl-attr-disabled="loading" aria-label="Activate">
+                ✅ Activate User
+              </button></div>
+
+            <button class="btn btn-danger btn-block" data-cwl-toggle="showDeleteConfirm:true" data-cwl-attr-disabled="loading" aria-label="Show Delete Confirm">
+              🗑️ Remove from Organization
+            </button>
+          </div></div>
+
+    </div>
+  </div>
+</div></div>
+</div></div>
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal" data-cwl-orphan-modal="1"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title">Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="help-body">
+
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"user-management"}</script>

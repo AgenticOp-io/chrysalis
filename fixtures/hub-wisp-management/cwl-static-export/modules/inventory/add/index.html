@@ -1,117 +1,243 @@
-<div class="wisp-app-surface" data-wisp-page="modules-inventory-:id" data-wisp-path="/modules/inventory/:id" data-cwl-island="client"><div class="item-detail-page">
+<div class="wisp-app-surface" data-wisp-page="inventory" data-wisp-path="/modules/inventory/add" data-cwl-island="client"><div class="add-inventory-page">
   <div class="page-header">
     <div class="header-left">
-      <button class="back-btn">
+      <button class="back-button" data-cwl-nav="/modules/inventory" type="button">
         ← Back to Inventory
       </button>
-      <h1>📦 Equipment Details</h1>
-      
-    </div>
-
-    <div class="header-actions">
-      <button class="btn btn-secondary">
-        📱 View QR Code
-      </button>
-      <button class="btn btn-secondary">
-        🖨️ Print Tag
-      </button>
-      <button class="btn btn-primary">
-        ✏️ Edit
-      </button>
-      <button class="btn btn-primary">
-        📦 Transfer
-      </button>
+      <h1>➕ Add Inventory Item</h1>
     </div>
   </div>
 
-  
-    <div class="content-grid">
-      <!-- Basic Information -->
-      <div class="info-card">
-        <h3>📋 Basic Information</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Asset Tag</label>
-            <span class="value">N/A</span>
+  <div class="form-container">
+    <form data-cwl-on-submit="action:handleSave">
+
+      <!-- Classification -->
+      <div class="section">
+        <h3>🏷️ Equipment Classification</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Category *</label>
+            <select required>
+              <div data-cwl-bind="each" data-cwl-hole-detail="categories as category" data-cwl-each-item="category" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bcategory%7D%3E%7Bcategory%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+            </select>
           </div>
-          <div class="info-item">
-            <label>Serial Number</label>
-            <span class="value"></span>
+
+          <div class="form-group">
+            <label>Equipment Type *</label>
+            <select required>
+              <option>-- Select Type --</option>
+              <div data-cwl-bind="each" data-cwl-hole-detail="availableTypes as type" data-cwl-each-item="type" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Btype%7D%3E%7Btype%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+              <option value="Other/Custom">Other/Custom</option>
+            </select>
           </div>
-          <div class="info-item">
-            <label>Category</label>
-            <span class="value"></span>
-          </div>
-          <div class="info-item">
-            <label>Equipment Type</label>
-            <span class="value"></span>
-          </div>
-          <div class="info-item">
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="useCustomType"><div class="form-group">
+            <label>Custom Equipment Type *</label>
+            <input type="text" required />
+          </div></div>
+      </div>
+
+      <!-- Manufacturer Info -->
+      <div class="section">
+        <h3>🏭 Manufacturer Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
             <label>Manufacturer</label>
-            <span class="value">N/A</span>
+            <input type="text" />
           </div>
-          <div class="info-item">
+
+          <div class="form-group">
             <label>Model</label>
-            <span class="value">N/A</span>
+            <input type="text" />
           </div>
-          <div class="info-item">
-            <label>Status</label>
-            <span class="status-badge"></span>
+
+          <div class="form-group">
+            <label>Part Number</label>
+            <input type="text" />
           </div>
-          <div class="info-item">
-            <label>Condition</label>
-            <span class="condition-badge"></span>
+
+          <div class="form-group">
+            <label>Serial Number *</label>
+            <input type="text" required />
           </div>
+        </div>
+
+        <div class="form-group">
+          <label>Firmware Version</label>
+          <input type="text" />
         </div>
       </div>
 
-      <!-- Current Location -->
-      <div class="info-card">
-        <h3>📍 Current Location</h3>
-        <div class="info-grid">
-          <div class="info-item">
+      <!-- Location (optional; assign during deploy if left unassigned) -->
+      <div class="section">
+        <h3>📍 Location</h3>
+        <p class="help-text" style="margin-bottom: 1rem;">Optional. Leave unassigned to assign a location during the deploy step.</p>
+        <div class="form-grid">
+          <div class="form-group">
             <label>Location Type</label>
-            <span class="value"></span>
+            <select>
+              <option value="unassigned">Unassigned (assign during deploy)</option>
+              <option value="warehouse">Warehouse</option>
+              <option value="tower">Tower Site</option>
+              <option value="noc">NOC</option>
+              <option value="vehicle">Service Vehicle</option>
+              <option value="rma">RMA/Repair Center</option>
+              <option value="customer">Customer Premises</option>
+              <option value="other">Other</option>
+            </select>
           </div>
-          
-          
-          
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="!locationUnassigned"><div class="form-group">
+              <label>Select Location</label>
+              <select>
+                <option>-- Select from map --</option>
+                <div data-cwl-bind="each" data-cwl-hole-detail="filteredLocations as location" data-cwl-each-item="location" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Blocation.id%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BgetLocationIcon(location.type)%7D%20%7Blocation.name%7D%20(%7Blocation.type%7D)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option>
+                      ()
+                  </option></div>
+              </select>
+              <div data-cwl-bind="if" data-cwl-hole-detail="formData.locationType !== 'customer' && formData.locationType !== 'other'"><p class="help-text">
+                  Selected location must exist on Coverage Map
+                </p></div>
+                <div hidden aria-hidden="true"><p class="help-text warning">
+                  ⚠️ No <span data-cwl-bind="interp" data-cwl-hole-detail="formData.locationType"></span> locations found.
+                  <button type="button" class="link-button" data-cwl-nav="/modules/coverage-map">
+                    Add in Coverage Map →
+                  </button>
+                </p>
+              </div>
+            </div></div>
+        </div>
+
+        <!-- Specific location details based on type -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="!locationUnassigned && formData.locationSiteId"><div data-cwl-bind="if" data-cwl-hole-detail="formData.locationType === 'warehouse'"><div class="form-group">
+              <label>Warehouse Section/Aisle</label>
+              <input type="text" placeholder="A-5, Shelf 3, Bin 12" />
+            </div></div><div data-cwl-bind="if" data-cwl-hole-detail="formData.locationType === 'tower' || formData.locationType === 'noc'"><div class="form-grid">
+              <div class="form-group">
+                <label>Rack/Cabinet</label>
+                <input type="text" placeholder="Rack A" />
+              </div>
+
+              <div class="form-group">
+                <label>Rack Unit (RU)</label>
+                <input type="text" placeholder="10-15" />
+              </div>
+            </div></div></div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Status *</label>
+            <select required>
+              <option value="available">Available</option>
+              <option value="deployed">Deployed</option>
+              <option value="reserved">Reserved</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="rma">RMA</option>
+              <option value="retired">Retired</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Condition *</label>
+            <select required>
+              <option value="new">New</option>
+              <option value="excellent">Excellent</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+              <option value="poor">Poor</option>
+              <option value="refurbished">Refurbished</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- Purchase Information -->
-      
+      <!-- Purchase Info -->
+      <div class="section">
+        <h3>💰 Purchase Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Vendor</label>
+            <input type="text" />
+          </div>
 
-      <!-- Warranty Information -->
-      
+          <div class="form-group">
+            <label>Purchase Date</label>
+            <input type="date" />
+          </div>
 
-      <!-- Technical Specifications -->
-      
+          <div class="form-group">
+            <label>Purchase Price ($)</label>
+            <input type="number" step="0.01" />
+          </div>
 
-      <!-- Module Integration -->
-      
+          <div class="form-group">
+            <label>PO Number</label>
+            <input type="text" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Book Value ($)</label>
+          <input type="number" step="0.01" />
+        </div>
+      </div>
+
+      <!-- Warranty -->
+      <div class="section">
+        <h3>🛡️ Warranty Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Warranty Provider</label>
+            <input type="text" />
+          </div>
+
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" />
+          </div>
+
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Details -->
+      <div class="section">
+        <h3>⚙️ Technical Specifications</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Power Requirements</label>
+            <input type="text" placeholder="48V DC, 100-240V AC" />
+          </div>
+
+          <div class="form-group">
+            <label>IP Address</label>
+            <input type="text" placeholder="192.168.1.100" />
+          </div>
+        </div>
+      </div>
 
       <!-- Notes -->
-      
-
-      <!-- Metadata -->
-      <div class="info-card full-width">
-        <h3>📊 Metadata</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Created</label>
-            <span class="value"></span>
-          </div>
-          <div class="info-item">
-            <label>Last Updated</label>
-            <span class="value"></span>
-          </div>
+      <div class="section">
+        <h3>📝 Additional Notes</h3>
+        <div class="form-group">
+          <textarea rows="4" placeholder="Configuration notes, special instructions..."></textarea>
         </div>
       </div>
-    </div>
-  
-</div>
 
-<!-- QR Code Modal -->
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/inventory/:id","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" data-cwl-nav="/modules/inventory">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary" data-cwl-attr-disabled="isSaving">
+          ✅ Add to Inventory
+        </button>
+      </div>
+    </form>
+  </div>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/inventory/add"}</script>

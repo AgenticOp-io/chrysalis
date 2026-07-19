@@ -31,6 +31,14 @@ function compilePattern(pathPattern: string): { regex: RegExp; paramNames: strin
   return { regex: new RegExp(regex), paramNames };
 }
 
+/** Per-segment specificity: static segment (0) beats `:param` (1). */
+function segmentSpecificity(pattern: string): number[] {
+  return pattern
+    .split("/")
+    .filter(Boolean)
+    .map((part) => (part.startsWith(":") ? 1 : 0));
+}
+
 export function compileCwlRoutes(module: Module): CompiledCwlRoute[] {
   const routes: CompiledCwlRoute[] = [];
   for (const rootId of module.roots) {
@@ -42,6 +50,21 @@ export function compileCwlRoutes(module: Module): CompiledCwlRoute[] {
     const { regex, paramNames } = compilePattern(pattern);
     routes.push({ routeNodeId: rootId, method, pattern, paramNames, regex });
   }
+  // Static segments win over `:param` at the same position regardless of the
+  // order routes appear in the source (/modules/inventory/bundles must not be
+  // swallowed by /modules/inventory/:id). Stable sort preserves source order
+  // for equally-specific patterns.
+  routes.sort((a, b) => {
+    const sa = segmentSpecificity(a.pattern);
+    const sb = segmentSpecificity(b.pattern);
+    const len = Math.max(sa.length, sb.length);
+    for (let i = 0; i < len; i++) {
+      const da = sa[i] ?? -1;
+      const db = sb[i] ?? -1;
+      if (da !== db) return da - db;
+    }
+    return 0;
+  });
   return routes;
 }
 

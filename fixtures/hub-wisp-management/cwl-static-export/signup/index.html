@@ -10,12 +10,9 @@
     </div>
 
     <div class="wizard-content">
-      
-
-      
 
       <!-- Step 1: Email Verification -->
-      <div class="step-content">
+      <div data-cwl-bind="if" data-cwl-hole-detail="step === 1"><div class="step-content">
           <h2>Step 1: Verify Your Email</h2>
           <p class="step-description">We'll send a verification code to your email address to ensure it's valid.</p>
 
@@ -24,19 +21,22 @@
             <input
               id="email"
               type="email"
-              placeholder="your@email.com"
+              placeholder="your@email.com" data-cwl-attr-disabled="isLoading || verificationCodeSent"
               required
             />
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 1rem;">
-              <button 
-                type="button" 
-                class="btn-primary"
-              >
-                
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <button
+                type="button"
+                class="btn-primary" data-cwl-action="sendVerificationCode" data-cwl-attr-disabled="isLoading || !email"
+               aria-label="Send Verification Code">
+
                   Send Verification Code
-                
+
+                  <div hidden aria-hidden="true"><span class="spinner"></span>
+                  Sending...
+                </div>
               </button>
 
               <div style="display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0;">
@@ -45,25 +45,24 @@
                 <div style="flex: 1; height: 1px; background: var(--border-color, #d1d5db);"></div>
               </div>
 
-              <button 
-                type="button" 
-                class="btn-google"
+              <button
+                type="button"
+                class="btn-google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading"
                 style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.9rem 1rem; border-radius: 0.6rem; background: #ffffff; color: #1a2332; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);"
-              >
+               aria-label="Google Sign In">
                 <svg aria-hidden="true" viewBox="0 0 533.5 544.3" style="width: 20px; height: 20px;">
-                  </signup fill="#4285f4" d="M533.5 278.4c0-17.4-1.4-34.1-4.1-50.2H272v95h147.5c-6.4 34-25 62.8-53.4 82v68h86.1c50.4-46.5 80.3-115.1 80.3-194.8z"/>
-                  </signup fill="#34a853" d="M272 544.3c72.2 0 132.8-23.9 177-64.7l-86.1-68c-23.9 16.1-54.5 25.7-90.9 25.7-69.9 0-129.2-47.2-150.4-110.5h-90.7v69.8c44 87.4 134.5 148.7 241.1 148.7z"/>
-                  </signup fill="#fbbc04" d="M121.6 326.8c-10.2-30-10.2-62.5 0-92.5v-69.8h-90.7c-37.3 74.6-37.3 158.4 0 233z"/>
-                  </signup fill="#ea4335" d="M272 107.7c39.2-.6 76.4 13.8 105 39.9l78.2-78.2C404.5 25.5 344 0 272 0 165.4 0 74.9 61.3 30.9 148.7l90.7 69.8C142.7 175 202.1 107.7 272 107.7z"/>
+                  <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.4-34.1-4.1-50.2H272v95h147.5c-6.4 34-25 62.8-53.4 82v68h86.1c50.4-46.5 80.3-115.1 80.3-194.8z"/>
+                  <path fill="#34a853" d="M272 544.3c72.2 0 132.8-23.9 177-64.7l-86.1-68c-23.9 16.1-54.5 25.7-90.9 25.7-69.9 0-129.2-47.2-150.4-110.5h-90.7v69.8c44 87.4 134.5 148.7 241.1 148.7z"/>
+                  <path fill="#fbbc04" d="M121.6 326.8c-10.2-30-10.2-62.5 0-92.5v-69.8h-90.7c-37.3 74.6-37.3 158.4 0 233z"/>
+                  <path fill="#ea4335" d="M272 107.7c39.2-.6 76.4 13.8 105 39.9l78.2-78.2C404.5 25.5 344 0 272 0 165.4 0 74.9 61.3 30.9 148.7l90.7 69.8C142.7 175 202.1 107.7 272 107.7z"/>
                 </svg>
                 <span>Sign up with Google</span>
               </button>
             </div>
+
         </div>
 
-      <!-- Step 2: Tenant Information -->
-      
-        <div class="step-content">
+      <!-- Step 2: Tenant Information --></div><div data-cwl-bind="if" data-cwl-hole-detail="step === 2"><div class="step-content">
           <h2>Step 2: Payment Option</h2>
           <p class="step-description">Select your preferred payment method. No charges will be made at this time.</p>
 
@@ -76,11 +75,11 @@
             <label>Payment Option <span class="required">*</span></label>
             <div class="payment-method-options">
               <label class="payment-option">
-                <input 
-                  type="radio" 
-                  name="paymentMethod" 
+                <input
+                  type="radio"
+                  name="paymentMethod"
                   value="beta"
-                  checked
+                  checked data-cwl-attr-disabled="isLoading"
                 />
                 <div class="payment-option-content">
                   <div class="payment-icon">🎉</div>
@@ -91,10 +90,10 @@
                 </div>
               </label>
               <label class="payment-option">
-                <input 
-                  type="radio" 
-                  name="paymentMethod" 
-                  value="paypal"
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="paypal" data-cwl-attr-disabled="isLoading"
                 />
                 <div class="payment-option-content">
                   <div class="payment-icon">💳</div>
@@ -105,10 +104,10 @@
                 </div>
               </label>
               <label class="payment-option">
-                <input 
-                  type="radio" 
-                  name="paymentMethod" 
-                  value="credit_card"
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="credit_card" data-cwl-attr-disabled="isLoading"
                 />
                 <div class="payment-option-content">
                   <div class="payment-icon">💳</div>
@@ -122,23 +121,20 @@
           </div>
 
           <div class="form-actions">
-            <button 
-              type="button" 
-              class="btn-secondary"
+            <button
+              type="button"
+              class="btn-secondary" data-cwl-attr-disabled="isLoading"
             >
               ← Back
             </button>
-            <button 
-              type="button" 
-              class="btn-primary"
-            >
+            <button
+              type="button"
+              class="btn-primary" data-cwl-action="handlePaymentSubmit" data-cwl-attr-disabled="isLoading || !paymentMethodType"
+             aria-label="Payment Submit">
               Continue →
             </button>
           </div>
-        </div>
-
-      
-        <div class="step-content">
+        </div></div><div data-cwl-bind="if" data-cwl-hole-detail="step === 3"><div class="step-content">
           <h2>Step 3: Organization Information</h2>
           <p class="step-description">Tell us about your organization.</p>
 
@@ -147,7 +143,7 @@
             <input
               id="tenantName"
               type="text"
-              placeholder="Acme WISP"
+              placeholder="Acme WISP" data-cwl-attr-disabled="isLoading"
               required
             />
           </div>
@@ -157,7 +153,7 @@
             <input
               id="displayName"
               type="text"
-              placeholder="Acme Wireless Internet"
+              placeholder="Acme Wireless Internet" data-cwl-attr-disabled="isLoading"
               required
             />
             <p class="help-text">This is how your organization will appear in the system</p>
@@ -168,7 +164,7 @@
             <input
               id="contactPhone"
               type="tel"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+1 (555) 123-4567" data-cwl-attr-disabled="isLoading"
               required
             />
           </div>
@@ -178,7 +174,7 @@
             <input
               id="subdomain"
               type="text"
-              placeholder="acme-wisp"
+              placeholder="acme-wisp" data-cwl-attr-disabled="isLoading"
               minlength="3"
               maxlength="63"
               required
@@ -192,26 +188,48 @@
           </div>
 
           <div class="form-actions">
-            <button 
-              type="button" 
-              class="btn-secondary"
+            <button
+              type="button"
+              class="btn-secondary" data-cwl-attr-disabled="isLoading"
             >
               ← Back
             </button>
-            <button 
-              type="button" 
-              class="btn-primary"
-            >
-              
+            <button
+              type="button"
+              class="btn-primary" data-cwl-action="handleTenantSubmit" data-cwl-attr-disabled="isLoading"
+             aria-label="Tenant Submit">
+
                 Finish
-              
+
+                <div hidden aria-hidden="true"><span class="spinner"></span>
+                Creating...
+              </div>
             </button>
           </div>
         </div>
 
       <!-- Step 3: Payment Information -->
-      <!-- Step 4: Success -->
+      <!-- Step 4: Success --></div><div data-cwl-bind="if" data-cwl-hole-detail="step === 4"><div class="step-content success-step">
+          <div class="success-icon-large">✅</div>
+          <h2>Account Created Successfully!</h2>
+          <p class="success-message">
+            Your WISP Management account has been created. You can now start using the platform.
+          </p>
+          <div class="success-details">
+            <p><strong>Organization:</strong> </p>
+            <p><strong>Email:</strong> </p>
+
+              <p><strong>Payment Option:</strong> Beta (Free) - No payment required ✓</p>
+
+          </div>
+          <button
+            type="button"
+            class="btn-primary" data-cwl-nav="/login?signup=success"
+          >
+            Go to Login →
+          </button>
+        </div></div>
     </div>
   </div>
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/signup"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/signup"}</script>

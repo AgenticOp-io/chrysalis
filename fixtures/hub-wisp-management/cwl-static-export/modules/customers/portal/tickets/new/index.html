@@ -1,45 +1,59 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-tickets-:id" data-wisp-path="/modules/customers/portal/tickets/:id" data-cwl-island="client"><div class="ticket-details-page">
-    <div class="page-header">
-      <a href="/modules/customers/portal/tickets" class="back-link">← Back to Tickets</a>
-      <h1>Ticket Details</h1>
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/tickets/new" data-cwl-island="client"><div class="create-ticket-page">
+  <div class="page-header">
+    <h1>Create New Ticket</h1>
+    <a href="/modules/customers/portal/tickets" class="btn-secondary">Back to Tickets</a>
+  </div>
+
+  <form data-cwl-on-submit="action:handleSubmit" class="ticket-form">
+
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input
+        id="title"
+        type="text"
+        placeholder="Brief description of the issue"
+        required data-cwl-attr-disabled="loading"
+      />
     </div>
-    
-    <div class="ticket-details">
-      <div class="ticket-header">
-        <div>
-          <span class="ticket-number">N/A</span>
-          <span 
-            class="ticket-status" 
-            style="background:"
-          >
-            
-          </span>
-        </div>
-        <div class="ticket-meta">
-          <span>Priority: </span>
-          <span>Created: </span>
-        </div>
-      </div>
-      
-      <div class="ticket-content">
-        <h2></h2>
-        <p class="ticket-description">No description</p>
-      </div>
-      
-      
-      
-      <div class="add-comment">
-        <h3>Add Comment</h3>
-        <form>
-          <textarea
-            placeholder="Add a comment or update..."
-            rows="4"
-          ></textarea>
-          <button type="submit" class="btn-primary">
-            Add Comment
-          </button>
-        </form>
-      </div>
+
+    <div class="form-group">
+      <label for="category">Category</label>
+      <select id="category" data-cwl-attr-disabled="loading">
+        <option value="slow-speed">Slow Speed</option>
+        <option value="no-connection">No Connection</option>
+        <option value="intermittent">Intermittent Connection</option>
+        <option value="equipment-failure">Equipment Failure</option>
+        <option value="billing-issue">Billing Issue</option>
+        <option value="other">Other</option>
+      </select>
     </div>
-  </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/tickets/:id","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+
+    <div class="form-group">
+      <label for="priority">Priority</label>
+      <select id="priority" data-cwl-attr-disabled="loading">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description *</label>
+      <textarea
+        id="description"
+        placeholder="Please provide detailed information about the issue..."
+        rows="6"
+        required data-cwl-attr-disabled="loading"
+      ></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" data-cwl-attr-disabled="loading">
+        Create Ticket
+      </button>
+      <a href="/modules/customers/portal/tickets" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/tickets/new"}</script>

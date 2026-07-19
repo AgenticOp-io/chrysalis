@@ -1,198 +1,231 @@
-<div class="work-orders-page">
+<div class="wisp-app-surface" data-wisp-page="work-orders" data-wisp-path="/modules/work-orders" data-cwl-island="client"><div class="work-orders-page">
   <div class="page-header">
     <div class="header-left">
-      <button class="back-button">
+      <button class="back-button" data-cwl-nav="/dashboard" type="button">
         ← Back to Dashboard
       </button>
       <h1>📋 Work Orders & Tickets</h1>
       <p class="subtitle">Field operations and trouble ticket management</p>
     </div>
-    
+
     <div class="header-actions">
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-action="loadData" aria-label="Load Data">
         🔄 Refresh
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
         ➕ Quick Create
       </button>
-      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
     </div>
   </div>
-  
+
   <!-- Alerts -->
-  
-  
-  
-  
+
   <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card">
       <div class="stat-icon">📋</div>
       <div class="stat-content">
-        <div class="stat-value">2</div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrders.length"></span></div>
         <div class="stat-label">Total Tickets</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon">🔓</div>
       <div class="stat-content">
-        <div class="stat-value"></div>
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="stats.totalOpen"></span></div>
         <div class="stat-label">Open</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon">⚡</div>
       <div class="stat-content">
         <div class="stat-value">
-          
+          <span data-cwl-bind="interp" data-cwl-hole-detail="workOrders.filter(wo => wo.priority === 'critical' || wo.priority === 'high').le"></span>
         </div>
         <div class="stat-label">High Priority</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon">⏱️</div>
       <div class="stat-content">
         <div class="stat-value">
-          h
+          <span data-cwl-bind="interp" data-cwl-hole-detail="stats.avgResolutionTime ? Math.round(stats.avgResolutionTime) : 0"></span>h
         </div>
         <div class="stat-label">Avg Resolution</div>
       </div>
     </div>
   </div>
-  
+
   <!-- Filters -->
   <div class="filters-section">
     <div class="filters-row">
-      <select>
+      <select data-cwl-on-change="action:applyFilters">
         <option>All Statuses</option>
-        <option></option><option></option><option></option><option></option><option></option>
+
+          <option value="open">open</option>
+
+          <option value="assigned">assigned</option>
+
+          <option value="in-progress">in-progress</option>
+
+          <option value="waiting-parts">waiting-parts</option>
+
+          <option value="resolved">resolved</option>
+
+          <option value="closed">closed</option>
+
       </select>
-      
-      <select>
+
+      <select data-cwl-on-change="action:applyFilters">
         <option>All Priorities</option>
-        
+
+          <option value="low">low</option>
+
+          <option value="medium">medium</option>
+
+          <option value="high">high</option>
+
+          <option value="critical">critical</option>
+
       </select>
-      
-      <select>
+
+      <select data-cwl-on-change="action:applyFilters">
         <option>All Types</option>
-        
+
+          <option value="installation">installation</option>
+
+          <option value="repair">repair</option>
+
+          <option value="maintenance">maintenance</option>
+
+          <option value="upgrade">upgrade</option>
+
+          <option value="removal">removal</option>
+
+          <option value="troubleshoot">troubleshoot</option>
+
+          <option value="inspection">inspection</option>
+
       </select>
-      
-      <button class="btn-secondary">
+
+      <button class="btn-secondary" data-cwl-action="clearFilters" aria-label="Clear Filters">
         Clear Filters
       </button>
     </div>
   </div>
-  
+
   <!-- Work Orders List -->
-  
+
     <div class="work-orders-grid">
-      <div data-cwl-component="WorkOrderCard" data-cwl-lifted-component="WorkOrderCard"><div 
-  class="work-order-card" 
-  style="border-left: 4px solid"
-  on:keydown
+      <div data-cwl-bind="each" data-cwl-hole-detail="workOrders as workOrder" data-cwl-each-item="workOrder" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3CWorkOrderCard%20%0A%20%20%20%20%20%20%20%20%20%20%7BworkOrder%7D%20data-cwl-nav%3D%22%2Fmodules%2Fwork-orders%2F%7BworkOrder._id%7D%22%20data-cwl-on-refresh%3D%22action%3AloadData%22%0A%20%20%20%20%20%20%20%20%2F%3E%0A%20%20%20%20%20%20"><div data-cwl-component="WorkOrderCard" data-cwl-lifted-component="WorkOrderCard"><div
+  class="work-order-card"
+  style="border-left: 4px solid" data-cwl-action="click"
   role="button"
   tabindex="0"
 >
   <div class="card-header">
     <div class="header-left">
-      <span class="priority-icon"></span>
+      <span class="priority-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getPriorityIcon(workOrder.priority)"></span></span>
       <div class="title-group">
-        <h3 class="ticket-number">TKT-NEW</h3>
-        <span class="ticket-type"></span>
+        <h3 class="ticket-number"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.ticketNumber || 'TKT-NEW'"></span></h3>
+        <span class="ticket-type"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.type"></span></span>
       </div>
     </div>
-    
-    <div 
-      class="status-badge" 
+
+    <div
+      class="status-badge"
       style="background-color:"
     >
-      open
+      <span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.status"></span>
     </div>
   </div>
-  
-  <p class="ticket-title"></p>
-  
-  
-  
-  
-  
+
+  <p class="ticket-title"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.title"></span></p>
+
+    <div hidden aria-hidden="true"><p class="ticket-description"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.description.substring(0, 150)"></span><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.description.length > 150 ? '...' : ''"></span></p>
+  </div>
+
+    <div class="location-info" hidden aria-hidden="true">
+      <span class="location-icon">📍</span>
+      <span class="location-text">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.location.siteName || workOrder.location.address || workOrder.location."></span>
+      </span>
+    </div>
+
   <div class="card-footer">
     <div class="footer-left">
-      <span class="time-ago"></span>
-      
-    </div>
-    
-    
-  </div>
-</div></div><div data-cwl-component="WorkOrderCard" data-cwl-lifted-component="WorkOrderCard"><div 
-  class="work-order-card" 
-  style="border-left: 4px solid"
-  on:keydown
-  role="button"
-  tabindex="0"
->
-  <div class="card-header">
-    <div class="header-left">
-      <span class="priority-icon"></span>
-      <div class="title-group">
-        <h3 class="ticket-number">TKT-NEW</h3>
-        <span class="ticket-type"></span>
+      <span class="time-ago"><span data-cwl-bind="interp" data-cwl-hole-detail="formatTimeAgo(workOrder.createdAt)"></span></span>
+
+        <div hidden aria-hidden="true"><span class="assignee">👤 <span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.assignedToName"></span></span>
       </div>
     </div>
-    
-    <div 
-      class="status-badge" 
-      style="background-color:"
-    >
-      open
-    </div>
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="workOrder.sla?.breached"><span class="sla-breach">⚠️ SLA Breach</span></div>
   </div>
-  
-  <p class="ticket-title"></p>
-  
-  
-  
-  
-  
-  <div class="card-footer">
-    <div class="footer-left">
-      <span class="time-ago"></span>
-      
+</div></div></div>
+
+        <div class="empty-state" hidden aria-hidden="true">
+          <div class="empty-icon">📋</div>
+          <h3>No work orders found</h3>
+          <p>Create your first work order or adjust filters</p>
+          <button class="btn-primary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
+            ➕ Create Work Order
+          </button>
+        </div>
+
     </div>
-    
-    
-  </div>
-</div></div>
-      
-      
+
+    <div class="loading-state" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading work orders...</p>
     </div>
-  
-  
+
   <!-- Create Modal -->
   <div data-cwl-component="CreateWorkOrderModal" data-cwl-lifted-component="CreateWorkOrderModal"><div
   class="modal-overlay"
   role="dialog"
   aria-modal="true"
   tabindex="0"
-  aria-label="Create work order dialog"
+  aria-label="Create work order dialog" data-cwl-action="handleOverlayClick" data-cwl-on-keydown="action:handleOverlayKeydown"
  hidden aria-hidden="true">
   <div class="modal-content" role="document">
     <div class="modal-header">
       <h2>➕ Create Work Order</h2>
-      <button class="close-btn">✕</button>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
-    
-    
-    
+
     <div class="modal-body">
       <!-- Basic Info -->
       <div class="section">
         <h3>📋 Basic Information</h3>
-        
+
         <div class="form-grid">
           <div class="form-group">
             <label>Type *</label>
@@ -207,7 +240,7 @@
               <option value="other">Other</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Priority *</label>
             <select>
@@ -218,7 +251,7 @@
             </select>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Title *</label>
           <input
@@ -227,49 +260,104 @@
             required
           />
         </div>
-        
+
         <div class="form-group">
           <label>Description</label>
-          <textarea 
+          <textarea
             placeholder="Detailed description of the work to be performed..."
             rows="4"
           ></textarea>
         </div>
-        
-        
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="formData.type === 'troubleshoot' || formData.type === 'repair'"><div class="form-group">
+            <label>Issue Category</label>
+            <select>
+              <option>Select category...</option>
+              <option value="cpe-offline">CPE Offline</option>
+              <option value="sector-down">Sector Down</option>
+              <option value="backhaul-failure">Backhaul Failure</option>
+              <option value="network-outage">Network Outage</option>
+              <option value="poor-performance">Poor Performance</option>
+              <option value="equipment-failure">Equipment Failure</option>
+              <option value="power-issue">Power Issue</option>
+              <option value="configuration-error">Configuration Error</option>
+              <option value="other">Other</option>
+            </select>
+          </div></div>
       </div>
-      
+
       <!-- Location -->
       <div class="section">
         <h3>📍 Location</h3>
-        
+
         <div class="form-group">
           <label>Site</label>
-          <select>
+          <select data-cwl-attr-value="formData.location.siteId" data-cwl-on-change="action:handleSiteChange">
             <option>Select site...</option>
-            
+            <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%7D%3E%7Bsite.name%7D%20(%7Bsite.type%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
           </select>
         </div>
       </div>
-      
+
       <!-- Customer Info -->
       <div class="section">
         <h3>👤 Customer Information</h3>
-        
+
         <div class="form-group">
           <label>
             <input type="checkbox" />
             Customer Reported Issue
           </label>
         </div>
-        
-        
+
+          <div hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="selectedCustomer"><div class="selected-customer">
+              <div class="customer-card">
+                <div class="customer-info">
+                  <strong><span data-cwl-bind="interp" data-cwl-hole-detail="selectedCustomer.fullName || ` $"></span></strong>
+                  <span class="customer-id"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedCustomer.customerId"></span></span>
+
+                    <div class="customer-phone" hidden aria-hidden="true">📞 <span data-cwl-bind="interp" data-cwl-hole-detail="selectedCustomer.primaryPhone"></span></div>
+
+                    <div class="customer-email" hidden aria-hidden="true">📧 <span data-cwl-bind="interp" data-cwl-hole-detail="selectedCustomer.email"></span></div>
+
+                </div>
+                <button type="button" class="btn-remove" data-cwl-action="clearCustomer" aria-label="Clear Customer">✕</button>
+              </div>
+            </div></div>
+            <div class="customer-lookup-section">
+              <button
+                type="button"
+                class="btn-lookup" data-cwl-toggle="showCustomerLookup:true"
+               aria-label="Show Customer Lookup">
+                🔍 Lookup Customer from Database
+              </button>
+              <p class="or-divider">OR</p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Customer Name</label>
+                  <input
+                    type="text"
+                    placeholder="John Smith"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Phone</label>
+                  <input
+                    type="tel"
+                    placeholder="555-1234"
+                  />
+                </div>
+              </div>
+            </div>
+
+        </div>
       </div>
-      
+
       <!-- Scheduling -->
       <div class="section">
         <h3>📅 Scheduling</h3>
-        
+
         <div class="form-grid">
           <div class="form-group">
             <label>Scheduled Date</label>
@@ -277,7 +365,7 @@
               type="datetime-local"
             />
           </div>
-          
+
           <div class="form-group">
             <label>Estimated Duration (minutes)</label>
             <input
@@ -287,11 +375,11 @@
           </div>
         </div>
       </div>
-      
+
       <!-- SLA -->
       <div class="section">
         <h3>⏱️ SLA (Service Level Agreement)</h3>
-        
+
         <div class="form-grid">
           <div class="form-group">
             <label>Response Time (hours)</label>
@@ -300,7 +388,7 @@
               placeholder="4"
             />
           </div>
-          
+
           <div class="form-group">
             <label>Resolution Time (hours)</label>
             <input
@@ -311,67 +399,815 @@
         </div>
       </div>
     </div>
-    
+
     <div class="modal-footer">
-      <button class="btn-secondary">Cancel</button>
-      <button class="btn-primary">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
         ✅ Create Work Order
       </button>
     </div>
   </div>
 </div>
 
-</div>
-  
+  <div hidden aria-hidden="true"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
+  class="modal-backdrop"
+  role="presentation" data-cwl-action="close"
+>
+  <div
+    class="modal-content"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="customer-lookup-heading"
+  >
+    <header class="modal-header">
+      <div>
+        <p class="modal-eyebrow">Customers</p>
+        <h2 id="customer-lookup-heading">Customer Lookup</h2>
+      </div>
+      <button
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close customer lookup" data-cwl-action="close"
+      >
+        ✕
+      </button>
+    </header>
+
+    <section class="modal-body">
+      <div class="search-section">
+        <input
+          type="text"
+          placeholder="Search by name, phone, email, or customer ID..."
+          class="search-input" data-cwl-on-input="action:loadCustomers"
+        />
+      </div>
+
+        <div class="customer-list" role="listbox" aria-label="Customer results">
+          <div data-cwl-bind="each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)" data-cwl-each-item="customer" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22customer-item%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22option%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20aria-selected%3D%7BselectedCustomerId%20%3D%3D%3D%20(customer._id%20%7C%7C%20customer.customerId)%7D%20data-cwl-action%3D%22selectCustomer%22%20data-cwl-action-args%3D%22customer%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%20Customer%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-name%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bcustomer.fullName%20%7C%7C%20%60%24%7Bcustomer.firstName%7D%20%24%7Bcustomer.lastName%7D%60%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.customerId%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-id%22%3E%23%7Bcustomer.customerId%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Bcustomer.serviceStatus%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.primaryPhone%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%9E%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BformatPhone(customer.primaryPhone)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%A7%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress%3F.street%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%8D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceAddress.street%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2C%20%7Bcustomer.serviceAddress.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.networkInfo%3F.imsi%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%A1%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20IMSI%3A%20%7Bcustomer.networkInfo.imsi%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.servicePlan%3F.planName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-plan%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Plan%3A%20%7Bcustomer.servicePlan.planName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.servicePlan.downloadMbps%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%7Bcustomer.servicePlan.downloadMbps%7D%2F%7Bcustomer.servicePlan.uploadMbps%7D%20Mbps)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20"><button
+              class="customer-item"
+              type="button"
+              role="option" data-cwl-action="selectCustomer" data-cwl-action-args="customer"
+             aria-label="Select Customer">
+              <div class="customer-header">
+                <div class="customer-name">
+                  <strong> </strong>
+
+                    <div hidden aria-hidden="true"><span class="customer-id">#</span>
+                  </div>
+                </div>
+
+                  <div hidden aria-hidden="true"><span class="status-badge status-">
+
+                  </span>
+                </div>
+              </div>
+
+              <div class="customer-details">
+
+                  <div class="detail-item" hidden aria-hidden="true">
+                    <span class="detail-label" aria-hidden="true">📞</span>
+
+                  </div>
+
+                  <div class="detail-item" hidden aria-hidden="true">
+                    <span class="detail-label" aria-hidden="true">📧</span>
+
+                  </div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="customer.serviceAddress?.street"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📍</span>
+
+                      <div hidden aria-hidden="true">,
+                    </div>
+                  </div></div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="customer.networkInfo?.imsi"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📡</span>
+                    IMSI:
+                  </div></div>
+              </div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="customer.servicePlan?.planName"><div class="customer-plan">
+                  Plan:
+
+                    <div hidden aria-hidden="true">(/ Mbps)
+                  </div>
+                </div></div>
+            </button></div>
+        </div>
+
+        <div class="state-message" hidden aria-hidden="true">
+          <p>No customers found. Create a customer first.</p>
+        </div>
+
+        <div class="state-message" hidden aria-hidden="true">
+          <p>No customers found matching “”.</p>
+        </div>
+
+    </section>
+  </div>
+</div></div>
+</div></div>
+
   <!-- Work Order Creation Wizard -->
-  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">📋 Work Order Creation Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+      <div class="wizard-panel">
+        <h3>Welcome to Work Order Creation! 📋</h3>
+        <p>This wizard will guide you through creating a work order or ticket.</p>
+
+        <div class="info-box">
+          <h4>What You'll Do:</h4>
+          <ul>
+            <li>✅ Select work order type</li>
+            <li>✅ Identify affected sites/equipment/customers</li>
+            <li>✅ Enter details and description</li>
+            <li>✅ Set priority and SLA</li>
+            <li>✅ Assign technician (optional)</li>
+            <li>✅ Attach files/photos</li>
+          </ul>
+        </div>
+
+        <div class="info-box">
+          <h4>Work Order Types:</h4>
+          <ul>
+            <li><strong>Installation:</strong> New equipment installation</li>
+            <li><strong>Repair:</strong> Fix broken equipment</li>
+            <li><strong>Maintenance:</strong> Scheduled maintenance</li>
+            <li><strong>Upgrade:</strong> Equipment upgrade</li>
+            <li><strong>Removal:</strong> Remove equipment</li>
+            <li><strong>Troubleshoot:</strong> Diagnose issues</li>
+            <li><strong>Inspection:</strong> Site inspection</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><!-- Work Order Type -->
+      <div class="wizard-panel">
+        <h3>Select Work Order Type</h3>
+        <p>What type of work order are you creating?</p>
+
+        <div class="type-grid">
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'installation'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">🔧</div>
+            <h4>Installation</h4>
+            <p>New equipment installation</p>
+          </button>
+
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'repair'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">🔨</div>
+            <h4>Repair</h4>
+            <p>Fix broken equipment</p>
+          </button>
+
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'maintenance'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">🛠️</div>
+            <h4>Maintenance</h4>
+            <p>Scheduled maintenance</p>
+          </button>
+
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'troubleshoot'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">🔍</div>
+            <h4>Troubleshoot</h4>
+            <p>Diagnose issues</p>
+          </button>
+
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'upgrade'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">⬆️</div>
+            <h4>Upgrade</h4>
+            <p>Equipment upgrade</p>
+          </button>
+
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'removal'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">🗑️</div>
+            <h4>Removal</h4>
+            <p>Remove equipment</p>
+          </button>
+
+          <button
+            class="type-card" data-cwl-action="selectWorkOrderType" data-cwl-action-args="'inspection'" data-cwl-attr-disabled="isLoading"
+           aria-label="Select Work Order Type">
+            <div class="type-icon">👁️</div>
+            <h4>Inspection</h4>
+            <p>Site inspection</p>
+          </button>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><!-- Affected Items -->
+      <div class="wizard-panel">
+        <h3>Affected Sites & Equipment</h3>
+        <p>Select sites and equipment affected by this work order.</p>
+
+        <div class="affected-section">
+          <h4>Sites</h4>
+
+            <div class="items-grid">
+              <div data-cwl-bind="each" data-cwl-hole-detail="availableSites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22item-card%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3Aselected%3D%7BaffectedSites.some(s%20%3D%3E%20s.siteId%20%3D%3D%3D%20site.id)%7D%20data-cwl-action%3D%22toggleSite%22%20data-cwl-action-args%3D%22site.id%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20disabled%3D%7BisLoading%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Bsite.name%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><button
+                  class="item-card" data-cwl-action="toggleSite" data-cwl-action-args="site.id" aria-label="Toggle Site">
+                  <h4></h4>
+                </button></div>
+            </div>
+
+            <div class="info-box" hidden aria-hidden="true">
+              <p>No sites available. Sites will be added as you deploy equipment.</p>
+            </div>
+
+        </div>
+
+        <div class="affected-section">
+          <h4>Equipment</h4>
+
+            <div class="items-grid">
+              <div data-cwl-bind="each" data-cwl-hole-detail="availableEquipment as equipment" data-cwl-each-item="equipment" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22item-card%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3Aselected%3D%7BaffectedEquipment.some(e%20%3D%3E%20e.equipmentId%20%3D%3D%3D%20equipment.id)%7D%20data-cwl-action%3D%22toggleEquipment%22%20data-cwl-action-args%3D%22equipment.id%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20disabled%3D%7BisLoading%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Bequipment.name%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><button
+                  class="item-card" data-cwl-action="toggleEquipment" data-cwl-action-args="equipment.id" aria-label="Toggle Equipment">
+                  <h4></h4>
+                </button></div>
+            </div>
+
+            <div class="info-box" hidden aria-hidden="true">
+              <p>No equipment available. Equipment will appear as it's added to inventory.</p>
+            </div>
+
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="affectedSites.length > 0 || affectedEquipment.length > 0"><div class="selected-summary">
+            <h4>Selected:</h4>
+
+              <p><strong>Sites:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="affectedSites.length"></span></p>
+
+              <p><strong>Equipment:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="affectedEquipment.length"></span></p>
+
+          </div></div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><!-- Details -->
+      <div class="wizard-panel">
+        <h3>Work Order Details</h3>
+
+        <div class="form-group">
+          <label>
+            Title <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Brief description of the work order" data-cwl-attr-disabled="isLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>
+            Description <span class="required">*</span>
+          </label>
+          <textarea
+            placeholder="Detailed description of the issue or work needed..."
+            rows="6" data-cwl-attr-disabled="isLoading"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Issue Category</label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option>-- Select Category --</option>
+            <option value="cpe-offline">CPE Offline</option>
+            <option value="sector-down">Sector Down</option>
+            <option value="backhaul-failure">Backhaul Failure</option>
+            <option value="power-issue">Power Issue</option>
+            <option value="signal-issue">Signal Issue</option>
+            <option value="configuration">Configuration</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox" data-cwl-attr-disabled="isLoading"
+            />
+            Customer Reported Issue
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Attach Files/Photos</label>
+          <input
+            type="file"
+            accept="image/*,.pdf,.doc,.docx"
+            multiple data-cwl-on-change="action:handleFileUpload" data-cwl-attr-disabled="isLoading"
+          />
+
+            <div class="attachments-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="attachments as attachment, index"><div class="attachment-item">
+                  <span></span>
+                  <button
+                    class="btn-icon" data-cwl-action="removeAttachment" data-cwl-action-args="index" aria-label="Remove Attachment">
+                    ×
+                  </button>
+                </div></div>
+            </div>
+
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4"><!-- Priority & SLA -->
+      <div class="wizard-panel">
+        <h3>Priority & SLA</h3>
+
+        <div class="form-group">
+          <label>Priority</label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Scheduled Date (Optional)</label>
+          <input
+            type="datetime-local" data-cwl-attr-disabled="isLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Estimated Duration (minutes)</label>
+          <input
+            type="number"
+            min="15"
+            step="15" data-cwl-attr-disabled="isLoading"
+          />
+        </div>
+
+        <div class="sla-section">
+          <h4>SLA Settings</h4>
+          <div class="form-group">
+            <label>Response Time (hours)</label>
+            <input
+              type="number"
+              min="1" data-cwl-attr-disabled="isLoading"
+            />
+            <small>Time to acknowledge the work order</small>
+          </div>
+
+          <div class="form-group">
+            <label>Resolution Time (hours)</label>
+            <input
+              type="number"
+              min="1" data-cwl-attr-disabled="isLoading"
+            />
+            <small>Time to resolve the work order</small>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>Priority Guidelines:</strong></p>
+          <ul>
+            <li><strong>Critical:</strong> Service outage affecting multiple customers</li>
+            <li><strong>High:</strong> Service issue affecting one or more customers</li>
+            <li><strong>Medium:</strong> Non-urgent repair or maintenance</li>
+            <li><strong>Low:</strong> Routine maintenance or upgrades</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 5"><!-- Assign -->
+      <div class="wizard-panel">
+        <h3>Assign Technician</h3>
+        <p>Optionally assign this work order to a technician.</p>
+
+        <div class="form-group">
+          <label>Assign To (Optional)</label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option>-- Unassigned --</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="availableTechnicians as tech" data-cwl-each-item="tech" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Btech.id%7D%3E%7Btech.name%7D%20(%7Btech.email%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
+          </select>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="assignedTo"><div class="info-box success">
+            <p>Work order will be assigned to: <span data-cwl-bind="interp" data-cwl-hole-detail="availableTechnicians.find(t => t.id === assignedTo)?.name || 'Unknown'"></span></p>
+          </div></div>
+          <div class="info-box">
+            <p>Work order will be created as "Open" and can be assigned later.</p>
+          </div>
+
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 6"><!-- Complete -->
+      <div class="wizard-panel">
+        <h3>🎉 Work Order Created!</h3>
+        <p>Your work order has been created successfully.</p>
+
+        <div class="workorder-summary">
+          <h4>Work Order Summary</h4>
+          <div class="summary-row">
+            <span class="label">Type:</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrderType"></span></span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Priority:</span>
+            <span class="value">medium</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Title:</span>
+            <span class="value"></span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Affected Sites:</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="affectedSites.length"></span></span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Affected Equipment:</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="affectedEquipment.length"></span></span>
+          </div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="assignedTo"><div class="summary-row">
+              <span class="label">Assigned To:</span>
+              <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="availableTechnicians.find(t => t.id === assignedTo)?.name || 'Unknown'"></span></span>
+            </div></div>
+        </div>
+
+        <div class="next-steps">
+          <h4>What's Next?</h4>
+          <a href="/modules/work-orders" class="next-step-item">
+            <span class="icon">📋</span>
+            <div>
+              <strong>View Work Order</strong>
+              <p>Check the Work Orders module to see your ticket</p>
+            </div>
+          </a>
+          <div data-cwl-bind="if" data-cwl-hole-detail="assignedTo"><div class="next-step-item">
+              <span class="icon">📧</span>
+              <div>
+                <strong>Technician Notified</strong>
+                <p>Assigned technician will be notified</p>
+              </div>
+            </div></div>
+        </div>
+      </div></div>
   </div>
-  
+
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
+        ← Previous
+      </button></div>
+      <button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">
+        Cancel
+      </button>
+
     <div class="footer-actions">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 5"><button
+          class="wizard-btn-primary" data-cwl-action="createWorkOrder" data-cwl-attr-disabled="isLoading || !title.trim() || !description.trim()"
+         aria-label="Create Work Order">
+          ✅ Create Work Order
+        </button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">
+          Next →
+        </button></div>
+        <button class="wizard-btn-primary" data-cwl-action="complete" data-cwl-attr-disabled="isLoading" aria-label="Complete">
+          Finish →
+        </button>
+
     </div>
   </div>
 </div>
 
-</div>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"work-orders","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>
+  <div hidden aria-hidden="true"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
+  class="modal-backdrop"
+  role="presentation" data-cwl-action="close"
+>
+  <div
+    class="modal-content"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="customer-lookup-heading"
+  >
+    <header class="modal-header">
+      <div>
+        <p class="modal-eyebrow">Customers</p>
+        <h2 id="customer-lookup-heading">Customer Lookup</h2>
+      </div>
+      <button
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close customer lookup" data-cwl-action="close"
+      >
+        ✕
+      </button>
+    </header>
+
+    <section class="modal-body">
+      <div class="search-section">
+        <input
+          type="text"
+          placeholder="Search by name, phone, email, or customer ID..."
+          class="search-input" data-cwl-on-input="action:loadCustomers"
+        />
+      </div>
+
+        <div class="customer-list" role="listbox" aria-label="Customer results">
+          <div data-cwl-bind="each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)" data-cwl-each-item="customer" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22customer-item%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22option%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20aria-selected%3D%7BselectedCustomerId%20%3D%3D%3D%20(customer._id%20%7C%7C%20customer.customerId)%7D%20data-cwl-action%3D%22selectCustomer%22%20data-cwl-action-args%3D%22customer%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%20Customer%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-name%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bcustomer.fullName%20%7C%7C%20%60%24%7Bcustomer.firstName%7D%20%24%7Bcustomer.lastName%7D%60%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.customerId%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-id%22%3E%23%7Bcustomer.customerId%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Bcustomer.serviceStatus%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.primaryPhone%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%9E%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BformatPhone(customer.primaryPhone)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%A7%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress%3F.street%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%8D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceAddress.street%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2C%20%7Bcustomer.serviceAddress.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.networkInfo%3F.imsi%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%A1%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20IMSI%3A%20%7Bcustomer.networkInfo.imsi%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.servicePlan%3F.planName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-plan%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Plan%3A%20%7Bcustomer.servicePlan.planName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.servicePlan.downloadMbps%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%7Bcustomer.servicePlan.downloadMbps%7D%2F%7Bcustomer.servicePlan.uploadMbps%7D%20Mbps)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20"><button
+              class="customer-item"
+              type="button"
+              role="option" data-cwl-action="selectCustomer" data-cwl-action-args="customer"
+             aria-label="Select Customer">
+              <div class="customer-header">
+                <div class="customer-name">
+                  <strong> </strong>
+
+                    <div hidden aria-hidden="true"><span class="customer-id">#</span>
+                  </div>
+                </div>
+
+                  <div hidden aria-hidden="true"><span class="status-badge status-">
+
+                  </span>
+                </div>
+              </div>
+
+              <div class="customer-details">
+
+                  <div class="detail-item" hidden aria-hidden="true">
+                    <span class="detail-label" aria-hidden="true">📞</span>
+
+                  </div>
+
+                  <div class="detail-item" hidden aria-hidden="true">
+                    <span class="detail-label" aria-hidden="true">📧</span>
+
+                  </div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="customer.serviceAddress?.street"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📍</span>
+
+                      <div hidden aria-hidden="true">,
+                    </div>
+                  </div></div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="customer.networkInfo?.imsi"><div class="detail-item">
+                    <span class="detail-label" aria-hidden="true">📡</span>
+                    IMSI:
+                  </div></div>
+              </div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="customer.servicePlan?.planName"><div class="customer-plan">
+                  Plan:
+
+                    <div hidden aria-hidden="true">(/ Mbps)
+                  </div>
+                </div></div>
+            </button></div>
+        </div>
+
+        <div class="state-message" hidden aria-hidden="true">
+          <p>No customers found. Create a customer first.</p>
+        </div>
+
+        <div class="state-message" hidden aria-hidden="true">
+          <p>No customers found matching “”.</p>
+        </div>
+
+    </section>
+  </div>
+</div></div>
+</div></div>
+</div></div>
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal" data-cwl-orphan-modal="1"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <div class="help-header">
+        <h2 id="help-modal-title">Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="help-body">
+
+      </div>
+    </div>
+  </div></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"work-orders"}</script>

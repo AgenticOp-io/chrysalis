@@ -1,2 +1,2 @@
-<div class="wisp-app-surface" data-wisp-page="portal-:tenantId" data-wisp-path="/portal/:tenantId" data-cwl-island="client"><div>Redirecting to portal...</div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/portal/:tenantId"}</script>
+<div class="wisp-app-surface" data-wisp-page="redirect" data-wisp-path="/portal/:tenantId"><div class="redirect-message">Redirecting to portal…</div><script>var m=location.pathname.match(/^\/portal\/([^/]+)/);location.replace(m?"/modules/customers/portal/login?tenant="+encodeURIComponent(m[1]):"/modules/customers/portal/login");</script><noscript><a href="/modules/customers/portal/login">Continue</a></noscript></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/portal/:tenantId"}</script>

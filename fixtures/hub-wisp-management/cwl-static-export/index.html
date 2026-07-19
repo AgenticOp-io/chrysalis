@@ -1,5 +1,2 @@
-<div class="wisp-app-surface" data-wisp-page="home" data-wisp-path="/" data-cwl-island="client"><div class="loading-page">
-  <div class="spinner"></div>
-  <p>Checking authentication...</p>
-</div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/"}</script>
+<div class="wisp-app-surface" data-wisp-page="auth-redirect" data-wisp-path="/"><div class="loading-page"><div class="spinner"></div><p>Checking authentication...</p></div><script>(function(){function go(p){location.replace(p);}try{var a=window.firebase&&firebase.auth&&firebase.auth();if(a&&a.onAuthStateChanged){a.onAuthStateChanged(function(u){go(u?"/dashboard":"/login");});return;}var u=localStorage.getItem("firebase:authUser")||sessionStorage.getItem("wisp-demo-user")||localStorage.getItem("wisp-customer-session")||sessionStorage.getItem("wisp-customer-session");go(u?"/dashboard":"/login");}catch(e){go("/login");}})();</script><noscript><a href="/login">Continue to login</a></noscript></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/"}</script>

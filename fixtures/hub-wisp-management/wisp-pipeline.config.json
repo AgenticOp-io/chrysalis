@@ -19,6 +19,7 @@
     "cwlNativePrefixes": "*",
     "apiMode": "runtime-cwl-native",
     "nativeApi": true,
+    "liveApi": true,
     "operatorUi": "cwl-native"
   },
   "firebase": {

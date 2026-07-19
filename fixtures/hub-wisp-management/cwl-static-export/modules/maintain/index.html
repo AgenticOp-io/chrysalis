@@ -1,62 +1,1409 @@
-<div class="wisp-app-surface" data-wisp-page="modules-maintain" data-wisp-path="/modules/maintain" data-cwl-island="client"><div class="maintain-module">
+<div class="wisp-app-surface" data-wisp-page="maintain" data-wisp-path="/modules/maintain" data-cwl-island="client"><div class="maintain-module">
     <!-- Header -->
     <div class="module-header">
       <div class="header-top">
-        <button class="back-btn">
+        <button class="back-btn" data-cwl-nav="/dashboard">
           <span>←</span> Back
         </button>
         <h1>Maintain Module</h1>
         <div class="header-actions">
-          <button 
-            class="btn btn-secondary btn-reports"
+          <button
+            class="btn btn-secondary btn-reports" data-cwl-nav="/modules/help-desk/reports"
             title="View Ticket Reports and Analytics"
           >
             Reports
           </button>
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'tickets'" hidden aria-hidden="true">
+            <button class="btn btn-primary" data-cwl-toggle="showCreateTicket:true" aria-label="Show Create Ticket">
+              + Create Ticket
+            </button>
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'customers'" hidden aria-hidden="true">
+            <button class="btn btn-primary" data-cwl-toggle="showAddCustomer:true" aria-label="Show Add Customer">
+              + Add Customer
+            </button>
+          </div>
         </div>
       </div>
-      
+
       <!-- Tabs -->
       <div class="tabs">
-        <button 
-          class="tab">
+        <button
+          class="tab" data-cwl-set="activeTab:help-desk">
           Help Desk
         </button>
-        <button 
-          class="tab">
+        <button
+          class="tab" data-cwl-set="activeTab:tickets">
           Tickets
         </button>
-        <button 
-          class="tab">
+        <button
+          class="tab" data-cwl-set="activeTab:maintenance">
           Maintenance
         </button>
-        <button 
-          class="tab">
+        <button
+          class="tab" data-cwl-set="activeTab:customers">
           Customers
         </button>
-        <button 
-          class="tab">
+        <button
+          class="tab" data-cwl-set="activeTab:incidents">
           Incidents
         </button>
       </div>
     </div>
-    
+
     <!-- Content -->
     <div class="module-content">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'help-desk'">
+        <!-- Help Desk Dashboard -->
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-info">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardStats.openTickets"></span></div>
+              <div class="stat-label">Open Tickets</div>
+              <div class="stat-sub"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardStats.criticalTickets"></span> critical</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-info">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardStats.scheduledMaintenance"></span></div>
+              <div class="stat-label">Scheduled Maintenance</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardStats.activeCustomers"></span></div>
+              <div class="stat-label">Active Customers</div>
+              <div class="stat-sub">of <span data-cwl-bind="interp" data-cwl-hole-detail="dashboardStats.totalCustomers"></span> total</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-svg" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardStats.avgResponseTime"></span></div>
+              <div class="stat-label">Avg Response Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+          <h2>Recent Activity</h2>
+          <div class="activity-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="recentActivity.slice(0, 10) as activity"><div class="activity-item">
+                <span class="activity-icon">
+
+                </span>
+                <div class="activity-content">
+                  <div class="activity-title"></div>
+                  <div class="activity-meta">
+                    <span class="activity-status" style="color: ">
+
+                    </span>
+                    <span class="activity-time"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="empty-state">No recent activity</div></div>
+          </div>
+        </div>
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'tickets'" hidden aria-hidden="true">
+        <!-- Tickets Tab -->
+        <div class="tab-content">
+          <!-- Filters -->
+          <div class="filters-bar">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search tickets..."
+            />
+            <select class="filter-select">
+              <option value="all">All Status</option>
+              <option value="open">Open</option>
+              <option value="assigned">Assigned</option>
+              <option value="in-progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+            <select class="filter-select">
+              <option value="all">All Priority</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <!-- Tickets List -->
+          <div class="items-list">
+
+              <div data-cwl-bind="each" data-cwl-hole-detail="filteredTickets as ticket" data-cwl-each-item="ticket" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22ticket-card%22%20data-cwl-toggle%3D%22showTicketDetails%3Atrue%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-id%22%3E%23%7Bticket.ticketNumber%20%7C%7C%20ticket._id%3F.slice(-6)%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22priority-badge%22%20style%3D%22background%3A%20%7BgetPriorityColor(ticket.priority)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bticket.priority%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%22%20style%3D%22background%3A%20%7BgetStatusColor(ticket.status)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bticket.status%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-title%22%3E%7Bticket.title%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EType%3A%20%7Bticket.type%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%7BformatDate(ticket.createdAt)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20ticket.assignedToName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EAssigned%3A%20%7Bticket.assignedToName%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><button
+                  type="button"
+                  class="ticket-card" data-cwl-toggle="showTicketDetails:true"
+                 aria-label="Show Ticket Details">
+                  <div class="ticket-header">
+                    <div class="ticket-id">#</div>
+                    <span class="priority-badge" style="background: ">
+
+                    </span>
+                    <span class="status-badge" style="background: ">
+
+                    </span>
+                  </div>
+                  <div class="ticket-title"></div>
+                  <div class="ticket-meta">
+                    <span>Type: </span>
+                    <span></span>
+
+                      <div hidden aria-hidden="true"><span>Assigned: </span>
+                    </div>
+                  </div>
+                </button></div>
+
+              <div class="empty-state" hidden aria-hidden="true">No tickets found</div>
+
+              <div class="loading" hidden aria-hidden="true">Loading tickets...</div>
+
+          </div>
+        </div>
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'customers'" hidden aria-hidden="true">
+        <!-- Customers Tab -->
+        <div class="tab-content">
+          <!-- Filters -->
+          <div class="filters-bar">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search customers..."
+            />
+            <select class="filter-select">
+              <option>All Status</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="suspended">Suspended</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <!-- Customers List -->
+          <div class="items-list">
+
+              <div data-cwl-bind="each" data-cwl-hole-detail="filteredCustomers as customer" data-cwl-each-item="customer" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22customer-card%22%20data-cwl-toggle%3D%22showEditCustomer%3Atrue%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-name%22%3E%7Bcustomer.fullName%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%22%20style%3D%22background%3A%20%7BgetStatusColor(customer.serviceStatus)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EID%3A%20%7Bcustomer.customerId%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EPhone%3A%20%7Bcustomer.primaryPhone%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EEmail%3A%20%7Bcustomer.email%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress%3F.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-address%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceAddress.city%7D%2C%20%7Bcustomer.serviceAddress.state%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><button
+                  type="button"
+                  class="customer-card" data-cwl-toggle="showEditCustomer:true"
+                 aria-label="Show Edit Customer">
+                  <div class="customer-header">
+                    <div class="customer-name"></div>
+                    <span class="status-badge" style="background: ">
+
+                    </span>
+                  </div>
+                  <div class="customer-info">
+                    <span>ID: </span>
+                    <span>Phone: </span>
+
+                      <div hidden aria-hidden="true"><span>Email: </span>
+                    </div>
+                  </div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="customer.serviceAddress?.city"><div class="customer-address">
+                      ,
+                    </div></div>
+                </button></div>
+
+              <div class="empty-state" hidden aria-hidden="true">No customers found</div>
+
+              <div class="loading" hidden aria-hidden="true">Loading customers...</div>
+
+          </div>
+        </div>
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'maintenance'" hidden aria-hidden="true">
+        <!-- Maintenance Tab -->
+        <div class="tab-content">
+          <div class="info-section">
+            <h2>Scheduled Maintenance</h2>
+            <p>View and manage scheduled maintenance tasks, preventive maintenance schedules, and equipment inspections.</p>
+            <button class="btn btn-primary" data-cwl-set="activeTab:tickets">
+              View Maintenance Tickets
+            </button>
+          </div>
+        </div>
+
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'incidents'" hidden aria-hidden="true">
+        <!-- Incidents Tab -->
+        <div class="tab-content">
+          <div class="info-section">
+            <h2>Incident Management</h2>
+            <p>Track and manage network incidents, outages, and critical issues.</p>
+            <button class="btn btn-primary" data-cwl-set="activeTab:tickets">
+              View Critical Incidents
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  
+
   <!-- Modals -->
-  
-  
-  
-  
-  
-  
-  
+
+    <div hidden aria-hidden="true"><div data-cwl-component="CreateTicketModal" data-cwl-lifted-component="CreateTicketModal"><div
+  class="modal-backdrop"
+  role="presentation" data-cwl-action="close"
+>
+  <div
+    class="modal-content"
+    data-size="sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="create-ticket-heading"
+  >
+    <header class="modal-header">
+      <div>
+        <p class="modal-eyebrow">Support Ticket</p>
+        <h2 id="create-ticket-heading">Create Support Ticket</h2>
+      </div>
+      <button
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close create ticket form" data-cwl-action="close"
+      >
+        ✕
+      </button>
+    </header>
+
+    <form data-cwl-on-submit="action:handleSubmit">
+      <section class="modal-body">
+
+        <div class="form-group">
+          <label for="title">Ticket Title *</label>
+          <input
+            id="title"
+            type="text"
+            placeholder="Brief description of the issue"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="ticketCategory">Ticket Category *</label>
+          <select id="ticketCategory" required>
+            <option value="customer-facing">Customer-Facing</option>
+            <option value="infrastructure">Infrastructure</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="troubleshoot">Troubleshoot</option>
+              <option value="repair">Repair</option>
+              <option value="installation">Installation</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="upgrade">Upgrade</option>
+              <option value="removal">Removal</option>
+              <option value="inspection">Inspection</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+
+          <div class="form-group">
+            <label for="customer-name">Customer Name</label>
+            <input
+              id="customer-name"
+              type="text"
+              placeholder="Customer or contact name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="customer-phone">Customer Phone</label>
+            <input
+              id="customer-phone"
+              type="tel"
+              placeholder="Phone number"
+            />
+          </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            placeholder="Detailed description of the issue"
+            rows="4"
+          ></textarea>
+        </div>
+
+      </section>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-cwl-action="close" aria-label="Close">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary" data-cwl-attr-disabled="loading" data-cwl-action="handleButtonClick"
+         aria-label="Button Click">
+
+            Create Ticket
+
+        </button>
+      </footer>
+    </form>
+  </div>
+</div></div>
+  </div>
+
+    <div hidden aria-hidden="true"><div data-cwl-component="TicketDetailsModal" data-cwl-lifted-component="TicketDetailsModal"><div
+  class="modal-backdrop"
+  role="presentation" data-cwl-action="close"
+>
+  <div
+    class="modal-content"
+    data-size="lg"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ticket-details-heading"
+  >
+    <header class="modal-header">
+      <div>
+        <p class="modal-eyebrow">
+          <span data-cwl-bind="interp" data-cwl-hole-detail="getCategoryLabel(ticketData.ticketCategory)"></span> Ticket
+        </p>
+        <h2 id="ticket-details-heading">
+          <span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.ticketNumber || ticketData._id"></span>
+        </h2>
+      </div>
+      <button
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close ticket details" data-cwl-action="close"
+      >
+        ✕
+      </button>
+    </header>
+
+    <section class="modal-body">
+
+      <div class="ticket-header">
+        <h3 class="ticket-title"><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.title || 'Untitled ticket'"></span></h3>
+        <div class="badges">
+          <span class="badge">
+            <span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.priority"></span>
+          </span>
+          <span class="badge">
+            <span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.status"></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button
+          class="tab" data-cwl-set="activeTab:details"
+        >
+          Details
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:work"
+        >
+          Work Log (<span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.workPerformed?.length || 0"></span>)
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:resolution" data-cwl-attr-disabled="ticketData.status === 'closed'"
+        >
+          Resolution
+        </button>
+      </div>
+
+        <div class="details-section">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Category</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="getCategoryLabel(ticketData.ticketCategory)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Type</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.type"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Priority</label>
+              <select data-cwl-attr-disabled="loading">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="info-item">
+              <label>Status</label>
+              <select data-cwl-on-change="action:handleStatusChange" data-cwl-attr-disabled="loading || ticketData.status === 'closed'">
+                <option value="open">Open</option>
+                <option value="assigned">Assigned</option>
+                <option value="in-progress">In Progress</option>
+                <option value="waiting-parts">Waiting Parts</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div class="info-item">
+              <label>Created</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(ticketData.createdAt)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Created By</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.createdByName || ticketData.createdBy || 'Unknown'"></span></span>
+            </div>
+
+              <div class="info-item" hidden aria-hidden="true">
+                <label>Assigned To</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.assignedToName"></span></span>
+              </div>
+
+              <div class="info-item" hidden aria-hidden="true">
+                <label>Completed</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="formatDate(ticketData.completedAt)"></span></span>
+              </div>
+
+          </div>
+
+            <div class="info-block" hidden aria-hidden="true">
+              <label>Description</label>
+              <p><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.description"></span></p>
+            </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="ticketData.affectedCustomers && ticketData.affectedCustomers.length > 0"><div class="info-block">
+              <label>Affected Customers</label>
+              <div data-cwl-bind="each" data-cwl-hole-detail="ticketData.affectedCustomers as customer"><div class="customer-item">
+                  <strong></strong>
+
+                    <div hidden aria-hidden="true"><span></span>
+                  </div>
+
+                    <div hidden aria-hidden="true"><span class="address"></span>
+                  </div>
+                </div></div>
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="ticketData.affectedSites && ticketData.affectedSites.length > 0"><div class="info-block">
+              <label>Affected Sites</label>
+              <div data-cwl-bind="each" data-cwl-hole-detail="ticketData.affectedSites as site"><div class="site-item">
+                  <strong></strong>
+                  <span></span>
+                </div></div>
+            </div></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="canEdit && ticketData.status !== 'closed' && ticketData.status !== 'resolved'"><div class="actions">
+              <div data-cwl-bind="if" data-cwl-hole-detail="!ticketData.assignedTo"><button class="btn btn-primary" data-cwl-toggle="showAssignModal:true" aria-label="Show Assign Modal">
+                  Assign Ticket
+                </button></div>
+                <button class="btn btn-secondary" data-cwl-toggle="showAssignModal:true" aria-label="Show Assign Modal">
+                  Reassign Ticket
+                </button>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="ticketData.status === 'resolved'"><button class="btn btn-primary" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">
+                  Close Ticket
+                </button></div>
+            </div></div>
+        </div>
+
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'work'" hidden aria-hidden="true">
+        <div class="work-section">
+          <div data-cwl-bind="if" data-cwl-hole-detail="ticketData.workPerformed && ticketData.workPerformed.length > 0"><div class="work-logs">
+              <div data-cwl-bind="each" data-cwl-hole-detail="ticketData.workPerformed as log"><div class="work-log-item">
+                  <div class="work-log-header">
+                    <strong></strong>
+                    <span class="work-log-date"></span>
+                  </div>
+                  <div class="work-log-meta">
+                    By:
+                  </div>
+
+                    <div hidden aria-hidden="true"><p class="work-log-notes"></p>
+                  </div>
+                </div></div>
+            </div></div>
+            <p class="empty-state">No work logs yet</p>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="canEdit && ticketData.status !== 'closed'"><div class="add-work-log">
+              <h4>Add Work Log</h4>
+              <div class="form-group">
+                <label>Action</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Replaced equipment, Updated configuration"
+                />
+              </div>
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea
+                  placeholder="Additional details..."
+                  rows="3"
+                ></textarea>
+              </div>
+              <button class="btn btn-primary" data-cwl-action="handleAddWorkLog" data-cwl-attr-disabled="loading || !newWorkLog.action.trim()" aria-label="Add Work Log">
+                Add Log Entry
+              </button>
+            </div></div>
+        </div>
+      </div>
+
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'resolution'" hidden aria-hidden="true">
+        <div class="resolution-section">
+          <div data-cwl-bind="if" data-cwl-hole-detail="canEdit && ticketData.status !== 'closed'"><div class="resolution-form">
+              <div class="form-group">
+                <label>Resolution *</label>
+                <textarea
+                  placeholder="Describe how the issue was resolved..."
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Root Cause (Optional)</label>
+                <textarea
+                  placeholder="What was the root cause of the issue?"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Preventive Measures (Optional)</label>
+                <textarea
+                  placeholder="What steps can be taken to prevent this issue in the future?"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <button class="btn btn-primary" data-cwl-action="handleResolve" data-cwl-attr-disabled="loading || !resolution.resolution.trim()" aria-label="Resolve">
+                Mark as Resolved
+              </button>
+            </div></div>
+            <p class="empty-state">No resolution recorded yet</p>
+
+            <div class="info-block" hidden aria-hidden="true">
+              <label>Resolution</label>
+              <p><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.resolution"></span></p>
+            </div>
+
+              <div class="info-block" hidden aria-hidden="true">
+                <label>Root Cause</label>
+                <p><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.rootCause"></span></p>
+              </div>
+
+              <div class="info-block" hidden aria-hidden="true">
+                <label>Preventive Measures</label>
+                <p><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.preventiveMeasures"></span></p>
+              </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+  <div class="assign-modal-overlay" data-cwl-toggle="showAssignModal:false" hidden aria-hidden="true">
+    <div class="assign-modal">
+      <h3>Assign Ticket</h3>
+      <div class="form-group">
+        <label>Select User</label>
+        <select>
+          <option>-- Select User --</option>
+          <div data-cwl-bind="each" data-cwl-hole-detail="users as user" data-cwl-each-item="user" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Buser.uid%7D%3E%7Buser.displayName%20%7C%7C%20user.email%7D%20(%7Buser.role%7D)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20"><option> ()</option></div>
+        </select>
+      </div>
+      <div class="assign-modal-actions">
+        <button class="btn btn-secondary" data-cwl-toggle="showAssignModal:false" aria-label="Show Assign Modal">
+          Cancel
+        </button>
+        <button class="btn btn-primary" data-cwl-action="handleAssign" data-cwl-attr-disabled="loading || !selectedUserId" aria-label="Assign">
+          Assign
+        </button>
+      </div>
+    </div>
+  </div></div>
+  </div>
+
+    <div hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Basic Information -->
+      <div class="section">
+        <h3>👤 Basic Information</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" placeholder="John" required />
+          </div>
+
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" placeholder="Smith" required />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Primary Phone *</label>
+            <input type="tel" placeholder="555-123-4567" required />
+          </div>
+
+          <div class="form-group">
+            <label>Alternate Phone</label>
+            <input type="tel" placeholder="555-123-4568" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="john.smith@example.com" />
+        </div>
+      </div>
+
+      <!-- Service -->
+      <div class="section">
+        <h3>📡 Service</h3>
+
+        <div class="form-group">
+          <label>Service Status</label>
+          <select>
+            <option>Select Service Status</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="trial">Trial</option>
+            <option value="suspended">Suspended</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Service Type</label>
+          <select>
+            <option>Select Service Type</option>
+            <option value="4G/5G">4G/5G (LTE/5G)</option>
+            <option value="FWA">FWA (Fixed Wireless Access)</option>
+            <option value="WiFi">WiFi</option>
+            <option value="Fiber">Fiber</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Service Address -->
+      <div class="section">
+        <h3>📍 Service Address</h3>
+
+        <div class="form-group">
+          <label>Street Address</label>
+          <input type="text" placeholder="123 Main St" />
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" placeholder="City" />
+          </div>
+
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" placeholder="State" />
+          </div>
+
+          <div class="form-group">
+            <label>ZIP Code</label>
+            <input type="text" placeholder="12345" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing Address -->
+      <div class="section">
+        <h3>💳 Billing Address</h3>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" data-cwl-on-change="action:handleBillingAddressChange" />
+            Same as Service Address
+          </label>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="!formData.billingAddress.sameAsService"><div class="form-group">
+            <label>Street Address</label>
+            <input type="text" placeholder="123 Main St" />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" placeholder="City" />
+            </div>
+
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" placeholder="State" />
+            </div>
+
+            <div class="form-group">
+              <label>ZIP Code</label>
+              <input type="text" placeholder="12345" />
+            </div>
+          </div></div>
+      </div>
+
+      <!-- Customer Group -->
+      <div class="section">
+        <h3>📦 Customer Group</h3>
+        <p class="section-description">Select a customer group. The service plan will be automatically set from the group's bandwidth plan.</p>
+
+        <div class="form-group">
+          <select data-cwl-on-change="action:handleGroupChange">
+            <option>Select Customer Group</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="customerGroups as group" data-cwl-each-item="group" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bgroup.group_id%20%7C%7C%20group.id%7D%3E%7Bgroup.name%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+          </select>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="groupWarning"><div class="warning-message" style="margin-top: 0.75rem; padding: 0.75rem; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+            <strong>⚠️ </strong>
+          </div></div>
+
+          <div hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="formData.servicePlan.planId || formData.servicePlan.downloadMbps || formData.servicePlan.uploadMbps"><div class="service-plan-preview">
+              <h4>Service Plan</h4>
+              <div class="plan-details">
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Plan ID:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.planId"></span></span>
+                  </div>
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Plan:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.planName"></span></span>
+                  </div>
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Download:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.downloadMbps"></span> Mbps</span>
+                  </div>
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Upload:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.uploadMbps"></span> Mbps</span>
+                  </div>
+
+              </div>
+            </div></div><div data-cwl-bind="if" data-cwl-hole-detail="!groupWarning"><div class="service-plan-preview" style="opacity: 0.6;">
+              <p style="margin: 0; color: var(--text-secondary);">Loading service plan from group...</p>
+            </div></div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="formData.serviceType === '4G/5G'"><div class="form-grid" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label>QCI (Quality Class Identifier)</label>
+              <input type="number" min="1" max="9" placeholder="9" />
+              <small>1-9 (9 is default best effort)</small>
+            </div>
+            <div class="form-group">
+              <label>Data Quota (bytes)</label>
+              <input type="number" placeholder="0 = unlimited" />
+              <small>0 = unlimited, or specify bytes</small>
+            </div>
+            <div class="form-group">
+              <select>
+                <option>Select Priority Level</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div></div>
+      </div>
+
+      <!-- LTE/5G Authentication (for 4G/5G service type) -->
+      <div data-cwl-bind="if" data-cwl-hole-detail="formData.serviceType === '4G/5G'"><div class="section">
+          <h3>🔐 LTE/5G Authentication</h3>
+          <p class="section-description">Required for 4G/5G service type. These credentials are used for subscriber authentication.</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>IMSI (15 digits)</label>
+              <input
+                type="text"
+                placeholder="123456789012345"
+                maxlength="15"
+                pattern="[0-9]"
+              />
+              <small>International Mobile Subscriber Identity</small>
+            </div>
+
+            <div class="form-group">
+              <label>MSISDN (Phone Number)</label>
+              <input
+                type="text" data-cwl-attr-placeholder="formData.primaryPhone.replace(/\D/g, '')"
+              />
+              <small>Mobile Station ISDN Number</small>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Ki (Authentication Key) *</label>
+              <input
+                type="text"
+                placeholder="32 or 64 hex characters"
+                pattern="[0-9A-Fa-f]|[0-9A-Fa-f]"
+              />
+              <small>128-bit (32 hex) or 256-bit (64 hex) key</small>
+            </div>
+
+            <div class="form-group">
+              <label>OPc (Operator Variant) *</label>
+              <input
+                type="text"
+                placeholder="32 hex characters"
+                pattern="[0-9A-Fa-f]"
+              />
+              <small>128-bit (32 hex) operator variant</small>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>OP (Operator Variant - Alternative)</label>
+              <input
+                type="text"
+                placeholder="32 hex characters (optional)"
+                pattern="[0-9A-Fa-f]"
+              />
+              <small>Use OP instead of OPc if needed</small>
+            </div>
+
+            <div class="form-group">
+              <label>SQN (Sequence Number)</label>
+              <input
+                type="number"
+                placeholder="0"
+                min="0"
+              />
+              <small>Sequence number for AKA (default: 0)</small>
+            </div>
+          </div>
+        </div></div>
+
+      <!-- MAC Address (Optional, for ACS integration) -->
+      <div class="section">
+        <h3>🔌 MAC Address (Optional)</h3>
+        <p class="section-description">MAC address for ACS/TR-069 integration. Not required but useful for device management.</p>
+
+        <div class="form-group">
+          <label>MAC Address</label>
+          <input
+            type="text"
+            placeholder="aa:bb:cc:dd:ee:ff or aa-bb-cc-dd-ee-ff"
+            pattern="([0-9A-Fa-f][:-])([0-9A-Fa-f])"
+          />
+          <small>Format: xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx</small>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="section">
+        <h3>🏷️ Tags</h3>
+
+        <div class="form-group">
+          <div class="tag-input-group">
+            <input
+              type="text"
+              placeholder="Add tag..." data-cwl-on-keydown="action:addTag"
+            />
+            <button type="button" class="btn-add-tag" data-cwl-action="addTag" aria-label="Add Tag">Add</button>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="formData.tags.length > 0"><div class="tags-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="formData.tags as tag"><span class="tag">
+
+                  <button type="button" class="tag-remove" data-cwl-action="removeTag" data-cwl-action-args="tag" aria-label="Remove Tag">✕</button>
+                </span></div>
+            </div></div>
+        </div>
+      </div>
+
+      <!-- Voice / SIP (linked by customer id) -->
+
+        <div class="section" hidden aria-hidden="true">
+          <h3>📞 Voice / SIP</h3>
+          <p class="section-description">
+            Voice inventory and E911 are managed in the Voice module. Telephone numbers can be linked to this customer using
+            customer id <code><span data-cwl-bind="interp" data-cwl-hole-detail="customer.customerId"></span></code>.
+          </p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="voiceError"><p class="voice-err"></p></div>
+            <ul class="voice-line-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="voiceLines as vl" data-cwl-each-item="vl" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cli%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ccode%3E%7Bvl.e164%7D%3C%2Fcode%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22muted%22%3E%C2%B7%20%7Bvl.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20title%3D%22E911%20from%20emergency%20address%22%3E%C2%B7%20911%3A%20%7Bvl.e911Display%20%3F%3F%20'%E2%80%94'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fli%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><li>
+                  <code></code>
+                  <span class="muted">· </span>
+                  <span title="E911 from emergency address">· 911: </span>
+                </li></div>
+            </ul>
+
+            <div hidden aria-hidden="true"><p class="muted">No voice lines linked yet. Open Voice &amp; SIP to assign numbers to this customer.</p>
+          </div>
+          <div class="voice-actions">
+            <button
+              type="button"
+              class="btn-secondary" data-cwl-nav="/modules/voice-telephony?customerId="
+            >
+              Open Voice module
+            </button>
+          </div>
+        </div>
+
+      <!-- Notes -->
+      <div class="section">
+        <h3>📝 Notes</h3>
+
+        <div class="form-group">
+          <textarea
+            placeholder="Additional notes about this customer..."
+            rows="4"
+          ></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (customer ? '✅ Update Customer' : '✅ Create Customer')"></span>
+      </button>
+    </div>
+  </div>
+</div></div>
+  </div>
+
+    <div hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Basic Information -->
+      <div class="section">
+        <h3>👤 Basic Information</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" placeholder="John" required />
+          </div>
+
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" placeholder="Smith" required />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Primary Phone *</label>
+            <input type="tel" placeholder="555-123-4567" required />
+          </div>
+
+          <div class="form-group">
+            <label>Alternate Phone</label>
+            <input type="tel" placeholder="555-123-4568" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="john.smith@example.com" />
+        </div>
+      </div>
+
+      <!-- Service -->
+      <div class="section">
+        <h3>📡 Service</h3>
+
+        <div class="form-group">
+          <label>Service Status</label>
+          <select>
+            <option>Select Service Status</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="trial">Trial</option>
+            <option value="suspended">Suspended</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Service Type</label>
+          <select>
+            <option>Select Service Type</option>
+            <option value="4G/5G">4G/5G (LTE/5G)</option>
+            <option value="FWA">FWA (Fixed Wireless Access)</option>
+            <option value="WiFi">WiFi</option>
+            <option value="Fiber">Fiber</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Service Address -->
+      <div class="section">
+        <h3>📍 Service Address</h3>
+
+        <div class="form-group">
+          <label>Street Address</label>
+          <input type="text" placeholder="123 Main St" />
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" placeholder="City" />
+          </div>
+
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" placeholder="State" />
+          </div>
+
+          <div class="form-group">
+            <label>ZIP Code</label>
+            <input type="text" placeholder="12345" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing Address -->
+      <div class="section">
+        <h3>💳 Billing Address</h3>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" data-cwl-on-change="action:handleBillingAddressChange" />
+            Same as Service Address
+          </label>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="!formData.billingAddress.sameAsService"><div class="form-group">
+            <label>Street Address</label>
+            <input type="text" placeholder="123 Main St" />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" placeholder="City" />
+            </div>
+
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" placeholder="State" />
+            </div>
+
+            <div class="form-group">
+              <label>ZIP Code</label>
+              <input type="text" placeholder="12345" />
+            </div>
+          </div></div>
+      </div>
+
+      <!-- Customer Group -->
+      <div class="section">
+        <h3>📦 Customer Group</h3>
+        <p class="section-description">Select a customer group. The service plan will be automatically set from the group's bandwidth plan.</p>
+
+        <div class="form-group">
+          <select data-cwl-on-change="action:handleGroupChange">
+            <option>Select Customer Group</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="customerGroups as group" data-cwl-each-item="group" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bgroup.group_id%20%7C%7C%20group.id%7D%3E%7Bgroup.name%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+          </select>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="groupWarning"><div class="warning-message" style="margin-top: 0.75rem; padding: 0.75rem; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+            <strong>⚠️ </strong>
+          </div></div>
+
+          <div hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="formData.servicePlan.planId || formData.servicePlan.downloadMbps || formData.servicePlan.uploadMbps"><div class="service-plan-preview">
+              <h4>Service Plan</h4>
+              <div class="plan-details">
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Plan ID:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.planId"></span></span>
+                  </div>
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Plan:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.planName"></span></span>
+                  </div>
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Download:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.downloadMbps"></span> Mbps</span>
+                  </div>
+
+                  <div class="plan-detail" hidden aria-hidden="true">
+                    <span class="label">Upload:</span>
+                    <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="formData.servicePlan.uploadMbps"></span> Mbps</span>
+                  </div>
+
+              </div>
+            </div></div><div data-cwl-bind="if" data-cwl-hole-detail="!groupWarning"><div class="service-plan-preview" style="opacity: 0.6;">
+              <p style="margin: 0; color: var(--text-secondary);">Loading service plan from group...</p>
+            </div></div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="formData.serviceType === '4G/5G'"><div class="form-grid" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label>QCI (Quality Class Identifier)</label>
+              <input type="number" min="1" max="9" placeholder="9" />
+              <small>1-9 (9 is default best effort)</small>
+            </div>
+            <div class="form-group">
+              <label>Data Quota (bytes)</label>
+              <input type="number" placeholder="0 = unlimited" />
+              <small>0 = unlimited, or specify bytes</small>
+            </div>
+            <div class="form-group">
+              <select>
+                <option>Select Priority Level</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div></div>
+      </div>
+
+      <!-- LTE/5G Authentication (for 4G/5G service type) -->
+      <div data-cwl-bind="if" data-cwl-hole-detail="formData.serviceType === '4G/5G'"><div class="section">
+          <h3>🔐 LTE/5G Authentication</h3>
+          <p class="section-description">Required for 4G/5G service type. These credentials are used for subscriber authentication.</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>IMSI (15 digits)</label>
+              <input
+                type="text"
+                placeholder="123456789012345"
+                maxlength="15"
+                pattern="[0-9]"
+              />
+              <small>International Mobile Subscriber Identity</small>
+            </div>
+
+            <div class="form-group">
+              <label>MSISDN (Phone Number)</label>
+              <input
+                type="text" data-cwl-attr-placeholder="formData.primaryPhone.replace(/\D/g, '')"
+              />
+              <small>Mobile Station ISDN Number</small>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Ki (Authentication Key) *</label>
+              <input
+                type="text"
+                placeholder="32 or 64 hex characters"
+                pattern="[0-9A-Fa-f]|[0-9A-Fa-f]"
+              />
+              <small>128-bit (32 hex) or 256-bit (64 hex) key</small>
+            </div>
+
+            <div class="form-group">
+              <label>OPc (Operator Variant) *</label>
+              <input
+                type="text"
+                placeholder="32 hex characters"
+                pattern="[0-9A-Fa-f]"
+              />
+              <small>128-bit (32 hex) operator variant</small>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>OP (Operator Variant - Alternative)</label>
+              <input
+                type="text"
+                placeholder="32 hex characters (optional)"
+                pattern="[0-9A-Fa-f]"
+              />
+              <small>Use OP instead of OPc if needed</small>
+            </div>
+
+            <div class="form-group">
+              <label>SQN (Sequence Number)</label>
+              <input
+                type="number"
+                placeholder="0"
+                min="0"
+              />
+              <small>Sequence number for AKA (default: 0)</small>
+            </div>
+          </div>
+        </div></div>
+
+      <!-- MAC Address (Optional, for ACS integration) -->
+      <div class="section">
+        <h3>🔌 MAC Address (Optional)</h3>
+        <p class="section-description">MAC address for ACS/TR-069 integration. Not required but useful for device management.</p>
+
+        <div class="form-group">
+          <label>MAC Address</label>
+          <input
+            type="text"
+            placeholder="aa:bb:cc:dd:ee:ff or aa-bb-cc-dd-ee-ff"
+            pattern="([0-9A-Fa-f][:-])([0-9A-Fa-f])"
+          />
+          <small>Format: xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx</small>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="section">
+        <h3>🏷️ Tags</h3>
+
+        <div class="form-group">
+          <div class="tag-input-group">
+            <input
+              type="text"
+              placeholder="Add tag..." data-cwl-on-keydown="action:addTag"
+            />
+            <button type="button" class="btn-add-tag" data-cwl-action="addTag" aria-label="Add Tag">Add</button>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="formData.tags.length > 0"><div class="tags-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="formData.tags as tag"><span class="tag">
+
+                  <button type="button" class="tag-remove" data-cwl-action="removeTag" data-cwl-action-args="tag" aria-label="Remove Tag">✕</button>
+                </span></div>
+            </div></div>
+        </div>
+      </div>
+
+      <!-- Voice / SIP (linked by customer id) -->
+
+        <div class="section" hidden aria-hidden="true">
+          <h3>📞 Voice / SIP</h3>
+          <p class="section-description">
+            Voice inventory and E911 are managed in the Voice module. Telephone numbers can be linked to this customer using
+            customer id <code><span data-cwl-bind="interp" data-cwl-hole-detail="customer.customerId"></span></code>.
+          </p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="voiceError"><p class="voice-err"></p></div>
+            <ul class="voice-line-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="voiceLines as vl" data-cwl-each-item="vl" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cli%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ccode%3E%7Bvl.e164%7D%3C%2Fcode%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22muted%22%3E%C2%B7%20%7Bvl.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20title%3D%22E911%20from%20emergency%20address%22%3E%C2%B7%20911%3A%20%7Bvl.e911Display%20%3F%3F%20'%E2%80%94'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fli%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><li>
+                  <code></code>
+                  <span class="muted">· </span>
+                  <span title="E911 from emergency address">· 911: </span>
+                </li></div>
+            </ul>
+
+            <div hidden aria-hidden="true"><p class="muted">No voice lines linked yet. Open Voice &amp; SIP to assign numbers to this customer.</p>
+          </div>
+          <div class="voice-actions">
+            <button
+              type="button"
+              class="btn-secondary" data-cwl-nav="/modules/voice-telephony?customerId="
+            >
+              Open Voice module
+            </button>
+          </div>
+        </div>
+
+      <!-- Notes -->
+      <div class="section">
+        <h3>📝 Notes</h3>
+
+        <div class="form-group">
+          <textarea
+            placeholder="Additional notes about this customer..."
+            rows="4"
+          ></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="isSaving ? 'Saving...' : (customer ? '✅ Update Customer' : '✅ Create Customer')"></span>
+      </button>
+    </div>
+  </div>
+</div></div>
+  </div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/maintain","apiPath":"/api/maintain","api_ok":true,"api_surface":"wisp-api-native","api_resource":"maintain","api_op":"list","tracedApiStatus":200}</script>
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/maintain"}</script>

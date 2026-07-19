@@ -1,21 +1,2 @@
-<div class="wisp-app-surface" data-wisp-page="tenant-selector" data-wisp-path="/tenant-selector" data-cwl-island="client"><div class="tenant-selector-page">
-  <div class="selector-container">
-    <div class="selector-header">
-      <h1>Select Organization</h1>
-      <p>Choose the organization you want to work with</p>
-    </div>
-
-    
-      <div class="tenants-grid">
-        
-
-        <button class="tenant-card create-new">
-          <div class="create-icon">➕</div>
-          <h3>Create New Organization</h3>
-          <p>Set up a new tenant for your devices</p>
-        </button>
-      </div>
-    
-  </div>
-</div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/tenant-selector"}</script>
+<div class="wisp-app-surface" data-wisp-page="auth-redirect" data-wisp-path="/tenant-selector"><div class="loading-page"><div class="spinner"></div><p>Checking authentication...</p></div><script>(function(){function go(p){location.replace(p);}try{var a=window.firebase&&firebase.auth&&firebase.auth();if(a&&a.onAuthStateChanged){a.onAuthStateChanged(function(u){go(u?"/dashboard":"/login");});return;}var u=localStorage.getItem("firebase:authUser")||sessionStorage.getItem("wisp-demo-user")||localStorage.getItem("wisp-customer-session")||sessionStorage.getItem("wisp-customer-session");go(u?"/dashboard":"/login");}catch(e){go("/login");}})();</script><noscript><a href="/login">Continue to login</a></noscript></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/tenant-selector"}</script>

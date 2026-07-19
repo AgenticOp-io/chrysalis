@@ -1,11 +1,11 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-tickets" data-wisp-path="/modules/customers/portal/tickets" data-cwl-island="client"><div class="tickets-page">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/tickets" data-cwl-island="client"><div class="tickets-page">
   <div class="page-header">
     <h1>My Tickets</h1>
     <a href="/modules/customers/portal/tickets/new" class="btn-primary">
       Create New Ticket
     </a>
   </div>
-  
+
   <div class="filters">
     <select class="filter-select">
       <option value="all">All Status</option>
@@ -17,11 +17,38 @@
       <option value="closed">Closed</option>
     </select>
   </div>
-  
-  
+
     <div class="tickets-list">
-      
+      <div data-cwl-bind="each" data-cwl-hole-detail="filteredTickets as ticket" data-cwl-each-item="ticket" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdiv%20%0A%20%20%20%20%20%20%20%20%20%20class%3D%22ticket-card%22%20data-cwl-nav%3D%22%2Fmodules%2Fcustomers%2Fportal%2Ftickets%2F%7Bticket._id%7D%22%0A%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22ticket-number%22%3E%7Bticket.ticketNumber%20%7C%7C%20'N%2FA'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22ticket-status%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20style%3D%22background%3A%20%7BgetStatusColor(ticket.status)%7D%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bticket.status%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3Ch3%20class%3D%22ticket-title%22%3E%7Bticket.title%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22ticket-description%22%3E%7Bticket.description%20%7C%7C%20'No%20description'%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22ticket-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EPriority%3A%20%7Bticket.priority%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3ECreated%3A%20%7Bnew%20Date(ticket.createdAt%20%7C%7C%20'').toLocaleDateString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20ticket.resolvedAt%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EResolved%3A%20%7Bnew%20Date(ticket.resolvedAt).toLocaleDateString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20"><div
+          class="ticket-card"
+        >
+          <div class="ticket-header">
+            <span class="ticket-number"></span>
+            <span
+              class="ticket-status"
+              style="background: "
+            >
+
+            </span>
+          </div>
+          <h3 class="ticket-title"></h3>
+          <p class="ticket-description"></p>
+          <div class="ticket-meta">
+            <span>Priority: </span>
+            <span>Created: </span>
+
+              <div hidden aria-hidden="true"><span>Resolved: </span>
+            </div>
+          </div>
+        </div></div>
     </div>
-  
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <p>No tickets found.</p>
+      <a href="/modules/customers/portal/tickets/new" class="btn-primary">
+        Create Your First Ticket
+      </a>
+    </div>
+
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/tickets","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/tickets"}</script>

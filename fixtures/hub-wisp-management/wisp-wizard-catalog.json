@@ -1,0 +1,170 @@
+{
+  "kind": "chrysalis.wisp-wizard-catalog",
+  "schemaVersion": 1,
+  "source": "Module_Manager/src/lib/config/wizardCatalog.ts",
+  "generatedAt": "2026-07-19T05:32:56.295Z",
+  "entryCount": 29,
+  "wizardsByPath": {
+    "/onboarding": [
+      {
+        "id": "first-time-setup",
+        "label": "First-Time Setup",
+        "icon": "🚀"
+      }
+    ],
+    "/wizards": [
+      {
+        "id": "organization-setup",
+        "label": "Organization Setup",
+        "icon": "🏢"
+      },
+      {
+        "id": "initial-configuration",
+        "label": "Initial Configuration",
+        "icon": "⚙️"
+      }
+    ],
+    "/modules/plan": [
+      {
+        "id": "marketing-discovery",
+        "label": "Marketing Discovery",
+        "icon": "📍"
+      }
+    ],
+    "/modules/deploy": [
+      {
+        "id": "site-deployment",
+        "label": "Add Site",
+        "icon": "📍"
+      },
+      {
+        "id": "deploy-equipment",
+        "label": "Deploy Equipment",
+        "icon": "📦"
+      },
+      {
+        "id": "pci-planner",
+        "label": "PCI Planner",
+        "icon": "📊"
+      },
+      {
+        "id": "frequency-planner",
+        "label": "Frequency Planner",
+        "icon": "📡"
+      },
+      {
+        "id": "conflict-resolution",
+        "label": "Conflict Resolution (PCI)",
+        "icon": "📊"
+      },
+      {
+        "id": "pci-import",
+        "label": "Import Wizard",
+        "icon": "📥"
+      },
+      {
+        "id": "acs-setup",
+        "label": "ACS/TR-069 Setup",
+        "icon": "⚙️"
+      },
+      {
+        "id": "device-onboarding",
+        "label": "Device Onboarding",
+        "icon": "👋"
+      },
+      {
+        "id": "troubleshooting",
+        "label": "Troubleshooting",
+        "icon": "🔧"
+      },
+      {
+        "id": "preset-creation",
+        "label": "Preset Creation",
+        "icon": "⚙️"
+      },
+      {
+        "id": "bulk-operations",
+        "label": "Bulk Operations",
+        "icon": "📦"
+      },
+      {
+        "id": "firmware-update",
+        "label": "Firmware Update",
+        "icon": "💾"
+      },
+      {
+        "id": "device-registration",
+        "label": "Device Registration (ACS)",
+        "icon": "📱"
+      },
+      {
+        "id": "cbrs-setup",
+        "label": "CBRS Setup",
+        "icon": "📡"
+      },
+      {
+        "id": "cbrs-device-registration",
+        "label": "CBRS Device Registration",
+        "icon": "📡"
+      },
+      {
+        "id": "work-order-creation",
+        "label": "Work Order Creation",
+        "icon": "📋"
+      }
+    ],
+    "/modules/monitor": [
+      {
+        "id": "monitoring-setup",
+        "label": "Monitoring Setup",
+        "icon": "📊"
+      },
+      {
+        "id": "subscriber-creation",
+        "label": "Subscriber Creation",
+        "icon": "🔐"
+      },
+      {
+        "id": "bandwidth-plan",
+        "label": "Bandwidth Plan",
+        "icon": "📶"
+      },
+      {
+        "id": "subscriber-group",
+        "label": "Subscriber Group",
+        "icon": "📦"
+      }
+    ],
+    "/modules/customers": [
+      {
+        "id": "customer-onboarding",
+        "label": "Customer Onboarding",
+        "icon": "👋"
+      }
+    ],
+    "/modules/voice-telephony": [
+      {
+        "id": "voice-sip-overview",
+        "label": "Voice / SIP overview",
+        "icon": "📞"
+      }
+    ],
+    "/modules/hardware": [
+      {
+        "id": "inventory-checkin",
+        "label": "Check-in Wizard",
+        "icon": "📦"
+      },
+      {
+        "id": "rma-tracking",
+        "label": "Track RMA",
+        "icon": "📋"
+      },
+      {
+        "id": "epc-deployment",
+        "label": "EPC Deployment",
+        "icon": "🔧"
+      }
+    ]
+  }
+}

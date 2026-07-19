@@ -2,7 +2,7 @@
   <div class="setup-card">
     <h1>🔧 Setup Admin Access</h1>
     <p class="subtitle">Grant yourself owner access to your tenants</p>
-    
+
     <div class="info-box">
       <p><strong>This will:</strong></p>
       <ul>
@@ -13,13 +13,17 @@
         <li>✅ Give you full administrative access</li>
       </ul>
     </div>
-    
-    
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="result"><div class="alert">
+        <pre></pre>
+      </div></div>
+
+    <button class="btn btn-primary btn-large" data-cwl-action="setupAdmin" data-cwl-attr-disabled="loading" aria-label="Setup Admin">
+
         🚀 Setup Admin Access
-      
+
     </button>
-    
-    
+
   </div>
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/setup-admin"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/setup-admin"}</script>

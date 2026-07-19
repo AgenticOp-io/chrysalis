@@ -1,45 +1,47 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-signup" data-wisp-path="/modules/customers/portal/signup" data-cwl-island="client"><div class="signup-page">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/signup" data-cwl-island="client"><div class="signup-page">
   <div class="signup-container">
     <div class="signup-header">
-      
+
+        <h1><span data-cwl-bind="interp" data-cwl-hole-detail="branding?.company?.displayName || branding?.company?.name || 'Customer Portal'"></span></h1>
+
+        <div hidden aria-hidden="true"><img class="signup-logo" />
+      </div>
       <h2>Create Account</h2>
       <p class="signup-subtitle">Link your customer account to access the portal</p>
     </div>
-    
-    
-      <form class="signup-form">
-        
-        
+
+      <form data-cwl-on-submit="action:handleSignup" class="signup-form">
+
         <div class="form-group">
           <label for="customerId">Customer ID</label>
           <input
             id="customerId"
             type="text"
             placeholder="Enter your customer ID"
-            required
+            required data-cwl-attr-disabled="loading"
           />
         </div>
-        
+
         <div class="form-group">
           <label for="phone">Phone Number</label>
           <input
             id="phone"
             type="tel"
             placeholder="Enter your phone number"
-            required
+            required data-cwl-attr-disabled="loading"
           />
         </div>
-        
+
         <div class="form-group">
           <label for="email">Email Address</label>
           <input
             id="email"
             type="email"
             placeholder="Enter your email"
-            required
+            required data-cwl-attr-disabled="loading"
           />
         </div>
-        
+
         <div class="form-group">
           <label for="password">Password</label>
           <input
@@ -47,29 +49,29 @@
             type="password"
             placeholder="Create a password (min 6 characters)"
             required
-            minlength="6"
+            minlength="6" data-cwl-attr-disabled="loading"
           />
         </div>
-        
+
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
           <input
             id="confirmPassword"
             type="password"
             placeholder="Confirm your password"
-            required
+            required data-cwl-attr-disabled="loading"
           />
         </div>
-        
-        <button type="submit" class="btn-primary">
+
+        <button type="submit" class="btn-primary" data-cwl-attr-disabled="loading">
           Create Account
         </button>
-        
+
         <div class="signup-links">
           <a href="/modules/customers/portal/login" class="link">Already have an account? Sign in</a>
         </div>
       </form>
-    
+
   </div>
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/signup","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/signup"}</script>

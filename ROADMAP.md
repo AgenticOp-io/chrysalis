@@ -7,8 +7,13 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Post–G9990 maintain** — Migration OS (**G8550**), UT regression (**G7690**), edge gold only where chartered edges fail; ship operator CLI packaging (**D6440** `chrysalis chat` / `--skip-http-path`). WISP = POC only; GenieACS OOS; **LiteRT.js refused**.
-- **Canon:** [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9960–G9990**)
+- **Active lane:** **Post–G9990 maintain** — **translate-only** (**D6442**) + **source-authoritative UI** (**D6443**) + **origin source corpus / piecemeal queue** (**D6444** / **G9993**); Migration OS (**G8550**); UT regression (**G7690**). WISP = POC only; GenieACS OOS; **LiteRT.js refused**. **Maps = ArcGIS when source is ArcGIS**.
+- **Canon:** [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9960–G9990** + **§2A–2C**)
+- **Locked (2026-07-15):** **D6444** — ingest all origin files → SQLite/JSON code DB → convert one piece at a time (**G9993**).
+- **Locked (2026-07-15):** **D6443** — source-authoritative UI conversion method (origin CSS/classes/islands are look/behavior authority).
+- **Locked (2026-07-14):** **D6442** — translate-only fidelity law; reset invented map/loader decisions.
+- **Closed (2026-07-14):** **D6441** — preserve third-party vendor islands (Vite/`@arcgis/core` as source; no CDN rewrite).
+- **Closed (2026-07-14):** **G9992** — WISP POC from-scratch one-shot (`hub:wisp-poc-from-scratch`); ADC Firebase auth; docs [`WISP-POC-FROM-SCRATCH.md`](docs/WISP-POC-FROM-SCRATCH.md).
 - **Closed (2026-07-14):** **D6440 / G9991** — `chrysalis chat` CLI (license-ungated) + `convert-site --skip-http-path`; README → UT Canon; CWL IDENT at list/lift; `hub:ut-maintain-packaging-smoke`.
 - **Closed (2026-07-14):** **G9990** UT Canon program (`hub:ut-canon-program-close-smoke`).
 - **Closed (2026-07-14):** **Wave D** — engine depth (`hub:ut-wave-d-close-smoke` **G9989**); multi-origin llmIs reads `scripts/lib/cwl-svelte-native-convert.mjs`.
@@ -19,7 +24,7 @@
 - **Closed (2026-07-14):** **D6437** UT reframing + initiative knowledge DB.
 - **Closed (2026-07-14):** **management.wisptools.io visual + multipage Firebase** (**G9952**, **D6436**) — POC deploy.
 - **Closed (2026-07-13):** **Module_Manager depth** (**G9951**, **D6435**) — POC; `hub:wisp-cwl-module-depth-smoke`.
-- **Maintained:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**).
+- **Maintained:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:wisp-poc-from-scratch` (**G9992**, operator) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**).
 - **Closed (2026-07-13):** **Module buttons convert** (**G9950**, **D6434**) — plan/deploy toolbars + structural search/export/scan; `hub:wisp-cwl-module-buttons-smoke`.
 - **Closed (2026-07-13):** **SharedMap↔ArcGIS interaction** (**G9949**, **D6433**) — plan/deploy postMessage drives map; `hub:wisp-cwl-map-interact-smoke`.
 - **Closed (2026-07-13):** **WISP ArcGIS + grind** (**G9947–G9948**, **D6432**) — MapView + API geometry; module-access/PCI host; `hub:wisp-cwl-arcgis-grind-smoke`.

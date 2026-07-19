@@ -1,16 +1,10 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-live-chat" data-wisp-path="/modules/customers/portal/live-chat" data-cwl-island="client"><div class="chat-page">
-    <h1>Live Chat with WISP Management</h1>
-    <p class="subtitle">Chat is monitored . Start a conversation and we’ll respond as soon as a specialist is available.</p>
-    
-    <div class="chat-wrapper">
-      <div class="chat-placeholder">        
-      </div>
-      <div class="fallback-card">
-        <h2>Need immediate help?</h2>
-        <p>If chat is offline, use one of the options below.</p>
-        <a class="btn-link">Email </a>
-        
-      </div>
-    </div>
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/live-chat" data-cwl-island="client"><div class="feature-disabled">
+    <h1>Live Chat Unavailable</h1>
+    <p>This tenant currently handles conversations via email or phone.</p>
+    <p class="contact">
+      Email: <a></a>
+      <div data-cwl-bind="if" data-cwl-hole-detail="supportPhone"><br />
+        Phone: <a></a></div>
+    </p>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/live-chat","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/live-chat"}</script>

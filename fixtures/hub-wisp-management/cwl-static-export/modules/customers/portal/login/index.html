@@ -1,41 +1,62 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-login" data-wisp-path="/modules/customers/portal/login" data-cwl-island="client"><div class="login-page">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/login" data-cwl-island="client"><div class="login-page">
   <div class="login-container">
     <div class="login-header">
-      
+
+        <h1><span data-cwl-bind="interp" data-cwl-hole-detail="branding?.company?.displayName || branding?.company?.name || 'Customer Portal'"></span></h1>
+
+        <div hidden aria-hidden="true"><img class="login-logo" />
+      </div>
       <h2>Sign In</h2>
       <p class="login-subtitle">Access your account to view tickets and service information</p>
     </div>
-    
-      <form class="login-form">
-      
-      
+
+      <form data-cwl-on-submit="action:handleLogin" class="login-form">
+
       <div class="form-group">
         <label for="identifier">Customer ID, Email, or Phone</label>
         <input
           id="identifier"
           type="text"
           placeholder="Enter your customer ID, email, or phone"
-          required
+          required data-cwl-attr-disabled="loading"
         />
       </div>
-      
+
       <div class="form-group">
         <label for="password">Password</label>
         <input
           id="password"
           type="password"
           placeholder="Enter your password"
-          required
+          required data-cwl-attr-disabled="loading"
         />
       </div>
-      
-      <button type="submit" class="btn-primary">
+
+      <button type="submit" class="btn-primary" data-cwl-attr-disabled="loading">
         Sign In
       </button>
     </form>
     <div class="login-links">
-      
+
+        <div class="forgot-section" hidden aria-hidden="true">
+          <h3 class="forgot-title">Reset password</h3>
+          <p class="forgot-desc">Enter the email for your account and we'll send a reset link.</p>
+
+            <form data-cwl-on-submit="action:handleForgotSubmit" class="forgot-form">
+              <div data-cwl-bind="if" data-cwl-hole-detail="forgotError"><div class="error-message"></div></div>
+              <div class="form-group">
+                <label for="forgot-email">Email</label>
+                <input id="forgot-email" type="email" placeholder="Your account email" required data-cwl-attr-disabled="loading" />
+              </div>
+              <div class="forgot-actions">
+                <button type="submit" class="btn-primary" data-cwl-attr-disabled="loading">Send reset link</button>
+                <button type="button" class="link" data-cwl-attr-disabled="loading" data-cwl-set="forgotEmail:">Cancel</button>
+              </div>
+            </form>
+
+        </div>
+
     </div>
   </div>
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/login","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/login"}</script>

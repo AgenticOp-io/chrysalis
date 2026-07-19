@@ -4,6 +4,7 @@
   "outRoot": "cwl-static-export",
   "pageCount": 104,
   "exportedCount": 104,
+  "residueTotal": 0,
   "routes": [
     {
       "path": "/",
@@ -630,5 +631,5 @@
       "ok": true
     }
   ],
-  "generatedAt": "2026-07-17T03:31:06.136Z"
+  "generatedAt": "2026-07-19T05:33:52.699Z"
 }

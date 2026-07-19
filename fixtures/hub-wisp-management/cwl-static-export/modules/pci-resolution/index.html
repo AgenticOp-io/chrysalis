@@ -1,13 +1,18 @@
-<!-- Full Screen Map -->
+<div class="wisp-app-surface" data-wisp-page="pci-resolution" data-wisp-path="/modules/pci-resolution" data-cwl-island="client"><!-- Full Screen Map -->
 <!-- Note: Auth check removed - Module_Manager dashboard handles authentication -->
 <div class="app">
   <!-- Map Background -->
   <div class="map-fullscreen">
-    
+
+      <div class="loading" hidden aria-hidden="true">
+        <div class="spinner"></div>
+        <p>Analyzing...</p>
+      </div>
+
   </div>
 
   <!-- New UI Layout: Separate Positioned Elements -->
-  
+
   <!-- Top Left: Brand -->
   <div data-cwl-component="TopBrand" data-cwl-lifted-component="TopBrand"><div class="top-brand">
   <div class="brand-content">
@@ -18,60 +23,107 @@
     <h1 class="app-title">LTE PCI Mapper</h1>
   </div>
 </div></div>
-  
+
   <!-- Top Right: Basemap Switcher -->
   <div data-cwl-component="BasemapSwitcher" data-cwl-lifted-component="BasemapSwitcher"><div class="basemap-switcher">
-  
+
+    <button
+      class="basemap-btn" data-cwl-action="selectBasemap" data-cwl-action-args="&quot;topo-vector&quot;"
+      title=Topo
+    >
+      <span class="basemap-icon">🗺️</span>
+      <span class="basemap-label">Topo</span>
+    </button>
+
+    <button
+      class="basemap-btn" data-cwl-action="selectBasemap" data-cwl-action-args="&quot;streets-vector&quot;"
+      title=Streets
+    >
+      <span class="basemap-icon">🛣️</span>
+      <span class="basemap-label">Streets</span>
+    </button>
+
+    <button
+      class="basemap-btn" data-cwl-action="selectBasemap" data-cwl-action-args="&quot;hybrid&quot;"
+      title=Satellite
+    >
+      <span class="basemap-icon">🛰️</span>
+      <span class="basemap-label">Satellite</span>
+    </button>
+
 </div></div>
-  
+
   <!-- Right Side: PCI Status Widget -->
   <div data-cwl-component="PCIStatusWidget" data-cwl-lifted-component="PCIStatusWidget"><div class="pci-status-widget">
   <div class="status-header">
     <h2 class="status-title">PCI Status</h2>
-    <div class="cell-count"> Cells</div>
+    <div class="cell-count"><span data-cwl-bind="interp" data-cwl-hole-detail="$cellCount"></span> Cells</div>
   </div>
-  
+
   <div class="status-grid">
     <div class="status-item total">
-      <span class="status-value"></span>
+      <span class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="$conflictCount"></span></span>
       <span class="status-label">Total</span>
     </div>
-    
+
     <div class="status-item critical">
-      <span class="status-value"></span>
+      <span class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="$criticalConflictCount"></span></span>
       <span class="status-label">Critical</span>
     </div>
-    
+
     <div class="status-item high">
-      <span class="status-value"></span>
+      <span class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="$highConflictCount"></span></span>
       <span class="status-label">High</span>
     </div>
-    
+
     <div class="status-item medium">
-      <span class="status-value"></span>
+      <span class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="$mediumConflictCount"></span></span>
       <span class="status-label">Medium</span>
     </div>
-    
+
     <div class="status-item low">
-      <span class="status-value"></span>
+      <span class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="$lowConflictCount"></span></span>
       <span class="status-label">Low</span>
     </div>
   </div>
 </div></div>
-  
+
   <!-- Left Sidebar: Vertical Menu -->
   <div data-cwl-component="VerticalMenu" data-cwl-lifted-component="VerticalMenu"><div class="vertical-menu">
   <div class="menu-items">
     <!-- Back to Dashboard Button at Top -->
-    
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="$isAuthenticated && $currentUser"><button class="logout-button back-button" title="Back to Module Manager" data-cwl-nav="/dashboard" type="button">
+        <div class="user-info">
+          <span class="user-name"><span data-cwl-bind="interp" data-cwl-hole-detail="getUserName()"></span></span>
+          <span class="user-email"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentUser.email"></span></span>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </button></div>
+
     <div class="menu-divider"></div>
-    
+
     <!-- Network Selector -->
-    
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="$currentNetwork"><button class="network-selector" data-cwl-action="networks" title="Change network">
+        <div class="network-info">
+          <span class="network-name-menu"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentNetwork.name"></span></span>
+          <span class="network-market-menu"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentNetwork.market"></span></span>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button></div>
+      <button class="network-selector empty" data-cwl-action="networks" title="Select network">
+        <span>Select Network</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
     <div class="menu-divider"></div>
-    <button class="menu-item" title="Import cell data">
+    <button class="menu-item" data-cwl-action="import" title="Import cell data">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="7 10 12 15 17 10"></polyline>
@@ -79,8 +131,8 @@
       </svg>
       <span class="menu-label">Import</span>
     </button>
-    
-    <button class="menu-item" title="Manage towers and cell sites">
+
+    <button class="menu-item" data-cwl-action="towers" title="Manage towers and cell sites">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
         <polyline points="2 17 12 22 22 17"></polyline>
@@ -88,30 +140,55 @@
       </svg>
       <span class="menu-label">Towers</span>
     </button>
-    
+
     <div class="menu-divider"></div>
-    
-    <button class="menu-item" title="Run PCI analysis">
+
+    <button class="menu-item" data-cwl-action="analyze" data-cwl-attr-disabled="!hasData" title="Run PCI analysis">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.35-4.35"></path>
       </svg>
       <span class="menu-label">Analyze</span>
     </button>
-    
-    <button class="menu-item" title="Optimize PCI assignments">
+
+    <button class="menu-item" data-cwl-action="optimize" data-cwl-attr-disabled="!hasConflicts" title="Optimize PCI assignments">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
         <path d="M12 6v6l4 2"></path>
       </svg>
       <span class="menu-label">Optimize</span>
     </button>
-    
-    
-    
+
+      <div class="menu-wizards">
+        <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
+      </div>
+
     <div class="menu-divider"></div>
-    
-    <button class="menu-item" title="View detailed analysis">
+
+    <button class="menu-item" data-cwl-action="analysis" title="View detailed analysis">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="20" x2="18" y2="10"></line>
         <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -119,8 +196,8 @@
       </svg>
       <span class="menu-label">Analysis</span>
     </button>
-    
-    <button class="menu-item" title="View PCI conflicts">
+
+    <button class="menu-item" data-cwl-action="conflicts" title="View PCI conflicts">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
         <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -128,8 +205,8 @@
       </svg>
       <span class="menu-label">Conflicts</span>
     </button>
-    
-    <button class="menu-item" title="AI recommendations">
+
+    <button class="menu-item" data-cwl-action="recommendations" title="AI recommendations">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -137,8 +214,8 @@
       </svg>
       <span class="menu-label">AI Suggest</span>
     </button>
-    
-    <button class="menu-item" title="Export reports and configurations">
+
+    <button class="menu-item" data-cwl-action="export" data-cwl-attr-disabled="!hasData" title="Export reports and configurations">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="17 8 12 3 7 8"></polyline>
@@ -146,24 +223,124 @@
       </svg>
       <span class="menu-label">Export</span>
     </button>
-    
+
   </div>
 </div></div>
-  
+
   <!-- Bottom Right: Settings Gear Menu -->
   <div data-cwl-component="SettingsMenu" data-cwl-lifted-component="SettingsMenu"><div class="settings-menu">
-  <button class="settings-trigger" title="Settings">
+  <button class="settings-trigger" data-cwl-action="toggleMenu" title="Settings">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"></circle>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
     </svg>
   </button>
-  
-  
+
+    <div class="settings-panel" hidden aria-hidden="true">
+      <div class="settings-header">
+        <h3>⚙️ Settings</h3>
+        <button class="close-btn" data-cwl-action="closeMenu" aria-label="Close Menu">×</button>
+      </div>
+
+      <div class="settings-content">
+        <div class="setting-item">
+          <span class="setting-label">Theme</span>
+          <div data-cwl-component="ThemeSwitcher" data-cwl-lifted-component="ThemeSwitcher"><div class="theme-switcher">
+  <button
+    class="theme-button" data-cwl-action="toggleDropdown"
+    aria-label="Toggle theme"
+    title="Change theme"
+  >
+
+  </button>
+
+    <div class="dropdown" hidden aria-hidden="true">
+      <button
+        class="dropdown-item" data-cwl-action="handleThemeSelect" data-cwl-action-args="'light'"
+       aria-label="Theme Select">
+        <svg
+          class="dropdown-icon"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" />
+          <line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+        <span>Light</span>
+        <div data-cwl-bind="if" data-cwl-hole-detail="$themeStore.mode === 'light'"><svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg></div>
+      </button>
+
+      <button
+        class="dropdown-item" data-cwl-action="handleThemeSelect" data-cwl-action-args="'dark'"
+       aria-label="Theme Select">
+        <svg
+          class="dropdown-icon"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <span>Dark</span>
+        <div data-cwl-bind="if" data-cwl-hole-detail="$themeStore.mode === 'dark'"><svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg></div>
+      </button>
+
+      <button
+        class="dropdown-item" data-cwl-action="handleThemeSelect" data-cwl-action-args="'system'"
+       aria-label="Theme Select">
+        <svg
+          class="dropdown-icon"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <span>System</span>
+        <div data-cwl-bind="if" data-cwl-hole-detail="$themeStore.mode === 'system'"><svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg></div>
+      </button>
+    </div>
+
 </div></div>
-  
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <div class="setting-info">
+          <p class="info-text">More settings coming soon...</p>
+        </div>
+      </div>
+    </div>
+
+</div></div>
+
   <!-- Help Button -->
-  <button class="help-button" aria-label="Open Help" title="Help">
+  <button class="help-button" data-cwl-toggle="showHelpModal:true" aria-label="Open Help" title="Help">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="10"></circle>
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -172,56 +349,63 @@
   </button>
 
   <!-- Modular Components - Isolated and reusable -->
-  <div data-cwl-component="NetworkManager" data-cwl-lifted-component="NetworkManager"><div 
-    class="network-overlay" 
-    role="presentation"
+  <div data-cwl-component="NetworkManager" data-cwl-lifted-component="NetworkManager"><div
+    class="network-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
-    <div 
-      class="network-modal" 
+    <div
+      class="network-modal"
       role="dialog"
       tabindex="-1"
       aria-labelledby="network-manager-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
     >
       <div class="network-header">
         <h2 id="network-manager-modal-title">
-          
+
+            My Networks
+
         </h2>
-        <button class="close-btn">×</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="network-body">
-        
+
+          <div class="network-list">
+
+              <div class="loading-state" hidden aria-hidden="true">
+                <div class="spinner-small"></div>
+                <p>Loading networks...</p>
+              </div>
+
+          </div>
+
       </div>
     </div>
   </div></div>
-  
-  <div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div 
-    class="wizard-overlay" 
-    role="presentation"
+
+  <div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div
+    class="wizard-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
-    <div 
-      class="wizard-modal" 
+    <div
+      class="wizard-modal"
       role="dialog"
       tabindex="-1"
       aria-labelledby="import-wizard-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
     >
       <div class="wizard-header">
         <h2 id="import-wizard-modal-title">Import Data</h2>
-        <button class="close-btn">×</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="wizard-body">
-        <!-- Step 1: Choose Import Method -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="!importMethod"><!-- Step 1: Choose Import Method -->
           <div class="wizard-intro">
             <p class="intro-text">Choose how you'd like to import cell data:</p>
           </div>
-          
+
           <div class="method-grid">
-            <button class="method-card">
+            <button class="method-card" data-cwl-action="selectMethod" data-cwl-action-args="'csv'" aria-label="Select Method">
               <div class="method-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -233,8 +417,8 @@
               <h3>CSV File</h3>
               <p>Upload a CSV file with cell tower data</p>
             </button>
-            
-            <button class="method-card">
+
+            <button class="method-card" data-cwl-action="selectMethod" data-cwl-action-args="'kml'" aria-label="Select Method">
               <div class="method-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -244,8 +428,8 @@
               <h3>KML File</h3>
               <p>Import from Google Earth or GIS software</p>
             </button>
-            
-            <button class="method-card">
+
+            <button class="method-card" data-cwl-action="selectMethod" data-cwl-action-args="'manual'" aria-label="Select Method">
               <div class="method-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -255,19 +439,17 @@
               <h3>Manual Entry</h3>
               <p>Add cell data manually one by one</p>
             </button>
-          </div>
-        
-          <!-- Step 2: CSV Import -->
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="importMethod === 'csv'"><!-- Step 2: CSV Import -->
           <div class="import-content">
-            <button class="back-btn">← Back</button>
-            
+            <button class="back-btn" data-cwl-action="goBack" aria-label="Go Back">← Back</button>
+
             <h3>📄 CSV Import</h3>
             <p class="help-text">Upload a CSV file with tower/cell data. Leave PCI blank for auto-assignment.</p>
-            
+
             <div class="file-upload-zone">
-              <input 
-                type="file" 
-                accept=".csv"
+              <input
+                type="file"
+                accept=".csv" data-cwl-on-change="action:handleCSVUpload"
                 id="csv-upload"
               />
               <label for="csv-upload" class="upload-label">
@@ -279,23 +461,21 @@
                 <span>Choose CSV file or drag & drop</span>
               </label>
             </div>
-            
-            <button class="template-btn">
+
+            <button class="template-btn" data-cwl-action="downloadCSVTemplate" aria-label="Download CSVTemplate">
               📥 Download CSV Template
             </button>
-          </div>
-        
-          <!-- Step 2: KML Import -->
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="importMethod === 'kml'"><!-- Step 2: KML Import -->
           <div class="import-content">
-            <button class="back-btn">← Back</button>
-            
+            <button class="back-btn" data-cwl-action="goBack" aria-label="Go Back">← Back</button>
+
             <h3>🗺️ KML Import</h3>
             <p class="help-text">Upload a KML file from Google Earth or GIS software.</p>
-            
+
             <div class="file-upload-zone">
-              <input 
-                type="file" 
-                accept=".kml,.kmz"
+              <input
+                type="file"
+                accept=".kml,.kmz" data-cwl-on-change="action:handleKMLUpload"
                 id="kml-upload"
               />
               <label for="kml-upload" class="upload-label">
@@ -306,66 +486,1149 @@
                 <span>Choose KML/KMZ file or drag & drop</span>
               </label>
             </div>
-            
-            <button class="template-btn">
+
+            <button class="template-btn" data-cwl-action="downloadKMLTemplate" aria-label="Download KMLTemplate">
               📥 Download KML Template
             </button>
-            
+
             <div class="info-box">
               <strong>Supported Data:</strong> The KML parser will extract coordinates, name, and cell parameters from ExtendedData or description fields (PCI, eNodeB, Sector, Frequency, etc.).
             </div>
-          </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="importMethod === 'manual'"><!-- Step 2: Manual Site Entry -->
+          <div class="import-content">
+            <button class="back-btn" data-cwl-action="goBack" aria-label="Go Back">← Back</button>
+
+            <h3>✏️ Manual Site Entry</h3>
+            <p class="method-description">Add cell sites with sectors and channels</p>
+
+            <!-- Add Site Button -->
+            <div class="manual-add-section">
+              <button
+                type="button"
+                class="add-site-btn-large" data-cwl-toggle="showSiteEditorInWizard:true"
+               aria-label="Show Site Editor In Wizard">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Add Cell Site
+              </button>
+              <p class="add-hint">Each site can have multiple sectors with different azimuths and EARFCNs</p>
+            </div>
+
+            <!-- Sites List -->
+
+              <div class="sites-list">
+                <h4>Added Sites (<span data-cwl-bind="interp" data-cwl-hole-detail="manualSites.length"></span>)</h4>
+                <div data-cwl-bind="each" data-cwl-hole-detail="manualSites as site, index"><div class="site-preview">
+                    <div class="site-preview-header">
+                      <strong></strong>
+                      <span class="site-preview-meta">eNodeB  •  Sector</span>
+                    </div>
+                    <div class="sector-summary">
+                      <div data-cwl-bind="each" data-cwl-hole-detail="site.sectors as sector"><span class="sector-badge">
+                          Sec : ° | PCI  |  Ch
+                        </span></div>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-site-btn" data-cwl-action="removeSiteFromImport" data-cwl-action-args="index"
+                     aria-label="Remove Site From Import">
+                      Remove
+                    </button>
+                  </div></div>
+              </div>
+
+              <div class="manual-actions">
+                <button class="import-btn" data-cwl-action="importManualSites" aria-label="Import Manual Sites">
+                  ✅ Import <span data-cwl-bind="interp" data-cwl-hole-detail="manualSites.length"></span> Site<span data-cwl-bind="interp" data-cwl-hole-detail="manualSites.length !== 1 ? 's' : ''"></span>
+                </button>
+              </div>
+
+          </div></div>
       </div>
     </div>
   </div>
 
 <!-- Nested Site Editor for Manual Import -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div></div>
-  
-  <div data-cwl-component="AnalysisModal" data-cwl-lifted-component="AnalysisModal"></div>
-  
-  <div data-cwl-component="ConflictsModal" data-cwl-lifted-component="ConflictsModal"><div 
-    class="modal-overlay" 
-    role="presentation"
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+    <div class="site-editor">
+      <div class="editor-header">
+        <h2>
+
+            🏗️ Create New Cell Site
+
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="editor-content">
+        <!-- Site Information -->
+        <section class="editor-section">
+          <h3>Cell Site Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="siteId">Site ID</label>
+              <input
+                type="text"
+                id="siteId" data-cwl-attr-disabled="!isNewSite"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="siteName">Site Name</label>
+              <input
+                type="text"
+                id="siteName"
+                placeholder="Manhattan Tower A"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="eNodeB">eNodeB</label>
+              <input
+                type="number"
+                id="eNodeB"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                step="0.000001"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                step="0.000001"
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Sectors Section -->
+        <section class="editor-section sectors-section">
+          <div class="section-header">
+            <h3>📡 Sectors (Transmitters on this Cell)</h3>
+            <div class="sector-count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
+          </div>
+
+          <div class="add-sector-prompt">
+            <button type="button" class="add-sector-btn-large" data-cwl-action="addSector" aria-label="Add Sector">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Add New Sector
+            </button>
+            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
+          </div>
+
+            <div class="sectors-grid">
+              <div data-cwl-bind="each" data-cwl-hole-detail="editedSite.sectors as sector, sectorIndex"><div class="sector-unit">
+                  <!-- Sector Header with Visual Indicator -->
+                  <div class="sector-unit-header">
+                    <div class="sector-title-section">
+                      <div class="sector-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                          <path d="M2 17l10 5 10-5"></path>
+                          <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                      </div>
+                      <div class="sector-title-info">
+                        <h4>Sector </h4>
+                        <span class="sector-subtitle">Azimuth: ° |  Carrier</span>
+                        <span class="sector-pcis">Carrier PCIs: :$`).join(', ')}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-sector-btn" data-cwl-action="removeSector" data-cwl-action-args="sectorIndex"
+                      title="Remove this sector"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="sector-details">
+                    <!-- Prominent Azimuth Control -->
+                    <div class="azimuth-control">
+                      <div class="azimuth-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                        Azimuth Direction
+                      </div>
+                      <div class="azimuth-input-group">
+                        <input
+                          type="range"=
+                          min="0"
+                          max="359"
+                          class="azimuth-slider"
+                        />
+                        <input
+                          type="number"=
+                          min="0"
+                          max="359"
+                          class="azimuth-number"
+                        />
+                        <span class="azimuth-compass">
+                          <div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 337.5 || sector.azimuth < 22.5">N</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 22.5 && sector.azimuth < 67.5">NE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 67.5 && sector.azimuth < 112.5">E</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 112.5 && sector.azimuth < 157.5">SE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 157.5 && sector.azimuth < 202.5">S</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 202.5 && sector.azimuth < 247.5">SW</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 247.5 && sector.azimuth < 292.5">W</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 292.5 && sector.azimuth < 337.5">NW</div>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Beamwidth Control -->
+                    <div class="beamwidth-control">
+                      <div class="beamwidth-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7v10c0 5.5 3.84 7.66 10 9 6.16-1.34 10-3.5 10-9V7l-10-5z"></path>
+                        </svg>
+                        Beamwidth (Coverage Angle)
+                      </div>
+                      <div class="beamwidth-selector">
+                        <select= class="beamwidth-select">
+                          <option data-cwl-attr-value="33">33° (Narrow - Directional)</option>
+                          <option data-cwl-attr-value="65">65° (Standard - Macro)</option>
+                          <option data-cwl-attr-value="78">78° (Wide - Coverage)</option>
+                          <option data-cwl-attr-value="90">90° (Very Wide - Small Cell)</option>
+                          <option data-cwl-attr-value="120">120° (Ultra Wide - Omni-like)</option>
+                        </select>
+                        <span class="beamwidth-visual">°</span>
+                      </div>
+                    </div>
+
+                    <!-- Height AGL Control -->
+                    <div class="height-control">
+                      <div class="height-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="20" x2="12" y2="4"></line>
+                          <polyline points="8 8 12 4 16 8"></polyline>
+                          <polyline points="8 16 12 20 16 16"></polyline>
+                        </svg>
+                        Height Above Ground Level
+                      </div>
+                      <div class="height-input-group">
+                        <input
+                          type="number"=
+                          min="0"
+                          max="2000"
+                          step="1"
+                          class="height-input"
+                        />
+                        <span class="height-unit">feet</span>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group-sm">
+                        <label>
+                          RS Power (dBm)
+                          <input
+                            type="number"=
+                            min="-120"
+                            max="30"
+                          />
+                        </label>
+                      </div>
+
+                      <div class="form-group-sm">
+                        <label>
+                          Technology
+                          <select=>
+                            <option value="LTE">LTE (4G)</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="pci-note">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                      <span>Each sector transmitter can have multiple carriers. Each carrier needs its own PCI and EARFCN.</span>
+                    </div>
+
+                    <!-- Carriers for this transmitter -->
+                    <div class="channels-section">
+                      <div class="channels-header">
+                        <strong>📻 Carriers</strong>
+                        <span class="carrier-info">Each carrier has its own EARFCN & PCI</span>
+                        <button
+                          type="button"
+                          class="add-channel-btn-sm" data-cwl-action="addChannelToSector" data-cwl-action-args="sectorIndex"
+                         aria-label="Add Channel To Sector">
+                          + Add Carrier
+                        </button>
+                      </div>
+
+                      <div data-cwl-bind="each" data-cwl-hole-detail="sector.channels as channel, channelIndex"><div class="carrier-card">
+                          <div class="carrier-header">
+                            <div class="carrier-number">Carrier </div>
+                            <div class="carrier-primary-select">
+                              <input
+                                type="radio"
+                                name="primary-" data-cwl-on-change="action:setPrimaryChannel" data-cwl-on-change-args="sectorIndex, channelIndex"
+                                title="Primary carrier"
+                                id="primary--"
+                              />
+                              <label for="primary--" class="primary-label">
+
+                              </label>
+                            </div>
+                            <button
+                              type="button"
+                              class="remove-channel-btn" data-cwl-action="removeChannel" data-cwl-action-args="sectorIndex, channelIndex" title="Remove carrier"
+                            >
+                              ×
+                            </button>
+                          </div>
+
+                          <div class="carrier-details">
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="earfcn--">EARFCN DL</label>
+                              <input
+                                type="number"
+                                id="earfcn--"=
+                                placeholder="55640"
+                                class="carrier-input"
+                                min="55240"
+                                max="56739"
+                                title="Band 48: 55240-56739"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="bw--">Bandwidth</label>
+                              <select id="bw--"= class="carrier-select">
+                                <option data-cwl-attr-value="10">10 MHz</option>
+                                <option data-cwl-attr-value="15">15 MHz</option>
+                                <option data-cwl-attr-value="20">20 MHz</option>
+                              </select>
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="pci--">PCI</label>
+                              <input
+                                type="number"
+                                id="pci--"=
+                                placeholder="0"
+                                class="carrier-input-sm"
+                                min="0"
+                                max="503"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <span class="freq-display"> MHz</span>
+                            </div>
+                          </div>
+                        </div></div>
+                    </div>
+                  </div>
+                </div></div>
+            </div>
+
+            <div hidden aria-hidden="true"><p class="empty-message">
+              📍 No sectors configured yet.<br/>
+              Click "Add New Sector" above to create your first sector.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div class="editor-footer">
+        <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+        <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
+
+            🏗️ Create Site
+
+        </button>
+      </div>
+    </div>
+  </div></div></div>
+
+  <div data-cwl-component="AnalysisModal" data-cwl-lifted-component="AnalysisModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && analysis" hidden aria-hidden="true"><div
+    class="modal-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
-    <div 
-      class="modal modal-large" 
+    <div
+      class="modal"
+      role="dialog"
+      tabindex="-1"
+      aria-labelledby="analysis-modal-title"
+    >
+      <div class="modal-header">
+        <h2 id="analysis-modal-title">Analysis Summary</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-number"><span data-cwl-bind="interp" data-cwl-hole-detail="analysis.totalCells"></span></div>
+            <div class="stat-label">Total Cells</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number"><span data-cwl-bind="interp" data-cwl-hole-detail="analysis.conflicts.length"></span></div>
+            <div class="stat-label">Conflicts</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number"><span data-cwl-bind="interp" data-cwl-hole-detail="analysis.conflictRate.toFixed(1)"></span>%</div>
+            <div class="stat-label">Conflict Rate</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number"><span data-cwl-bind="interp" data-cwl-hole-detail="conflicts.filter(c => c.severity === 'CRITICAL').length"></span></div>
+            <div class="stat-label">Critical</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number"><span data-cwl-bind="interp" data-cwl-hole-detail="conflicts.filter(c => c.severity === 'HIGH').length"></span></div>
+            <div class="stat-label">High</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number"><span data-cwl-bind="interp" data-cwl-hole-detail="conflicts.filter(c => c.severity === 'MEDIUM').length"></span></div>
+            <div class="stat-label">Medium</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
+
+  <div data-cwl-component="ConflictsModal" data-cwl-lifted-component="ConflictsModal"><div
+    class="modal-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="modal modal-large"
       role="dialog"
       tabindex="-1"
       aria-labelledby="conflicts-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
     >
       <div class="modal-header">
-        <h2 id="conflicts-modal-title">Conflicts ()</h2>
-        <button class="close-btn">×</button>
+        <h2 id="conflicts-modal-title">Conflicts (<span data-cwl-bind="interp" data-cwl-hole-detail="conflicts.length"></span>)</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
       <div class="modal-body scrollable">
-        
+
+          <div class="conflicts-table">
+            <div data-cwl-bind="each" data-cwl-hole-detail="conflicts as conflict" data-cwl-each-item="conflict" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22conflict-row%20%7Bconflict.severity.toLowerCase()%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22conflict-cells%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22cell-name%22%3E%7Bconflict.primaryCell.id%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22arrow%22%3E%E2%86%92%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22cell-name%22%3E%7Bconflict.conflictingCell.id%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22conflict-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge%20%7Bconflict.severity.toLowerCase()%7D%22%3E%7Bconflict.severity%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22type%22%3E%7Bconflict.conflictType%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22distance%22%3E%7Bconflict.distance.toFixed(0)%7Dm%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20conflict.losChecked%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20conflict.terrainBlocked%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22los-badge%20blocked%22%20title%3D%22Terrain%20blocks%20line%20of%20sight%22%3E%F0%9F%97%BB%20No%20LOS%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%20if%20conflict.hasLineOfSight%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22los-badge%20clear%22%20title%3D%22Clear%20line%20of%20sight%22%3E%F0%9F%91%81%EF%B8%8F%20LOS%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div class="conflict-row ">
+                <div class="conflict-cells">
+                  <span class="cell-name"></span>
+                  <span class="arrow">→</span>
+                  <span class="cell-name"></span>
+                </div>
+                <div class="conflict-meta">
+                  <span class="badge "></span>
+                  <span class="type"></span>
+                  <span class="distance">m</span>
+
+                    <div hidden aria-hidden="true">
+                      <div hidden aria-hidden="true"><span class="los-badge clear" title="Clear line of sight">👁️ LOS</span>
+                    </div>
+                      <div hidden aria-hidden="true"><span class="los-badge blocked" title="Terrain blocks line of sight">🗻 No LOS</span>
+                    </div>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+
       </div>
     </div>
   </div></div>
-  
-  <div data-cwl-component="RecommendationsModal" data-cwl-lifted-component="RecommendationsModal"></div>
-  
-  <div data-cwl-component="OptimizationResultModal" data-cwl-lifted-component="OptimizationResultModal"></div>
-  
-  <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"></div>
-  
-  <div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div>
-  
+
+  <div data-cwl-component="RecommendationsModal" data-cwl-lifted-component="RecommendationsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && geminiAnalysis" hidden aria-hidden="true"><div
+    class="modal-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="modal modal-large"
+      role="dialog"
+      tabindex="-1"
+      aria-labelledby="recommendations-modal-title"
+    >
+      <div class="modal-header">
+        <h2 id="recommendations-modal-title">AI Recommendations</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="recommendations">
+
+        </div>
+      </div>
+    </div>
+  </div></div></div>
+
+  <div data-cwl-component="OptimizationResultModal" data-cwl-lifted-component="OptimizationResultModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && result" hidden aria-hidden="true"><div
+    class="modal-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="modal"
+      role="dialog"
+      tabindex="-1"
+      aria-labelledby="optimization-modal-title"
+    >
+      <div class="modal-header">
+        <h2 id="optimization-modal-title">Optimization Complete</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="success-banner">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <p>Successfully optimized PCI assignments</p>
+        </div>
+        <div class="result-stats">
+          <div class="result-item">
+            <div class="result-value"><span data-cwl-bind="interp" data-cwl-hole-detail="result.resolvedConflicts"></span></div>
+            <div class="result-label">Conflicts Resolved</div>
+          </div>
+          <div class="result-item">
+            <div class="result-value"><span data-cwl-bind="interp" data-cwl-hole-detail="result.conflictReduction.toFixed(0)"></span>%</div>
+            <div class="result-label">Reduction</div>
+          </div>
+          <div class="result-item">
+            <div class="result-value"><span data-cwl-bind="interp" data-cwl-hole-detail="result.iterations"></span></div>
+            <div class="result-label">Iterations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
+
+  <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+    <div class="cell-editor">
+      <div class="editor-header">
+        <h2>
+
+            📡 Edit Cell: <span data-cwl-bind="interp" data-cwl-hole-detail="cell?.id || 'Unknown'"></span>
+
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="editor-content">
+        <!-- Basic Info Section -->
+        <section class="editor-section">
+          <h3>Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="cellId">Cell ID</label>
+              <input
+                type="text"
+                id="cellId" data-cwl-attr-disabled="!isNewCell"
+                placeholder="CELL001"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="eNodeB">eNodeB</label>
+              <input
+                type="number"
+                id="eNodeB"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="sector">Sector</label>
+              <input
+                type="number"
+                id="sector"
+                min="1"
+                max="12"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="pci">PCI</label>
+              <input
+                type="number"
+                id="pci"
+                min="0"
+                max="503"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Location Section -->
+        <section class="editor-section">
+          <h3>Location</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                step="0.000001"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                step="0.000001"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="azimuth">Azimuth (degrees)</label>
+              <input
+                type="number"
+                id="azimuth"
+                min="0"
+                max="359"
+                placeholder="0-359"
+                required
+              />
+              <span class="helper-text">Direction the antenna is pointing (0° = North)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- RF Parameters Section -->
+        <section class="editor-section">
+          <h3>RF Parameters</h3>
+
+          <!-- Smart Frequency/EARFCN Input -->
+          <div class="smart-input-section">
+            <label for="smartInput">🎯 Quick Add: Frequency or EARFCN</label>
+            <p class="smart-help">Add frequencies or EARFCNs to the list below (e.g., 2100, 3550, 1950, 55240)</p>
+
+            <!-- Band Selector -->
+            <div class="band-selector-group">
+              <label for="bandSelect" class="band-label">LTE Band:</label>
+              <select id="bandSelect" class="band-select">
+
+                  <option value=auto>Auto-Detect</option>
+
+                  <option value=1>Band 1 (2100 MHz FDD)</option>
+
+                  <option value=2>Band 2 (1900 MHz FDD)</option>
+
+                  <option value=3>Band 3 (1800 MHz FDD)</option>
+
+                  <option value=4>Band 4 (AWS 2100 FDD)</option>
+
+                  <option value=5>Band 5 (850 MHz FDD)</option>
+
+                  <option value=7>Band 7 (2600 MHz FDD)</option>
+
+                  <option value=12>Band 12 (700 MHz FDD)</option>
+
+                  <option value=13>Band 13 (700 MHz FDD)</option>
+
+                  <option value=17>Band 17 (700 MHz FDD)</option>
+
+                  <option value=25>Band 25 (1900 MHz FDD)</option>
+
+                  <option value=26>Band 26 (850 MHz FDD)</option>
+
+                  <option value=66>Band 66 (AWS-3 FDD)</option>
+
+                  <option value=71>Band 71 (600 MHz FDD)</option>
+
+                  <option value=33>Band 33 (1900 MHz TDD)</option>
+
+                  <option value=34>Band 34 (2000 MHz TDD)</option>
+
+                  <option value=41>Band 41 (2500 MHz TDD)</option>
+
+                  <option value=42>Band 42 (3500 MHz TDD)</option>
+
+                  <option value=43>Band 43 (3700 MHz TDD)</option>
+
+                  <option value=48>Band 48 (CBRS 3550 TDD)</option>
+
+              </select>
+            </div>
+
+            <!-- Frequency/EARFCN Input -->
+            <div class="smart-input-group">
+              <input
+                type="number"
+                id="smartInput"
+                placeholder="2100 or 1950 or 55240..." data-cwl-on-keydown="action:handleSmartInput"
+                class="smart-input"
+              />
+              <button
+                type="button"
+                class="smart-btn" data-cwl-action="handleSmartInput" data-cwl-attr-disabled="!smartInputValue"
+               aria-label="Smart Input">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add to List
+              </button>
+            </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedBand !== 'auto'"><p class="band-hint">
+                ℹ️ <span data-cwl-bind="interp" data-cwl-hole-detail="bandOptions.find(b => b.value === selectedBand)?.label || ''"></span> -
+                Enter frequency between <span data-cwl-bind="interp" data-cwl-hole-detail="bandOptions.find(b => b.value === selectedBand)?.freqRange?.[0]"></span>-<span data-cwl-bind="interp" data-cwl-hole-detail="bandOptions.find(b => b.value === selectedBand)?.freqRange?.[1]"></span> MHz
+              </p></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="dlEarfcn">DL EARFCN</label>
+              <input
+                type="number"
+                id="dlEarfcn" data-cwl-on-input="action:handleDlEarfcnChange"
+                min="0"
+                max="70000"
+              />
+              <span class="helper-text">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="getFrequencyBand(editedCell.dlEarfcn || 0)"></span>
+
+                  <div hidden aria-hidden="true">• <span data-cwl-bind="interp" data-cwl-hole-detail="earfcnToFrequency(editedCell.dlEarfcn).isTDD ? 'TDD' : 'FDD'"></span>
+                </div>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="ulEarfcn">UL EARFCN <span data-cwl-bind="interp" data-cwl-hole-detail="earfcnToFrequency(editedCell.dlEarfcn || 0).isTDD ? '(Same as DL for TDD)' : ''"></span></label>
+              <input
+                type="number"
+                id="ulEarfcn"
+                min="0"
+                max="70000" data-cwl-attr-disabled="earfcnToFrequency(editedCell.dlEarfcn || 0).isTDD"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="centerFreq">Center Frequency (MHz)</label>
+              <input
+                type="number"
+                id="centerFreq" data-cwl-on-input="action:handleCenterFreqChange"
+                step="0.1"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="channelBandwidth">Channel Bandwidth (MHz)</label>
+              <select id="channelBandwidth">
+                <option data-cwl-attr-value="1.4">1.4 MHz</option>
+                <option data-cwl-attr-value="3">3 MHz</option>
+                <option data-cwl-attr-value="5">5 MHz</option>
+                <option data-cwl-attr-value="10">10 MHz</option>
+                <option data-cwl-attr-value="15">15 MHz</option>
+                <option data-cwl-attr-value="20">20 MHz</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="rsPower">RS Power (dBm)</label>
+              <input
+                type="number"
+                id="rsPower"
+                step="0.1"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="technology">Technology</label>
+              <select id="technology">
+                <option value="LTE">LTE (4G)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Additional EARFCNs Section -->
+        <section class="editor-section">
+          <h3>Additional EARFCNs</h3>
+          <p class="section-description">Add carrier aggregation or additional frequency channels</p>
+
+          <div class="earfcn-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="additionalEarfcns as earfcn, index"><div class="earfcn-item">
+                <span class="earfcn-value"></span>
+                <span class="earfcn-band"></span>
+                <button
+                  type="button"
+                  class="remove-earfcn-btn" data-cwl-action="removeEarfcn" data-cwl-action-args="index"
+                 aria-label="Remove Earfcn">
+                  ×
+                </button>
+              </div></div>
+          </div>
+
+          <div class="add-earfcn-group">
+            <input
+              type="number"
+              placeholder="Enter EARFCN (e.g., 1950)" data-cwl-on-keydown="action:addEarfcn"
+            />
+            <button
+              type="button"
+              class="add-earfcn-btn" data-cwl-action="addEarfcn" data-cwl-attr-disabled="!newEarfcn"
+             aria-label="Add Earfcn">
+              + Add EARFCN
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div class="editor-footer">
+        <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+        <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
+
+            💾 Save Changes
+
+        </button>
+      </div>
+    </div>
+  </div></div>
+
+  <div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+    <div class="site-editor">
+      <div class="editor-header">
+        <h2>
+
+            🏗️ Edit Cell Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site?.name || 'Unknown'"></span>
+
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="editor-content">
+        <!-- Site Information -->
+        <section class="editor-section">
+          <h3>Cell Site Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="siteId">Site ID</label>
+              <input
+                type="text"
+                id="siteId" data-cwl-attr-disabled="!isNewSite"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="siteName">Site Name</label>
+              <input
+                type="text"
+                id="siteName"
+                placeholder="Manhattan Tower A"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="eNodeB">eNodeB</label>
+              <input
+                type="number"
+                id="eNodeB"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                step="0.000001"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                step="0.000001"
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Sectors Section -->
+        <section class="editor-section sectors-section">
+          <div class="section-header">
+            <h3>📡 Sectors (Transmitters on this Cell)</h3>
+            <div class="sector-count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
+          </div>
+
+          <div class="add-sector-prompt">
+            <button type="button" class="add-sector-btn-large" data-cwl-action="addSector" aria-label="Add Sector">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Add New Sector
+            </button>
+            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
+          </div>
+
+            <div class="sectors-grid">
+              <div data-cwl-bind="each" data-cwl-hole-detail="editedSite.sectors as sector, sectorIndex"><div class="sector-unit">
+                  <!-- Sector Header with Visual Indicator -->
+                  <div class="sector-unit-header">
+                    <div class="sector-title-section">
+                      <div class="sector-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                          <path d="M2 17l10 5 10-5"></path>
+                          <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                      </div>
+                      <div class="sector-title-info">
+                        <h4>Sector </h4>
+                        <span class="sector-subtitle">Azimuth: ° |  Carrier</span>
+                        <span class="sector-pcis">Carrier PCIs: :$`).join(', ')}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-sector-btn" data-cwl-action="removeSector" data-cwl-action-args="sectorIndex"
+                      title="Remove this sector"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="sector-details">
+                    <!-- Prominent Azimuth Control -->
+                    <div class="azimuth-control">
+                      <div class="azimuth-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                        Azimuth Direction
+                      </div>
+                      <div class="azimuth-input-group">
+                        <input
+                          type="range"=
+                          min="0"
+                          max="359"
+                          class="azimuth-slider"
+                        />
+                        <input
+                          type="number"=
+                          min="0"
+                          max="359"
+                          class="azimuth-number"
+                        />
+                        <span class="azimuth-compass">
+                          <div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 337.5 || sector.azimuth < 22.5">N</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 22.5 && sector.azimuth < 67.5">NE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 67.5 && sector.azimuth < 112.5">E</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 112.5 && sector.azimuth < 157.5">SE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 157.5 && sector.azimuth < 202.5">S</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 202.5 && sector.azimuth < 247.5">SW</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 247.5 && sector.azimuth < 292.5">W</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 292.5 && sector.azimuth < 337.5">NW</div>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Beamwidth Control -->
+                    <div class="beamwidth-control">
+                      <div class="beamwidth-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7v10c0 5.5 3.84 7.66 10 9 6.16-1.34 10-3.5 10-9V7l-10-5z"></path>
+                        </svg>
+                        Beamwidth (Coverage Angle)
+                      </div>
+                      <div class="beamwidth-selector">
+                        <select= class="beamwidth-select">
+                          <option data-cwl-attr-value="33">33° (Narrow - Directional)</option>
+                          <option data-cwl-attr-value="65">65° (Standard - Macro)</option>
+                          <option data-cwl-attr-value="78">78° (Wide - Coverage)</option>
+                          <option data-cwl-attr-value="90">90° (Very Wide - Small Cell)</option>
+                          <option data-cwl-attr-value="120">120° (Ultra Wide - Omni-like)</option>
+                        </select>
+                        <span class="beamwidth-visual">°</span>
+                      </div>
+                    </div>
+
+                    <!-- Height AGL Control -->
+                    <div class="height-control">
+                      <div class="height-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="20" x2="12" y2="4"></line>
+                          <polyline points="8 8 12 4 16 8"></polyline>
+                          <polyline points="8 16 12 20 16 16"></polyline>
+                        </svg>
+                        Height Above Ground Level
+                      </div>
+                      <div class="height-input-group">
+                        <input
+                          type="number"=
+                          min="0"
+                          max="2000"
+                          step="1"
+                          class="height-input"
+                        />
+                        <span class="height-unit">feet</span>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group-sm">
+                        <label>
+                          RS Power (dBm)
+                          <input
+                            type="number"=
+                            min="-120"
+                            max="30"
+                          />
+                        </label>
+                      </div>
+
+                      <div class="form-group-sm">
+                        <label>
+                          Technology
+                          <select=>
+                            <option value="LTE">LTE (4G)</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="pci-note">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                      <span>Each sector transmitter can have multiple carriers. Each carrier needs its own PCI and EARFCN.</span>
+                    </div>
+
+                    <!-- Carriers for this transmitter -->
+                    <div class="channels-section">
+                      <div class="channels-header">
+                        <strong>📻 Carriers</strong>
+                        <span class="carrier-info">Each carrier has its own EARFCN & PCI</span>
+                        <button
+                          type="button"
+                          class="add-channel-btn-sm" data-cwl-action="addChannelToSector" data-cwl-action-args="sectorIndex"
+                         aria-label="Add Channel To Sector">
+                          + Add Carrier
+                        </button>
+                      </div>
+
+                      <div data-cwl-bind="each" data-cwl-hole-detail="sector.channels as channel, channelIndex"><div class="carrier-card">
+                          <div class="carrier-header">
+                            <div class="carrier-number">Carrier </div>
+                            <div class="carrier-primary-select">
+                              <input
+                                type="radio"
+                                name="primary-" data-cwl-on-change="action:setPrimaryChannel" data-cwl-on-change-args="sectorIndex, channelIndex"
+                                title="Primary carrier"
+                                id="primary--"
+                              />
+                              <label for="primary--" class="primary-label">
+
+                              </label>
+                            </div>
+                            <button
+                              type="button"
+                              class="remove-channel-btn" data-cwl-action="removeChannel" data-cwl-action-args="sectorIndex, channelIndex" title="Remove carrier"
+                            >
+                              ×
+                            </button>
+                          </div>
+
+                          <div class="carrier-details">
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="earfcn--">EARFCN DL</label>
+                              <input
+                                type="number"
+                                id="earfcn--"=
+                                placeholder="55640"
+                                class="carrier-input"
+                                min="55240"
+                                max="56739"
+                                title="Band 48: 55240-56739"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="bw--">Bandwidth</label>
+                              <select id="bw--"= class="carrier-select">
+                                <option data-cwl-attr-value="10">10 MHz</option>
+                                <option data-cwl-attr-value="15">15 MHz</option>
+                                <option data-cwl-attr-value="20">20 MHz</option>
+                              </select>
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="pci--">PCI</label>
+                              <input
+                                type="number"
+                                id="pci--"=
+                                placeholder="0"
+                                class="carrier-input-sm"
+                                min="0"
+                                max="503"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <span class="freq-display"> MHz</span>
+                            </div>
+                          </div>
+                        </div></div>
+                    </div>
+                  </div>
+                </div></div>
+            </div>
+
+            <div hidden aria-hidden="true"><p class="empty-message">
+              📍 No sectors configured yet.<br/>
+              Click "Add New Sector" above to create your first sector.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div class="editor-footer">
+        <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+        <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
+
+            💾 Save Changes
+
+        </button>
+      </div>
+    </div>
+  </div></div>
+
   <div data-cwl-component="ContextMenu" data-cwl-lifted-component="ContextMenu"><div hidden aria-hidden="true"><!-- Invisible backdrop to close menu -->
-  <div 
-    class="context-backdrop" 
-    role="presentation"
+  <div
+    class="context-backdrop"
+    role="presentation" data-cwl-action="handleBackdropClick" data-cwl-on-keydown="action:handleBackdropClick"
   ></div>
-  
+
   <!-- Context menu -->
   <div class="context-menu" style="left: px; top: px;">
-    
-    
+
     <!-- Always show add options -->
-    <button class="menu-item primary">
+    <button class="menu-item primary" data-cwl-action="handleAddSite" aria-label="Add Site">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
         <circle cx="12" cy="10" r="3"></circle>
@@ -374,8 +1637,8 @@
       </svg>
       Add Cell Site Manually
     </button>
-    
-    <button class="menu-item">
+
+    <button class="menu-item" data-cwl-action="handleImport" aria-label="Import">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="17 8 12 3 7 8"></polyline>
@@ -384,18 +1647,16 @@
       Import from CSV/KML
     </button>
   </div></div></div>
-  
-  <div data-cwl-component="TowerManager" data-cwl-lifted-component="TowerManager"><div 
-    class="tower-overlay" 
-    role="presentation"
+
+  <div data-cwl-component="TowerManager" data-cwl-lifted-component="TowerManager"><div
+    class="tower-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
-    <div 
-      class="tower-modal" 
+    <div
+      class="tower-modal"
       role="dialog"
       tabindex="-1"
       aria-labelledby="tower-manager-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
     >
       <div class="tower-header">
         <div class="header-title">
@@ -405,11 +1666,11 @@
             <polyline points="2 12 12 17 22 12"></polyline>
           </svg>
           <h2 id="tower-manager-modal-title">Tower Management</h2>
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="$currentNetwork"><span class="network-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentNetwork.name"></span></span></div>
         </div>
-        <button class="close-btn">×</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="tower-body">
         <!-- Search and Actions Bar -->
         <div class="actions-bar">
@@ -418,12 +1679,12 @@
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.35-4.35"></path>
             </svg>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search towers by eNodeB or sector ID..."
             />
           </div>
-          <button class="add-tower-btn">
+          <button class="add-tower-btn" data-cwl-action="handleAddTower" aria-label="Add Tower">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -431,60 +1692,488 @@
             Add Tower
           </button>
         </div>
-        
+
         <!-- Tower Stats -->
         <div class="tower-stats">
           <div class="stat-card">
-            <span class="stat-value">1</span>
+            <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="towers.length"></span></span>
             <span class="stat-label">Towers</span>
           </div>
           <div class="stat-card">
-            <span class="stat-value"></span>
+            <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="towers.reduce((sum, t) => sum + t.sectorCount, 0)"></span></span>
             <span class="stat-label">Sectors</span>
           </div>
           <div class="stat-card">
-            <span class="stat-value"></span>
+            <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="$cellsStore.items.length"></span></span>
             <span class="stat-label">Carriers</span>
           </div>
         </div>
-        
+
         <!-- Tower List -->
         <div class="tower-list">
-          
+
+            <div data-cwl-bind="each" data-cwl-hole-detail="filteredTowers as tower (tower.eNodeB)" data-cwl-each-item="tower" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-card%22%20class%3Aexpanded%3D%7BexpandedTowerId%20%3D%3D%3D%20tower.eNodeB.toString()%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22tower-card-header%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20tabindex%3D%220%22%20data-cwl-action%3D%22toggleExpand%22%20data-cwl-action-args%3D%22tower.eNodeB%22%20data-cwl-on-keydown%3D%22action%3AtoggleExpand%22%20data-cwl-on-keydown-args%3D%22tower.eNodeB%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-icon%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M12%202L2%207l10%205%2010-5-10-5z%22%3E%3C%2Fpath%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolyline%20points%3D%222%2017%2012%2022%2022%2017%22%3E%3C%2Fpolyline%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolyline%20points%3D%222%2012%2012%2017%2022%2012%22%3E%3C%2Fpolyline%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3ETower%20%7Btower.eNodeB%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-meta%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22meta-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csvg%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%3E%3C%2Fcircle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolyline%20points%3D%2212%206%2012%2012%2016%2014%22%3E%3C%2Fpolyline%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Btower.sectorCount%7D%20sector%7Btower.sectorCount%20!%3D%3D%201%20%3F%20's'%20%3A%20''%7D%20(%7Btower.carrierCount%7D%20carriers)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22meta-divider%22%3E%E2%80%A2%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22meta-item%20coordinates%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%8D%20%7BformatCoordinates(tower.latitude%2C%20tower.longitude)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22action-btn%20edit-btn%22%20data-cwl-action%3D%22handleEditTower%22%20data-cwl-action-args%3D%22tower%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Edit%20tower%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M11%204H4a2%202%200%200%200-2%202v14a2%202%200%200%200%202%202h14a2%202%200%200%200%202-2v-7%22%3E%3C%2Fpath%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M18.5%202.5a2.121%202.121%200%200%201%203%203L12%2015l-4%201%201-4%209.5-9.5z%22%3E%3C%2Fpath%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22action-btn%20delete-btn%22%20data-cwl-action%3D%22handleDeleteTower%22%20data-cwl-action-args%3D%22tower%2C%20e%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Delete%20tower%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolyline%20points%3D%223%206%205%206%2021%206%22%3E%3C%2Fpolyline%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M19%206v14a2%202%200%200%201-2%202H7a2%202%200%200%201-2-2V6m3%200V4a2%202%200%200%201%202-2h4a2%202%200%200%201%202%202v2%22%3E%3C%2Fpath%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22expand-btn%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%7BexpandedTowerId%20%3D%3D%3D%20tower.eNodeB.toString()%20%3F%20'Collapse%20tower%20details'%20%3A%20'Expand%20tower%20details'%7D%20data-cwl-action%3D%22toggleExpand%22%20data-cwl-action-args%3D%22tower.eNodeB%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csvg%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20width%3D%2216%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20height%3D%2216%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20viewBox%3D%220%200%2024%2024%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fill%3D%22none%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20stroke%3D%22currentColor%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20stroke-width%3D%222%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3Arotated%3D%7BexpandedTowerId%20%3D%3D%3D%20tower.eNodeB.toString()%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20expandedTowerId%20%3D%3D%3D%20tower.eNodeB.toString()%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tower-sectors%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3ESectors%20(%7Btower.sectorCount%7D)%20-%20%7Btower.carrierCount%7D%20Total%20Carriers%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22sectors-grid%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23each%20tower.sectors%20as%20sectorGroup%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22sector-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22sector-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22sector-id%22%3ESector%20%7BsectorGroup.sectorNumber%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22sector-pci%22%3EAzimuth%3A%20%7BsectorGroup.azimuth%7D%C2%B0%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22sector-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22sector-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ECarriers%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7BsectorGroup.carriers.length%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22sector-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EPCIs%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7BsectorGroup.pcis.join('%2C%20')%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C!--%20List%20carriers%20--%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22carriers-list%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3ECarriers%3A%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23each%20sectorGroup.carriers%20as%20carrier%2C%20idx%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22carrier-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22carrier-label%22%3EC%7Bidx%20%2B%201%7D%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22carrier-data%22%3EPCI%20%7Bcarrier.pci%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22carrier-data%22%3EEARFCN%20%7Bcarrier.dlEarfcn%20%7C%7C%20carrier.earfcn%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22carrier-data%22%3E%7Bcarrier.frequency%7D%20MHz%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Feach%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Feach%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div class="tower-card">
+                <div
+                  class="tower-card-header"
+                  role="button"
+                  tabindex="0" data-cwl-action="toggleExpand" data-cwl-action-args="tower.eNodeB" data-cwl-on-keydown="action:toggleExpand" data-cwl-on-keydown-args="tower.eNodeB"
+                >
+                  <div class="tower-info">
+                    <div class="tower-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                      </svg>
+                    </div>
+                    <div class="tower-details">
+                      <h3>Tower </h3>
+                      <div class="tower-meta">
+                        <span class="meta-item">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                           sector ( carriers)
+                        </span>
+                        <span class="meta-divider">•</span>
+                        <span class="meta-item coordinates">
+                          📍
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tower-actions">
+                    <button
+                      class="action-btn edit-btn" data-cwl-action="handleEditTower" data-cwl-action-args="tower"
+                      title="Edit tower"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      class="action-btn delete-btn" data-cwl-action="handleDeleteTower" data-cwl-action-args="tower, e"
+                      title="Delete tower"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                    <button
+                      class="expand-btn" data-cwl-action="toggleExpand" data-cwl-action-args="tower.eNodeB"
+                     aria-label="Toggle Expand">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div data-cwl-bind="if" data-cwl-hole-detail="expandedTowerId === tower.eNodeB.toString()"><div class="tower-sectors">
+                    <h4>Sectors () -  Total Carriers</h4>
+                    <div class="sectors-grid">
+                      <div data-cwl-bind="each" data-cwl-hole-detail="tower.sectors as sectorGroup"><div class="sector-card">
+                          <div class="sector-header">
+                            <span class="sector-id">Sector </span>
+                            <span class="sector-pci">Azimuth: °</span>
+                          </div>
+                          <div class="sector-details">
+                            <div class="sector-row">
+                              <span class="label">Carriers:</span>
+                              <span class="value"></span>
+                            </div>
+                            <div class="sector-row">
+                              <span class="label">PCIs:</span>
+                              <span class="value"></span>
+                            </div>
+
+                            <!-- List carriers -->
+                            <div class="carriers-list">
+                              <strong>Carriers:</strong>
+                              <div data-cwl-bind="each" data-cwl-hole-detail="sectorGroup.carriers as carrier, idx"><div class="carrier-row">
+                                  <span class="carrier-label">C:</span>
+                                  <span class="carrier-data">PCI </span>
+                                  <span class="carrier-data">EARFCN </span>
+                                  <span class="carrier-data"> MHz</span>
+                                </div></div>
+                            </div>
+                          </div>
+                        </div></div>
+                    </div>
+                  </div></div>
+              </div></div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              <div data-cwl-bind="if" data-cwl-hole-detail="searchQuery"><h3>No Towers Found</h3>
+                <p>Try adjusting your search terms.</p></div>
+                <h3>No Towers Yet</h3>
+                <p>Add your first cell tower to start planning your network.</p>
+                <button class="add-first-tower-btn" data-cwl-action="handleAddTower" aria-label="Add Tower">
+                  ➕ Add First Tower
+                </button>
+
+            </div>
+
         </div>
       </div>
     </div>
   </div>
 
 <!-- Site Editor Modal -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div>
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+    <div class="site-editor">
+      <div class="editor-header">
+        <h2>
+
+            🏗️ Edit Cell Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site?.name || 'Unknown'"></span>
+
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="editor-content">
+        <!-- Site Information -->
+        <section class="editor-section">
+          <h3>Cell Site Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="siteId">Site ID</label>
+              <input
+                type="text"
+                id="siteId" data-cwl-attr-disabled="!isNewSite"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="siteName">Site Name</label>
+              <input
+                type="text"
+                id="siteName"
+                placeholder="Manhattan Tower A"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="eNodeB">eNodeB</label>
+              <input
+                type="number"
+                id="eNodeB"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                step="0.000001"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                step="0.000001"
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Sectors Section -->
+        <section class="editor-section sectors-section">
+          <div class="section-header">
+            <h3>📡 Sectors (Transmitters on this Cell)</h3>
+            <div class="sector-count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
+          </div>
+
+          <div class="add-sector-prompt">
+            <button type="button" class="add-sector-btn-large" data-cwl-action="addSector" aria-label="Add Sector">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Add New Sector
+            </button>
+            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
+          </div>
+
+            <div class="sectors-grid">
+              <div data-cwl-bind="each" data-cwl-hole-detail="editedSite.sectors as sector, sectorIndex"><div class="sector-unit">
+                  <!-- Sector Header with Visual Indicator -->
+                  <div class="sector-unit-header">
+                    <div class="sector-title-section">
+                      <div class="sector-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                          <path d="M2 17l10 5 10-5"></path>
+                          <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                      </div>
+                      <div class="sector-title-info">
+                        <h4>Sector </h4>
+                        <span class="sector-subtitle">Azimuth: ° |  Carrier</span>
+                        <span class="sector-pcis">Carrier PCIs: :$`).join(', ')}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-sector-btn" data-cwl-action="removeSector" data-cwl-action-args="sectorIndex"
+                      title="Remove this sector"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="sector-details">
+                    <!-- Prominent Azimuth Control -->
+                    <div class="azimuth-control">
+                      <div class="azimuth-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                        Azimuth Direction
+                      </div>
+                      <div class="azimuth-input-group">
+                        <input
+                          type="range"=
+                          min="0"
+                          max="359"
+                          class="azimuth-slider"
+                        />
+                        <input
+                          type="number"=
+                          min="0"
+                          max="359"
+                          class="azimuth-number"
+                        />
+                        <span class="azimuth-compass">
+                          <div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 337.5 || sector.azimuth < 22.5">N</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 22.5 && sector.azimuth < 67.5">NE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 67.5 && sector.azimuth < 112.5">E</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 112.5 && sector.azimuth < 157.5">SE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 157.5 && sector.azimuth < 202.5">S</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 202.5 && sector.azimuth < 247.5">SW</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 247.5 && sector.azimuth < 292.5">W</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 292.5 && sector.azimuth < 337.5">NW</div>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Beamwidth Control -->
+                    <div class="beamwidth-control">
+                      <div class="beamwidth-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7v10c0 5.5 3.84 7.66 10 9 6.16-1.34 10-3.5 10-9V7l-10-5z"></path>
+                        </svg>
+                        Beamwidth (Coverage Angle)
+                      </div>
+                      <div class="beamwidth-selector">
+                        <select= class="beamwidth-select">
+                          <option data-cwl-attr-value="33">33° (Narrow - Directional)</option>
+                          <option data-cwl-attr-value="65">65° (Standard - Macro)</option>
+                          <option data-cwl-attr-value="78">78° (Wide - Coverage)</option>
+                          <option data-cwl-attr-value="90">90° (Very Wide - Small Cell)</option>
+                          <option data-cwl-attr-value="120">120° (Ultra Wide - Omni-like)</option>
+                        </select>
+                        <span class="beamwidth-visual">°</span>
+                      </div>
+                    </div>
+
+                    <!-- Height AGL Control -->
+                    <div class="height-control">
+                      <div class="height-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="20" x2="12" y2="4"></line>
+                          <polyline points="8 8 12 4 16 8"></polyline>
+                          <polyline points="8 16 12 20 16 16"></polyline>
+                        </svg>
+                        Height Above Ground Level
+                      </div>
+                      <div class="height-input-group">
+                        <input
+                          type="number"=
+                          min="0"
+                          max="2000"
+                          step="1"
+                          class="height-input"
+                        />
+                        <span class="height-unit">feet</span>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group-sm">
+                        <label>
+                          RS Power (dBm)
+                          <input
+                            type="number"=
+                            min="-120"
+                            max="30"
+                          />
+                        </label>
+                      </div>
+
+                      <div class="form-group-sm">
+                        <label>
+                          Technology
+                          <select=>
+                            <option value="LTE">LTE (4G)</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="pci-note">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                      <span>Each sector transmitter can have multiple carriers. Each carrier needs its own PCI and EARFCN.</span>
+                    </div>
+
+                    <!-- Carriers for this transmitter -->
+                    <div class="channels-section">
+                      <div class="channels-header">
+                        <strong>📻 Carriers</strong>
+                        <span class="carrier-info">Each carrier has its own EARFCN & PCI</span>
+                        <button
+                          type="button"
+                          class="add-channel-btn-sm" data-cwl-action="addChannelToSector" data-cwl-action-args="sectorIndex"
+                         aria-label="Add Channel To Sector">
+                          + Add Carrier
+                        </button>
+                      </div>
+
+                      <div data-cwl-bind="each" data-cwl-hole-detail="sector.channels as channel, channelIndex"><div class="carrier-card">
+                          <div class="carrier-header">
+                            <div class="carrier-number">Carrier </div>
+                            <div class="carrier-primary-select">
+                              <input
+                                type="radio"
+                                name="primary-" data-cwl-on-change="action:setPrimaryChannel" data-cwl-on-change-args="sectorIndex, channelIndex"
+                                title="Primary carrier"
+                                id="primary--"
+                              />
+                              <label for="primary--" class="primary-label">
+
+                              </label>
+                            </div>
+                            <button
+                              type="button"
+                              class="remove-channel-btn" data-cwl-action="removeChannel" data-cwl-action-args="sectorIndex, channelIndex" title="Remove carrier"
+                            >
+                              ×
+                            </button>
+                          </div>
+
+                          <div class="carrier-details">
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="earfcn--">EARFCN DL</label>
+                              <input
+                                type="number"
+                                id="earfcn--"=
+                                placeholder="55640"
+                                class="carrier-input"
+                                min="55240"
+                                max="56739"
+                                title="Band 48: 55240-56739"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="bw--">Bandwidth</label>
+                              <select id="bw--"= class="carrier-select">
+                                <option data-cwl-attr-value="10">10 MHz</option>
+                                <option data-cwl-attr-value="15">15 MHz</option>
+                                <option data-cwl-attr-value="20">20 MHz</option>
+                              </select>
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="pci--">PCI</label>
+                              <input
+                                type="number"
+                                id="pci--"=
+                                placeholder="0"
+                                class="carrier-input-sm"
+                                min="0"
+                                max="503"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <span class="freq-display"> MHz</span>
+                            </div>
+                          </div>
+                        </div></div>
+                    </div>
+                  </div>
+                </div></div>
+            </div>
+
+            <div hidden aria-hidden="true"><p class="empty-message">
+              📍 No sectors configured yet.<br/>
+              Click "Add New Sector" above to create your first sector.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div class="editor-footer">
+        <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+        <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
+
+            💾 Save Changes
+
+        </button>
+      </div>
+    </div>
+  </div></div>
 
 <!-- Import Wizard Modal -->
-<div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div 
-    class="wizard-overlay" 
-    role="presentation"
+<div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div
+    class="wizard-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
-    <div 
-      class="wizard-modal" 
+    <div
+      class="wizard-modal"
       role="dialog"
       tabindex="-1"
       aria-labelledby="import-wizard-modal-title"
-      on:click|stopPropagation
-      on:keydown|stopPropagation
     >
       <div class="wizard-header">
         <h2 id="import-wizard-modal-title">Import Data</h2>
-        <button class="close-btn">×</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="wizard-body">
-        <!-- Step 1: Choose Import Method -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="!importMethod"><!-- Step 1: Choose Import Method -->
           <div class="wizard-intro">
             <p class="intro-text">Choose how you'd like to import cell data:</p>
           </div>
-          
+
           <div class="method-grid">
-            <button class="method-card">
+            <button class="method-card" data-cwl-action="selectMethod" data-cwl-action-args="'csv'" aria-label="Select Method">
               <div class="method-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -496,8 +2185,8 @@
               <h3>CSV File</h3>
               <p>Upload a CSV file with cell tower data</p>
             </button>
-            
-            <button class="method-card">
+
+            <button class="method-card" data-cwl-action="selectMethod" data-cwl-action-args="'kml'" aria-label="Select Method">
               <div class="method-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -507,8 +2196,8 @@
               <h3>KML File</h3>
               <p>Import from Google Earth or GIS software</p>
             </button>
-            
-            <button class="method-card">
+
+            <button class="method-card" data-cwl-action="selectMethod" data-cwl-action-args="'manual'" aria-label="Select Method">
               <div class="method-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -518,19 +2207,17 @@
               <h3>Manual Entry</h3>
               <p>Add cell data manually one by one</p>
             </button>
-          </div>
-        
-          <!-- Step 2: CSV Import -->
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="importMethod === 'csv'"><!-- Step 2: CSV Import -->
           <div class="import-content">
-            <button class="back-btn">← Back</button>
-            
+            <button class="back-btn" data-cwl-action="goBack" aria-label="Go Back">← Back</button>
+
             <h3>📄 CSV Import</h3>
             <p class="help-text">Upload a CSV file with tower/cell data. Leave PCI blank for auto-assignment.</p>
-            
+
             <div class="file-upload-zone">
-              <input 
-                type="file" 
-                accept=".csv"
+              <input
+                type="file"
+                accept=".csv" data-cwl-on-change="action:handleCSVUpload"
                 id="csv-upload"
               />
               <label for="csv-upload" class="upload-label">
@@ -542,23 +2229,21 @@
                 <span>Choose CSV file or drag & drop</span>
               </label>
             </div>
-            
-            <button class="template-btn">
+
+            <button class="template-btn" data-cwl-action="downloadCSVTemplate" aria-label="Download CSVTemplate">
               📥 Download CSV Template
             </button>
-          </div>
-        
-          <!-- Step 2: KML Import -->
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="importMethod === 'kml'"><!-- Step 2: KML Import -->
           <div class="import-content">
-            <button class="back-btn">← Back</button>
-            
+            <button class="back-btn" data-cwl-action="goBack" aria-label="Go Back">← Back</button>
+
             <h3>🗺️ KML Import</h3>
             <p class="help-text">Upload a KML file from Google Earth or GIS software.</p>
-            
+
             <div class="file-upload-zone">
-              <input 
-                type="file" 
-                accept=".kml,.kmz"
+              <input
+                type="file"
+                accept=".kml,.kmz" data-cwl-on-change="action:handleKMLUpload"
                 id="kml-upload"
               />
               <label for="kml-upload" class="upload-label">
@@ -569,85 +2254,959 @@
                 <span>Choose KML/KMZ file or drag & drop</span>
               </label>
             </div>
-            
-            <button class="template-btn">
+
+            <button class="template-btn" data-cwl-action="downloadKMLTemplate" aria-label="Download KMLTemplate">
               📥 Download KML Template
             </button>
-            
+
             <div class="info-box">
               <strong>Supported Data:</strong> The KML parser will extract coordinates, name, and cell parameters from ExtendedData or description fields (PCI, eNodeB, Sector, Frequency, etc.).
             </div>
-          </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="importMethod === 'manual'"><!-- Step 2: Manual Site Entry -->
+          <div class="import-content">
+            <button class="back-btn" data-cwl-action="goBack" aria-label="Go Back">← Back</button>
+
+            <h3>✏️ Manual Site Entry</h3>
+            <p class="method-description">Add cell sites with sectors and channels</p>
+
+            <!-- Add Site Button -->
+            <div class="manual-add-section">
+              <button
+                type="button"
+                class="add-site-btn-large" data-cwl-toggle="showSiteEditorInWizard:true"
+               aria-label="Show Site Editor In Wizard">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Add Cell Site
+              </button>
+              <p class="add-hint">Each site can have multiple sectors with different azimuths and EARFCNs</p>
+            </div>
+
+            <!-- Sites List -->
+
+              <div class="sites-list">
+                <h4>Added Sites (<span data-cwl-bind="interp" data-cwl-hole-detail="manualSites.length"></span>)</h4>
+                <div data-cwl-bind="each" data-cwl-hole-detail="manualSites as site, index"><div class="site-preview">
+                    <div class="site-preview-header">
+                      <strong></strong>
+                      <span class="site-preview-meta">eNodeB  •  Sector</span>
+                    </div>
+                    <div class="sector-summary">
+                      <div data-cwl-bind="each" data-cwl-hole-detail="site.sectors as sector"><span class="sector-badge">
+                          Sec : ° | PCI  |  Ch
+                        </span></div>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-site-btn" data-cwl-action="removeSiteFromImport" data-cwl-action-args="index"
+                     aria-label="Remove Site From Import">
+                      Remove
+                    </button>
+                  </div></div>
+              </div>
+
+              <div class="manual-actions">
+                <button class="import-btn" data-cwl-action="importManualSites" aria-label="Import Manual Sites">
+                  ✅ Import <span data-cwl-bind="interp" data-cwl-hole-detail="manualSites.length"></span> Site<span data-cwl-bind="interp" data-cwl-hole-detail="manualSites.length !== 1 ? 's' : ''"></span>
+                </button>
+              </div>
+
+          </div></div>
       </div>
     </div>
   </div>
 
 <!-- Nested Site Editor for Manual Import -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"></div></div></div>
-  
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+    <div class="site-editor">
+      <div class="editor-header">
+        <h2>
+
+            🏗️ Create New Cell Site
+
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="editor-content">
+        <!-- Site Information -->
+        <section class="editor-section">
+          <h3>Cell Site Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="siteId">Site ID</label>
+              <input
+                type="text"
+                id="siteId" data-cwl-attr-disabled="!isNewSite"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="siteName">Site Name</label>
+              <input
+                type="text"
+                id="siteName"
+                placeholder="Manhattan Tower A"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="eNodeB">eNodeB</label>
+              <input
+                type="number"
+                id="eNodeB"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                step="0.000001"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                step="0.000001"
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Sectors Section -->
+        <section class="editor-section sectors-section">
+          <div class="section-header">
+            <h3>📡 Sectors (Transmitters on this Cell)</h3>
+            <div class="sector-count-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length"></span> Sector<span data-cwl-bind="interp" data-cwl-hole-detail="editedSite.sectors.length !== 1 ? 's' : ''"></span></div>
+          </div>
+
+          <div class="add-sector-prompt">
+            <button type="button" class="add-sector-btn-large" data-cwl-action="addSector" aria-label="Add Sector">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Add New Sector
+            </button>
+            <p class="add-sector-hint">Add up to 4 sectors (3-sector or 4-sector tower). Each sector can have multiple carriers.</p>
+          </div>
+
+            <div class="sectors-grid">
+              <div data-cwl-bind="each" data-cwl-hole-detail="editedSite.sectors as sector, sectorIndex"><div class="sector-unit">
+                  <!-- Sector Header with Visual Indicator -->
+                  <div class="sector-unit-header">
+                    <div class="sector-title-section">
+                      <div class="sector-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                          <path d="M2 17l10 5 10-5"></path>
+                          <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                      </div>
+                      <div class="sector-title-info">
+                        <h4>Sector </h4>
+                        <span class="sector-subtitle">Azimuth: ° |  Carrier</span>
+                        <span class="sector-pcis">Carrier PCIs: :$`).join(', ')}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-sector-btn" data-cwl-action="removeSector" data-cwl-action-args="sectorIndex"
+                      title="Remove this sector"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="sector-details">
+                    <!-- Prominent Azimuth Control -->
+                    <div class="azimuth-control">
+                      <div class="azimuth-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                        Azimuth Direction
+                      </div>
+                      <div class="azimuth-input-group">
+                        <input
+                          type="range"=
+                          min="0"
+                          max="359"
+                          class="azimuth-slider"
+                        />
+                        <input
+                          type="number"=
+                          min="0"
+                          max="359"
+                          class="azimuth-number"
+                        />
+                        <span class="azimuth-compass">
+                          <div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 337.5 || sector.azimuth < 22.5">N</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 22.5 && sector.azimuth < 67.5">NE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 67.5 && sector.azimuth < 112.5">E</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 112.5 && sector.azimuth < 157.5">SE</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 157.5 && sector.azimuth < 202.5">S</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 202.5 && sector.azimuth < 247.5">SW</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 247.5 && sector.azimuth < 292.5">W</div><div data-cwl-bind="if" data-cwl-hole-detail="sector.azimuth >= 292.5 && sector.azimuth < 337.5">NW</div>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Beamwidth Control -->
+                    <div class="beamwidth-control">
+                      <div class="beamwidth-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7v10c0 5.5 3.84 7.66 10 9 6.16-1.34 10-3.5 10-9V7l-10-5z"></path>
+                        </svg>
+                        Beamwidth (Coverage Angle)
+                      </div>
+                      <div class="beamwidth-selector">
+                        <select= class="beamwidth-select">
+                          <option data-cwl-attr-value="33">33° (Narrow - Directional)</option>
+                          <option data-cwl-attr-value="65">65° (Standard - Macro)</option>
+                          <option data-cwl-attr-value="78">78° (Wide - Coverage)</option>
+                          <option data-cwl-attr-value="90">90° (Very Wide - Small Cell)</option>
+                          <option data-cwl-attr-value="120">120° (Ultra Wide - Omni-like)</option>
+                        </select>
+                        <span class="beamwidth-visual">°</span>
+                      </div>
+                    </div>
+
+                    <!-- Height AGL Control -->
+                    <div class="height-control">
+                      <div class="height-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="20" x2="12" y2="4"></line>
+                          <polyline points="8 8 12 4 16 8"></polyline>
+                          <polyline points="8 16 12 20 16 16"></polyline>
+                        </svg>
+                        Height Above Ground Level
+                      </div>
+                      <div class="height-input-group">
+                        <input
+                          type="number"=
+                          min="0"
+                          max="2000"
+                          step="1"
+                          class="height-input"
+                        />
+                        <span class="height-unit">feet</span>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group-sm">
+                        <label>
+                          RS Power (dBm)
+                          <input
+                            type="number"=
+                            min="-120"
+                            max="30"
+                          />
+                        </label>
+                      </div>
+
+                      <div class="form-group-sm">
+                        <label>
+                          Technology
+                          <select=>
+                            <option value="LTE">LTE (4G)</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="pci-note">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                      <span>Each sector transmitter can have multiple carriers. Each carrier needs its own PCI and EARFCN.</span>
+                    </div>
+
+                    <!-- Carriers for this transmitter -->
+                    <div class="channels-section">
+                      <div class="channels-header">
+                        <strong>📻 Carriers</strong>
+                        <span class="carrier-info">Each carrier has its own EARFCN & PCI</span>
+                        <button
+                          type="button"
+                          class="add-channel-btn-sm" data-cwl-action="addChannelToSector" data-cwl-action-args="sectorIndex"
+                         aria-label="Add Channel To Sector">
+                          + Add Carrier
+                        </button>
+                      </div>
+
+                      <div data-cwl-bind="each" data-cwl-hole-detail="sector.channels as channel, channelIndex"><div class="carrier-card">
+                          <div class="carrier-header">
+                            <div class="carrier-number">Carrier </div>
+                            <div class="carrier-primary-select">
+                              <input
+                                type="radio"
+                                name="primary-" data-cwl-on-change="action:setPrimaryChannel" data-cwl-on-change-args="sectorIndex, channelIndex"
+                                title="Primary carrier"
+                                id="primary--"
+                              />
+                              <label for="primary--" class="primary-label">
+
+                              </label>
+                            </div>
+                            <button
+                              type="button"
+                              class="remove-channel-btn" data-cwl-action="removeChannel" data-cwl-action-args="sectorIndex, channelIndex" title="Remove carrier"
+                            >
+                              ×
+                            </button>
+                          </div>
+
+                          <div class="carrier-details">
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="earfcn--">EARFCN DL</label>
+                              <input
+                                type="number"
+                                id="earfcn--"=
+                                placeholder="55640"
+                                class="carrier-input"
+                                min="55240"
+                                max="56739"
+                                title="Band 48: 55240-56739"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="bw--">Bandwidth</label>
+                              <select id="bw--"= class="carrier-select">
+                                <option data-cwl-attr-value="10">10 MHz</option>
+                                <option data-cwl-attr-value="15">15 MHz</option>
+                                <option data-cwl-attr-value="20">20 MHz</option>
+                              </select>
+                            </div>
+
+                            <div class="carrier-field">
+                              <label class="carrier-label-inline" for="pci--">PCI</label>
+                              <input
+                                type="number"
+                                id="pci--"=
+                                placeholder="0"
+                                class="carrier-input-sm"
+                                min="0"
+                                max="503"
+                              />
+                            </div>
+
+                            <div class="carrier-field">
+                              <span class="freq-display"> MHz</span>
+                            </div>
+                          </div>
+                        </div></div>
+                    </div>
+                  </div>
+                </div></div>
+            </div>
+
+            <div hidden aria-hidden="true"><p class="empty-message">
+              📍 No sectors configured yet.<br/>
+              Click "Add New Sector" above to create your first sector.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div class="editor-footer">
+        <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+        <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
+
+            🏗️ Create Site
+
+        </button>
+      </div>
+    </div>
+  </div></div></div></div>
+
   <!-- Export Modal -->
-  
-  
+
+    <div
+      class="modal-overlay"
+      role="presentation" data-cwl-toggle="showExportModal:false" data-cwl-on-keydown="toggle:showExportModal:false"
+     hidden aria-hidden="true">
+      <div
+        class="modal-container"
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="export-modal-title"
+      >
+        <div class="modal-header">
+          <h3 id="export-modal-title">📤 Export & Configuration</h3>
+          <button class="modal-close-btn" data-cwl-toggle="showExportModal:false" aria-label="Show Export Modal">×</button>
+        </div>
+        <div class="modal-body">
+          <div data-cwl-component="ConflictReportExport" data-cwl-lifted-component="ConflictReportExport"><div class="export-panel">
+  <h3>📊 Export Options</h3>
+  <p class="export-subtitle">Export conflict reports or generate Nokia base station configurations</p>
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="!report"><div class="generate-section">
+      <p class="info-text">
+        Generate a comprehensive conflict analysis report with detailed statistics and recommendations.
+      </p>
+      <button
+        class="generate-button" data-cwl-action="generateReport" data-cwl-attr-disabled="isGenerating || cells.length === 0"
+       aria-label="Generate Report">
+
+          📋 Generate Conflict Report
+
+      </button>
+    </div></div>
+    <div class="report-summary">
+      <h4>Report Summary</h4>
+      <div class="summary-stats">
+        <div class="stat-item">
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.totalCells"></span></span>
+          <span class="stat-label">Total Cells</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.totalConflicts"></span></span>
+          <span class="stat-label">Conflicts</span>
+        </div>
+        <div class="stat-item critical">
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.critical"></span></span>
+          <span class="stat-label">Critical</span>
+        </div>
+        <div class="stat-item high">
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.high"></span></span>
+          <span class="stat-label">High</span>
+        </div>
+      </div>
+
+      <div class="export-actions">
+        <button class="export-button csv" data-cwl-action="exportToCSV" aria-label="Export To CSV">
+          📄 Export CSV
+        </button>
+        <button class="export-button pdf" data-cwl-action="exportToPDF" aria-label="Export To PDF">
+          📋 Export PDF
+        </button>
+      </div>
+
+      <div class="report-details">
+        <p><strong>Report ID:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="report.reportId"></span></p>
+        <p><strong>Generated:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="report.timestamp.toLocaleString()"></span></p>
+      </div>
+    </div>
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="report && report.totalConflicts > 0"><div class="conflict-breakdown">
+      <h4>Conflict Breakdown</h4>
+      <div class="breakdown-grid">
+        <div class="breakdown-item">
+          <span class="breakdown-label">Mod3 (CRS)</span>
+          <span class="breakdown-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.mod3"></span></span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-label">Mod6 (PBCH)</span>
+          <span class="breakdown-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.mod6"></span></span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-label">Mod30 (PRS)</span>
+          <span class="breakdown-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.mod30"></span></span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-label">3-Sector</span>
+          <span class="breakdown-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.threeSector"></span></span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-label">4-Sector</span>
+          <span class="breakdown-value"><span data-cwl-bind="interp" data-cwl-hole-detail="report.summary.fourSector"></span></span>
+        </div>
+      </div>
+    </div></div>
+</div></div>
+        </div>
+      </div>
+    </div>
+
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
-        <h2 id="help-modal-title"></h2>
-        <button class="close-btn" aria-label="Close">×</button>
+        <h2 id="help-modal-title">PCI Resolution & Network Optimization Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="help-body">
-        
+
+<h3>📊 PCI Resolution & Network Optimization</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Detect and resolve Physical Cell ID (PCI) conflicts in LTE networks, optimize neighbor relationships, and implement Self-Organizing Network (SON) features.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#map-features">🗺️ Map Features</a></li>
+    <li><a href="#technical-details">📐 Technical Details</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#network-management">📞 Network Management</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>PCI Conflict Detection:</strong> Automatically identifies cells with conflicting PCIs</li>
+  <li><strong>Neighbor Analysis:</strong> Analyzes cell adjacency and interference</li>
+  <li><strong>AI-Powered Recommendations:</strong> Uses Google Gemini AI for optimization suggestions</li>
+  <li><strong>Visual Network Map:</strong> Interactive ArcGIS map showing cell sites and conflicts</li>
+  <li><strong>Export Capabilities:</strong> Generate reports and Nokia configuration scripts</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Import Cell Data</h4>
+<p>Click the <strong>"📊 Manage Towers"</strong> button to:</p>
+<ul>
+  <li>Add cell sites manually</li>
+  <li>Import from CSV files</li>
+  <li>Import from KML files (Google Earth)</li>
+</ul>
+
+<p><strong>CSV Format Example:</strong></p>
+<pre><code>eNodeB,Cell ID,PCI,Latitude,Longitude,Azimuth,Height
+12345,0,150,40.7128,-74.0060,0,30
+12345,1,151,40.7128,-74.0060,120,30
+12345,2,152,40.7128,-74.0060,240,30</code></pre>
+
+<h4>Step 2: Analyze Network</h4>
+<p>Click <strong>"🔍 Analyze Network"</strong> to:</p>
+<ul>
+  <li>Detect PCI conflicts (same PCI within interference range)</li>
+  <li>Calculate neighbor relationships</li>
+  <li>Identify potential interference</li>
+  <li>Generate conflict severity ratings (High/Medium/Low)</li>
+</ul>
+
+<h4>Step 3: Review Conflicts</h4>
+<p>The conflict table shows:</p>
+<ul>
+  <li><strong>Severity:</strong> High (same PCI neighbors), Medium (mod3 conflicts), Low (mod6 conflicts)</li>
+  <li><strong>Affected Cells:</strong> Which cells are involved</li>
+  <li><strong>Distance:</strong> How far apart the conflicting cells are</li>
+  <li><strong>Recommendations:</strong> Suggested PCI changes</li>
+</ul>
+
+<h4>Step 4: Get AI Recommendations</h4>
+<p>Click <strong>"🤖 Get AI Recommendations"</strong> for:</p>
+<ul>
+  <li>Intelligent PCI reallocation suggestions</li>
+  <li>Network-wide optimization strategies</li>
+  <li>Prioritized conflict resolution</li>
+</ul>
+
+<h4>Step 5: Optimize Network</h4>
+<p>Click <strong>"✨ Optimize Network"</strong> to:</p>
+<ul>
+  <li>Automatically resolve all PCI conflicts</li>
+  <li>Reassign PCIs based on neighbor relationships</li>
+  <li>Maintain existing PCIs where possible</li>
+  <li>Generate before/after comparison</li>
+</ul>
+
+<h4>Step 6: Export Results</h4>
+<p>Click <strong>"📤 Export"</strong> for:</p>
+<ul>
+  <li><strong>Conflict Report (PDF):</strong> Detailed analysis and recommendations</li>
+  <li><strong>CSV Export:</strong> Updated cell data with new PCIs</li>
+  <li><strong>Nokia Configuration:</strong> Ready-to-use CLI commands for Nokia eNodeBs</li>
+</ul>
+
+<h4 id="map-features">🗺️ Map Features</h4>
+<ul>
+  <li><strong>Color Coding:</strong> Cells colored by PCI conflict status</li>
+  <li><strong>Click Cells:</strong> View detailed cell information</li>
+  <li><strong>Right-Click:</strong> Add sites, edit sectors, delete sectors</li>
+  <li><strong>Neighbor Lines:</strong> Shows cell adjacency relationships</li>
+  <li><strong>Basemap Options:</strong> Streets, Satellite, Hybrid, Topographic</li>
+</ul>
+
+<h4 id="technical-details">📐 Technical Details</h4>
+
+<h4>PCI Conflict Rules:</h4>
+<ul>
+  <li><strong>Mod3 Conflict:</strong> PCIs with same value mod 3 (can cause confusion)</li>
+  <li><strong>Mod6 Conflict:</strong> PCIs with same value mod 6 (can cause interference)</li>
+  <li><strong>Direct Conflict:</strong> Identical PCIs within range (must be fixed)</li>
+</ul>
+
+<h4>Interference Range Calculation:</h4>
+<ul>
+  <li>Based on cell height, azimuth, and distance</li>
+  <li>Typical range: 2-5 km for interference detection</li>
+  <li>Adjustable in analysis settings</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>No conflicts detected but cells are close:</h4>
+<p>Increase the interference range in analysis settings</p>
+
+<h4>Optimization changes too many PCIs:</h4>
+<p>Review AI recommendations first and apply selectively</p>
+
+<h4>Map not loading:</h4>
+<p>Check ArcGIS API key in environment variables</p>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li>Import all cell data before analysis</li>
+  <li>Review AI recommendations before auto-optimization</li>
+  <li>Export backup before applying PCI changes</li>
+  <li>Test PCI changes on small clusters first</li>
+  <li>Coordinate with network operations before deployment</li>
+  <li>Use Nokia export for quick configuration deployment</li>
+</ul>
+
+<h4 id="network-management">📞 Network Management</h4>
+<p>Use the <strong>"🌐 Networks"</strong> button to:</p>
+<ul>
+  <li>Create multiple isolated networks</li>
+  <li>Switch between different deployments</li>
+  <li>Keep production and staging separate</li>
+  <li>Manage different geographical areas</li>
+</ul>
+
       </div>
     </div>
   </div></div>
-  
-  <div data-cwl-component="ConflictResolutionWizard" data-cwl-lifted-component="ConflictResolutionWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+
+  <div data-cwl-component="ConflictResolutionWizard" data-cwl-lifted-component="ConflictResolutionWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">📊 PCI Conflict Resolution Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>PCI Conflict Resolution</h3>
+        <p>This wizard will help you identify and resolve Physical Cell ID (PCI) conflicts in your LTE network.</p>
+        <div class="info-box">
+          <h4>Steps:</h4>
+          <ul>
+            <li>Run analysis on your current network cells</li>
+            <li>Review detected conflicts</li>
+            <li>Apply automatic PCI optimization</li>
+            <li>Verify resolution</li>
+          </ul>
+        </div>
+        <p class="hint">Make sure you have a network selected and cells loaded on the PCI Resolution page before starting.</p>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="wizard-panel">
+        <h3>Identify Conflicts</h3>
+        <p>Run PCI conflict analysis on the current network cells.</p>
+        <button type="button" class="wizard-btn-primary" data-cwl-action="runAnalysis" data-cwl-attr-disabled="isLoading" aria-label="Run Analysis">
+          Run Analysis
+        </button>
+
+          <div hidden aria-hidden="true"><p class="hint">Conflicts found: <strong><span data-cwl-bind="interp" data-cwl-hole-detail="conflictCount"></span></strong></p>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="wizard-panel">
+        <h3>Review Conflicts</h3>
+
+          <p><span data-cwl-bind="interp" data-cwl-hole-detail="conflicts.length"></span> conflict(s) detected.</p>
+          <div class="conflict-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="conflicts.slice(0, 10) as c"><div class="conflict-item">
+                <span class="severity "></span>
+                 (PCI ) ↔  (PCI ) —
+              </div></div>
+          </div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="conflicts.length > 10"><p class="hint">... and <span data-cwl-bind="interp" data-cwl-hole-detail="conflicts.length - 10"></span> more.</p></div>
+
+          <div hidden aria-hidden="true"><p class="success-msg">No conflicts detected. Your PCI assignments are good.</p>
+          <button type="button" class="wizard-btn-secondary" data-cwl-action="handleClose" aria-label="Close">Done</button>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><div class="wizard-panel">
+        <h3>Resolution Strategy</h3>
+        <p>Choose automatic optimization to reassign PCIs and resolve conflicts.</p>
+        <button type="button" class="wizard-btn-primary" data-cwl-action="runOptimization" data-cwl-attr-disabled="isLoading || conflictCount === 0" aria-label="Run Optimization">
+          Auto-optimize PCIs
+        </button>
+        <div data-cwl-bind="if" data-cwl-hole-detail="conflictCount === 0"><p class="hint">No conflicts to optimize. You can close the wizard.</p></div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4"><div class="wizard-panel">
+        <h3>Preview Changes</h3>
+
+          <p>No changes to preview.</p>
+
+          <div hidden aria-hidden="true"><p><span data-cwl-bind="interp" data-cwl-hole-detail="optimizationResult.changes.length"></span> PCI change(s) will be applied:</p>
+          <ul class="change-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="optimizationResult.changes.slice(0, 15) as ch"><li><strong></strong>: PCI  → </li></div>
+          </ul>
+          <div data-cwl-bind="if" data-cwl-hole-detail="optimizationResult.changes.length > 15"><p class="hint">... and <span data-cwl-bind="interp" data-cwl-hole-detail="optimizationResult.changes.length - 15"></span> more.</p></div>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 5"><div class="wizard-panel">
+        <h3>Apply Changes</h3>
+        <p>Save the optimized PCI assignments to your network.</p>
+        <div data-cwl-bind="if" data-cwl-hole-detail="activeNetwork"><p class="hint">Network: <strong><span data-cwl-bind="interp" data-cwl-hole-detail="activeNetwork.name || activeNetwork.id"></span></strong></p>
+          <button type="button" class="wizard-btn-primary" data-cwl-action="applyChanges" data-cwl-attr-disabled="isLoading" aria-label="Apply Changes">
+            Apply & Save
+          </button></div>
+          <p class="hint">No network selected. Select a network on the PCI Resolution page, then return here to apply.</p>
+
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 6"><div class="wizard-panel">
+        <h3>Verify Resolution</h3>
+        <p>Re-run analysis to confirm conflicts are resolved.</p>
+        <button type="button" class="wizard-btn-primary" data-cwl-action="verifyResolution" data-cwl-attr-disabled="isLoading" aria-label="Verify Resolution">
+          Verify
+        </button>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 7"><div class="wizard-panel">
+        <div data-cwl-bind="if" data-cwl-hole-detail="verificationConflictCount === 0"><h3>🎉 All conflicts resolved</h3>
+          <p>PCI optimization is complete. No conflicts remain.</p></div><div data-cwl-bind="if" data-cwl-hole-detail="verificationConflictCount > 0"><h3>Resolution complete</h3>
+          <p>-1 conflict(s) still remain. You can run the wizard again or resolve manually on the map.</p></div>
+          <h3>Wizard complete</h3>
+          <p>You can close the wizard and continue on the PCI Resolution page.</p>
+
+        <a href="/modules/pci-resolution" class="next-step-item">Back to PCI Resolution →</a>
+      </div></div>
   </div>
 
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1 && currentStep !== 2"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
     <div class="footer-actions">
-      
+
+        <div hidden aria-hidden="true"><button class="wizard-btn-primary" data-cwl-action="nextStep" aria-label="Next Step">Next →</button>
+      </div>
     </div>
   </div>
 </div></div>
-  
+
+        </div></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
         </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"pci-resolution","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"pci-resolution"}</script>

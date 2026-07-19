@@ -12,7 +12,11 @@ import { resolveWispPreviewSession } from "../wisp-cwl-post-g7790.mjs";
 export const WISP_CHIMERA_GATEWAY_KIND = "chrysalis.wisp.chimera-gateway";
 export const WISP_CHIMERA_GATEWAY_SCHEMA_VERSION = 1;
 
-const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const moduleDir = dirname(fileURLToPath(import.meta.url));
+// scripts/lib → repo root; GCE POC layout is <poc>/lib → <poc> (routes.cwl lives there).
+const scriptRoot = existsSync(join(moduleDir, "../routes.cwl"))
+  ? resolve(moduleDir, "..")
+  : resolve(moduleDir, "../..");
 
 function resolveRepoRoot(opts) {
   if (opts.repoRoot) return resolve(opts.repoRoot);
@@ -24,7 +28,27 @@ function resolveRepoRoot(opts) {
 }
 /** Mirrors Module_Manager themeStore boot: saved mode or system preference -> data-theme. */
 export const WISP_THEME_BOOT_SCRIPT =
-  '<script>(function(){try{var m=localStorage.getItem("theme-mode");var d=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;var r=m==="light"||m==="dark"?m:(d?"dark":"light");document.documentElement.setAttribute("data-theme",r);}catch(e){}})();</' + 'script>';
+  '<script>(function(){try{' +
+  'var q=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");' +
+  'function mode(){var m=localStorage.getItem("theme-mode")||localStorage.getItem("theme");return /^(light|dark|system)$/.test(m)?m:"system"}' +
+  'function apply(m,save){if(!/^(light|dark|system)$/.test(m))m="system";if(save){localStorage.setItem("theme-mode",m);localStorage.setItem("theme",m)}var r=m==="system"?(q&&q.matches?"dark":"light"):m;var h=document.documentElement;h.setAttribute("data-theme",r);h.setAttribute("data-theme-mode",m);h.classList.toggle("dark",r==="dark");h.classList.toggle("light",r==="light");var meta=document.querySelector(\'meta[name="theme-color"]\');if(!meta){meta=document.createElement("meta");meta.name="theme-color";document.head.appendChild(meta)}meta.content=r==="dark"?"#1e293b":"#ffffff";var l=document.getElementById("wisp-arcgis-theme");if(!l){l=document.createElement("link");l.id="wisp-arcgis-theme";l.rel="stylesheet";document.head.appendChild(l)}l.href="https://js.arcgis.com/4.32/esri/themes/"+r+"/main.css";window.dispatchEvent(new CustomEvent("wisp-theme-change",{detail:{mode:m,resolved:r}}));return r}' +
+  'window.__wispTheme={set:function(m){return apply(m,true)},getMode:mode,apply:function(){return apply(mode(),false)}};' +
+  'apply(mode(),false);if(q&&q.addEventListener)q.addEventListener("change",function(){if(mode()==="system")apply("system",false)});window.addEventListener("storage",function(e){if(e.key==="theme-mode"||e.key==="theme")apply(mode(),false)});' +
+  '}catch(e){}})();</' + 'script>';
+
+/** Cache-bust additive CWL assets when [hidden] / client wiring changes (D6443). */
+export const WISP_CWL_ASSET_BUST = "20260719g";
+const WISP_APP_CSS = `/assets/wisp-cwl-app.css?v=${WISP_CWL_ASSET_BUST}`;
+const WISP_CLIENT_JS = `/assets/wisp-cwl-client.js?v=${WISP_CWL_ASSET_BUST}`;
+
+export function scrubEvaluatedCwlHtml(html) {
+  return String(html ?? "")
+    .replace(
+      /<\/[a-z][\w/-]*\s+((?:d|fill|stroke|stroke-width|stroke-linecap|stroke-linejoin|fill-rule|clip-rule|transform|opacity)=)/gi,
+      "<path $1",
+    )
+    .replace(/<\/\/[a-z][\w/-]*>/gi, "</path>");
+}
 
 
 /**
@@ -34,9 +58,11 @@ export const WISP_THEME_BOOT_SCRIPT =
 let wispStyleMap;
 function loadWispStyleMap() {
   if (wispStyleMap !== undefined) return wispStyleMap;
-  const gatewayDir = dirname(fileURLToPath(import.meta.url));
+  const gatewayDir = moduleDir;
   const candidates = [
+    join(scriptRoot, "wisp-cwl-original-css-map.json"),
     join(gatewayDir, "wisp-cwl-original-css-map.json"),
+    join(gatewayDir, "..", "wisp-cwl-original-css-map.json"),
     join(scriptRoot, "fixtures/hub-wisp-management/wisp-cwl-original-css-map.json"),
     join(gatewayDir, "fixtures/hub-wisp-management/wisp-cwl-original-css-map.json"),
   ];
@@ -59,18 +85,19 @@ function loadWispStyleMap() {
 /** @param {string} pathname */
 export function wispOriginalCssLink(pathname) {
   const map = loadWispStyleMap();
-  if (!map) return "";
   const clean = (pathname || "/").split("?")[0] || "/";
-  /** @type {string[]} */
-  const hrefs = [];
-  for (const r of map.routes ?? []) {
-    if (r && typeof r.pattern === "string" && typeof r.href === "string" && new RegExp(r.pattern).test(clean)) {
-      hrefs.push(r.href);
-      break;
+  /** Root +layout.svelte imports app.css on every route. */
+  const hrefs = ["/assets/original-css/wisp-origin-global.css"];
+  if (map) {
+    for (const r of map.routes ?? []) {
+      if (r && typeof r.pattern === "string" && typeof r.href === "string" && new RegExp(r.pattern).test(clean)) {
+        hrefs.push(r.href);
+        break;
+      }
     }
-  }
-  if (typeof map.fallbackHref === "string" && map.fallbackHref !== hrefs[0]) {
-    hrefs.push(map.fallbackHref);
+    if (typeof map.fallbackHref === "string" && !hrefs.includes(map.fallbackHref)) {
+      hrefs.push(map.fallbackHref);
+    }
   }
   return hrefs.map((h) => '<link rel="stylesheet" href="' + h + '">').join("");
 }
@@ -86,15 +113,36 @@ export const WISP_CHIMERA_STATIC_ASSETS = {
   "/assets/wisp-cwl-login.css": { file: "wisp-cwl-login.css", contentType: "text/css; charset=utf-8" },
   "/assets/wisp-cwl-app.css": { file: "wisp-cwl-app.css", contentType: "text/css; charset=utf-8" },
   "/assets/wisp-cwl-client.js": { file: "wisp-cwl-client.js", contentType: "application/javascript; charset=utf-8" },
+  "/assets/wisp-cwl-cors.js": { file: "wisp-cwl-cors.js", contentType: "application/javascript; charset=utf-8" },
   "/assets/wisp-cwl-modules.css": { file: "wisp-cwl-modules.css", contentType: "text/css; charset=utf-8" },
   "/assets/wisp-cwl-modules.js": { file: "wisp-cwl-modules.js", contentType: "application/javascript; charset=utf-8" },
   "/assets/wisp-cwl-map.js": { file: "wisp-cwl-map.js", contentType: "application/javascript; charset=utf-8" },
+  "/assets/wisp-cwl-map-island.css": {
+    file: "wisp-cwl-map-island.css",
+    contentType: "text/css; charset=utf-8",
+  },
+  "/assets/wisp-cwl-arcgis.bundle.js": {
+    file: "wisp-cwl-arcgis.bundle.js",
+    contentType: "application/javascript; charset=utf-8",
+  },
+  "/assets/wisp-cwl-arcgis.bundle.css": {
+    file: "wisp-cwl-arcgis.bundle.css",
+    contentType: "text/css; charset=utf-8",
+  },
   "/assets/wisp-firebase-config.json": {
     file: "wisp-firebase-config.json",
     contentType: "application/json; charset=utf-8",
   },
   "/assets/wisp-arcgis-config.json": {
     file: "wisp-arcgis-config.json",
+    contentType: "application/json; charset=utf-8",
+  },
+  "/assets/wisp-module-tips.json": {
+    file: "wisp-module-tips.json",
+    contentType: "application/json; charset=utf-8",
+  },
+  "/assets/wisp-wizard-catalog.json": {
+    file: "wisp-wizard-catalog.json",
     contentType: "application/json; charset=utf-8",
   },
 };
@@ -130,46 +178,63 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
     trimmed.includes('data-wisp-page="pci-resolution"');
 
   // Original Module_Manager CSS first (look authority); CWL overlays last (additive only).
+  const corsAndClient =
+    `<script src="/assets/wisp-cwl-cors.js"></script><script src="${WISP_CLIENT_JS}" defer></script>`;
+
   if (isRootRedirect) {
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="refresh" content="0;url=/login"><title>${title}</title><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}</body></html>`;
   }
 
   if (isLogin) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-login.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-login.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}</body></html>`;
   }
 
   if (isDashboard) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-app.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="${WISP_APP_CSS}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}</body></html>`;
   }
 
   if (isPlanModule) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
   }
 
   if (isDeployModule) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
   }
 
   if (isCoverageMap || isPciMap) {
+    // D6443: origin CSS only for coverage-map — do not load wisp-cwl-modules.css
+    // (it redefines origin selectors / invented chrome). Island host uses origin
+    // `.coverage-map-container` / `.map-container` classes from markup lift.
     const title = isPciMap ? "PCI Resolution" : "Coverage Map";
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-map-island.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
   }
 
   const isDocsShell = trimmed.includes("wisp-docs-shell");
   if (isDocsShell) {
-    return `<!DOCTYPE html><html lang="en" class="wisp-docs-mode"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} – WISP Docs</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-app.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body class="wisp-docs-mode">${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en" class="wisp-docs-mode"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} – WISP Docs</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="${WISP_APP_CSS}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body class="wisp-docs-mode">${body}${corsAndClient}</body></html>`;
   }
 
-  const moduleNav = `<div class="wisp-module-page"><nav class="wisp-module-nav"><a href="/dashboard">← Dashboard</a> · <a href="/help">Help</a></nav>`;
+  // Original lifted markup already carries page chrome (page-header, etc.).
+  // Only invent a thin nav for residual demo shells — never wrap lifted pages
+  // in CWL-only chrome that fights Module_Manager CSS (UT fidelity).
   const isModuleDemo =
     trimmed.includes("wisp-module-demo") || trimmed.includes("wisp-demo-content");
+  const hasOriginalChrome =
+    /\b(page-header|dashboard-container|hardware-page|login-page|wisp-plan-app|wisp-deploy-app)\b/.test(
+      trimmed,
+    );
+  const moduleNav =
+    isModuleDemo && !hasOriginalChrome
+      ? `<div class="wisp-module-page"><nav class="wisp-module-nav"><a href="/dashboard">← Dashboard</a> · <a href="/help">Help</a></nav>`
+      : "";
+  const moduleNavClose = moduleNav ? "</div>" : "";
   const moduleAssets = isModuleDemo
     ? `<link rel="stylesheet" href="/assets/wisp-cwl-modules.css">`
     : "";
   const moduleScripts = isModuleDemo
-    ? `<script src="/assets/wisp-cwl-modules.js" defer></script>`
+    ? `<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script>`
     : "";
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-app.css">${moduleAssets}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${moduleNav}${body}</div><script src="/assets/wisp-cwl-client.js" defer></script>${moduleScripts}</body></html>`;
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="${WISP_APP_CSS}">${moduleAssets}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${moduleNav}${body}${moduleNavClose}${corsAndClient}${moduleScripts}</body></html>`;
 }
 
 /**
@@ -300,6 +365,138 @@ export async function proxyHttp(req, res, targetBase, proxyKind = "backend") {
   }
 }
 
+/** Firebase web config staged beside the gateway (bundle root) or in fixtures. */
+function loadWispFirebaseClientConfig() {
+  const candidates = [
+    join(scriptRoot, "wisp-firebase-config.json"),
+    join(moduleDir, "wisp-firebase-config.json"),
+    join(scriptRoot, "fixtures/hub-wisp-management/wisp-firebase-config.json"),
+  ];
+  for (const path of candidates) {
+    try {
+      if (existsSync(path)) return JSON.parse(readFileSync(path, "utf8"));
+    } catch {
+      /* try next */
+    }
+  }
+  return null;
+}
+
+/**
+ * Live backend auth: the gateway signs into Firebase with the demo account and
+ * attaches the bearer + tenant to upstream /api calls, so pages serve real
+ * HSS/MongoDB data instead of seeded fixtures. Token cached ~55 min.
+ */
+export function createWispLiveApiAuth() {
+  const cfg = loadWispFirebaseClientConfig();
+  const apiKey = process.env.CHRYSALIS_FIREBASE_API_KEY || cfg?.apiKey || "";
+  const email = process.env.CHRYSALIS_WISP_DEMO_EMAIL || "demo@wisptools.io";
+  const password = process.env.CHRYSALIS_WISP_DEMO_PASSWORD || "WisptoolsDemo2026!";
+  const tenantId = process.env.CHRYSALIS_HSS_TENANT_ID || cfg?.defaultTenantId || "";
+  let cached = { token: "", exp: 0 };
+  /** @type {Promise<string> | null} */
+  let pending = null;
+  async function login() {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password, returnSecureToken: true }),
+        signal: AbortSignal.timeout(20_000),
+      },
+    );
+    const body = await res.json();
+    if (!res.ok || !body.idToken) throw new Error(`wisp-firebase-login-failed:${res.status}`);
+    const ttlSec = Math.max(300, Number(body.expiresIn || 3600) - 300);
+    cached = { token: body.idToken, exp: Date.now() + ttlSec * 1000 };
+    return cached.token;
+  }
+  return {
+    enabled: Boolean(apiKey),
+    tenantId,
+    email,
+    /** @param {boolean} [force] refresh even if a cached token remains valid */
+    async bearer(force = false) {
+      if (!apiKey) return "";
+      if (!force && cached.token && Date.now() < cached.exp) return cached.token;
+      if (!pending) {
+        pending = login().finally(() => {
+          pending = null;
+        });
+      }
+      try {
+        return await pending;
+      } catch {
+        return "";
+      }
+    },
+  };
+}
+
+/**
+ * Proxy one /api request to the live backend with demo auth attached.
+ * Returns true when the upstream answer was served; false → caller falls back
+ * to the CWL-native seeded API (route missing upstream, auth dead, unreachable).
+ */
+async function serveWispLiveUpstream(req, res, url, backendUrl, liveAuth, bodyBuf) {
+  const target = new URL(url.pathname + url.search, backendUrl.replace(/\/$/, ""));
+  let bearer = await liveAuth.bearer();
+  if (!bearer) return false;
+  const doFetch = (token) => {
+    const headers = cloneHeaders(req, target);
+    delete headers.cookie;
+    if (!headers.authorization && !headers.Authorization) headers.Authorization = `Bearer ${token}`;
+    if (liveAuth.tenantId && !headers["x-tenant-id"] && !headers["X-Tenant-ID"]) {
+      headers["X-Tenant-ID"] = liveAuth.tenantId;
+    }
+    return fetch(target, {
+      method: req.method ?? "GET",
+      headers,
+      body: bodyBuf?.length ? bodyBuf : undefined,
+      redirect: "manual",
+      signal: AbortSignal.timeout(25_000),
+    });
+  };
+  try {
+    let upstream = await doFetch(bearer);
+    if (upstream.status === 401) {
+      bearer = await liveAuth.bearer(true);
+      if (bearer) upstream = await doFetch(bearer);
+    }
+    // Routes the live backend doesn't expose (or auth it refuses) fall back to
+    // the CWL-native API so demo-only surfaces keep working.
+    if (
+      upstream.status === 401 ||
+      upstream.status === 403 ||
+      upstream.status === 404 ||
+      upstream.status === 405 ||
+      upstream.status >= 500
+    ) {
+      return false;
+    }
+    res.statusCode = upstream.status;
+    upstream.headers.forEach((v, k) => {
+      if (!HOP.has(k.toLowerCase())) res.setHeader(k, v);
+    });
+    res.setHeader("x-chrysalis-wisp-proxy", "live-backend");
+    res.end(Buffer.from(await upstream.arrayBuffer()));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** @param {object} opts */
+export function shouldUseWispLiveApi(opts = {}) {
+  if (opts.liveApi === true) return true;
+  if (opts.liveApi === false) return false;
+  if (process.env.WISP_CWL_LIVE_API === "0") return false;
+  if (process.env.WISP_CWL_LIVE_API === "1") return true;
+  const pipeline = loadWispPipelineConfig();
+  return pipeline.gce?.liveApi !== false;
+}
+
 /** @param {object} opts */
 export function shouldUseWispNativeApi(opts = {}) {
   if (opts.nativeApi === true) return true;
@@ -346,6 +543,8 @@ export async function createWispChimeraGateway(opts) {
     const apiModule = loadModule(apiCwlPath);
     apiRuntime = createCwlRuntime({ module: apiModule, resolveSession: resolveWispPreviewSession });
   }
+  const liveApi = shouldUseWispLiveApi(opts);
+  const liveAuth = createWispLiveApiAuth();
   const staticDir = resolveStaticDir(cwlPath);
 
   const server = createServer(async (req, res) => {
@@ -375,6 +574,29 @@ export async function createWispChimeraGateway(opts) {
         return;
       }
 
+      // Live-first (D6450): real HSS backend + MongoDB with gateway-held demo
+      // auth; CWL-native seeded API only covers routes the backend lacks.
+      if ((path.startsWith("/api/") || path === "/api") && liveApi && liveAuth.enabled) {
+        const bodyBuf = req.method === "GET" || req.method === "HEAD" ? undefined : await readBody(req);
+        const servedLive = await serveWispLiveUpstream(req, res, url, backendUrl, liveAuth, bodyBuf);
+        if (servedLive) return;
+        if (apiRuntime) {
+          const cwlRes = await apiRuntime.fetch({
+            method: req.method ?? "GET",
+            url: `http://${hostHdr}${path}${url.search}`,
+            headers: req.headers,
+            body: bodyBuf?.length ? bodyBuf.toString("utf8") : undefined,
+          });
+          res.statusCode = cwlRes.status;
+          cwlRes.headers.forEach((v, k) => res.setHeader(k, v));
+          res.setHeader("x-chrysalis-wisp-proxy", "cwl-native-api-fallback");
+          res.end(Buffer.from(await cwlRes.arrayBuffer()));
+          return;
+        }
+        await proxyHttp(req, res, backendUrl);
+        return;
+      }
+
       if ((path.startsWith("/api/") || path === "/api") && apiRuntime) {
         const body = req.method === "GET" || req.method === "HEAD" ? undefined : await readBody(req);
         const cwlRes = await apiRuntime.fetch({
@@ -383,6 +605,32 @@ export async function createWispChimeraGateway(opts) {
           headers: req.headers,
           body: body?.length ? body.toString("utf8") : undefined,
         });
+        // D6442 deepen: contract stubs (`surface: wisp-api-native`) and simulation
+        // holes (501) are not live product data — prefer origin backend-services/HSS.
+        let preferUpstream = cwlRes.status === 501;
+        if (!preferUpstream && cwlRes.status >= 200 && cwlRes.status < 300) {
+          try {
+            const text = Buffer.from(await cwlRes.clone().arrayBuffer()).toString("utf8");
+            const j = JSON.parse(text);
+            if (
+              j &&
+              j.surface === "wisp-api-native" &&
+              j.ok === true &&
+              j.items === undefined &&
+              j.data === undefined &&
+              j.sites === undefined &&
+              j.results === undefined
+            ) {
+              preferUpstream = true;
+            }
+          } catch {
+            /* keep CWL body */
+          }
+        }
+        if (preferUpstream) {
+          await proxyHttp(req, res, backendUrl);
+          return;
+        }
         res.statusCode = cwlRes.status;
         cwlRes.headers.forEach((v, k) => res.setHeader(k, v));
         res.setHeader("x-chrysalis-wisp-proxy", "cwl-native-api");
@@ -399,6 +647,18 @@ export async function createWispChimeraGateway(opts) {
         (req.method === "GET" || req.method === "HEAD") &&
         serveWispChimeraStaticAsset(path, staticDir, res, req.method ?? "GET")
       ) {
+        return;
+      }
+
+      // Origin alias with no dedicated page — converted surface lives under tenant-management.
+      if (
+        (req.method === "GET" || req.method === "HEAD") &&
+        (path === "/admin/tenants" || path === "/admin/tenants/")
+      ) {
+        res.statusCode = 302;
+        res.setHeader("Location", "/admin/tenant-management");
+        res.setHeader("x-chrysalis-wisp-proxy", "cwl-alias");
+        res.end();
         return;
       }
 
@@ -445,7 +705,8 @@ export async function createWispChimeraGateway(opts) {
       let outBody = Buffer.from(await cwlRes.arrayBuffer());
       const ct = cwlRes.headers.get("content-type") ?? "";
       if ((req.method === "GET" || req.method === "HEAD") && ct.includes("text/html") && cwlRes.status >= 200 && cwlRes.status < 400) {
-        outBody = Buffer.from(wrapWispCwlHtmlDocument(outBody.toString("utf8"), "WISP Management", path), "utf8");
+        const cleanHtml = scrubEvaluatedCwlHtml(outBody.toString("utf8"));
+        outBody = Buffer.from(wrapWispCwlHtmlDocument(cleanHtml, "WISP Management", path), "utf8");
         res.setHeader("content-length", String(outBody.length));
       }
       if (req.method === "HEAD") res.end();

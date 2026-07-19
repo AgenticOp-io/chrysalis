@@ -1,7 +1,7 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-setup" data-wisp-path="/modules/customers/portal-setup" data-cwl-island="client"><div class="portal-admin-page">
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal-setup" data-cwl-island="client"><div class="portal-admin-page">
     <div class="page-header">
       <div class="header-left">
-        <button class="back-btn" title="Back to Modules">
+        <button class="back-btn" data-cwl-nav="/modules" title="Back to Modules">
           ← Exit to Modules
         </button>
       </div>
@@ -15,58 +15,606 @@
         </a>
       </div>
     </div>
-    
-    
-    
-    
-    
+
     <!-- Tab Navigation -->
     <div class="tab-navigation">
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:branding">
         🎨 Branding
       </button>
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:features">
         ⚙️ Features
       </button>
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:billing">
         💳 Billing Portal
       </button>
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:alerts">
         🚨 Alerts & Outages
       </button>
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:faq">
         ❓ FAQ
       </button>
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:knowledge">
         📚 Knowledge Base
       </button>
-      <button class="tab-btn">
+      <button class="tab-btn" data-cwl-set="currentTab:chat">
         💬 Live Chat
       </button>
     </div>
-    
+
     <!-- Tab Content -->
     <div class="tab-content">
       <!-- Branding Tab -->
-      
-      
+
+        <div class="content-section">
+          <h2>Portal Branding</h2>
+          <p class="section-description">Customize the look and feel of your customer portal.</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Company Name</label>
+              <div class="readonly-value"><span data-cwl-bind="interp" data-cwl-hole-detail="companyName || 'Not set'"></span></div>
+              <p class="help-text">Managed from tenant settings</p>
+            </div>
+
+            <div class="form-group">
+              <label>Portal URL</label>
+              <div class="readonly-value url-value"><span data-cwl-bind="interp" data-cwl-hole-detail="getPortalUrl()"></span></div>
+            </div>
+
+            <div class="form-group">
+              <label>Logo URL</label>
+              <input type="url" placeholder="https://yourcompany.com/logo.png" class="form-input" />
+              <div data-cwl-bind="if" data-cwl-hole-detail="logoUrl"><div class="logo-preview">
+                  <img alt="Logo preview" />
+                </div></div>
+            </div>
+
+            <div class="form-group">
+              <label>Primary Color</label>
+              <div class="color-input-group">
+                <input type="color" class="color-picker" />
+                <input type="text" placeholder="#3b82f6" class="form-input color-text" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Support Email</label>
+              <input type="email" placeholder="support@yourcompany.com" class="form-input" />
+            </div>
+
+            <div class="form-group">
+              <label>Support Phone</label>
+              <input type="tel" placeholder="(555) 123-4567" class="form-input" />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Use Custom Domain</span>
+              </label>
+
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" data-cwl-action="saveBranding" data-cwl-attr-disabled="saving" aria-label="Save Branding">
+              Save Branding
+            </button>
+          </div>
+        </div>
+
       <!-- Billing Portal Tab: payment gateways & invoice customization -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentTab === 'billing'" hidden aria-hidden="true">
+        <div class="content-section">
+          <h2>Billing Portal Admin</h2>
+          <p class="section-description">Configure payment gateways (Stripe, PayPal) and customize how invoices look for your customers.</p>
+
+          <div class="billing-portal-sections">
+            <section class="billing-subsection">
+              <h3>Payment Gateways</h3>
+              <p class="help-text">Enable online payments in the customer portal. Store Stripe secret key in backend env (STRIPE_SECRET_KEY); use the publishable key here for the portal. For PayPal, use your client ID and choose sandbox for testing.</p>
+
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="toggle-label">
+                    <input type="checkbox" />
+                    <span class="toggle-switch"></span>
+                    <span>Enable Stripe</span>
+                  </label>
+                  <input type="text" placeholder="pk_live_... or pk_test_... (publishable key)" class="form-input" />
+                  <input type="text" placeholder="Optional note (e.g. key purpose)" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label class="toggle-label">
+                    <input type="checkbox" />
+                    <span class="toggle-switch"></span>
+                    <span>Enable PayPal</span>
+                  </label>
+                  <input type="text" placeholder="PayPal client ID" class="form-input" />
+                  <label class="checkbox-label">
+                    <input type="checkbox" />
+                    Use PayPal sandbox (testing)
+                  </label>
+                  <input type="text" placeholder="Optional note" class="form-input" />
+                </div>
+              </div>
+            </section>
+
+            <section class="billing-subsection">
+              <h3>Invoice Customization</h3>
+              <p class="help-text">These appear on generated invoices and in the customer billing portal.</p>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Company name on invoices</label>
+                  <input type="text" placeholder="Your WISP Name" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>Invoice logo URL</label>
+                  <input type="url" placeholder="https://..." class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Address (on invoice)</label>
+                  <input type="text" placeholder="Street, City, State ZIP" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Footer text</label>
+                  <input type="text" placeholder="Thank you for your business" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Terms & conditions</label>
+                  <textarea placeholder="Payment terms, late fees, etc." class="form-input" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Default due days</label>
+                  <input type="number" min="1" max="90" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <select class="form-input">
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" data-cwl-action="saveBillingPortal" data-cwl-attr-disabled="saving" aria-label="Save Billing Portal">
+              Save Billing Portal Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Features Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentTab === 'features'" hidden aria-hidden="true">
+        <div class="content-section">
+          <h2>Portal Features</h2>
+          <p class="section-description">Enable or disable features for your customer portal.</p>
+
+          <div class="feature-toggles">
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">❓ FAQ / Help Center</span>
+                  <span class="toggle-description">Show frequently asked questions to customers</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">🚨 Service Status & Outages</span>
+                  <span class="toggle-description">Display service alerts and outage notifications</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">💳 Billing & Invoices</span>
+                  <span class="toggle-description">Let customers view billing and invoice history</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">🎫 Support Tickets</span>
+                  <span class="toggle-description">Let customers open and track support tickets</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">📚 Knowledge Base</span>
+                  <span class="toggle-description">Provide documentation and help articles</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="feature-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">💬 Live Chat Support</span>
+                  <span class="toggle-description">Enable real-time chat with customers</span>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" data-cwl-action="saveFeatures" data-cwl-attr-disabled="saving" aria-label="Save Features">
+              Save Features
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Alerts Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentTab === 'alerts'" hidden aria-hidden="true">
+        <div class="content-section">
+          <div class="section-header">
+            <div>
+              <h2>Alerts & Outages</h2>
+              <p class="section-description">Notify customers about service issues, maintenance, and updates.</p>
+            </div>
+            <button class="btn-primary" data-cwl-toggle="showAlertForm:true" aria-label="Show Alert Form">
+              + New Alert
+            </button>
+          </div>
+
+            <div class="form-card" hidden aria-hidden="true">
+              <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingAlertId ? 'Edit Alert' : 'Create New Alert'"></span></h3>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Title</label>
+                  <input type="text" placeholder="Alert title" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                  <label>Type</label>
+                  <select class="form-input">
+                    <option value="info">ℹ️ Information</option>
+                    <option value="warning">⚠️ Warning</option>
+                    <option value="outage">🔴 Outage</option>
+                    <option value="maintenance">🟡 Maintenance</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-input">
+                    <option value="active">Active</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Message</label>
+                  <textarea placeholder="Alert message..." class="form-input" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>Start Date (optional)</label>
+                  <input type="datetime-local" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                  <label>End Date (optional)</label>
+                  <input type="datetime-local" class="form-input" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn-secondary" data-cwl-action="resetAlertForm" aria-label="Reset Alert Form">Cancel</button>
+                <button class="btn-primary" data-cwl-action="saveAlert" data-cwl-attr-disabled="saving || !newAlert.title || !newAlert.message" aria-label="Save Alert">
+                  Save Alert
+                </button>
+              </div>
+            </div>
+
+          <div class="items-list">
+
+              <div data-cwl-bind="each" data-cwl-hole-detail="alerts as alert" data-cwl-each-item="alert" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22list-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-icon%22%3E%7BgetAlertTypeIcon(alert.type)%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-content%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Balert.title%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7BgetAlertStatusBadge(alert.status)%7D%22%3E%7Balert.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22item-description%22%3E%7Balert.message%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-icon%22%20data-cwl-action%3D%22editAlert%22%20data-cwl-action-args%3D%22alert%22%20title%3D%22Edit%22%3E%E2%9C%8F%EF%B8%8F%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-icon%20danger%22%20data-cwl-action%3D%22deleteAlert%22%20data-cwl-action-args%3D%22alert._id%20%7C%7C%20''%22%20title%3D%22Delete%22%3E%F0%9F%97%91%EF%B8%8F%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="list-item">
+                  <div class="item-icon"></div>
+                  <div class="item-content">
+                    <div class="item-header">
+                      <h4></h4>
+                      <span class="status-badge "></span>
+                    </div>
+                    <p class="item-description"></p>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-icon" data-cwl-action="editAlert" data-cwl-action-args="alert" title="Edit">✏️</button>
+                    <button class="btn-icon danger" data-cwl-action="deleteAlert" data-cwl-action-args="alert._id || ''" title="Delete">🗑️</button>
+                  </div>
+                </div></div>
+
+              <div class="empty-state" hidden aria-hidden="true">
+                <p>No alerts yet. Create one to notify your customers.</p>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- FAQ Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentTab === 'faq'" hidden aria-hidden="true">
+        <div class="content-section">
+          <div class="section-header">
+            <div>
+              <h2>FAQ Management</h2>
+              <p class="section-description">Create and manage frequently asked questions.</p>
+            </div>
+            <button class="btn-primary" data-cwl-toggle="showFAQForm:true" aria-label="Show FAQForm">
+              + New FAQ
+            </button>
+          </div>
+
+            <div class="form-card" hidden aria-hidden="true">
+              <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingFAQId ? 'Edit FAQ' : 'Create New FAQ'"></span></h3>
+
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Question</label>
+                  <input type="text" placeholder="What is your question?" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                  <label>Category</label>
+                  <select class="form-input">
+
+                      <option value="General">General</option>
+
+                      <option value="Billing">Billing</option>
+
+                      <option value="Technical">Technical</option>
+
+                      <option value="Account">Account</option>
+
+                      <option value="Service">Service</option>
+
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="checkbox-label inline">
+                    <input type="checkbox" />
+                    <span>Published</span>
+                  </label>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Answer</label>
+                  <textarea placeholder="Provide the answer..." class="form-input" rows="4"></textarea>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn-secondary" data-cwl-action="resetFAQForm" aria-label="Reset FAQForm">Cancel</button>
+                <button class="btn-primary" data-cwl-action="saveFAQ" data-cwl-attr-disabled="saving || !newFAQ.question || !newFAQ.answer" aria-label="Save FAQ">
+                  Save FAQ
+                </button>
+              </div>
+            </div>
+
+          <div class="items-list">
+
+              <div data-cwl-bind="each" data-cwl-hole-detail="faqItems as faq" data-cwl-each-item="faq" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22list-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-icon%22%3E%E2%9D%93%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-content%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Bfaq.question%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22category-badge%22%3E%7Bfaq.category%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20!faq.published%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-draft%22%3EDraft%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22item-description%22%3E%7Bfaq.answer.substring(0%2C%20150)%7D...%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-icon%22%20data-cwl-action%3D%22editFAQ%22%20data-cwl-action-args%3D%22faq%22%20title%3D%22Edit%22%3E%E2%9C%8F%EF%B8%8F%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-icon%20danger%22%20data-cwl-action%3D%22deleteFAQ%22%20data-cwl-action-args%3D%22faq._id%20%7C%7C%20''%22%20title%3D%22Delete%22%3E%F0%9F%97%91%EF%B8%8F%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="list-item">
+                  <div class="item-icon">❓</div>
+                  <div class="item-content">
+                    <div class="item-header">
+                      <h4></h4>
+                      <span class="category-badge"></span>
+                      <div data-cwl-bind="if" data-cwl-hole-detail="!faq.published"><span class="status-badge status-draft">Draft</span></div>
+                    </div>
+                    <p class="item-description">...</p>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-icon" data-cwl-action="editFAQ" data-cwl-action-args="faq" title="Edit">✏️</button>
+                    <button class="btn-icon danger" data-cwl-action="deleteFAQ" data-cwl-action-args="faq._id || ''" title="Delete">🗑️</button>
+                  </div>
+                </div></div>
+
+              <div class="empty-state" hidden aria-hidden="true">
+                <p>No FAQs yet. Create some to help your customers.</p>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- Knowledge Base Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentTab === 'knowledge'" hidden aria-hidden="true">
+        <div class="content-section">
+          <div class="section-header">
+            <div>
+              <h2>Knowledge Base</h2>
+              <p class="section-description">Create help articles and documentation for customers.</p>
+            </div>
+            <button class="btn-primary" data-cwl-toggle="showArticleForm:true" aria-label="Show Article Form">
+              + New Article
+            </button>
+          </div>
+
+            <div class="form-card" hidden aria-hidden="true">
+              <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingArticleId ? 'Edit Article' : 'Create New Article'"></span></h3>
+
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Title</label>
+                  <input type="text" placeholder="Article title" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                  <label>Category</label>
+                  <select class="form-input">
+                    <option value="Getting Started">Getting Started</option>
+                    <option value="Account">Account</option>
+                    <option value="Billing">Billing</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Troubleshooting">Troubleshooting</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="checkbox-label inline">
+                    <input type="checkbox" />
+                    <span>Published</span>
+                  </label>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Tags</label>
+                  <div class="tags-input">
+                    <input type="text" placeholder="Add tags (comma separated)" class="form-input" data-cwl-on-keypress="action:addTag" />
+                    <button class="btn-secondary btn-sm" data-cwl-action="addTag" aria-label="Add Tag">Add</button>
+                  </div>
+                  <div class="tags-list">
+                    <div data-cwl-bind="each" data-cwl-hole-detail="newArticle.tags as tag"><span class="tag"> <button data-cwl-action="removeTag" data-cwl-action-args="tag" aria-label="Remove Tag">×</button></span></div>
+                  </div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Content</label>
+                  <textarea placeholder="Write your article content..." class="form-input" rows="8"></textarea>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn-secondary" data-cwl-action="resetArticleForm" aria-label="Reset Article Form">Cancel</button>
+                <button class="btn-primary" data-cwl-action="saveArticle" data-cwl-attr-disabled="saving || !newArticle.title || !newArticle.content" aria-label="Save Article">
+                  Save Article
+                </button>
+              </div>
+            </div>
+
+          <div class="items-list">
+
+              <div data-cwl-bind="each" data-cwl-hole-detail="kbArticles as article" data-cwl-each-item="article" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22list-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-icon%22%3E%F0%9F%93%84%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-content%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Barticle.title%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22category-badge%22%3E%7Barticle.category%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20!article.published%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-draft%22%3EDraft%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22item-description%22%3E%7Barticle.content.substring(0%2C%20150)%7D...%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20article.tags%3F.length%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22tags-list%20small%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23each%20article.tags%20as%20tag%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22tag%22%3E%7Btag%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Feach%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-icon%22%20data-cwl-action%3D%22editArticle%22%20data-cwl-action-args%3D%22article%22%20title%3D%22Edit%22%3E%E2%9C%8F%EF%B8%8F%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-icon%20danger%22%20data-cwl-action%3D%22deleteArticle%22%20data-cwl-action-args%3D%22article._id%20%7C%7C%20''%22%20title%3D%22Delete%22%3E%F0%9F%97%91%EF%B8%8F%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="list-item">
+                  <div class="item-icon">📄</div>
+                  <div class="item-content">
+                    <div class="item-header">
+                      <h4></h4>
+                      <span class="category-badge"></span>
+                      <div data-cwl-bind="if" data-cwl-hole-detail="!article.published"><span class="status-badge status-draft">Draft</span></div>
+                    </div>
+                    <p class="item-description">...</p>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="article.tags?.length"><div class="tags-list small">
+                        <div data-cwl-bind="each" data-cwl-hole-detail="article.tags as tag"><span class="tag"></span></div>
+                      </div></div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-icon" data-cwl-action="editArticle" data-cwl-action-args="article" title="Edit">✏️</button>
+                    <button class="btn-icon danger" data-cwl-action="deleteArticle" data-cwl-action-args="article._id || ''" title="Delete">🗑️</button>
+                  </div>
+                </div></div>
+
+              <div class="empty-state" hidden aria-hidden="true">
+                <p>No articles yet. Create documentation to help your customers.</p>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- Live Chat Tab -->
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentTab === 'chat'" hidden aria-hidden="true">
+        <div class="content-section">
+          <h2>Live Chat Settings</h2>
+          <p class="section-description">Configure real-time chat support for your customers.</p>
+
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="toggle-label">
+                <input type="checkbox" />
+                <span class="toggle-switch"></span>
+                <div class="toggle-content">
+                  <span class="toggle-title">Enable Live Chat</span>
+                  <span class="toggle-description">Show chat widget on customer portal</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Welcome Message</label>
+              <textarea placeholder="Hello! How can we help?" class="form-input" rows="2"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Offline Message</label>
+              <textarea placeholder="We're offline, leave a message..." class="form-input" rows="2"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" />
+                <span>Set Operating Hours</span>
+              </label>
+            </div>
+
+              <div class="form-group" hidden aria-hidden="true">
+                <label>Start Time</label>
+                <input type="time" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label>End Time</label>
+                <input type="time" class="form-input" />
+              </div>
+
+            <div class="form-group full-width">
+              <h4>Auto Responses</h4>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Greeting Message</label>
+              <textarea class="form-input" rows="2"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Away Message</label>
+              <textarea class="form-input" rows="2"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Closed Message</label>
+              <textarea class="form-input" rows="2"></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" data-cwl-action="saveChatSettings" data-cwl-attr-disabled="saving" aria-label="Save Chat Settings">
+              Save Chat Settings
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal-setup","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal-setup"}</script>

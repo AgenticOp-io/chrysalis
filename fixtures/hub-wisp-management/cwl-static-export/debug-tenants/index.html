@@ -1,24 +1,28 @@
 <div class="wisp-app-surface" data-wisp-page="debug-tenants" data-wisp-path="/debug-tenants" data-cwl-island="client"><div class="debug-container">
   <h1>Tenant Debug Information</h1>
-  
+
   <div class="debug-section">
     <h2>Authentication Status</h2>
-    <p><strong>Is Authenticated:</strong> true</p>
-    <p><strong>User Email:</strong> demo@wisptools.io</p>
-    <p><strong>User UID:</strong> u1</p>
+    <p><strong>Is Authenticated:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="debugInfo.isAuthenticated"></span></p>
+    <p><strong>User Email:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="debugInfo.currentUser?.email || 'None'"></span></p>
+    <p><strong>User UID:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="debugInfo.currentUser?.uid || 'None'"></span></p>
   </div>
 
   <div class="debug-section">
     <h2>Tenant Store State</h2>
-    <pre>{"id":"t1"}</pre>
+    <pre><span data-cwl-bind="interp" data-cwl-hole-detail="JSON.stringify(debugInfo.tenantState, null, 2)"></span></pre>
   </div>
 
   <div class="debug-section">
     <h2>User Tenants (Direct API Call)</h2>
-    <p><strong>Count:</strong> 1</p>
-    <pre>[{"id":"t1"}]</pre>
+    <p><strong>Count:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="debugInfo.userTenants.length"></span></p>
+    <pre><span data-cwl-bind="interp" data-cwl-hole-detail="JSON.stringify(debugInfo.userTenants, null, 2)"></span></pre>
   </div>
 
-  
+    <div class="debug-section error" hidden aria-hidden="true">
+      <h2>Error</h2>
+      <p><span data-cwl-bind="interp" data-cwl-hole-detail="debugInfo.error"></span></p>
+    </div>
+
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/debug-tenants"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/debug-tenants"}</script>

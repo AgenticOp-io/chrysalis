@@ -44,14 +44,41 @@
    * @param {string} backendBase
    * @param {string} path logical path e.g. /api/admin
    */
+  /**
+   * Logical CWL paths that the real HSS backend serves under different routes.
+   * The chimera gateway translates these on GCE; direct-backend mode (Firebase
+   * static Hosting) must translate client-side or every call 404s.
+   */
+  var DIRECT_BACKEND_ALIASES = [
+    ["/api/hardware/stats", "/api/inventory/stats"],
+    ["/api/hardware", "/api/inventory"],
+    ["/api/tenants", "/admin/tenants"],
+    ["/api/hss/groups", "/api/hss/groups"],
+    ["/api/hss/subscribers", "/api/hss/subscribers"],
+    ["/api/hss/bandwidth-plans", "/api/hss/bandwidth-plans"],
+    ["/api/hss", "/api/hss/groups"],
+  ];
+
+  function aliasDirectBackendPath(path) {
+    for (var i = 0; i < DIRECT_BACKEND_ALIASES.length; i++) {
+      var from = DIRECT_BACKEND_ALIASES[i][0];
+      var to = DIRECT_BACKEND_ALIASES[i][1];
+      if (path === from) return to;
+      if (path.indexOf(from + "/") === 0) return to + path.slice(from.length);
+      if (path.indexOf(from + "?") === 0) return to + path.slice(from.length);
+    }
+    return path;
+  }
+
   function backendUrlForApiPath(backendBase, path) {
     var base = String(backendBase || "").replace(/\/$/, "");
     if (!base || !path || path.indexOf("/") !== 0) return path;
+    var mapped = aliasDirectBackendPath(path);
     var out;
-    if (path === "/api/admin" || path.indexOf("/api/admin/") === 0) {
-      out = base + path.slice("/api".length); // /admin or /admin/...
+    if (mapped === "/api/admin" || mapped.indexOf("/api/admin/") === 0) {
+      out = base + mapped.slice("/api".length); // /admin or /admin/...
     } else {
-      out = base + path;
+      out = base + mapped;
     }
     return corsSafeUrl(out);
   }

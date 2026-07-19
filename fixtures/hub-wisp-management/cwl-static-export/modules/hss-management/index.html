@@ -1,13 +1,36 @@
-<div class="hss-management">
+<div class="wisp-app-surface" data-wisp-page="hss-management" data-wisp-path="/modules/hss-management" data-cwl-island="client"><div class="hss-management">
   <!-- Header -->
   <div class="header">
     <div class="header-content">
       <div class="header-main">
         <div class="header-row">
-          <button class="back-button">
+          <button class="back-button" data-cwl-nav="/dashboard" type="button">
             ← Back to Dashboard
           </button>
-          <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
+          <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
         </div>
         <div>
           <h1>🔐 HSS & Subscriber Management</h1>
@@ -16,203 +39,2711 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Help Button - Fixed Position -->
-  <button class="help-button" aria-label="Open Help" title="Help">
+  <button class="help-button" data-cwl-toggle="showHelpModal:true" aria-label="Open Help" title="Help">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="10"></circle>
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
       <line x1="12" y1="17" x2="12.01" y2="17"></line>
     </svg>
   </button>
-  
-  
+
     <!-- Navigation Tabs -->
     <div class="tabs">
-      <button
-      >
+      <button data-cwl-action="switchTab" data-cwl-action-args="'dashboard'"
+       aria-label="Switch Tab">
         📊 Dashboard
       </button>
-      <button
-      >
+      <button data-cwl-action="switchTab" data-cwl-action-args="'groups'"
+       aria-label="Switch Tab">
         📦 Groups
       </button>
-      <button
-      >
+      <button data-cwl-action="switchTab" data-cwl-action-args="'plans'"
+       aria-label="Switch Tab">
         🚀 Bandwidth Plans
       </button>
-      <button
-      >
+      <button data-cwl-action="switchTab" data-cwl-action-args="'mme'"
+       aria-label="Switch Tab">
         🌐 MME Connections
       </button>
-      <button
-      >
+      <button data-cwl-action="switchTab" data-cwl-action-args="'import'"
+       aria-label="Switch Tab">
         📥 Bulk Import
       </button>
-      <button
-      >
+      <button data-cwl-action="switchTab" data-cwl-action-args="'remote-epcs'"
+       aria-label="Switch Tab">
         🌐 Remote EPCs
       </button>
     </div>
-    
+
     <!-- Tab Content -->
     <div class="tab-content">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'dashboard'">
+        <div data-cwl-component="HSSStats" data-cwl-lifted-component="HSSStats"><div class="hss-stats">
+  <div class="stats-header">
+    <h2>Dashboard Overview</h2>
+    <button class="refresh-btn" data-cwl-action="refresh" aria-label="Refresh">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <!-- Subscriber Stats -->
+    <div class="stat-card primary">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="subscribers.total_active || 0"></span></div>
+        <div class="stat-label">Active Subscribers</div>
+      </div>
     </div>
-  
-  
+
+    <div class="stat-card danger">
+      <div class="stat-icon">🚫</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="subscribers.total_inactive || 0"></span></div>
+        <div class="stat-label">Inactive Subscribers</div>
+      </div>
+    </div>
+
+    <div class="stat-card warning">
+      <div class="stat-icon">⏸️</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="subscribers.total_suspended || 0"></span></div>
+        <div class="stat-label">Suspended</div>
+      </div>
+    </div>
+
+    <div class="stat-card info">
+      <div class="stat-icon">📱</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="subscribers.total_with_acs || 0"></span></div>
+        <div class="stat-label">With CPE Device</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPE Correlation -->
+  <div class="section">
+    <h3>CPE Device Correlation</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="cpe.subscribers_with_cpe || 0"></span></div>
+          <div class="stat-label">Subscribers with CPE</div>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="cpe.cpe_online || 0"></span></div>
+          <div class="stat-label">CPE Online</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="cpe.cpe_offline || 0"></span></div>
+          <div class="stat-label">CPE Offline</div>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-content">
+          <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="cpe.subscribers_without_cpe || 0"></span></div>
+          <div class="stat-label">No CPE Detected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Health Indicators -->
+  <div class="section">
+    <h3>System Health</h3>
+    <div class="health-grid">
+      <div class="health-item">
+        <span class="health-label">Active & Online:</span>
+        <span class="health-value success"><span data-cwl-bind="interp" data-cwl-hole-detail="health.active_and_online || 0"></span></span>
+      </div>
+      <div class="health-item">
+        <span class="health-label">Subscribers without CPE:</span>
+        <span class="health-value">
+          <span data-cwl-bind="interp" data-cwl-hole-detail="health.subscribers_without_cpe || 0"></span>
+        </span>
+      </div>
+      <div class="health-item">
+        <span class="health-label">CPE Offline:</span>
+        <span class="health-value">
+          <span data-cwl-bind="interp" data-cwl-hole-detail="health.cpe_offline || 0"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="action-buttons">
+      <button class="action-btn primary" data-cwl-action="navigateToTab" data-cwl-action-args="'subscribers', 'add'" aria-label="Navigate To Tab">
+        ➕ Add Subscriber
+      </button>
+      <button class="action-btn" data-cwl-action="navigateToTab" data-cwl-action-args="'import'" aria-label="Navigate To Tab">
+        📥 Bulk Import
+      </button>
+      <button class="action-btn" data-cwl-action="navigateToTab" data-cwl-action-args="'groups', 'create'" aria-label="Navigate To Tab">
+        📦 Create Group
+      </button>
+      <button class="action-btn" data-cwl-action="navigateToTab" data-cwl-action-args="'plans', 'create'" aria-label="Navigate To Tab">
+        🚀 New Plan
+      </button>
+    </div>
+  </div>
+</div></div>
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'groups'" hidden aria-hidden="true">
+        <div data-cwl-component="GroupManagement" data-cwl-lifted-component="GroupManagement"><div class="group-management">
+  <div class="header">
+    <h2>Subscriber Groups</h2>
+    <div style="display: flex; gap: 0.5rem;">
+      <button class="btn-secondary" data-cwl-action="loadCustomers" title="Refresh groups and customers">
+        🔄 Refresh
+      </button>
+      <button class="btn-primary" data-cwl-action="openAddModal" aria-label="Open Add Modal">
+        + Add Group
+      </button>
+    </div>
+  </div>
+
+    <div class="groups-grid">
+      <div data-cwl-bind="each" data-cwl-hole-detail="groups as group" data-cwl-each-item="group" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%7B%40const%20groupCustomers%20%3D%20getCustomersInGroup(group.group_id%20%7C%7C%20group.id)%7D%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22group-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22group-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bgroup.name%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-count%22%3E%7BgroupCustomers.length%7D%20%7BgroupCustomers.length%20%3D%3D%3D%201%20%3F%20'customer'%20%3A%20'customers'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%7B%23if%20group.description%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%20class%3D%22description%22%3E%7Bgroup.description%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22group-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22info-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EBandwidth%20Plan%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7BgetBandwidthPlanName(group.bandwidth_plan_id)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%7B%23if%20groupCustomers.length%20%3E%200%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customers-list%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3ECustomers%20in%20this%20group%3A%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cul%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23each%20groupCustomers%20as%20customer%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cli%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-name%22%3E%7Bcustomer.fullName%20%7C%7C%20%60%24%7Bcustomer.firstName%7D%20%24%7Bcustomer.lastName%7D%60%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.primaryPhone%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-phone%22%3E%7Bcustomer.primaryPhone%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-status%20status-%7Bcustomer.serviceStatus%7D%22%3E%7Bcustomer.serviceStatus%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fli%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Feach%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ful%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22no-customers%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cp%3ENo%20customers%20assigned%20to%20this%20group%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22group-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-edit%22%20data-cwl-action%3D%22openEditModal%22%20data-cwl-action-args%3D%22group%22%20aria-label%3D%22Open%20Edit%20Modal%22%3EEdit%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-delete%22%20data-cwl-action%3D%22deleteGroup%22%20data-cwl-action-args%3D%22group.group_id%22%20aria-label%3D%22Delete%20Group%22%3EDelete%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20">
+        <div class="group-card">
+          <div class="group-header">
+            <h3></h3>
+            <span class="customer-count"> </span>
+          </div>
+
+            <div hidden aria-hidden="true"><p class="description"></p>
+          </div>
+          <div class="group-info">
+            <div class="info-item">
+              <span class="label">Bandwidth Plan</span>
+              <span class="value"></span>
+            </div>
+          </div>
+
+            <div class="customers-list">
+              <h4>Customers in this group:</h4>
+              <ul>
+                <div data-cwl-bind="each" data-cwl-hole-detail="groupCustomers as customer"><li>
+                    <span class="customer-name"> </span>
+
+                      <div hidden aria-hidden="true"><span class="customer-phone"></span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span class="customer-status status-"></span>
+                    </div>
+                  </li></div>
+              </ul>
+            </div>
+
+          <div class="group-actions">
+            <button class="btn-edit" data-cwl-action="openEditModal" data-cwl-action-args="group" aria-label="Open Edit Modal">Edit</button>
+            <button class="btn-delete" data-cwl-action="deleteGroup" data-cwl-action-args="group.group_id" aria-label="Delete Group">Delete</button>
+          </div>
+        </div></div>
+    </div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <p>No subscriber groups yet</p>
+      <p class="hint">Create groups to organize subscribers and assign bandwidth plans</p>
+    </div>
+
+</div>
+
+  <div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Edit' : 'Add'"></span> Subscriber Group</h3>
+        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Group Name</label>
+          <input
+            type="text"
+            placeholder="Residential Users"
+          />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea
+            placeholder="Group description..."
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label>Bandwidth Plan</label>
+          <select>
+            <option>No plan</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="bandwidthPlans as plan" data-cwl-each-item="plan" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bplan.plan_id%7D%3E%7Bplan.name%7D%20(%7Bplan.download_mbps%7D%2F%7Bplan.upload_mbps%7D%20Mbps)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option> (/ Mbps)</option></div>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" data-cwl-action="closeModal" aria-label="Close Modal">Cancel</button>
+        <button class="btn-save" data-cwl-action="saveGroup" aria-label="Save Group">
+          <span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Update' : 'Create'"></span> Group
+        </button>
+      </div>
+    </div>
+  </div></div>
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'plans'" hidden aria-hidden="true">
+        <div data-cwl-component="BandwidthPlans" data-cwl-lifted-component="BandwidthPlans"><div class="bandwidth-plans">
+  <div class="header">
+    <h2>Bandwidth Plans</h2>
+    <button class="btn-primary" data-cwl-action="openAddModal" aria-label="Open Add Modal">
+      + Add Bandwidth Plan
+    </button>
+  </div>
+
+    <div class="plans-grid">
+      <div data-cwl-bind="each" data-cwl-hole-detail="plans as plan" data-cwl-each-item="plan" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22plan-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22plan-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bplan.name%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22plan-speeds%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22speed%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EDOWNLOAD%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bplan.download_mbps%20%7C%7C%200%7D%20Mbps%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22speed%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EUPLOAD%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bplan.upload_mbps%20%7C%7C%200%7D%20Mbps%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22plan-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-edit%22%20data-cwl-action%3D%22openEditModal%22%20data-cwl-action-args%3D%22plan%22%20aria-label%3D%22Open%20Edit%20Modal%22%3EEdit%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-delete%22%20data-cwl-action%3D%22deletePlan%22%20data-cwl-action-args%3D%22plan.plan_id%22%20aria-label%3D%22Delete%20Plan%22%3EDelete%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20"><div class="plan-card">
+          <div class="plan-header">
+            <h3></h3>
+          </div>
+          <div class="plan-speeds">
+            <div class="speed">
+              <span class="label">DOWNLOAD</span>
+              <span class="value"> Mbps</span>
+            </div>
+            <div class="speed">
+              <span class="label">UPLOAD</span>
+              <span class="value"> Mbps</span>
+            </div>
+          </div>
+          <div class="plan-actions">
+            <button class="btn-edit" data-cwl-action="openEditModal" data-cwl-action-args="plan" aria-label="Open Edit Modal">Edit</button>
+            <button class="btn-delete" data-cwl-action="deletePlan" data-cwl-action-args="plan.plan_id" aria-label="Delete Plan">Delete</button>
+          </div>
+        </div></div>
+    </div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <p>No bandwidth plans yet</p>
+      <p class="hint">Create bandwidth plans to assign to subscriber groups</p>
+    </div>
+
+</div>
+
+  <div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Edit' : 'Add'"></span> Bandwidth Plan</h3>
+        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Plan Name</label>
+          <input
+            type="text"
+            placeholder="Gold Plan"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Download Speed (Mbps)</label>
+            <input
+              type="number"
+              min="1"
+              placeholder="100"
+            />
+          </div>
+          <div class="form-group">
+            <label>Upload Speed (Mbps)</label>
+            <input
+              type="number"
+              min="1"
+              placeholder="50"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" data-cwl-action="closeModal" aria-label="Close Modal">Cancel</button>
+        <button class="btn-save" data-cwl-action="savePlan" aria-label="Save Plan">
+          <span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Update' : 'Create'"></span> Plan
+        </button>
+      </div>
+    </div>
+  </div></div>
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'mme'" hidden aria-hidden="true">
+        <div data-cwl-component="MMEConnections" data-cwl-lifted-component="MMEConnections"><div class="mme-connections">
+  <div class="header">
+    <div>
+      <h2>MME Connections</h2>
+      <p class="subtitle">Remote EPC agents reporting subscriber status</p>
+    </div>
+    <button class="btn-secondary" data-cwl-action="loadConnections" data-cwl-attr-disabled="loading" aria-label="Load Connections">
+      Refresh
+    </button>
+  </div>
+
+    <div class="connections-table">
+      <div class="table-row table-header">
+        <span>EPC ID</span>
+        <span>Status</span>
+        <span>Check-in</span>
+        <span>Site</span>
+        <span>Customers</span>
+      </div>
+      <div data-cwl-bind="each" data-cwl-hole-detail="connections as connection" data-cwl-each-item="connection" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22table-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22mono%22%3E%7Bconnection.epc_id%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%7B%60status%20%24%7Bconnection.checkin_status%20%7C%7C%20'unknown'%7D%60%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7Bconnection.checkin_status%20%7C%7C%20'unknown'%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20connection.last_checkin%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bnew%20Date(connection.last_checkin).toLocaleString()%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20Never%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%7Bconnection.site_name%20%7C%7C%20'Unknown'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7Bconnection.metrics%3F.customer_count%3F.online%20%3F%3F%200%7D%20%2F%0A%20%20%20%20%20%20%20%20%20%20%20%20%7Bconnection.metrics%3F.customer_count%3F.total%20%3F%3F%200%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20"><div class="table-row">
+          <span class="mono"></span>
+          <span>
+
+          </span>
+          <span>
+
+              Never
+
+          </span>
+          <span></span>
+          <span>
+             /
+
+          </span>
+        </div></div>
+    </div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <p>No EPC agents reporting yet for this tenant.</p>
+    </div>
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="lastUpdated"><p class="timestamp">Last updated <span data-cwl-bind="interp" data-cwl-hole-detail="lastUpdated.toLocaleString()"></span></p></div>
+</div></div>
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'import'" hidden aria-hidden="true">
+        <div data-cwl-component="BulkImport" data-cwl-lifted-component="BulkImport"><div class="bulk-import">
+  <div class="header">
+    <h2>Bulk Import Subscribers</h2>
+    <button class="btn-template" data-cwl-action="downloadTemplate" aria-label="Download Template">
+      📥 Download CSV Template
+    </button>
+  </div>
+
+  <div class="upload-section">
+    <div class="instructions">
+      <h3>Import Instructions:</h3>
+      <ol>
+        <li>Download the CSV template above</li>
+        <li>Fill in subscriber details (IMSI, Ki, OPc are required)</li>
+        <li>Upload the CSV file below</li>
+        <li>Review the preview and confirm import</li>
+      </ol>
+
+      <div class="field-guide">
+        <h4>Required Fields:</h4>
+        <ul>
+          <li><strong>imsi</strong>: 15-digit IMSI (e.g., 310150123456789)</li>
+          <li><strong>ki</strong>: 32-character hex key (e.g., 00112233...EEFF)</li>
+          <li><strong>opc</strong>: 32-character hex OP/OPc key</li>
+        </ul>
+        <h4>Optional Fields:</h4>
+        <ul>
+          <li><strong>msisdn</strong>: Phone number</li>
+          <li><strong>full_name</strong>: Subscriber name</li>
+          <li><strong>qci</strong>: QoS Class Identifier (default: 9)</li>
+          <li><strong>group_id</strong>: Subscriber group</li>
+          <li><strong>bandwidth_plan_id</strong>: Bandwidth plan</li>
+        </ul>
+      </div>
+    </div>
+
+      <div class="dropzone" data-cwl-action="triggerFileSelect">
+        <div class="dropzone-content">
+          <div class="icon">📄</div>
+          <p>Click to select CSV file</p>
+          <p class="hint">or drag and drop</p>
+        </div>
+      </div>
+      <input
+        type="file" data-cwl-on-change="action:handleFileSelect"
+        accept=".csv"
+        style="display: none;"
+      />
+
+  </div>
+
+    <div class="preview-section" hidden aria-hidden="true">
+      <div class="preview-header">
+        <h3>Preview: <span data-cwl-bind="interp" data-cwl-hole-detail="csvData.length"></span> subscribers</h3>
+        <button class="btn-cancel" data-cwl-action="cancelUpload" aria-label="Cancel Upload">Cancel</button>
+      </div>
+
+      <div class="preview-table">
+        <table>
+          <thead>
+            <tr>
+              <th>IMSI</th>
+              <th>MSISDN</th>
+              <th>Name</th>
+              <th>QCI</th>
+              <th>Group</th>
+              <th>Plan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div data-cwl-bind="each" data-cwl-hole-detail="csvData.slice(0, 10) as subscriber"><tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr></div>
+          </tbody>
+        </table>
+        <div data-cwl-bind="if" data-cwl-hole-detail="csvData.length > 10"><p class="more-rows">... and <span data-cwl-bind="interp" data-cwl-hole-detail="csvData.length - 10"></span> more rows</p></div>
+      </div>
+
+      <button
+        class="btn-upload" data-cwl-action="uploadSubscribers" data-cwl-attr-disabled="uploading"
+       aria-label="Upload Subscribers">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="uploading ? 'Uploading...' : `Import  Subscribers`"></span>
+      </button>
+    </div>
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="uploadResult"><div class="result">
+      <div data-cwl-bind="if" data-cwl-hole-detail="uploadResult.success === false"><h3>❌ Import Failed</h3>
+        <p><span data-cwl-bind="interp" data-cwl-hole-detail="uploadResult.error"></span></p></div>
+        <h3>✅ Import Successful!</h3>
+        <p>Successfully imported <span data-cwl-bind="interp" data-cwl-hole-detail="uploadResult.imported || csvData.length"></span> subscribers</p>
+        <div data-cwl-bind="if" data-cwl-hole-detail="uploadResult.errors && uploadResult.errors.length > 0"><details>
+            <summary><span data-cwl-bind="interp" data-cwl-hole-detail="uploadResult.errors.length"></span> errors</summary>
+            <ul>
+              <div data-cwl-bind="each" data-cwl-hole-detail="uploadResult.errors as error"><li></li></div>
+            </ul>
+          </details></div>
+
+    </div></div>
+</div></div>
+      </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'remote-epcs'" hidden aria-hidden="true">
+        <div data-cwl-component="RemoteEPCs" data-cwl-lifted-component="RemoteEPCs"><div class="remote-epcs">
+  <div data-cwl-bind="if" data-cwl-hole-detail="viewMode === 'monitor'" hidden aria-hidden="true">
+    <!-- Monitoring View -->
+    <div class="monitor-header">
+      <button class="back-btn" data-cwl-action="backToList" aria-label="Back To List">
+        ← Back to List
+      </button>
+      <h2>📊 EPC Monitoring Dashboard</h2>
+    </div>
+    <div data-cwl-component="EPCMonitor" data-cwl-lifted-component="EPCMonitor"><div class="epc-monitor">
+  <div data-cwl-bind="if" data-cwl-hole-detail="loading && !dashboardData"><div class="loading">Loading monitoring data...</div></div>
+    <!-- Tab Navigation -->
+    <div class="monitor-tabs">
+      <button data-cwl-action="switchTab" data-cwl-action-args="'overview'"
+       aria-label="Switch Tab">
+        📊 Overview
+      </button>
+      <button data-cwl-action="switchTab" data-cwl-action-args="'roster'"
+       aria-label="Switch Tab">
+        👥 Subscriber Roster
+      </button>
+      <button data-cwl-action="switchTab" data-cwl-action-args="'events'"
+       aria-label="Switch Tab">
+        📝 Attach/Detach Events
+      </button>
+      <div data-cwl-bind="if" data-cwl-hole-detail="epcId !== 'all'"><button data-cwl-action="switchTab" data-cwl-action-args="'metrics'"
+         aria-label="Switch Tab">
+          📈 Metrics History
+        </button></div>
+      <button class="refresh-btn" data-cwl-action="loadDashboard" aria-label="Load Dashboard">
+        🔄 Refresh
+      </button>
+    </div>
+
+    <!-- Overview Tab -->
+
+      <div class="overview">
+        <!-- Summary Stats -->
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <div class="stat-icon">🌐</div>
+            <div class="stat-content">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardData?.summary?.online_epcs || 0"></span></div>
+              <div class="stat-label">EPCs Online</div>
+            </div>
+          </div>
+
+          <div class="stat-card success">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardData?.summary?.active_sessions || 0"></span></div>
+              <div class="stat-label">Active Sessions</div>
+            </div>
+          </div>
+
+          <div class="stat-card info">
+            <div class="stat-icon">📥</div>
+            <div class="stat-content">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardData?.summary?.recent_attaches || 0"></span></div>
+              <div class="stat-label">Attaches (1h)</div>
+            </div>
+          </div>
+
+          <div class="stat-card warning">
+            <div class="stat-icon">📤</div>
+            <div class="stat-content">
+              <div class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardData?.summary?.recent_detaches || 0"></span></div>
+              <div class="stat-label">Detaches (1h)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EPC Sites Overview -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="dashboardData?.epcs && dashboardData.epcs.length > 0"><div class="section">
+            <h3>EPC Sites Status</h3>
+            <div class="epcs-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="dashboardData.epcs as epc"><div class="epc-overview-card">
+                  <div class="epc-overview-header">
+                    <div>
+                      <h4></h4>
+                      <div class="epc-id"></div>
+                    </div>
+                    <div class="status-dot" style="background: "></div>
+                  </div>
+
+                    <div class="no-metrics">No metrics data available</div>
+
+                    <div class="metrics-grid" hidden aria-hidden="true">
+                      <div class="metric-item">
+                        <div class="metric-label">Active Sessions</div>
+                        <div class="metric-value"></div>
+                      </div>
+
+                      <div class="metric-item">
+                        <div class="metric-label">CPU</div>
+                        <div class="metric-value">%</div>
+                      </div>
+
+                      <div class="metric-item">
+                        <div class="metric-label">Memory</div>
+                        <div class="metric-value">%</div>
+                      </div>
+
+                      <div class="metric-item">
+                        <div class="metric-label">IP Pool</div>
+                        <div class="metric-value">%</div>
+                      </div>
+                    </div>
+
+                    <!-- Component Status -->
+
+                      <div class="components" hidden aria-hidden="true">
+                        <div data-cwl-bind="each" data-cwl-hole-detail="Object.entries(epc.latest_metrics.components) as [component, status]"><span class="component-badge" style="background: ">
+                            :
+                          </span></div>
+                      </div>
+
+                </div></div>
+            </div>
+          </div></div>
+
+        <!-- Active Alerts -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="dashboardData?.alerts && dashboardData.alerts.length > 0"><div class="section">
+            <h3>🚨 Active Alerts</h3>
+            <div class="alerts-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="dashboardData.alerts as alert"><div class="alert-item severity-">
+                  <div class="alert-header">
+                    <span class="alert-severity"></span>
+                    <span class="alert-time"></span>
+                  </div>
+                  <div class="alert-message"></div>
+                  <div class="alert-epc">EPC: </div>
+                </div></div>
+            </div>
+          </div></div>
+      </div>
+
+    <!-- Subscriber Roster Tab -->
+    <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'roster'" hidden aria-hidden="true">
+      <div class="roster">
+        <div class="roster-header">
+          <h3>👥 Enhanced Subscriber Roster</h3>
+          <div class="roster-filters">
+            <label>
+              <span>APN:</span>
+              <select>
+                <option value="all">All</option>
+                <div data-cwl-bind="each" data-cwl-hole-detail="uniqueAPNs as apn" data-cwl-each-item="apn" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bapn%7D%3E%7Bapn%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+              </select>
+            </label>
+
+            <label>
+              <span>Cell ID:</span>
+              <select>
+                <option value="all">All</option>
+                <div data-cwl-bind="each" data-cwl-hole-detail="uniqueCellIds as cellId" data-cwl-each-item="cellId" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7BcellId%7D%3E%7BcellId%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+              </select>
+            </label>
+
+            <label>
+              <span>Status:</span>
+              <select>
+                <option value="all">All</option>
+                <option value="attached">Attached</option>
+                <option value="detached">Detached</option>
+              </select>
+            </label>
+
+            <button class="btn-refresh" data-cwl-action="loadSubscriberRoster" aria-label="Load Subscriber Roster">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+          <div class="table-container">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th>IMSI</th>
+                  <th>Status</th>
+                  <th>APN</th>
+                  <th>Cell ID</th>
+                  <th>Allocated IP</th>
+                  <th>Attached At</th>
+                  <th>Last Activity</th>
+                  <th>Data Usage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="filteredRoster as session" data-cwl-each-item="session" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20class%3D%22mono%22%3E%7Bsession.imsi%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%22%20style%3D%22background%3A%20%7BgetStatusColor(session.status)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bsession.status%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bsession.apn%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bsession.cellid%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20class%3D%22mono%22%3E%7Bsession.allocated_ip%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bnew%20Date(session.attached_at).toLocaleString()%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bsession.last_activity%20%3F%20new%20Date(session.last_activity).toLocaleString()%20%3A%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bsession.data_usage%3F.total_bytes%20%3F%20formatBytes(session.data_usage.total_bytes)%20%3A%20'0%20B'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td class="mono"></td>
+                    <td>
+                      <span class="status-badge" style="background: ">
+
+                      </span>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td class="mono"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="roster-summary">
+            Showing <span data-cwl-bind="interp" data-cwl-hole-detail="filteredRoster.length"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="subscriberRoster.length"></span> sessions
+          </div>
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>No subscriber sessions found</p>
+          </div>
+
+      </div>
+    </div>
+
+    <!-- Attach/Detach Events Tab -->
+    <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'events'" hidden aria-hidden="true">
+      <div class="events">
+        <div class="events-header">
+          <h3>📝 Attach/Detach Events (Last 48 Hours)</h3>
+          <button class="btn-refresh" data-cwl-action="loadAttachDetachEvents" aria-label="Load Attach Detach Events">
+            🔄 Refresh
+          </button>
+        </div>
+
+          <!-- Event Timeline -->
+          <div class="timeline">
+            <div data-cwl-bind="each" data-cwl-hole-detail="attachDetachEvents as event" data-cwl-each-item="event" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22timeline-item%20event-%7Bevent.event_type%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22timeline-marker%22%3E%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22timeline-content%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22event-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-type%22%3E%7Bevent.event_type.toUpperCase()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-time%22%3E%7Bnew%20Date(event.timestamp).toLocaleString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22event-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-imsi%22%3EIMSI%3A%20%7Bevent.imsi%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20event.apn%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-apn%22%3EAPN%3A%20%7Bevent.apn%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20event.cellid%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-cell%22%3ECell%3A%20%7Bevent.cellid%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20event.session_duration_seconds%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-duration%22%3EDuration%3A%20%7BformatDuration(event.session_duration_seconds)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20event.data_usage_bytes%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22event-data%22%3EData%3A%20%7BformatBytes(event.data_usage_bytes)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div class="timeline-item event-">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <div class="event-header">
+                    <span class="event-type"></span>
+                    <span class="event-time"></span>
+                  </div>
+                  <div class="event-details">
+                    <span class="event-imsi">IMSI: </span>
+
+                      <div hidden aria-hidden="true"><span class="event-apn">APN: </span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span class="event-cell">Cell: </span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span class="event-duration">Duration: </span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span class="event-data">Data: </span>
+                    </div>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>No events found</p>
+          </div>
+
+      </div>
+    </div>
+
+    <!-- Metrics History Tab -->
+    <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'metrics' && epcId !== 'all'"><div class="metrics-history">
+        <div class="metrics-header">
+          <h3>📈 Metrics History</h3>
+          <button class="btn-refresh" data-cwl-action="loadMetricsHistory" aria-label="Load Metrics History">
+            🔄 Refresh
+          </button>
+        </div>
+
+          <div class="charts">
+            <div class="chart-card">
+              <h4>Active Sessions Over Time</h4>
+              <div class="simple-chart">
+                <div data-cwl-bind="each" data-cwl-hole-detail="metricsHistory.slice(-24) as metric, i"><div class="chart-bar" style="height: px">
+                    <div class="chart-tooltip">
+                       sessions
+                      <br />
+
+                    </div>
+                  </div></div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h4>System Resources</h4>
+              <div class="resource-chart">
+
+                  <div class="resource-bar">
+                    <div class="resource-label">CPU</div>
+                    <div class="resource-progress">
+                      <div class="resource-fill" style="width: %"></div>
+                    </div>
+                    <div class="resource-value"><span data-cwl-bind="interp" data-cwl-hole-detail="latest.system?.cpu_percent || 0"></span>%</div>
+                  </div>
+
+                  <div class="resource-bar">
+                    <div class="resource-label">Memory</div>
+                    <div class="resource-progress">
+                      <div class="resource-fill" style="width: %"></div>
+                    </div>
+                    <div class="resource-value"><span data-cwl-bind="interp" data-cwl-hole-detail="latest.system?.memory_percent || 0"></span>%</div>
+                  </div>
+
+                  <div class="resource-bar">
+                    <div class="resource-label">Disk</div>
+                    <div class="resource-progress">
+                      <div class="resource-fill" style="width: %"></div>
+                    </div>
+                    <div class="resource-value"><span data-cwl-bind="interp" data-cwl-hole-detail="latest.system?.disk_percent || 0"></span>%</div>
+                  </div>
+
+                  <div class="resource-bar">
+                    <div class="resource-label">IP Pool</div>
+                    <div class="resource-progress">
+                      <div class="resource-fill" style="width: %"></div>
+                    </div>
+                    <div class="resource-value"><span data-cwl-bind="interp" data-cwl-hole-detail="latest.ogstun_pool?.utilization_percent || 0"></span>%</div>
+                  </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>Loading metrics history...</p>
+          </div>
+
+      </div></div>
+
+</div></div>
+  </div>
+    <!-- List View -->
+    <div class="header">
+      <div>
+        <h2>🌐 Remote EPC Sites</h2>
+        <p class="subtitle">Manage distributed EPC deployments</p>
+      </div>
+      <div class="header-actions">
+        <button class="monitor-all-btn" data-cwl-action="monitorAll" aria-label="Monitor All">
+          📊 Monitor All
+        </button>
+        <button class="add-btn" data-cwl-toggle="showAddModal:true" aria-label="Show Add Modal">
+          ➕ Register New EPC
+        </button>
+      </div>
+    </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-value"><span data-cwl-bind="interp" data-cwl-hole-detail="epcs.length"></span></div>
+      <div class="summary-label">Total Sites</div>
+    </div>
+    <div class="summary-card online">
+      <div class="summary-value"><span data-cwl-bind="interp" data-cwl-hole-detail="epcs.filter(e => e.status === 'online').length"></span></div>
+      <div class="summary-label">Online</div>
+    </div>
+    <div class="summary-card registered">
+      <div class="summary-value"><span data-cwl-bind="interp" data-cwl-hole-detail="epcs.filter(e => e.status === 'registered').length"></span></div>
+      <div class="summary-label">Registered</div>
+    </div>
+    <div class="summary-card offline">
+      <div class="summary-value"><span data-cwl-bind="interp" data-cwl-hole-detail="epcs.filter(e => e.status === 'offline').length"></span></div>
+      <div class="summary-label">Offline</div>
+    </div>
+  </div>
+
+  <!-- Sites Overview -->
+  <div class="sites-section">
+    <h3>🏢 Sites with Deployed Devices</h3>
+
+      <div class="sites-grid">
+        <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%7B%40const%20siteDevices%20%3D%20epcs.filter(e%20%3D%3E%20e.site_name%20%3D%3D%3D%20site.name)%7D%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22site-card%22%20data-cwl-action%3D%22openSiteDevices%22%20data-cwl-action-args%3D%22site%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22site-name%22%3E%7Bsite.name%20%7C%7C%20'Unnamed%20Site'%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22site-location%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.location%3F.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%8D%20%7Bsite.location.city%7D%2C%20%7Bsite.location.state%20%7C%7C%20''%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%8D%20Location%20not%20set%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22site-devices%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%A6%20%7BsiteDevices.length%7D%20device(s)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20siteDevices.some(d%20%3D%3E%20d.status%20%3D%3D%3D%20'online')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22online-indicator%22%3E%F0%9F%9F%A2%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%20if%20siteDevices.length%20%3E%200%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22offline-indicator%22%3E%F0%9F%94%B4%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22manage-btn%22%20data-cwl-action%3D%22openSiteDevices%22%20data-cwl-action-args%3D%22site%22%20aria-label%3D%22Open%20Site%20Devices%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9A%99%EF%B8%8F%20Manage%20Devices%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20">
+          <div class="site-card" data-cwl-action="openSiteDevices" data-cwl-action-args="site">
+            <div class="site-name"></div>
+            <div class="site-location">
+              <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.city">📍 ,</div>
+                📍 Location not set
+
+            </div>
+            <div class="site-devices">
+              📦  device(s)
+              <div data-cwl-bind="if" data-cwl-hole-detail="siteDevices.some(d => d.status === 'online')"><span class="online-indicator">🟢</span></div>
+                <span class="offline-indicator">🔴</span>
+
+            </div>
+            <button class="manage-btn" data-cwl-action="openSiteDevices" data-cwl-action-args="site" aria-label="Open Site Devices">
+              ⚙️ Manage Devices
+            </button>
+          </div></div>
+      </div>
+
+      <div class="no-sites-message" hidden aria-hidden="true">
+        <p>No sites found. Create a site in the Coverage Map module or register a new EPC below to create one.</p>
+      </div>
+
+      <div hidden aria-hidden="true"><p class="loading-text">Loading sites...</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <label>
+      <span>Status:</span>
+      <select data-cwl-on-change="action:loadEPCs">
+        <option value="all">All</option>
+        <option value="online">Online</option>
+        <option value="registered">Registered</option>
+        <option value="offline">Offline</option>
+        <option value="error">Error</option>
+      </select>
+    </label>
+    <button class="refresh-btn" data-cwl-action="loadEPCs" aria-label="Load EPCs">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <!-- EPC List -->
+
+    <div class="epc-grid">
+      <div data-cwl-bind="each" data-cwl-hole-detail="filteredEPCs as epc" data-cwl-each-item="epc" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22epc-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22epc-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bepc.site_name%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22epc-id%22%3EID%3A%20%7Bepc.epc_id%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7BgetStatusBadge(epc.status).class%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BgetStatusBadge(epc.status).label%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22epc-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.location%3F.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22icon%22%3E%F0%9F%93%8D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%7Bepc.location.city%7D%2C%20%7Bepc.location.state%20%7C%7C%20''%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.location%3F.coordinates%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22icon%22%3E%F0%9F%97%BA%EF%B8%8F%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%7Bepc.location.coordinates.latitude.toFixed(4)%7D%2C%20%7Bepc.location.coordinates.longitude.toFixed(4)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.network_config%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22icon%22%3E%F0%9F%93%A1%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EMCC%3A%20%7Bepc.network_config.mcc%7D%20%2F%20MNC%3A%20%7Bepc.network_config.mnc%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.last_seen%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22icon%22%3E%F0%9F%95%90%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3ELast%20seen%3A%20%7Bnew%20Date(epc.last_seen).toLocaleString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.status%20%3D%3D%3D%20'offline'%20%26%26%20epc.timeSinceCheckin%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20style%3D%22color%3A%20%23ef4444%3B%20margin-left%3A%200.5rem%3B%20font-weight%3A%20500%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(Offline%20for%20%7BformatTimeSince(epc.timeSinceCheckin)%7D)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.minutes_since_heartbeat%20!%3D%3D%20undefined%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22icon%22%3E%F0%9F%92%93%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%7Bepc.minutes_since_heartbeat%7D%20min%20since%20heartbeat%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22epc-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-primary%22%20data-cwl-action%3D%22monitorEPC%22%20data-cwl-action-args%3D%22epc%22%20aria-label%3D%22Monitor%20EPC%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%8A%20Monitor%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-secondary%22%20data-cwl-action%3D%22downloadDeploymentScript%22%20data-cwl-action-args%3D%22epc%22%20aria-label%3D%22Download%20Deployment%20Script%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%93%A5%20Script%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-secondary%22%20data-cwl-action%3D%22downloadBootISO%22%20data-cwl-action-args%3D%22epc%22%20disabled%3D%7BdownloadingISO%7D%20aria-label%3D%22Download%20Boot%20ISO%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20downloadingISO%7D%E2%8F%B3%7B%3Aelse%7D%F0%9F%92%BF%20ISO%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-secondary%22%20data-cwl-action%3D%22viewEPCDetails%22%20data-cwl-action-args%3D%22epc%22%20aria-label%3D%22View%20EPCDetails%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%84%B9%EF%B8%8F%20Details%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn-danger%22%20data-cwl-action%3D%22deleteEPC%22%20data-cwl-action-args%3D%22epc%22%20aria-label%3D%22Delete%20EPC%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%97%91%EF%B8%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3C!--%20Installable%20Components%20Actions%20--%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22epc-components%22%20style%3D%22margin-top%3A%200.75rem%3B%20padding-top%3A%200.75rem%3B%20border-top%3A%201px%20solid%20%23ddd%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20style%3D%22font-size%3A%200.875rem%3B%20font-weight%3A%20600%3B%20margin-bottom%3A%200.5rem%3B%20color%3A%20%23666%3B%22%3E%F0%9F%93%A6%20Components%3A%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20style%3D%22display%3A%20flex%3B%20gap%3A%200.5rem%3B%20flex-wrap%3A%20wrap%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20epc.installed_components%3F.nodejs_npm%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22component-badge%20installed%22%20title%3D%22Node.js%20%26%20npm%20installed%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%85%20Node.js%2Fnpm%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-small%20btn-danger%22%20data-cwl-action%3D%22uninstallComponent%22%20data-cwl-action-args%3D%22epc%2C%20'nodejs_npm'%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Uninstall%20Node.js%20and%20npm%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%F0%9F%97%91%EF%B8%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22component-badge%20not-installed%22%20title%3D%22Node.js%20%26%20npm%20not%20installed%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9D%8C%20Node.js%2Fnpm%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22btn-small%20btn-primary%22%20data-cwl-action%3D%22installComponent%22%20data-cwl-action-args%3D%22epc%2C%20'nodejs_npm'%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20title%3D%22Install%20Node.js%20and%20npm%20for%20CDP%2FLLDP%20discovery%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9E%95%20Install%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20"><div class="epc-card">
+          <div class="epc-header">
+            <div>
+              <h3></h3>
+              <div class="epc-id">ID: </div>
+            </div>
+            <span class="status-badge ">
+
+            </span>
+          </div>
+
+          <div class="epc-details">
+            <div data-cwl-bind="if" data-cwl-hole-detail="epc.location?.city"><div class="detail-row">
+                <span class="icon">📍</span>
+                <span>, </span>
+              </div></div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="epc.location?.coordinates"><div class="detail-row">
+                <span class="icon">🗺️</span>
+                <span>, </span>
+              </div></div>
+
+              <div class="detail-row" hidden aria-hidden="true">
+                <span class="icon">📡</span>
+                <span>MCC:  / MNC: </span>
+              </div>
+
+              <div class="detail-row" hidden aria-hidden="true">
+                <span class="icon">🕐</span>
+                <span>Last seen: </span>
+                <div data-cwl-bind="if" data-cwl-hole-detail="epc.status === 'offline' && epc.timeSinceCheckin"><span style="color: #ef4444; margin-left: 0.5rem; font-weight: 500;">
+                    (Offline for )
+                  </span></div>
+              </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="epc.minutes_since_heartbeat !== undefined"><div class="detail-row">
+                <span class="icon">💓</span>
+                <span> min since heartbeat</span>
+              </div></div>
+          </div>
+
+          <div class="epc-actions">
+            <button class="btn-primary" data-cwl-action="monitorEPC" data-cwl-action-args="epc" aria-label="Monitor EPC">
+              📊 Monitor
+            </button>
+            <button class="btn-secondary" data-cwl-action="downloadDeploymentScript" data-cwl-action-args="epc" aria-label="Download Deployment Script">
+              📥 Script
+            </button>
+            <button class="btn-secondary" data-cwl-action="downloadBootISO" data-cwl-action-args="epc" aria-label="Download Boot ISO">
+              💿 ISO
+            </button>
+            <button class="btn-secondary" data-cwl-action="viewEPCDetails" data-cwl-action-args="epc" aria-label="View EPCDetails">
+              ℹ️ Details
+            </button>
+            <button class="btn-danger" data-cwl-action="deleteEPC" data-cwl-action-args="epc" aria-label="Delete EPC">
+              🗑️
+            </button>
+          </div>
+
+          <!-- Installable Components Actions -->
+          <div class="epc-components" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #ddd;">
+            <div style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: #666;">📦 Components:</div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <div data-cwl-bind="if" data-cwl-hole-detail="epc.installed_components?.nodejs_npm"><span class="component-badge installed" title="Node.js & npm installed">
+                  ✅ Node.js/npm
+                </span>
+                <button
+                  class="btn-small btn-danger" data-cwl-action="uninstallComponent" data-cwl-action-args="epc, 'nodejs_npm'"
+                  title="Uninstall Node.js and npm"
+                >
+                  🗑️
+                </button></div>
+                <span class="component-badge not-installed" title="Node.js & npm not installed">
+                  ❌ Node.js/npm
+                </span>
+                <button
+                  class="btn-small btn-primary" data-cwl-action="installComponent" data-cwl-action-args="epc, 'nodejs_npm'"
+                  title="Install Node.js and npm for CDP/LLDP discovery"
+                >
+                  ➕ Install
+                </button>
+
+            </div>
+          </div>
+        </div></div>
+    </div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <h3>No EPC sites found</h3>
+      <p>Register your first remote EPC to get started</p>
+      <button class="add-btn" data-cwl-toggle="showAddModal:true" aria-label="Show Add Modal">
+        ➕ Register New EPC
+      </button>
+    </div>
+
+</div>
+
+<!-- Add EPC Modal -->
+
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Register New EPC Site</h2>
+        <button class="close-btn" data-cwl-toggle="showAddModal:false" aria-label="Show Add Modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-section">
+          <h3>Site Information</h3>
+          <div class="form-group">
+            <label>Select Site *</label>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <select data-cwl-on-change="action:handleSiteSelect" data-cwl-on-change-args="(event.target as HTMLSelectElement" style="flex: 1;">
+                  <option>-- Select a site --</option>
+                  <option value="create-new">➕ Create New Site...</option>
+                  <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite._id%20%7C%7C%20site.id%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bsite.name%20%7C%7C%20site.siteName%20%7C%7C%20'Unnamed%20Site'%7D%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20site.location%3F.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20-%20%7Bsite.location.city%7D%2C%20%7Bsite.location.state%20%7C%7C%20''%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option>
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.city">- ,</div>
+                    </option></div>
+                </select>
+                <button type="button" class="btn-secondary" data-cwl-action="loadSites" title="Refresh sites">
+                  🔄
+                </button>
+              </div>
+
+                <div hidden aria-hidden="true"><small class="form-hint">Selected site: <span data-cwl-bind="interp" data-cwl-hole-detail="formData.site_name"></span></small>
+              </div>
+
+                <small class="form-hint">Found <span data-cwl-bind="interp" data-cwl-hole-detail="sites.length"></span> site(s)</small>
+
+              <div hidden aria-hidden="true"><select data-cwl-on-change="action:handleSiteSelect" data-cwl-on-change-args="(event.target as HTMLSelectElement">
+                <option value="create-new">➕ Create New Site...</option>
+              </select>
+              <small class="form-hint">No sites available. Select "Create New Site" to add one.</small>
+            </div>
+              <div hidden aria-hidden="true"><p class="loading-text">Loading sites...</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" placeholder="City" />
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" placeholder="State" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" placeholder="Street address" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>GPS Coordinates (for map)</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Latitude *</label>
+              <input type="number" step="0.0001" placeholder="40.7128" required />
+            </div>
+            <div class="form-group">
+              <label>Longitude *</label>
+              <input type="number" step="0.0001" placeholder="-74.0060" required />
+            </div>
+          </div>
+          <small>Get coordinates from <a href="https://www.google.com/maps" target="_blank">Google Maps</a></small>
+        </div>
+
+        <div class="form-section">
+          <h3>Network Configuration</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>MCC *</label>
+              <input type="text" placeholder="001" required />
+            </div>
+            <div class="form-group">
+              <label>MNC *</label>
+              <input type="text" placeholder="01" required />
+            </div>
+            <div class="form-group">
+              <label>TAC *</label>
+              <input type="text" placeholder="1" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Contact Information</h3>
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" placeholder="Site manager name" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" placeholder="email@example.com" />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" placeholder="+1 (555) 123-4567" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-cwl-toggle="showAddModal:false" aria-label="Show Add Modal">Cancel</button>
+        <button
+          type="button"
+          class="btn-primary" data-cwl-action="registerEPC"
+         aria-label="Register EPC">
+          Register EPC
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- Create New Site Modal -->
+
+  <div class="modal-overlay" data-cwl-toggle="showCreateSiteModal:false" hidden aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>➕ Create New Site</h2>
+        <button class="close-btn" data-cwl-toggle="showCreateSiteModal:false" aria-label="Show Create Site Modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-section">
+          <h3>Site Information</h3>
+          <div class="form-group">
+            <label>Site Name *</label>
+            <input type="text" placeholder="e.g., Main Tower Site" required />
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" placeholder="Street address" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" placeholder="City" required />
+            </div>
+            <div class="form-group">
+              <label>State *</label>
+              <input type="text" placeholder="State" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Latitude *</label>
+              <input type="number" step="0.0001" placeholder="40.7128" required />
+            </div>
+            <div class="form-group">
+              <label>Longitude *</label>
+              <input type="number" step="0.0001" placeholder="-74.0060" required />
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>💡 Tip:</strong> Enter GPS coordinates or use the Coverage Map module to drop a pin and get exact coordinates.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" data-cwl-toggle="showCreateSiteModal:false" aria-label="Show Create Site Modal">
+          Cancel
+        </button>
+        <button class="btn-primary" data-cwl-action="createNewSite" data-cwl-attr-disabled="creatingSite" aria-label="Create New Site">
+
+            ✅ Create Site
+
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- EPC Details Modal -->
+
+  <div class="modal-overlay" data-cwl-toggle="showDetailsModal:false" hidden aria-hidden="true">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h2>📊 <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.site_name"></span></h2>
+        <button class="close-btn" data-cwl-toggle="showDetailsModal:false" aria-label="Show Details Modal">✕</button>
+      </div>
+
+      <div class="modal-tabs">
+        <button
+          class="tab-btn" data-cwl-set="detailsModalTab:details"
+        >
+          ℹ️ Details
+        </button>
+        <button
+          class="tab-btn" data-cwl-action="loadEPCLogs"
+         aria-label="Load EPCLogs">
+          📋 Logs <span data-cwl-bind="interp" data-cwl-hole-detail="epcLogs.length > 0 ? `()` : ''"></span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div data-cwl-bind="if" data-cwl-hole-detail="detailsModalTab === 'logs'" hidden aria-hidden="true">
+          <div class="logs-viewer">
+            <div class="logs-header">
+              <button class="btn-secondary" data-cwl-action="loadEPCLogs" data-cwl-attr-disabled="loadingLogs" aria-label="Load EPCLogs">
+                🔄 Refresh
+              </button>
+            </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="logsError"><div class="error"><span data-cwl-bind="interp" data-cwl-hole-detail="logsError"></span></div></div>
+              <div class="logs-container">
+                <div data-cwl-bind="each" data-cwl-hole-detail="epcLogs as log (log.id)" data-cwl-each-item="log" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22log-entry%20log-level-%7Blog.level%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22log-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22log-timestamp%22%3E%7Bnew%20Date(log.timestamp).toLocaleString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22log-level-badge%20level-%7Blog.level%7D%22%3E%7Blog.level.toUpperCase()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22log-source%22%3E%7Blog.origin-convert-all%20%7C%7C%20'unknown'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22log-message%22%3E%7Blog.message%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20log.details%20%26%26%20Object.keys(log.details).length%20%3E%200%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdetails%20class%3D%22log-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csummary%3EDetails%3C%2Fsummary%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpre%3E%7BJSON.stringify(log.details%2C%20null%2C%202)%7D%3C%2Fpre%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdetails%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="log-entry log-level-">
+                    <div class="log-header">
+                      <span class="log-timestamp"></span>
+                      <span class="log-level-badge level-"></span>
+                      <span class="log-source"></span>
+                    </div>
+                    <div class="log-message"></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="log.details && Object.keys(log.details).length > 0"><details class="log-details">
+                        <summary>Details</summary>
+                        <pre></pre>
+                      </details></div>
+                  </div></div>
+              </div>
+
+              <div class="empty-state" hidden aria-hidden="true">
+                <p>No logs available yet. Logs will appear here after the device checks in.</p>
+              </div>
+
+              <div class="loading" hidden aria-hidden="true">Loading logs...</div>
+
+          </div>
+        </div>
+          <div class="details-grid">
+          <div class="detail-section">
+            <h3>Status</h3>
+            <div class="status-large">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="getStatusBadge(selectedEPC.status).label"></span>
+            </div>
+
+              <div hidden aria-hidden="true"><p>Last heartbeat: <span data-cwl-bind="interp" data-cwl-hole-detail="new Date(selectedEPC.last_heartbeat).toLocaleString()"></span></p>
+            </div>
+          </div>
+
+          <div class="detail-section device-config">
+            <h3>🔧 Device Configuration</h3>
+
+              <div class="device-code-form">
+                <p style="color: #666; margin-bottom: 1rem;">
+                  Link hardware to this EPC by entering the device code displayed on the hardware.
+                </p>
+                <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                  <input
+                    type="text"
+                    placeholder="ABCD1234"
+                    maxlength="8"
+                    style="text-transform: uppercase; font-family: monospace; font-size: 1.1em; letter-spacing: 2px; padding: 0.5rem; flex: 1;" data-cwl-attr-disabled="linkingDevice"
+                  />
+                  <button
+                    class="btn-primary" data-cwl-action="linkDeviceCode" data-cwl-attr-disabled="linkingDevice || !deviceCodeInput.trim()"
+                   aria-label="Link Device Code">
+
+                      🔗 Link Device
+
+                  </button>
+                </div>
+                <small style="color: #666; display: block; margin-top: 0.5rem;">
+                  Device code is displayed at <code>http://&lt;device-ip&gt;/device-status.html</code> or on the device console
+                </small>
+              </div>
+
+              <div class="device-code-linked" hidden aria-hidden="true">
+                <p><strong>Device Code:</strong> <code style="font-size: 1.2em; letter-spacing: 2px;"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.device_code"></span></code></p>
+                <p style="color: #28a745; font-size: 0.9em;">✓ Hardware linked - Device will check in automatically</p>
+              </div>
+
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.auth_code || selectedEPC.api_key"><div class="detail-section credentials">
+              <h3>🔐 Credentials (Keep Secure!)</h3>
+              <div class="credential-item">
+                <label>AUTH CODE:</label>
+                <code><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.auth_code"></span></code>
+              </div>
+              <div class="credential-item">
+                <label>API KEY:</label>
+                <code><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.api_key"></span></code>
+              </div>
+
+                <div class="credential-item" hidden aria-hidden="true">
+                  <label>SECRET KEY:</label>
+                  <code><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.secret_key"></span></code>
+                </div>
+
+              <button class="btn-primary" data-cwl-action="downloadDeploymentScript" data-cwl-action-args="selectedEPC" aria-label="Download Deployment Script">
+                📥 Download Deployment Script
+              </button>
+            </div></div>
+
+          <div class="detail-section">
+            <h3>Location</h3>
+            <p><strong>Address:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.location?.address || 'N/A'"></span></p>
+            <p><strong>City:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.location?.city || 'N/A'"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.location?.state || ''"></span></p>
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.location?.coordinates"><p><strong>Coordinates:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.location.coordinates.latitude"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.location.coordinates.longitude"></span></p></div>
+          </div>
+
+          <div class="detail-section">
+            <h3>📦 Deployment Type</h3>
+            <div class="deployment-type-badge">
+              <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.deployment_type === 'epc'">📡 EPC Only</div><div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.deployment_type === 'snmp'">📊 SNMP Agent Only</div>
+                📡📊 EPC + SNMP Agent
+
+            </div>
+
+              <div hidden aria-hidden="true"><p style="margin-top: 0.5rem;"><strong>Hardware ID:</strong> <code><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.hardware_id"></span></code></p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3>📡 Network Config (EPC)</h3>
+            <p><strong>MCC:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.network_config?.mcc || selectedEPC.hss_config?.mcc || 'N/A'"></span></p>
+            <p><strong>MNC:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.network_config?.mnc || selectedEPC.hss_config?.mnc || 'N/A'"></span></p>
+            <p><strong>TAC:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.network_config?.tac || selectedEPC.hss_config?.tac || 'N/A'"></span></p>
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.hss_config?.apnName"><p><strong>APN:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.hss_config.apnName"></span></p></div>
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.hss_config?.dnsPrimary"><p><strong>DNS:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.hss_config.dnsPrimary"></span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.hss_config?.dnsSecondary ? `, "></span></p></div>
+
+              <div hidden aria-hidden="true"><p><strong>Origin-Host:</strong> <code style="font-size: 0.75rem;"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.origin_host_fqdn"></span></code></p>
+            </div>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.deployment_type === 'snmp' || selectedEPC.deployment_type === 'both' || selectedEPC.snmp_config?.enabled"><div class="detail-section snmp-config">
+              <h3>📊 SNMP Configuration</h3>
+              <p><strong>Enabled:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.snmp_config?.enabled !== false ? '✓ Yes' : '✗ No'"></span></p>
+              <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.snmp_config?.community"><p><strong>Community:</strong> <code><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.snmp_config.community"></span></code></p></div>
+                <p><strong>Community:</strong> <code>public</code> (default)</p>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.snmp_config?.version"><p><strong>Version:</strong> SNMPv<span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.snmp_config.version"></span></p></div>
+              <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.snmp_config?.pollingInterval"><p><strong>Polling Interval:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.snmp_config.pollingInterval"></span>s</p></div>
+                <p><strong>Polling Interval:</strong> 60s (default)</p>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.snmp_config?.targets && selectedEPC.snmp_config.targets.length > 0"><p><strong>Targets:</strong></p>
+                <ul class="snmp-targets">
+                  <div data-cwl-bind="each" data-cwl-hole-detail="selectedEPC.snmp_config.targets as target"><li><code></code></li></div>
+                </ul></div>
+                <p><strong>Targets:</strong> <em>Auto-discover on local network</em></p>
+
+            </div></div>
+
+            <div class="detail-section" hidden aria-hidden="true">
+              <h3>Version Info</h3>
+              <p><strong>Open5GS:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.version.open5gs || 'N/A'"></span></p>
+              <p><strong>Agent:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.version.metrics_agent || 'N/A'"></span></p>
+              <p><strong>OS:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.version.os || 'N/A'"></span></p>
+            </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedEPC.contact?.name || selectedEPC.contact?.email"><div class="detail-section">
+              <h3>Contact</h3>
+              <p><strong>Name:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.contact.name || 'N/A'"></span></p>
+              <p><strong>Email:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.contact.email || 'N/A'"></span></p>
+              <p><strong>Phone:</strong> <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.contact.phone || 'N/A'"></span></p>
+            </div></div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" data-cwl-toggle="showDetailsModal:false" aria-label="Show Details Modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Site Devices Modal -->
+<div data-cwl-component="SiteDevicesModal" data-cwl-lifted-component="SiteDevicesModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div class="modal site-devices-modal">
+      <div class="modal-header">
+        <div>
+          <h2>🏢 <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>
+          <p class="subtitle">Manage deployed devices at this site</p>
+        </div>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Site Info Summary -->
+        <div class="site-info">
+          <div class="info-item">
+            <span class="icon">📍</span>
+            <span><span data-cwl-bind="interp" data-cwl-hole-detail="site.location?.city || 'N/A'"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="site.location?.state || ''"></span></span>
+          </div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.coordinates"><div class="info-item">
+              <span class="icon">🗺️</span>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="site.location.coordinates.latitude?.toFixed(4)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="site.location.coordinates.longitude?.toFixed(4)"></span></span>
+            </div></div>
+          <div class="info-item">
+            <span class="icon">📦</span>
+            <span><span data-cwl-bind="interp" data-cwl-hole-detail="devices.length"></span> device(s) deployed</span>
+          </div>
+        </div>
+
+        <!-- Devices List -->
+        <div class="devices-section">
+          <div class="section-header">
+            <h3>Deployed Devices</h3>
+            <button class="add-btn" data-cwl-toggle="showAddDeviceModal:true" aria-label="Show Add Device Modal">
+              ➕ Add Device
+            </button>
+          </div>
+
+            <div class="devices-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="devices as device"><div class="device-card">
+                  <div data-cwl-bind="if" data-cwl-hole-detail="editingDevice?.epc_id === device.epc_id"><!-- Edit Mode -->
+                    <div class="device-edit-form">
+                      <h4>Edit Device Configuration</h4>
+
+                      <div class="form-group">
+                        <label>Deployment Type</label>
+                        <select=>
+                          <option value="epc">📡 EPC Only</option>
+                          <option value="snmp">📊 SNMP Agent Only</option>
+                          <option value="both">📡📊 EPC + SNMP</option>
+                        </select>
+                      </div>
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="editingDevice.deployment_type === 'epc' || editingDevice.deployment_type === 'both'"><div class="config-section">
+                          <h5>📡 EPC Configuration</h5>
+                          <div class="form-row">
+                            <div class="form-group">
+                              <label>MCC</label>
+                              <input type="text"= />
+                            </div>
+                            <div class="form-group">
+                              <label>MNC</label>
+                              <input type="text"= />
+                            </div>
+                            <div class="form-group">
+                              <label>TAC</label>
+                              <input type="text"= />
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label>APN Name</label>
+                            <input type="text"= />
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group">
+                              <label>Primary DNS</label>
+                              <input type="text"= />
+                            </div>
+                            <div class="form-group">
+                              <label>Secondary DNS</label>
+                              <input type="text"= />
+                            </div>
+                          </div>
+                        </div></div>
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="editingDevice.deployment_type === 'snmp' || editingDevice.deployment_type === 'both'"><div class="config-section">
+                          <h5>📊 SNMP Configuration</h5>
+                          <div class="form-row">
+                            <div class="form-group">
+                              <label>
+                                <input type="checkbox"= />
+                                SNMP Enabled
+                              </label>
+                            </div>
+                            <div class="form-group">
+                              <label>
+                                <input type="checkbox"= />
+                                Auto-Discovery
+                              </label>
+                            </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group">
+                              <label>Community String</label>
+                              <input type="text"= />
+                            </div>
+                            <div class="form-group">
+                              <label>Version</label>
+                              <select=>
+                                <option value="1">SNMPv1</option>
+                                <option value="2c">SNMPv2c</option>
+                                <option value="3">SNMPv3</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label>Polling Interval (seconds)</label>
+                            <input type="number"= min="10" max="3600" />
+                          </div>
+                        </div></div>
+
+                      <div class="edit-actions">
+                        <button class="btn-secondary" data-cwl-action="cancelEdit" aria-label="Cancel Edit">Cancel</button>
+                        <button class="btn-primary" data-cwl-action="saveDevice" aria-label="Save Device">
+                          💾 Save Changes
+                        </button>
+                      </div>
+                    </div></div>
+                    <!-- View Mode -->
+                    <div class="device-header">
+                      <div>
+                        <span class="deployment-type"></span>
+                        <span class="status-badge ">
+
+                        </span>
+                      </div>
+                      <button class="edit-btn" data-cwl-action="startEdit" data-cwl-action-args="device" aria-label="Start Edit">✏️ Edit</button>
+                    </div>
+
+                    <div class="device-details">
+                      <div class="detail-row">
+                        <span class="label">Device Code:</span>
+
+                          <span class="not-linked">Not linked yet</span>
+
+                          <div hidden aria-hidden="true"><code class="device-code"></code>
+                        </div>
+                      </div>
+
+                        <div class="detail-row" hidden aria-hidden="true">
+                          <span class="label">Hardware ID:</span>
+                          <code></code>
+                        </div>
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="device.deployment_type === 'epc' || device.deployment_type === 'both'"><div class="detail-row">
+                          <span class="label">Network:</span>
+                          <span>MCC:  / MNC: </span>
+                        </div>
+                        <div class="detail-row">
+                          <span class="label">APN:</span>
+                          <span></span>
+                        </div></div>
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="device.deployment_type === 'snmp' || device.deployment_type === 'both'"><div class="detail-row">
+                          <span class="label">SNMP:</span>
+                          <span>
+
+                            ()
+                          </span>
+                        </div></div>
+
+                        <div class="detail-row" hidden aria-hidden="true">
+                          <span class="label">Last Seen:</span>
+                          <span></span>
+                        </div>
+
+                    </div>
+
+                    <div class="device-id">
+                      ID:
+                    </div>
+
+                </div></div>
+            </div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <p>No devices deployed at this site yet.</p>
+              <button class="add-btn" data-cwl-toggle="showAddDeviceModal:true" aria-label="Show Add Device Modal">
+                ➕ Add First Device
+              </button>
+            </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" data-cwl-action="close" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div>
+
+<!-- Add Device Modal -->
+
+  <div class="modal-overlay nested" data-cwl-toggle="showAddDeviceModal:false" hidden aria-hidden="true">
+    <div class="modal add-device-modal">
+      <div class="modal-header">
+        <h2>➕ Add New Device</h2>
+        <button class="close-btn" data-cwl-toggle="showAddDeviceModal:false" aria-label="Show Add Device Modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="info-text">
+          Add a new device deployment to <strong><span data-cwl-bind="interp" data-cwl-hole-detail="site?.name"></span></strong>. After adding, you'll get an ISO to boot the hardware.
+        </p>
+
+        <div class="form-group">
+          <label>Deployment Type</label>
+          <select>
+            <option value="epc">📡 EPC Only - LTE Core Network</option>
+            <option value="snmp">📊 SNMP Agent Only - Network Monitoring</option>
+            <option value="both">📡📊 EPC + SNMP - Full Package</option>
+          </select>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="newDevice.deployment_type === 'epc' || newDevice.deployment_type === 'both'"><div class="config-section">
+            <h4>📡 EPC Configuration</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>MCC</label>
+                <input type="text" placeholder="001" />
+              </div>
+              <div class="form-group">
+                <label>MNC</label>
+                <input type="text" placeholder="01" />
+              </div>
+              <div class="form-group">
+                <label>TAC</label>
+                <input type="text" placeholder="1" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>APN Name</label>
+              <input type="text" placeholder="internet" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Primary DNS</label>
+                <input type="text" placeholder="8.8.8.8" />
+              </div>
+              <div class="form-group">
+                <label>Secondary DNS</label>
+                <input type="text" placeholder="8.8.4.4" />
+              </div>
+            </div>
+          </div></div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="newDevice.deployment_type === 'snmp' || newDevice.deployment_type === 'both'"><div class="config-section">
+            <h4>📊 SNMP Configuration</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Community String</label>
+                <input type="text" placeholder="public" />
+              </div>
+              <div class="form-group">
+                <label>Version</label>
+                <select>
+                  <option value="1">SNMPv1</option>
+                  <option value="2c">SNMPv2c</option>
+                  <option value="3">SNMPv3</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Polling Interval (seconds)</label>
+              <input type="number" min="10" max="3600" />
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" />
+                Auto-discover devices on local network
+              </label>
+            </div>
+          </div></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" data-cwl-toggle="showAddDeviceModal:false" aria-label="Show Add Device Modal">Cancel</button>
+        <button class="btn-primary" data-cwl-action="addDevice" data-cwl-attr-disabled="saving" aria-label="Add Device">
+          ➕ Add Device
+        </button>
+      </div>
+    </div>
+  </div></div></div>
+      </div>
+    </div>
+
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
-        <h2 id="help-modal-title"></h2>
-        <button class="close-btn" aria-label="Close">×</button>
+        <h2 id="help-modal-title">HSS & Subscriber Management Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="help-body">
-        
+
+<h3>🔐 HSS & Subscriber Management</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Manage Home Subscriber Server (HSS) database for LTE/5G networks. Create, configure, and manage subscriber profiles, authentication credentials, and service access for mobile network subscribers.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#subscriber-management">📱 Subscriber Management</a></li>
+    <li><a href="#authentication">🔐 Authentication</a></li>
+    <li><a href="#group-management">👥 Group Management</a></li>
+    <li><a href="#epc-deployment">🌐 EPC Deployment</a></li>
+    <li><a href="#mme-connection">🔌 MME Connection</a></li>
+    <li><a href="#monitoring">📊 Monitoring</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#technical-details">📚 Technical Details</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>Subscriber Management:</strong> Create, edit, and delete subscriber profiles</li>
+  <li><strong>Authentication:</strong> Manage authentication vectors (AUTN, RAND, XRES, CK, IK)</li>
+  <li><strong>Service Profiles:</strong> Configure APN (Access Point Name) and service access</li>
+  <li><strong>Group Management:</strong> Organize subscribers into groups for bulk operations</li>
+  <li><strong>EPC Integration:</strong> Deploy and manage Evolved Packet Core (EPC) systems</li>
+  <li><strong>MME Connection:</strong> Connect Mobile Management Entities (MMEs) to HSS</li>
+  <li><strong>Monitoring:</strong> Track subscriber activity and authentication events</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Add a Subscriber</h4>
+<ol>
+  <li>Navigate to <strong>HSS Management</strong> module</li>
+  <li>Click <strong>"Add Subscriber"</strong> button</li>
+  <li>Enter subscriber information:
+    <ul>
+      <li><strong>IMSI</strong> - International Mobile Subscriber Identity (15 digits, required)</li>
+      <li><strong>MSISDN</strong> - Mobile Station International Subscriber Directory Number (phone number, optional)</li>
+      <li><strong>Ki</strong> - Authentication key (128-bit hex, required)</li>
+      <li><strong>OP/OPc</strong> - Operator variant key (optional, for enhanced security)</li>
+      <li><strong>APN</strong> - Access Point Name (default: internet)</li>
+      <li><strong>QoS Profile</strong> - Quality of Service settings</li>
+    </ul>
+  </li>
+  <li>Click <strong>"Create Subscriber"</strong></li>
+</ol>
+
+<h4>Step 2: Configure APN</h4>
+<p>Access Point Names define network access:</p>
+<ul>
+  <li><strong>Default APN:</strong> Usually "internet" for data access</li>
+  <li><strong>Custom APNs:</strong> Create APNs for specific services</li>
+  <li><strong>APN Settings:</strong> Configure IP allocation, DNS, and routing</li>
+</ul>
+
+<h4>Step 3: Assign to Group</h4>
+<ol>
+  <li>Select subscriber from list</li>
+  <li>Click <strong>"Edit"</strong></li>
+  <li>Select subscriber group</li>
+  <li>Groups help organize subscribers for bulk operations</li>
+  <li>Save changes</li>
+</ol>
+
+<h4 id="subscriber-management">📱 Subscriber Management</h4>
+
+<h4>Subscriber Fields</h4>
+<ul>
+  <li><strong>IMSI:</strong> Unique 15-digit identifier (MCC + MNC + MSIN)</li>
+  <li><strong>MSISDN:</strong> Phone number (E.164 format)</li>
+  <li><strong>Ki:</strong> 128-bit authentication key (hex format)</li>
+  <li><strong>OP/OPc:</strong> Operator variant key for enhanced security</li>
+  <li><strong>APN:</strong> Access Point Name for data services</li>
+  <li><strong>QoS:</strong> Quality of Service profile</li>
+  <li><strong>Status:</strong> Active, Suspended, Deleted</li>
+</ul>
+
+<h4>Editing Subscribers</h4>
+<ol>
+  <li>Click subscriber from list</li>
+  <li>Click <strong>"Edit"</strong> button</li>
+  <li>Update subscriber information</li>
+  <li><strong>Note:</strong> Changing Ki requires re-authentication</li>
+  <li>Save changes</li>
+</ol>
+
+<h4>Suspending Subscribers</h4>
+<p>Temporarily disable subscriber access:</p>
+<ol>
+  <li>Select subscriber</li>
+  <li>Click <strong>"Suspend"</strong></li>
+  <li>Subscriber cannot authenticate</li>
+  <li>Click <strong>"Activate"</strong> to restore access</li>
+</ol>
+
+<h4 id="authentication">🔐 Authentication</h4>
+
+<h4>How Authentication Works</h4>
+<p>The HSS generates authentication vectors for MMEs:</p>
+<ol>
+  <li>MME requests authentication vector from HSS</li>
+  <li>HSS generates RAND (random challenge)</li>
+  <li>HSS calculates AUTN, XRES, CK, IK using Ki</li>
+  <li>HSS sends authentication vector to MME</li>
+  <li>MME challenges subscriber with RAND</li>
+  <li>Subscriber calculates RES using Ki</li>
+  <li>MME compares RES with XRES</li>
+  <li>If match, subscriber is authenticated</li>
+</ol>
+
+<h4>Security Best Practices</h4>
+<ul>
+  <li><strong>Secure Ki Storage:</strong> Encrypt Ki values in database</li>
+  <li><strong>Unique Ki:</strong> Each subscriber must have unique Ki</li>
+  <li><strong>OP/OPc:</strong> Use operator variant keys for enhanced security</li>
+  <li><strong>Regular Rotation:</strong> Consider rotating Ki periodically</li>
+  <li><strong>Access Control:</strong> Limit who can view/edit Ki values</li>
+</ul>
+
+<h4 id="group-management">👥 Group Management</h4>
+
+<h4>Creating Groups</h4>
+<ol>
+  <li>Navigate to <strong>Groups</strong> section</li>
+  <li>Click <strong>"Create Group"</strong></li>
+  <li>Enter group name and description</li>
+  <li>Set group settings (APN, QoS, etc.)</li>
+  <li>Save group</li>
+</ol>
+
+<h4>Using Groups</h4>
+<ul>
+  <li>Assign subscribers to groups</li>
+  <li>Apply group settings to all members</li>
+  <li>Bulk operations on group members</li>
+  <li>Organize by service tier or location</li>
+</ul>
+
+<h4 id="epc-deployment">🌐 EPC Deployment</h4>
+
+<h4>What is EPC?</h4>
+<p>Evolved Packet Core (EPC) is the core network for LTE:</p>
+<ul>
+  <li><strong>HSS:</strong> Home Subscriber Server (this module)</li>
+  <li><strong>MME:</strong> Mobility Management Entity</li>
+  <li><strong>SGW:</strong> Serving Gateway</li>
+  <li><strong>PGW:</strong> Packet Data Network Gateway</li>
+  <li><strong>PCRF:</strong> Policy and Charging Rules Function</li>
+</ul>
+
+<h4>Deploying EPC</h4>
+<ol>
+  <li>Navigate to <strong>EPC Deployment</strong> section</li>
+  <li>Select deployment type (Cloud, On-Premise, Hybrid)</li>
+  <li>Configure network settings</li>
+  <li>Deploy HSS component</li>
+  <li>Connect MMEs to HSS</li>
+  <li>Test authentication flow</li>
+</ol>
+
+<h4 id="mme-connection">🔌 MME Connection</h4>
+
+<h4>Connecting MMEs</h4>
+<p>MMEs connect to HSS via S6a interface:</p>
+<ol>
+  <li>Configure MME with HSS address</li>
+  <li>Set up Diameter protocol connection</li>
+  <li>Configure TLS/SSL for security</li>
+  <li>Test connection</li>
+  <li>Monitor authentication requests</li>
+</ol>
+
+<h4>MME Configuration</h4>
+<ul>
+  <li><strong>HSS Address:</strong> IP address or hostname</li>
+  <li><strong>Port:</strong> Diameter port (usually 3868)</li>
+  <li><strong>Realm:</strong> Diameter realm</li>
+  <li><strong>TLS:</strong> Enable TLS for secure connection</li>
+  <li><strong>Heartbeat:</strong> Configure watchdog/heartbeat</li>
+</ul>
+
+<h4 id="monitoring">📊 Monitoring</h4>
+
+<h4>Subscriber Activity</h4>
+<p>Monitor subscriber activity:</p>
+<ul>
+  <li>Authentication success/failure rates</li>
+  <li>Active sessions</li>
+  <li>Data usage</li>
+  <li>Location updates</li>
+</ul>
+
+<h4>HSS Performance</h4>
+<ul>
+  <li>Authentication request rate</li>
+  <li>Response times</li>
+  <li>Error rates</li>
+  <li>Database performance</li>
+</ul>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Unique IMSIs:</strong> Ensure each subscriber has unique IMSI</li>
+  <li><strong>Secure Ki:</strong> Protect authentication keys</li>
+  <li><strong>Regular Backups:</strong> Backup subscriber database regularly</li>
+  <li><strong>Monitor Activity:</strong> Track authentication events</li>
+  <li><strong>Group Organization:</strong> Use groups for easier management</li>
+  <li><strong>Documentation:</strong> Document APN configurations</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>Subscriber cannot authenticate:</h4>
+<ul>
+  <li>Verify Ki is correct</li>
+  <li>Check IMSI format (15 digits)</li>
+  <li>Verify subscriber status is Active</li>
+  <li>Check MME connection to HSS</li>
+  <li>Review authentication logs</li>
+</ul>
+
+<h4>MME connection failed:</h4>
+<ul>
+  <li>Verify HSS address and port</li>
+  <li>Check firewall rules</li>
+  <li>Test Diameter connection</li>
+  <li>Verify TLS certificates</li>
+  <li>Check HSS service status</li>
+</ul>
+
+<h4>Authentication failures:</h4>
+<ul>
+  <li>Verify Ki matches subscriber device</li>
+  <li>Check OP/OPc configuration</li>
+  <li>Review authentication algorithm</li>
+  <li>Check for Ki mismatch</li>
+  <li>Verify MME configuration</li>
+</ul>
+
+<h4 id="technical-details">📚 Technical Details</h4>
+
+<h4>IMSI Format</h4>
+<p>IMSI consists of:</p>
+<ul>
+  <li><strong>MCC:</strong> Mobile Country Code (3 digits)</li>
+  <li><strong>MNC:</strong> Mobile Network Code (2-3 digits)</li>
+  <li><strong>MSIN:</strong> Mobile Subscriber Identification Number (9-10 digits)</li>
+</ul>
+<p>Example: 310150123456789 (MCC: 310, MNC: 150, MSIN: 123456789)</p>
+
+<h4>Authentication Algorithms</h4>
+<ul>
+  <li><strong>MILENAGE:</strong> Standard 3GPP authentication algorithm</li>
+  <li><strong>TUAK:</strong> Alternative authentication algorithm</li>
+  <li><strong>Custom:</strong> Proprietary algorithms (not recommended)</li>
+</ul>
+
+<h4>APN Configuration</h4>
+<ul>
+  <li><strong>APN Name:</strong> Access Point Name identifier</li>
+  <li><strong>IP Type:</strong> IPv4, IPv6, or both</li>
+  <li><strong>QoS:</strong> Quality of Service profile</li>
+  <li><strong>Charging:</strong> Charging characteristics</li>
+</ul>
+
       </div>
     </div>
   </div></div>
 
   <!-- Subscriber Creation Wizard -->
-  <div data-cwl-component="SubscriberCreationWizard" data-cwl-lifted-component="SubscriberCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+  <div data-cwl-component="SubscriberCreationWizard" data-cwl-lifted-component="SubscriberCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">🔐 Subscriber Creation Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Add HSS Subscriber</h3>
+        <p>Create a new LTE/5G subscriber with IMSI, authentication keys, and service plan.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter IMSI and subscriber name</li>
+            <li>Set Ki and OPc (or generate)</li>
+            <li>Assign group and bandwidth plan</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="wizard-panel">
+        <h3>Identity</h3>
+        <div class="form-group">
+          <label>IMSI <span class="required">*</span></label>
+          <input type="text" placeholder="15 digits, e.g. 001010000000001" maxlength="15" pattern="[0-9]" data-cwl-attr-disabled="isLoading" />
+          <small>15-digit International Mobile Subscriber Identity</small>
+        </div>
+        <div class="form-group">
+          <label>Subscriber name <span class="required">*</span></label>
+          <input type="text" placeholder="Display name" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>MSISDN (phone number)</label>
+          <input type="text" placeholder="Optional" data-cwl-attr-disabled="isLoading" />
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="wizard-panel">
+        <h3>Authentication (Ki, OPc)</h3>
+        <div class="form-group">
+          <label>Ki <span class="required">*</span></label>
+          <div class="input-row">
+            <input type="text" placeholder="32 hex characters" maxlength="32" data-cwl-attr-disabled="isLoading" />
+            <button type="button" class="btn-small" data-cwl-action="generateKi" data-cwl-attr-disabled="isLoading" aria-label="Generate Ki">Generate</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>OPc <span class="required">*</span></label>
+          <div class="input-row">
+            <input type="text" placeholder="32 hex characters" maxlength="32" data-cwl-attr-disabled="isLoading" />
+            <button type="button" class="btn-small" data-cwl-action="generateOPc" data-cwl-attr-disabled="isLoading" aria-label="Generate OPc">Generate</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>APN</label>
+          <input type="text" data-cwl-attr-disabled="isLoading" />
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><div class="wizard-panel">
+        <h3>Group & Bandwidth Plan</h3>
+        <button type="button" class="btn-small" data-cwl-action="loadGroupsAndPlans" data-cwl-attr-disabled="isLoading" aria-label="Load Groups And Plans">Load groups & plans</button>
+        <div class="form-group">
+          <label>Group <span class="required">*</span></label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option>-- Select group --</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="groups as g" data-cwl-each-item="g" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bg.group_id%7D%3E%7Bg.name%20%7C%7C%20g.group_id%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bandwidth plan <span class="required">*</span></label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option>-- Select plan --</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="bandwidthPlans as p" data-cwl-each-item="p" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bp.id%7D%3E%7Bp.name%20%7C%7C%20p.id%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Max UL (Mbps)</label>
+            <input type="number" min="1" max="1000" data-cwl-attr-disabled="isLoading" />
+          </div>
+          <div class="form-group">
+            <label>Max DL (Mbps)</label>
+            <input type="number" min="1" max="1000" data-cwl-attr-disabled="isLoading" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" data-cwl-attr-disabled="isLoading" /> Enabled</label>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4"><div class="wizard-panel">
+
+          <h3>Review & create</h3>
+          <div class="summary-row"><span class="label">IMSI</span><span class="value"></span></div>
+          <div class="summary-row"><span class="label">Name</span><span class="value"></span></div>
+          <div class="summary-row"><span class="label">Group</span><span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="groups.find(g => g.group_id === group_id)?.name || group_id"></span></span></div>
+          <div class="summary-row"><span class="label">Plan</span><span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="bandwidthPlans.find(p => p.id === bandwidth_plan_id)?.name || bandwidth_plan_id"></span></span></div>
+          <button type="button" class="wizard-btn-primary" data-cwl-action="createSubscriber" data-cwl-attr-disabled="isLoading" aria-label="Create Subscriber">
+            Create subscriber
+          </button>
+
+      </div></div>
   </div>
 
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
     <div class="footer-actions">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4 && success"><button class="wizard-btn-primary" data-cwl-action="handleClose" aria-label="Close">Done</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div>
     </div>
   </div>
 </div></div>
-  <div data-cwl-component="BandwidthPlanWizard" data-cwl-lifted-component="BandwidthPlanWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+  <div data-cwl-component="BandwidthPlanWizard" data-cwl-lifted-component="BandwidthPlanWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">📶 Bandwidth Plan Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Create a Bandwidth Plan</h3>
+        <p>Define download and upload limits (Mbps) for subscriber groups. Groups can then be assigned to this plan.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter a plan name</li>
+            <li>Set download and upload bandwidth (Mbps)</li>
+            <li>Optionally add a description</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="wizard-panel">
+        <h3>Plan Details</h3>
+        <div class="form-group">
+          <label>Plan Name <span class="required">*</span></label>
+          <input type="text" placeholder="e.g. Standard 100/50" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" placeholder="Optional description" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Download (Mbps)</label>
+          <input type="number" min="0" step="1" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Upload (Mbps)</label>
+          <input type="number" min="0" step="1" data-cwl-attr-disabled="isLoading" />
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="wizard-panel">
+
+          <h3>Review & create</h3>
+          <div class="summary-row"><span class="label">Name</span><span class="value"></span></div>
+          <div class="summary-row"><span class="label">Download</span><span class="value">100 Mbps</span></div>
+          <div class="summary-row"><span class="label">Upload</span><span class="value">50 Mbps</span></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="description"><div class="summary-row"><span class="label">Description</span><span class="value"></span></div></div>
+          <button type="button" class="wizard-btn-primary" data-cwl-action="submitPlan" data-cwl-attr-disabled="isLoading" aria-label="Submit Plan">
+            Create Plan
+          </button>
+
+      </div></div>
   </div>
 
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
     <div class="footer-actions">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2 && success"><button class="wizard-btn-primary" data-cwl-action="handleClose" aria-label="Close">Done</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div>
     </div>
   </div>
 </div></div>
-  <div data-cwl-component="SubscriberGroupWizard" data-cwl-lifted-component="SubscriberGroupWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div 
-    class="wizard-overlay" 
-    role="dialog" 
-    aria-modal="true" 
-    aria-labelledby="wizard-title"
+  <div data-cwl-component="SubscriberGroupWizard" data-cwl-lifted-component="SubscriberGroupWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+    class="wizard-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="wizard-title" data-cwl-action="handleClose"
    hidden aria-hidden="true">
-    <div 
+    <div
       class="wizard-modal"
-      on:click|stopPropagation
     >
       <!-- Header -->
       <div class="wizard-header">
-        <h2 id="wizard-title"></h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <h2 id="wizard-title">📦 Subscriber Group Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-      
+
       <!-- Progress Steps -->
-      
-      
+
+        <nav class="wizard-steps" aria-label="Wizard steps">
+          <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+              type="button"
+              class="wizard-step" data-cwl-attr-disabled="!allowStepNavigation || index &gt; currentStep" data-cwl-action="goToStep" data-cwl-action-args="index"
+             aria-label="Go To Step">
+              <span class="step-icon"></span>
+              <span class="step-title"></span>
+            </button></div>
+        </nav>
+
       <!-- Content Area -->
       <div class="wizard-content">
-        
-        
-        
-        
+
         <!-- Slot for step content -->
-        <slot name="content"  />
+        <slot name="content" 0 />
       </div>
-      
+
       <!-- Footer -->
       <div class="wizard-footer">
-        <slot name="footer"       />
+        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
   </div></div>
   <div slot="content">
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <h3>Create a Subscriber Group</h3>
+        <p>Groups organize subscribers and can be linked to a bandwidth plan. New subscribers can be assigned to this group.</p>
+        <div class="info-box">
+          <h4>You will:</h4>
+          <ul>
+            <li>Enter a group name and optional description</li>
+            <li>Optionally assign a bandwidth plan</li>
+            <li>Set default APN and QCI for the group</li>
+          </ul>
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="wizard-panel">
+        <h3>Group Details</h3>
+        <div class="form-group">
+          <label>Group Name <span class="required">*</span></label>
+          <input type="text" placeholder="e.g. Residential Standard" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" placeholder="Optional description" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Bandwidth Plan</label>
+          <select data-cwl-attr-disabled="isLoading">
+            <option>— None —</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="bandwidthPlans as plan"><option></option></div>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Default APN</label>
+          <input type="text" placeholder="internet" data-cwl-attr-disabled="isLoading" />
+        </div>
+        <div class="form-group">
+          <label>Default QCI</label>
+          <input type="number" min="1" max="9" step="1" data-cwl-attr-disabled="isLoading" />
+        </div>
+      </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="wizard-panel">
+
+          <h3>Review & create</h3>
+          <div class="summary-row"><span class="label">Name</span><span class="value"></span></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="description"><div class="summary-row"><span class="label">Description</span><span class="value"></span></div></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="bandwidth_plan_id">
+            <div class="summary-row"><span class="label">Bandwidth Plan</span><span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedPlan ? planName(selectedPlan) : bandwidth_plan_id"></span></span></div></div>
+          <div class="summary-row"><span class="label">Default APN</span><span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="default_apn || 'internet'"></span></span></div>
+          <div class="summary-row"><span class="label">Default QCI</span><span class="value">9</span></div>
+          <button type="button" class="wizard-btn-primary" data-cwl-action="submitGroup" data-cwl-attr-disabled="isLoading" aria-label="Submit Group">
+            Create Group
+          </button>
+
+      </div></div>
   </div>
 
   <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
     <div class="footer-actions">
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2 && success"><button class="wizard-btn-primary" data-cwl-action="handleClose" aria-label="Close">Done</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div>
     </div>
   </div>
 </div></div>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"hss-management","apiPath":"/api/hss","api_ok":true,"api_surface":"wisp-api-native","api_resource":"hss","api_op":"list","tracedApiStatus":200}</script>
+</div></div>
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+<div data-cwl-component="AddSubscriberModal" data-cwl-lifted-component="AddSubscriberModal" data-cwl-orphan-modal="1"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔐 Add New Subscriber</h2>
+      <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+    </div>
+
+    <form data-cwl-on-submit="action:handleSubmit">
+
+      <!-- Basic Information -->
+      <div class="section">
+        <h3>📱 Basic Information</h3>
+
+        <div class="form-group">
+          <label for="imsi">IMSI <span class="required">*</span></label>
+          <input
+            id="imsi"
+            type="text"
+            placeholder="e.g., 001010000000001"
+            maxlength="15"
+            pattern="[0-9]"
+            required
+          />
+          <small>15-digit International Mobile Subscriber Identity</small>
+        </div>
+
+        <div class="form-group">
+          <label for="msisdn">MSISDN (Phone Number)</label>
+          <input
+            id="msisdn"
+            type="text"
+            placeholder="e.g., +1234567890"
+            maxlength="15"
+          />
+          <small>Optional: Mobile Station ISDN Number</small>
+        </div>
+
+        <div class="form-group">
+          <label for="subscriber_name">Subscriber Name <span class="required">*</span></label>
+          <input
+            id="subscriber_name"
+            type="text"
+            placeholder="John Doe"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="user@example.com"
+          />
+        </div>
+      </div>
+
+      <!-- Security Credentials -->
+      <div class="section">
+        <h3>🔒 Security Credentials (3GPP Milenage)</h3>
+
+        <div class="form-group">
+          <label for="ki">Ki (Authentication Key) <span class="required">*</span></label>
+          <div class="input-with-button">
+            <input
+              id="ki"
+              type="text"
+              placeholder="32 hex characters"
+              maxlength="32"
+              pattern="[0-9A-Fa-f]"
+              required
+            />
+            <button type="button" class="gen-btn" data-cwl-action="generateKi" aria-label="Generate Ki">🎲 Generate</button>
+          </div>
+          <small>128-bit key in hex format</small>
+        </div>
+
+        <div class="form-group">
+          <label for="opc">OPc (Operator Code) <span class="required">*</span></label>
+          <div class="input-with-button">
+            <input
+              id="opc"
+              type="text"
+              placeholder="32 hex characters"
+              maxlength="32"
+              pattern="[0-9A-Fa-f]"
+              required
+            />
+            <button type="button" class="gen-btn" data-cwl-action="generateOPc" aria-label="Generate OPc">🎲 Generate</button>
+          </div>
+          <small>128-bit operator variant key in hex format</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="amf">AMF (Authentication Management Field)</label>
+            <input
+              id="amf"
+              type="text"
+              placeholder="8000"
+              maxlength="4"
+              pattern="[0-9A-Fa-f]"
+            />
+            <small>16-bit value (hex)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="sqn">SQN (Sequence Number)</label>
+            <input
+              id="sqn"
+              type="text"
+              placeholder="000000000000"
+              maxlength="12"
+              pattern="[0-9A-Fa-f]"
+            />
+            <small>48-bit value (hex)</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network Settings -->
+      <div class="section">
+        <h3>🌐 Network Settings</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="qci">QCI (QoS Class Identifier)</label>
+            <select id="qci">
+              <option data-cwl-attr-value="5">5 - IMS Signaling</option>
+              <option data-cwl-attr-value="9">9 - Default Bearer (Internet)</option>
+              <option data-cwl-attr-value="6">6 - Video (buffered streaming)</option>
+              <option data-cwl-attr-value="7">7 - Voice, video (live streaming)</option>
+              <option data-cwl-attr-value="8">8 - Video (buffered streaming)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="apn">APN (Access Point Name)</label>
+            <input
+              id="apn"
+              type="text"
+              placeholder="internet"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="max_bandwidth_ul">Max Upload (Mbps)</label>
+            <input
+              id="max_bandwidth_ul"
+              type="number"
+              min="1"
+              max="10000"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="max_bandwidth_dl">Max Download (Mbps)</label>
+            <input
+              id="max_bandwidth_dl"
+              type="number"
+              min="1"
+              max="10000"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Group & Plan Assignment -->
+      <div class="section">
+        <h3>👥 Group & Bandwidth Plan <span class="required">*</span></h3>
+
+        <div class="form-group">
+          <label for="group_id">Subscriber Group <span class="required">*</span></label>
+          <select id="group_id" required>
+            <option>-- Select Group --</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="groups as group" data-cwl-each-item="group" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bgroup.group_id%7D%3E%7Bgroup.name%7D%20(%7Bgroup.member_count%20%7C%7C%200%7D%20members)%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option> ( members)</option></div>
+          </select>
+          <small>Groups help organize subscribers</small>
+        </div>
+
+        <div class="form-group">
+          <label for="bandwidth_plan_id">Bandwidth Plan <span class="required">*</span></label>
+          <select id="bandwidth_plan_id" required>
+            <option>-- Select Plan --</option>
+            <div data-cwl-bind="each" data-cwl-hole-detail="bandwidthPlans as plan" data-cwl-each-item="plan" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bplan.plan_id%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bplan.name%7D%20-%20%E2%AC%86%EF%B8%8F%7Bplan.upload_mbps%7DMbps%20%2F%20%E2%AC%87%EF%B8%8F%7Bplan.download_mbps%7DMbps%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><option>
+                 - ⬆️Mbps / ⬇️Mbps
+              </option></div>
+          </select>
+          <small>Bandwidth plans control speed limits</small>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="section">
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" />
+            <span>Enable subscriber immediately</span>
+          </label>
+          <small>Uncheck to add subscriber in disabled state</small>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" data-cwl-action="close" data-cwl-attr-disabled="loading" aria-label="Close">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary" data-cwl-attr-disabled="loading">
+          ✅ Add Subscriber
+        </button>
+      </div>
+    </form>
+  </div>
+</div></div>
+<div data-cwl-component="SubscriberDetailsModal" data-cwl-lifted-component="SubscriberDetailsModal" data-cwl-orphan-modal="1"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+  <div class="modal">
+    <h2>Subscriber Details</h2>
+    <p>IMSI: <span data-cwl-bind="interp" data-cwl-hole-detail="subscriber?.imsi || 'N/A'"></span></p>
+    <button data-cwl-action="close" aria-label="Close">Close</button>
+  </div>
+</div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"hss-management"}</script>

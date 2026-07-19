@@ -2,61 +2,926 @@
   <div class="header">
     <div class="title-section">
       <h1>⚙️ Module Access Configuration</h1>
-      <p class="subtitle">Configure which modules each role can access in Demo Tenant</p>
+      <p class="subtitle">Configure which modules each role can access in <span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant?.name || 'your organization'"></span></p>
     </div>
-    
+
     <div class="header-actions">
-      <button class="btn btn-secondary">
+      <button class="btn btn-secondary" data-cwl-toggle="showResetConfirm:true" data-cwl-attr-disabled="loading || saving" aria-label="Show Reset Confirm">
         🔄 Reset All to Defaults
       </button>
-      
-      <button class="btn btn-primary">
-        
+
+      <button class="btn btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="!hasChanges || saving" aria-label="Save">
+
           💾 Save Configuration
-        
+
       </button>
     </div>
   </div>
-  
-  
-  
-  
-  
-  
-  
-  
+
     <div class="config-table-container">
       <table class="config-table">
         <thead>
           <tr>
             <th class="module-column">Module</th>
-            
+
+                <th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name">Owner</div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="isRoleLocked('owner')"><span class="lock-badge">🔒</span></div>
+                      <button
+                        class="reset-role-btn" data-cwl-action="handleResetRole" data-cwl-action-args="'owner'"
+                        title="Reset to defaults"
+                      >
+                        🔄
+                      </button>
+
+                  </div>
+                </th>
+
+                <th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name">Admin</div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="isRoleLocked('admin')"><span class="lock-badge">🔒</span></div>
+                      <button
+                        class="reset-role-btn" data-cwl-action="handleResetRole" data-cwl-action-args="'admin'"
+                        title="Reset to defaults"
+                      >
+                        🔄
+                      </button>
+
+                  </div>
+                </th>
+
+                <th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name">Engineer</div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="isRoleLocked('engineer')"><span class="lock-badge">🔒</span></div>
+                      <button
+                        class="reset-role-btn" data-cwl-action="handleResetRole" data-cwl-action-args="'engineer'"
+                        title="Reset to defaults"
+                      >
+                        🔄
+                      </button>
+
+                  </div>
+                </th>
+
+                <th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name">Field Technician</div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="isRoleLocked('installer')"><span class="lock-badge">🔒</span></div>
+                      <button
+                        class="reset-role-btn" data-cwl-action="handleResetRole" data-cwl-action-args="'installer'"
+                        title="Reset to defaults"
+                      >
+                        🔄
+                      </button>
+
+                  </div>
+                </th>
+
+                <th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name">Help Desk</div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="isRoleLocked('helpdesk')"><span class="lock-badge">🔒</span></div>
+                      <button
+                        class="reset-role-btn" data-cwl-action="handleResetRole" data-cwl-action-args="'helpdesk'"
+                        title="Reset to defaults"
+                      >
+                        🔄
+                      </button>
+
+                  </div>
+                </th>
+
+                <th class="role-column">
+                  <div class="role-header">
+                    <div class="role-name">Viewer</div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="isRoleLocked('viewer')"><span class="lock-badge">🔒</span></div>
+                      <button
+                        class="reset-role-btn" data-cwl-action="handleResetRole" data-cwl-action-args="'viewer'"
+                        title="Reset to defaults"
+                      >
+                        🔄
+                      </button>
+
+                  </div>
+                </th>
+
           </tr>
         </thead>
         <tbody>
-          <tr>
+
+            <tr>
               <td class="module-name">
-                <span class="module-icon"></span>
-                
+                <span class="module-icon">📊</span>
+                PCI Resolution
               </td>
-              
-            </tr><tr>
-              <td class="module-name">
-                <span class="module-icon"></span>
-                
-              </td>
-              
-            </tr><tr>
-              <td class="module-name">
-                <span class="module-icon"></span>
-                
-              </td>
-              
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;pciResolution&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;pciResolution&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;pciResolution&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;pciResolution&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;pciResolution&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;pciResolution&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
             </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">📡</span>
+                CBRS Management
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;cbrsManagement&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;cbrsManagement&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;cbrsManagement&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;cbrsManagement&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;cbrsManagement&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;cbrsManagement&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">🔐</span>
+                HSS Management
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;hssManagement&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;hssManagement&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;hssManagement&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;hssManagement&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;hssManagement&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;hssManagement&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">🗺️</span>
+                Coverage Map
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;coverageMap&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;coverageMap&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;coverageMap&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;coverageMap&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;coverageMap&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;coverageMap&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">📦</span>
+                Inventory
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;inventory&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;inventory&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;inventory&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;inventory&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;inventory&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;inventory&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">📋</span>
+                Work Orders
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;workOrders&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;workOrders&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;workOrders&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;workOrders&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;workOrders&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;workOrders&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">🎧</span>
+                Help Desk
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;helpDesk&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;helpDesk&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;helpDesk&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;helpDesk&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;helpDesk&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;helpDesk&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">🌐</span>
+                Distributed EPC
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;distributedEpc&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;distributedEpc&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;distributedEpc&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;distributedEpc&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;distributedEpc&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;distributedEpc&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">🔍</span>
+                Monitoring
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;monitoring&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;monitoring&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;monitoring&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;monitoring&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;monitoring&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;monitoring&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">📞</span>
+                Voice / SIP & UC
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;voiceTelephony&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;voiceTelephony&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;voiceTelephony&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;voiceTelephony&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;voiceTelephony&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;voiceTelephony&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">👥</span>
+                User Management
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;userManagement&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;userManagement&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;userManagement&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;userManagement&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;userManagement&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;userManagement&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">⚙️</span>
+                Tenant Settings
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;tenantSettings&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;tenantSettings&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;tenantSettings&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;tenantSettings&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;tenantSettings&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;tenantSettings&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
+            <tr>
+              <td class="module-name">
+                <span class="module-icon">🔧</span>
+                Backend Management
+              </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;backendManagement&quot;" data-cwl-attr-disabled="isRoleLocked('owner') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;backendManagement&quot;" data-cwl-attr-disabled="isRoleLocked('admin') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;backendManagement&quot;" data-cwl-attr-disabled="isRoleLocked('engineer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;backendManagement&quot;" data-cwl-attr-disabled="isRoleLocked('installer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;backendManagement&quot;" data-cwl-attr-disabled="isRoleLocked('helpdesk') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+                  <td class="checkbox-cell">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox" data-cwl-on-change="action:toggleModule" data-cwl-on-change-args="role, &quot;backendManagement&quot;" data-cwl-attr-disabled="isRoleLocked('viewer') || saving"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+
+            </tr>
+
         </tbody>
       </table>
     </div>
-    
+
     <div class="legend">
       <h3>Legend:</h3>
       <ul>
@@ -66,8 +931,40 @@
         <li>🔄 <strong>Reset</strong> = Reset individual role to default permissions</li>
       </ul>
     </div>
-  
-</div>
 
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/settings/module-access","apiPath":"/api/module-access"}</script>
+
+  <div
+    class="modal-backdrop"
+    role="presentation"
+    aria-hidden="true"
+    tabindex="-1" data-cwl-action="handleResetBackdropClick"
+   hidden>
+    <div
+      class="modal-content"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Reset module access confirmation dialog"
+      tabindex="0" data-cwl-on-keydown="action:handleResetBackdropKeydown"
+    >
+      <div class="modal-header">
+        <h2>Reset All to Defaults?</h2>
+        <button class="close-btn" data-cwl-toggle="showResetConfirm:false" aria-label="Show Reset Confirm">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>This will reset module access for all roles to their default configurations.</p>
+        <p class="warning-text">Any custom changes will be lost. This cannot be undone.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" data-cwl-toggle="showResetConfirm:false" data-cwl-attr-disabled="saving" aria-label="Show Reset Confirm">
+          Cancel
+        </button>
+        <button class="btn btn-danger" data-cwl-action="handleResetAll" data-cwl-attr-disabled="saving" aria-label="Reset All">
+
+            Yes, Reset All
+
+        </button>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/settings/module-access"}</script>

@@ -1,138 +1,273 @@
-<div class="wisp-app-surface" data-wisp-page="modules-work-orders-:id" data-wisp-path="/modules/work-orders/:id" data-cwl-island="client"><div class="work-order-details">
+<div class="wisp-app-surface" data-wisp-page="work-orders" data-wisp-path="/modules/work-orders/:id" data-cwl-island="client"><div class="work-order-details">
   <div class="page-header">
-    <button class="back-button">
+    <button class="back-button" data-cwl-nav="/modules/work-orders" type="button">
       ← Back to Work Orders
     </button>
-    
-    <div class="header-content">
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="workOrder"><div class="header-content">
         <div class="header-left">
-          <h1>Work Order</h1>
-          <p class="subtitle"></p>
+          <h1><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.ticketNumber || 'Work Order'"></span></h1>
+          <p class="subtitle"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.title"></span></p>
         </div>
-        
+
         <div class="header-badges">
-          <div 
-            class="priority-badge" 
+          <div
+            class="priority-badge"
             style="background-color:"
           >
-            
+            <span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.priority"></span>
           </div>
-          
-          <div 
-            class="status-badge" 
+
+          <div
+            class="status-badge"
             style="background-color:"
           >
-            open
+            <span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.status"></span>
           </div>
         </div>
-      </div>
+      </div></div>
   </div>
-  
+
   <!-- Alerts -->
-  
-  
-  
-  
-  
-    <div class="content-grid">
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="workOrder"><div class="content-grid">
       <!-- Main Content -->
       <div class="main-column">
         <!-- Description -->
         <div class="card">
           <h3>📋 Description</h3>
-          <p class="description">No description provided</p>
-          
-          
+          <p class="description"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.description || 'No description provided'"></span></p>
+
+            <div hidden aria-hidden="true"><h4>Symptoms:</h4>
+            <p class="symptoms"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.symptoms"></span></p>
+          </div>
         </div>
-        
+
         <!-- Location -->
-        
-        
+
+          <div class="card" hidden aria-hidden="true">
+            <h3>📍 Location</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Type:</span>
+                <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.location.type"></span></span>
+              </div>
+
+                <div class="info-item" hidden aria-hidden="true">
+                  <span class="info-label">Site:</span>
+                  <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.location.siteName"></span></span>
+                </div>
+
+                <div class="info-item" hidden aria-hidden="true">
+                  <span class="info-label">Address:</span>
+                  <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.location.address"></span></span>
+                </div>
+
+            </div>
+          </div>
+
         <!-- Customer Info -->
-        
-        
+        <div data-cwl-bind="if" data-cwl-hole-detail="workOrder.customerReported && workOrder.customerContact"><div class="card">
+            <h3>👤 Customer Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.customerContact.name"></span></span>
+              </div>
+
+                <div class="info-item" hidden aria-hidden="true">
+                  <span class="info-label">Phone:</span>
+                  <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.customerContact.phone"></span></span>
+                </div>
+
+                <div class="info-item" hidden aria-hidden="true">
+                  <span class="info-label">Email:</span>
+                  <span class="info-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.customerContact.email"></span></span>
+                </div>
+
+            </div>
+          </div></div>
+
         <!-- Resolution -->
-        
-        
+
+          <div class="card" hidden aria-hidden="true">
+            <h3>✅ Resolution</h3>
+            <p class="resolution"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.resolution"></span></p>
+
+              <div hidden aria-hidden="true"><h4>Root Cause:</h4>
+              <p><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.rootCause"></span></p>
+            </div>
+
+              <div hidden aria-hidden="true"><h4>Preventive Measures:</h4>
+              <p><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.preventiveMeasures"></span></p>
+            </div>
+          </div>
+
         <!-- Work Log -->
-        
+        <div data-cwl-bind="if" data-cwl-hole-detail="workOrder.workPerformed && workOrder.workPerformed.length > 0"><div class="card">
+            <h3>📝 Work Log</h3>
+            <div class="work-log">
+              <div data-cwl-bind="each" data-cwl-hole-detail="workOrder.workPerformed as entry"><div class="log-entry">
+                  <div class="log-header">
+                    <span class="log-time"></span>
+                    <span class="log-user"></span>
+                  </div>
+                  <p class="log-action"></p>
+
+                    <div hidden aria-hidden="true"><p class="log-notes"></p>
+                  </div>
+                </div></div>
+            </div>
+          </div></div>
       </div>
-      
+
       <!-- Sidebar -->
       <div class="sidebar-column">
         <!-- Actions -->
         <div class="card actions-card">
           <h3>⚡ Quick Actions</h3>
-          
-          <button 
-              class="action-btn start-btn"
-            >
+
+            <div hidden aria-hidden="true"><button
+              class="action-btn start-btn" data-cwl-action="handleStartWork" data-cwl-attr-disabled="isUpdating"
+             aria-label="Start Work">
               ▶️ Start Work
             </button>
-          
-          
-          
-          
-          
-          <button 
-            class="action-btn secondary-btn"
-          >
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="workOrder.status === 'in-progress'"><button
+              class="action-btn complete-btn" data-cwl-action="handleComplete" data-cwl-attr-disabled="isUpdating"
+             aria-label="Complete">
+              ✅ Mark Complete
+            </button></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="workOrder.status === 'resolved'"><button
+              class="action-btn" data-cwl-action="handleUpdateStatus" data-cwl-action-args="'closed'" data-cwl-attr-disabled="isUpdating"
+             aria-label="Update Status">
+              🔒 Close Ticket
+            </button></div>
+
+          <button
+            class="action-btn secondary-btn" data-cwl-action="gotoEditWorkOrder"
+           aria-label="Goto Edit Work Order">
             ✏️ Edit Details
           </button>
         </div>
-        
+
         <!-- Details -->
         <div class="card">
           <h3>ℹ️ Details</h3>
-          
+
           <div class="detail-list">
             <div class="detail-item">
               <span class="detail-label">Type:</span>
-              <span class="detail-value"></span>
+              <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.type"></span></span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Created:</span>
-              <span class="detail-value">2026-07-01 12:00:00</span>
+              <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.createdAt)"></span></span>
             </div>
-            
-            
-            
-            
-            
-            
-            
-            
+
+              <div class="detail-item" hidden aria-hidden="true">
+                <span class="detail-label">Created By:</span>
+                <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.createdByName"></span></span>
+              </div>
+
+              <div class="detail-item" hidden aria-hidden="true">
+                <span class="detail-label">Assigned To:</span>
+                <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.assignedToName"></span></span>
+              </div>
+
+              <div class="detail-item" hidden aria-hidden="true">
+                <span class="detail-label">Scheduled:</span>
+                <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.scheduledDate)"></span></span>
+              </div>
+
+              <div class="detail-item" hidden aria-hidden="true">
+                <span class="detail-label">Est. Duration:</span>
+                <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="workOrder.estimatedDuration"></span> min</span>
+              </div>
+
           </div>
         </div>
-        
+
         <!-- SLA -->
-        
-        
+
+          <div class="card" hidden aria-hidden="true">
+            <h3>⏱️ SLA</h3>
+
+            <div class="detail-list">
+
+                <div class="detail-item" hidden aria-hidden="true">
+                  <span class="detail-label">Response By:</span>
+                  <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.sla.responseDeadline)"></span></span>
+                </div>
+
+                <div class="detail-item" hidden aria-hidden="true">
+                  <span class="detail-label">Resolve By:</span>
+                  <span class="detail-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.sla.resolutionDeadline)"></span></span>
+                </div>
+
+                <div class="sla-warning" hidden aria-hidden="true">
+                  ⚠️ SLA Breached
+                </div>
+
+            </div>
+          </div>
+
         <!-- Timeline -->
         <div class="card">
           <h3>📅 Timeline</h3>
-          
+
           <div class="timeline">
             <div class="timeline-item">
               <span class="timeline-icon">📝</span>
               <div class="timeline-content">
                 <span class="timeline-label">Created</span>
-                <span class="timeline-time">2026-07-01 12:00:00</span>
+                <span class="timeline-time"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.createdAt)"></span></span>
               </div>
             </div>
-            
-            
-            
-            
-            
-            
-            
-            
+
+              <div class="timeline-item" hidden aria-hidden="true">
+                <span class="timeline-icon">👤</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Assigned</span>
+                  <span class="timeline-time"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.assignedAt)"></span></span>
+                </div>
+              </div>
+
+              <div class="timeline-item" hidden aria-hidden="true">
+                <span class="timeline-icon">▶️</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Started</span>
+                  <span class="timeline-time"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.startedAt)"></span></span>
+                </div>
+              </div>
+
+              <div class="timeline-item" hidden aria-hidden="true">
+                <span class="timeline-icon">✅</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Completed</span>
+                  <span class="timeline-time"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.completedAt)"></span></span>
+                </div>
+              </div>
+
+              <div class="timeline-item" hidden aria-hidden="true">
+                <span class="timeline-icon">🔒</span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Closed</span>
+                  <span class="timeline-time"><span data-cwl-bind="interp" data-cwl-hole-detail="formatDateTime(workOrder.closedAt)"></span></span>
+                </div>
+              </div>
+
           </div>
         </div>
       </div>
+    </div></div>
+    <div class="loading-state" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading work order...</p>
     </div>
-  
+
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/work-orders/:id","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/work-orders/:id"}</script>

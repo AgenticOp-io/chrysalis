@@ -1,10 +1,33 @@
-<div class="wisp-app-surface" data-wisp-page="modules-voice-telephony" data-wisp-path="/modules/voice-telephony" data-cwl-island="client"><div class="voice-page">
+<div class="wisp-app-surface" data-wisp-page="voice-telephony" data-wisp-path="/modules/voice-telephony" data-cwl-island="client"><div class="voice-page">
     <header class="page-head">
       <div class="page-head-row">
         <h1>Voice / SIP & UC</h1>
         <div class="page-toolbar">
-          <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
-          <button type="button" class="btn tips-btn">Tips</button>
+          <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
+          <button type="button" class="btn tips-btn" data-cwl-toggle="showTipsModal:true" aria-label="Show Tips Modal">Tips</button>
         </div>
       </div>
       <p class="sub">
@@ -14,40 +37,261 @@
       </p>
     </header>
 
-    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
+    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
 
-    
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
 
-    
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+
+    <div data-cwl-bind="if" data-cwl-hole-detail="filterCustomerId"><div class="filter-banner" role="status">
+        Filtered for customer <code><span data-cwl-bind="interp" data-cwl-hole-detail="filterCustomerId"></span></code> (from Customers or URL).
+        <button type="button" class="linkish" data-cwl-nav="/modules/voice-telephony">Show all</button>
+      </div></div>
 
     <nav class="tabs">
-      <button type="button">Overview</button>
-      <button type="button">Provider accounts</button>
-      <button type="button">Numbers</button>
-      <button type="button">Port orders</button>
-      <button type="button">Service locations</button>
+      <button type="button" data-cwl-set="activeTab:overview">Overview</button>
+      <button type="button" data-cwl-set="activeTab:accounts">Provider accounts</button>
+      <button type="button" data-cwl-set="activeTab:numbers">Numbers</button>
+      <button type="button" data-cwl-set="activeTab:ports">Port orders</button>
+      <button type="button" data-cwl-set="activeTab:locations">Service locations</button>
     </nav>
 
-    
       <section class="panel">
-        <div class="row">
-          <h2>Service locations (E911 / geocode)</h2>
-          <button type="button" class="btn primary">Add location</button>
+        <h2>Bounded contexts</h2>
+        <ul class="ctx-list">
+          <div data-cwl-bind="each" data-cwl-hole-detail="schema.bounded_contexts as bc"><li>
+              <strong></strong>
+              <span class="muted">()</span> —
+            </li></div>
+        </ul>
+
+        <h2>State machines</h2>
+        <div data-cwl-bind="each" data-cwl-hole-detail="Object.entries(schema.state_machines) as [k, v]"><div data-cwl-bind="if" data-cwl-hole-detail="k === 'notes'"><ul class="notes">
+              <div data-cwl-bind="each" data-cwl-hole-detail="(Array.isArray(v) ? v : []) as n"><li></li></div>
+            </ul></div>
+            <p class="sm-key"></p>
+            <ul class="inline">
+              <div data-cwl-bind="each" data-cwl-hole-detail="(Array.isArray(v) ? v : []) as x"><li><code></code></li></div>
+            </ul>
+          </div>
+
+        <h2>Carrier comparison</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dimension</th>
+                <th>Bandwidth</th>
+                <th>Telnyx</th>
+                <th>Twilio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <div data-cwl-bind="each" data-cwl-hole-detail="schema.carrier_comparison as row"><tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr></div>
+            </tbody>
+          </table>
         </div>
-        <p class="muted small">
-          Use the same <code>customerId</code> as the Customers module to tie addresses together. Coverage Map opens centered on
-          coordinates when available.
-        </p>
-        
+        <p class="muted"><span data-cwl-bind="interp" data-cwl-hole-detail="schema.pragmatic_recommendation"></span></p>
+
+        <h2>ArcGIS</h2>
+        <p class="muted"><span data-cwl-bind="interp" data-cwl-hole-detail="schema.arcgis.note"></span></p>
+        <ul>
+          <div data-cwl-bind="each" data-cwl-hole-detail="schema.arcgis.uses as u"><li></li></div>
+        </ul>
+
+        <h2>Phased rollout</h2>
+        <ol>
+          <div data-cwl-bind="each" data-cwl-hole-detail="schema.phased_rollout as ph"><li><strong>Phase </strong> — </li></div>
+        </ol>
       </section>
-    
-  </div>
-
-  
-
-  
-
-  
 
   </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/voice-telephony","apiPath":"/api/voice","api_ok":true,"api_surface":"wisp-api-native","api_resource":"voice","api_op":"list","tracedApiStatus":200}</script>
+
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add provider account" hidden aria-hidden="true">
+      <div class="modal card">
+        <h3>Add voice provider account</h3>
+        <label for="va-provider">Provider</label>
+        <select id="va-provider">
+          <option value="twilio">Twilio</option>
+          <option value="telnyx">Telnyx</option>
+          <option value="bandwidth">Bandwidth</option>
+        </select>
+        <label for="va-ext">External account ID</label>
+        <input id="va-ext" type="text" placeholder="Subaccount SID, site ID, etc." />
+        <label for="va-name">Display name</label>
+        <input id="va-name" type="text" />
+        <label for="va-cred">Credential ref (KMS / secret name — never paste secrets)</label>
+        <input id="va-cred" type="text" placeholder="Optional" />
+        <div class="modal-actions">
+          <button type="button" class="btn" data-cwl-toggle="showAddAccount:false" aria-label="Show Add Account">Cancel</button>
+          <button type="button" class="btn primary" data-cwl-attr-disabled="savingAccount || !newAccount.externalAccountId.trim()" data-cwl-action="submitAccount" aria-label="Submit Account">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add telephone number" hidden aria-hidden="true">
+      <div class="modal card wide">
+        <h3>Add telephone number</h3>
+        <label for="tn-e164">E.164</label>
+        <input id="tn-e164" type="text" placeholder="+15551234567" autocomplete="tel" />
+        <label for="tn-status">Status</label>
+        <select id="tn-status">
+          <option value="inventory">inventory</option>
+          <option value="assigned">assigned</option>
+          <option value="suspended">suspended</option>
+        </select>
+        <label for="tn-acct">Voice provider account</label>
+        <select id="tn-acct">
+          <div data-cwl-bind="each" data-cwl-hole-detail="accounts as a" data-cwl-each-item="a" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Ba._id%7D%3E%7Ba.provider%7D%20%E2%80%94%20%7Ba.displayName%20%7C%7C%20a.externalAccountId%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20"><option> — </option></div>
+        </select>
+        <label for="tn-prov">Provider TN ID (optional)</label>
+        <input id="tn-prov" type="text" placeholder="Carrier-side ID" />
+        <label for="tn-rc">Rate center / LATA (optional)</label>
+        <div class="grid-2">
+          <input id="tn-rc" type="text" placeholder="Rate center" />
+          <input id="tn-lata" type="text" placeholder="LATA" />
+        </div>
+        <label for="tn-e911">Emergency address ID (optional)</label>
+        <input id="tn-e911" type="text" placeholder="Mongo ObjectId after E911 is provisioned" />
+        <label for="tn-cust">Customer ID (optional)</label>
+        <input id="tn-cust" type="text" placeholder="Same as Customers module, e.g. CUST-2025-001" />
+        <div class="modal-actions">
+          <button type="button" class="btn" data-cwl-toggle="showAddTn:false" aria-label="Show Add Tn">Cancel</button>
+          <button
+            type="button"
+            class="btn primary" data-cwl-attr-disabled="savingTn || !newTn.e164.trim() || !newTn.voiceProviderAccountId" data-cwl-action="submitTn"
+           aria-label="Submit Tn">
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit telephone number" hidden aria-hidden="true">
+      <div class="modal card wide">
+        <h3>Edit <code><span data-cwl-bind="interp" data-cwl-hole-detail="editTn.e164"></span></code></h3>
+        <label for="etn-status">Status</label>
+        <select id="etn-status">
+          <option value="inventory">inventory</option>
+          <option value="assigned">assigned</option>
+          <option value="suspended">suspended</option>
+        </select>
+        <label for="etn-cust">Customer ID</label>
+        <input id="etn-cust" type="text" placeholder="Leave empty to clear" />
+        <label for="etn-rc">Rate center / LATA</label>
+        <div class="grid-2">
+          <input id="etn-rc" type="text" placeholder="Rate center" />
+          <input id="etn-lata" type="text" placeholder="LATA" />
+        </div>
+        <label for="etn-prov">Provider TN ID</label>
+        <input id="etn-prov" type="text" />
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn" data-cwl-toggle="showEditTn:false" aria-label="Show Edit Tn">Cancel</button>
+          <button type="button" class="btn primary" data-cwl-attr-disabled="savingEditTn" data-cwl-action="submitEditTn" aria-label="Submit Edit Tn">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add service location" hidden aria-hidden="true">
+      <div class="modal card wide">
+        <h3>Add service location</h3>
+        <label for="sl-cust">Customer ID (optional)</label>
+        <input id="sl-cust" type="text" placeholder="Same as Customers module" />
+        <label for="sl-street">Street</label>
+        <input id="sl-street" type="text" />
+        <label for="sl-unit">Unit (optional)</label>
+        <input id="sl-unit" type="text" />
+        <div class="grid-2">
+          <div>
+            <label for="sl-city">City</label>
+            <input id="sl-city" type="text" />
+          </div>
+          <div>
+            <label for="sl-state">State</label>
+            <input id="sl-state" type="text" maxlength="2" placeholder="TX" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="sl-postal">Postal</label>
+            <input id="sl-postal" type="text" />
+          </div>
+          <div>
+            <label for="sl-country">Country</label>
+            <input id="sl-country" type="text" />
+          </div>
+        </div>
+        <p class="muted small">Coordinates (optional — enables Coverage map link)</p>
+        <div class="grid-2">
+          <div>
+            <label for="sl-lat">Latitude</label>
+            <input id="sl-lat" type="text" placeholder="e.g. 32.7767" />
+          </div>
+          <div>
+            <label for="sl-lng">Longitude</label>
+            <input id="sl-lng" type="text" placeholder="e.g. -96.7970" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="sl-acc">Geocode accuracy (m)</label>
+            <input id="sl-acc" type="text" />
+          </div>
+          <div>
+            <label for="sl-score">Geocode score</label>
+            <input id="sl-score" type="text" />
+          </div>
+        </div>
+        <label for="sl-src">Geocode origin-convert-all</label>
+        <input id="sl-src" type="text" placeholder="e.g. arcgis" />
+        <label for="sl-locname">Locator name</label>
+        <input id="sl-locname" type="text" />
+        <div class="modal-actions">
+          <button type="button" class="btn" data-cwl-toggle="showAddLocation:false" aria-label="Show Add Location">Cancel</button>
+          <button type="button" class="btn primary" data-cwl-attr-disabled="savingLoc" data-cwl-action="submitLocation" aria-label="Submit Location">
+            Create
+          </button>
+        </div>
+      </div>
+    </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/voice-telephony"}</script>

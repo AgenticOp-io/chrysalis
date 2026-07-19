@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { updatePieceStatuses } from "./source-corpus.mjs";
 import { replaceRouteHandlerBlock, routesPath as defaultRoutesPath } from "./cwl-apply-surfaces.mjs";
 import { sveltePagePathForRoute } from "./cwl-bulk-svelte-lift.mjs";
-import { buildWispModuleHtmlPageBlock } from "../wisp-cwl-ui-parity-lib.mjs";
+import { buildWispModuleHtmlPageBlock, WISP_GCE_LOGIN_PROFILE } from "../wisp-cwl-ui-parity-lib.mjs";
 
 export const CONVERT_ALL_PIECES_KIND = "chrysalis.convert-all-pieces";
 export const CONVERT_ALL_PIECES_SCHEMA_VERSION = 1;
@@ -19,6 +19,47 @@ export const CONVERT_ALL_PIECES_GATE = "G9993";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const defaultCorpusDir = join(scriptRoot, "reports/origin-corpus");
+
+/** Visible demo login credentials for the GCE test site (main/login page). */
+function injectDemoCredentialsPanel(html, profile = WISP_GCE_LOGIN_PROFILE) {
+  if (html.includes("demo-credentials-panel")) return html;
+  const email = String(profile.demoEmail || "demo@wisptools.io");
+  const password = String(profile.demoPassword || "WisptoolsDemo2026!");
+  const esc = (s) =>
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const panel = `<div class="demo-credentials-panel" role="note">
+        <p class="demo-credentials-title">Demo login</p>
+        <p><strong>Email:</strong> ${esc(email)}</p>
+        <p><strong>Password:</strong> ${esc(password)}</p>
+        <p class="demo-credentials-hint">Use these on the GCE test site. Firebase Auth on management.wisptools.io.</p>
+      </div>`;
+  let out = html;
+  if (/<div class="login-card">\s*<h2>/.test(out)) {
+    out = out.replace(/(<div class="login-card">\s*<h2>[^<]*<\/h2>)/, `$1\n      ${panel}`);
+  } else if (/<form\b[^>]*>/.test(out)) {
+    out = out.replace(/<form\b[^>]*>/, `${panel}\n      $&`);
+  } else {
+    out = `${panel}\n${out}`;
+  }
+  // Prefill the email field when empty.
+  out = out.replace(
+    /(<input[^>]*\bid="email"[^>]*?)(?:\s+value="[^"]*")?([^>]*>)/i,
+    (_m, a, b) => {
+      if (/\bvalue=/.test(a)) return `${a}${b}`;
+      return `${a} value="${esc(email)}"${b}`;
+    },
+  );
+  // Surface password in the placeholder so it's visible even if CSS hides the panel.
+  out = out.replace(
+    /(<input[^>]*\bid="password"[^>]*?\splaceholder=")([^"]*)(")/i,
+    `$1${esc(password)}$3`,
+  );
+  return out;
+}
 
 async function loadIngest() {
   try {
@@ -50,17 +91,49 @@ function listApiRoutes(apiProxyPath, routesCwlPath) {
 }
 
 /**
- * Components under a module route + shared modals — deep lift (D6442/D6443).
+ * Components under a module route — deep lift (D6442/D6443).
+ * Shared `$lib` components stay on {@link DEFAULT_STRUCTURAL_INLINE_COMPONENTS}
+ * / modal shells only — auto-inlining all of `$lib` hole-flooded every page.
  * @param {Map<string, string>} sources
  * @param {string} [moduleName]
  * @param {ReadonlySet<string>} [base]
  */
-function structuralInlineSet(sources, moduleName, base) {
+function structuralInlineSet(sources, moduleName, base, pageSource) {
   const out = new Set(base ?? []);
   for (const [name, abs] of sources) {
     const p = abs.replace(/\\/g, "/");
     if (moduleName && p.includes(`/modules/${moduleName}/`)) out.add(name);
-    if (/\/lib\/components\//.test(p)) out.add(name);
+    // Shared interactive UI is source authority too. Inline its markup so
+    // modals/wizards/menus/panels retain real fields and controls; client CWL
+    // bindings supply behavior. Charts/maps remain dedicated runtime islands.
+    // Applies to non-module routes too (/wizards, /dashboard, /onboarding).
+    if (
+      p.includes("/lib/components/") &&
+      !/(?:Chart|Map)$/.test(name) &&
+      /(?:Modal|Wizard|Menu|Panel|Widget|Manager|Switcher|Connections|Plans|Stats|BulkImport|CardForm|DeviceRow)$/.test(
+        name,
+      )
+    ) {
+      out.add(name);
+    }
+  }
+  // Cross-module imports rendered by this page (e.g. hardware page rendering
+  // inventory's ScanModal, deploy rendering hss-management's SubscriberList) —
+  // the page's import list is source truth. Charts/maps stay runtime islands.
+  if (pageSource) {
+    const impRe = /import\s+([A-Za-z_$][\w$]*)\s+from\s+['"]([^'"]+)\.svelte['"]/g;
+    let m;
+    while ((m = impRe.exec(pageSource))) {
+      const name = m[1];
+      if (!sources.has(name)) continue;
+      if (/(?:Chart|Map)$/.test(name)) continue;
+      const spec = m[2].replace(/\\/g, "/");
+      const isModuleComponent =
+        /(?:^|\/)components\//.test(spec) || /\/modules\//.test(spec);
+      if (isModuleComponent || /(?:Modal|Wizard|Menu|Panel|Widget)$/.test(name)) {
+        out.add(name);
+      }
+    }
   }
   return out;
 }
@@ -249,11 +322,14 @@ export async function convertAllOriginPieces(opts = {}) {
   for (const r of results) byStatus[r.status] = (byStatus[r.status] || 0) + 1;
 
   const fileCovered = results.reduce((n, r) => n + (r.files || 0), 0);
+  const holePieces = byStatus.hole ?? 0;
   const report = {
     kind: CONVERT_ALL_PIECES_KIND,
     schemaVersion: CONVERT_ALL_PIECES_SCHEMA_VERSION,
     gate: CONVERT_ALL_PIECES_GATE,
-    ok: true,
+    // Incomplete if any piece remains in hole status (D6448 — do not report success with unresolved pieces).
+    ok: holePieces === 0,
+    holePieces,
     generatedAt: new Date().toISOString(),
     wispRoot: wispRoot.replace(/\\/g, "/"),
     pieceCount: results.length,
@@ -368,6 +444,204 @@ function convertSharedLibPiece(piece) {
 }
 
 /**
+ * Resolve `import { X } from '$lib/…'` and append the imported `export const X = {…}`
+ * / `[…]` literal declarations as an extra script block, so the structural lift can
+ * settle `{ROLE_NAMES[role]}`-style interps from origin truth (D6442, no invention).
+ * @param {string} raw +page.svelte source
+ * @param {string} wispRoot Module_Manager root
+ */
+function inlineLibConstLiterals(raw, wispRoot) {
+  const extras = [];
+  const importRe = /import\s*(?:type\s*)?\{([^}]+)\}\s*from\s*['"]\$lib\/([^'"]+)['"]/g;
+  let m;
+  while ((m = importRe.exec(raw))) {
+    const names = m[1]
+      .split(",")
+      .map((n) => n.replace(/^\s*type\s+/, "").trim())
+      .filter((n) => /^[A-Za-z_$][\w$]*$/.test(n));
+    if (names.length === 0) continue;
+    let libSrc = null;
+    for (const cand of [m[2], `${m[2]}.ts`, `${m[2]}.js`, `${m[2]}/index.ts`]) {
+      const abs = join(wispRoot, "src", "lib", cand);
+      if (existsSync(abs)) {
+        try {
+          libSrc = readFileSync(abs, "utf8");
+        } catch {
+          libSrc = null;
+        }
+        break;
+      }
+    }
+    if (libSrc === null) continue;
+    for (const name of names) {
+      // Maps only — inlining lib object *arrays* explodes each-row templates into
+      // hundreds of unsettleable per-row holes (user-management/roles regression).
+      const declRe = new RegExp(
+        `export\\s+const\\s+${name}\\s*(?::[^=]+)?=\\s*(\\{)`,
+        "g",
+      );
+      const dm = declRe.exec(libSrc);
+      if (dm) {
+        const open = dm[1];
+        const close = "}";
+        let depth = 0;
+        let i = dm.index + dm[0].length - 1;
+        for (; i < libSrc.length; i++) {
+          const ch = libSrc[i];
+          if (ch === open) depth++;
+          else if (ch === close) {
+            depth--;
+            if (depth === 0) {
+              i++;
+              break;
+            }
+          }
+        }
+        extras.push(`const ${name} = ${libSrc.slice(dm.index + dm[0].length - 1, i)};`);
+        continue;
+      }
+      // Static template-literal exports (help/docs HTML blobs — no `${}` interp).
+      const tplRe = new RegExp(`export\\s+const\\s+${name}\\s*(?::[^=]+)?=\\s*\``, "g");
+      const tm = tplRe.exec(libSrc);
+      if (tm) {
+        const start = tm.index + tm[0].length;
+        let i = start;
+        let hasInterp = false;
+        for (; i < libSrc.length; i++) {
+          const ch = libSrc[i];
+          if (ch === "\\") {
+            i++;
+            continue;
+          }
+          if (ch === "$" && libSrc[i + 1] === "{") {
+            hasInterp = true;
+            break;
+          }
+          if (ch === "`") break;
+        }
+        if (!hasInterp && i < libSrc.length) {
+          extras.push(`const ${name} = \`${libSrc.slice(start, i)}\`;`);
+          continue;
+        }
+      }
+      // Plain string exports (`export const projectStatusTitle = '…';`).
+      const strRe = new RegExp(
+        `export\\s+const\\s+${name}\\s*(?::[^=]+)?=\\s*('([^'\\\\]|\\\\.)*'|"([^"\\\\]|\\\\.)*")`,
+        "g",
+      );
+      const sm = strRe.exec(libSrc);
+      if (sm) {
+        extras.push(`const ${name} = ${sm[1]};`);
+      }
+    }
+  }
+  if (extras.length === 0) return raw;
+  return `${raw}\n<script>\n${extras.join("\n")}\n</script>`;
+}
+
+/**
+ * Origin pages whose whole onMount is an unconditional goto() are redirects —
+ * convert the behavior, not just the placeholder markup (e.g. /modules).
+ * Conditional gotos (auth guards) do not match: the block body must be only
+ * the goto call.
+ * @returns {string | null} redirect target path
+ */
+/** Extract the body of the first onMount(() => { ... }) / onMount(async () => { ... }). */
+function extractOnMountBlockBody(raw) {
+  const head = /onMount\s*\(\s*(?:async\s*)?\(\s*\)\s*=>\s*\{/.exec(raw);
+  if (!head) return null;
+  const openBrace = raw.indexOf("{", head.index + head[0].length - 1);
+  if (openBrace < 0) return null;
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+  for (let i = openBrace; i < raw.length; i++) {
+    const ch = raw[i];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === quote) quote = "";
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === "`") {
+      quote = ch;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return raw.slice(openBrace + 1, i);
+    }
+  }
+  return null;
+}
+
+export function detectMountRedirectTarget(raw) {
+  const exprForm =
+    /onMount\s*\(\s*(?:async\s*)?\(\s*\)\s*=>\s*goto\(\s*(['"`])([^'"`$]+)\1\s*\)\s*\)/.exec(raw);
+  if (exprForm) return exprForm[2];
+  const body = extractOnMountBlockBody(raw);
+  if (body == null) return null;
+  const cleaned = body
+    .replace(/\/\/[^\n]*/g, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .trim()
+    // Origin often wraps the only goto in `if (browser) { ... }`.
+    .replace(/^if\s*\(\s*browser\s*\)\s*\{\s*/, "")
+    .replace(/\s*\}\s*$/, "")
+    .trim();
+  const only = /^(?:await\s+)?goto\(\s*(['"`])([^'"`$]+)\1\s*(?:,[\s\S]*)?\);?$/.exec(cleaned);
+  if (only) return only[2];
+  return null;
+}
+
+/**
+ * Auth-gate mount: if authenticated → pathA else → pathB (origin root / portal).
+ * @returns {{ whenAuth: string, whenAnon: string } | null}
+ */
+export function detectAuthMountRedirect(raw) {
+  const body = extractOnMountBlockBody(raw);
+  if (body == null) return null;
+  // if (isAuthenticated|user|customer|...) { goto(A) } else { goto(B) }
+  const authThen =
+    /if\s*\(\s*(!?\s*)(?:isAuthenticated|user|customer|currentUser|currentCustomer|auth(?:User)?)\b[^)]*\)\s*\{[\s\S]*?goto\(\s*(['"`])([^'"`$]+)\2/.exec(
+      body,
+    );
+  if (!authThen) return null;
+  const elseGoto = /else\s*\{[\s\S]*?goto\(\s*(['"`])([^'"`$]+)\1/.exec(body);
+  if (!elseGoto) return null;
+  const firstIsNegated = /^\s*!/.test(authThen[1] || "");
+  const a = authThen[3];
+  const b = elseGoto[2];
+  if (!a.startsWith("/") || !b.startsWith("/")) return null;
+  return firstIsNegated
+    ? { whenAuth: b, whenAnon: a }
+    : { whenAuth: a, whenAnon: b };
+}
+
+function mountRedirectHtml(httpPath, target) {
+  const safe = target.replace(/"/g, "&quot;");
+  return (
+    `<div class="wisp-app-surface" data-wisp-page="redirect" data-wisp-path="${httpPath}">` +
+    `<div class="redirect-message">Redirecting…</div>` +
+    `<script>location.replace(${JSON.stringify(target)});</script>` +
+    `<noscript><a href="${safe}">Continue</a></noscript></div>`
+  );
+}
+
+function authMountRedirectHtml(httpPath, whenAuth, whenAnon) {
+  // Prefer live Firebase session when available; fall back to demo/local markers.
+  // Also honor customer-portal session keys used by customerAuthService.
+  const script = `(function(){function go(p){location.replace(p);}try{var a=window.firebase&&firebase.auth&&firebase.auth();if(a&&a.onAuthStateChanged){a.onAuthStateChanged(function(u){go(u?${JSON.stringify(whenAuth)}:${JSON.stringify(whenAnon)});});return;}var u=localStorage.getItem("firebase:authUser")||sessionStorage.getItem("wisp-demo-user")||localStorage.getItem("wisp-customer-session")||sessionStorage.getItem("wisp-customer-session");go(u?${JSON.stringify(whenAuth)}:${JSON.stringify(whenAnon)});}catch(e){go(${JSON.stringify(whenAnon)});}})();`;
+  return (
+    `<div class="wisp-app-surface" data-wisp-page="auth-redirect" data-wisp-path="${httpPath}">` +
+    `<div class="loading-page"><div class="spinner"></div><p>Checking authentication...</p></div>` +
+    `<script>${script}</script>` +
+    `<noscript><a href="${whenAnon.replace(/"/g, "&quot;")}">Continue to login</a></noscript></div>`
+  );
+}
+
+/**
  * Structural lift of one Module_Manager +page.svelte (D6442/D6443).
  * No invented parity HTML — origin markup + class names are look authority.
  * @returns {{ html: string, note: string } | { hole: string }}
@@ -377,17 +651,90 @@ function structuralLiftUiPage(httpPath, ctx) {
   if (!existsSync(pageFile)) {
     return { hole: "missing-svelte-page" };
   }
-  const raw = readFileSync(pageFile, "utf8");
+  const raw = inlineLibConstLiterals(readFileSync(pageFile, "utf8"), ctx.wispRoot);
+  // Faithful conversion of onMount(() => goto(target)) redirect pages.
+  const redirectTarget = detectMountRedirectTarget(raw);
+  if (redirectTarget && redirectTarget.startsWith("/")) {
+    return { html: mountRedirectHtml(httpPath, redirectTarget), note: "mount-redirect" };
+  }
+  // Origin portal/[tenantId]: goto(`/modules/customers/portal/login?tenant=${tenantId}`)
+  if (
+    /portal\/(?:\[tenantId\]|:tenantId)/.test(httpPath) ||
+    /goto\s*\(\s*[`]\/modules\/customers\/portal\/login\?tenant=\$\{/.test(raw)
+  ) {
+    const html =
+      `<div class="wisp-app-surface" data-wisp-page="redirect" data-wisp-path="${httpPath}">` +
+      `<div class="redirect-message">Redirecting to portal…</div>` +
+      `<script>var m=location.pathname.match(/^\\/portal\\/([^/]+)/);location.replace(m?"/modules/customers/portal/login?tenant="+encodeURIComponent(m[1]):"/modules/customers/portal/login");</script>` +
+      `<noscript><a href="/modules/customers/portal/login">Continue</a></noscript></div>`;
+    return { html, note: "portal-tenant-redirect" };
+  }
+  // Single-tenant demo fork: origin tenant-selector / tenant-setup redirect to
+  // /dashboard on mount when isSingleTenantMode() — which is the origin default
+  // now that getConfiguredSingleTenantId() falls back to the demo tenant id.
+  // The multitenant org UI behind that gate is dead in this deployment, so
+  // compile the redirect instead of lifting the stale selector/setup markup.
+  const mountBody = extractOnMountBlockBody(raw) || "";
+  if (
+    /if\s*\(\s*isSingleTenantMode\s*\(\s*\)[\s\S]{0,400}?goto\(\s*['"`]\/dashboard['"`]/.test(
+      mountBody,
+    )
+  ) {
+    return {
+      html: authMountRedirectHtml(httpPath, "/dashboard", "/login"),
+      note: "single-tenant-mount-redirect",
+    };
+  }
+  // Auth gate on a thin redirect shell (root / portal entry) — not on full pages
+  // that merely guard their own content with a login goto.
+  const authRedirect = detectAuthMountRedirect(raw);
+  if (authRedirect) {
+    const markup = raw.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
+    const thinShell =
+      /Redirecting|Checking authentication|loading-page|class=["']redirect/i.test(markup) &&
+      !/<table|<form|data-cwl-|module-header|modal-overlay/i.test(markup);
+    if (thinShell) {
+      return {
+        html: authMountRedirectHtml(httpPath, authRedirect.whenAuth, authRedirect.whenAnon),
+        note: "auth-mount-redirect",
+      };
+    }
+  }
+  // Onboarding localStorage gate from origin FirstTimeSetup flow.
+  if (
+    httpPath === "/onboarding" &&
+    /onboardingCompleted/.test(raw) &&
+    /tenantSetupCompleted/.test(raw)
+  ) {
+    const script =
+      `(function(){try{if(localStorage.getItem("onboardingCompleted")==="true"){location.replace("/dashboard");return;}` +
+      `if(localStorage.getItem("tenantSetupCompleted")!=="true"){location.replace("/tenant-setup");return;}}catch(e){}` +
+      `})();`;
+    return {
+      html:
+        `<div class="wisp-app-surface" data-wisp-page="onboarding" data-wisp-path="/onboarding" data-cwl-island="client">` +
+        `<div class="onboarding-message"><p>Redirecting to the appropriate setup step...</p></div>` +
+        `<div class="cwl-wizard-shell" data-cwl-wizard-shell="FirstTimeSetupWizard" aria-hidden="true" role="dialog"></div>` +
+        `<script>${script}</script></div>`,
+      note: "onboarding-mount-redirect",
+    };
+  }
   const moduleName = httpPath.match(/^\/modules\/([^/]+)/)?.[1];
-  const inline = structuralInlineSet(ctx.componentSources, moduleName, ctx.defaultInline);
+  const inline = structuralInlineSet(ctx.componentSources, moduleName, ctx.defaultInline, raw);
+  const isDeploy =
+    httpPath === "/modules/deploy" || httpPath.startsWith("/modules/deploy/");
   const lifted = ctx.ingest.liftStructuralSveltePageHtml(raw, {
     applyShowcaseLoadBools: true,
+    // Supported dynamic expressions are compiled runtime bindings, not holes.
+    // This keeps one-pass output honest while allowing live API hydration.
+    promoteRuntimeBindings: true,
     componentSources: ctx.componentSources,
     structuralInlineComponents: inline,
     loadBools: {
-      isDeployMode: false,
+      isDeployMode: isDeploy,
       hideStats: false,
       isLoading: false,
+      loading: false,
       error: false,
       success: false,
     },
@@ -395,15 +742,25 @@ function structuralLiftUiPage(httpPath, ctx) {
   if (!lifted || typeof lifted.html !== "string" || lifted.html.trim().length < 20) {
     return { hole: "lift-empty" };
   }
-  let html = lifted.html;
+  let html =
+    typeof ctx.ingest.scrubStructuralMarkupArtifacts === "function"
+      ? ctx.ingest.scrubStructuralMarkupArtifacts(lifted.html)
+      : lifted.html;
   // Always stamp page identity so client islands (initMapShell) boot — even when
   // lifted HTML already contains data-cwl-island markers (D6448-ST).
   if (!html.includes("data-wisp-page")) {
-    const slug = httpPath.replace(/^\//, "").replace(/\//g, "-") || "home";
+    // Prefer short module ids (`plan`) over `modules-plan` so client islands match.
+    const slug =
+      httpPath.match(/^\/modules\/([^/]+)/)?.[1] ||
+      httpPath.replace(/^\//, "").replace(/\//g, "-") ||
+      "home";
     html = `<div class="wisp-app-surface" data-wisp-page="${slug}" data-wisp-path="${httpPath}" data-cwl-island="client">${html}</div>`;
   }
+  if (httpPath === "/login") {
+    html = injectDemoCredentialsPanel(html);
+  }
   // Deploy SharedMap defaults to plan when mode={mapMode} — fix from route (origin).
-  if (httpPath === "/modules/deploy" || httpPath.startsWith("/modules/deploy/")) {
+  if (isDeploy) {
     html = html
       .replace(/\bid="plan-map-iframe"/g, 'id="deploy-map-iframe"')
       .replace(/\bdata-cwl-map-mode="plan"/g, 'data-cwl-map-mode="deploy"')
@@ -417,14 +774,63 @@ function structuralLiftUiPage(httpPath, ctx) {
       )
       .replace(/\btitle="Plan map"/g, 'title="Deploy map"');
   }
-  // Closed first paint: modal overlays must carry hidden (origin {#if show*} false).
+  // Closed first paint: overlays must carry boolean `hidden` (not merely aria-hidden —
+  // `\bhidden\b` matches inside aria-hidden and wrongly skips the real attribute).
+  const hasBoolHidden = (attrs) => /(?:^|\s)hidden(?:\s|=|>|$)/i.test(attrs);
   html = html.replace(
-    /<(div|section)(\s+[^>]*\bclass="[^"]*modal-overlay[^"]*"[^>]*)>/gi,
+    /<(div|section)(\s+[^>]*\bclass="[^"]*(?:modal-overlay|popup-overlay|tips-overlay|help-overlay|wizard-overlay|settings-overlay|filters-modal|marketing-backdrop)[^"]*"[^>]*)>/gi,
     (full, tag, attrs) => {
-      if (/\bhidden\b/i.test(attrs)) return full;
+      if (hasBoolHidden(attrs)) {
+        if (!/\baria-hidden\b/i.test(attrs)) return `<${tag}${attrs} aria-hidden="true">`;
+        return full;
+      }
+      if (/\baria-hidden\b/i.test(attrs)) return `<${tag}${attrs} hidden>`;
       return `<${tag}${attrs} hidden aria-hidden="true">`;
     },
   );
+  // Origin back chrome often lacks href/data-action after Svelte strip — stamp nav (D6442).
+  html = html.replace(
+    /<button(\s[^>]*\b(?:module-back-btn|wisp-back-btn|back-button|btn-back)\b[^>]*)>/gi,
+    (full, attrs) => {
+      let next = attrs;
+      if (!/\bdata-cwl-nav\s*=/.test(next)) next += ' data-cwl-nav="/dashboard"';
+      next = next
+        .replace(/\s+data-action="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action-args="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-set="href:[^"]*"/gi, "");
+      if (!/\btype\s*=/.test(next)) next += ' type="button"';
+      return `<button${next}>`;
+    },
+  );
+  // Every converted button needs one behavior owner and an accessible semantic
+  // label even when its visible Svelte interpolation settles only at runtime.
+  html = html.replace(/<button(\s[^>]*)>/gi, (full, attrs) => {
+    let next = attrs;
+    if (/\bdata-cwl-nav\s*=/.test(next)) {
+      next = next
+        .replace(/\s+data-action="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-action-args="[^"]*"/gi, "")
+        .replace(/\s+data-cwl-set="href:[^"]*"/gi, "");
+    }
+    if (!/\b(?:aria-label|title)\s*=/.test(next)) {
+      const action = /\bdata-cwl-action="([^"]+)"/i.exec(next)?.[1];
+      const toggle = /\bdata-cwl-toggle="([^":]+)/i.exec(next)?.[1];
+      const className = /\bclass="([^"]*)"/i.exec(next)?.[1] ?? "";
+      const source = action || toggle || (/wizard-step/i.test(className) ? "Wizard step" : "");
+      if (source) {
+        const words = source
+          .replace(/^(?:handle|on)(?=[A-Z])/, "")
+          .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+          .replace(/[-_]+/g, " ")
+          .trim();
+        const label = words ? words[0].toUpperCase() + words.slice(1) : "";
+        if (label) next += ` aria-label="${label.replace(/"/g, "&quot;")}"`;
+      }
+    }
+    return `<button${next}>`;
+  });
   // Login / dashboard: preserve origin chrome; demo credentials stay CWL-additive CSS/client only.
   return { html, note: "structural-lift" };
 }
@@ -445,7 +851,8 @@ function convertUiPiece(piece, ctx) {
     httpPath,
     pageNameFor(httpPath),
     html,
-    `{ source: "origin-convert-all", path: ${JSON.stringify(httpPath)} }`,
+    // Use httpPath — bare `path` poisons SVG `<path>` via CWL HTML interpolation (G1189).
+    `{ source: "origin-convert-all", httpPath: ${JSON.stringify(httpPath)} }`,
   );
   const applied = replaceRouteHandlerBlock(
     ctx.getRoutesText(),
@@ -494,13 +901,30 @@ function appendOrphanLiftedModals(html, forceNames, componentSources, ingest, mo
     if (modNeedle && norm.includes("/modules/") && !norm.includes(modNeedle)) continue;
     try {
       const raw = readFileSync(path, "utf8");
+      // The orphan's own imports are its children (HSSManagementModal →
+      // SubscriberList) — include them so nested tabs lift, not hole.
+      const orphanInline = new Set([name]);
+      const orphanImpRe = /import\s+([A-Za-z_$][\w$]*)\s+from\s+['"][^'"]+\.svelte['"]/g;
+      let oim;
+      while ((oim = orphanImpRe.exec(raw))) {
+        const child = oim[1];
+        if (!componentSources.has(child)) continue;
+        if (/(?:Chart|Map)$/.test(child)) continue;
+        orphanInline.add(child);
+      }
       const lifted = ingest.liftStructuralSveltePageHtml(raw, {
         loadBools: { show: true },
-        applyShowcaseLoadBools: false,
+        applyShowcaseLoadBools: true,
+        promoteRuntimeBindings: true,
         componentSources,
-        structuralInlineComponents: new Set([name]),
+        structuralInlineComponents: orphanInline,
       });
       if (!lifted?.html || lifted.html.trim().length < 40) continue;
+      // Hole-flooded orphans (nested each/if) — keep a closed shell, do not paste D6448 noise.
+      if ((lifted.holes?.length ?? 0) > 12) {
+        out += `\n<div class="modal-overlay" data-cwl-modal-shell="${name}" data-cwl-orphan-modal="1" hidden aria-hidden="true"></div>`;
+        continue;
+      }
       const stamped =
         typeof ingest.stampClosedUiChrome === "function"
           ? ingest.stampClosedUiChrome(lifted.html)
@@ -535,24 +959,16 @@ function convertModuleSupportPiece(piece, ctx) {
   const inline = structuralInlineSet(ctx.componentSources, mod, forceNames);
 
   // D6443 — always structural-lift origin page; never invent parity shells.
+  // Reuse structuralLiftUiPage so Deploy map mode, overlay hidden, and back nav stamp.
   if (!existsSync(pageFile)) {
     return { id: piece.id, status: "hole", note: "support-missing-page", files: piece.pathCount ?? 0 };
   }
-  const raw = readFileSync(pageFile, "utf8");
-  const lifted = ctx.ingest.liftStructuralSveltePageHtml(raw, {
-    applyShowcaseLoadBools: true,
-    componentSources: ctx.componentSources,
-    structuralInlineComponents: inline,
-    loadBools: {
-      isDeployMode: false,
-      hideStats: false,
-      isLoading: false,
-      error: false,
-      success: false,
-    },
+  const lifted = structuralLiftUiPage(httpPath, {
+    ...ctx,
+    defaultInline: inline,
   });
-  if (!lifted || typeof lifted.html !== "string" || lifted.html.trim().length < 40) {
-    return { id: piece.id, status: "hole", note: "support-lift-empty", files: piece.pathCount ?? 0 };
+  if (lifted.hole || !lifted.html) {
+    return { id: piece.id, status: "hole", note: lifted.hole || "support-lift-empty", files: piece.pathCount ?? 0 };
   }
   let html = lifted.html;
   const note = "module-support-structural";

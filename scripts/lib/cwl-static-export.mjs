@@ -2,7 +2,7 @@
 /**
  * Export CWL UI @page routes to static HTML (Phase 29b).
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveWispPreviewSession } from "../wisp-cwl-post-g7790.mjs";
@@ -45,6 +45,18 @@ async function loadRuntimeCwl(repoRoot) {
   }
 }
 
+async function loadStructuralScrub(repoRoot) {
+  try {
+    const ingest = await import("@chrysalis/ingest");
+    return ingest.scrubStructuralMarkupArtifacts;
+  } catch {
+    const ingest = await import(
+      pathToFileURL(join(repoRoot, "packages/ingest/dist/index.js")).href
+    );
+    return ingest.scrubStructuralMarkupArtifacts;
+  }
+}
+
 /**
  * @param {object} [opts]
  */
@@ -57,6 +69,7 @@ export async function runWispCwlStaticExport(opts = {}) {
   if (!pages.length) return { ...base, skip: "no-page-routes" };
 
   const runtimeMod = await loadRuntimeCwl(scriptRoot);
+  const scrubStructuralMarkupArtifacts = await loadStructuralScrub(scriptRoot);
   const { createCwlRuntime, loadModuleFromCwlFile, loadCwlUiAssetsFromProject } = runtimeMod;
   const module = loadModuleFromCwlFile(routesCwl, scriptRoot);
   const fixtureDir = dirname(routesCwl);
@@ -72,6 +85,10 @@ export async function runWispCwlStaticExport(opts = {}) {
       : {}),
   });
 
+  // Drop stale routes (e.g. removed origin modules) so export matches routes.cwl exactly.
+  if (existsSync(outRoot)) rmSync(outRoot, { recursive: true, force: true });
+  mkdirSync(outRoot, { recursive: true });
+
   /** @type {Array<{ path: string, out: string, status: number, ok: boolean }>} */
   const exported = [];
   for (const page of pages) {
@@ -82,7 +99,9 @@ export async function runWispCwlStaticExport(opts = {}) {
       url,
       headers: { cookie: "chrysalis_session=static-export" },
     });
-    const body = await res.text();
+    // Runtime HTML-template evaluation can interpret SVG `<path>` as a CWL
+    // `path` expression. Scrub the evaluated body before it becomes an artifact.
+    const body = scrubStructuralMarkupArtifacts(await res.text());
     const rel = staticOutRel(page.path);
     const abs = join(outRoot, rel);
     mkdirSync(dirname(abs), { recursive: true });
@@ -91,12 +110,24 @@ export async function runWispCwlStaticExport(opts = {}) {
   }
 
   const okCount = exported.filter((e) => e.ok).length;
+  let residueTotal = 0;
+  for (const item of exported) {
+    const body = readFileSync(join(outRoot, item.out), "utf8");
+    residueTotal += (body.match(/\bgoto\s*\(/g) ?? []).length;
+    residueTotal += (body.match(/\son:[a-zA-Z][\w:|.-]*=/g) ?? []).length;
+    residueTotal += (
+      body.match(
+        /<\/(?:login|dashboard|modules\/[\w/-]+|admin\/[\w/-]+)\s+(?:d|fill|stroke)=/g,
+      ) ?? []
+    ).length;
+  }
   const manifest = {
     kind: "chrysalis.wisp.cwl-static-export",
     schemaVersion: 1,
     outRoot: "cwl-static-export",
     pageCount: pages.length,
     exportedCount: okCount,
+    residueTotal,
     routes: exported,
     generatedAt: new Date().toISOString(),
   };
@@ -104,9 +135,10 @@ export async function runWispCwlStaticExport(opts = {}) {
 
   return {
     ...base,
-    ok: okCount === pages.length,
+    ok: okCount === pages.length && residueTotal === 0,
     pageCount: pages.length,
     exportedCount: okCount,
+    residueTotal,
     outRoot,
     manifestPath,
   };

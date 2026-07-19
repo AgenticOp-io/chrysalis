@@ -1,87 +1,1563 @@
-<div class="dashboard-container" data-wisp-page="dashboard" data-cwl-island="client">
-  <div class="header">
-    <div class="header-content">
-      <div class="header-brand">
-        <div class="logo-section">
-          <img src="/wisptools-logo.svg" alt="WISP Management" class="dashboard-logo" width="72" height="72" />
-          <div class="branding">
-            <h1 class="app-title">WISP Management</h1>
-            <p class="app-subtitle">wisptools.io</p>
-            <p class="poc-notice">wisptools.io · Source code: <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">github.com/theorem6/WISP-Management</a></p>
-          </div>
-        </div>
-        <div class="header-icons">
-          <a href="/help" class="icon-btn apk-btn" title="Field App" aria-label="Field App"><span class="apk-icon">📱</span></a>
-          <a href="/help" class="icon-btn doc-btn" title="Help" aria-label="Open help"><span class="doc-icon">📖</span></a>
-          <button type="button" class="icon-btn gear-btn" data-cwl-on-click="open-settings" title="Settings" aria-label="Open settings">
-            <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="12" cy="12" r="3"></circle>
-              </dashboard d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"><//dashboard>
-            </svg>
+<div class="wisp-app-surface" data-wisp-page="dashboard" data-wisp-path="/dashboard" data-cwl-island="client"><!-- First-Time Setup Wizard -->
+
+    <div hidden aria-hidden="true"><div data-cwl-component="FirstTimeSetupWizard" data-cwl-lifted-component="FirstTimeSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden aria-hidden="true">
+    <div class="wizard-modal">
+      <div class="wizard-header">
+        <h2 id="wizard-title">🚀 Welcome to WISP Tools</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+      </div>
+
+      <!-- Progress Steps -->
+      <nav class="wizard-steps" aria-label="Setup steps">
+        <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+            type="button"
+            class="wizard-step" data-cwl-action="goToStep" data-cwl-action-args="index" aria-label="Go To Step">
+            <span class="step-icon"></span>
+            <span class="step-title"></span>
+          </button></div>
+      </nav>
+
+      <!-- Step Content -->
+      <div class="wizard-content">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+          <div class="wizard-panel">
+            <div class="welcome-content">
+              <h3>Welcome to WISP Tools! 🎉</h3>
+              <p>Let's get your wireless ISP set up and running in just a few minutes.</p>
+
+              <div class="features-preview">
+                <div class="feature-item">
+                  <span class="icon">🗺️</span>
+                  <div>
+                    <strong>Coverage Map</strong>
+                    <p>Plan and visualize your network coverage</p>
+                  </div>
+                </div>
+                <div class="feature-item">
+                  <span class="icon">📡</span>
+                  <div>
+                    <strong>CBRS Management</strong>
+                    <p>Manage spectrum and device registration</p>
+                  </div>
+                </div>
+                <div class="feature-item">
+                  <span class="icon">⚙️</span>
+                  <div>
+                    <strong>CPE Management</strong>
+                    <p>Configure and monitor customer equipment</p>
+                  </div>
+                </div>
+                <div class="feature-item">
+                  <span class="icon">📊</span>
+                  <div>
+                    <strong>Monitoring & Analytics</strong>
+                    <p>Track performance and network health</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setup-time">
+                <strong>⏱️ Estimated time:</strong> 5-10 minutes
+              </div>
+            </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><!-- Organization Setup Step -->
+          <div class="wizard-panel">
+            <h3>Organization Setup</h3>
+            <p>Your organization is already created! Let's verify the details.</p>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="$currentTenant"><div class="info-card">
+                <div class="info-row">
+                  <span class="label">Organization Name:</span>
+                  <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.displayName"></span></span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Contact Email:</span>
+                  <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.contactEmail"></span></span>
+                </div>
+              </div></div>
+
+            <p class="hint">✅ Organization setup complete! You can edit these details later in Settings.</p>
+            <button type="button" class="btn-link" data-cwl-toggle="showOrgWizard:true" aria-label="Show Org Wizard">Open full Organization Setup wizard</button>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><!-- Add First Tower Step -->
+          <div class="wizard-panel">
+            <h3>Add Your First Tower Site</h3>
+            <p>Let's add your first network tower to get started with coverage planning.</p>
+
+            <div class="action-card">
+              <p><strong>Option 1: Quick Setup</strong></p>
+              <p>Add a tower site now through the Coverage Map module.</p>
+              <button class="btn-primary" data-cwl-action="add-tower" aria-label="Add tower">
+                Open Coverage Map
+              </button>
+            </div>
+
+            <div class="action-card">
+              <p><strong>Option 2: Skip for Now</strong></p>
+              <p>You can add tower sites later from the Coverage Map module.</p>
+            </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><!-- Configure Modules Step -->
+          <div class="wizard-panel">
+            <h3>Configure Modules (Optional)</h3>
+            <p>Set up the modules you'll use for your operations.</p>
+
+            <div class="modules-grid">
+              <div class="module-card">
+                <span class="icon">📡</span>
+                <h4>CBRS Management</h4>
+                <p>Configure Google SAS and Federated Wireless API keys</p>
+                <button class="btn-secondary" data-cwl-action="setup-cbrs" aria-label="Setup cbrs">
+                  Setup CBRS
+                </button>
+              </div>
+
+              <div class="module-card">
+                <span class="icon">⚙️</span>
+                <h4>ACS/TR-069</h4>
+                <p>Configure monitoring and alerts</p>
+                <button class="btn-secondary" data-cwl-action="setup-monitoring" aria-label="Setup monitoring">
+                  Setup ACS
+                </button>
+              </div>
+
+              <div class="module-card">
+                <span class="icon">📊</span>
+                <h4>Monitoring</h4>
+                <p>Configure SNMP and network monitoring</p>
+                <button class="btn-secondary" data-cwl-action="setup-monitoring" aria-label="Setup monitoring">
+                  Setup Monitoring
+                </button>
+              </div>
+            </div>
+
+            <p class="hint">💡 You can configure these modules later from the Dashboard.</p>
+            <button type="button" class="btn-link" data-cwl-toggle="showConfigWizard:true" aria-label="Show Config Wizard">Open full Initial Configuration wizard</button>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 4"><!-- Complete Step -->
+          <div class="wizard-panel">
+            <h3>🎉 Setup Complete!</h3>
+            <p>You're all set! Here's what you can do next:</p>
+
+            <div class="next-steps">
+              <a href="/modules/coverage-map" class="next-step-item">
+                <span class="icon">🗺️</span>
+                <div>
+                  <strong>Explore Coverage Map</strong>
+                  <p>Add tower sites and plan your network coverage</p>
+                </div>
+              </a>
+              <a href="/modules/customers" class="next-step-item">
+                <span class="icon">👥</span>
+                <div>
+                  <strong>Add Customers</strong>
+                  <p>Start managing your customer base</p>
+                </div>
+              </a>
+              <a href="/modules/work-orders" class="next-step-item">
+                <span class="icon">📋</span>
+                <div>
+                  <strong>Create Work Orders</strong>
+                  <p>Manage installations and service requests</p>
+                </div>
+              </a>
+              <a href="/modules/voice-telephony" class="next-step-item">
+                <span class="icon">📞</span>
+                <div>
+                  <strong>Voice / SIP &amp; UC</strong>
+                  <p>Link numbers, E911, and porting to customers</p>
+                </div>
+              </a>
+            </div>
+          </div></div>
+      </div>
+
+      <!-- Wizard Footer -->
+      <div class="wizard-footer">
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
+            ← Previous
+          </button></div>
+          <button class="btn-secondary" data-cwl-action="skipToDashboard" data-cwl-attr-disabled="isLoading" aria-label="Skip To Dashboard">
+            Skip Setup
           </button>
-          <button type="button" class="icon-btn power-btn" data-cwl-on-click="logout" title="Logout" aria-label="Logout">
-            <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              </dashboard d="M18.36 6.64a9 9 0 1 1-12.73 0"><//dashboard>
-              <line x1="12" y1="2" x2="12" y2="12"></line>
-            </svg>
-          </button>
+
+        <div class="footer-actions">
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="currentStep === 0 ? 'Get Started →' : 'Next →'"></span>
+            </button></div>
+            <button class="btn-primary" data-cwl-action="completeSetup" data-cwl-attr-disabled="isLoading" aria-label="Complete Setup">
+              Go to Dashboard →
+            </button>
+
         </div>
       </div>
     </div>
   </div>
-  <div class="main-content">
-    <div class="modules-section">
-      <div class="modules-grid"><a class="module-card active" href="/modules/plan" aria-label="Open 📋 Plan" role="button">
-  <div class="module-header"><h3 class="module-name">📋 Plan</h3></div>
-  <div class="module-features"><ul><li>Coverage Analysis</li><li>Site Planning</li><li>Inventory Check</li><li>CBRS Spectrum</li><li>Capacity Planning</li><li>Cost Analysis</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/deploy" aria-label="Open 🚀 Deploy" role="button">
-  <div class="module-header"><h3 class="module-name">🚀 Deploy</h3></div>
-  <div class="module-features"><ul><li>PCI Resolution</li><li>Work Orders</li><li>Installation Management</li><li>Equipment Configuration</li><li>Quality Assurance</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/monitor" aria-label="Open 📊 Monitor" role="button">
-  <div class="module-header"><h3 class="module-name">📊 Monitor</h3></div>
-  <div class="module-features"><ul><li>Network Monitoring</li><li>Device Health</li><li>Traffic Analysis</li><li>Performance Analytics</li><li>Alert Management</li><li>HSS Management</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/maintain" aria-label="Open 🔧 Maintain" role="button">
-  <div class="module-header"><h3 class="module-name">🔧 Maintain</h3></div>
-  <div class="module-features"><ul><li>Ticketing System</li><li>Preventive Maintenance</li><li>Incident Management</li><li>Customer Support</li><li>Vendor Management</li><li>Knowledge Base</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/customers" aria-label="Open 👥 Customers" role="button">
-  <div class="module-header"><h3 class="module-name">👥 Customers</h3></div>
-  <div class="module-features"><ul><li>Customer Database</li><li>Customer Portal</li><li>Service Management</li><li>Installation History</li><li>Customer Support</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/hardware" aria-label="Open 🔧 Hardware" role="button">
-  <div class="module-header"><h3 class="module-name">🔧 Hardware</h3></div>
-  <div class="module-features"><ul><li>Equipment Inventory</li><li>Asset Tracking</li><li>Hardware Management</li><li>Status Monitoring</li><li>Location Tracking</li><li>Maintenance Records</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/voice-telephony" aria-label="Open 📞 Voice / SIP" role="button">
-  <div class="module-header"><h3 class="module-name">📞 Voice / SIP</h3></div>
-  <div class="module-features"><ul><li>Provider accounts</li><li>TN inventory</li><li>E911 status</li><li>Port orders</li><li>Domain reference</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a></div>
-      <section class="wisp-secondary-modules" aria-label="More modules">
-        <h2 class="wisp-secondary-title">More modules</h2>
-        <nav class="wisp-secondary-nav"><a class="wisp-secondary-module" href="/modules/coverage-map" title="ArcGIS network map">Coverage Map</a>
-<a class="wisp-secondary-module" href="/modules/inventory" title="Stock, scan, transfer">Inventory</a>
-<a class="wisp-secondary-module" href="/modules/sites" title="Site inventory">Sites</a>
-<a class="wisp-secondary-module" href="/modules/pci-resolution" title="PCI planner">PCI Resolution</a>
-<a class="wisp-secondary-module" href="/modules/hss-management" title="Subscriber HSS">HSS</a>
-<a class="wisp-secondary-module" href="/modules/work-orders" title="Field work orders">Work Orders</a>
-<a class="wisp-secondary-module" href="/modules" title="Module directory">All modules</a></nav>
-      </section>
+  <div data-cwl-component="OrganizationSetupWizard" data-cwl-lifted-component="OrganizationSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="org-wizard-title" hidden aria-hidden="true">
+    <div class="wizard-modal">
+      <div class="wizard-header">
+        <h2 id="org-wizard-title">🏢 Organization Setup</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+      </div>
+      <div class="wizard-content">
+        <div class="wizard-panel">
+          <p>Verify your organization details. You can edit these later in Settings.</p>
+          <div data-cwl-bind="if" data-cwl-hole-detail="$currentTenant"><div class="info-card">
+              <div class="info-row">
+                <span class="label">Organization Name:</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.displayName"></span></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Contact Email:</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.contactEmail ?? '—'"></span></span>
+              </div>
+            </div></div>
+            <p class="hint">No tenant selected. Select a tenant from the dashboard or complete tenant setup first.</p>
+
+          <div class="actions">
+            <button type="button" class="btn-primary" data-cwl-nav="/dashboard?panel=settings">Edit in Settings</button>
+            <button type="button" class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Done</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <footer class="app-footer">
-      <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <span class="sep">·</span>
-      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
-    </footer>
+  </div></div>
+  <div data-cwl-component="InitialConfigurationWizard" data-cwl-lifted-component="InitialConfigurationWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="config-wizard-title" hidden aria-hidden="true">
+    <div class="wizard-modal">
+      <div class="wizard-header">
+        <h2 id="config-wizard-title">⚙️ Initial Configuration</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+      </div>
+      <div class="wizard-content">
+        <div class="wizard-panel">
+          <p>Add your first tower and configure the modules you'll use. You can do these later from the Dashboard.</p>
+
+          <div class="section">
+            <h3>Add First Tower</h3>
+            <p class="section-desc">Add a tower site for coverage planning.</p>
+            <button type="button" class="btn-primary" data-cwl-nav="/modules/coverage-map">Open Coverage Map</button>
+          </div>
+
+          <div class="section">
+            <h3>Configure Modules</h3>
+            <div class="modules-grid">
+              <div class="module-card">
+                <span class="icon">📡</span>
+                <h4>CBRS Management</h4>
+                <p>Configure SAS API keys</p>
+                <button type="button" class="btn-secondary" data-cwl-nav="/modules/cbrs-management">Setup CBRS</button>
+              </div>
+              <div class="module-card">
+                <span class="icon">⚙️</span>
+                <h4>ACS/TR-069</h4>
+                <p>Configure network monitoring</p>
+                <button type="button" class="btn-secondary" data-cwl-nav="/modules/monitoring">Setup ACS</button>
+              </div>
+              <div class="module-card">
+                <span class="icon">📊</span>
+                <h4>Monitoring</h4>
+                <p>Configure SNMP and monitoring</p>
+                <button type="button" class="btn-secondary" data-cwl-nav="/modules/monitoring">Setup Monitoring</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
   </div>
+
+  <div class="dashboard-container">
+    <!-- Header: centered logo + text, icons directly below -->
+    <div class="header">
+      <div class="header-content">
+        <div class="header-brand">
+          <div class="logo-section">
+            <img src="/wisptools-logo.svg" alt="WISP Management" class="dashboard-logo" />
+            <div class="branding">
+              <h1 class="app-title">WISP Management</h1>
+              <p class="app-subtitle">wisptools.io</p>
+            <p class="poc-notice">wisptools.io · Source code: <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">github.com/theorem6/WISP-Management</a></p>
+            </div>
+          </div>
+          <div class="header-icons">
+            <a class="icon-btn apk-btn" title="Download Field App" aria-label="Download WISP Field App (APK)" download>
+              <span class="apk-icon">📱</span>
+            </a>
+            <a href="/help" class="icon-btn doc-btn" title="Help" aria-label="Open help">
+              <span class="doc-icon">📖</span>
+            </a>
+            <button class="icon-btn gear-btn" data-cwl-toggle="showSettings:true" title="Settings" aria-label="Open settings">
+              <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
+
+              <div hidden aria-hidden="true"><div data-cwl-component="NotificationCenter" data-cwl-lifted-component="NotificationCenter"><div class="notification-center">
+  <button
+    type="button"
+    class="bell-btn" data-cwl-action="toggle"
+    aria-label="Notifications"
+    title="Notifications"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+    <div data-cwl-bind="if" data-cwl-hole-detail="$unreadCount > 0"><span class="badge" aria-label="unread"><span data-cwl-bind="interp" data-cwl-hole-detail="$unreadCount > 99 ? '99+' : $unreadCount"></span></span></div>
+  </button>
+
+    <div class="panel" role="dialog" aria-label="Notifications panel" hidden aria-hidden="true">
+      <div class="panel-header">
+        <h3>Notifications</h3>
+        <div data-cwl-bind="if" data-cwl-hole-detail="$unreadCount > 0"><span class="unread-label"><span data-cwl-bind="interp" data-cwl-hole-detail="$unreadCount"></span> unread</span></div>
+      </div>
+      <div data-cwl-bind="if" data-cwl-hole-detail="browser && typeof Notification !== 'undefined' && browserPermission === 'default'"><div class="panel-browser-prompt">
+          <p class="browser-prompt-text">Enable browser notifications to get alerts even when the tab is in the background.</p>
+          <button type="button" class="browser-prompt-btn" data-cwl-action="requestBrowserNotifications" aria-label="Request Browser Notifications">Enable notifications</button>
+        </div></div>
+      <div class="panel-body">
+
+          <div class="empty" hidden aria-hidden="true">Loading…</div>
+
+      </div>
+    </div>
+
+</div></div>
+
+                <span class="admin-badge" title="Administrator">Admin</span>
+
+              <button class="icon-btn power-btn" data-cwl-action="handleLogout" title="Logout" aria-label="Logout">
+                <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                  <line x1="12" y1="2" x2="12" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-cwl-component="GlobalSettings" data-cwl-lifted-component="GlobalSettings"><div class="settings-overlay" data-cwl-action="handleClose" role="presentation" hidden aria-hidden="true">
+    <div
+      class="settings-panel" data-cwl-on-keydown="action:handlePanelKeydown"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-title"
+    >
+      <div class="settings-header">
+        <h2 id="settings-title">⚙️ Settings</h2>
+        <div class="header-actions">
+          <button class="close-btn" data-cwl-action="handleClose" title="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="settings-tabs">
+        <button
+          class="tab" data-cwl-set="activeTab:appearance"
+        >
+          🎨 Appearance
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:info"
+        >
+          ℹ️ Company Info
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:import"
+        >
+          📥 Import Data
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:users"
+        >
+          👤 User Management
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:branding"
+        >
+          🎨 Customer Portal Branding
+        </button>
+        <button
+          class="tab" data-cwl-set="activeTab:debug"
+        >
+          🐛 Debug Mode
+        </button>
+      </div>
+
+      <div class="settings-content">
+        <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'appearance'">
+          <div class="tab-content">
+            <h3>Theme</h3>
+            <p class="description">Choose your preferred color scheme</p>
+
+            <div class="theme-options">
+              <button
+                class="theme-option" data-cwl-action="applyTheme" data-cwl-action-args="'light'"
+               aria-label="Apply Theme">
+                <span class="icon">☀️</span>
+                <span class="label">Light</span>
+              </button>
+
+              <button
+                class="theme-option" data-cwl-action="applyTheme" data-cwl-action-args="'dark'"
+               aria-label="Apply Theme">
+                <span class="icon">🌙</span>
+                <span class="label">Dark</span>
+              </button>
+
+              <button
+                class="theme-option" data-cwl-action="applyTheme" data-cwl-action-args="'system'"
+               aria-label="Apply Theme">
+                <span class="icon">💻</span>
+                <span class="label">System</span>
+              </button>
+            </div>
+          </div>
+
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'info'" hidden aria-hidden="true">
+          <div class="tab-content">
+            <h3>Company Information</h3>
+            <p class="description">Your company details for reports and documentation</p>
+
+            <div class="form-group">
+              <label>Company Name</label>
+              <input
+                type="text"
+                placeholder="ACME Networks Inc."
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Street Address</label>
+              <input
+                type="text"
+                placeholder="123 Main Street"
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>City</label>
+                <input
+                  type="text"
+                  placeholder="New York"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>State</label>
+                <input
+                  type="text"
+                  placeholder="NY"
+                  maxlength="2"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>ZIP Code</label>
+                <input
+                  type="text"
+                  placeholder="10001"
+                  maxlength="10"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Phone</label>
+              <input
+                type="tel"
+                placeholder="(555) 123-4567"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                placeholder="contact@company.com"
+              />
+            </div>
+
+            <button class="btn-save" data-cwl-action="saveCompanyInfo" data-cwl-attr-disabled="loading" aria-label="Save Company Info">
+              Save Company Info
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'import'" hidden aria-hidden="true">
+          <div class="tab-content">
+            <h3>Data Import</h3>
+            <p class="description">Import data from CSV files for all database objects </p>
+
+            <div class="import-info">
+              <p>Use the import system to bulk import:</p>
+              <ul>
+                <li>📦 Inventory Items</li>
+                <li>👥 Customers</li>
+                <li>🗺️ Plans/Projects</li>
+                <li>🏗️ Sites/Towers</li>
+                <li>📡 Network Equipment</li>
+                <li>📋 Work Orders</li>
+                <li>👤 Users</li>
+                <li>📚 Hardware Bundles</li>
+              </ul>
+            </div>
+
+            <button class="btn-save" data-cwl-toggle="showImportSystem:true" aria-label="Show Import System">
+              📥 Open Import System
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'users'" hidden aria-hidden="true">
+          <div class="tab-content full-height">
+            <div data-cwl-component="UserManagementEmbedded" data-cwl-lifted-component="UserManagementEmbedded"><div class="user-management-embedded">
+
+  <div class="header-section">
+
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Search by name or email..." data-cwl-on-input="action:handleSearch"
+      />
+    </div>
+
+    <select data-cwl-on-change="action:handleRoleFilterChange" class="select">
+      <option value="all">All Roles</option>
+      <option value="owner">Owner</option>
+      <option value="admin">Admin</option>
+      <option value="engineer">Engineer</option>
+      <option value="installer">Field Technician</option>
+      <option value="helpdesk">Help Desk</option>
+      <option value="viewer">Viewer</option>
+    </select>
+
+    <select data-cwl-on-change="action:handleStatusFilterChange" class="select">
+      <option value="all">All Status</option>
+      <option value="active">Active</option>
+      <option value="suspended">Suspended</option>
+      <option value="pending_invitation">Pending</option>
+    </select>
+
+    <div class="results-count">
+      <span data-cwl-bind="interp" data-cwl-hole-detail="filteredUsers.length"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="users.length"></span> users
+    </div>
+  </div>
+
+    <div class="table-container">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Last Login</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <div data-cwl-bind="each" data-cwl-hole-detail="filteredUsers as user (user.uid)" data-cwl-each-item="user" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-cell%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20user.photoURL%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cimg%20src%3D%7Buser.photoURL%7D%20alt%3D%7Buser.displayName%7D%20class%3D%22user-avatar%22%20%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-avatar-placeholder%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Buser.displayName%3F.charAt(0)%20%7C%7C%20user.email.charAt(0).toUpperCase()%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-name%22%3E%7Buser.displayName%20%7C%7C%20'No%20name'%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22user-email%22%3E%7Buser.email%7D%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge%20%7BgetRoleBadgeClass(user.role)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BROLE_NAMES%5Buser.role%5D%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge%20%7BgetStatusBadgeClass(user.status)%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Buser.status.replace('_'%2C%20'%20')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20class%3D%22time-cell%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BformatTimeAgo(user.lastLoginAt)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20canManageUsers%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn%20btn-sm%20btn-ghost%22%20data-cwl-action%3D%22openEditModal%22%20data-cwl-action-args%3D%22user%22%20aria-label%3D%22Open%20Edit%20Modal%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%9C%8F%EF%B8%8F%20Edit%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20"><tr>
+              <td>
+                <div class="user-cell">
+
+                    <div class="user-avatar-placeholder">
+
+                    </div>
+
+                    <div hidden aria-hidden="true"><img class="user-avatar" />
+                  </div>
+                  <div class="user-info">
+                    <div class="user-name"></div>
+                    <div class="user-email"></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge ">
+
+                </span>
+              </td>
+              <td>
+                <span class="badge ">
+
+                </span>
+              </td>
+              <td class="time-cell">
+
+              </td>
+
+            </tr></div>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <span class="empty-icon">👤</span>
+      <h3>No users found</h3>
+      <div data-cwl-bind="if" data-cwl-hole-detail="searchQuery || roleFilter !== 'all' || statusFilter !== 'all'"><p>Try adjusting your filters</p>
+        <button class="btn btn-secondary" data-cwl-action="applyFilters" aria-label="Apply Filters">
+          Clear Filters
+        </button></div>
+        <p>No team members available in your view.</p>
+
+    </div>
+
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/dashboard","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+
+  <div hidden aria-hidden="true"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
+  class="modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  tabindex="0"
+  aria-label="Add user dialog" data-cwl-action="handleBackdropClick" data-cwl-on-keydown="action:handleBackdropKeydown"
+>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h2>➕ Add Team Member</h2>
+      <button class="close-btn" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">✕</button>
+    </div>
+
+      <form data-cwl-on-submit="action:handleSubmit">
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="user@example.com"
+            required data-cwl-attr-disabled="loading"
+          />
+          <p class="hint">They'll receive login instructions at this email</p>
+        </div>
+
+        <div class="form-group">
+          <label for="displayName">Display Name (optional)</label>
+          <input
+            id="displayName"
+            type="text"
+            placeholder="John Smith" data-cwl-attr-disabled="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role *</label>
+          <select id="role" data-cwl-attr-disabled="loading">
+
+              <option value="admin">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['admin']"></span>
+              </option>
+
+              <option value="engineer">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['engineer']"></span>
+              </option>
+
+              <option value="installer">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['installer']"></span>
+              </option>
+
+              <option value="helpdesk">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['helpdesk']"></span>
+              </option>
+
+              <option value="support">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['support']"></span>
+              </option>
+
+              <option value="viewer">
+                <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['viewer']"></span>
+              </option>
+
+          </select>
+          <div data-cwl-bind="if" data-cwl-hole-detail="role"><p class="role-description"><span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_DESCRIPTIONS[role]"></span></p></div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-icon">ℹ️</span>
+          <div class="info-content">
+            <p><strong>What happens next:</strong></p>
+            <ul>
+              <li>User receives a welcome email at <strong>wisptools.io</strong></li>
+              <li>They can sign in with Google or create a password</li>
+              <li>Once signed in, they'll have access to your organization</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" data-cwl-attr-disabled="loading">
+
+              Add User
+
+          </button>
+        </div>
+      </form>
+
+  </div>
+</div></div>
+</div>
+
+  <div hidden aria-hidden="true"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
+  class="modal-backdrop"
+  role="presentation"
+  aria-hidden="true"
+  tabindex="-1" data-cwl-action="handleBackdropClick"
+>
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Edit user dialog"
+    tabindex="0" data-cwl-on-keydown="action:handleBackdropKeydown"
+  >
+    <div class="modal-header">
+      <h2>Edit User</h2>
+      <button class="close-btn" data-cwl-action="handleClose" data-cwl-attr-disabled="loading" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="user-info-section">
+        <div class="user-avatar-large">
+
+            <div class="avatar-placeholder">
+              <span data-cwl-bind="interp" data-cwl-hole-detail="user.displayName?.charAt(0) || user.email.charAt(0).toUpperCase()"></span>
+            </div>
+
+            <div hidden aria-hidden="true"><img />
+          </div>
+        </div>
+        <h3><span data-cwl-bind="interp" data-cwl-hole-detail="user.displayName || 'No name'"></span></h3>
+        <p class="user-email"><span data-cwl-bind="interp" data-cwl-hole-detail="user.email"></span></p>
+        <span class="status-badge status-"><span data-cwl-bind="interp" data-cwl-hole-detail="user.status.replace('_', ' ')"></span></span>
+      </div>
+
+        <div class="form-section">
+          <label for="role">Role</label>
+          <div data-cwl-bind="if" data-cwl-hole-detail="isOwner"><div class="role-locked">
+              <span class="lock-icon">🔒</span>
+              <div>
+                <div class="role-name"><span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES.owner"></span></div>
+                <div class="role-hint">Owner role cannot be changed</div>
+              </div>
+            </div></div>
+            <select
+              id="role" data-cwl-attr-disabled="loading"
+            >
+
+                <option value="admin">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['admin']"></span>
+                </option>
+
+                <option value="engineer">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['engineer']"></span>
+                </option>
+
+                <option value="installer">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['installer']"></span>
+                </option>
+
+                <option value="helpdesk">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['helpdesk']"></span>
+                </option>
+
+                <option value="support">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['support']"></span>
+                </option>
+
+                <option value="viewer">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="ROLE_NAMES['viewer']"></span>
+                </option>
+
+            </select>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedRole !== user.role"><button class="btn btn-primary btn-sm mt-2" data-cwl-action="handleUpdateRole" data-cwl-attr-disabled="loading" aria-label="Update Role">
+
+                  Update Role
+
+              </button></div>
+
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="!isOwner"><div class="actions-section">
+            <h4>Actions</h4>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="user.status === 'active'"><button class="btn btn-warning btn-block" data-cwl-action="handleSuspend" data-cwl-attr-disabled="loading" aria-label="Suspend">
+                🚫 Suspend User
+              </button></div><div data-cwl-bind="if" data-cwl-hole-detail="user.status === 'suspended'"><button class="btn btn-success btn-block" data-cwl-action="handleActivate" data-cwl-attr-disabled="loading" aria-label="Activate">
+                ✅ Activate User
+              </button></div>
+
+            <button class="btn btn-danger btn-block" data-cwl-toggle="showDeleteConfirm:true" data-cwl-attr-disabled="loading" aria-label="Show Delete Confirm">
+              🗑️ Remove from Organization
+            </button>
+          </div></div>
+
+    </div>
+  </div>
+</div></div>
+</div></div>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'branding'" hidden aria-hidden="true">
+          <div class="tab-content">
+            <div data-cwl-component="BrandingManagement" data-cwl-lifted-component="BrandingManagement"><div class="branding-management">
+
+    <div class="branding-form">
+      <h3>Customer Portal Branding</h3>
+      <p class="description">Customize your customer portal appearance and messaging</p>
+
+      <div class="form-section">
+        <h4>Logo</h4>
+        <div class="form-group">
+          <label>Logo URL</label>
+          <input
+            type="url"
+            placeholder="https://example.com/logo.png"
+          />
+          <small>Enter the full URL to your logo image</small>
+        </div>
+
+        <div class="form-group">
+          <label>Logo Alt Text</label>
+          <input
+            type="text"
+            placeholder="Company Logo"
+          />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Colors</h4>
+        <div class="form-group">
+          <label>Primary Color</label>
+          <div class="color-input-group">
+            <input
+              type="color"
+            />
+            <input
+              type="text"
+              placeholder="#3b82f6"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Color</label>
+          <div class="color-input-group">
+            <input
+              type="color"
+            />
+            <input
+              type="text"
+              placeholder="#64748b"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Accent Color</label>
+          <div class="color-input-group">
+            <input
+              type="color"
+            />
+            <input
+              type="text"
+              placeholder="#10b981"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Support Information</h4>
+        <div class="form-group">
+          <label>Support Email</label>
+          <input
+            type="email"
+            placeholder="support@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Support Phone</label>
+          <input
+            type="tel"
+            placeholder="(555) 123-4567"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Support Hours</label>
+          <input
+            type="text"
+            placeholder="Mon-Fri 8am-5pm"
+          />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Portal Messages</h4>
+        <div class="form-group">
+          <label>Welcome Message</label>
+          <input
+            type="text"
+            placeholder="Welcome to our Customer Portal"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Footer Text</label>
+          <textarea
+            placeholder="Copyright © 2024 Company Name"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <button class="btn-save" data-cwl-action="saveBranding" data-cwl-attr-disabled="saving" aria-label="Save Branding">
+        Save Branding
+      </button>
+    </div>
+
+</div></div>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'debug'" hidden aria-hidden="true">
+          <div class="tab-content">
+            <h3>🐛 Debug Mode</h3>
+            <p class="description">Advanced debugging for troubleshooting with wisptools.io engineers</p>
+
+              <div class="debug-warning" hidden aria-hidden="true">
+                <div class="warning-header">
+                  <span class="warning-icon">⚠️</span>
+                  <strong>Warning: Debug Mode Enabled</strong>
+                </div>
+                <p>Debug mode will:</p>
+                <ul>
+                  <li>Slow down web application responses</li>
+                  <li>Generate extensive console logging</li>
+                  <li>Expose detailed system information</li>
+                </ul>
+                <p><strong>This should only be enabled when working with a wisptools.io engineer.</strong></p>
+                <button class="btn-acknowledge" data-cwl-action="acknowledgeDebugWarning" aria-label="Acknowledge Debug Warning">
+                  I Understand
+                </button>
+              </div>
+
+            <div class="debug-setting">
+              <div class="setting-item">
+                <div class="setting-info">
+                  <label>Enable Debug Logging</label>
+                  <p class="setting-description">
+                    When enabled, detailed debug information will be logged to the browser console.
+                    This includes API calls, data transformations, state changes, and system metrics.
+                    <strong>Only enable this when troubleshooting with a wisptools.io engineer.</strong>
+                  </p>
+                </div>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox" data-cwl-on-change="action:toggleDebugMode"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="saveError"><div class="error-message">
+            ❌
+          </div></div>
+      </div>
+    </div>
+  </div>
+
+<!-- Import System Modal -->
+
+  <div hidden aria-hidden="true"><div data-cwl-component="ImportSystem" data-cwl-lifted-component="ImportSystem"><div data-cwl-bind="if" data-cwl-hole-detail="!tenantId || tenantId.trim() === ''" hidden aria-hidden="true"><div class="import-overlay" data-cwl-action="close">
+      <div class="import-panel">
+        <div class="import-header">
+          <h2>📥 Import Data</h2>
+          <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+        </div>
+        <div class="import-content">
+          <div class="alert alert-error">
+            <span>❌</span>
+            <span>No tenant selected. Please select a tenant before importing data.</span>
+          </div>
+          <div class="import-actions">
+            <button class="btn-primary" data-cwl-action="close" aria-label="Close">Close</button>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="import-overlay" data-cwl-action="close">
+      <div class="import-panel">
+      <div class="import-header">
+        <h2>📥 Import Data</h2>
+        <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="import-content">
+
+          <div hidden aria-hidden="true"><!-- Step 1: Select Import Type -->
+          <div class="import-step">
+            <h3>1. Select Data Type to Import</h3>
+            <p class="step-description">Choose the type of data you want to import</p>
+
+            <div class="import-types-grid">
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:inventory"
+                >
+                  <span class="icon">📦</span>
+                  <span class="label">Inventory Items</span>
+                  <span class="description">Import hardware inventory items</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:customers"
+                >
+                  <span class="icon">👥</span>
+                  <span class="label">Customers</span>
+                  <span class="description">Import customer records</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:plans"
+                >
+                  <span class="icon">🗺️</span>
+                  <span class="label">Plans/Projects</span>
+                  <span class="description">Import deployment plans</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:sites"
+                >
+                  <span class="icon">🏗️</span>
+                  <span class="label">Sites/Towers</span>
+                  <span class="description">Import tower sites</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:network-equipment"
+                >
+                  <span class="icon">📡</span>
+                  <span class="label">Network Equipment</span>
+                  <span class="description">Import network equipment</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:work-orders"
+                >
+                  <span class="icon">📋</span>
+                  <span class="label">Work Orders</span>
+                  <span class="description">Import work orders</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:users"
+                >
+                  <span class="icon">👤</span>
+                  <span class="label">Users</span>
+                  <span class="description">Import user accounts</span>
+                </button>
+
+                <button
+                  class="import-type-card" data-cwl-set="selectedImportType:bundles"
+                >
+                  <span class="icon">📚</span>
+                  <span class="label">Hardware Bundles</span>
+                  <span class="description">Import hardware bundles</span>
+                </button>
+
+            </div>
+          </div>
+
+          <!-- Step 2: Download Template or Upload File -->
+          <div class="import-step">
+            <h3>2. Prepare Your Data</h3>
+            <p class="step-description">Download a template or upload your CSV file</p>
+
+            <div class="template-actions">
+              <button class="btn-download" data-cwl-action="downloadTemplate" aria-label="Download Template">
+                📄 Download CSV Template
+              </button>
+            </div>
+
+            <div class="upload-section">
+              <div data-cwl-bind="if" data-cwl-hole-detail="!uploadedFile"><div class="dropzone" data-cwl-action="handleFileSelect">
+                  <div class="dropzone-content">
+                    <span class="dropzone-icon">📁</span>
+                    <p>Click to select CSV file</p>
+                    <p class="hint">or drag and drop</p>
+                    <p class="file-types">Supported: .csv</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  accept=".csv" data-cwl-on-change="action:handleFileChange"
+                  style="display: none;"
+                /></div>
+                <div class="file-selected">
+                  <span class="file-icon">📄</span>
+                  <div class="file-info">
+                    <span class="file-name"><span data-cwl-bind="interp" data-cwl-hole-detail="uploadedFile.name"></span></span>
+                    <span class="file-size">(<span data-cwl-bind="interp" data-cwl-hole-detail="(uploadedFile.size / 1024).toFixed(2)"></span> KB)</span>
+                  </div>
+                  <button class="btn-remove" data-cwl-action="reset" aria-label="Reset">✕</button>
+                </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Preview and Validate -->
+
+          <div class="import-step" hidden aria-hidden="true">
+            <h3>3. Review & Import</h3>
+            <p class="step-description">Review your data and fix any errors before importing</p>
+
+            <div class="preview-stats">
+              <div class="stat">
+                <span class="stat-label">Total Rows:</span>
+                <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="parsedData.length"></span></span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Preview:</span>
+                <span class="stat-value">First <span data-cwl-bind="interp" data-cwl-hole-detail="previewData.length"></span> rows</span>
+              </div>
+
+                <div class="stat error-stat">
+                  <span class="stat-label">Errors:</span>
+                  <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="validationErrors.length"></span></span>
+                </div>
+
+            </div>
+
+              <div class="validation-errors">
+                <h4>Validation Errors</h4>
+                <div class="errors-list">
+                  <div data-cwl-bind="each" data-cwl-hole-detail="validationErrors.slice(0, 10) as err"><div class="error-item">
+                      <span class="error-row">Row </span>
+                      <span class="error-field">:</span>
+                      <span class="error-message"></span>
+
+                        <div hidden aria-hidden="true"><span class="error-value">(Value: )</span>
+                      </div>
+                    </div></div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="validationErrors.length > 10"><p class="more-errors">... and <span data-cwl-bind="interp" data-cwl-hole-detail="validationErrors.length - 10"></span> more errors</p></div>
+                </div>
+              </div>
+
+            <div class="preview-table">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <div data-cwl-bind="each" data-cwl-hole-detail="getTableHeaders() as header"><th></th></div>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <div data-cwl-bind="each" data-cwl-hole-detail="previewData as row" data-cwl-each-item="row" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23each%20getTableHeaders()%20as%20header%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Brow%5Bheader%5D%20%7C%7C%20'-'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Feach%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                        <div data-cwl-bind="each" data-cwl-hole-detail="getTableHeaders() as header"><td></td></div>
+                      </tr></div>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="import-actions">
+              <button class="btn-secondary" data-cwl-action="cancelImport" aria-label="Cancel Import">
+                Cancel
+              </button>
+              <button
+                class="btn-primary" data-cwl-action="performImport" data-cwl-attr-disabled="validationErrors.length  aria-label=&quot;Perform Import&quot;&gt; 0"
+              >
+                <span data-cwl-bind="interp" data-cwl-hole-detail="validationErrors.length > 0
+                  ? `Fix  "></span>
+              </button>
+            </div>
+          </div>
+
+        <!-- Step 4: Import Progress -->
+
+        <!-- Step 5: Import Results -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="importResults && !importing"><div class="import-step">
+            <h3>5. Import Complete</h3>
+
+            <div class="import-results">
+              <div class="result-stat success-stat">
+                <span class="result-icon">✓</span>
+                <span class="result-label">Imported:</span>
+                <span class="result-value"><span data-cwl-bind="interp" data-cwl-hole-detail="importResults.imported"></span></span>
+              </div>
+              <div data-cwl-bind="if" data-cwl-hole-detail="importResults.failed > 0"><div class="result-stat error-stat">
+                  <span class="result-icon">✕</span>
+                  <span class="result-label">Failed:</span>
+                  <span class="result-value"><span data-cwl-bind="interp" data-cwl-hole-detail="importResults.failed"></span></span>
+                </div></div>
+            </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="importResults.errors && importResults.errors.length > 0"><div class="import-errors">
+                <h4>Import Errors</h4>
+                <div class="errors-list">
+                  <div data-cwl-bind="each" data-cwl-hole-detail="importResults.errors.slice(0, 10) as err"><div class="error-item">
+                      <span class="error-row">Row :</span>
+                      <span class="error-message"></span>
+                    </div></div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="importResults.errors.length > 10"><p class="more-errors">... and <span data-cwl-bind="interp" data-cwl-hole-detail="importResults.errors.length - 10"></span> more errors</p></div>
+                </div>
+              </div></div>
+
+            <div class="import-actions">
+              <button class="btn-primary" data-cwl-action="close" aria-label="Close">
+                Close
+              </button>
+            </div>
+          </div></div>
+      </div>
+    </div>
+  </div></div>
+</div></div>
+    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
+
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Core Modules -->
+      <div class="modules-section">
+        <div class="modules-grid">
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 📋 Plan. Interactive map-based planning tools for network expansion"
+            >
+              <div class="module-header">
+                <h3 class="module-name">📋 Plan</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>Coverage Analysis</li>
+
+                    <li>Site Planning</li>
+
+                    <li>Inventory Check</li>
+
+                    <li>CBRS Spectrum</li>
+
+                    <li>Capacity Planning</li>
+
+                    <li>Cost Analysis</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 🚀 Deploy. Interactive map-based deployment tools for network rollouts"
+            >
+              <div class="module-header">
+                <h3 class="module-name">🚀 Deploy</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>PCI Resolution</li>
+
+                    <li>ACS CPE Management</li>
+
+                    <li>Work Orders</li>
+
+                    <li>Installation Management</li>
+
+                    <li>Equipment Configuration</li>
+
+                    <li>Quality Assurance</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 📊 Monitor. Interactive map-based monitoring tools for network oversight"
+            >
+              <div class="module-header">
+                <h3 class="module-name">📊 Monitor</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>Network Monitoring</li>
+
+                    <li>Device Health</li>
+
+                    <li>Traffic Analysis</li>
+
+                    <li>Performance Analytics</li>
+
+                    <li>Alert Management</li>
+
+                    <li>HSS Management</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 🔧 Maintain. Traditional interface for ticketing and maintenance management"
+            >
+              <div class="module-header">
+                <h3 class="module-name">🔧 Maintain</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>Ticketing System</li>
+
+                    <li>Preventive Maintenance</li>
+
+                    <li>Incident Management</li>
+
+                    <li>Customer Support</li>
+
+                    <li>Vendor Management</li>
+
+                    <li>Knowledge Base</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 👥 Customers. Manage customers and the customer portal"
+            >
+              <div class="module-header">
+                <h3 class="module-name">👥 Customers</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>Customer Database</li>
+
+                    <li>Customer Portal</li>
+
+                    <li>Service Management</li>
+
+                    <li>Installation History</li>
+
+                    <li>Customer Support</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 🔧 Hardware. Comprehensive equipment and hardware management system"
+            >
+              <div class="module-header">
+                <h3 class="module-name">🔧 Hardware</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>Equipment Inventory</li>
+
+                    <li>Asset Tracking</li>
+
+                    <li>Hardware Management</li>
+
+                    <li>Status Monitoring</li>
+
+                    <li>Location Tracking</li>
+
+                    <li>Maintenance Records</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+            <div
+              class="module-card active" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+              role="button"
+              tabindex="0"
+              aria-label="Open 📞 Voice / SIP. Telephone numbers, carrier linkage, E911, and number porting (LNP)"
+            >
+              <div class="module-header">
+                <h3 class="module-name">📞 Voice / SIP</h3>
+              </div>
+
+              <div class="module-features">
+                <ul>
+
+                    <li>Provider accounts</li>
+
+                    <li>TN inventory</li>
+
+                    <li>E911 status</li>
+
+                    <li>Port orders</li>
+
+                    <li>Domain reference</li>
+
+                </ul>
+              </div>
+
+              <div class="module-status">
+
+                  <span class="status-badge active">Active</span>
+
+              </div>
+            </div>
+
+        </div>
+      </div>
+
+      <!-- Admin Modules -->
+
+        <div class="admin-section">
+          <h2 class="section-title">Administration</h2>
+          <div class="admin-modules">
+
+              <div
+                class="admin-card" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+                role="button"
+                tabindex="0"
+                aria-label="Open ⚙️ Admin Management. User and tenant management for owners and administrators"
+              >
+                <div class="admin-icon" style="background-color: var(--text-secondary)20; color: var(--text-secondary)">
+                  ⚙️
+                </div>
+                <div class="admin-info">
+                  <h3 class="admin-name">⚙️ Admin Management</h3>
+                  <p class="admin-description">User and tenant management for owners and administrators</p>
+                </div>
+              </div>
+
+              <div
+                class="admin-card" data-cwl-action="handleModuleClick" data-cwl-action-args="module" data-cwl-on-keydown="action:handleModuleClick" data-cwl-on-keydown-args="module"
+                role="button"
+                tabindex="0"
+                aria-label="Open 🔧 System Management. System-wide tenant management and deletion (Platform Admin Only)"
+              >
+                <div class="admin-icon" style="background-color: #f4433620; color: #f44336">
+                  🔧
+                </div>
+                <div class="admin-info">
+                  <h3 class="admin-name">🔧 System Management</h3>
+                  <p class="admin-description">System-wide tenant management and deletion (Platform Admin Only)</p>
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+      <!-- Footer: License + GitHub -->
+      <footer class="app-footer">
+        <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <span class="sep">·</span>
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
+      </footer>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/dashboard"}</script>

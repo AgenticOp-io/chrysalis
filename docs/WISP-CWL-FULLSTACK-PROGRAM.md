@@ -263,7 +263,15 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 | **`acs-hss-server` / `hss.wisptools.io`** | Mongo + backend-services (unchanged) | Operator stack only — **not** deployed from this repo | **No** |
 | **Firebase Hosting** (`management.wisptools.io`) | Production SPA + Hosting `apiProxy` rewrites | `pnpm run wisp:deploy:firebase` (separate) | **N/A** — CDN, not GCE |
 
-**Recommendation:** For Phase 14 language/operator demos, **GCE chimera alone is sufficient**. Add **Firebase deploy** only when you need a second URL for the production hosting path — not installed on GCE instances.
+**Recommendation:** For Phase 14 language/operator demos **and for CWL conversion
+fidelity**, **GCE chimera alone is sufficient and preferred**. Add **Firebase
+deploy** only when you need a second CDN URL for the production hosting path —
+not installed on GCE instances.
+
+**Operator record (2026-07-19):** Interactive CWL (plan/deploy maps, live-first
+`/api/*`, theme boot, button islands) must be verified on GCE. Firebase Hosting
+can serve a staged static CWL export, but it is not the conversion verify target.
+See `docs/WISP-CWL-CONSOLIDATED-PIPELINE.md` § Deploy targets.
 
 **Prerequisites:** `gcloud auth login`, project `chrysalis-dev-f5x6qv`, WISP sidecar build (`Module_Manager` at `CHRYSALIS_WISP_ROOT`).
 

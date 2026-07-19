@@ -1,5 +1,20 @@
 {
-  "success": true,
-  "devices": [],
-  "count": 0
+  "ok": true,
+  "stats": {
+    "points": 48
+  },
+  "series": [
+    {
+      "id": "rssi",
+      "name": "RSSI",
+      "status": "ok"
+    }
+  ],
+  "items": [
+    {
+      "id": "rssi",
+      "name": "RSSI",
+      "status": "ok"
+    }
+  ]
 }

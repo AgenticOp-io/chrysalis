@@ -1,5 +1,5 @@
-<div class="wisp-app-surface" data-wisp-page="modules-customers-portal-faq" data-wisp-path="/modules/customers/portal/faq" data-cwl-island="client"><div class="faq-page">
-    <h1>WISP Management Help Center</h1>
+<div class="wisp-app-surface" data-wisp-page="customers" data-wisp-path="/modules/customers/portal/faq" data-cwl-island="client"><div class="faq-page">
+    <h1>Our team Help Center</h1>
     <p class="subtitle">Quick answers to the most common questions from subscribers.</p>
     <input
       type="search"
@@ -8,16 +8,19 @@
       aria-label="Search FAQ"
     />
     <div class="faq-list">
-      
+      <div data-cwl-bind="each" data-cwl-hole-detail="displayFaqs as faq" data-cwl-each-item="faq" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdetails%20class%3D%22faq-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Csummary%3E%7Bfaq.question%7D%3C%2Fsummary%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cp%3E%7Bfaq.answer%7D%3C%2Fp%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdetails%3E%0A%20%20%20%20%20%20"><details class="faq-item">
+          <summary></summary>
+          <p></p>
+        </details></div>
     </div>
-    
+
     <div class="contact-card">
       <h2>Still need help?</h2>
       <p>Open a support ticket from the dashboard or contact our team directly.</p>
       <div class="contact-links">
         <a class="btn-link">Email Support</a>
-        
+        <div data-cwl-bind="if" data-cwl-hole-detail="supportPhone"><a class="btn-link">Call </a></div>
       </div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/modules/customers/portal/faq","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/modules/customers/portal/faq"}</script>

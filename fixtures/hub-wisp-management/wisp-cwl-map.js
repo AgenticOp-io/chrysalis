@@ -633,10 +633,52 @@
     });
   }
 
+  function renderStagedFeatures(features) {
+    if (!draftLayer || !Graphic || !Point || !SimpleMarkerSymbol) return;
+    // Keep marketing/draw sketches; only clear staged feature markers we tagged.
+    var keep = [];
+    draftLayer.graphics.forEach(function (g) {
+      if (!g.attributes || g.attributes.kind !== "staged-feature") keep.push(g);
+    });
+    draftLayer.removeAll();
+    keep.forEach(function (g) {
+      draftLayer.add(g);
+    });
+    if (!filters.showPlanFeatures) return;
+    (features || []).forEach(function (f) {
+      if (!f) return;
+      var ll = latLngOf(f) || (f.geometry && latLngOf(f.geometry)) || (f.location && latLngOf(f.location));
+      if (!ll) return;
+      draftLayer.add(
+        new Graphic({
+          geometry: new Point({ longitude: ll.lng, latitude: ll.lat }),
+          symbol: new SimpleMarkerSymbol({
+            style: "diamond",
+            color: [99, 102, 241, 0.95],
+            size: 11,
+            outline: { color: [255, 255, 255, 1], width: 1.5 },
+          }),
+          attributes: Object.assign({}, f, {
+            kind: "staged-feature",
+            type: f.type || f.kind || "staged",
+            name: f.name || f.label || f.id,
+            lat: ll.lat,
+            lng: ll.lng,
+          }),
+          popupTemplate: {
+            title: "{name}",
+            content: "Plan feature · {type} · {status}",
+          },
+        }),
+      );
+    });
+  }
+
   function applyStateUpdate(payload) {
     if (!payload || typeof payload !== "object") return;
     var state = payload.state || payload;
     if (payload.mode) mode = payload.mode;
+    if (state.mode) mode = state.mode;
     if (state.activePlanId != null) activePlanId = state.activePlanId;
     else if (state.activePlan && state.activePlan.id) activePlanId = state.activePlan.id;
     var plan = state.activePlan;
@@ -648,12 +690,28 @@
         (plan.location && (num(plan.location.lng) ?? num(plan.location.lon)));
       if (plat != null && plng != null) centerOn(plat, plng, 12);
     }
+    // Origin SharedMap posts layerFilters + stagedFeatures + productionHardware.
+    if (state.layerFilters && typeof state.layerFilters === "object") {
+      Object.keys(state.layerFilters).forEach(function (k) {
+        filters[k] = state.layerFilters[k];
+      });
+      applyFilters();
+    }
     var marketing = state.activePlanMarketing;
     if (marketing && Array.isArray(marketing.addresses)) renderMarketing(marketing.addresses);
     else if (plan && plan.marketing && Array.isArray(plan.marketing.addresses)) {
       renderMarketing(plan.marketing.addresses);
     }
-    if (state.capabilities && state.capabilities.readOnly === true && sketchWidget) {
+    if (Array.isArray(state.stagedFeatures)) {
+      renderStagedFeatures(state.stagedFeatures);
+    }
+    if (Array.isArray(state.productionHardware) && state.productionHardware.length) {
+      renderEquipment(state.productionHardware);
+    }
+    // Origin MapCapabilities: only monitor is readOnly. Deploy stays interactive
+    // (assign tasks / mark progress). Do not kill Sketch solely because mode=deploy.
+    var caps = state.capabilities || {};
+    if (caps.readOnly === true && sketchWidget) {
       disableRectangleDrawing(false);
     }
   }

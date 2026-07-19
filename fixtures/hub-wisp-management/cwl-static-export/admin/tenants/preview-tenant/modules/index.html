@@ -1,32 +1,39 @@
 <div class="wisp-app-surface" data-wisp-page="admin-tenants-:tenantId-modules" data-wisp-path="/admin/tenants/:tenantId/modules" data-cwl-island="client"><div class="admin-page">
   <div class="page-header">
-    <button class="back-button">
+    <button class="back-button" data-cwl-nav="/admin/tenant-management" type="button">
       ← Back to Tenants
     </button>
     <h1>Module Configuration</h1>
-    
+    <div data-cwl-bind="if" data-cwl-hole-detail="tenantData"><p class="subtitle">
+        <span data-cwl-bind="interp" data-cwl-hole-detail="tenantData.displayName || tenantData.name"></span> ()
+      </p></div>
   </div>
-  
-  
-  
-  
-  
-  
-    <div class="config-container">
-      
+
+  <div data-cwl-bind="if" data-cwl-hole-detail="tenantData"><div class="config-container">
+
       <!-- Subscription Tier -->
       <div class="section">
         <h2>📋 Subscription Tier</h2>
         <div class="tier-selector">
-          <select>
-            <option></option><option></option>
+          <select data-cwl-on-change="action:applyTierDefaults">
+
+              <option value=free>Free</option>
+
+              <option value=basic>Basic</option>
+
+              <option value=professional>Professional</option>
+
+              <option value=enterprise>Enterprise</option>
+
+              <option value=custom>Custom</option>
+
           </select>
-          <button class="btn-secondary">
+          <button class="btn-secondary" data-cwl-action="applyTierDefaults" aria-label="Apply Tier Defaults">
             Apply Tier Defaults
           </button>
         </div>
       </div>
-      
+
       <!-- Enabled Modules -->
       <div class="section">
         <h2>🎛️ Enabled Modules</h2>
@@ -38,7 +45,7 @@
               <span>PCI Resolution & Network Optimization</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -46,7 +53,7 @@
               <span>CBRS Management</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -54,7 +61,7 @@
               <span>HSS & Subscriber Management</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -62,7 +69,7 @@
               <span>Coverage Map</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -70,7 +77,7 @@
               <span>Inventory Management</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -78,7 +85,7 @@
               <span>Distributed EPC (Advanced)</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -96,7 +103,7 @@
           </label>
         </div>
       </div>
-      
+
       <!-- Usage Limits -->
       <div class="section">
         <h2>📊 Usage Limits</h2>
@@ -105,22 +112,22 @@
             <label>Max Tower Sites</label>
             <input type="number" min="0" />
           </div>
-          
+
           <div class="limit-item">
             <label>Max Subscribers</label>
             <input type="number" min="0" />
           </div>
-          
+
           <div class="limit-item">
             <label>Max CPE Devices</label>
             <input type="number" min="0" />
           </div>
-          
+
           <div class="limit-item">
             <label>Max Users</label>
             <input type="number" min="1" />
           </div>
-          
+
           <div class="limit-item">
             <label>Max Inventory Items</label>
             <input type="number" min="0" />
@@ -128,7 +135,7 @@
         </div>
         <p class="help-text">Set to 999999 for unlimited</p>
       </div>
-      
+
       <!-- Feature Flags -->
       <div class="section">
         <h2>⭐ Feature Flags</h2>
@@ -139,28 +146,28 @@
               <span>Advanced Reporting</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
               <span>API Access</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
               <span>White Label</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
               <span>Custom Integrations</span>
             </span>
           </label>
-          
+
           <label class="toggle-item">
             <input type="checkbox" />
             <span class="toggle-label">
@@ -169,17 +176,18 @@
           </label>
         </div>
       </div>
-      
+
       <!-- Save Button -->
       <div class="actions">
-        <button class="btn-secondary">
+        <button class="btn-secondary" data-cwl-nav="/admin/tenant-management">
           Cancel
         </button>
-        <button class="btn-primary">
+        <button class="btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">
           💾 Save Configuration
         </button>
       </div>
-    </div>
-  
+    </div></div>
+    <div class="loading" hidden aria-hidden="true">Loading...</div>
+
 </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/tenants/:tenantId/modules","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/admin/tenants/:tenantId/modules"}</script>

@@ -48,11 +48,12 @@ node scripts/wisp-cwl-pipeline.mjs --bundle-only --skip-lift ${WISP_ROOT:+--root
 
 BUNDLE_DIR="${REPO_ROOT}/generated/_wisp-cwl-poc-deploy"
 TARBALL="$(mktemp /tmp/wisp-cwl-stack-XXXXXX.tar.gz)"
-TAR_FILES=(routes.cwl api-proxy.cwl routes.webir.json api-proxy.webir.json wisp-cwl-chimera-gateway.mjs wisp-cwl-gateway-config.mjs wisp-cwl-post-g7790.mjs wisp-pipeline.config.json wisp-cwl-login.css wisp-cwl-app.css wisp-cwl-client.js wisp-firebase-config.json wisp-cwl-modules.css wisp-cwl-modules.js wisp-cwl-map.js wisp-arcgis-config.json wisptools-logo.svg wisp-cwl-original-css-map.json)
+TAR_FILES=(routes.cwl api-proxy.cwl routes.webir.json api-proxy.webir.json wisp-cwl-chimera-gateway.mjs wisp-cwl-gateway-config.mjs wisp-cwl-post-g7790.mjs wisp-pipeline.config.json wisp-cwl-login.css wisp-cwl-app.css wisp-cwl-client.js wisp-firebase-config.json wisp-cwl-modules.css wisp-cwl-modules.js wisp-cwl-map.js wisp-cwl-map-island.css wisp-cwl-arcgis.bundle.js wisp-cwl-arcgis.bundle.css wisp-arcgis-config.json wisptools-logo.svg wisp-cwl-original-css-map.json)
 for f in cwl-preview.json favicon.svg; do
   [[ -f "${BUNDLE_DIR}/${f}" ]] && TAR_FILES+=("${f}")
 done
 [[ -d "${BUNDLE_DIR}/original-css" ]] && TAR_FILES+=("original-css")
+[[ -d "${BUNDLE_DIR}/lib" ]] && TAR_FILES+=("lib")
 tar -czf "${TARBALL}" -C "${BUNDLE_DIR}" "${TAR_FILES[@]}"
 
 SSH_EXTRA=()

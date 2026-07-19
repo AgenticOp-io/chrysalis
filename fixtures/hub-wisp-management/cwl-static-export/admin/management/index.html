@@ -7,7 +7,11 @@
           <p>User and tenant management for owners and administrators</p>
         </div>
         <div class="user-info">
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentUser"><span class="user-name"><span data-cwl-bind="interp" data-cwl-hole-detail="currentUser.email"></span></span>
+            <span class="user-role">Platform Admin</span>
+            <button class="logout-btn" data-cwl-action="handleLogout" title="Logout">
+              🚪 Logout
+            </button></div>
         </div>
       </div>
     </div>
@@ -24,68 +28,50 @@
       <div class="features-section">
         <h2>Administration Features</h2>
         <div class="features-grid">
-          <div 
-              class="feature-card"
+
+            <div
+              class="feature-card" data-cwl-action="handleFeatureClick" data-cwl-action-args="feature" data-cwl-on-keydown="action:handleFeatureClick" data-cwl-on-keydown-args="feature"
               role="button"
               tabindex="0"
             >
-              <div class="feature-icon"></div>
+              <div class="feature-icon">🏢</div>
               <div class="feature-info">
-                <h3 class="feature-name"></h3>
-                <p class="feature-description"></p>
-              </div>
-              <div class="feature-arrow">→</div>
-            </div><div 
-              class="feature-card"
-              role="button"
-              tabindex="0"
-            >
-              <div class="feature-icon"></div>
-              <div class="feature-info">
-                <h3 class="feature-name"></h3>
-                <p class="feature-description"></p>
-              </div>
-              <div class="feature-arrow">→</div>
-            </div><div 
-              class="feature-card"
-              role="button"
-              tabindex="0"
-            >
-              <div class="feature-icon"></div>
-              <div class="feature-info">
-                <h3 class="feature-name"></h3>
-                <p class="feature-description"></p>
-              </div>
-              <div class="feature-arrow">→</div>
-            </div><div 
-              class="feature-card"
-              role="button"
-              tabindex="0"
-            >
-              <div class="feature-icon"></div>
-              <div class="feature-info">
-                <h3 class="feature-name"></h3>
-                <p class="feature-description"></p>
+                <h3 class="feature-name">Tenant Management</h3>
+                <p class="feature-description">Create, configure, and manage organization tenants</p>
               </div>
               <div class="feature-arrow">→</div>
             </div>
+
+            <div
+              class="feature-card" data-cwl-action="handleFeatureClick" data-cwl-action-args="feature" data-cwl-on-keydown="action:handleFeatureClick" data-cwl-on-keydown-args="feature"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon">⚙️</div>
+              <div class="feature-info">
+                <h3 class="feature-name">System Settings</h3>
+                <p class="feature-description">Configure system-wide settings and preferences</p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div>
+
         </div>
       </div>
 
       <!-- System Status -->
       <div class="system-status">
         <h2>System Status</h2>
-        
+
         <div class="status-grid">
           <div class="status-card">
             <div class="status-icon">
-              🟢
-              
-                🔴
+              <div data-cwl-bind="if" data-cwl-hole-detail="systemStatus.health === 'operational'">🟢</div><div data-cwl-bind="if" data-cwl-hole-detail="systemStatus.health === 'error'">🔴</div>
+                🟡
+
             </div>
             <div class="status-info">
               <h4>System Health</h4>
-              <p>All systems nominal</p>
+              <p><span data-cwl-bind="interp" data-cwl-hole-detail="systemStatus.healthMessage"></span></p>
             </div>
           </div>
           <div class="status-card">
@@ -93,9 +79,9 @@
             <div class="status-info">
               <h4>Active Tenants</h4>
               <p>
-                
-                  2 tenants active
-                
+
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="systemStatus.activeTenants"></span> tenant<span data-cwl-bind="interp" data-cwl-hole-detail="systemStatus.activeTenants !== 1 ? 's' : ''"></span> active
+
               </p>
             </div>
           </div>
@@ -104,21 +90,21 @@
             <div class="status-info">
               <h4>Total Users</h4>
               <p>
-                
-                  14 users across all tenants
-                
+
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="systemStatus.totalUsers"></span> users across all tenants
+
               </p>
             </div>
           </div>
           <div class="status-card">
             <div class="status-icon">
-              💾
-              
-                ⚠️
+              <div data-cwl-bind="if" data-cwl-hole-detail="systemStatus.databaseStatus === 'connected'">💾</div><div data-cwl-bind="if" data-cwl-hole-detail="systemStatus.databaseStatus === 'error'">⚠️</div>
+                🔄
+
             </div>
             <div class="status-info">
               <h4>Database</h4>
-              <p>Primary OK</p>
+              <p><span data-cwl-bind="interp" data-cwl-hole-detail="systemStatus.databaseMessage"></span></p>
             </div>
           </div>
         </div>
@@ -128,13 +114,79 @@
       <div class="remote-agents-section">
         <div class="section-header">
           <h2>📡 Remote Agents Status</h2>
-          <button class="refresh-btn">
+          <button class="refresh-btn" data-cwl-action="loadAllRemoteAgents" data-cwl-attr-disabled="loadingAgents" aria-label="Load All Remote Agents">
             🔄 Refresh
           </button>
         </div>
 
-        
+          <div class="agents-summary">
+            <p><strong><span data-cwl-bind="interp" data-cwl-hole-detail="remoteAgents.length"></span></strong> remote agent<span data-cwl-bind="interp" data-cwl-hole-detail="remoteAgents.length !== 1 ? 's' : ''"></span> checking in system-wide</p>
+          </div>
+          <div class="agents-table-container">
+            <table class="agents-table">
+              <thead>
+                <tr>
+                  <th>Tenant</th>
+                  <th>Type</th>
+                  <th>ID</th>
+                  <th>Name/Code</th>
+                  <th>First Check-in</th>
+                  <th>Last Check-in</th>
+                  <th>Status</th>
+                  <th>Hardware Linked</th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="remoteAgents as agent (agent.epc_id || agent.device_id)" data-cwl-each-item="agent" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bagent.tenant_name%20%7C%7C%20agent.tenant_id%20%7C%7C%20'Unknown'%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22agent-type-badge%20type-%7Bagent.type%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%3F%20'EPC'%20%3A%20'SNMP'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ccode%3E%7Bagent.epc_id%20%7C%7C%20agent.device_id%20%7C%7C%20'N%2FA'%7D%3C%2Fcode%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3F%20(agent.device_code%20%7C%7C%20agent.site_name%20%7C%7C%20'N%2FA')%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3A%20(agent.name%20%7C%7C%20agent.ip_address%20%7C%7C%20'N%2FA')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7BgetFirstCheckin(agent)%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3F%20(agent.last_checkin%20%3F%20formatDate(agent.last_checkin)%20%3A%20'Never')%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3A%20(agent.discovered_at%20%3F%20formatDate(agent.discovered_at)%20%3A%20'N%2FA')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20agent.time_since_checkin%20!%3D%3D%20null%20%26%26%20agent.time_since_checkin%20!%3D%3D%20undefined%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Csmall%20class%3D%22time-ago%22%3E%7BformatTimeAgo(agent.time_since_checkin)%7D%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Bagent.checkin_status%20%7C%7C%20agent.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bagent.type%20%3D%3D%3D%20'epc_agent'%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3F%20(agent.checkin_status%20%7C%7C%20agent.status%20%7C%7C%20'unknown')%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3A%20(agent.status%20%7C%7C%20'discovered')%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20agent.hardware_linked%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22linked-badge%20linked%22%3E%E2%9C%93%20Linked%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20agent.hardware_link_type%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbr%3E%3Csmall%3E(%7Bagent.hardware_link_type%7D)%3C%2Fsmall%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22linked-badge%20unlinked%22%3E%E2%9C%97%20Unlinked%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td>
+                      <strong></strong>
+                    </td>
+                    <td>
+                      <span class="agent-type-badge type-">
+
+                      </span>
+                    </td>
+                    <td>
+                      <code></code>
+                    </td>
+                    <td>
+
+                    </td>
+                    <td></td>
+                    <td>
+
+                      <div data-cwl-bind="if" data-cwl-hole-detail="agent.time_since_checkin !== null && agent.time_since_checkin !== undefined"><br>
+                        <small class="time-ago"></small></div>
+                    </td>
+                    <td>
+                      <span class="status-badge status-">
+
+                      </span>
+                    </td>
+                    <td>
+
+                        <span class="linked-badge unlinked">✗ Unlinked</span>
+
+                        <div hidden aria-hidden="true"><span class="linked-badge linked">✓ Linked</span>
+
+                          <div hidden aria-hidden="true"><br><small>()</small>
+                        </div>
+                      </div>
+                    </td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="empty-state" hidden aria-hidden="true">
+            <p>No remote agents found across all tenants.</p>
+          </div>
+
+          <div class="loading-state" hidden aria-hidden="true">
+            <p>Loading remote agents...</p>
+          </div>
+
       </div>
       </div>
     </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/admin/management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/admin/management"}</script>

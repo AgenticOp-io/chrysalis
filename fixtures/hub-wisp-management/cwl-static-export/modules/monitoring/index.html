@@ -1,65 +1,592 @@
-<!-- Monitoring Setup Wizard -->
-  
+<div class="wisp-app-surface" data-wisp-page="monitoring" data-wisp-path="/modules/monitoring" data-cwl-island="client"><!-- Monitoring Setup Wizard -->
+
+    <div hidden aria-hidden="true"><div data-cwl-component="MonitoringSetupWizard" data-cwl-lifted-component="MonitoringSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden aria-hidden="true">
+    <div class="wizard-modal">
+      <div class="wizard-header">
+        <h2 id="wizard-title">📊 Monitoring Setup Wizard</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+      </div>
+
+      <!-- Progress Steps -->
+      <nav class="wizard-steps" aria-label="Monitoring setup steps">
+        <div data-cwl-bind="each" data-cwl-hole-detail="steps as step, index"><button
+            type="button"
+            class="wizard-step" aria-label="Wizard step">
+            <span class="step-icon"></span>
+            <span class="step-title"></span>
+          </button></div>
+      </nav>
+
+      <!-- Step Content -->
+      <div class="wizard-content">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+          <div class="wizard-panel">
+            <div class="welcome-content">
+              <h3>Welcome to Monitoring Setup! 📊</h3>
+              <p>Let's configure network monitoring to track device performance and health.</p>
+
+              <div class="info-box">
+                <h4>What is Network Monitoring?</h4>
+                <p>Network monitoring allows you to track device status, performance metrics, and network health in real-time using SNMP, ping, and device-specific protocols.</p>
+              </div>
+
+              <div class="setup-requirements">
+                <h4>What You'll Configure:</h4>
+                <ul>
+                  <li>✅ SNMP credentials for device polling</li>
+                  <li>✅ MikroTik device credentials (optional)</li>
+                  <li>✅ Ping monitoring (automatic)</li>
+                </ul>
+              </div>
+
+              <div class="setup-time">
+                <strong>⏱️ Estimated time:</strong> 5-7 minutes
+              </div>
+            </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><!-- SNMP Setup Step -->
+          <div class="wizard-panel">
+            <h3>Configure SNMP</h3>
+            <p>Set up SNMP (Simple Network Management Protocol) to monitor network devices.</p>
+
+            <div class="form-group">
+              <label for="snmp-community">
+                SNMP Community <span class="required">*</span>
+              </label>
+              <input
+                id="snmp-community"
+                type="text"
+                placeholder="public"
+                class="form-input" data-cwl-attr-disabled="isLoading"
+              />
+              <small class="form-hint">The SNMP community string configured on your devices (typically "public" for read-only)</small>
+            </div>
+
+            <div class="form-group">
+              <label for="snmp-version">
+                SNMP Version
+              </label>
+              <select
+                id="snmp-version"
+                class="form-input" data-cwl-attr-disabled="isLoading"
+              >
+                <option value="1">SNMPv1</option>
+                <option value="2c">SNMPv2c</option>
+                <option value="3">SNMPv3</option>
+              </select>
+              <small class="form-hint">Most devices use SNMPv2c</small>
+            </div>
+
+            <div class="info-card">
+              <p><strong>💡 Tip:</strong> Make sure your network devices have SNMP enabled with the community string you specify here.</p>
+            </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><!-- MikroTik Setup Step -->
+          <div class="wizard-panel">
+            <h3>MikroTik Credentials (Optional)</h3>
+            <p>If you have MikroTik devices, configure credentials for enhanced monitoring.</p>
+
+            <div class="form-group">
+              <label>
+                <input
+                  type="checkbox" data-cwl-attr-disabled="isLoading"
+                />
+                Enable MikroTik monitoring
+              </label>
+            </div>
+
+            <div class="info-card">
+              <p><strong>Note:</strong> MikroTik monitoring is optional. You can skip this step if you don't have MikroTik devices or want to configure them later.</p>
+            </div>
+          </div></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3"><!-- Complete Step -->
+          <div class="wizard-panel">
+            <h3>🎉 Monitoring Setup Complete!</h3>
+            <p>Your monitoring configuration has been saved successfully.</p>
+
+            <div class="next-steps">
+              <h4>What's Next?</h4>
+              <a href="/modules/monitoring" class="next-step-item">
+                <span class="icon">📊</span>
+                <div>
+                  <strong>View Device Monitoring</strong>
+                  <p>See device status, SNMP metrics, and topology</p>
+                </div>
+              </a>
+              <a href="/modules/monitoring" class="next-step-item">
+                <span class="icon">🔔</span>
+                <div>
+                  <strong>Alert Rules</strong>
+                  <p>Configure alerts for device outages and performance</p>
+                </div>
+              </a>
+            </div>
+          </div></div>
+      </div>
+
+      <!-- Wizard Footer -->
+      <div class="wizard-footer">
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
+            ← Previous
+          </button></div>
+          <button class="btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">
+            Cancel
+          </button>
+
+        <div class="footer-actions">
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><button class="btn-primary" data-cwl-action="saveConfiguration" data-cwl-attr-disabled="isLoading" aria-label="Save Configuration">
+              Save & Continue →
+            </button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">
+              Next →
+            </button></div>
+            <button class="btn-primary" data-cwl-action="completeSetup" data-cwl-attr-disabled="isLoading" aria-label="Complete Setup">
+              Finish →
+            </button>
+
+        </div>
+      </div>
+    </div>
+  </div></div>
+  </div>
 
   <div class="app">
     <!-- Full Screen Map -->
     <div class="map-fullscreen">
-      
-        
-      
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mapView === 'geographic'">
+
+            <div data-cwl-component="MonitoringMap" data-cwl-lifted-component="MonitoringMap"><div class="monitoring-map" style="height: ;">
+  <!-- Combined Monitoring Panel - Right Side -->
+  <div class="combined-controls">
+    <div class="combined-panel">
+      <!-- System Status Section - Top -->
+      <div class="status-section">
+        <div class="section-header">
+          <h3>📊 System Status</h3>
+          <button class="refresh-btn" data-cwl-action="handleInternalRefresh" title="Refresh Data">
+            🔄
+          </button>
+        </div>
+        <div class="status-cards">
+          <div class="status-card critical">
+            <div class="status-icon">🚨</div>
+            <div class="status-content">
+              <div class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardData?.summary?.critical_alerts || 0"></span></div>
+              <div class="status-label">Critical</div>
+            </div>
+          </div>
+
+          <div class="status-card warning">
+            <div class="status-icon">⚠️</div>
+            <div class="status-content">
+              <div class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="dashboardData?.summary?.total_alerts || 0"></span></div>
+              <div class="status-label">Alerts</div>
+            </div>
+          </div>
+
+          <div class="status-card success">
+            <div class="status-icon">✅</div>
+            <div class="status-content">
+              <div class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="networkDevices.filter(d => d.status === 'online').length"></span></div>
+              <div class="status-label">Online</div>
+            </div>
+          </div>
+
+          <div class="status-card info">
+            <div class="status-icon">📊</div>
+            <div class="status-content">
+              <div class="status-value"><span data-cwl-bind="interp" data-cwl-hole-detail="calculateUptime()"></span>%</div>
+              <div class="status-label">Device Uptime</div>
+            </div>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="getEPCSystemUptime()"><div class="status-card success epc-uptime-card">
+              <div class="status-icon">⏱️</div>
+              <div class="status-content">
+                <div class="status-value" style="font-size: 0.9rem;"><span data-cwl-bind="interp" data-cwl-hole-detail="getEPCSystemUptime()"></span></div>
+                <div class="status-label epc-uptime-label">EPC System Uptime</div>
+              </div>
+            </div></div>
+        </div>
+      </div>
+
+      <!-- Active Alerts Section - Bottom -->
+      <div class="alerts-section">
+        <div class="section-header">
+          <h3>🚨 Active Alerts</h3>
+          <span class="alerts-count"><span data-cwl-bind="interp" data-cwl-hole-detail="alerts.length"></span></span>
+        </div>
+
+        <div class="alerts-list">
+
+            <div data-cwl-bind="each" data-cwl-hole-detail="alerts as alert, index"><div
+                class="alert-item clickable"
+                style="border-left-color: " data-cwl-action="alertClick" data-cwl-on-keydown="action:alertClick"
+                tabindex="0"
+                role="button"
+              >
+                <div class="alert-content">
+                  <div class="alert-header">
+                    <div class="alert-severity "></div>
+                    <div class="alert-time"></div>
+                  </div>
+                  <div class="alert-message"></div>
+                  <div class="alert-actions">
+                    <button
+                      class="alert-action-btn details" data-cwl-action="showAlertDetails"
+                     aria-label="Show Alert Details">
+                      📋 Details
+                    </button>
+                    <button
+                      class="alert-action-btn ticket" data-cwl-action="createTicketFromAlert"
+                     aria-label="Create Ticket From Alert">
+                      🎫 Create Ticket
+                    </button>
+                  </div>
+                </div>
+              </div></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coverage Map with hidden plan/deploy elements -->
+  <div class="map-wrapper">
+    <div data-cwl-component="CoverageMapView" data-cwl-lifted-component="CoverageMapView"><div class="coverage-map-container">
+  <div class="map-container"></div>
+  <arcgis-basemap-toggle></arcgis-basemap-toggle>
+</div></div>
+  </div>
+</div></div>
+
+            <div class="no-devices-overlay" hidden aria-hidden="true">
+              <div class="help-message">
+                <h3>🗺️ No SNMP/EPC Devices Available</h3>
+                <p><strong>Geographic monitoring requires deployed hardware with SNMP or EPC agents.</strong></p>
+                <p>To enable monitoring:</p>
+                <ol>
+                  <li>Deploy hardware with SNMP enabled or EPC agents</li>
+                  <li>Configure SNMP credentials for network devices</li>
+                  <li>Return here to view device locations and monitoring data</li>
+                </ol>
+                <p class="note">💡 All hardware shown here is read-only. SNMP and uptime graphs will appear for deployed hardware and devices discovered via SNMP.</p>
+                <div class="deploy-actions">
+                  <button class="btn btn-primary" data-cwl-toggle="showSetupWizard:true" aria-label="Show Setup Wizard">
+                    🚀 Get Started with Setup Wizard
+                  </button>
+                  <button class="btn btn-secondary" data-cwl-toggle="showSNMPConfig:true" aria-label="Show SNMPConfig">
+                    🔧 Configure SNMP
+                  </button>
+                  <button class="btn btn-secondary" data-cwl-toggle="showEPCDeploymentModal:true" aria-label="Show EPCDeployment Modal">
+                    📡 Deploy EPC
+                  </button>
+                </div>
+              </div>
+            </div>
+
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mapView === 'topology'" hidden aria-hidden="true">
+
+            <div data-cwl-component="NetworkTopologyMap" data-cwl-lifted-component="NetworkTopologyMap"><div class="topology-container" style="height:">
+  <!-- Topology Controls -->
+
+    <div class="topology-controls">
+      <div class="control-panel">
+        <div class="control-section">
+          <h4>Layout</h4>
+          <div class="control-group">
+            <select data-cwl-on-change="action:changeLayout" data-cwl-on-change-args="topologyConfig.layout">
+              <option value="hierarchical">Hierarchical</option>
+              <option value="force">Force-directed</option>
+              <option value="circular">Circular</option>
+              <option value="random">Random</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h4>Display</h4>
+          <div class="control-group">
+            <label>
+              <input type="checkbox" data-cwl-on-change="action:togglePhysics" />
+              Physics Simulation
+            </label>
+            <label>
+              <input type="checkbox" data-cwl-on-change="action:toggleLabels" />
+              Show Labels
+            </label>
+            <label>
+              <input type="checkbox" data-cwl-on-change="action:toggleMetrics" />
+              Show Metrics
+            </label>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h4>Auto-Refresh</h4>
+          <div class="control-group">
+            <label>
+              <input type="checkbox" data-cwl-on-change="action:startAutoRefresh" />
+              Enable Auto-Refresh
+            </label>
+
+              <div hidden aria-hidden="true"><select data-cwl-on-change="action:startAutoRefresh">
+                <option data-cwl-attr-value="10000">10 seconds</option>
+                <option data-cwl-attr-value="30000">30 seconds</option>
+                <option data-cwl-attr-value="60000">1 minute</option>
+                <option data-cwl-attr-value="300000">5 minutes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h4>Actions</h4>
+          <div class="control-group">
+            <button class="btn btn-sm">
+              🎯 Fit to Screen
+            </button>
+            <button class="btn btn-sm" data-cwl-action="exportTopology" aria-label="Export Topology">
+              💾 Export Image
+            </button>
+            <button class="btn btn-sm" data-cwl-action="refreshData" aria-label="Refresh Data">
+              🔄 Refresh Data
+            </button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h4>Legend</h4>
+          <div class="legend">
+            <div data-cwl-bind="each" data-cwl-hole-detail="Object.entries(nodeTypeConfig) as [type, config]"><div class="legend-item">
+                <div class="legend-node" style="background-color: ; border-color: ">
+
+                </div>
+                <span class="legend-label"></span>
+              </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Topology Visualization -->
+  <div class="topology-canvas"></div>
+
+  <!-- Node Details Panel -->
+
+    <div class="details-panel node-details" hidden aria-hidden="true">
+      <div class="panel-header">
+        <h3><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.device?.name || selectedNode.id"></span></h3>
+        <button class="close-btn" data-cwl-toggle="showNodeDetails:false" aria-label="Show Node Details">✕</button>
+      </div>
+
+      <div class="panel-content">
+        <div class="device-info">
+          <div class="info-row">
+            <label>Type:</label>
+            <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.deviceType.replace('mikrotik_', '').replace('_', ' ')"></span></span>
+          </div>
+          <div class="info-row">
+            <label>Status:</label>
+            <span class="status-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.device?.status || 'unknown'"></span></span>
+          </div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedNode.device?.ipAddress"><div class="info-row">
+              <label>IP Address:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.device.ipAddress"></span></span>
+            </div></div>
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedNode.device?.location?.address"><div class="info-row">
+              <label>Location:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.device.location.address"></span></span>
+            </div></div>
+        </div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="selectedNode.metrics && Object.keys(selectedNode.metrics).length > 0"><div class="metrics-section">
+            <h4>Current Metrics</h4>
+
+              <div class="metric-row" hidden aria-hidden="true">
+                <label>CPU Usage:</label>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: %"></div>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.metrics.cpuUsage.toFixed(1)"></span>%</span>
+                </div>
+              </div>
+
+              <div class="metric-row" hidden aria-hidden="true">
+                <label>Memory Usage:</label>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: %"></div>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.metrics.memoryUsage.toFixed(1)"></span>%</span>
+                </div>
+              </div>
+
+              <div class="metric-row" hidden aria-hidden="true">
+                <label>Active Users:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.metrics.activeUsers"></span></span>
+              </div>
+
+          </div></div>
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="selectedNode.snmpData && Object.keys(selectedNode.snmpData).length > 0"><div class="snmp-section">
+            <h4>SNMP Data</h4>
+            <div data-cwl-bind="each" data-cwl-hole-detail="Object.entries(selectedNode.snmpData) as [key, value]"><div class="info-row">
+                <label>:</label>
+                <span></span>
+              </div></div>
+          </div></div>
+
+        <div class="panel-actions">
+          <button class="btn btn-primary" data-cwl-action="viewDeviceDetails" aria-label="View Device Details">
+            View Full Details
+          </button>
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedNode.deviceType.startsWith('mikrotik')"><button class="btn btn-secondary" data-cwl-action="configureDevice" aria-label="Configure Device">
+              Configure Device
+            </button></div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Edge Details Panel -->
+
+    <div class="details-panel edge-details" hidden aria-hidden="true">
+      <div class="panel-header">
+        <h3>Connection Details</h3>
+        <button class="close-btn" data-cwl-toggle="showEdgeDetails:false" aria-label="Show Edge Details">✕</button>
+      </div>
+
+      <div class="panel-content">
+        <div class="connection-info">
+          <div class="info-row">
+            <label>Type:</label>
+            <span><span data-cwl-bind="interp" data-cwl-hole-detail="edgeTypeConfig[selectedEdge.connectionType]?.label || 'Unknown'"></span></span>
+          </div>
+
+            <div class="info-row" hidden aria-hidden="true">
+              <label>Bandwidth:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEdge.bandwidth"></span></span>
+            </div>
+
+            <div class="info-row" hidden aria-hidden="true">
+              <label>Latency:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEdge.latency"></span></span>
+            </div>
+
+            <div class="info-row" hidden aria-hidden="true">
+              <label>Packet Loss:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEdge.packetLoss"></span></span>
+            </div>
+
+            <div class="info-row" hidden aria-hidden="true">
+              <label>Signal Strength:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedEdge.signalStrength"></span> dBm</span>
+            </div>
+
+        </div>
+      </div>
+    </div>
+
+</div></div>
+
+            <div class="no-devices-overlay" hidden aria-hidden="true">
+              <div class="help-message">
+                <h3>🕸️ No SNMP/EPC Devices Available</h3>
+                <p><strong>Network topology monitoring requires deployed hardware with SNMP or EPC agents.</strong></p>
+                <p>To enable monitoring:</p>
+                <ol>
+                  <li>Deploy hardware with SNMP enabled or EPC agents</li>
+                  <li>Configure SNMP credentials for network devices</li>
+                  <li>Return here to view network topology and connections</li>
+                </ol>
+                <p class="note">💡 All hardware shown here is read-only. Network topology will appear for deployed hardware and devices discovered via SNMP.</p>
+                <div class="deploy-actions">
+                  <button class="btn btn-primary" data-cwl-toggle="showSetupWizard:true" aria-label="Show Setup Wizard">
+                    🚀 Get Started with Setup Wizard
+                  </button>
+                  <button class="btn btn-secondary" data-cwl-toggle="showSNMPConfig:true" aria-label="Show SNMPConfig">
+                    🔧 Configure SNMP
+                  </button>
+                  <button class="btn btn-secondary" data-cwl-toggle="showEPCDeploymentModal:true" aria-label="Show EPCDeployment Modal">
+                    📡 Deploy EPC
+                  </button>
+                </div>
+              </div>
+            </div>
+
+        </div>
+
     </div>
 
     <!-- Floating Header Overlay -->
     <div class="module-header-overlay" style="background: var(--gradient-success);">
       <div class="module-header-left">
-        <button class="module-back-btn" title="Back to Modules">
+        <button class="module-back-btn" data-cwl-nav="/modules" title="Back to Modules" type="button">
           ←
         </button>
         <h1>🗺️ Monitor</h1>
       </div>
       <div class="module-header-controls">
-        <button class="help-button" aria-label="Open Help" title="Help">
+        <button class="help-button" data-cwl-toggle="showHelpModal:true" aria-label="Open Help" title="Help">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </button>
-        <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
-        <button class="module-control-btn" title="Configuration">
+        <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+    <button
+      type="button"
+      class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
+      title="Wizards for this module"
+      aria-haspopup="true"
+    >
+      <span class="wizard-trigger-icon">🧙</span>
+      <span class="wizard-trigger-label">Wizards</span>
+      <span class="wizard-trigger-chevron">▼</span>
+    </button>
+
+      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+        <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
+            type="button"
+            role="menuitem"
+            class="wizard-item" data-cwl-action="select" data-cwl-action-args="w.id"
+           aria-label="Select">
+            <div hidden aria-hidden="true"><span class="wizard-item-icon"></span></div>
+            <span class="wizard-item-label"></span>
+          </button></div>
+      </div>
+
+  </div></div>
+        <button class="module-control-btn" data-cwl-toggle="showSNMPConfig:true" title="Configuration">
           <span class="control-icon">🔧</span>
           <span class="control-label">Config</span>
         </button>
-        <button 
-          class="module-control-btn"
+        <button
+          class="module-control-btn" data-cwl-set="mapView:geographic"
           title="Geographic View"
         >
           <span class="control-icon">🗺️</span>
           <span class="control-label">Geographic</span>
         </button>
-        <button 
-          class="module-control-btn"
+        <button
+          class="module-control-btn" data-cwl-set="mapView:topology"
           title="Topology View"
         >
           <span class="control-icon">🕸️</span>
           <span class="control-label">Topology</span>
         </button>
-        <button 
-          class="module-control-btn"
+        <button
+          class="module-control-btn" data-cwl-set="mapView:epc"
           title="EPC Devices"
         >
           <span class="control-icon">📡</span>
-          <span class="control-label">EPC (1)</span>
+          <span class="control-label">EPC (<span data-cwl-bind="interp" data-cwl-hole-detail="epcDevices.length"></span>)</span>
         </button>
-        <button 
-          class="module-control-btn"
+        <button
+          class="module-control-btn" data-cwl-set="mapView:graphs"
           title="SNMP Graphs"
         >
           <span class="control-icon">📈</span>
           <span class="control-label">Graphs</span>
         </button>
-        <button 
-          class="module-control-btn"
+        <button
+          class="module-control-btn" data-cwl-set="mapView:mikrotik"
           title="Mikrotik Devices"
         >
           <span class="control-icon">🖥️</span>
@@ -68,136 +595,2041 @@
       </div>
     </div>
   </div>
-  
+
   <!-- SNMP Graphs View -->
-  
-  
+  <div data-cwl-bind="if" data-cwl-hole-detail="mapView === 'graphs'" hidden aria-hidden="true">
+    <div class="graphs-overlay">
+
+        <div data-cwl-component="SNMPGraphsPanel" data-cwl-lifted-component="SNMPGraphsPanel"><div class="snmp-graphs-panel">
+
+    <div class="panel-layout">
+      <div class="device-sidebar">
+        <h3>📡 Devices</h3>
+        <div class="device-list">
+          <div data-cwl-bind="each" data-cwl-hole-detail="devices as device" data-cwl-each-item="device" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22device-item%20%7BselectedDevice%3F.id%20%3D%3D%3D%20device.id%20%3F%20'selected'%20%3A%20''%7D%22%20data-cwl-action%3D%22selectDevice%22%20data-cwl-action-args%3D%22device%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%20Device%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-status%20%7BgetStatusColor(device.status%20%7C%7C%20'unknown')%7D%22%3E%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-name%22%3E%7Bdevice.name%20%7C%7C%20'Unknown'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-ip%22%3E%7Bdevice.ipAddress%20%7C%7C%20'N%2FA'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20device.manufacturer%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-manufacturer%22%3E%20%E2%80%A2%20%7Bdevice.manufacturer%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-capabilities%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20device.hasPing%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22capability%20ping%22%3EPing%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20device.hasSNMP%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22capability%20snmp%22%3ESNMP%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20"><button
+              class="device-item " data-cwl-action="selectDevice" data-cwl-action-args="device"
+             aria-label="Select Device">
+              <span class="device-status "></span>
+              <div class="device-info">
+                <span class="device-name"></span>
+                <span class="device-details">
+                  <span class="device-ip"></span>
+
+                    <div hidden aria-hidden="true"><span class="device-manufacturer"> • </span>
+                  </div>
+                  <div class="device-capabilities">
+
+                      <div hidden aria-hidden="true"><span class="capability ping">Ping</span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span class="capability snmp">SNMP</span>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </button></div>
+        </div>
+      </div>
+
+      <div class="graphs-area">
+        <div data-cwl-bind="if" data-cwl-hole-detail="selectedDevice"><div class="device-header">
+            <div>
+              <h2><span data-cwl-bind="interp" data-cwl-hole-detail="selectedDevice.name || 'Device'"></span></h2>
+              <div class="device-subtitle">
+                <span class="ip"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedDevice.ipAddress || 'No IP'"></span></span>
+
+                  <div hidden aria-hidden="true"><span class="manufacturer"> • <span data-cwl-bind="interp" data-cwl-hole-detail="selectedDevice.manufacturer"></span></span>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="pingStats"><span class="uptime-badge">
+                    <span data-cwl-bind="interp" data-cwl-hole-detail="pingStats.uptime_percent"></span> uptime
+                  </span></div>
+              </div>
+            </div>
+            <div class="time-selector">
+              <button data-cwl-action="loadDeviceMetrics" aria-label="Load Device Metrics">1H</button>
+              <button data-cwl-action="loadDeviceMetrics" aria-label="Load Device Metrics">24H</button>
+              <button data-cwl-action="loadDeviceMetrics" aria-label="Load Device Metrics">7D</button>
+              <button data-cwl-action="loadDeviceMetrics" aria-label="Load Device Metrics">30D</button>
+            </div>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="pingStats"><div class="quick-stats">
+              <div class="stat">
+                <span class="stat-label">Current Status</span>
+                <span class="stat-value">
+                  <span data-cwl-bind="interp" data-cwl-hole-detail="pingStats.current_status || 'Unknown'"></span>
+                </span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Uptime</span>
+                <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatUptimePercent(pingStats.uptime_percent)"></span></span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Avg Response</span>
+                <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="pingStats.avg_response_time_ms ? `ms"></span></span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Failed Pings</span>
+                <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="pingStats.failed || 0"></span> / <span data-cwl-bind="interp" data-cwl-hole-detail="pingStats.total || 0"></span></span>
+              </div>
+            </div></div>
+
+          <div class="charts-grid">
+
+              <div hidden aria-hidden="true">
+                <div class="chart-card" hidden aria-hidden="true">
+                  <h4>🟢 Ping Uptime</h4>
+                  <div class="chart-container">
+                    <div data-cwl-bind="if" data-cwl-hole-detail="pingUptimeOption"><div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div></div>
+                      <div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div>
+
+                      <div class="chart-loading" hidden aria-hidden="true">Loading ping data...</div>
+
+                  </div>
+                </div>
+
+                <div class="chart-card" hidden aria-hidden="true">
+                  <h4>⏱️ Ping Response Time</h4>
+                  <div class="chart-container">
+                    <div data-cwl-bind="if" data-cwl-hole-detail="pingResponseOption"><div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div></div>
+                      <div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div>
+
+                      <div class="chart-loading" hidden aria-hidden="true">Loading ping data...</div>
+
+                  </div>
+                </div>
+
+            </div>
+
+              <div hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="cpuOption"><div class="chart-card">
+                  <h4>💻 CPU Usage</h4>
+                  <div class="chart-container">
+                    <div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div>
+                  </div>
+                </div></div>
+                <div class="chart-card" hidden aria-hidden="true">
+                  <h4>💻 CPU Usage</h4>
+                  <div class="chart-container">
+                    <div class="chart-loading">Loading SNMP data...</div>
+                  </div>
+                </div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="memoryOption"><div class="chart-card">
+                  <h4>🧠 Memory Usage</h4>
+                  <div class="chart-container">
+                    <div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div>
+                  </div>
+                </div></div>
+                <div class="chart-card" hidden aria-hidden="true">
+                  <h4>🧠 Memory Usage</h4>
+                  <div class="chart-container">
+                    <div class="chart-loading">Loading SNMP data...</div>
+                  </div>
+                </div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="throughputOption"><div class="chart-card wide">
+                  <h4>🌐 Network Throughput</h4>
+                  <div class="chart-container">
+                    <div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div>
+                  </div>
+                </div></div>
+                <div class="chart-card wide" hidden aria-hidden="true">
+                  <h4>🌐 Network Throughput</h4>
+                  <div class="chart-container">
+                    <div class="chart-loading">Loading SNMP data...</div>
+                  </div>
+                </div>
+
+            </div>
+          </div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="selectedDevice.hasPing || selectedDevice.hasSNMP">
+              <div class="no-data-message" hidden aria-hidden="true">
+                <p>📊 No monitoring data available yet</p>
+                <p class="hint">
+                  <div data-cwl-bind="if" data-cwl-hole-detail="selectedDevice.hasPing && selectedDevice.hasSNMP"><div data-cwl-bind="if" data-cwl-hole-detail="!pingUptimeOption && !pingResponseOption && !cpuOption && !memoryOption"><span>Waiting for ping and SNMP data collection...</span><br/>
+               <span style="font-size: 0.85rem; opacity: 0.8;">• Ping data: Collected every 5 minutes</span><br/>
+               <span style="font-size: 0.85rem; opacity: 0.8;">• SNMP data: Collected every 5 minutes</span><br/>
+                      <span style="font-size: 0.85rem; opacity: 0.8;">• Check back in a few minutes for data to appear</span></div><div data-cwl-bind="if" data-cwl-hole-detail="!pingUptimeOption && !pingResponseOption"><span>Ping monitoring is collecting data...</span><br/>
+                      <span style="font-size: 0.85rem; opacity: 0.8;">SNMP metrics are available. Ping data will appear once collected.</span></div>
+                      <span>SNMP monitoring is collecting data...</span><br/>
+                      <span style="font-size: 0.85rem; opacity: 0.8;">Ping data is available. SNMP metrics will appear once collected.</span>
+                    </div><div data-cwl-bind="if" data-cwl-hole-detail="selectedDevice.hasPing && !pingUptimeOption && !pingResponseOption"><span>Ping monitoring is collecting data...</span><br/>
+                    <span style="font-size: 0.85rem; opacity: 0.8;">• Devices are pinged every 5 minutes</span><br/>
+                    <span style="font-size: 0.85rem; opacity: 0.8;">• Data will appear within the next few minutes</span><br/>
+                    <span style="font-size: 0.85rem; opacity: 0.8;">• If no data appears, verify the IP address is reachable</span></div><div data-cwl-bind="if" data-cwl-hole-detail="selectedDevice.hasSNMP && !cpuOption && !memoryOption && !throughputOption"><span>SNMP metrics are being collected...</span><br/>
+                    <span style="font-size: 0.85rem; opacity: 0.8;">• SNMP polling occurs every 5 minutes</span><br/>
+                    <span style="font-size: 0.85rem; opacity: 0.8;">• Data will appear once the next poll completes</span><br/>
+                    <span style="font-size: 0.85rem; opacity: 0.8;">• Verify SNMP community and version are configured correctly</span></div>
+                    Monitoring data is being collected. Data will appear once metrics are available.
+
+                </p>
+              </div>
+            </div>
+            <div class="no-data-message">
+              <p>📊 No monitoring data available for this device</p>
+              <p class="hint">Device needs an IP address for ping monitoring or SNMP configuration for SNMP metrics</p>
+            </div>
+          </div>
+          <div class="no-selection">
+            <p>👈 Select a device to view metrics</p>
+          </div>
+
+      </div>
+    </div>
+
+    <div class="no-devices" hidden aria-hidden="true">
+      <p>📊 No devices available for monitoring</p>
+      <p class="hint">Deploy devices with IP addresses to enable ping monitoring, or enable graphs on discovered SNMP devices</p>
+    </div>
+
+    <div class="loading" hidden aria-hidden="true">
+      <div class="spinner"></div>
+      <p>Loading devices...</p>
+    </div>
+
+</div>
+
+<!-- Include all the styles from the original component --></div>
+
+        <div class="no-devices-overlay" hidden aria-hidden="true">
+          <div class="help-message">
+            <h3>📈 No SNMP/EPC Devices Available</h3>
+            <p><strong>SNMP graphs and uptime monitoring require deployed hardware.</strong></p>
+            <p>To enable monitoring:</p>
+            <ol>
+              <li>Deploy hardware with SNMP enabled or EPC agents</li>
+              <li>Configure SNMP credentials for network devices</li>
+              <li>Return here to view monitoring graphs and uptime data</li>
+            </ol>
+            <p class="note">💡 All hardware shown here is read-only. SNMP and uptime graphs will appear for deployed hardware and devices discovered via SNMP.</p>
+            <div class="deploy-actions">
+              <button class="btn btn-primary" data-cwl-toggle="showSNMPConfig:true" aria-label="Show SNMPConfig">
+                🔧 Configure SNMP
+              </button>
+              <button class="btn btn-secondary" data-cwl-toggle="showEPCDeploymentModal:true" aria-label="Show EPCDeployment Modal">
+                📡 Deploy EPC
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-devices-overlay" hidden aria-hidden="true">
+          <div class="help-message">
+            <h3>📈 No SNMP/EPC Devices Available</h3>
+            <p><strong>SNMP graphs and uptime monitoring require deployed hardware.</strong></p>
+            <p>To enable monitoring:</p>
+            <ol>
+              <li>Deploy hardware with SNMP enabled or EPC agents</li>
+              <li>Configure SNMP credentials for network devices</li>
+              <li>Return here to view monitoring graphs and uptime data</li>
+            </ol>
+            <p class="note">💡 All hardware shown here is read-only. SNMP and uptime graphs will appear for deployed hardware and devices discovered via SNMP.</p>
+            <div class="deploy-actions">
+              <button class="btn btn-primary" data-cwl-toggle="showSNMPConfig:true" aria-label="Show SNMPConfig">
+                🔧 Configure SNMP
+              </button>
+              <button class="btn btn-secondary" data-cwl-toggle="showEPCDeploymentModal:true" aria-label="Show EPCDeployment Modal">
+                📡 Deploy EPC
+              </button>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>
+
   <!-- Mikrotik Devices View -->
-  
-  
+  <div data-cwl-bind="if" data-cwl-hole-detail="mapView === 'mikrotik'" hidden aria-hidden="true">
+    <div class="mikrotik-overlay">
+
+        <div data-cwl-component="MikrotikDevicesPanel" data-cwl-lifted-component="MikrotikDevicesPanel"><div class="mikrotik-devices-panel">
+  <div class="panel-header">
+    <h2>🖥️ Mikrotik Devices</h2>
+    <button class="btn btn-secondary" data-cwl-action="loadMikrotikDevices" data-cwl-attr-disabled="loading" aria-label="Load Mikrotik Devices">
+      🔄 Refresh
+    </button>
+  </div>
+
+    <div class="devices-grid">
+      <div data-cwl-bind="each" data-cwl-hole-detail="mikrotikDevices as device (device.id || device._id || device.ip_address)" data-cwl-each-item="device" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bdevice.name%20%7C%7C%20device.identity%20%7C%7C%20device.sysName%20%7C%7C%20%60Mikrotik-%24%7Bdevice.ip_address%20%7C%7C%20device.ipAddress%7D%60%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-type%22%3E%7BgetDeviceTypeLabel(device)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EIP%20Address%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bdevice.ip_address%20%7C%7C%20device.ipAddress%20%7C%7C%20'N%2FA'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EBoard%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7BgetBoardName(device)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ERouterOS%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7BgetRouterOSVersion(device)%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20device.mikrotik%3F.serial_number%20%7C%7C%20device.serialNumber%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ESerial%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bdevice.mikrotik%3F.serial_number%20%7C%7C%20device.serialNumber%20%7C%7C%20'N%2FA'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20device.discovered_via%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EDiscovered%20via%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bdevice.discovered_via.toUpperCase()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-actions%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20class%3D%22btn%20btn-primary%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20View%20Details%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20"><div class="device-card">
+          <div class="device-header">
+            <h3>`}</h3>
+            <span class="device-type"></span>
+          </div>
+
+          <div class="device-details">
+            <div class="detail-row">
+              <span class="label">IP Address:</span>
+              <span class="value"></span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Board:</span>
+              <span class="value"></span>
+            </div>
+            <div class="detail-row">
+              <span class="label">RouterOS:</span>
+              <span class="value"></span>
+            </div>
+            <div data-cwl-bind="if" data-cwl-hole-detail="device.mikrotik?.serial_number || device.serialNumber"><div class="detail-row">
+                <span class="label">Serial:</span>
+                <span class="value"></span>
+              </div></div>
+
+              <div class="detail-row" hidden aria-hidden="true">
+                <span class="label">Discovered via:</span>
+                <span class="value"></span>
+              </div>
+
+          </div>
+
+          <div class="device-actions">
+            <button class="btn btn-primary">
+              View Details
+            </button>
+          </div>
+        </div></div>
+    </div>
+
+    <div class="empty-state" hidden aria-hidden="true">
+      <p>📡 No Mikrotik devices found</p>
+      <p class="hint">Mikrotik devices discovered via SNMP/CDP/LLDP will appear here</p>
+    </div>
+
+</div></div>
+
+        <div class="no-devices-overlay" hidden aria-hidden="true">
+          <div class="help-message">
+            <h3>🖥️ No Mikrotik Devices Available</h3>
+            <p><strong>Mikrotik device monitoring requires SNMP configuration.</strong></p>
+            <p>To enable monitoring:</p>
+            <ol>
+              <li>Configure SNMP credentials for network devices</li>
+              <li>Devices will be discovered via SNMP/CDP/LLDP</li>
+              <li>Return here to view Mikrotik devices</li>
+            </ol>
+            <p class="note">💡 Mikrotik devices are discovered automatically when SNMP is configured.</p>
+            <div class="deploy-actions">
+              <button class="btn btn-primary" data-cwl-toggle="showSNMPConfig:true" aria-label="Show SNMPConfig">
+                🔧 Configure SNMP
+              </button>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>
+
   <!-- EPC Devices View -->
-  
+  <div data-cwl-bind="if" data-cwl-hole-detail="mapView === 'epc'" hidden aria-hidden="true">
+    <div class="epc-devices-overlay">
+      <div class="epc-devices-container">
+        <div data-cwl-bind="if" data-cwl-hole-detail="epcLoadError"><div class="no-devices">
+            <p>⚠️ Error loading EPC devices: <span data-cwl-bind="interp" data-cwl-hole-detail="epcLoadError"></span></p>
+            <button data-cwl-action="loadEPCDevices" class="btn btn-primary" aria-label="Load EPCDevices">Retry</button>
+          </div></div>
+          <div class="epc-devices-sidebar">
+            <h3>EPC Devices (<span data-cwl-bind="interp" data-cwl-hole-detail="epcDevices.length"></span>)</h3>
+            <div data-cwl-bind="each" data-cwl-hole-detail="epcDevices as device (device.epc_id || device.epcId || device.id)" data-cwl-each-item="device" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22epc-device-card%20%7BselectedEpcDevice%3F.epc_id%20%3D%3D%3D%20device.epc_id%20%3F%20'selected'%20%3A%20''%7D%22%20data-cwl-action%3D%22selectEpcDevice%22%20data-cwl-action-args%3D%22device%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22device-status%20status-%7Bdevice.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bdevice.status%20%3D%3D%3D%20'online'%20%3F%20'%F0%9F%9F%A2'%20%3A%20'%F0%9F%94%B4'%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch4%3E%7Bdevice.site_name%20%7C%7C%20device.name%20%7C%7C%20'Remote%20EPC%20Device'%7D%3C%2Fh4%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22device-info-compact%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22info-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EIP%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3E%7Bdevice.ip_address%20%7C%7C%20device.ipAddress%20%7C%7C%20'Unknown'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22info-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ECode%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ccode%3E%7Bdevice.device_code%20%7C%7C%20'N%2FA'%7D%3C%2Fcode%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20"><div
+                class="epc-device-card " data-cwl-action="selectEpcDevice" data-cwl-action-args="device"
+              >
+                <div class="device-header">
+                  <span class="device-status status-">
+
+                  </span>
+                  <h4></h4>
+                </div>
+                <div class="device-info-compact">
+                  <div class="info-row">
+                    <span class="label">IP:</span>
+                    <span></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="label">Code:</span>
+                    <code></code>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+          <div class="epc-monitoring-main">
+            <div data-cwl-bind="if" data-cwl-hole-detail="selectedEpcDevice"><div data-cwl-component="EPCMonitoringPanel" data-cwl-lifted-component="EPCMonitoringPanel"><div class="epc-monitoring-panel">
+  <div class="panel-header">
+    <div class="header-info">
+      <h2><span data-cwl-bind="interp" data-cwl-hole-detail="epc?.site_name || epc?.name || 'EPC Device'"></span></h2>
+      <span class="device-code"><span data-cwl-bind="interp" data-cwl-hole-detail="epc?.device_code || 'N/A'"></span></span>
+    </div>
+    <div class="header-actions">
+      <button class="refresh-btn" data-cwl-action="refreshAll" data-cwl-attr-disabled="isLoading" title="Refresh">
+        🔄<div hidden aria-hidden="true">⏳</div>
+      </button>
+      <button class="close-btn" data-cwl-action="onClose" aria-label="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="panel-content">
+    <!-- System Overview -->
+    <div class="section">
+      <h3>📊 System Overview</h3>
+      <div class="system-stats">
+        <div class="stat-card">
+          <span class="stat-label">Status</span>
+          <span class="stat-value status-">
+            <span data-cwl-bind="interp" data-cwl-hole-detail="epc?.status === 'online' ? '🟢 Online' : '🔴 Offline'"></span>
+          </span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">IP Address</span>
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="epc?.ip_address || epc?.ipAddress || 'Unknown'"></span></span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">CPU Usage</span>
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.cpu_percent ?? 'N/A'"></span>%</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Memory Usage</span>
+          <span class="stat-value">
+            <span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.memory_percent ?? 'N/A'"></span>%
+            <div data-cwl-bind="if" data-cwl-hole-detail="serviceStatus?.system?.memory_used_mb && serviceStatus?.system?.memory_total_mb">(<span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus.system.memory_used_mb"></span>MB / <span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus.system.memory_total_mb"></span>MB)</div>
+          </span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">System Uptime</span>
+          <span class="stat-value"><span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceStatus?.system?.uptime_seconds)"></span></span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Last Check-in</span>
+          <span class="stat-value">
+
+              Never
+
+              <div hidden aria-hidden="true"><span data-cwl-bind="interp" data-cwl-hole-detail="new Date(epc.last_seen).toLocaleString()"></span>
+              <div data-cwl-bind="if" data-cwl-hole-detail="epc?.status === 'offline' && epc?.timeSinceCheckin"><span class="offline-indicator" style="display: block; font-size: 0.875rem; color: #ef4444; margin-top: 0.25rem;">
+                  Offline for <span data-cwl-bind="interp" data-cwl-hole-detail="formatTimeSince(epc.timeSinceCheckin)"></span>
+                </span></div>
+            </div>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Status -->
+    <div class="section">
+      <h3>🔧 Services</h3>
+      <div class="services-grid">
+
+          <div class="service-card">
+            <div class="service-header">
+              <span class="service-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getStatusIcon(serviceStatusToShow)"></span></span>
+              <span class="service-name">MME</span>
+            </div>
+            <div class="service-details">
+              <span class="service-desc">Mobility Management Entity</span>
+              <span class="service-uptime">Uptime: <span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceUptimeToShow)"></span></span>
+
+                <div hidden aria-hidden="true"><span class="service-memory">Memory: <span data-cwl-bind="interp" data-cwl-hole-detail="status.memory_mb"></span> MB</span>
+              </div>
+            </div>
+            <div class="service-actions">
+              <button
+                class="btn-sm btn-start" data-cwl-action="sendServiceCommand" data-cwl-action-args="'start', [&quot;open5gs-mmed&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Start Service"
+              >▶</button>
+              <button
+                class="btn-sm btn-stop" data-cwl-action="sendServiceCommand" data-cwl-action-args="'stop', [&quot;open5gs-mmed&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Stop Service"
+              >⏹</button>
+              <button
+                class="btn-sm btn-restart" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart', [&quot;open5gs-mmed&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Restart Service"
+              >🔄</button>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div class="service-header">
+              <span class="service-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getStatusIcon(serviceStatusToShow)"></span></span>
+              <span class="service-name">SGW-C</span>
+            </div>
+            <div class="service-details">
+              <span class="service-desc">Serving Gateway Control</span>
+              <span class="service-uptime">Uptime: <span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceUptimeToShow)"></span></span>
+
+                <div hidden aria-hidden="true"><span class="service-memory">Memory: <span data-cwl-bind="interp" data-cwl-hole-detail="status.memory_mb"></span> MB</span>
+              </div>
+            </div>
+            <div class="service-actions">
+              <button
+                class="btn-sm btn-start" data-cwl-action="sendServiceCommand" data-cwl-action-args="'start', [&quot;open5gs-sgwcd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Start Service"
+              >▶</button>
+              <button
+                class="btn-sm btn-stop" data-cwl-action="sendServiceCommand" data-cwl-action-args="'stop', [&quot;open5gs-sgwcd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Stop Service"
+              >⏹</button>
+              <button
+                class="btn-sm btn-restart" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart', [&quot;open5gs-sgwcd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Restart Service"
+              >🔄</button>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div class="service-header">
+              <span class="service-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getStatusIcon(serviceStatusToShow)"></span></span>
+              <span class="service-name">SGW-U</span>
+            </div>
+            <div class="service-details">
+              <span class="service-desc">Serving Gateway User Plane</span>
+              <span class="service-uptime">Uptime: <span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceUptimeToShow)"></span></span>
+
+                <div hidden aria-hidden="true"><span class="service-memory">Memory: <span data-cwl-bind="interp" data-cwl-hole-detail="status.memory_mb"></span> MB</span>
+              </div>
+            </div>
+            <div class="service-actions">
+              <button
+                class="btn-sm btn-start" data-cwl-action="sendServiceCommand" data-cwl-action-args="'start', [&quot;open5gs-sgwud&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Start Service"
+              >▶</button>
+              <button
+                class="btn-sm btn-stop" data-cwl-action="sendServiceCommand" data-cwl-action-args="'stop', [&quot;open5gs-sgwud&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Stop Service"
+              >⏹</button>
+              <button
+                class="btn-sm btn-restart" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart', [&quot;open5gs-sgwud&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Restart Service"
+              >🔄</button>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div class="service-header">
+              <span class="service-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getStatusIcon(serviceStatusToShow)"></span></span>
+              <span class="service-name">SMF</span>
+            </div>
+            <div class="service-details">
+              <span class="service-desc">Session Management Function</span>
+              <span class="service-uptime">Uptime: <span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceUptimeToShow)"></span></span>
+
+                <div hidden aria-hidden="true"><span class="service-memory">Memory: <span data-cwl-bind="interp" data-cwl-hole-detail="status.memory_mb"></span> MB</span>
+              </div>
+            </div>
+            <div class="service-actions">
+              <button
+                class="btn-sm btn-start" data-cwl-action="sendServiceCommand" data-cwl-action-args="'start', [&quot;open5gs-smfd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Start Service"
+              >▶</button>
+              <button
+                class="btn-sm btn-stop" data-cwl-action="sendServiceCommand" data-cwl-action-args="'stop', [&quot;open5gs-smfd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Stop Service"
+              >⏹</button>
+              <button
+                class="btn-sm btn-restart" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart', [&quot;open5gs-smfd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Restart Service"
+              >🔄</button>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div class="service-header">
+              <span class="service-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getStatusIcon(serviceStatusToShow)"></span></span>
+              <span class="service-name">UPF</span>
+            </div>
+            <div class="service-details">
+              <span class="service-desc">User Plane Function</span>
+              <span class="service-uptime">Uptime: <span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceUptimeToShow)"></span></span>
+
+                <div hidden aria-hidden="true"><span class="service-memory">Memory: <span data-cwl-bind="interp" data-cwl-hole-detail="status.memory_mb"></span> MB</span>
+              </div>
+            </div>
+            <div class="service-actions">
+              <button
+                class="btn-sm btn-start" data-cwl-action="sendServiceCommand" data-cwl-action-args="'start', [&quot;open5gs-upfd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Start Service"
+              >▶</button>
+              <button
+                class="btn-sm btn-stop" data-cwl-action="sendServiceCommand" data-cwl-action-args="'stop', [&quot;open5gs-upfd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Stop Service"
+              >⏹</button>
+              <button
+                class="btn-sm btn-restart" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart', [&quot;open5gs-upfd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Restart Service"
+              >🔄</button>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div class="service-header">
+              <span class="service-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="getStatusIcon(serviceStatusToShow)"></span></span>
+              <span class="service-name">SNMP</span>
+            </div>
+            <div class="service-details">
+              <span class="service-desc">SNMP Agent</span>
+              <span class="service-uptime">Uptime: <span data-cwl-bind="interp" data-cwl-hole-detail="formatUptime(serviceUptimeToShow)"></span></span>
+
+                <div hidden aria-hidden="true"><span class="service-memory">Memory: <span data-cwl-bind="interp" data-cwl-hole-detail="status.memory_mb"></span> MB</span>
+              </div>
+            </div>
+            <div class="service-actions">
+              <button
+                class="btn-sm btn-start" data-cwl-action="sendServiceCommand" data-cwl-action-args="'start', [&quot;snmpd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Start Service"
+              >▶</button>
+              <button
+                class="btn-sm btn-stop" data-cwl-action="sendServiceCommand" data-cwl-action-args="'stop', [&quot;snmpd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Stop Service"
+              >⏹</button>
+              <button
+                class="btn-sm btn-restart" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart', [&quot;snmpd&quot;]" data-cwl-attr-disabled="isLoading"
+                title="Restart Service"
+              >🔄</button>
+            </div>
+          </div>
+
+      </div>
+
+      <div class="bulk-actions">
+        <button class="btn btn-primary" data-cwl-action="sendServiceCommand" data-cwl-action-args="'restart'" data-cwl-attr-disabled="isLoading" aria-label="Send Service Command">
+          🔄 Restart All Services
+        </button>
+        <button class="btn btn-danger" data-cwl-action="sendRebootCommand" data-cwl-attr-disabled="isLoading" aria-label="Send Reboot Command">
+          ⚡ Reboot Device
+        </button>
+      </div>
+    </div>
+
+    <!-- Performance Graphs -->
+    <div class="section">
+      <h3>📈 Performance Metrics</h3>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4>CPU Usage</h4>
+          <div class="chart-container">
+            <div data-cwl-bind="if" data-cwl-hole-detail="cpuChartOption"><div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div></div>
+              <div class="chart-placeholder">No data available</div>
+
+          </div>
+          <div class="chart-current">
+            Current: <span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.cpu_percent ?? 'N/A'"></span>%
+          </div>
+        </div>
+        <div class="chart-card">
+          <h4>Memory Usage</h4>
+          <div class="chart-container">
+            <div data-cwl-bind="if" data-cwl-hole-detail="memoryChartOption"><div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div></div>
+              <div class="chart-placeholder">No data available</div>
+
+          </div>
+          <div class="chart-current">
+            Current: <span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.memory_percent ?? 'N/A'"></span>%
+            (<span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.memory_used_mb ?? 0"></span>/<span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.memory_total_mb ?? 0"></span> MB)
+          </div>
+        </div>
+        <div class="chart-card">
+          <h4>Disk Usage</h4>
+          <div class="chart-container">
+            <div data-cwl-bind="if" data-cwl-hole-detail="diskChartOption"><div data-cwl-component="ECharts" data-cwl-lifted-component="ECharts"><div
+  style="width: 100%; height: px;"
+  class="echarts-container"
+></div></div></div>
+              <div class="chart-placeholder">No data available</div>
+
+          </div>
+          <div class="chart-current">
+            Current: <span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.disk_percent ?? 'N/A'"></span>%
+            (<span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.disk_used_gb ?? 0"></span>/<span data-cwl-bind="interp" data-cwl-hole-detail="serviceStatus?.system?.disk_total_gb ?? 0"></span> GB)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Command History -->
+    <div class="section">
+      <h3>📜 Recent Commands</h3>
+
+        <div class="command-list">
+          <div data-cwl-bind="each" data-cwl-hole-detail="commandHistory as cmd" data-cwl-each-item="cmd" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22command-item%20status-%7Bcmd.status%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22command-info%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22command-type%22%3E%7Bcmd.command_type%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20cmd.action%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22command-action%22%3E%7Bcmd.action%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22command-time%22%3E%7Bnew%20Date(cmd.created_at).toLocaleString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22command-status%22%3E%7Bcmd.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20"><div class="command-item status-">
+              <div class="command-info">
+                <span class="command-type"></span>
+
+                  <div hidden aria-hidden="true"><span class="command-action"></span>
+                </div>
+                <span class="command-time"></span>
+              </div>
+              <span class="command-status"></span>
+            </div></div>
+        </div>
+
+        <div hidden aria-hidden="true"><p class="no-data">No commands sent yet</p>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+              <div class="no-selection">
+                <p>📡 Select an EPC device from the list to view monitoring details</p>
+              </div>
+
+          </div>
+
+          <div class="no-devices" hidden aria-hidden="true">
+            <div class="help-message">
+              <h3>📡 No EPC/SNMP Devices Deployed</h3>
+              <p><strong>Monitoring requires deployed hardware with SNMP or EPC agents.</strong></p>
+              <p>To enable monitoring:</p>
+              <ol>
+                <li>Deploy hardware with SNMP enabled or EPC agents</li>
+                <li>Configure SNMP credentials for network devices</li>
+                <li>Return here to view monitoring graphs and uptime data</li>
+              </ol>
+              <p class="note">💡 <strong>Note:</strong> All hardware shown here is read-only. SNMP and uptime graphs will appear for deployed hardware and devices discovered via SNMP.</p>
+              <div class="deploy-actions">
+                <button class="btn btn-primary" data-cwl-toggle="showSNMPConfig:true" aria-label="Show SNMPConfig">
+                  🔧 Configure SNMP
+                </button>
+                <button class="btn btn-secondary" data-cwl-toggle="showEPCDeploymentModal:true" aria-label="Show EPCDeployment Modal">
+                  📡 Deploy EPC
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="no-devices" hidden aria-hidden="true">
+            <p>⏳ Loading EPC devices...</p>
+          </div>
+
+      </div>
+    </div>
+  </div>
 
 <!-- Mikrotik Credentials Modal -->
-<div data-cwl-component="MikrotikCredentialsModal" data-cwl-lifted-component="MikrotikCredentialsModal"></div>
+<div data-cwl-component="MikrotikCredentialsModal" data-cwl-lifted-component="MikrotikCredentialsModal"><div class="modal-overlay" data-cwl-action="close" data-cwl-on-keydown="action:close" hidden aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🔐 Mikrotik Device Credentials</h2>
+      <button class="close-button" data-cwl-action="close" aria-label="Close">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="device-info">
+        <h3><span data-cwl-bind="interp" data-cwl-hole-detail="device.name || device.ipAddress || 'Unknown Device'"></span></h3>
+        <p class="device-details">
+          <span>IP: <span data-cwl-bind="interp" data-cwl-hole-detail="device.ipAddress || 'Unknown'"></span></span>
+
+            <div hidden aria-hidden="true"><span>Model: <span data-cwl-bind="interp" data-cwl-hole-detail="device.model"></span></span>
+          </div>
+        </p>
+      </div>
+
+      <form data-cwl-on-submit="action:saveCredentials">
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input
+            id="username"
+            type="text"
+            placeholder="admin"
+            required data-cwl-attr-disabled="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Leave blank to keep current password" data-cwl-attr-disabled="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="port">RouterOS API Port</label>
+          <input
+            id="port"
+            type="number"
+            min="1"
+            max="65535" data-cwl-attr-disabled="loading"
+          />
+          <small>Default: 8728 (non-SSL) or 8729 (SSL)</small>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input
+              type="checkbox" data-cwl-attr-disabled="loading"
+            />
+            Use SSL (RouterOS API SSL port 8729)
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-secondary" data-cwl-action="testConnection" data-cwl-attr-disabled="loading || testingConnection"
+           aria-label="Test Connection">
+            🔌 Test Connection
+          </button>
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary" data-cwl-action="close" data-cwl-attr-disabled="loading"
+             aria-label="Close">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary" data-cwl-attr-disabled="loading || !username.trim()"
+            >
+              💾 Save Credentials
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="info-box">
+        <p><strong>Note:</strong> Credentials are used by the SNMP monitoring agent to connect to this Mikrotik device via RouterOS API.</p>
+        <p>After saving, the agent will automatically use these credentials on the next network scan.</p>
+      </div>
+    </div>
+  </div>
+</div></div>
 
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
-        <h2 id="help-modal-title"></h2>
-        <button class="close-btn" aria-label="Close">×</button>
+        <h2 id="help-modal-title">Network Monitoring Help</h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
-      
+
       <div class="help-body">
-        
+
+<h3>📊 Network Monitoring Module</h3>
+
+<div class="info">
+  <strong>Purpose:</strong> Monitor network health, device status, and performance metrics. Track SNMP devices, EPC systems, and network uptime. View real-time alerts and system health.
+</div>
+
+<div class="toc">
+  <h4>📑 Table of Contents</h4>
+  <ul>
+    <li><a href="#key-features">🎯 Key Features</a></li>
+    <li><a href="#getting-started">🚀 Getting Started</a></li>
+    <li><a href="#monitoring-views">📊 Monitoring Views</a></li>
+    <li><a href="#device-details">🔍 Device Details</a></li>
+    <li><a href="#performance-metrics">📈 Performance Metrics</a></li>
+    <li><a href="#alert-management">🚨 Alert Management</a></li>
+    <li><a href="#best-practices">💡 Best Practices</a></li>
+    <li><a href="#troubleshooting">🔧 Troubleshooting</a></li>
+    <li><a href="#getting-devices">📚 Getting Devices to Monitor</a></li>
+  </ul>
+</div>
+
+<h4 id="key-features">🎯 Key Features</h4>
+<ul>
+  <li><strong>SNMP Monitoring:</strong> Monitor network equipment via SNMP</li>
+  <li><strong>EPC Device Tracking:</strong> Monitor Evolved Packet Core systems</li>
+  <li><strong>Uptime Tracking:</strong> Track device and network uptime</li>
+  <li><strong>Performance Graphs:</strong> Visualize CPU, memory, throughput metrics</li>
+  <li><strong>Geographic Map:</strong> View device locations on interactive map</li>
+  <li><strong>Network Topology:</strong> Visualize network connections and topology</li>
+  <li><strong>Alert Management:</strong> View and manage network alerts</li>
+  <li><strong>Site Details:</strong> View comprehensive site equipment and status</li>
+</ul>
+
+<h4 id="getting-started">🚀 Getting Started</h4>
+
+<h4>Step 1: Configure SNMP Devices</h4>
+<p>Before devices appear in Monitor, they must be configured in Deploy module:</p>
+<ol>
+  <li>Go to <strong>Deploy</strong> module</li>
+  <li>Right-click on deployed equipment</li>
+  <li>Select <strong>"Configure SNMP"</strong></li>
+  <li>Enter SNMP credentials:
+    <ul>
+      <li>SNMP community string (v2c) or username (v3)</li>
+      <li>Device IP address</li>
+      <li>SNMP version</li>
+    </ul>
+  </li>
+  <li>Test connection</li>
+  <li>Save configuration</li>
+  <li>Device appears in Monitor module</li>
+</ol>
+
+<h4>Step 2: View Network Dashboard</h4>
+<p>The dashboard shows:</p>
+<ul>
+  <li><strong>System Health:</strong> Overall network status</li>
+  <li><strong>Active Alerts:</strong> Critical warnings and errors</li>
+  <li><strong>Service Status:</strong> SNMP, EPC, and other services</li>
+  <li><strong>Key Metrics:</strong> Uptime, device counts, performance</li>
+</ul>
+
+<h4>Step 3: Monitor SNMP Devices</h4>
+<ol>
+  <li>Click <strong>"SNMP Devices"</strong> tab</li>
+  <li>View device list:
+    <ul>
+      <li>Device name and type</li>
+      <li>Online/Offline status</li>
+      <li>IP address</li>
+      <li>Last seen timestamp</li>
+      <li>Uptime percentage</li>
+    </ul>
+  </li>
+  <li>Click device to view details</li>
+  <li>View performance graphs</li>
+</ol>
+
+<h4>Step 4: View Performance Graphs</h4>
+<ol>
+  <li>Click <strong>"Graphs"</strong> tab</li>
+  <li>Select device from dropdown</li>
+  <li>View metrics:
+    <ul>
+      <li>CPU usage over time</li>
+      <li>Memory utilization</li>
+      <li>Network throughput</li>
+      <li>Interface statistics</li>
+    </ul>
+  </li>
+  <li>Adjust time range (1 hour, 24 hours, 7 days)</li>
+</ol>
+
+<h4>Step 5: Monitor EPC Devices</h4>
+<ol>
+  <li>Click <strong>"EPC Devices"</strong> tab</li>
+  <li>View EPC systems:
+    <ul>
+      <li>MME connections</li>
+      <li>HSS status</li>
+      <li>Active subscribers</li>
+      <li>System health</li>
+    </ul>
+  </li>
+  <li>Click device for detailed view</li>
+</ol>
+
+<h4>Step 6: View Geographic Map</h4>
+<ol>
+  <li>Click <strong>"Map"</strong> tab</li>
+  <li>View device locations:
+    <ul>
+      <li>Green markers: Online devices</li>
+      <li>Red markers: Offline devices</li>
+      <li>Orange markers: Maintenance mode</li>
+    </ul>
+  </li>
+  <li>Click marker for device details</li>
+  <li>Right-click for site details</li>
+</ol>
+
+<h4 id="monitoring-views">📊 Monitoring Views</h4>
+
+<h4>Geographic View</h4>
+<p>Interactive map showing:</p>
+<ul>
+  <li>All network sites (towers, NOCs)</li>
+  <li>Deployed equipment locations</li>
+  <li>Device status (color-coded)</li>
+  <li>Sectors with uptime data</li>
+  <li>CPE devices</li>
+  <li>Backhaul equipment</li>
+</ul>
+
+<h4>Network Topology View</h4>
+<p>Visual network diagram showing:</p>
+<ul>
+  <li>Device connections</li>
+  <li>Network hierarchy</li>
+  <li>Backhaul links</li>
+  <li>Traffic flow</li>
+</ul>
+
+<h4>EPC Devices View</h4>
+<p>Evolved Packet Core monitoring:</p>
+<ul>
+  <li>MME status and connections</li>
+  <li>HSS integration status</li>
+  <li>Active subscriber counts</li>
+  <li>EPC system health</li>
+</ul>
+
+<h4>SNMP Graphs View</h4>
+<p>Performance visualization:</p>
+<ul>
+  <li>Multi-device comparison</li>
+  <li>Historical trends</li>
+  <li>Metric overlays</li>
+  <li>Export capabilities</li>
+</ul>
+
+<h4 id="device-details">🔍 Device Details</h4>
+
+<h4>Site Details Modal</h4>
+<p>Right-click on site marker to view:</p>
+<ul>
+  <li><strong>Hardware Tab:</strong>
+    <ul>
+      <li>All deployed hardware</li>
+      <li>Equipment serial numbers</li>
+      <li>Deployment dates</li>
+      <li>Equipment status</li>
+    </ul>
+  </li>
+  <li><strong>Devices Tab:</strong>
+    <ul>
+      <li>SNMP-configured devices</li>
+      <li>Device status and metrics</li>
+      <li>Uptime information</li>
+    </ul>
+  </li>
+  <li><strong>Equipment Tab:</strong>
+    <ul>
+      <li>Network equipment</li>
+      <li>Backhaul devices</li>
+      <li>Equipment details</li>
+    </ul>
+  </li>
+  <li><strong>Sectors Tab:</strong>
+    <ul>
+      <li>Configured sectors</li>
+      <li>Sector uptime data</li>
+      <li>Status information</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="performance-metrics">📈 Performance Metrics</h4>
+
+<h4>SNMP Metrics</h4>
+<p>Monitored via SNMP:</p>
+<ul>
+  <li><strong>CPU Usage:</strong> Processor utilization percentage</li>
+  <li><strong>Memory Usage:</strong> RAM utilization</li>
+  <li><strong>Network Throughput:</strong> Data transfer rates</li>
+  <li><strong>Interface Statistics:</strong> Port-level metrics</li>
+  <li><strong>Uptime:</strong> System uptime in seconds</li>
+</ul>
+
+<h4>EPC Metrics</h4>
+<p>Evolved Packet Core metrics:</p>
+<ul>
+  <li><strong>Active Subscribers:</strong> Current connected users</li>
+  <li><strong>MME Connections:</strong> Mobility Management Entity status</li>
+  <li><strong>HSS Queries:</strong> Subscriber database queries</li>
+  <li><strong>System Load:</strong> EPC system utilization</li>
+</ul>
+
+<h4>Uptime Calculation</h4>
+<p>Uptime is calculated from:</p>
+<ul>
+  <li>SNMP device uptime values</li>
+  <li>Last seen timestamps</li>
+  <li>Device status changes</li>
+  <li>Historical data</li>
+</ul>
+
+<h4 id="alert-management">🚨 Alert Management</h4>
+
+<h4>Alert Types</h4>
+<ul>
+  <li><strong>Critical:</strong> Immediate attention required</li>
+  <li><strong>Warning:</strong> Potential issues</li>
+  <li><strong>Info:</strong> Informational messages</li>
+</ul>
+
+<h4>Alert Sources</h4>
+<ul>
+  <li>SNMP device failures</li>
+  <li>EPC connectivity issues</li>
+  <li>High CPU/memory usage</li>
+  <li>Device offline detection</li>
+  <li>Service health checks</li>
+</ul>
+
+<h4 id="best-practices">💡 Best Practices</h4>
+<ul>
+  <li><strong>Configure SNMP First:</strong> Set up SNMP in Deploy before monitoring</li>
+  <li><strong>Regular Monitoring:</strong> Check dashboard daily</li>
+  <li><strong>Respond to Alerts:</strong> Address critical alerts immediately</li>
+  <li><strong>Review Trends:</strong> Analyze performance graphs regularly</li>
+  <li><strong>Document Issues:</strong> Record troubleshooting steps</li>
+  <li><strong>Maintain Configurations:</strong> Keep SNMP credentials updated</li>
+</ul>
+
+<h4 id="troubleshooting">🔧 Troubleshooting</h4>
+
+<h4>No devices showing:</h4>
+<ul>
+  <li>Verify SNMP is configured in Deploy module</li>
+  <li>Check devices are deployed</li>
+  <li>Ensure SNMP credentials are correct</li>
+  <li>Verify network connectivity</li>
+</ul>
+
+<h4>Devices showing offline:</h4>
+<ul>
+  <li>Check device power and connectivity</li>
+  <li>Verify SNMP is enabled on device</li>
+  <li>Test SNMP connection manually</li>
+  <li>Check firewall rules</li>
+  <li>Review device logs</li>
+</ul>
+
+<h4>Graphs not loading:</h4>
+<ul>
+  <li>Verify SNMP data collection is working</li>
+  <li>Check time range selection</li>
+  <li>Ensure device has historical data</li>
+  <li>Refresh page</li>
+</ul>
+
+<h4>EPC not showing:</h4>
+<ul>
+  <li>Verify EPC is deployed in Deploy module</li>
+  <li>Check EPC connectivity</li>
+  <li>Verify HSS connection</li>
+  <li>Review EPC logs</li>
+</ul>
+
+<h4 id="getting-devices">📚 Getting Devices to Monitor</h4>
+
+<p>To monitor devices, you need to:</p>
+<ol>
+  <li>Deploy hardware in the <strong>Deploy</strong> module</li>
+  <li>Configure SNMP credentials for network devices</li>
+  <li>Deploy EPC systems for LTE core monitoring</li>
+  <li>Devices will automatically appear in this module</li>
+</ol>
+
+<h4>Auto-Refresh</h4>
+<p>The module automatically refreshes every 30 seconds:</p>
+<ul>
+  <li>Device status updates</li>
+  <li>Performance metrics refresh</li>
+  <li>Alert status updates</li>
+  <li>Uptime calculations update</li>
+</ul>
+
+<div class="warning">
+  <strong>Important:</strong> Monitoring requires deployed hardware with SNMP or EPC agents configured. If no devices are showing, ensure hardware has been deployed and SNMP/EPC has been configured in the Deploy module.
+</div>
+
       </div>
     </div>
   </div></div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"></div>
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+      <div class="tips-header">
+        <div class="tips-title-section">
 
+            <div hidden aria-hidden="true"><span class="tip-icon"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.icon"></span></span>
+          </div>
+          <h2 id="tips-modal-title"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTip.title"></span></h2>
+        </div>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="tips-body">
+        <div class="tip-content">
+
+        </div>
+      </div>
+
+      <div class="tips-footer">
+        <div class="tips-footer-left">
+          <div data-cwl-bind="if" data-cwl-hole-detail="tips.length > 1"><div class="tip-nav">
+              <button type="button" class="nav-btn" data-cwl-action="goPrev" aria-label="Previous tip">←</button>
+              <span class="tip-counter"><span data-cwl-bind="interp" data-cwl-hole-detail="currentTipIndex + 1"></span> of <span data-cwl-bind="interp" data-cwl-hole-detail="tips.length"></span></span>
+              <button type="button" class="nav-btn" data-cwl-action="goNext" aria-label="Next tip">→</button>
+            </div></div>
+          <label class="dont-show-again">
+            <input type="checkbox" />
+            <span>Don't show again</span>
+          </label>
+        </div>
+        <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
+      </div>
+    </div>
+  </div></div></div>
 
 <!-- SNMP Configuration Modal -->
 <div data-cwl-component="SNMPConfigurationPanel" data-cwl-lifted-component="SNMPConfigurationPanel"><div class="modal-backdrop" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🔧 SNMP Configuration</h2>
-      <button class="close-btn">✕</button>
+      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
-    
+
     <div class="modal-body">
       <!-- Tab Navigation -->
       <div class="tabs">
-        <button 
-          class="tab"
+        <button
+          class="tab" data-cwl-set="activeTab:communities"
         >
           🔑 Community Strings
         </button>
-        <button 
-          class="tab"
+        <button
+          class="tab" data-cwl-set="activeTab:v3users"
         >
           👤 SNMPv3 Users
         </button>
-        <button 
-          class="tab"
+        <button
+          class="tab" data-cwl-set="activeTab:subnets"
         >
           🌐 Network Subnets
         </button>
-        <button 
-          class="tab"
+        <button
+          class="tab" data-cwl-set="activeTab:devices"
         >
           📱 Device Overrides
         </button>
-        <button 
-          class="tab"
+        <button
+          class="tab" data-cwl-set="activeTab:discovery"
         >
           🔍 Auto-Discovery
         </button>
       </div>
-      
+
       <!-- Community Strings Tab -->
-      
-      
+
+        <div class="tab-content">
+          <div class="section-header">
+            <h3>Community String Profiles</h3>
+            <p>Configure SNMP community strings for device access control</p>
+          </div>
+
+          <!-- Existing Community Profiles -->
+          <div class="profiles-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="snmpConfig.communityProfiles as profile, index"><div class="profile-card">
+                <div class="profile-header">
+                  <h4></h4>
+                  <div class="profile-actions">
+                    <span class="access-badge "></span>
+                    <button class="btn btn-danger btn-sm" data-cwl-action="removeCommunityProfile" data-cwl-action-args="index" aria-label="Remove Community Profile">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <div class="profile-details">
+                  <div class="detail-row">
+                    <label>Community String:</label>
+                    <code></code>
+                  </div>
+                  <div class="detail-row">
+                    <label>Description:</label>
+                    <span></span>
+                  </div>
+                  <div class="detail-row">
+                    <label>Allowed Subnets:</label>
+                    <span></span>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+
+          <!-- Add New Community Profile -->
+          <div class="add-profile-form">
+            <h4>Add New Community Profile</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-community-name">Profile Name</label>
+                <input type="text" id="new-community-name" placeholder="e.g., monitoring" />
+              </div>
+              <div class="form-group">
+                <label for="new-community-string">Community String</label>
+                <input type="text" id="new-community-string" placeholder="e.g., monitor123" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-community-access">Access Level</label>
+                <select id="new-community-access">
+                  <option value="read-only">Read Only</option>
+                  <option value="read-write">Read Write</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="new-community-description">Description</label>
+                <input type="text" id="new-community-description" placeholder="Purpose of this community" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="new-community-subnets">Allowed Subnets (comma-separated)</label>
+              <input type="text" id="new-community-subnets" placeholder="192.168.1.0/24, 10.0.0.0/8" />
+            </div>
+            <button class="btn btn-primary" data-cwl-action="addCommunityProfile" aria-label="Add Community Profile">
+              Add Community Profile
+            </button>
+          </div>
+        </div>
+
       <!-- SNMPv3 Users Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'v3users'" hidden aria-hidden="true">
+        <div class="tab-content">
+          <div class="section-header">
+            <h3>SNMPv3 User Profiles</h3>
+            <p>Configure SNMPv3 users with authentication and privacy settings</p>
+          </div>
+
+          <!-- Existing V3 User Profiles -->
+          <div class="profiles-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="snmpConfig.v3UserProfiles as profile, index"><div class="profile-card">
+                <div class="profile-header">
+                  <h4></h4>
+                  <div class="profile-actions">
+                    <span class="access-badge "></span>
+                    <button class="btn btn-danger btn-sm" data-cwl-action="removeV3UserProfile" data-cwl-action-args="index" aria-label="Remove V3 User Profile">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <div class="profile-details">
+                  <div class="detail-row">
+                    <label>Username:</label>
+                    <code></code>
+                  </div>
+                  <div class="detail-row">
+                    <label>Authentication:</label>
+                    <span> / </span>
+                  </div>
+                  <div class="detail-row">
+                    <label>Description:</label>
+                    <span></span>
+                  </div>
+                  <div class="detail-row">
+                    <label>Allowed Subnets:</label>
+                    <span></span>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+
+          <!-- Add New V3 User Profile -->
+          <div class="add-profile-form">
+            <h4>Add New SNMPv3 User</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-v3-name">Profile Name</label>
+                <input type="text" id="new-v3-name" placeholder="e.g., admin" />
+              </div>
+              <div class="form-group">
+                <label for="new-v3-username">Username</label>
+                <input type="text" id="new-v3-username" placeholder="e.g., snmpadmin" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-v3-auth-protocol">Auth Protocol</label>
+                <select id="new-v3-auth-protocol">
+                  <option value="MD5">MD5</option>
+                  <option value="SHA">SHA (Recommended)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="new-v3-auth-key">Auth Key</label>
+                <div class="key-input">
+                  <input type="password" id="new-v3-auth-key" placeholder="Minimum 8 characters" />
+                  <button type="button" class="btn btn-sm" data-cwl-action="generateRandomKey" aria-label="Generate Random Key">
+                    🎲
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-v3-priv-protocol">Privacy Protocol</label>
+                <select id="new-v3-priv-protocol">
+                  <option value="DES">DES</option>
+                  <option value="AES">AES (Recommended)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="new-v3-priv-key">Privacy Key</label>
+                <div class="key-input">
+                  <input type="password" id="new-v3-priv-key" placeholder="Minimum 8 characters" />
+                  <button type="button" class="btn btn-sm" data-cwl-action="generateRandomKey" aria-label="Generate Random Key">
+                    🎲
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-v3-access">Access Level</label>
+                <select id="new-v3-access">
+                  <option value="read-only">Read Only</option>
+                  <option value="read-write">Read Write</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="new-v3-description">Description</label>
+                <input type="text" id="new-v3-description" placeholder="Purpose of this user" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="new-v3-subnets">Allowed Subnets (comma-separated)</label>
+              <input type="text" id="new-v3-subnets" placeholder="192.168.1.0/24, 10.0.0.0/8" />
+            </div>
+            <button class="btn btn-primary" data-cwl-action="addV3UserProfile" aria-label="Add V3 User Profile">
+              Add SNMPv3 User
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Network Subnets Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'subnets'" hidden aria-hidden="true">
+        <div class="tab-content">
+          <div class="section-header">
+            <h3>Network Subnets</h3>
+            <p>Configure network subnets for SNMP device discovery and monitoring</p>
+          </div>
+
+          <!-- Existing Subnets -->
+          <div class="subnets-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="snmpConfig.discoverySubnets as subnet, index"><div class="subnet-card">
+                <div class="subnet-header">
+                  <div class="subnet-info">
+                    <h4></h4>
+                    <span class="subnet-description"></span>
+                  </div>
+                  <div class="subnet-actions">
+                    <label class="toggle-switch">
+                      <input type="checkbox"= />
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <button class="btn btn-danger btn-sm" data-cwl-action="removeDiscoverySubnet" data-cwl-action-args="index" aria-label="Remove Discovery Subnet">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+
+          <!-- Add New Subnet -->
+          <div class="add-subnet-form">
+            <h4>Add New Subnet</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-subnet">Subnet (CIDR)</label>
+                <input type="text" id="new-subnet" placeholder="192.168.1.0/24" />
+              </div>
+              <div class="form-group">
+                <label for="new-subnet-description">Description</label>
+                <input type="text" id="new-subnet-description" placeholder="Network description" />
+              </div>
+            </div>
+            <button class="btn btn-primary" data-cwl-action="addDiscoverySubnet" aria-label="Add Discovery Subnet">
+              Add Subnet
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Device Overrides Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'devices'" hidden aria-hidden="true">
+        <div class="tab-content">
+          <div class="section-header">
+            <h3>Device-Specific Overrides</h3>
+            <p>Configure custom SNMP settings for specific devices</p>
+          </div>
+
+          <!-- Existing Device Overrides -->
+          <div class="devices-list">
+            <div data-cwl-bind="each" data-cwl-hole-detail="snmpConfig.deviceOverrides as device, index"><div class="device-card">
+                <div class="device-header">
+                  <h4></h4>
+                  <div class="device-actions">
+                    <span class="version-badge">SNMP v</span>
+                    <button class="btn btn-secondary btn-sm" data-cwl-action="testSNMPConnection" data-cwl-action-args="device" aria-label="Test SNMPConnection">
+                      Test
+                    </button>
+                    <button class="btn btn-danger btn-sm" data-cwl-action="removeDeviceOverride" data-cwl-action-args="index" aria-label="Remove Device Override">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <div class="device-details">
+                  <div class="detail-row">
+                    <label>Device ID:</label>
+                    <span></span>
+                  </div>
+                  <div class="detail-row">
+                    <label>Port:</label>
+                    <span></span>
+                  </div>
+                  <div class="detail-row">
+                    <label>Description:</label>
+                    <span></span>
+                  </div>
+                </div>
+              </div></div>
+          </div>
+
+          <!-- Add New Device Override -->
+          <div class="add-device-form">
+            <h4>Add Device Override</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-device-ip">IP Address</label>
+                <input type="text" id="new-device-ip" placeholder="192.168.1.100" />
+              </div>
+              <div class="form-group">
+                <label for="new-device-version">SNMP Version</label>
+                <select id="new-device-version">
+                  <option value="1">v1</option>
+                  <option value="2c">v2c</option>
+                  <option value="3">v3</option>
+                </select>
+              </div>
+            </div>
+
+            <div data-cwl-bind="if" data-cwl-hole-detail="newDeviceOverride.snmpVersion === '2c' || newDeviceOverride.snmpVersion === '1'"><div class="form-group">
+                <label for="new-device-community">Community String</label>
+                <input type="text" id="new-device-community" placeholder="public" />
+              </div></div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-device-username">Username</label>
+                  <input type="text" id="new-device-username" placeholder="snmpuser" />
+                </div>
+                <div class="form-group">
+                  <label for="new-device-port">Port</label>
+                  <input type="number" id="new-device-port" min="1" max="65535" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-device-auth-key">Auth Key</label>
+                  <input type="password" id="new-device-auth-key" />
+                </div>
+                <div class="form-group">
+                  <label for="new-device-priv-key">Privacy Key</label>
+                  <input type="password" id="new-device-priv-key" />
+                </div>
+              </div>
+
+            <div class="form-group">
+              <label for="new-device-description">Description</label>
+              <input type="text" id="new-device-description" placeholder="Device description" />
+            </div>
+
+            <button class="btn btn-primary" data-cwl-action="addDeviceOverride" aria-label="Add Device Override">
+              Add Device Override
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Auto-Discovery Tab -->
-      
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'discovery'" hidden aria-hidden="true">
+        <div class="tab-content">
+          <div class="section-header">
+            <h3>Auto-Discovery Settings</h3>
+            <p>Configure automatic SNMP device discovery across your networks</p>
+          </div>
+
+          <div class="discovery-settings">
+            <div class="form-group">
+              <label>
+                <input type="checkbox" />
+                Enable Auto-Discovery
+              </label>
+            </div>
+
+              <div class="form-row" hidden aria-hidden="true">
+                <div class="form-group">
+                  <label for="scan-interval">Scan Interval (minutes)</label>
+                  <input type="number" id="scan-interval" min="5" max="1440" />
+                </div>
+                <div class="form-group">
+                  <label for="max-concurrent">Max Concurrent Scans</label>
+                  <input type="number" id="max-concurrent" min="1" max="100" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="scan-ports">SNMP Ports to Scan</label>
+                <input type="text" id="scan-ports" data-cwl-attr-value="snmpConfig.autoDiscovery.scanPorts.join(', ')" />
+              </div>
+
+              <div class="form-group">
+                <label for="scan-communities">Communities to Try</label>
+                <input type="text" id="scan-communities" data-cwl-attr-value="snmpConfig.autoDiscovery.scanCommunities.join(', ')" />
+              </div>
+
+              <div class="discovery-actions">
+                <button class="btn btn-primary" data-cwl-action="discoverDevices" aria-label="Discover Devices">
+                  🔍 Start Discovery Now
+                </button>
+                <button class="btn btn-secondary" data-cwl-action="viewDiscoveredDevices" aria-label="View Discovered Devices">
+                  📋 View Discovered Devices
+                </button>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- Test Results -->
-      
+      <div data-cwl-bind="if" data-cwl-hole-detail="testResults"><div class="test-results">
+
+            ❌ Connection failed: <span data-cwl-bind="interp" data-cwl-hole-detail="testResults.error"></span>
+
+              <div hidden aria-hidden="true"><br><small><span data-cwl-bind="interp" data-cwl-hole-detail="testResults.details"></span></small>
+            </div>
+
+            <div hidden aria-hidden="true">✅ Connection successful
+
+              <div hidden aria-hidden="true"><br><small>System: <span data-cwl-bind="interp" data-cwl-hole-detail="testResults.systemDescription"></span></small>
+            </div>
+          </div>
+        </div></div>
     </div>
-    
+
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary">
+      <button type="button" class="btn btn-secondary" data-cwl-action="handleClose" aria-label="Close">
         Cancel
       </button>
-      <button type="button" class="btn btn-primary">
-        
+      <button type="button" class="btn btn-primary" data-cwl-action="saveSNMPConfiguration" data-cwl-attr-disabled="saving" aria-label="Save SNMPConfiguration">
+
           💾 Save Configuration
-        
+
       </button>
     </div>
   </div>
 </div></div>
 
 <!-- EPC Deployment Modal -->
-<div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" hidden aria-hidden="true">
+<div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
     <div class="modal-content epc-deployment-modal">
       <div class="modal-header">
         <h2>🚀 Server Deployment</h2>
-        <button class="close-btn">✕</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
-
-      
-
-      
 
       <div class="modal-body">
         <!-- Step Progress Indicator -->
         <div class="step-indicator">
-          
+          <div data-cwl-bind="each" data-cwl-hole-detail="Array(totalSteps) as _, i">
+            <div class="step-indicator-item">
+              <div class="step-indicator-number"></div>
+              <div class="step-indicator-line"></div>
+            </div></div>
         </div>
 
         <!-- Step Content -->
         <div class="step-content">
           <!-- Step 1: Deployment Type -->
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 1"><div class="step-panel">
+              <h3>Step 1: Select Deployment Type</h3>
+              <p class="step-description">Choose what components to deploy on the server</p>
+              <div class="deployment-type-options">
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="epc" />
+                  <div class="option-content">
+                    <div class="option-icon">📡</div>
+                    <div class="option-info">
+                      <strong>EPC Core Only</strong>
+                      <p>Deploy Open5GS EPC components (MME, SGW, PGW, PCRF)</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="snmp" />
+                  <div class="option-content">
+                    <div class="option-icon">📊</div>
+                    <div class="option-info">
+                      <strong>SNMP/Mikrotik Agent Only</strong>
+                      <p>Deploy SNMP agent and Mikrotik monitoring modules</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="deployment-option">
+                  <input type="radio" name="deploymentType" value="both" />
+                  <div class="option-content">
+                    <div class="option-icon">🔄</div>
+                    <div class="option-info">
+                      <strong>Both EPC + SNMP</strong>
+                      <p>Deploy both EPC Core and SNMP/Mikrotik monitoring agents</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          <!-- Step 2: Site Information --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><div class="step-panel">
+              <h3>Step 2: Site Information</h3>
+              <p class="step-description">Select a site to deploy the remote EPC/SNMP agent. Site selection is required to link device codes.</p>
+              <div class="form-section">
+                <div class="form-group">
+                  <label for="siteSelect">Select Site *</label>
+
+                    <select id="siteSelect" required>
+                      <option>-- Select a site --</option>
+                      <div data-cwl-bind="each" data-cwl-hole-detail="sites as site" data-cwl-each-item="site" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Coption%20value%3D%7Bsite.id%20%7C%7C%20site._id%7D%3E%7Bsite.name%20%7C%7C%20'Unnamed%20Site'%7D%3C%2Foption%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><option></option></div>
+                    </select>
+
+                    <div hidden aria-hidden="true"><select id="siteSelect" disabled>
+                      <option>No sites available. Please create a site first.</option>
+                    </select>
+                    <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                      You need to create a site in the Coverage Map module before deploying remotes.
+                    </p>
+                  </div>
+                    <div hidden aria-hidden="true"><select id="siteSelect" disabled>
+                      <option>Loading sites...</option>
+                    </select>
+                  </div>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="selectedSiteId && selectedSite"><div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" data-cwl-attr-value="epcConfig.siteName" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" data-cwl-attr-value="epcConfig.location.address || 'N/A'" readonly />
+                  </div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="epcConfig.contact.name || epcConfig.contact.email"><div class="form-group">
+                      <label>Contact</label>
+                      <input type="text" data-cwl-attr-value="epcConfig.contact.name || 'N/A'" readonly />
+                    </div>
+                    <div class="form-group">
+                      <label>Email</label>
+                      <input type="text" data-cwl-attr-value="epcConfig.contact.email || 'N/A'" readonly />
+                    </div></div></div>
+                  <p class="form-hint" style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                    Select a site above to auto-fill site information.
+                  </p>
+
+              </div>
+            </div>
+
+          <!-- Step 3: EPC Network Configuration (if EPC selected) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('network')"><div class="step-panel">
+              <h3>Step 3: EPC Network Configuration</h3>
+              <p class="step-description">Configure network parameters for EPC</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="mcc">MCC *</label>
+                    <input id="mcc" type="text" placeholder="001" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="mnc">MNC *</label>
+                    <input id="mnc" type="text" placeholder="01" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="tac">TAC *</label>
+                    <input id="tac" type="text" placeholder="1" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Step 4: HSS Configuration (if EPC selected) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('hss')"><div class="step-panel">
+              <h3>Step 4: HSS Configuration</h3>
+              <p class="step-description">Configure HSS connection settings</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="hssHost">HSS Host</label>
+                    <input id="hssHost" type="text" placeholder="HSS host" />
+                  </div>
+                  <div class="form-group">
+                    <label for="hssPort">HSS Port</label>
+                    <input id="hssPort" type="text" placeholder="3868" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="diameterRealm">Diameter Realm</label>
+                  <input id="diameterRealm" type="text" placeholder="example.com" />
+                </div>
+              </div>
+            </div>
+
+          <!-- SNMP Configuration (if SNMP selected) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('snmp')"><div class="step-panel">
+              <h3>Step 1: SNMP/Mikrotik Configuration</h3>
+              <p class="step-description">Configure SNMP agent and monitoring</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpVersion">SNMP Version</label>
+                    <select id="snmpVersion">
+                      <option value="2c">SNMPv2c (Recommended)</option>
+                      <option value="1">SNMPv1</option>
+                      <option value="3">SNMPv3 (Secure)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCommunity">Community String</label>
+                    <input id="snmpCommunity" type="text" placeholder="public" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpPort">SNMP Port</label>
+                    <input id="snmpPort" type="number" placeholder="161" />
+                  </div>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="epcConfig.snmpConfig.version === '3'"><div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpUsername">SNMPv3 Username</label>
+                      <input id="snmpUsername" type="text" placeholder="Enter username" />
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthProtocol">Auth Protocol</label>
+                      <select id="snmpAuthProtocol">
+                        <option value="SHA">SHA</option>
+                        <option value="MD5">MD5</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpAuthKey">Auth Key</label>
+                      <input id="snmpAuthKey" type="password" placeholder="Enter auth key" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="snmpPrivProtocol">Privacy Protocol</label>
+                      <select id="snmpPrivProtocol">
+                        <option value="AES">AES</option>
+                        <option value="DES">DES</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="snmpPrivKey">Privacy Key</label>
+                      <input id="snmpPrivKey" type="password" placeholder="Enter privacy key" />
+                    </div>
+                  </div></div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="snmpReportingInterval">Reporting Interval (seconds)</label>
+                    <input id="snmpReportingInterval" type="number" placeholder="60" />
+                  </div>
+                  <div class="form-group">
+                    <label for="snmpCloudApiUrl">Cloud API URL</label>
+                    <input id="snmpCloudApiUrl" type="text" placeholder="https://hss.wisptools.io:3003" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable SNMP Traps
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- APT Repository Configuration --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('apt')"><div class="step-panel">
+              <h3>Step 1: APT Repository Configuration</h3>
+              <p class="step-description">Configure remote updates repository</p>
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="aptRepositoryUrl">Repository URL</label>
+                    <input id="aptRepositoryUrl" type="text" placeholder="https://hss.wisptools.io/apt" />
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Enable APT Repository
+                    </label>
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label>
+                      <input type="checkbox" />
+                      Auto-update Enabled
+                    </label>
+                  </div>
+                </div>
+
+                  <div class="form-row" hidden aria-hidden="true">
+                    <div class="form-group">
+                      <label for="aptUpdateSchedule">Update Schedule</label>
+                      <select id="aptUpdateSchedule">
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="aptUpdateTime">Update Time (HH:MM)</label>
+                      <input id="aptUpdateTime" type="text" placeholder="02:00" pattern="[0-9]:[0-9]" />
+                    </div>
+                    <div class="form-group checkbox-group">
+                      <label>
+                        <input type="checkbox" />
+                        Security Updates Only
+                      </label>
+                    </div>
+                  </div>
+
+              </div>
+            </div>
+
+          <!-- Review Step --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('review')"><div class="step-panel">
+              <h3>Step 1: Review Configuration</h3>
+              <p class="step-description">Review your deployment configuration</p>
+              <div class="review-section">
+                <div class="review-item">
+                  <strong>Deployment Type:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="deploymentType === 'both' ? 'EPC + SNMP' : deploymentType.toUpperCase()"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Site Name:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.siteName"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Device Code:</strong>
+                  <span style="color: #999; font-style: italic;">Will be entered in device configuration after hardware boots</span>
+                </div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="deploymentType === 'epc' || deploymentType === 'both'"><div class="review-item">
+                    <strong>EPC Network:</strong>
+                    <span>MCC: <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.networkConfig.mcc"></span>, MNC: <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.networkConfig.mnc"></span>, TAC: <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.networkConfig.tac"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>HSS:</strong>
+                    <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.hssConfig.hssHost"></span>:<span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.hssConfig.hssPort"></span></span>
+                  </div></div>
+                <div data-cwl-bind="if" data-cwl-hole-detail="deploymentType === 'snmp' || deploymentType === 'both'"><div class="review-item">
+                    <strong>SNMP Version:</strong>
+                    <span>SNMPv<span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.snmpConfig.version"></span></span>
+                  </div>
+                  <div class="review-item">
+                    <strong>SNMP Community:</strong>
+                    <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.snmpConfig.community"></span></span>
+                  </div></div>
+                <div class="review-item">
+                  <strong>Location:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.location.address"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.location.city"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.location.state"></span></span>
+                </div>
+                <div class="review-item">
+                  <strong>Contact:</strong>
+                  <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.contact.name"></span> (<span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.contact.email"></span>)</span>
+                </div>
+
+                  <div class="review-item" hidden aria-hidden="true">
+                    <strong>APT Repository:</strong>
+                    <span><span data-cwl-bind="interp" data-cwl-hole-detail="epcConfig.aptConfig.repositoryUrl"></span></span>
+                  </div>
+
+              </div>
+            </div>
+
+          <!-- Final Step: Download (Script/ISO Selection) --></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === getStepNumber('download')"><div class="step-panel">
+              <h3>Step 1: Deploy Hardware</h3>
+              <p class="step-description">Choose your deployment method</p>
+              <div class="download-options">
+                <label class="download-option">
+                  <input type="radio" name="deploymentOption" value="link" />
+                  <div class="option-content">
+                    <div class="option-icon">🔗</div>
+                    <div class="option-info">
+                      <strong>Link Existing Device</strong>
+                      <p>Enter the 8-character device code shown on your hardware's screen</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="download-option">
+                  <input type="radio" name="deploymentOption" value="iso" />
+                  <div class="option-content">
+                    <div class="option-icon">💿</div>
+                    <div class="option-info">
+                      <strong>Download ISO Image</strong>
+                      <p>Download a bootable ISO to install on new hardware</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="download-option">
+                  <input type="radio" name="deploymentOption" value="script" />
+                  <div class="option-content">
+                    <div class="option-icon">📜</div>
+                    <div class="option-info">
+                      <strong>Download Script</strong>
+                      <p>Download a bash script to run on an existing Ubuntu server</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'link'"><div class="device-code-entry">
+                  <h4>Enter Device Code</h4>
+                  <p class="hint">The device code is displayed on the hardware's screen after booting from the ISO.</p>
+                  <div class="code-input-group">
+                    <input
+                      type="text"
+                      placeholder="e.g., AB12CD34"
+                      maxlength="8"
+                      class="device-code-input"
+                      style="text-transform: uppercase; font-family: monospace; font-size: 24px; letter-spacing: 4px; text-align: center;"
+                    />
+                  </div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="linkedDeviceInfo"><div class="link-success">
+                      <span class="success-icon">✅</span>
+                      <div>
+                        <strong>Device Linked Successfully!</strong>
+                        <p>EPC ID: <span data-cwl-bind="interp" data-cwl-hole-detail="linkedDeviceInfo.epc_id"></span></p>
+                        <p>The device will automatically configure itself.</p>
+                      </div>
+                    </div></div>
+                </div></div>
+
+              <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'script' && deploymentScript"><div class="script-preview">
+                  <h5>Script Preview:</h5>
+                  <pre><code><span data-cwl-bind="interp" data-cwl-hole-detail="deploymentScript.substring(0, 300)"></span>...</code></pre>
+                </div></div>
+            </div></div>
         </div>
 
         <!-- Action Buttons -->
         <div class="modal-actions">
-          
-          
-          
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 1"><button class="btn btn-secondary" data-cwl-action="prevStep" aria-label="Prev Step">
+              ← Previous
+            </button></div>
+
+          <div data-cwl-bind="if" data-cwl-hole-detail="currentStep < totalSteps"><button class="btn btn-primary" data-cwl-action="handleNextClick" data-cwl-attr-disabled="loading" aria-label="Next Click">
+
+                Next →
+
+            </button></div>
+            <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'link'"><button class="btn btn-primary" data-cwl-action="linkDeviceByCode" data-cwl-attr-disabled="linkingDevice || !deviceCode || deviceCode.length !== 8 || linkedDeviceInfo" aria-label="Link Device By Code">
+                <div data-cwl-bind="if" data-cwl-hole-detail="linkedDeviceInfo">✅ Device Linked</div>
+                  🔗 Link Device
+
+              </button></div>
+              <button class="btn btn-primary" data-cwl-action="downloadDeployment" data-cwl-attr-disabled="loading || !deploymentOption" aria-label="Download Deployment">
+                <div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'script'">📥 Download Script</div><div data-cwl-bind="if" data-cwl-hole-detail="deploymentOption === 'iso'">💿 Download ISO</div>
+                  Select an Option
+
+              </button>
+
         </div>
       </div>
     </div>
@@ -205,11 +2637,483 @@
 
 <!-- Alert Details Modal -->
 
+  <div class="modal-overlay" data-cwl-action="closeAlertDetailsModal" hidden aria-hidden="true">
+    <div class="modal-content alert-details-modal">
+      <div class="modal-header">
+        <h3>🚨 Alert Details</h3>
+        <button class="modal-close" data-cwl-action="closeAlertDetailsModal" aria-label="Close Alert Details Modal">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert-detail-section">
+          <h4>Alert Information</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Severity:</label>
+              <span class="alert-severity"><span data-cwl-bind="interp" data-cwl-hole-detail="selectedAlert.severity"></span></span>
+            </div>
+            <div class="detail-item">
+              <label>Timestamp:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="formatInTenantTimezone(selectedAlert.timestamp)"></span></span>
+            </div>
+            <div class="detail-item">
+              <label>Message:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedAlert.message"></span></span>
+            </div>
+            <div class="detail-item">
+              <label>Alert ID:</label>
+              <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedAlert.id"></span></span>
+            </div>
+          </div>
+        </div>
+
+          <div class="alert-detail-section" hidden aria-hidden="true">
+            <h4>Affected Device</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Device ID:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedAlert.deviceId"></span></span>
+              </div>
+              <div class="detail-item">
+                <label>Device Type:</label>
+                <span><span data-cwl-bind="interp" data-cwl-hole-detail="selectedAlert.deviceType || 'Unknown'"></span></span>
+              </div>
+            </div>
+          </div>
+
+        <div class="alert-detail-section">
+          <h4>Actions</h4>
+          <div class="alert-actions-grid">
+            <button class="btn btn-primary" data-cwl-action="createTicketFromAlert" data-cwl-action-args="selectedAlert" aria-label="Create Ticket From Alert">
+              🎫 Create Ticket
+            </button>
+            <button class="btn btn-secondary" data-cwl-action="closeAlertDetailsModal" aria-label="Close Alert Details Modal">
+              ✓ Acknowledge
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <!-- Create Ticket from Alert Modal -->
 
+  <div class="modal-overlay" data-cwl-action="closeCreateTicketModal" hidden aria-hidden="true">
+    <div class="modal-content create-ticket-modal">
+      <div class="modal-header">
+        <h3>🎫 Create Ticket from Alert</h3>
+        <button class="modal-close" data-cwl-action="closeCreateTicketModal" aria-label="Close Create Ticket Modal">×</button>
+      </div>
+
+      <div class="modal-body">
+        <form data-cwl-on-submit="action:handleTicketCreated" data-cwl-on-submit-args="e">
+          <div class="form-group">
+            <label>Ticket Title:</label>
+            <input
+              type="text"
+              value="Alert:"
+              class="form-input"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Priority:</label>
+            <select class="form-select" required>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Category:</label>
+            <select class="form-select" required>
+              <option value="infrastructure">Infrastructure</option>
+              <option value="network">Network</option>
+              <option value="monitoring">Monitoring</option>
+              <option value="hardware">Hardware</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Description:</label>
+            <textarea
+              class="form-textarea"
+              rows="4"
+              placeholder="Alert Details:&#10;Severity: &#10;Time: &#10;Message:"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Ticket</button>
+            <button type="button" class="btn btn-secondary" data-cwl-action="closeCreateTicketModal" aria-label="Close Create Ticket Modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
 <!-- Monitoring Site Details Modal (right-click on sites) -->
 <!-- Monitoring Site Details Modal (right-click on sites) -->
 
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"monitoring","apiPath":"/api/monitoring/graphs","api_ok":true,"api_surface":"wisp-api-native","api_resource":"monitoring-graphs","api_op":"list","tracedApiStatus":200}</script>
+  <div hidden aria-hidden="true"><div data-cwl-component="MonitoringSiteDetailsModal" data-cwl-lifted-component="MonitoringSiteDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h2>📋 Site Details: <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>
+        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">✕</button>
+      </div>
+
+      <!-- Site Info -->
+      <div class="site-info">
+        <div class="info-row">
+          <span class="label">Type:</span>
+          <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="site.type || 'tower'"></span></span>
+        </div>
+        <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.address"><div class="info-row">
+            <span class="label">Address:</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="site.location.address"></span></span>
+          </div></div>
+        <div data-cwl-bind="if" data-cwl-hole-detail="site.location?.latitude && site.location?.longitude"><div class="info-row">
+            <span class="label">Coordinates:</span>
+            <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="site.location.latitude.toFixed(6)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="site.location.longitude.toFixed(6)"></span></span>
+          </div></div>
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <span class="value status-badge"><span data-cwl-bind="interp" data-cwl-hole-detail="getSiteStatus()"></span></span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn" data-cwl-set="activeTab:devices">
+          📊 Devices (<span data-cwl-bind="interp" data-cwl-hole-detail="getSiteDevices().length"></span>)
+        </button>
+        <button class="tab-btn" data-cwl-set="activeTab:hardware">
+          🔧 Hardware (<span data-cwl-bind="interp" data-cwl-hole-detail="hardwareDeployments.length"></span>)
+        </button>
+        <button class="tab-btn" data-cwl-set="activeTab:equipment">
+          📦 Equipment (<span data-cwl-bind="interp" data-cwl-hole-detail="equipment.length"></span>)
+        </button>
+        <button class="tab-btn" data-cwl-set="activeTab:sectors">
+          📶 Sectors (<span data-cwl-bind="interp" data-cwl-hole-detail="sectors.length"></span>)
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'devices'">
+          <!-- Devices with Uptime -->
+
+            <div class="items-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="getSiteDevices() as device (device.id)">
+                <div class="item-card device-card">
+                  <div class="item-header">
+                    <h3></h3>
+                    <span class="status-badge ">
+
+                    </span>
+                  </div>
+                  <div class="item-details">
+                    <div class="detail-row">
+                      <span class="label">Type:</span>
+                      <span class="value"></span>
+                    </div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="device.ipAddress || device.ip_address"><div class="detail-row">
+                        <span class="label">IP Address:</span>
+                        <span class="value mono"></span>
+                      </div></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="device.macAddress || device.mac_address"><div class="detail-row">
+                        <span class="label">MAC Address:</span>
+                        <span class="value mono"></span>
+                      </div></div>
+                    <div class="detail-row">
+                      <span class="label">Uptime:</span>
+                      <span class="value ">
+                        %` : 'N/A'}
+                      </span>
+                    </div>
+
+                      <div class="detail-row" hidden aria-hidden="true">
+                        <span class="label">Avg. Response:</span>
+                        <span class="value"> ms</span>
+                      </div>
+
+                  </div>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="device.ipAddress && !device.isHardwareDeployment && !device.isEquipment"><div class="item-actions">
+                        <button
+                          class="btn btn-sm btn-primary" data-cwl-action="closeModal"
+                          title="View Graphs"
+                        >
+                        📊 View Graphs
+                      </button>
+                    </div></div>
+                </div></div>
+            </div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <p>No devices found at this site</p>
+            </div>
+
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'hardware'" hidden aria-hidden="true">
+          <!-- Hardware Deployments -->
+
+            <div class="items-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="hardwareDeployments as deployment" data-cwl-each-item="deployment" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bdeployment.name%20%7C%7C%20'Unnamed%20Deployment'%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7Bdeployment.status%20%7C%7C%20'deployed'%7D%22%3E%7Bdeployment.status%20%7C%7C%20'deployed'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EType%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bdeployment.hardware_type%20%7C%7C%20'Unknown'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20deployment.config%3F.ipAddress%20%7C%7C%20deployment.config%3F.ip_address%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EIP%20Address%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%20mono%22%3E%7Bdeployment.config.ipAddress%20%7C%7C%20deployment.config.ip_address%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20deployment.config%3F.macAddress%20%7C%7C%20deployment.config%3F.mac_address%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EMAC%20Address%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%20mono%22%3E%7Bdeployment.config.macAddress%20%7C%7C%20deployment.config.mac_address%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20deployment.deployedAt%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EDeployed%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bnew%20Date(deployment.deployedAt).toLocaleDateString()%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="item-card">
+                  <div class="item-header">
+                    <h3></h3>
+                    <span class="status-badge "></span>
+                  </div>
+                  <div class="item-details">
+                    <div class="detail-row">
+                      <span class="label">Type:</span>
+                      <span class="value"></span>
+                    </div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="deployment.config?.ipAddress || deployment.config?.ip_address"><div class="detail-row">
+                        <span class="label">IP Address:</span>
+                        <span class="value mono"></span>
+                      </div></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="deployment.config?.macAddress || deployment.config?.mac_address"><div class="detail-row">
+                        <span class="label">MAC Address:</span>
+                        <span class="value mono"></span>
+                      </div></div>
+
+                      <div class="detail-row" hidden aria-hidden="true">
+                        <span class="label">Deployed:</span>
+                        <span class="value"></span>
+                      </div>
+
+                  </div>
+                </div></div>
+            </div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <p>No hardware deployments found at this site</p>
+            </div>
+
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'equipment'" hidden aria-hidden="true">
+          <!-- Equipment -->
+
+            <div class="items-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="equipment as eq" data-cwl-each-item="eq" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Beq.name%20%7C%7C%20'Unnamed%20Equipment'%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7Beq.status%20%7C%7C%20'active'%7D%22%3E%7Beq.status%20%7C%7C%20'active'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EType%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Beq.type%20%7C%7C%20'Unknown'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20eq.manufacturer%20%7C%7C%20eq.model%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EModel%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7B%5Beq.manufacturer%2C%20eq.model%5D.filter(Boolean).join('%20')%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20eq.ipAddress%20%7C%7C%20eq.networkConfig%3F.management_ip%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EIP%20Address%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%20mono%22%3E%7Beq.ipAddress%20%7C%7C%20eq.networkConfig%3F.management_ip%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20eq.macAddress%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EMAC%20Address%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%20mono%22%3E%7Beq.macAddress%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="item-card">
+                  <div class="item-header">
+                    <h3></h3>
+                    <span class="status-badge "></span>
+                  </div>
+                  <div class="item-details">
+                    <div class="detail-row">
+                      <span class="label">Type:</span>
+                      <span class="value"></span>
+                    </div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="eq.manufacturer || eq.model"><div class="detail-row">
+                        <span class="label">Model:</span>
+                        <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="[eq.manufacturer, eq.model].filter(Boolean).join(' ')"></span></span>
+                      </div></div>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="eq.ipAddress || eq.networkConfig?.management_ip"><div class="detail-row">
+                        <span class="label">IP Address:</span>
+                        <span class="value mono"></span>
+                      </div></div>
+
+                      <div class="detail-row" hidden aria-hidden="true">
+                        <span class="label">MAC Address:</span>
+                        <span class="value mono"></span>
+                      </div>
+
+                  </div>
+                </div></div>
+            </div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <p>No equipment found at this site</p>
+            </div>
+
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'sectors'" hidden aria-hidden="true">
+          <!-- Sectors -->
+
+            <div class="items-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="sectors as sector" data-cwl-each-item="sector" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-card%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ch3%3E%7Bsector.name%20%7C%7C%20%60Sector%20%24%7Bsector.azimuth%7D%C2%B0%60%7D%3C%2Fh3%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20%7Bsector.status%20%7C%7C%20'active'%7D%22%3E%7Bsector.status%20%7C%7C%20'active'%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20sector.azimuth%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EAzimuth%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bsector.azimuth%7D%C2%B0%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20sector.technology%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-row%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3ETechnology%3A%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22value%22%3E%7Bsector.technology%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div class="item-card">
+                  <div class="item-header">
+                    <h3>°`}</h3>
+                    <span class="status-badge "></span>
+                  </div>
+                  <div class="item-details">
+
+                      <div class="detail-row" hidden aria-hidden="true">
+                        <span class="label">Azimuth:</span>
+                        <span class="value">°</span>
+                      </div>
+
+                      <div class="detail-row" hidden aria-hidden="true">
+                        <span class="label">Technology:</span>
+                        <span class="value"></span>
+                      </div>
+
+                  </div>
+                </div></div>
+            </div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <p>No sectors found at this site</p>
+            </div>
+
+        </div>
+          <div class="loading" hidden aria-hidden="true">Loading site details...</div>
+
+      </div>
+    </div>
+  </div></div></div>
+</div></div>
+<div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
+    class="auth-overlay"
+    role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
+   hidden aria-hidden="true">
+    <div
+      class="auth-modal"
+      role="dialog"
+      aria-labelledby="auth-modal-title"
+    >
+      <div class="auth-header">
+        <h2 id="auth-modal-title">
+          <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+            Sign In to PCI Mapper
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+            Create Account
+          </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+            Reset Password
+          </div>
+        </h2>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
+      </div>
+
+      <div class="auth-body">
+
+        <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
+          <form data-cwl-on-submit="action:handleSignIn">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Sign In
+            </button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="auth-btn google" data-cwl-action="handleGoogleSignIn" data-cwl-attr-disabled="isLoading" aria-label="Google Sign In">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'reset'" aria-label="Switch Mode">
+              Forgot password?
+            </button>
+            <span>•</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signup'" aria-label="Switch Mode">
+              Create account
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signup'" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handleSignUp">
+            <div class="form-group">
+              <label for="displayName">Display Name (Optional)</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="John Doe" data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="At least 6 characters"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Create Account
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <span>Already have an account?</span>
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Sign in
+            </button>
+          </div>
+        </div><div data-cwl-bind="if" data-cwl-hole-detail="mode === '__fallback'" data-cwl-state-fallback="mode" hidden aria-hidden="true">
+          <form data-cwl-on-submit="action:handlePasswordReset">
+            <p class="reset-info">Enter your email and we'll send you a reset link.</p>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="your@email.com"
+                required data-cwl-attr-disabled="isLoading"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn primary" data-cwl-attr-disabled="isLoading">
+              Send Reset Link
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <button class="link-btn" data-cwl-action="switchMode" data-cwl-action-args="'signin'" aria-label="Switch Mode">
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"monitoring"}</script>

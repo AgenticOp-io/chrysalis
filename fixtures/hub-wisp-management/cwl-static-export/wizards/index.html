@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="wizards" data-wisp-path="/wizards" data-cwl-island="client"><div class="wizards-page">
     <header class="wizards-header">
-      <button class="back-btn" type="button">
+      <button class="back-btn" data-cwl-nav="/dashboard" type="button">
         ← Dashboard
       </button>
       <div class="wizards-header-row">
@@ -8,43 +8,440 @@
         <div class="wizards-pulldown-wrap">
           <button
             type="button"
-            class="wizards-pulldown-trigger"
+            class="wizards-pulldown-trigger" data-cwl-toggle="wizardsPulldownOpen:flip" data-cwl-on-blur="toggle:wizardsPulldownOpen:false"
             aria-haspopup="true"
-          >
+           aria-label="Wizards Pulldown Open">
             Jump to wizard ▼
           </button>
-          
+
         </div>
       </div>
       <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>
     </header>
 
     <div class="wizards-grid">
-      
+
+        <article class="wizard-card">
+          <div class="wizard-icon">🚀</div>
+          <h2 class="wizard-name">First-Time Setup</h2>
+          <p class="wizard-desc">Onboarding for new WISP operators: towers, CBRS, ACS, monitoring.</p>
+          <p class="wizard-where">
+            <strong>Dashboard / Onboarding</strong> · Shown automatically on first visit, or open from /onboarding.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/onboarding?wizard=first-time-setup"
+            type="button"
+           aria-label="Goto">
+
+              Open in Dashboard / Onboarding
+
+              <div hidden aria-hidden="true">Open First-Time Setup
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">🏢</div>
+          <h2 class="wizard-name">Organization Setup</h2>
+          <p class="wizard-desc">Verify or edit organization (tenant) name and contact details.</p>
+          <p class="wizard-where">
+            <strong>Onboarding</strong> · Onboarding flow step 1, or open here.
+          </p>
+          <button
+            class="open-in-module" data-cwl-action="open-organization-setup"
+            type="button"
+           aria-label="Goto">
+
+              Open Organization Setup
+
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">⚙️</div>
+          <h2 class="wizard-name">Initial Configuration</h2>
+          <p class="wizard-desc">Add first tower and configure CBRS, ACS, and Monitoring modules.</p>
+          <p class="wizard-where">
+            <strong>Onboarding</strong> · Onboarding flow step 3, or open here.
+          </p>
+          <button
+            class="open-in-module" data-cwl-action="open-initial-configuration"
+            type="button"
+           aria-label="Goto">
+
+              Open Initial Configuration
+
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📍</div>
+          <h2 class="wizard-name">Add Site</h2>
+          <p class="wizard-desc">Create a new tower, NOC, warehouse, or other site.</p>
+          <p class="wizard-where">
+            <strong>Deploy</strong> · Header bar: "Add Site" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/deploy?wizard=site-deployment"
+            type="button"
+           aria-label="Goto">
+
+              Open in Deploy
+
+              <div hidden aria-hidden="true">Open Add Site
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📦</div>
+          <h2 class="wizard-name">Deploy Equipment</h2>
+          <p class="wizard-desc">Step-by-step equipment deployment in the field.</p>
+          <p class="wizard-where">
+            <strong>Deploy</strong> · Header bar: "Deploy Equipment" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/deploy?wizard=deploy-equipment"
+            type="button"
+           aria-label="Goto">
+
+              Open in Deploy
+
+              <div hidden aria-hidden="true">Open Deploy Equipment
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📊</div>
+          <h2 class="wizard-name">PCI Planner</h2>
+          <p class="wizard-desc">Plan and resolve PCI conflicts across LTE sectors.</p>
+          <p class="wizard-where">
+            <strong>Deploy</strong> · Header bar: "PCI" button (shows sector count).
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/deploy?wizard=pci-planner"
+            type="button"
+           aria-label="Goto">
+
+              Open in Deploy
+
+              <div hidden aria-hidden="true">Open PCI Planner
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📡</div>
+          <h2 class="wizard-name">Frequency Planner</h2>
+          <p class="wizard-desc">Frequency planning for LTE/FWA sectors.</p>
+          <p class="wizard-where">
+            <strong>Deploy</strong> · Header bar: "Frequency" button (shows sector count).
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/deploy?wizard=frequency-planner"
+            type="button"
+           aria-label="Goto">
+
+              Open in Deploy
+
+              <div hidden aria-hidden="true">Open Frequency Planner
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📡</div>
+          <h2 class="wizard-name">CBRS Setup</h2>
+          <p class="wizard-desc">Configure CBRS/SAS and CBSD devices.</p>
+          <p class="wizard-where">
+            <strong>CBRS Management</strong> · Empty state or "Run Setup Wizard" / "Run Setup Wizard →".
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/cbrs-management?wizard=cbrs-setup"
+            type="button"
+           aria-label="Goto">
+
+              Open in CBRS Management
+
+              <div hidden aria-hidden="true">Open CBRS Setup
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📡</div>
+          <h2 class="wizard-name">CBRS Device Registration</h2>
+          <p class="wizard-desc">Add a CBSD device (serial, FCC ID, category, location) step-by-step.</p>
+          <p class="wizard-where">
+            <strong>CBRS Management</strong> · Header: "Register Device Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/cbrs-management?wizard=cbrs-device-registration"
+            type="button"
+           aria-label="Goto">
+
+              Open in CBRS Management
+
+              <div hidden aria-hidden="true">Open CBRS Device Registration
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📋</div>
+          <h2 class="wizard-name">Work Order Creation</h2>
+          <p class="wizard-desc">Create work orders or tickets step-by-step.</p>
+          <p class="wizard-where">
+            <strong>Work Orders</strong> · "Create Work Order Wizard" button at top.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/work-orders?wizard=work-order-creation"
+            type="button"
+           aria-label="Goto">
+
+              Open in Work Orders
+
+              <div hidden aria-hidden="true">Open Work Order Creation
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">🔐</div>
+          <h2 class="wizard-name">Subscriber Creation</h2>
+          <p class="wizard-desc">Create HSS/LTE subscriber with IMSI, auth keys, group, and plan.</p>
+          <p class="wizard-where">
+            <strong>HSS & Subscriber Management</strong> · Header: "Add Subscriber Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/hss-management?wizard=subscriber-creation"
+            type="button"
+           aria-label="Goto">
+
+              Open in HSS & Subscriber Management
+
+              <div hidden aria-hidden="true">Open Subscriber Creation
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">👋</div>
+          <h2 class="wizard-name">Customer Onboarding</h2>
+          <p class="wizard-desc">Guided flow to add a new customer (basic info, address, service type, optional LTE).</p>
+          <p class="wizard-where">
+            <strong>Customers</strong> · Customers tab: "Onboarding Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/customers?wizard=customer-onboarding"
+            type="button"
+           aria-label="Goto">
+
+              Open in Customers
+
+              <div hidden aria-hidden="true">Open Customer Onboarding
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📦</div>
+          <h2 class="wizard-name">Check-in Wizard</h2>
+          <p class="wizard-desc">Check in inventory items (e.g. return equipment).</p>
+          <p class="wizard-where">
+            <strong>Inventory</strong> · Header/toolbar: "Check-in Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/inventory?wizard=inventory-checkin"
+            type="button"
+           aria-label="Goto">
+
+              Open in Inventory
+
+              <div hidden aria-hidden="true">Open Check-in Wizard
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📋</div>
+          <h2 class="wizard-name">Track RMA</h2>
+          <p class="wizard-desc">Mark an inventory item as RMA and record RMA number, vendor, and reason.</p>
+          <p class="wizard-where">
+            <strong>Inventory</strong> · Header/toolbar: "Track RMA" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/inventory?wizard=rma-tracking"
+            type="button"
+           aria-label="Goto">
+
+              Open in Inventory
+
+              <div hidden aria-hidden="true">Open Track RMA
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📶</div>
+          <h2 class="wizard-name">Bandwidth Plan</h2>
+          <p class="wizard-desc">Create an HSS bandwidth plan (name, download/upload Mbps).</p>
+          <p class="wizard-where">
+            <strong>HSS & Subscriber Management</strong> · Header: "Add Plan Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/hss-management?wizard=bandwidth-plan"
+            type="button"
+           aria-label="Goto">
+
+              Open in HSS & Subscriber Management
+
+              <div hidden aria-hidden="true">Open Bandwidth Plan
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📦</div>
+          <h2 class="wizard-name">Subscriber Group</h2>
+          <p class="wizard-desc">Create an HSS subscriber group (name, optional plan, APN, QCI).</p>
+          <p class="wizard-where">
+            <strong>HSS & Subscriber Management</strong> · Header: "Add Group Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/hss-management?wizard=subscriber-group"
+            type="button"
+           aria-label="Goto">
+
+              Open in HSS & Subscriber Management
+
+              <div hidden aria-hidden="true">Open Subscriber Group
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📊</div>
+          <h2 class="wizard-name">Monitoring Setup</h2>
+          <p class="wizard-desc">Set up network monitoring (sites, devices, alerts).</p>
+          <p class="wizard-where">
+            <strong>Monitor</strong> · Header: wizard icon button, or empty state "Get Started with Setup Wizard".
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/monitoring?wizard=monitoring-setup"
+            type="button"
+           aria-label="Goto">
+
+              Open in Monitor
+
+              <div hidden aria-hidden="true">Open Monitoring Setup
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📊</div>
+          <h2 class="wizard-name">Conflict Resolution Wizard</h2>
+          <p class="wizard-desc">Identify and resolve PCI conflicts step-by-step (analyze, optimize, apply, verify).</p>
+          <p class="wizard-where">
+            <strong>PCI Resolution</strong> · Left sidebar: "Conflict Wizard" button.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/pci-resolution?wizard=conflict-resolution"
+            type="button"
+           aria-label="Goto">
+
+              Open in PCI Resolution
+
+              <div hidden aria-hidden="true">Open Conflict Resolution Wizard
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📥</div>
+          <h2 class="wizard-name">Import Wizard</h2>
+          <p class="wizard-desc">Import data (e.g. PCI/sector data) from file.</p>
+          <p class="wizard-where">
+            <strong>PCI Resolution</strong> · Header/toolbar: "Import" to open Import Wizard.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/pci-resolution?wizard=import-wizard"
+            type="button"
+           aria-label="Goto">
+
+              Open in PCI Resolution
+
+              <div hidden aria-hidden="true">Open Import Wizard
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">🔧</div>
+          <h2 class="wizard-name">EPC Deployment</h2>
+          <p class="wizard-desc">Register and deploy EPC devices.</p>
+          <p class="wizard-where">
+            <strong>Hardware</strong> · Add menu (dropdown) → EPC deployment / wizard option.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/hardware?wizard=epc-deployment"
+            type="button"
+           aria-label="Goto">
+
+              Open in Hardware
+
+              <div hidden aria-hidden="true">Open EPC Deployment
+            </div>
+          </button>
+        </article>
+
+        <article class="wizard-card">
+          <div class="wizard-icon">📍</div>
+          <h2 class="wizard-name">Marketing Discovery</h2>
+          <p class="wizard-desc">Add marketing addresses to a plan (coverage discovery).</p>
+          <p class="wizard-where">
+            <strong>Plan</strong> · Inside a plan: use marketing/address discovery for the plan.
+          </p>
+          <button
+            class="open-in-module" data-cwl-nav="/modules/plan?wizard=marketing-discovery"
+            type="button"
+           aria-label="Goto">
+
+              Open in Plan
+
+              <div hidden aria-hidden="true">Open Marketing Discovery
+            </div>
+          </button>
+        </article>
+
     </div>
   </div>
   <div data-cwl-component="OrganizationSetupWizard" data-cwl-lifted-component="OrganizationSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="org-wizard-title" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="org-wizard-title">🏢 Organization Setup</h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
       <div class="wizard-content">
         <div class="wizard-panel">
           <p>Verify your organization details. You can edit these later in Settings.</p>
-          <div class="info-card">
+          <div data-cwl-bind="if" data-cwl-hole-detail="$currentTenant"><div class="info-card">
               <div class="info-row">
                 <span class="label">Organization Name:</span>
-                <span class="value">Demo Tenant</span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.displayName"></span></span>
               </div>
               <div class="info-row">
                 <span class="label">Contact Email:</span>
-                <span class="value"></span>
+                <span class="value"><span data-cwl-bind="interp" data-cwl-hole-detail="$currentTenant.contactEmail ?? '—'"></span></span>
               </div>
-            </div>
+            </div></div>
+            <p class="hint">No tenant selected. Select a tenant from the dashboard or complete tenant setup first.</p>
+
           <div class="actions">
-            <button type="button" class="btn-primary">Edit in Settings</button>
-            <button type="button" class="btn-secondary">Done</button>
+            <button type="button" class="btn-primary" data-cwl-nav="/dashboard?panel=settings">Edit in Settings</button>
+            <button type="button" class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Done</button>
           </div>
         </div>
       </div>
@@ -54,7 +451,7 @@
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="config-wizard-title">⚙️ Initial Configuration</h2>
-        <button class="close-btn" aria-label="Close">✕</button>
+        <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
       <div class="wizard-content">
         <div class="wizard-panel">
@@ -63,7 +460,7 @@
           <div class="section">
             <h3>Add First Tower</h3>
             <p class="section-desc">Add a tower site for coverage planning.</p>
-            <button type="button" class="btn-primary">Open Coverage Map</button>
+            <button type="button" class="btn-primary" data-cwl-nav="/modules/coverage-map">Open Coverage Map</button>
           </div>
 
           <div class="section">
@@ -73,28 +470,28 @@
                 <span class="icon">📡</span>
                 <h4>CBRS Management</h4>
                 <p>Configure SAS API keys</p>
-                <button type="button" class="btn-secondary">Setup CBRS</button>
+                <button type="button" class="btn-secondary" data-cwl-nav="/modules/cbrs-management">Setup CBRS</button>
               </div>
               <div class="module-card">
                 <span class="icon">⚙️</span>
                 <h4>ACS/TR-069</h4>
                 <p>Configure network monitoring</p>
-                <button type="button" class="btn-secondary">Setup ACS</button>
+                <button type="button" class="btn-secondary" data-cwl-nav="/modules/monitoring">Setup ACS</button>
               </div>
               <div class="module-card">
                 <span class="icon">📊</span>
                 <h4>Monitoring</h4>
                 <p>Configure SNMP and monitoring</p>
-                <button type="button" class="btn-secondary">Setup Monitoring</button>
+                <button type="button" class="btn-secondary" data-cwl-nav="/modules/monitoring">Setup Monitoring</button>
               </div>
             </div>
           </div>
 
           <div class="actions">
-            <button type="button" class="btn-secondary">Done</button>
+            <button type="button" class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Done</button>
           </div>
         </div>
       </div>
     </div>
   </div></div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","path":"/wizards"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","httpPath":"/wizards"}</script>
