@@ -37,7 +37,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -55,7 +55,7 @@
           ➕ Add Hardware ▼
         </button>
 
-          <div class="dropdown-menu" data-cwl-toggle="showAddMenu:false" hidden aria-hidden="true">
+          <div class="dropdown-menu" data-cwl-toggle="showAddMenu:false" data-cwl-shell-key="showAddMenu" hidden aria-hidden="true">
             <button class="dropdown-item" data-cwl-toggle="showEPCWizard:true" aria-label="Show EPCWizard">
               📡 EPC/SNMP Server
             </button>
@@ -419,7 +419,7 @@
 
 <!-- Link Device to Hardware Deployment Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showPairModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showPairModal:false" data-cwl-shell-key="showPairModal" hidden aria-hidden="true">
     <div class="modal-content large">
       <h3>Link Device to Deployed Hardware</h3>
       <p>Select hardware at a site to link with <strong><span data-cwl-bind="interp" data-cwl-hole-detail="selectedDevice.name || selectedDevice.ipAddress"></span></strong></p>
@@ -654,7 +654,7 @@
 
 <!-- Scan Modal -->
 
-  <div hidden aria-hidden="true"><div data-cwl-component="ScanModal" data-cwl-lifted-component="ScanModal"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+  <div data-cwl-shell-key="showScanModal" hidden aria-hidden="true"><div data-cwl-component="ScanModal" data-cwl-lifted-component="ScanModal"><div class="modal-overlay" data-cwl-action="close" data-cwl-shell-key="showScanModal" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>
@@ -876,7 +876,7 @@
 
 <!-- EPC Deployment Wizard -->
 
-  <div hidden aria-hidden="true"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div data-cwl-shell-key="showEPCWizard" hidden aria-hidden="true"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showEPCWizard" hidden aria-hidden="true">
     <div class="modal-content epc-deployment-modal">
       <div class="modal-header">
         <h2>🚀 Server Deployment</h2>
@@ -1288,7 +1288,7 @@
 
 <!-- EPC Edit Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showEPCEditModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showEPCEditModal:false" data-cwl-shell-key="showEPCEditModal" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>✏️ Edit EPC/SNMP Device</h2>

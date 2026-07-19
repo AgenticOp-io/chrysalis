@@ -258,7 +258,7 @@
 
   <!-- Modals -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="CreateTicketModal" data-cwl-lifted-component="CreateTicketModal"><div
+    <div data-cwl-shell-key="showCreateTicket" hidden aria-hidden="true"><div data-cwl-component="CreateTicketModal" data-cwl-lifted-component="CreateTicketModal"><div
   class="modal-backdrop"
   role="presentation" data-cwl-action="close"
 >
@@ -382,7 +382,7 @@
 </div></div>
   </div>
 
-    <div hidden aria-hidden="true"><div data-cwl-component="TicketDetailsModal" data-cwl-lifted-component="TicketDetailsModal"><div
+    <div data-cwl-shell-key="showTicketDetails" hidden aria-hidden="true"><div data-cwl-component="TicketDetailsModal" data-cwl-lifted-component="TicketDetailsModal"><div
   class="modal-backdrop"
   role="presentation" data-cwl-action="close"
 >
@@ -640,7 +640,7 @@
   </div>
 </div>
 
-  <div class="assign-modal-overlay" data-cwl-toggle="showAssignModal:false" hidden aria-hidden="true">
+  <div class="assign-modal-overlay" data-cwl-toggle="showAssignModal:false" data-cwl-shell-key="showAssignModal" hidden aria-hidden="true">
     <div class="assign-modal">
       <h3>Assign Ticket</h3>
       <div class="form-group">
@@ -662,7 +662,7 @@
   </div></div>
   </div>
 
-    <div hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showAddCustomer" hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
@@ -1028,7 +1028,7 @@
 </div></div>
   </div>
 
-    <div hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showEditCustomer" hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
@@ -1395,7 +1395,7 @@
   </div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">

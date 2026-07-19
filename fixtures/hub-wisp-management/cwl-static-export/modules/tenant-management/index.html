@@ -36,7 +36,7 @@
 
   <!-- Create Tenant Form -->
 
-    <div class="create-form" hidden aria-hidden="true">
+    <div class="create-form" data-cwl-shell-key="showCreateForm" hidden aria-hidden="true">
       <h2>Create New Tenant</h2>
 
       <div class="form-grid">
@@ -168,7 +168,7 @@
     aria-modal="true"
     tabindex="0"
     aria-label="Tenant details dialog" data-cwl-action="handleEditBackdropClick" data-cwl-on-keydown="action:handleEditBackdropKeydown"
-   hidden aria-hidden="true">
+   data-cwl-shell-key="showEditModal" hidden aria-hidden="true">
     <div class="modal-content" role="document">
       <div class="modal-header">
         <h2>Manage Tenant: <span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.displayName"></span></h2>
@@ -270,7 +270,7 @@
     aria-modal="true"
     tabindex="0"
     aria-label="Confirm tenant deletion dialog" data-cwl-action="handleDeleteBackdropClick" data-cwl-on-keydown="action:handleDeleteBackdropKeydown"
-   hidden aria-hidden="true">
+   data-cwl-shell-key="showDeleteConfirm" hidden aria-hidden="true">
     <div class="modal-content delete-confirm-modal" role="document">
       <div class="modal-header danger">
         <h2>⚠️ Confirm Deletion</h2>

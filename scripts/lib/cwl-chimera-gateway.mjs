@@ -37,7 +37,7 @@ export const WISP_THEME_BOOT_SCRIPT =
   '}catch(e){}})();</' + 'script>';
 
 /** Cache-bust additive CWL assets when [hidden] / client wiring changes (D6443). */
-export const WISP_CWL_ASSET_BUST = "20260719j";
+export const WISP_CWL_ASSET_BUST = "20260719m";
 const WISP_APP_CSS = `/assets/wisp-cwl-app.css?v=${WISP_CWL_ASSET_BUST}`;
 const WISP_CLIENT_JS = `/assets/wisp-cwl-client.js?v=${WISP_CWL_ASSET_BUST}`;
 

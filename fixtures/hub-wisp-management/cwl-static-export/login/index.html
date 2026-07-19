@@ -4,7 +4,7 @@
     <div class="login-brand">
       <img src="/wisptools-logo.svg" alt="WISP Management" class="brand-logo" />
 
-        <div class="demo-site-ribbon" role="note" hidden aria-hidden="true">Demo site — not production data</div>
+        <div class="demo-site-ribbon" role="note" data-cwl-shell-key="showDemoChrome" hidden aria-hidden="true">Demo site — not production data</div>
 
       <h1>WISP Management</h1>
 
@@ -25,11 +25,11 @@
 
       <p class="subtitle">
 
-          <div hidden aria-hidden="true"><strong class="demo-login-lead">Demo environment</strong> — explore with a temporary visitor identity or use your account below.
+          <div data-cwl-shell-key="showDemoChrome" hidden aria-hidden="true"><strong class="demo-login-lead">Demo environment</strong> — explore with a temporary visitor identity or use your account below.
         </div>
       </p>
 
-        <div class="demo-visitor-panel" hidden aria-hidden="true">
+        <div class="demo-visitor-panel" data-cwl-shell-key="demoVisitorEnabled" hidden aria-hidden="true">
           <h3 class="demo-visitor-title">Try without an account</h3>
           <p class="demo-visitor-copy">
             Continue as a <strong>demo visitor</strong>. Your user id is tied to your network address (hashed on the server).
@@ -58,7 +58,7 @@
 
         </div>
 
-        <div class="password-reset-form" style="background: rgba(0, 217, 255, 0.1); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem;" hidden aria-hidden="true">
+        <div class="password-reset-form" style="background: rgba(0, 217, 255, 0.1); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem;" data-cwl-shell-key="showPasswordReset" hidden aria-hidden="true">
           <h3 style="margin-top: 0; margin-bottom: 1rem; color: #00d9ff;">Reset Password</h3>
 
             <p style="color: #a0d9e8; margin-bottom: 1rem; font-size: 0.875rem;">
@@ -95,7 +95,7 @@
               </button>
             </div>
 
-            <div hidden aria-hidden="true"><p style="color: #a0d9e8; margin-bottom: 1rem;">
+            <div data-cwl-shell-key="passwordResetSent" hidden aria-hidden="true"><p style="color: #a0d9e8; margin-bottom: 1rem;">
               ✅ Password reset email sent! Please check your inbox and follow the instructions to reset your password.
             </p>
             <button

@@ -40,7 +40,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -88,7 +88,7 @@
       class="filter-panel-container"
       role="dialog"
       aria-label="Layer Filters"
-     hidden aria-hidden="true">
+     data-cwl-shell-key="showFilterPanel" hidden aria-hidden="true">
       <div data-cwl-component="PlanLayerFilterPanel" data-cwl-lifted-component="PlanLayerFilterPanel"><div class="filter-panel">
   <h3>🔍 Map Layers</h3>
 
@@ -133,7 +133,7 @@
     <div
       class="filter-panel-overlay" data-cwl-toggle="showFilterPanel:false"
       role="presentation"
-     hidden aria-hidden="true"></div>
+     data-cwl-shell-key="showFilterPanel" hidden aria-hidden="true"></div>
 
   <!-- Hardware View Modal -->
 
@@ -142,7 +142,7 @@
     role="presentation"
     aria-hidden="true"
     tabindex="-1" data-cwl-action="handleHardwareOverlayClick"
-   hidden>
+   data-cwl-shell-key="showHardwareModal" hidden>
     <div
       class="modal-content hardware-modal"
       role="dialog"
@@ -260,7 +260,7 @@
       role="presentation"
       aria-hidden="true"
       tabindex="-1" data-cwl-action="handleProjectOverlayClick"
-     hidden>
+     data-cwl-shell-key="showProjectModal" hidden>
       <div
         class="modal-content project-modal"
         role="dialog"
@@ -374,7 +374,7 @@
       role="presentation"
       aria-hidden="true"
       tabindex="-1" data-cwl-action="handleCreateProjectOverlayClick"
-     hidden>
+     data-cwl-shell-key="showCreateProjectModal" hidden>
       <div
         class="modal-content create-modal"
         role="dialog"
@@ -500,7 +500,7 @@
       role="presentation"
       aria-hidden="true"
       tabindex="-1" data-cwl-action="handleMissingHardwareOverlayClick"
-     hidden>
+     data-cwl-shell-key="showMissingHardwareModal" hidden>
       <div
         class="modal-content missing-hardware-modal"
         role="dialog"
@@ -602,7 +602,7 @@
 
   <!-- Marketing Modal (deprecated - kept for backward compatibility) -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="PlanMarketingModal" data-cwl-lifted-component="PlanMarketingModal"><div class="marketing-backdrop" role="presentation" aria-hidden="false" hidden>
+    <div data-cwl-shell-key="showMarketingModal" hidden aria-hidden="true"><div data-cwl-component="PlanMarketingModal" data-cwl-lifted-component="PlanMarketingModal"><div class="marketing-backdrop" role="presentation" aria-hidden="false" hidden>
   <div
     class="marketing-panel"
     role="dialog"
@@ -784,7 +784,7 @@
 
   <!-- Marketing Results Popup -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="PlanMarketingResultsPopup" data-cwl-lifted-component="PlanMarketingResultsPopup">n
+    <div data-cwl-shell-key="showMarketingResultsPopup" hidden aria-hidden="true"><div data-cwl-component="PlanMarketingResultsPopup" data-cwl-lifted-component="PlanMarketingResultsPopup">n
 
 <div class="popup-overlay" data-cwl-action="close" data-cwl-on-keydown="action:close" role="presentation" tabindex="-1" hidden aria-hidden="true">
   <div class="popup-content" role="dialog" aria-modal="true" aria-label="Marketing Address Discovery Results">
@@ -856,7 +856,7 @@
       role="presentation"
       aria-hidden="true"
       tabindex="-1" data-cwl-action="handleAddRequirementOverlayClick"
-     hidden>
+     data-cwl-shell-key="showAddRequirementModal" hidden>
       <div
         class="modal-content add-requirement-modal"
         role="dialog"
@@ -946,7 +946,7 @@
       role="presentation"
       aria-hidden="true"
       tabindex="-1" data-cwl-action="handleReportOverlayClick"
-     hidden>
+     data-cwl-shell-key="showReportModal" hidden>
       <div
         class="modal-content"
         role="dialog"
@@ -1013,7 +1013,7 @@
   <!-- Global Settings Button - Hidden in plan mode, shown in coverage-map iframe instead -->
 
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">Plan Module Help</h2>

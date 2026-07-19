@@ -15,7 +15,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -37,7 +37,7 @@
       </p>
     </header>
 
-    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -305,7 +305,7 @@
     </div>
   </div>
 
-    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add provider account" hidden aria-hidden="true">
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add provider account" data-cwl-shell-key="showAddAccount" hidden aria-hidden="true">
       <div class="modal card">
         <h3>Add voice provider account</h3>
         <label for="va-provider">Provider</label>
@@ -329,7 +329,7 @@
       </div>
     </div>
 
-    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add telephone number" hidden aria-hidden="true">
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add telephone number" data-cwl-shell-key="showAddTn" hidden aria-hidden="true">
       <div class="modal card wide">
         <h3>Add telephone number</h3>
         <label for="tn-e164">E.164</label>
@@ -367,7 +367,7 @@
       </div>
     </div>
 
-    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit telephone number" hidden aria-hidden="true">
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit telephone number" data-cwl-shell-key="showEditTn" hidden aria-hidden="true">
       <div class="modal card wide">
         <h3>Edit <code><span data-cwl-bind="interp" data-cwl-hole-detail="editTn.e164"></span></code></h3>
         <label for="etn-status">Status</label>
@@ -396,7 +396,7 @@
       </div>
     </div>
 
-    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add service location" hidden aria-hidden="true">
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add service location" data-cwl-shell-key="showAddLocation" hidden aria-hidden="true">
       <div class="modal card wide">
         <h3>Add service location</h3>
         <label for="sl-cust">Customer ID (optional)</label>

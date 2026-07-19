@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="monitoring" data-wisp-path="/modules/monitoring" data-cwl-island="client"><!-- Monitoring Setup Wizard -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="MonitoringSetupWizard" data-cwl-lifted-component="MonitoringSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true"><div data-cwl-component="MonitoringSetupWizard" data-cwl-lifted-component="MonitoringSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="wizard-title">📊 Monitoring Setup Wizard</h2>
@@ -376,7 +376,7 @@
 
   <!-- Node Details Panel -->
 
-    <div class="details-panel node-details" hidden aria-hidden="true">
+    <div class="details-panel node-details" data-cwl-shell-key="showNodeDetails" hidden aria-hidden="true">
       <div class="panel-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="selectedNode.device?.name || selectedNode.id"></span></h3>
         <button class="close-btn" data-cwl-toggle="showNodeDetails:false" aria-label="Show Node Details">✕</button>
@@ -449,7 +449,7 @@
 
   <!-- Edge Details Panel -->
 
-    <div class="details-panel edge-details" hidden aria-hidden="true">
+    <div class="details-panel edge-details" data-cwl-shell-key="showEdgeDetails" hidden aria-hidden="true">
       <div class="panel-header">
         <h3>Connection Details</h3>
         <button class="close-btn" data-cwl-toggle="showEdgeDetails:false" aria-label="Show Edge Details">✕</button>
@@ -545,7 +545,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -1447,7 +1447,7 @@
 </div></div>
 
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">Network Monitoring Help</h2>
@@ -1774,7 +1774,7 @@
   </div></div>
 
   <!-- Tips Modal -->
-  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+  <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -1810,7 +1810,7 @@
   </div></div></div>
 
 <!-- SNMP Configuration Modal -->
-<div data-cwl-component="SNMPConfigurationPanel" data-cwl-lifted-component="SNMPConfigurationPanel"><div class="modal-backdrop" hidden aria-hidden="true">
+<div data-cwl-component="SNMPConfigurationPanel" data-cwl-lifted-component="SNMPConfigurationPanel"><div class="modal-backdrop" data-cwl-shell-key="showSNMPConfig" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🔧 SNMP Configuration</h2>
@@ -2258,7 +2258,7 @@
 </div></div>
 
 <!-- EPC Deployment Modal -->
-<div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showEPCDeploymentModal" hidden aria-hidden="true">
     <div class="modal-content epc-deployment-modal">
       <div class="modal-header">
         <h2>🚀 Server Deployment</h2>
@@ -2669,7 +2669,7 @@
 
 <!-- Alert Details Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showAlertDetailsModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAlertDetailsModal:false" data-cwl-shell-key="showAlertDetailsModal" hidden aria-hidden="true">
     <div class="modal-content alert-details-modal">
       <div class="modal-header">
         <h3>🚨 Alert Details</h3>
@@ -2730,7 +2730,7 @@
 
 <!-- Create Ticket from Alert Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showCreateTicketModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showCreateTicketModal:false" data-cwl-shell-key="showCreateTicketModal" hidden aria-hidden="true">
     <div class="modal-content create-ticket-modal">
       <div class="modal-header">
         <h3>🎫 Create Ticket from Alert</h3>
@@ -2791,7 +2791,7 @@
 <!-- Monitoring Site Details Modal (right-click on sites) -->
 <!-- Monitoring Site Details Modal (right-click on sites) -->
 
-  <div hidden aria-hidden="true"><div data-cwl-component="MonitoringSiteDetailsModal" data-cwl-lifted-component="MonitoringSiteDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+  <div data-cwl-shell-key="showMonitoringSiteDetailsModal" hidden aria-hidden="true"><div data-cwl-component="MonitoringSiteDetailsModal" data-cwl-lifted-component="MonitoringSiteDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" data-cwl-shell-key="showMonitoringSiteDetailsModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
     <div class="modal-content large">
       <div class="modal-header">
         <h2>📋 Site Details: <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>

@@ -23,7 +23,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -255,7 +255,7 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" data-cwl-shell-key="showAddModal" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Edit' : 'Add'"></span> Bandwidth Plan</h3>
@@ -357,7 +357,7 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" data-cwl-shell-key="showAddModal" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Edit' : 'Add'"></span> Subscriber Group</h3>
@@ -414,7 +414,7 @@
     </div>
   </div>
 
-    <div hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showAddModal" hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
@@ -780,7 +780,7 @@
 </div></div>
   </div>
 
-    <div hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showEditModal" hidden aria-hidden="true"><div data-cwl-component="AddEditCustomerModal" data-cwl-lifted-component="AddEditCustomerModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showEditModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
@@ -1146,7 +1146,7 @@
 </div></div>
   </div>
 
-  <div data-cwl-component="CustomerOnboardingWizard" data-cwl-lifted-component="CustomerOnboardingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="CustomerOnboardingWizard" data-cwl-lifted-component="CustomerOnboardingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showOnboardingWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -1433,7 +1433,7 @@
               </ul>
             </div>
 
-              <div class="sub-form" hidden aria-hidden="true">
+              <div class="sub-form" data-cwl-shell-key="showAddInvoice" hidden aria-hidden="true">
                 <div class="form-row">
                   <label>Invoice number</label>
                   <input type="text" placeholder="e.g. INV-2025-001" />
@@ -1468,7 +1468,7 @@
               </ul>
             </div>
 
-              <div class="sub-form" hidden aria-hidden="true">
+              <div class="sub-form" data-cwl-shell-key="showRecordPayment" hidden aria-hidden="true">
                 <div class="form-row">
                   <label>Amount ($)</label>
                   <input type="number" step="0.01" min="0.01" />

@@ -28,7 +28,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -321,7 +321,7 @@
 
   <!-- Manual Barcode Entry Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showManualEntry:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showManualEntry:false" data-cwl-shell-key="showManualEntry" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3>🔍 Manual Equipment Lookup</h3>
@@ -353,7 +353,7 @@
   </div>
 
   <!-- Asset Tag Viewer -->
-  <div data-cwl-bind="if" data-cwl-hole-detail="selectedItemForTag"><div data-cwl-component="AssetTagViewer" data-cwl-lifted-component="AssetTagViewer"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div data-cwl-bind="if" data-cwl-hole-detail="selectedItemForTag"><div data-cwl-component="AssetTagViewer" data-cwl-lifted-component="AssetTagViewer"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAssetTag" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🏷️ Asset Tag</h2>
@@ -411,7 +411,7 @@
 
   <!-- Scan Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="ScanModal" data-cwl-lifted-component="ScanModal"><div class="modal-overlay" data-cwl-action="close" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showScanModal" hidden aria-hidden="true"><div data-cwl-component="ScanModal" data-cwl-lifted-component="ScanModal"><div class="modal-overlay" data-cwl-action="close" data-cwl-shell-key="showScanModal" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>
@@ -632,7 +632,7 @@
   </div>
 
   <!-- Check-in Wizard -->
-  <div data-cwl-component="InventoryCheckInWizard" data-cwl-lifted-component="InventoryCheckInWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="InventoryCheckInWizard" data-cwl-lifted-component="InventoryCheckInWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showCheckInWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -1030,7 +1030,7 @@
   </div>
 </div></div>
   <!-- RMA Tracking Wizard -->
-  <div data-cwl-component="RMATrackingWizard" data-cwl-lifted-component="RMATrackingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="RMATrackingWizard" data-cwl-lifted-component="RMATrackingWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showRMAWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -1174,7 +1174,7 @@
 </button>
 
 <!-- Help Modal -->
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -1209,7 +1209,7 @@
     </div>
   </div></div></div>
 
-<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">Inventory Management Help</h2>

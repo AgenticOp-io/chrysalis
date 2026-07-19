@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="dashboard" data-wisp-path="/dashboard" data-cwl-island="client"><!-- First-Time Setup Wizard -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="FirstTimeSetupWizard" data-cwl-lifted-component="FirstTimeSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showOnboardingWizard" hidden aria-hidden="true"><div data-cwl-component="FirstTimeSetupWizard" data-cwl-lifted-component="FirstTimeSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" data-cwl-shell-key="showOnboardingWizard" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="wizard-title">🚀 Welcome to WISP Tools</h2>
@@ -193,7 +193,7 @@
       </div>
     </div>
   </div>
-  <div data-cwl-component="OrganizationSetupWizard" data-cwl-lifted-component="OrganizationSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="org-wizard-title" hidden aria-hidden="true">
+  <div data-cwl-component="OrganizationSetupWizard" data-cwl-lifted-component="OrganizationSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="org-wizard-title" data-cwl-shell-key="showOrgWizard" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="org-wizard-title">🏢 Organization Setup</h2>
@@ -222,7 +222,7 @@
       </div>
     </div>
   </div></div>
-  <div data-cwl-component="InitialConfigurationWizard" data-cwl-lifted-component="InitialConfigurationWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="config-wizard-title" hidden aria-hidden="true">
+  <div data-cwl-component="InitialConfigurationWizard" data-cwl-lifted-component="InitialConfigurationWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="config-wizard-title" data-cwl-shell-key="showConfigWizard" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="config-wizard-title">⚙️ Initial Configuration</h2>
@@ -312,7 +312,7 @@
     <div data-cwl-bind="if" data-cwl-hole-detail="$unreadCount > 0"><span class="badge" aria-label="unread"><span data-cwl-bind="interp" data-cwl-hole-detail="$unreadCount > 99 ? '99+' : $unreadCount"></span></span></div>
   </button>
 
-    <div class="panel" role="dialog" aria-label="Notifications panel" hidden aria-hidden="true">
+    <div class="panel" role="dialog" aria-label="Notifications panel" data-cwl-shell-key="open" hidden aria-hidden="true">
       <div class="panel-header">
         <h3>Notifications</h3>
         <div data-cwl-bind="if" data-cwl-hole-detail="$unreadCount > 0"><span class="unread-label"><span data-cwl-bind="interp" data-cwl-hole-detail="$unreadCount"></span> unread</span></div>
@@ -344,7 +344,7 @@
       </div>
     </div>
 
-    <div data-cwl-component="GlobalSettings" data-cwl-lifted-component="GlobalSettings"><div class="settings-overlay" data-cwl-action="handleClose" role="presentation" hidden aria-hidden="true">
+    <div data-cwl-component="GlobalSettings" data-cwl-lifted-component="GlobalSettings"><div class="settings-overlay" data-cwl-action="handleClose" role="presentation" data-cwl-shell-key="showSettings" hidden aria-hidden="true">
     <div
       class="settings-panel" data-cwl-on-keydown="action:handlePanelKeydown"
       role="dialog"
@@ -641,7 +641,7 @@
 
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
+  <div data-cwl-shell-key="showInviteModal" hidden aria-hidden="true"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
   class="modal-backdrop"
   role="dialog"
   aria-modal="true"
@@ -752,7 +752,7 @@
 </div></div>
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
+  <div data-cwl-shell-key="showEditModal" hidden aria-hidden="true"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
   class="modal-backdrop"
   role="presentation"
   aria-hidden="true"
@@ -853,7 +853,7 @@
             </button>
           </div></div>
 
-        <div class="confirm-delete" hidden aria-hidden="true">
+        <div class="confirm-delete" data-cwl-shell-key="showDeleteConfirm" hidden aria-hidden="true">
           <span class="warning-icon">⚠️</span>
           <h3>Remove User?</h3>
           <p>Are you sure you want to remove <strong><span data-cwl-bind="interp" data-cwl-hole-detail="user.email"></span></strong> from this organization?</p>
@@ -1008,7 +1008,7 @@
             <h3>🐛 Debug Mode</h3>
             <p class="description">Advanced debugging for troubleshooting with wisptools.io engineers</p>
 
-              <div class="debug-warning" hidden aria-hidden="true">
+              <div class="debug-warning" data-cwl-shell-key="showDebugWarning" hidden aria-hidden="true">
                 <div class="warning-header">
                   <span class="warning-icon">⚠️</span>
                   <strong>Warning: Debug Mode Enabled</strong>
@@ -1056,7 +1056,7 @@
 
 <!-- Import System Modal -->
 
-  <div hidden aria-hidden="true"><div data-cwl-component="ImportSystem" data-cwl-lifted-component="ImportSystem"><div data-cwl-bind="if" data-cwl-hole-detail="!tenantId || tenantId.trim() === ''" hidden aria-hidden="true"><div class="import-overlay" data-cwl-action="close">
+  <div data-cwl-shell-key="showImportSystem" hidden aria-hidden="true"><div data-cwl-component="ImportSystem" data-cwl-lifted-component="ImportSystem"><div data-cwl-bind="if" data-cwl-hole-detail="!tenantId || tenantId.trim() === ''" data-cwl-shell-key="showImportSystem" hidden aria-hidden="true"><div class="import-overlay" data-cwl-action="close">
       <div class="import-panel">
         <div class="import-header">
           <h2>📥 Import Data</h2>
@@ -1094,7 +1094,7 @@
             <button data-cwl-set="success:">✕</button>
           </div>
 
-          <div hidden aria-hidden="true"><!-- Step 1: Select Import Type -->
+          <div data-cwl-shell-key="showPreview" hidden aria-hidden="true"><!-- Step 1: Select Import Type -->
           <div class="import-step">
             <h3>1. Select Data Type to Import</h3>
             <p class="step-description">Choose the type of data you want to import</p>
@@ -1208,7 +1208,7 @@
 
         <!-- Step 3: Preview and Validate -->
 
-          <div class="import-step" hidden aria-hidden="true">
+          <div class="import-step" data-cwl-shell-key="showPreview" hidden aria-hidden="true">
             <h3>3. Review & Import</h3>
             <p class="step-description">Review your data and fix any errors before importing</p>
 
@@ -1314,7 +1314,7 @@
     </div>
   </div></div>
 </div></div>
-    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+    <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">

@@ -14,7 +14,7 @@
     <div
       class="plan-draft-menu"
       style="left: px; top: px"
-     hidden aria-hidden="true">
+     data-cwl-shell-key="showPlanDraftMenu" hidden aria-hidden="true">
       <div class="menu-header">
         <strong><span data-cwl-bind="interp" data-cwl-hole-detail="selectedPlanDraft.properties?.name ?? selectedPlanDraft.featureType ?? 'Draft Ob"></span></strong>
         <small>Status: <span data-cwl-bind="interp" data-cwl-hole-detail="selectedPlanDraft.status ?? 'draft'"></span></small>
@@ -131,7 +131,7 @@
 
   <!-- Filters Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showFilters:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showFilters:false" data-cwl-shell-key="showFilters" hidden aria-hidden="true">
     <div class="modal-content filters-modal" hidden aria-hidden="true">
       <div class="modal-header">
         <h3>🔍 Map Filters</h3>
@@ -347,7 +347,7 @@
 
   <!-- Statistics Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showStats:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showStats:false" data-cwl-shell-key="showStats" hidden aria-hidden="true">
     <div class="modal-content stats-modal">
       <div class="modal-header">
         <h3>📊 Network Statistics</h3>
@@ -408,7 +408,7 @@
 </div>
 
 <!-- Unified Device Management -->
-<div data-cwl-component="DeviceManagementPanel" data-cwl-lifted-component="DeviceManagementPanel"><div class="device-panel" hidden aria-hidden="true">
+<div data-cwl-component="DeviceManagementPanel" data-cwl-lifted-component="DeviceManagementPanel"><div class="device-panel" data-cwl-shell-key="showDevicePanel" hidden aria-hidden="true">
     <div class="panel-header">
       <h2>Device Management</h2>
       <button class="close-button" data-cwl-action="close" aria-label="Close">×</button>
@@ -510,7 +510,7 @@
     </div>
   </div></div>
 
-<div data-cwl-component="UnifiedDeviceDetailsModal" data-cwl-lifted-component="UnifiedDeviceDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && device" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleBackdropClick" hidden aria-hidden="true">
+<div data-cwl-component="UnifiedDeviceDetailsModal" data-cwl-lifted-component="UnifiedDeviceDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && device" data-cwl-shell-key="showUnifiedDeviceModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleBackdropClick" hidden aria-hidden="true">
     <div class="modal-content unified-device-modal">
       <div class="modal-header">
         <div class="header-left">
@@ -711,7 +711,7 @@
   </div></div></div>
 
 <!-- Modals -->
-<div data-cwl-component="AddSiteModal" data-cwl-lifted-component="AddSiteModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddSiteModal" data-cwl-lifted-component="AddSiteModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddSiteModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>📡 Add Tower Site</h2>
@@ -902,7 +902,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddNOCModal" data-cwl-lifted-component="AddNOCModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddNOCModal" data-cwl-lifted-component="AddNOCModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddNOCModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🏢 Add NOC (Network Operations Center)</h2>
@@ -1001,7 +1001,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddWarehouseModal" data-cwl-lifted-component="AddWarehouseModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddWarehouseModal" data-cwl-lifted-component="AddWarehouseModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddWarehouseModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🏭 Add Warehouse / Storage Location</h2>
@@ -1077,7 +1077,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddVehicleModal" data-cwl-lifted-component="AddVehicleModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddVehicleModal" data-cwl-lifted-component="AddVehicleModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddVehicleModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🚚 Add Service Vehicle</h2>
@@ -1136,7 +1136,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddRMAModal" data-cwl-lifted-component="AddRMAModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddRMAModal" data-cwl-lifted-component="AddRMAModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddRMAModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🔧 Add RMA / Repair Center</h2>
@@ -1212,7 +1212,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddSectorModal" data-cwl-lifted-component="AddSectorModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddSectorModal" data-cwl-lifted-component="AddSectorModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddSectorModal" hidden aria-hidden="true">
     <div class="modal-content">
     <div class="modal-header">
       <h2>📶 <span data-cwl-bind="interp" data-cwl-hole-detail="sectorToEdit ? 'Edit Sector' : 'Add Sector'"></span></h2>
@@ -1361,7 +1361,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddCPEModal" data-cwl-lifted-component="AddCPEModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddCPEModal" data-cwl-lifted-component="AddCPEModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddCPEModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>📱 Add CPE Device</h2>
@@ -1541,7 +1541,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddBackhaulLinkModal" data-cwl-lifted-component="AddBackhaulLinkModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddBackhaulLinkModal" data-cwl-lifted-component="AddBackhaulLinkModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showAddBackhaulModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>🔗 <span data-cwl-bind="interp" data-cwl-hole-detail="backhaulToEdit ? 'Edit Backhaul Link' : 'Add Backhaul Link'"></span></h2>
@@ -1895,7 +1895,7 @@
   </div>
 </div></div>
 
-<div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" data-cwl-shell-key="showAddInventoryModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <div>
@@ -2102,7 +2102,7 @@
 </div></div></div>
 
 <!-- Context Menus -->
-<div data-cwl-component="MapContextMenu" data-cwl-lifted-component="MapContextMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && !disabled" hidden aria-hidden="true"><div
+<div data-cwl-component="MapContextMenu" data-cwl-lifted-component="MapContextMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && !disabled" data-cwl-shell-key="showContextMenu" hidden aria-hidden="true"><div
   class="context-menu"
   style="left: px; top: px"
 >
@@ -2146,7 +2146,7 @@
   </button>
 </div></div></div>
 
-<div data-cwl-component="TowerActionsMenu" data-cwl-lifted-component="TowerActionsMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower" hidden aria-hidden="true"><div
+<div data-cwl-component="TowerActionsMenu" data-cwl-lifted-component="TowerActionsMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower" data-cwl-shell-key="showTowerActionsMenu" hidden aria-hidden="true"><div
   class="tower-menu"
   style="left: px; top: px"
 >
@@ -2239,7 +2239,7 @@
     </div></div>
 </div></div></div>
 
-<div data-cwl-component="SectorActionsMenu" data-cwl-lifted-component="SectorActionsMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && sector" hidden aria-hidden="true"><div
+<div data-cwl-component="SectorActionsMenu" data-cwl-lifted-component="SectorActionsMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && sector" data-cwl-shell-key="showSectorActionsMenu" hidden aria-hidden="true"><div
   class="sector-menu"
   style="left: px; top: px"
 >
@@ -2294,7 +2294,7 @@
     </div></div>
 </div></div></div>
 
-<div data-cwl-component="BackhaulActionsMenu" data-cwl-lifted-component="BackhaulActionsMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && backhaul" hidden aria-hidden="true"><div
+<div data-cwl-component="BackhaulActionsMenu" data-cwl-lifted-component="BackhaulActionsMenu"><div data-cwl-bind="if" data-cwl-hole-detail="show && backhaul" data-cwl-shell-key="showBackhaulActionsMenu" hidden aria-hidden="true"><div
   class="backhaul-menu"
   style="left: px; top: px"
 >
@@ -2350,7 +2350,7 @@
 </div></div></div>
 
 <!-- EPC Deployment Modal -->
-<div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showEPCDeploymentModal" hidden aria-hidden="true">
     <div class="modal-content epc-deployment-modal">
       <div class="modal-header">
         <h2>🚀 Server Deployment</h2>
@@ -2760,7 +2760,7 @@
   </div></div>
 
 <!-- HSS Registration Modal -->
-<div data-cwl-component="HSSRegistrationModal" data-cwl-lifted-component="HSSRegistrationModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="HSSRegistrationModal" data-cwl-lifted-component="HSSRegistrationModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showHSSRegistrationModal" hidden aria-hidden="true">
     <div class="modal-content hss-registration-modal">
       <div class="modal-header">
         <h2>🏠 Register Site with HSS</h2>
@@ -2981,7 +2981,7 @@
   </div></div>
 
 <!-- Hardware Deployment Modal -->
-<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-toggle="isLoadingInventory:false" hidden aria-hidden="true">
+<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower" data-cwl-shell-key="showHardwareDeploymentModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-toggle="isLoadingInventory:false" hidden aria-hidden="true">
   <div class="modal">
     <div class="modal-header">
       <h2>🔧 Deploy Hardware to <span data-cwl-bind="interp" data-cwl-hole-detail="tower?.name || 'Selected Site'"></span></h2>
@@ -3036,8 +3036,8 @@
             <li>📦 Other Equipment</li>
           </ul>
         </div>
-      <div hidden aria-hidden="true">
-        <div hidden aria-hidden="true"><!-- Inventory Selection View -->
+      <div data-cwl-shell-key="showInventoryList" hidden aria-hidden="true">
+        <div data-cwl-shell-key="showInventoryList" hidden aria-hidden="true"><!-- Inventory Selection View -->
         <div class="inventory-selection">
           <p style="color: var(--text-secondary); margin-bottom: 1rem;">
             Select hardware from your inventory to deploy to <strong><span data-cwl-bind="interp" data-cwl-hole-detail="tower?.name"></span></strong>
@@ -3109,7 +3109,7 @@
 </div></div></div>
 
 <!-- Help Modal -->
-<div data-cwl-bind="if" data-cwl-hole-detail="!isEmbedded"><div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-bind="if" data-cwl-hole-detail="!isEmbedded"><div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -3144,7 +3144,7 @@
     </div>
   </div></div></div></div>
 
-<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">Coverage Map Help</h2>
@@ -3446,7 +3446,7 @@
   </div></div>
 
 <!-- Site Edit Modal -->
-<div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showSiteEditModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>

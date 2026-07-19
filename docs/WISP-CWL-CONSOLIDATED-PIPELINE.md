@@ -144,3 +144,37 @@ The “~60% feel” usually means three conversion gaps stacking:
 
 Census blocker added: `missing-origin-labels` (origin `<button>` / `<h2>` labels
 absent from the export after decoding `data-cwl-each-tpl`).
+
+## Modal toggle resolution (2026-07-19k / 2026-07-19m)
+
+Root cause of “most buttons still don’t work”: toggles were wired
+(`data-cwl-toggle="showAddTn:true"`) but the closed modal chrome had no
+`data-cwl-modal-shell` / `data-cwl-lifted-component` name the fuzzy
+`findShellByName` matcher could resolve. Page-local overlays stamped with
+`stampClosedUiChrome` were invisible to the client.
+
+Fix:
+
+1. **Converter** — `stampClosedUiChrome(html, shellKey)` writes
+   `data-cwl-shell-key="<toggle ident>"` on closed `{#if showX}` chrome.
+   Structural component inlines that receive `show={ident}` /
+   `bind:show={ident}` also stamp that page-level gate key.
+2. **Client** — `findShellByKey` resolves toggles by exact key before the
+   fuzzy name search.
+3. **Fidelity deepen injectors off** — `initDeepenN10gSurfaces` …
+   `initDeepenN10xSurfaces` invent synthetic toolbar buttons (`data-cwl-n10g`,
+   etc.) that are not in the origin Svelte UI. They stay disabled unless
+   `window.__WISP_CWL_ENABLE_DEEPEN_SURFACES__ === true`. Origin controls only.
+
+Live verification (GCE `http://34.61.255.147:19100`, asset bust `20260719m`):
+visible truthy toggles open on voice-telephony, work-orders, plan, customers,
+dashboard; Plan Help opens; zero `data-cwl-n10g` injectors on those pages.
+
+Still known gaps (not modal-toggle resolution):
+
+- `/modules/billing` `showUpgradeModal` — origin sets the flag during PayPal
+  redirect; there is no closed overlay chrome to stamp.
+- `/modules/pci-resolution` `showSiteEditorInWizard` — nested wizard-local
+  state, not a page-level shell.
+- List/row actions that need selected-entity hydrate (`openEditModal` with a
+  row payload) still depend on API-bound islands.

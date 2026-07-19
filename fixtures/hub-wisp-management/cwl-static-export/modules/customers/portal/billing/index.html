@@ -64,7 +64,7 @@
             <h2>Pay now</h2>
             <div class="info-card">
 
-                <div hidden aria-hidden="true"><div data-cwl-component="StripeCardForm" data-cwl-lifted-component="StripeCardForm"><div class="stripe-card-form">
+                <div data-cwl-shell-key="showCardForm" hidden aria-hidden="true"><div data-cwl-component="StripeCardForm" data-cwl-lifted-component="StripeCardForm"><div class="stripe-card-form">
   <div data-cwl-bind="if" data-cwl-hole-detail="mountError"><p class="form-error"></p></div>
     <div class="card-mount"></div>
     <p class="card-hint">Enter your card details. Your payment is secure.</p>
@@ -113,7 +113,7 @@
         <p class="hint">Your provider may add a plan later, or you can contact support for details.</p>
       </div>
 
-      <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Invoice detail" data-cwl-toggle="showInvoiceModal:false" data-cwl-on-keydown="toggle:showInvoiceModal:false" hidden aria-hidden="true">
+      <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Invoice detail" data-cwl-toggle="showInvoiceModal:false" data-cwl-on-keydown="toggle:showInvoiceModal:false" data-cwl-shell-key="showInvoiceModal" hidden aria-hidden="true">
         <div class="modal-content">
           <div class="modal-header">
             <h2>Invoice detail</h2>

@@ -142,7 +142,7 @@
 
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
+  <div data-cwl-shell-key="showInviteModal" hidden aria-hidden="true"><div data-cwl-component="InviteUserModal" data-cwl-lifted-component="InviteUserModal"><div
   class="modal-backdrop"
   role="dialog"
   aria-modal="true"
@@ -253,7 +253,7 @@
 </div></div>
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
+  <div data-cwl-shell-key="showEditModal" hidden aria-hidden="true"><div data-cwl-component="EditUserModal" data-cwl-lifted-component="EditUserModal"><div
   class="modal-backdrop"
   role="presentation"
   aria-hidden="true"
@@ -354,7 +354,7 @@
             </button>
           </div></div>
 
-        <div class="confirm-delete" hidden aria-hidden="true">
+        <div class="confirm-delete" data-cwl-shell-key="showDeleteConfirm" hidden aria-hidden="true">
           <span class="warning-icon">⚠️</span>
           <h3>Remove User?</h3>
           <p>Are you sure you want to remove <strong><span data-cwl-bind="interp" data-cwl-hole-detail="user.email"></span></strong> from this organization?</p>

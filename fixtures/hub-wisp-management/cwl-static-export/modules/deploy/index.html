@@ -79,7 +79,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -109,7 +109,7 @@
 
   <!-- PCI Planner Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="PCIPlannerModal" data-cwl-lifted-component="PCIPlannerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showPCIPlannerModal" hidden aria-hidden="true"><div data-cwl-component="PCIPlannerModal" data-cwl-lifted-component="PCIPlannerModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showPCIPlannerModal" hidden aria-hidden="true">
   <div class="modal-content pci-planner-modal">
     <div class="modal-header">
       <h2>📊 PCI Planner</h2>
@@ -177,7 +177,7 @@
               </button>
             </div>
 
-              <div class="advanced-options" hidden aria-hidden="true">
+              <div class="advanced-options" data-cwl-shell-key="showAdvancedOptions" hidden aria-hidden="true">
                 <h4>Advanced Configuration</h4>
                 <div class="form-grid">
                   <div class="form-group">
@@ -333,7 +333,7 @@
 
   <!-- Frequency Planner Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="FrequencyPlannerModal" data-cwl-lifted-component="FrequencyPlannerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showFrequencyPlannerModal" hidden aria-hidden="true"><div data-cwl-component="FrequencyPlannerModal" data-cwl-lifted-component="FrequencyPlannerModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showFrequencyPlannerModal" hidden aria-hidden="true">
     <div class="modal-content frequency-planner-modal">
       <div class="modal-header">
         <h2>📡 Frequency Planner</h2>
@@ -572,7 +572,7 @@
 
   <!-- Plan Approval Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="PlanApprovalModal" data-cwl-lifted-component="PlanApprovalModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && plan" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showPlanApprovalModal" hidden aria-hidden="true"><div data-cwl-component="PlanApprovalModal" data-cwl-lifted-component="PlanApprovalModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && plan" data-cwl-shell-key="showPlanApprovalModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>📋 Plan Approval: <span data-cwl-bind="interp" data-cwl-hole-detail="plan.name"></span></h2>
@@ -705,7 +705,7 @@
   </div>
 
   <!-- Deployed Hardware Modal -->
-  <div data-cwl-component="DeployedHardwareModal" data-cwl-lifted-component="DeployedHardwareModal"><div class="modal-overlay" data-cwl-toggle="showEditModal:false" hidden aria-hidden="true">
+  <div data-cwl-component="DeployedHardwareModal" data-cwl-lifted-component="DeployedHardwareModal"><div class="modal-overlay" data-cwl-toggle="showEditModal:false" data-cwl-shell-key="showDeployedHardwareModal" hidden aria-hidden="true">
   <div class="modal-content large">
     <div class="modal-header">
       <h2>🔧 Deployed Hardware</h2>
@@ -775,7 +775,7 @@
 
 <!-- Edit Modal for General Hardware -->
 
-<div class="modal-overlay" data-cwl-toggle="showEditModal:false" hidden aria-hidden="true">
+<div class="modal-overlay" data-cwl-toggle="showEditModal:false" data-cwl-shell-key="showEditModal" hidden aria-hidden="true">
   <div class="modal-content edit-modal">
     <div class="modal-header">
       <h2>✏️ Edit Deployment</h2>
@@ -824,7 +824,7 @@
 
 <!-- Edit Modal for EPC/SNMP Devices -->
 
-<div class="modal-overlay nested" data-cwl-toggle="showEPCEditModal:false" hidden aria-hidden="true">
+<div class="modal-overlay nested" data-cwl-toggle="showEPCEditModal:false" data-cwl-shell-key="showEPCEditModal" hidden aria-hidden="true">
   <div class="modal-content edit-modal epc-edit">
     <div class="modal-header">
       <h2>✏️ Edit EPC/SNMP Device</h2>
@@ -939,7 +939,7 @@
 
   <!-- Site Details Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="SiteDetailsModal" data-cwl-lifted-component="SiteDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showSiteDetailsModal" hidden aria-hidden="true"><div data-cwl-component="SiteDetailsModal" data-cwl-lifted-component="SiteDetailsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" data-cwl-shell-key="showSiteDetailsModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
     <div class="modal-content large">
       <div class="modal-header">
         <h2>📋 Site Details: <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>
@@ -1128,9 +1128,9 @@
   </div></div></div>
   </div>
 
-    <div hidden aria-hidden="true">
+    <div data-cwl-shell-key="showSiteEquipmentModal" hidden aria-hidden="true">
 
-    <div data-cwl-component="SiteEquipmentModal" data-cwl-lifted-component="SiteEquipmentModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+    <div data-cwl-component="SiteEquipmentModal" data-cwl-lifted-component="SiteEquipmentModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" data-cwl-shell-key="showSiteEquipmentModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
     <div class="modal-content large">
       <div class="modal-header">
         <h2>📦 Equipment at <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>
@@ -1295,9 +1295,9 @@
 
   <!-- Add Inventory Modal -->
 
-    <div hidden aria-hidden="true">
+    <div data-cwl-shell-key="showAddInventoryModal" hidden aria-hidden="true">
 
-    <div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" data-cwl-shell-key="showAddInventoryModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <div>
@@ -1506,7 +1506,7 @@
 
   <!-- Site Edit Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showSiteEditModal" hidden aria-hidden="true"><div data-cwl-component="SiteEditModal" data-cwl-lifted-component="SiteEditModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showSiteEditModal" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <h2>
@@ -1876,7 +1876,7 @@
 
   <!-- EPC Deployment Modal -->
 
-    <div hidden aria-hidden="true"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+    <div data-cwl-shell-key="showEPCDeploymentModal" hidden aria-hidden="true"><div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showEPCDeploymentModal" hidden aria-hidden="true">
     <div class="modal-content epc-deployment-modal">
       <div class="modal-header">
         <h2>🚀 Server Deployment</h2>
@@ -2287,7 +2287,7 @@
   </div>
 
   <!-- Project Filter Panel -->
-  <div data-cwl-component="ProjectFilterPanel" data-cwl-lifted-component="ProjectFilterPanel"><div class="project-filter-panel" hidden aria-hidden="true">
+  <div data-cwl-component="ProjectFilterPanel" data-cwl-lifted-component="ProjectFilterPanel"><div class="project-filter-panel" data-cwl-shell-key="showProjectFilters" hidden aria-hidden="true">
   <div class="panel-header">
     <h3>📋 Project Filters</h3>
     <button class="toggle-btn" data-cwl-toggle="filterExpanded:flip" data-cwl-attr-title="filterExpanded ? 'Collapse' : 'Expand'">
@@ -2298,7 +2298,7 @@
 </div></div>
 
   <!-- Deployment Wizard -->
-  <div data-cwl-component="DeploymentWizard" data-cwl-lifted-component="DeploymentWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="DeploymentWizard" data-cwl-lifted-component="DeploymentWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showDeploymentWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -2675,7 +2675,7 @@
 </div></div>
 
   <!-- Site Deployment Wizard -->
-  <div data-cwl-component="SiteDeploymentWizard" data-cwl-lifted-component="SiteDeploymentWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="SiteDeploymentWizard" data-cwl-lifted-component="SiteDeploymentWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showSiteDeploymentWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -2862,7 +2862,7 @@
 
   <!-- Plan Selection Modal (shows list of all plans) -->
 
-    <div class="modal-overlay" data-cwl-toggle="showPlanApprovalModal:false" hidden aria-hidden="true">
+    <div class="modal-overlay" data-cwl-toggle="showPlanApprovalModal:false" data-cwl-shell-key="showPlanApprovalModal" hidden aria-hidden="true">
       <div class="plan-list-modal">
         <div class="modal-header">
           <h2>📋 All Plans - Activate, Approve, or Take Over</h2>
@@ -2908,7 +2908,7 @@
                       >
                         🚀 Deploy
                       </button></div>
-                      <div hidden aria-hidden="true"><button
+                      <div data-cwl-shell-key="showOnMap" hidden aria-hidden="true"><button
                         class="btn-takeover" data-cwl-action="takeOverPlan" data-cwl-action-args="plan" title="Mark this authorized plan as deployed"
                       >
                         ✅ Take Over
@@ -2935,7 +2935,7 @@
   <!-- Global Settings Button - Hidden in deploy mode, shown in coverage-map iframe instead -->
 
   <!-- Help Modal -->
-<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">Deploy Module Help</h2>
@@ -3365,7 +3365,7 @@
     </div>
   </div></div>
 
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -3689,7 +3689,7 @@
 
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="AddSubscriberModal" data-cwl-lifted-component="AddSubscriberModal"><div class="modal-overlay" data-cwl-action="close">
+  <div data-cwl-shell-key="showAddModal" hidden aria-hidden="true"><div data-cwl-component="AddSubscriberModal" data-cwl-lifted-component="AddSubscriberModal"><div class="modal-overlay" data-cwl-action="close">
   <div class="modal">
     <div class="modal-header">
       <h2>🔐 Add New Subscriber</h2>
@@ -3910,7 +3910,7 @@
 </div></div>
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="SubscriberDetailsModal" data-cwl-lifted-component="SubscriberDetailsModal"><div class="modal-overlay" data-cwl-action="close">
+  <div data-cwl-shell-key="showDetailsModal" hidden aria-hidden="true"><div data-cwl-component="SubscriberDetailsModal" data-cwl-lifted-component="SubscriberDetailsModal"><div class="modal-overlay" data-cwl-action="close">
   <div class="modal">
     <h2>Subscriber Details</h2>
     <p>IMSI: <span data-cwl-bind="interp" data-cwl-hole-detail="subscriber?.imsi || 'N/A'"></span></p>
@@ -3984,7 +3984,7 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" data-cwl-shell-key="showAddModal" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Edit' : 'Add'"></span> Subscriber Group</h3>
@@ -4065,7 +4065,7 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" data-cwl-shell-key="showAddModal" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Edit' : 'Add'"></span> Bandwidth Plan</h3>
@@ -4639,7 +4639,7 @@
 
 <!-- Add EPC Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" data-cwl-shell-key="showAddModal" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h2>Register New EPC Site</h2>
@@ -4763,7 +4763,7 @@
 
 <!-- Create New Site Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showCreateSiteModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showCreateSiteModal:false" data-cwl-shell-key="showCreateSiteModal" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h2>➕ Create New Site</h2>
@@ -4826,7 +4826,7 @@
 
 <!-- EPC Details Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showDetailsModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showDetailsModal:false" data-cwl-shell-key="showDetailsModal" hidden aria-hidden="true">
     <div class="modal modal-large">
       <div class="modal-header">
         <h2>📊 <span data-cwl-bind="interp" data-cwl-hole-detail="selectedEPC.site_name"></span></h2>
@@ -5018,7 +5018,7 @@
   </div>
 
 <!-- Site Devices Modal -->
-<div data-cwl-component="SiteDevicesModal" data-cwl-lifted-component="SiteDevicesModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="close">
+<div data-cwl-component="SiteDevicesModal" data-cwl-lifted-component="SiteDevicesModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && site" data-cwl-shell-key="showSiteDevicesModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="close">
     <div class="modal site-devices-modal">
       <div class="modal-header">
         <div>
@@ -5223,7 +5223,7 @@
 
 <!-- Add Device Modal -->
 
-  <div class="modal-overlay nested" data-cwl-toggle="showAddDeviceModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay nested" data-cwl-toggle="showAddDeviceModal:false" data-cwl-shell-key="showAddDeviceModal" hidden aria-hidden="true">
     <div class="modal add-device-modal">
       <div class="modal-header">
         <h2>➕ Add New Device</h2>
@@ -5371,7 +5371,7 @@
 
   </div>
 
-    <div class="preview-section" hidden aria-hidden="true">
+    <div class="preview-section" data-cwl-shell-key="showPreview" hidden aria-hidden="true">
       <div class="preview-header">
         <h3>Preview: <span data-cwl-bind="interp" data-cwl-hole-detail="csvData.length"></span> subscribers</h3>
         <button class="btn-cancel" data-cwl-toggle="showPreview:false">Cancel</button>

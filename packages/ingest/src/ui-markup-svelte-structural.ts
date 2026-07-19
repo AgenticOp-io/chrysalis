@@ -164,14 +164,24 @@ export function hasBooleanHiddenAttr(openTag: string): boolean {
   return /(?:^|\s)hidden(?:\s|=|>|$)/i.test(openTag);
 }
 
-/** Stamp closed-state attributes on the first element root (translate closed, do not invent). */
-export function stampClosedUiChrome(html: string): string {
+/**
+ * Stamp closed-state attributes on the first element root (translate closed, do not invent).
+ * When `shellKey` is provided (the `{#if showX}` toggle ident), it is stamped as
+ * `data-cwl-shell-key` so runtime `data-cwl-toggle="showX:true"` clicks resolve
+ * page-local modal chrome deterministically — fuzzy shell-name search cannot see
+ * these blocks (voice-telephony Add number / work-orders Create dead toggles).
+ */
+export function stampClosedUiChrome(html: string, shellKey?: string): string {
+  const keyAttr =
+    shellKey !== undefined && shellKey.length > 0
+      ? ` data-cwl-shell-key="${shellKey.replace(/"/g, "&quot;")}"`
+      : "";
   const lead = html.match(/^\s*/)?.[0] ?? "";
   const trimmed = html.slice(lead.length);
   if (trimmed.length === 0) return html;
   const nameMatch = /^<(div|nav|aside|section)\b/i.exec(trimmed);
   if (nameMatch === null) {
-    return `${lead}<div hidden aria-hidden="true">${trimmed}</div>`;
+    return `${lead}<div${keyAttr} hidden aria-hidden="true">${trimmed}</div>`;
   }
   // Brace/quote-aware open-tag end — naive [^>] breaks on onclick={() => …}.
   let i = nameMatch[0].length;
@@ -209,13 +219,16 @@ export function stampClosedUiChrome(html: string): string {
     }
     i++;
   }
-  const open = trimmed.slice(0, i);
+  let open = trimmed.slice(0, i);
   const rest = trimmed.slice(i);
+  if (keyAttr.length > 0 && !/\bdata-cwl-shell-key\b/.test(open)) {
+    open = open.replace(/>$/, `${keyAttr}>`);
+  }
   if (hasBooleanHiddenAttr(open)) {
     if (!/\baria-hidden\b/i.test(open)) {
       return `${lead}${open.replace(/>$/, ' aria-hidden="true">')}${rest}`;
     }
-    return html;
+    return `${lead}${open}${rest}`;
   }
   // aria-hidden alone still paints when origin CSS uses display:flex on overlays.
   if (/\baria-hidden\b/i.test(open)) {
@@ -1865,7 +1878,7 @@ function expandControlFlow(
           replacement =
             block.trueBody +
             (isUiToggleOverlayIfHeader(negated[1]!) && idleHtml.trim().length > 0
-              ? stampClosedUiChrome(idleHtml)
+              ? stampClosedUiChrome(idleHtml, negated[1]!)
               : "");
         } else {
           replacement = idle();
@@ -1886,7 +1899,7 @@ function expandControlFlow(
                 : "");
           } else {
             // Closed overlay chrome: keep markup hidden in DOM (D6442).
-            replacement = stampClosedUiChrome(block.trueBody);
+            replacement = stampClosedUiChrome(block.trueBody, simple[1]!);
           }
         } else if (on && isUiToggleOverlayIfHeader(block.header)) {
           // Visible toggle with an else branch — keep the else stamped closed.
@@ -1990,13 +2003,18 @@ function expandControlFlow(
           (block.trueBody.trim().length > 0 ? stampClosedUiChrome(block.trueBody) : "");
       } else if (isUiToggleOverlayIfHeader(block.header) && simple) {
         // Unknown show* — default closed chrome.
-        replacement = stampClosedUiChrome(block.trueBody);
+        replacement = stampClosedUiChrome(block.trueBody, simple[1]!);
       } else if (isUiToggleOverlayIfHeader(block.header) && negated) {
         // Unknown !show* — assume show is false → main content visible.
         replacement = block.trueBody;
       } else if (isUiToggleOverlayIfHeader(block.header)) {
-        // Compound toggles (`showFilters && !isDeployMode`) — keep closed chrome (D6442).
-        replacement = stampClosedUiChrome(block.trueBody);
+        // Compound toggles (`showFilters && !isDeployMode`) — keep closed chrome (D6442);
+        // stamp the first show*/is*Open-style ident so runtime toggles can find it.
+        const compoundIdent =
+          /\b(show[A-Z][A-Za-z0-9_]*|is[A-Z][A-Za-z0-9_]*(?:Open|Visible|DeployMode|PlanMode))\b/.exec(
+            block.header,
+          );
+        replacement = stampClosedUiChrome(block.trueBody, compoundIdent?.[1]);
       } else if (/^[a-zA-Z_][\w]*\.length\s*>\s*0$/.test(block.header)) {
         // Prop arrays (`wizards.length > 0`) — keep trigger chrome; rows bind later (D6442).
         replacement = block.trueBody;
@@ -2063,6 +2081,7 @@ function tryInlineStructuralComponent(
   depth: number,
   propScalars: Readonly<Record<string, string | number | boolean>> = {},
   propBools: Readonly<Record<string, boolean>> = {},
+  gateKey?: string,
 ): string | null {
   if (depth > 6) return null;
   if (!structuralInline.has(name) || !componentSources?.has(name)) return null;
@@ -2103,7 +2122,9 @@ function tryInlineStructuralComponent(
     // `hidden` would leave an empty open modal (D6443).
     const selfGated =
       /\bexport\s+let\s+show\b/.test(raw) || /\{#if\s+show(?:\s|&&|\})/.test(raw);
-    const body = selfGated ? stampClosedUiChrome(lifted.html) : lifted.html;
+    // Stamp the page-level gate ident (`bind:show={showCreateModal}`) so
+    // data-cwl-toggle="showCreateModal:true" resolves this shell exactly.
+    const body = selfGated ? stampClosedUiChrome(lifted.html, gateKey) : lifted.html;
     return `<div data-cwl-component="${safe}" data-cwl-lifted-component="${safe}">${body}</div>`;
   } catch {
     return null;
@@ -2221,6 +2242,10 @@ export function liftStructuralSveltePageHtml(
             out += sharedMapIslandMarkup(tagText);
           } else {
             const tagProps = parseComponentTagProps(tagText, scalarValues, loadBools);
+            const gateKey =
+              /\s(?:bind:)?(?:show|open|visible|isOpen)\s*=\s*\{\s*([a-zA-Z_$][\w$]*)\s*\}/.exec(
+                tagText,
+              )?.[1];
             const structural = tryInlineStructuralComponent(
               n,
               opts.componentSources,
@@ -2231,6 +2256,7 @@ export function liftStructuralSveltePageHtml(
               inlineDepth,
               tagProps.scalars,
               tagProps.bools,
+              gateKey,
             );
             if (structural !== null) {
               out += structural;

@@ -172,7 +172,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -236,7 +236,7 @@
     </svg>
   </button>
 
-    <div class="settings-panel" hidden aria-hidden="true">
+    <div class="settings-panel" data-cwl-shell-key="isOpen" hidden aria-hidden="true">
       <div class="settings-header">
         <h3>⚙️ Settings</h3>
         <button class="close-btn" data-cwl-toggle="isOpen:false" aria-label="Is Open">×</button>
@@ -254,7 +254,7 @@
 
   </button>
 
-    <div class="dropdown" hidden aria-hidden="true">
+    <div class="dropdown" data-cwl-shell-key="showDropdown" hidden aria-hidden="true">
       <button
         class="dropdown-item" data-cwl-action="handleThemeSelect" data-cwl-action-args="'light'"
        aria-label="Theme Select">
@@ -352,7 +352,7 @@
   <div data-cwl-component="NetworkManager" data-cwl-lifted-component="NetworkManager"><div
     class="network-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
-   hidden aria-hidden="true">
+   data-cwl-shell-key="showNetworkManager" hidden aria-hidden="true">
     <div
       class="network-modal"
       role="dialog"
@@ -386,7 +386,7 @@
   <div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div
     class="wizard-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
-   hidden aria-hidden="true">
+   data-cwl-shell-key="showImportWizard" hidden aria-hidden="true">
     <div
       class="wizard-modal"
       role="dialog"
@@ -551,7 +551,7 @@
   </div>
 
 <!-- Nested Site Editor for Manual Import -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" data-cwl-shell-key="isOpen" hidden aria-hidden="true">
     <div class="site-editor">
       <div class="editor-header">
         <h2>
@@ -1015,7 +1015,7 @@
     </div>
   </div></div></div>
 
-  <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+  <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"><div class="modal-backdrop" data-cwl-shell-key="isOpen" hidden aria-hidden="true">
     <div class="cell-editor">
       <div class="editor-header">
         <h2>
@@ -1302,7 +1302,7 @@
     </div>
   </div></div>
 
-  <div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+  <div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" data-cwl-shell-key="isOpen" hidden aria-hidden="true">
     <div class="site-editor">
       <div class="editor-header">
         <h2>
@@ -1618,7 +1618,7 @@
     </div>
   </div></div>
 
-  <div data-cwl-component="ContextMenu" data-cwl-lifted-component="ContextMenu"><div hidden aria-hidden="true"><!-- Invisible backdrop to close menu -->
+  <div data-cwl-component="ContextMenu" data-cwl-lifted-component="ContextMenu"><div data-cwl-shell-key="showContextMenu" hidden aria-hidden="true"><!-- Invisible backdrop to close menu -->
   <div
     class="context-backdrop"
     role="presentation" data-cwl-action="handleBackdropClick" data-cwl-on-keydown="action:handleBackdropClick"
@@ -1651,7 +1651,7 @@
   <div data-cwl-component="TowerManager" data-cwl-lifted-component="TowerManager"><div
     class="tower-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
-   hidden aria-hidden="true">
+   data-cwl-shell-key="showTowerManager" hidden aria-hidden="true">
     <div
       class="tower-modal"
       role="dialog"
@@ -1834,7 +1834,7 @@
   </div>
 
 <!-- Site Editor Modal -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" data-cwl-shell-key="isOpen" hidden aria-hidden="true">
     <div class="site-editor">
       <div class="editor-header">
         <h2>
@@ -2154,7 +2154,7 @@
 <div data-cwl-component="ImportWizard" data-cwl-lifted-component="ImportWizard"><div
     class="wizard-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
-   hidden aria-hidden="true">
+   data-cwl-shell-key="showImportWizard" hidden aria-hidden="true">
     <div
       class="wizard-modal"
       role="dialog"
@@ -2319,7 +2319,7 @@
   </div>
 
 <!-- Nested Site Editor for Manual Import -->
-<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" hidden aria-hidden="true">
+<div data-cwl-component="SiteEditor" data-cwl-lifted-component="SiteEditor"><div class="modal-backdrop" data-cwl-shell-key="isOpen" hidden aria-hidden="true">
     <div class="site-editor">
       <div class="editor-header">
         <h2>
@@ -2640,7 +2640,7 @@
     <div
       class="modal-overlay"
       role="presentation" data-cwl-toggle="showExportModal:false" data-cwl-on-keydown="toggle:showExportModal:false"
-     hidden aria-hidden="true">
+     data-cwl-shell-key="showExportModal" hidden aria-hidden="true">
       <div
         class="modal-container"
         role="dialog"
@@ -2735,7 +2735,7 @@
     </div>
 
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">PCI Resolution & Network Optimization Help</h2>
@@ -2890,7 +2890,7 @@
     </div>
   </div></div>
 
-  <div data-cwl-component="ConflictResolutionWizard" data-cwl-lifted-component="ConflictResolutionWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="ConflictResolutionWizard" data-cwl-lifted-component="ConflictResolutionWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showConflictResolutionWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"

@@ -613,6 +613,22 @@
       .toLowerCase();
   }
 
+  // Deterministic resolution: the converter stamps closed `{#if showX}` chrome
+  // with data-cwl-shell-key="showX", so toggles resolve without fuzzy guessing.
+  function findShellByKey(rawKey) {
+    var key = String(rawKey || "").trim();
+    if (!key) return null;
+    var exact = document.querySelector('[data-cwl-shell-key="' + key.replace(/"/g, '\\"') + '"]');
+    if (exact) return exact;
+    var lower = key.toLowerCase();
+    var hit = null;
+    document.querySelectorAll("[data-cwl-shell-key]").forEach(function (el) {
+      if (hit) return;
+      if ((el.getAttribute("data-cwl-shell-key") || "").toLowerCase() === lower) hit = el;
+    });
+    return hit;
+  }
+
   function findShellByName(rawName) {
     var candidates = [];
     var raw = String(rawName || "");
@@ -2156,6 +2172,7 @@
           }
         }
         var target =
+          findShellByKey(toggleKey) ||
           findShellByName(toggleKey) ||
           findShellByName(
             toggleKey
@@ -4629,18 +4646,23 @@ function initModuleWizardMenus() {
   });
   initNotificationsBadge();
   initExtraListSurfaces();
-  initDeepenN10gSurfaces();
-  initDeepenN10hSurfaces();
-  initDeepenN10iSurfaces();
-  initDeepenN10pSurfaces();
-  initDeepenN10qSurfaces();
-  initDeepenN10rSurfaces();
-  initDeepenN10sSurfaces();
-  initDeepenN10tSurfaces();
-  initDeepenN10uSurfaces();
-  initDeepenN10vSurfaces();
-  initDeepenN10wSurfaces();
-  initDeepenN10xSurfaces();
+  // Fidelity deepen injectors (n10g–n10x) invent synthetic toolbar buttons that
+  // are not in the origin Svelte UI. Leave them off unless explicitly enabled —
+  // they make the demo feel half-fake and mask real conversion gaps.
+  if (window.__WISP_CWL_ENABLE_DEEPEN_SURFACES__ === true) {
+    initDeepenN10gSurfaces();
+    initDeepenN10hSurfaces();
+    initDeepenN10iSurfaces();
+    initDeepenN10pSurfaces();
+    initDeepenN10qSurfaces();
+    initDeepenN10rSurfaces();
+    initDeepenN10sSurfaces();
+    initDeepenN10tSurfaces();
+    initDeepenN10uSurfaces();
+    initDeepenN10vSurfaces();
+    initDeepenN10wSurfaces();
+    initDeepenN10xSurfaces();
+  }
 
   function initDeepenN10xSurfaces() {
     if (!window.WispCwlApi) return;

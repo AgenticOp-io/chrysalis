@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="cbrs-management" data-wisp-path="/modules/cbrs-management" data-cwl-island="client"><!-- CBRS Setup Wizard -->
 
-  <div hidden aria-hidden="true"><div data-cwl-component="CBRSSetupWizard" data-cwl-lifted-component="CBRSSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden aria-hidden="true">
+  <div data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true"><div data-cwl-component="CBRSSetupWizard" data-cwl-lifted-component="CBRSSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="wizard-title">📡 CBRS Setup Wizard</h2>
@@ -272,7 +272,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -572,7 +572,7 @@
 
 <!-- Add Device Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showAddDeviceModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddDeviceModal:false" data-cwl-shell-key="showAddDeviceModal" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Add CBSD Device</h3>
@@ -647,7 +647,7 @@
 
 <!-- Grant Request Modal -->
 
-  <div class="modal-overlay" data-cwl-toggle="showGrantRequestModal:false" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showGrantRequestModal:false" data-cwl-shell-key="showGrantRequestModal" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Request Spectrum Grant</h3>
@@ -693,7 +693,7 @@
   </div>
 
 <!-- Settings Modal -->
-  <div data-cwl-component="SettingsModal" data-cwl-lifted-component="SettingsModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+  <div data-cwl-component="SettingsModal" data-cwl-lifted-component="SettingsModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showSettingsModal" hidden aria-hidden="true">
     <div class="modal-content settings-modal">
       <div class="modal-header">
         <h3>⚙️ CBRS Configuration</h3>
@@ -815,7 +815,7 @@
   </div></div>
 
 <!-- User ID / Network Selector Modal (includes Google login) -->
-<div data-cwl-component="UserIDSelector" data-cwl-lifted-component="UserIDSelector"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="UserIDSelector" data-cwl-lifted-component="UserIDSelector"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showUserIDSelector" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3>🆔 Select Network / Customer</h3>
@@ -914,7 +914,7 @@
 </button>
 
 <!-- Help Modal -->
-<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">CBRS Management Help</h2>
@@ -1398,7 +1398,7 @@ The SAS is a cloud-based database and spectrum management system that:
   </div></div>
 
 <!-- Quick Tips Modal -->
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">

@@ -27,7 +27,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -226,7 +226,7 @@
   aria-modal="true"
   tabindex="0"
   aria-label="Create work order dialog" data-cwl-action="handleOverlayClick" data-cwl-on-keydown="action:handleOverlayKeydown"
- hidden aria-hidden="true">
+ data-cwl-shell-key="showCreateModal" hidden aria-hidden="true">
   <div class="modal-content" role="document">
     <div class="modal-header">
       <h2>➕ Create Work Order</h2>
@@ -423,7 +423,7 @@
   </div>
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
+  <div data-cwl-shell-key="showCustomerLookup" hidden aria-hidden="true"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
   class="modal-backdrop"
   role="presentation" data-cwl-action="close"
 >
@@ -527,7 +527,7 @@
 </div></div>
 
   <!-- Work Order Creation Wizard -->
-  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showWorkOrderWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -931,7 +931,7 @@
   </div>
 </div>
 
-  <div hidden aria-hidden="true"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
+  <div data-cwl-shell-key="showCustomerLookup" hidden aria-hidden="true"><div data-cwl-component="CustomerLookupModal" data-cwl-lifted-component="CustomerLookupModal"><div
   class="modal-backdrop"
   role="presentation" data-cwl-action="close"
 >
