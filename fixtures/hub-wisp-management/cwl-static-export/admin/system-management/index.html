@@ -28,6 +28,16 @@
       <p>Manage all tenants and system settings</p>
     </div>
 
+      <div class="success-message" hidden aria-hidden="true">
+        <span class="success-icon">✅</span>
+
+      </div>
+
+      <div class="error-message" hidden aria-hidden="true">
+        <span class="error-icon">⚠️</span>
+
+      </div>
+
       <div class="loading" hidden aria-hidden="true">
         <p>Loading tenants...</p>
       </div>
@@ -148,7 +158,7 @@
               Delete Tenant
             </button>
             <button
-              class="btn btn-secondary"
+              class="btn btn-secondary" data-cwl-set="selectedTenant:"
             >
               Close
             </button>
@@ -231,7 +241,7 @@
 
       </div>
 
-      <div class="modal-overlay" data-cwl-action="cancelDelete" hidden aria-hidden="true">
+      <div class="modal-overlay" data-cwl-toggle="showDeleteConfirm:false" hidden aria-hidden="true">
         <div class="modal">
           <h2>⚠️ Confirm Deletion</h2>
           <p>
@@ -255,8 +265,8 @@
               Yes, Delete Tenant
             </button>
             <button
-              class="btn btn-secondary" data-cwl-action="cancelDelete" data-cwl-attr-disabled="isLoading"
-             aria-label="Cancel Delete">
+              class="btn btn-secondary" data-cwl-toggle="showDeleteConfirm:false" data-cwl-attr-disabled="isLoading"
+             aria-label="Show Delete Confirm">
               Cancel
             </button>
           </div>

@@ -35,7 +35,7 @@
       </div>
 
   </div></div>
-          <button class="btn-primary" data-cwl-action="handleAdd" aria-label="Add">
+          <button class="btn-primary" data-cwl-toggle="showAddModal:true" aria-label="Show Add Modal">
             ➕ Add Customer
           </button>
         </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'portal'" hidden aria-hidden="true">
@@ -64,6 +64,10 @@
         🌐 Portal
       </button>
     </div>
+
+      <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+      <div class="alert alert-success" hidden aria-hidden="true"></div>
 
     <!-- Tab Content -->
     <div class="tab-content">
@@ -206,7 +210,7 @@
 
         <div class="empty-state" hidden aria-hidden="true">
           <p>No customers found.</p>
-          <button class="btn-primary" data-cwl-action="handleAdd" aria-label="Add">Add Your First Customer</button>
+          <button class="btn-primary" data-cwl-toggle="showAddModal:true" aria-label="Show Add Modal">Add Your First Customer</button>
         </div>
 
         <div class="loading" hidden aria-hidden="true">Loading customers...</div>
@@ -217,7 +221,7 @@
         <div data-cwl-component="BandwidthPlans" data-cwl-lifted-component="BandwidthPlans"><div class="bandwidth-plans">
   <div class="header">
     <h2>Bandwidth Plans</h2>
-    <button class="btn-primary" data-cwl-action="openAddModal" aria-label="Open Add Modal">
+    <button class="btn-primary" data-cwl-toggle="showAddModal:true" aria-label="Show Add Modal">
       + Add Bandwidth Plan
     </button>
   </div>
@@ -251,11 +255,11 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Edit' : 'Add'"></span> Bandwidth Plan</h3>
-        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">×</button>
+        <button class="close-btn" data-cwl-toggle="showAddModal:false" aria-label="Show Add Modal">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -285,7 +289,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" data-cwl-action="closeModal" aria-label="Close Modal">Cancel</button>
+        <button class="btn-cancel" data-cwl-toggle="showAddModal:false" aria-label="Show Add Modal">Cancel</button>
         <button class="btn-save" data-cwl-action="savePlan" aria-label="Save Plan">
           <span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Update' : 'Create'"></span> Plan
         </button>
@@ -301,7 +305,7 @@
       <button class="btn-secondary" data-cwl-action="loadCustomers" title="Refresh groups and customers">
         🔄 Refresh
       </button>
-      <button class="btn-primary" data-cwl-action="openAddModal" aria-label="Open Add Modal">
+      <button class="btn-primary" data-cwl-toggle="showAddModal:true" aria-label="Show Add Modal">
         + Add Group
       </button>
     </div>
@@ -353,11 +357,11 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Edit' : 'Add'"></span> Subscriber Group</h3>
-        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">×</button>
+        <button class="close-btn" data-cwl-toggle="showAddModal:false" aria-label="Show Add Modal">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -383,7 +387,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" data-cwl-action="closeModal" aria-label="Close Modal">Cancel</button>
+        <button class="btn-cancel" data-cwl-toggle="showAddModal:false" aria-label="Show Add Modal">Cancel</button>
         <button class="btn-save" data-cwl-action="saveGroup" aria-label="Save Group">
           <span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Update' : 'Create'"></span> Group
         </button>
@@ -416,6 +420,10 @@
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
+      <div class="success" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Basic Information -->
@@ -778,6 +786,10 @@
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
+      <div class="success" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Basic Information -->
@@ -1164,6 +1176,10 @@
       <!-- Content Area -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <!-- Slot for step content -->
         <slot name="content" 0 />
       </div>
@@ -1275,6 +1291,15 @@
             Create customer
           </button>
 
+          <div hidden aria-hidden="true"><h3>🎉 Customer created</h3>
+          <p></p>
+          <div class="info-box success">
+            <p><strong> </strong></p>
+            <p>, ,  </p>
+            <div data-cwl-bind="if" data-cwl-hole-detail="serviceType"><p>Service: </p></div>
+          </div>
+          <a href="/modules/customers" class="next-step-item">View in Customers module →</a>
+        </div>
       </div></div>
   </div>
 
@@ -1479,6 +1504,8 @@
 
           </div>
 
+          <div hidden aria-hidden="true"><p class="error-msg"></p>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
@@ -1511,6 +1538,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

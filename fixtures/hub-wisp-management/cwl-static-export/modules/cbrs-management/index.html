@@ -20,6 +20,10 @@
       <!-- Step Content -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
           <div class="wizard-panel">
             <div class="welcome-content">
@@ -225,7 +229,7 @@
 
       <div class="header-actions">
         <div data-cwl-bind="if" data-cwl-hole-detail="currentUserID"><button
-              class="btn btn-network-selector active" data-cwl-action="handleShowUserIDSelector"
+              class="btn btn-network-selector active" data-cwl-toggle="showUserIDSelector:true"
               title="Switch network/User ID"
             >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -239,7 +243,7 @@
             </svg>
           </button></div>
           <button
-            class="btn btn-network-selector" data-cwl-action="handleShowUserIDSelector"
+            class="btn btn-network-selector" data-cwl-toggle="showUserIDSelector:true"
             title="Select network/User ID"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -283,6 +287,12 @@
       </div>
     </div>
   </div>
+
+    <div class="error-banner" hidden aria-hidden="true">
+      <span class="error-icon">⚠️</span>
+      <span class="error-message"></span>
+      <button class="btn btn-sm" data-cwl-set="error:">✕</button>
+    </div>
 
   <div data-cwl-bind="if" data-cwl-hole-detail="!tenantId"><div class="error-banner">
       <span class="error-icon">⚠️</span>
@@ -691,7 +701,7 @@
       </div>
 
       <div class="modal-body">
-        <form data-cwl-on-submit="action:handleSave">
+        <form data-cwl-on-submit="toggle:isSaving:false">
           <!-- Info Banner -->
           <div class="info-banner">
             <span class="info-icon">ℹ️</span>
@@ -1445,6 +1455,8 @@ The SAS is a cloud-based database and spectrum management system that:
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

@@ -50,7 +50,7 @@
       <button class="menu-item danger" data-cwl-action="removePlanDraft" aria-label="Remove Plan Draft">
         🗑️ Remove From Plan
       </button>
-      <button class="menu-item" data-cwl-action="closePlanDraftMenu" aria-label="Close Plan Draft Menu">
+      <button class="menu-item" data-cwl-toggle="showPlanDraftMenu:false" aria-label="Show Plan Draft Menu">
         ✕ Close
       </button>
     </div>
@@ -393,6 +393,18 @@
 
   <!-- Messages -->
 
+    <div class="message-banner error" hidden aria-hidden="true">
+      <span>⚠️</span>
+      <span></span>
+      <button class="dismiss-btn" data-cwl-set="error:">✕</button>
+    </div>
+
+    <div class="message-banner success" hidden aria-hidden="true">
+      <span>✅</span>
+      <span></span>
+      <button class="dismiss-btn" data-cwl-set="success:">✕</button>
+    </div>
+
 </div>
 
 <!-- Unified Device Management -->
@@ -644,14 +656,16 @@
               </div>
             </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'metrics'" hidden aria-hidden="true">
               <div class="metrics-tab">
-                <div data-cwl-bind="if" data-cwl-hole-detail="deviceType === 'snmp' && deviceMetrics"><div class="metrics-content">
+                <div data-cwl-bind="if" data-cwl-hole-detail="deviceType === 'snmp'" hidden aria-hidden="true">
+                  <div class="metrics-content">
                     <h3>SNMP Metrics (Last 24 Hours)</h3>
 
                       <div class="metrics-grid">
                         <p>SNMP metrics visualization coming soon...</p>
                       </div>
 
-                  </div></div>
+                  </div>
+                </div>
                   <div class="no-metrics">
                     <p>Metrics not available for this device type.</p>
                   </div>
@@ -703,6 +717,8 @@
       <h2>📡 Add Tower Site</h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Address Search -->
@@ -893,6 +909,8 @@
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
 
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
     <div class="modal-body">
       <!-- Basic Info -->
       <div class="section">
@@ -990,6 +1008,8 @@
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
 
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
     <div class="modal-body">
       <div class="form-group">
         <label>Warehouse Name *</label>
@@ -1064,6 +1084,8 @@
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
 
+    <div class="error-banner" hidden aria-hidden="true"></div>
+
     <div class="modal-body">
       <div class="form-group">
         <label>Vehicle Name *</label>
@@ -1120,6 +1142,8 @@
       <h2>🔧 Add RMA / Repair Center</h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+    <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <div class="form-group">
@@ -1194,6 +1218,8 @@
       <h2>📶 <span data-cwl-bind="interp" data-cwl-hole-detail="sectorToEdit ? 'Edit Sector' : 'Add Sector'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Site Selection -->
@@ -1341,6 +1367,8 @@
       <h2>📱 Add CPE Device</h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Address Search -->
@@ -1519,6 +1547,8 @@
       <h2>🔗 <span data-cwl-bind="interp" data-cwl-hole-detail="backhaulToEdit ? 'Edit Backhaul Link' : 'Add Backhaul Link'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div data-cwl-bind="if" data-cwl-hole-detail="!canCreateBackhaul"><div class="warning-banner">
         ⚠️ Need at least 2 sites to create backhaul. Add more tower sites or NOC first.
@@ -1874,6 +1904,8 @@
       </div>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Equipment Category & Type -->
@@ -2325,6 +2357,10 @@
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
         <!-- Step Progress Indicator -->
         <div class="step-indicator">
@@ -2731,6 +2767,10 @@
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
         <div class="registration-form">
           <div class="form-section">
@@ -2941,11 +2981,11 @@
   </div></div>
 
 <!-- Hardware Deployment Modal -->
-<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-toggle="isLoadingInventory:false" hidden aria-hidden="true">
   <div class="modal">
     <div class="modal-header">
       <h2>🔧 Deploy Hardware to <span data-cwl-bind="interp" data-cwl-hole-detail="tower?.name || 'Selected Site'"></span></h2>
-      <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
+      <button class="close-btn" data-cwl-toggle="isLoadingInventory:false" aria-label="Is Loading Inventory">✕</button>
     </div>
 
     <div class="modal-content">
@@ -2954,6 +2994,10 @@
           Deploy hardware to selected location
 
       </p>
+
+      <div class="alert alert-error" hidden aria-hidden="true">
+        ⚠️
+      </div>
 
       <!-- Site Selector -->
       <div data-cwl-bind="if" data-cwl-hole-detail="availableSites.length > 1"><div class="form-group">
@@ -2992,11 +3036,74 @@
             <li>📦 Other Equipment</li>
           </ul>
         </div>
+      <div hidden aria-hidden="true">
+        <div hidden aria-hidden="true"><!-- Inventory Selection View -->
+        <div class="inventory-selection">
+          <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+            Select hardware from your inventory to deploy to <strong><span data-cwl-bind="interp" data-cwl-hole-detail="tower?.name"></span></strong>
+          </p>
+          <button class="btn btn-secondary" data-cwl-toggle="showInventoryList:false" style="margin-bottom: 1rem;" aria-label="Show Inventory List">
+            ← Back to Options
+          </button>
 
+          <div class="form-group">
+            <label for="searchInventory">Search Inventory:</label>
+            <input
+              id="searchInventory"
+              type="text"
+              class="form-control"
+              placeholder="Search by manufacturer, model, serial number..."
+            />
+          </div>
+
+            <div class="inventory-list">
+              <div data-cwl-bind="each" data-cwl-hole-detail="filteredInventoryItems as item" data-cwl-each-item="item" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22inventory-item%22%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3Aselected%3D%7BselectedInventoryItem%3F._id%20%3D%3D%3D%20item._id%7D%20data-cwl-action%3D%22handleSelectInventoryItem%22%20data-cwl-action-args%3D%22item%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bitem.model%20%7C%7C%20item.equipmentType%20%7C%7C%20'Unknown'%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22item-status%20status-%7Bitem.status%7D%22%3E%7Bitem.status%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22item-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20item.manufacturer%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3EManufacturer%3A%20%7Bitem.manufacturer%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20item.serialNumber%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3ESerial%3A%20%7Bitem.serialNumber%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20item.category%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%3ECategory%3A%20%7Bitem.category%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><div
+                  class="inventory-item" data-cwl-action="handleSelectInventoryItem" data-cwl-action-args="item"
+                >
+                  <div class="item-header">
+                    <strong></strong>
+                    <span class="item-status status-"></span>
+                  </div>
+                  <div class="item-details">
+
+                      <div hidden aria-hidden="true"><span>Manufacturer: </span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span>Serial: </span>
+                    </div>
+
+                      <div hidden aria-hidden="true"><span>Category: </span>
+                    </div>
+                  </div>
+                </div></div>
+            </div>
+
+            <div class="empty-state" hidden aria-hidden="true">
+              <div data-cwl-bind="if" data-cwl-hole-detail="searchQuery"><p>No inventory items found matching ""</p></div>
+                <div class="help-message">
+                  <h3>📦 No Hardware Available</h3>
+                  <p>You need to add hardware to your inventory before you can deploy it.</p>
+                  <p><strong>To add hardware:</strong></p>
+                  <ol>
+                    <li>Go to the <strong>Inventory</strong> module</li>
+                    <li>Click <strong>"Add Item"</strong> or scan hardware</li>
+                    <li>Add hardware details (manufacturer, model, serial number)</li>
+                    <li>Set status to <strong>"Available"</strong></li>
+                    <li>Return here to deploy it to this site</li>
+                  </ol>
+                  <button class="btn btn-primary" data-cwl-set="href:/modules/inventory">
+                    ➕ Go to Inventory Module
+                  </button>
+                </div>
+
+            </div>
+
+        </div>
+      </div></div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-secondary" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
+      <button class="btn btn-secondary" data-cwl-toggle="isLoadingInventory:false" aria-label="Is Loading Inventory">Cancel</button>
     </div>
   </div>
 </div></div></div>
@@ -3349,6 +3456,8 @@
       </h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Address Search -->
@@ -3712,6 +3821,8 @@
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
 
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
     <div class="modal-body">
       <!-- Site Selection -->
       <div class="section">
@@ -4032,6 +4143,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

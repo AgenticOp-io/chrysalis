@@ -18,6 +18,17 @@
     </div>
   </div>
 
+    <div class="alert alert-error" hidden aria-hidden="true">
+      <span>❌</span>
+      <span></span>
+      <button data-cwl-set="error:">✕</button>
+    </div>
+
+    <div class="alert alert-success" hidden aria-hidden="true">
+      <span>✅</span>
+      <span>Configuration saved successfully!</span>
+    </div>
+
     <div class="config-table-container">
       <table class="config-table">
         <thead>
@@ -938,14 +949,14 @@
     class="modal-backdrop"
     role="presentation"
     aria-hidden="true"
-    tabindex="-1" data-cwl-action="handleResetBackdropClick"
+    tabindex="-1" data-cwl-toggle="showResetConfirm:false"
    hidden>
     <div
       class="modal-content"
       role="dialog"
       aria-modal="true"
       aria-label="Reset module access confirmation dialog"
-      tabindex="0" data-cwl-on-keydown="action:handleResetBackdropKeydown"
+      tabindex="0" data-cwl-on-keydown="toggle:showResetConfirm:false"
     >
       <div class="modal-header">
         <h2>Reset All to Defaults?</h2>

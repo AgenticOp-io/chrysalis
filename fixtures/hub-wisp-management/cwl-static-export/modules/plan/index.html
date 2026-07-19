@@ -20,11 +20,11 @@
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </button>
-          <button class="module-control-btn" data-cwl-action="openHardwareView" title="View All Hardware">
+          <button class="module-control-btn" data-cwl-toggle="showHardwareModal:true" title="View All Hardware">
           <span class="control-icon">🔧</span>
           <span class="control-label">Hardware</span>
         </button>
-        <button class="module-control-btn" data-cwl-action="openProjectList" title="Project List">
+        <button class="module-control-btn" data-cwl-toggle="showProjectModal:true" title="Project List">
           <span class="control-icon">📁</span>
           <span class="control-label">Projects</span>
         </button>
@@ -152,7 +152,7 @@
     >
         <div class="modal-header">
           <h2>🔧 All Existing Hardware</h2>
-          <button class="close-btn" data-cwl-action="closeHardwareModal" aria-label="Close Hardware Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showHardwareModal:false" aria-label="Show Hardware Modal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -245,7 +245,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" data-cwl-action="closeHardwareModal" aria-label="Close Hardware Modal">Close</button>
+          <button class="btn-secondary" data-cwl-toggle="showHardwareModal:false" aria-label="Show Hardware Modal">Close</button>
           <button class="btn-primary" data-cwl-nav="/modules/inventory">
             View Full Inventory
           </button>
@@ -270,7 +270,7 @@
       >
         <div class="modal-header">
           <h2>📁 Deployment Projects</h2>
-          <button class="close-btn" data-cwl-action="closeProjectModal" aria-label="Close Project Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showProjectModal:false" aria-label="Show Project Modal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -354,15 +354,15 @@
                 <div class="empty-icon">📁</div>
                 <h3>No Projects Yet</h3>
                 <p>Create your first deployment project to get started.</p>
-                <button class="btn-primary" data-cwl-action="openCreateProject" aria-label="Open Create Project">Create Project</button>
+                <button class="btn-primary" data-cwl-toggle="showCreateProjectModal:true" aria-label="Show Create Project Modal">Create Project</button>
               </div>
 
           </div>
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" type="button" data-cwl-action="closeProjectModal" aria-label="Close Project Modal">Close</button>
-          <button class="btn-primary" type="button" data-cwl-action="openCreateProject" aria-label="Open Create Project">Create New Project</button>
+          <button class="btn-secondary" type="button" data-cwl-toggle="showProjectModal:false" aria-label="Show Project Modal">Close</button>
+          <button class="btn-primary" type="button" data-cwl-toggle="showCreateProjectModal:true" aria-label="Show Create Project Modal">Create New Project</button>
         </div>
       </div>
     </div>
@@ -384,10 +384,14 @@
       >
         <div class="modal-header">
           <h2>➕ Create New Project</h2>
-          <button class="close-btn" data-cwl-action="closeCreateProjectModal" aria-label="Close Create Project Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showCreateProjectModal:false" aria-label="Show Create Project Modal">✕</button>
         </div>
 
         <div class="modal-body">
+
+            <div class="alert alert-error" hidden aria-hidden="true">
+              <strong>Error:</strong>
+            </div>
 
             <div class="alert alert-success" hidden aria-hidden="true">
               <strong>Success:</strong>
@@ -481,7 +485,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" data-cwl-action="closeCreateProjectModal" data-cwl-attr-disabled="isLoading" aria-label="Close Create Project Modal">Cancel</button>
+          <button class="btn-secondary" data-cwl-toggle="showCreateProjectModal:false" data-cwl-attr-disabled="isLoading" aria-label="Show Create Project Modal">Cancel</button>
           <button class="btn-primary" data-cwl-action="createProject" data-cwl-attr-disabled="isLoading" aria-label="Create Project">
             Create Project
           </button>
@@ -505,7 +509,7 @@
       >
         <div class="modal-header">
           <h2>🛒 Missing Hardware Analysis - <span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.name"></span></h2>
-          <button class="close-btn" data-cwl-action="closeMissingHardwareModal" aria-label="Close Missing Hardware Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showMissingHardwareModal:false" aria-label="Show Missing Hardware Modal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -587,7 +591,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" data-cwl-action="closeMissingHardwareModal" aria-label="Close Missing Hardware Modal">Close</button>
+          <button class="btn-secondary" data-cwl-toggle="showMissingHardwareModal:false" aria-label="Show Missing Hardware Modal">Close</button>
           <button class="btn-secondary" data-cwl-action="analyzeMissingHardware" aria-label="Analyze Missing Hardware">Re-analyze</button>
           <button class="btn-primary" data-cwl-action="generatePurchaseOrder" data-cwl-attr-disabled="selectedProject.purchasePlan.missingHardware.length === 0" aria-label="Generate Purchase Order">
             Generate Purchase Order
@@ -661,6 +665,10 @@
                 <div data-cwl-bind="if" data-cwl-hole-detail="Math.max(extentSpanMiles.width, extentSpanMiles.height) > 100"><span class="extent-warning">⚠️ Large area - will be auto-constrained to 50×50 miles max</span></div>
               </div>
             </div></div>
+
+            <div class="alert alert-error" hidden aria-hidden="true">
+              <strong>Error:</strong>
+            </div>
 
           <div data-cwl-bind="if" data-cwl-hole-detail="info"><div class="alert alert-info">
               <span data-cwl-bind="interp" data-cwl-hole-detail="info"></span>
@@ -857,7 +865,7 @@
       >
         <div class="modal-header">
           <h2>📋 Add Hardware Requirement - <span data-cwl-bind="interp" data-cwl-hole-detail="selectedProject.name"></span></h2>
-          <button class="close-btn" data-cwl-action="closeAddRequirementModal" aria-label="Close Add Requirement Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showAddRequirementModal:false" aria-label="Show Add Requirement Modal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -923,7 +931,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" data-cwl-action="closeAddRequirementModal" aria-label="Close Add Requirement Modal">Cancel</button>
+          <button class="btn-secondary" data-cwl-toggle="showAddRequirementModal:false" aria-label="Show Add Requirement Modal">Cancel</button>
           <button class="btn-primary" data-cwl-action="addHardwareRequirement" data-cwl-attr-disabled="!newRequirement.equipmentType.trim()" aria-label="Add Hardware Requirement">
             Add Requirement
           </button>
@@ -948,7 +956,7 @@
       >
         <div class="modal-header">
           <h2>📊 Planning Reports</h2>
-          <button class="close-btn" data-cwl-action="closeReportModal" aria-label="Close Report Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showReportModal:false" aria-label="Show Report Modal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -994,7 +1002,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" data-cwl-action="closeReportModal" aria-label="Close Report Modal">Close</button>
+          <button class="btn-secondary" data-cwl-toggle="showReportModal:false" aria-label="Show Report Modal">Close</button>
           <button class="btn-primary" data-cwl-nav="/modules/coverage-map">
             Open Full Coverage Map
           </button>
@@ -1318,6 +1326,10 @@
         </div>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
 
           <!-- Tabs -->
@@ -1522,6 +1534,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

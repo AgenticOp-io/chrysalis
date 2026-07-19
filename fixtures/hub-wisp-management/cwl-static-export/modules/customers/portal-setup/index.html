@@ -16,6 +16,10 @@
       </div>
     </div>
 
+      <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+      <div class="alert alert-success" hidden aria-hidden="true"></div>
+
     <!-- Tab Navigation -->
     <div class="tab-navigation">
       <button class="tab-btn" data-cwl-set="currentTab:branding">
@@ -331,7 +335,7 @@
               </div>
 
               <div class="form-actions">
-                <button class="btn-secondary" data-cwl-action="resetAlertForm" aria-label="Reset Alert Form">Cancel</button>
+                <button class="btn-secondary" data-cwl-toggle="showAlertForm:false" aria-label="Show Alert Form">Cancel</button>
                 <button class="btn-primary" data-cwl-action="saveAlert" data-cwl-attr-disabled="saving || !newAlert.title || !newAlert.message" aria-label="Save Alert">
                   Save Alert
                 </button>
@@ -416,7 +420,7 @@
               </div>
 
               <div class="form-actions">
-                <button class="btn-secondary" data-cwl-action="resetFAQForm" aria-label="Reset FAQForm">Cancel</button>
+                <button class="btn-secondary" data-cwl-toggle="showFAQForm:false" aria-label="Show FAQForm">Cancel</button>
                 <button class="btn-primary" data-cwl-action="saveFAQ" data-cwl-attr-disabled="saving || !newFAQ.question || !newFAQ.answer" aria-label="Save FAQ">
                   Save FAQ
                 </button>
@@ -507,7 +511,7 @@
               </div>
 
               <div class="form-actions">
-                <button class="btn-secondary" data-cwl-action="resetArticleForm" aria-label="Reset Article Form">Cancel</button>
+                <button class="btn-secondary" data-cwl-toggle="showArticleForm:false" aria-label="Show Article Form">Cancel</button>
                 <button class="btn-primary" data-cwl-action="saveArticle" data-cwl-attr-disabled="saving || !newArticle.title || !newArticle.content" aria-label="Save Article">
                   Save Article
                 </button>

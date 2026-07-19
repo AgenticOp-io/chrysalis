@@ -166,6 +166,7 @@
   function toastSummary(html) {
     var summary = qs("#plan-active-summary");
     if (!summary) return;
+    summary.style.zIndex = "5";
     summary.hidden = false;
     summary.innerHTML = html;
   }
@@ -1097,6 +1098,8 @@
       var summary = document.createElement("div");
       summary.id = "plan-active-summary";
       summary.className = "plan-summary";
+      // Keep below the origin help FAB (fixed inside header stacking ctx z=10).
+      summary.style.zIndex = "5";
       summary.hidden = true;
       root.appendChild(summary);
     }

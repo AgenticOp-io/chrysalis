@@ -5,7 +5,7 @@
         <p class="subtitle">Manage all network sites, towers, buildings, and facilities</p>
       </div>
       <div class="header-actions">
-        <button class="btn-primary" data-cwl-action="handleCreateNew" aria-label="Create New">
+        <button class="btn-primary" data-cwl-toggle="showEditModal:true" aria-label="Show Edit Modal">
           ➕ Create New Site
         </button>
         <button class="btn-secondary" data-cwl-action="loadSites" title="Refresh">
@@ -13,6 +13,8 @@
         </button>
       </div>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <!-- Filters and Search -->
     <div class="filters-section">
@@ -163,7 +165,7 @@
 
           <p class="help-text">Try adjusting your search or filters</p>
 
-          <div hidden aria-hidden="true"><button class="btn-primary" data-cwl-action="handleCreateNew" aria-label="Create New">
+          <div hidden aria-hidden="true"><button class="btn-primary" data-cwl-toggle="showEditModal:true" aria-label="Show Edit Modal">
             Create Your First Site
           </button>
         </div>
@@ -182,6 +184,8 @@
       </h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Address Search -->
@@ -545,6 +549,10 @@
         <h2>🚀 Server Deployment</h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
+
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
 
       <div class="modal-body">
         <!-- Step Progress Indicator -->
@@ -954,6 +962,8 @@
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
 
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
     <div class="modal-body">
       <!-- Site Selection -->
       <div class="section">
@@ -1103,6 +1113,8 @@
       <h2>📱 Add CPE Device</h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Address Search -->
@@ -1284,6 +1296,8 @@
       <h2>🔗 <span data-cwl-bind="interp" data-cwl-hole-detail="backhaulToEdit ? 'Edit Backhaul Link' : 'Add Backhaul Link'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div data-cwl-bind="if" data-cwl-hole-detail="!canCreateBackhaul"><div class="warning-banner">
         ⚠️ Need at least 2 sites to create backhaul. Add more tower sites or NOC first.

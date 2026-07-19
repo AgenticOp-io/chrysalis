@@ -224,7 +224,8 @@ body.wisp-map-page {
   position: absolute;
   bottom: 24px;
   left: 20px;
-  z-index: 11;
+  /* Origin uses z-index 5 so the fixed help button (header overlay ctx z=10) paints above it. */
+  z-index: 5;
   max-width: 320px;
   padding: 1rem 1.25rem;
   border-radius: 12px;

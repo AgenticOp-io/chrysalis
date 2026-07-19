@@ -28,7 +28,7 @@
           <span class="control-icon">🔍</span>
           <span class="control-label">Approved (<span data-cwl-bind="interp" data-cwl-hole-detail="approvedPlans.length"></span>)</span>
         </button>
-        <button class="module-control-btn" data-cwl-action="openPlanApproval" title="Projects - View and manage all projects">
+        <button class="module-control-btn" data-cwl-toggle="showPlanApprovalModal:true" title="Projects - View and manage all projects">
           <span class="control-icon">📋</span>
           <span class="control-label">Projects (<span data-cwl-bind="interp" data-cwl-hole-detail="readyPlans.length"></span>)</span>
         </button>
@@ -40,14 +40,14 @@
           <span class="control-label">Deployed (<span data-cwl-bind="interp" data-cwl-hole-detail="deployedPlans.length"></span>)</span>
         </button>
         <button
-          class="module-control-btn" data-cwl-action="openPCIPlanner" data-cwl-attr-title="isAdmin ? `PCI Planner (Admin) - $ LTE sectors` : ($currentTenant ? `PCI Planner - $ LTE sectors` : &quot;PCI Planner (No tenant selected)&quot;)"
+          class="module-control-btn" data-cwl-toggle="showPCIPlannerModal:true" data-cwl-attr-title="isAdmin ? `PCI Planner (Admin) - $ LTE sectors` : ($currentTenant ? `PCI Planner - $ LTE sectors` : &quot;PCI Planner (No tenant selected)&quot;)"
         >
           <span class="control-icon">📊</span>
           <span class="control-label">PCI <span data-cwl-bind="interp" data-cwl-hole-detail="lteSectorCount > 0 ? `()` : ''"></span></span>
         </button>
 
         <button
-          class="module-control-btn" data-cwl-action="openFrequencyPlanner" data-cwl-attr-title="isAdmin ? `Frequency Planner (Admin) - $ LTE/FWA sectors` : ($currentTenant ? `Frequency Planner - $ LTE/FWA sectors` : &quot;Frequency Planner (No tenant selected)&quot;)"
+          class="module-control-btn" data-cwl-toggle="showFrequencyPlannerModal:true" data-cwl-attr-title="isAdmin ? `Frequency Planner (Admin) - $ LTE/FWA sectors` : ($currentTenant ? `Frequency Planner - $ LTE/FWA sectors` : &quot;Frequency Planner (No tenant selected)&quot;)"
         >
           <span class="control-icon">📡</span>
           <span class="control-label">Frequency <span data-cwl-bind="interp" data-cwl-hole-detail="frequencySectorCount > 0 ? `()` : ''"></span></span>
@@ -105,6 +105,8 @@
 
     <div class="deployment-toast" hidden aria-hidden="true"></div>
 
+    <div class="error-toast" hidden aria-hidden="true"></div>
+
   <!-- PCI Planner Modal -->
 
     <div hidden aria-hidden="true"><div data-cwl-component="PCIPlannerModal" data-cwl-lifted-component="PCIPlannerModal"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
@@ -113,6 +115,10 @@
       <h2>📊 PCI Planner</h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
+      <div class="success-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
 
@@ -685,6 +691,10 @@
 
         <!-- Error/Success Messages -->
 
+          <div class="message error" hidden aria-hidden="true"></div>
+
+          <div class="message success" hidden aria-hidden="true"></div>
+
       </div>
 
       <div class="modal-footer">
@@ -695,12 +705,14 @@
   </div>
 
   <!-- Deployed Hardware Modal -->
-  <div data-cwl-component="DeployedHardwareModal" data-cwl-lifted-component="DeployedHardwareModal"><div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+  <div data-cwl-component="DeployedHardwareModal" data-cwl-lifted-component="DeployedHardwareModal"><div class="modal-overlay" data-cwl-toggle="showEditModal:false" hidden aria-hidden="true">
   <div class="modal-content large">
     <div class="modal-header">
       <h2>🔧 Deployed Hardware</h2>
-      <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">✕</button>
+      <button class="close-btn" data-cwl-toggle="showEditModal:false" aria-label="Show Edit Modal">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <!-- Tabs -->
     <div class="tabs">
@@ -756,7 +768,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-secondary" data-cwl-action="closeModal" aria-label="Close Modal">Close</button>
+      <button class="btn-secondary" data-cwl-toggle="showEditModal:false" aria-label="Show Edit Modal">Close</button>
     </div>
   </div>
 </div>
@@ -933,6 +945,8 @@
         <h2>📋 Site Details: <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>
         <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">✕</button>
       </div>
+
+        <div class="error-banner" hidden aria-hidden="true"></div>
 
       <!-- Site Info -->
       <div class="site-info">
@@ -1128,6 +1142,8 @@
         </div>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
 
           <!-- Hardware Deployments -->
@@ -1290,6 +1306,8 @@
       </div>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Equipment Category & Type -->
@@ -1498,6 +1516,8 @@
       </h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Address Search -->
@@ -1862,6 +1882,10 @@
         <h2>🚀 Server Deployment</h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
+
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
 
       <div class="modal-body">
         <!-- Step Progress Indicator -->
@@ -2304,6 +2328,10 @@
       <!-- Content Area -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <!-- Slot for step content -->
         <slot name="content" 0 />
       </div>
@@ -2677,6 +2705,10 @@
       <!-- Content Area -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <!-- Slot for step content -->
         <slot name="content" 0 />
       </div>
@@ -2809,6 +2841,14 @@
             Create site
           </button>
 
+          <div hidden aria-hidden="true"><h3>🎉 Site created</h3>
+          <p></p>
+          <div class="info-box success">
+            <p><strong></strong> · tower</p>
+            <p><span data-cwl-bind="interp" data-cwl-hole-detail="latitude.toFixed(6)"></span>, <span data-cwl-bind="interp" data-cwl-hole-detail="longitude.toFixed(6)"></span></p>
+          </div>
+          <a href="/modules/deploy" class="next-step-item">View in Deploy module →</a>
+        </div>
       </div></div>
   </div>
 
@@ -2822,11 +2862,11 @@
 
   <!-- Plan Selection Modal (shows list of all plans) -->
 
-    <div class="modal-overlay" data-cwl-action="closePlanApprovalModal" hidden aria-hidden="true">
+    <div class="modal-overlay" data-cwl-toggle="showPlanApprovalModal:false" hidden aria-hidden="true">
       <div class="plan-list-modal">
         <div class="modal-header">
           <h2>📋 All Plans - Activate, Approve, or Take Over</h2>
-          <button class="close-btn" data-cwl-action="closePlanApprovalModal" aria-label="Close Plan Approval Modal">✕</button>
+          <button class="close-btn" data-cwl-toggle="showPlanApprovalModal:false" aria-label="Show Plan Approval Modal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -2887,7 +2927,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-secondary" data-cwl-action="closePlanApprovalModal" aria-label="Close Plan Approval Modal">Close</button>
+          <button class="btn-secondary" data-cwl-toggle="showPlanApprovalModal:false" aria-label="Show Plan Approval Modal">Close</button>
         </div>
       </div>
     </div>
@@ -3371,6 +3411,8 @@
         </div>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
 
           <!-- Tabs -->
@@ -3656,6 +3698,8 @@
 
     <form data-cwl-on-submit="action:handleSubmit">
 
+        <div class="error-message" hidden aria-hidden="true">⚠️ </div>
+
       <!-- Basic Information -->
       <div class="section">
         <h3>📱 Basic Information</h3>
@@ -3888,7 +3932,7 @@
       <button class="btn-secondary" data-cwl-action="loadCustomers" title="Refresh groups and customers">
         🔄 Refresh
       </button>
-      <button class="btn-primary" data-cwl-action="openAddModal" aria-label="Open Add Modal">
+      <button class="btn-primary" data-cwl-toggle="showAddModal:true">
         + Add Group
       </button>
     </div>
@@ -3940,11 +3984,11 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Edit' : 'Add'"></span> Subscriber Group</h3>
-        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">×</button>
+        <button class="close-btn" data-cwl-toggle="showAddModal:false">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -3970,7 +4014,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" data-cwl-action="closeModal" aria-label="Close Modal">Cancel</button>
+        <button class="btn-cancel" data-cwl-toggle="showAddModal:false">Cancel</button>
         <button class="btn-save" data-cwl-action="saveGroup" aria-label="Save Group">
           <span data-cwl-bind="interp" data-cwl-hole-detail="editingGroup ? 'Update' : 'Create'"></span> Group
         </button>
@@ -3987,7 +4031,7 @@
                 <div data-cwl-component="BandwidthPlans" data-cwl-lifted-component="BandwidthPlans"><div class="bandwidth-plans">
   <div class="header">
     <h2>Bandwidth Plans</h2>
-    <button class="btn-primary" data-cwl-action="openAddModal" aria-label="Open Add Modal">
+    <button class="btn-primary" data-cwl-toggle="showAddModal:true">
       + Add Bandwidth Plan
     </button>
   </div>
@@ -4021,11 +4065,11 @@
 
 </div>
 
-  <div class="modal-overlay" data-cwl-action="closeModal" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAddModal:false" hidden aria-hidden="true">
     <div class="modal">
       <div class="modal-header">
         <h3><span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Edit' : 'Add'"></span> Bandwidth Plan</h3>
-        <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">×</button>
+        <button class="close-btn" data-cwl-toggle="showAddModal:false">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -4055,7 +4099,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" data-cwl-action="closeModal" aria-label="Close Modal">Cancel</button>
+        <button class="btn-cancel" data-cwl-toggle="showAddModal:false">Cancel</button>
         <button class="btn-save" data-cwl-action="savePlan" aria-label="Save Plan">
           <span data-cwl-bind="interp" data-cwl-hole-detail="editingPlan ? 'Update' : 'Create'"></span> Plan
         </button>
@@ -4984,6 +5028,10 @@
         <button class="close-btn" data-cwl-action="close" aria-label="Close">✕</button>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
         <!-- Site Info Summary -->
         <div class="site-info">
@@ -5326,7 +5374,7 @@
     <div class="preview-section" hidden aria-hidden="true">
       <div class="preview-header">
         <h3>Preview: <span data-cwl-bind="interp" data-cwl-hole-detail="csvData.length"></span> subscribers</h3>
-        <button class="btn-cancel" data-cwl-action="cancelUpload" aria-label="Cancel Upload">Cancel</button>
+        <button class="btn-cancel" data-cwl-toggle="showPreview:false">Cancel</button>
       </div>
 
       <div class="preview-table">
@@ -5393,6 +5441,8 @@
       Refresh
     </button>
   </div>
+
+    <div class="alert alert-error" hidden aria-hidden="true"></div>
 
     <div class="connections-table">
       <div class="table-row table-header">
@@ -6311,6 +6361,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

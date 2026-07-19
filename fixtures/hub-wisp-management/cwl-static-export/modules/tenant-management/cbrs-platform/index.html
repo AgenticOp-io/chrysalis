@@ -17,10 +17,16 @@
 
   <div class="page-content">
 
+      <div class="alert alert-error" hidden aria-hidden="true">
+        <span class="alert-icon">⚠️</span>
+        <span class="alert-message"></span>
+        <button class="alert-close" data-cwl-set="error:">✕</button>
+      </div>
+
       <div class="alert alert-success" hidden aria-hidden="true">
         <span class="alert-icon">✅</span>
         <span class="alert-message"><span data-cwl-bind="interp" data-cwl-hole-detail="successMessage"></span></span>
-        <button class="alert-close">✕</button>
+        <button class="alert-close" data-cwl-set="successMessage:">✕</button>
       </div>
 
     <div class="info-card">
@@ -146,7 +152,7 @@
     </div>
 
     <div class="action-bar">
-      <button type="button" class="btn btn-secondary" data-cwl-action="handleTest" aria-label="Test">
+      <button type="button" class="btn btn-secondary" data-cwl-toggle="showTestResult:true" aria-label="Show Test Result">
         🧪 Test Configuration
       </button>
       <button type="button" class="btn btn-primary" data-cwl-action="handleSave" data-cwl-attr-disabled="isSaving" aria-label="Save">

@@ -20,6 +20,10 @@
       <!-- Step Content -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
           <div class="wizard-panel">
             <div class="welcome-content">
@@ -804,6 +808,11 @@
       <p class="hint">Deploy devices with IP addresses to enable ping monitoring, or enable graphs on discovered SNMP devices</p>
     </div>
 
+    <div class="no-devices error" hidden aria-hidden="true">
+      <p>⚠️ </p>
+      <p class="hint">Please check your connection and try refreshing the page</p>
+    </div>
+
     <div class="loading" hidden aria-hidden="true">
       <div class="spinner"></div>
       <p>Loading devices...</p>
@@ -917,6 +926,11 @@
       <p class="hint">Mikrotik devices discovered via SNMP/CDP/LLDP will appear here</p>
     </div>
 
+    <div class="error-state" hidden aria-hidden="true">
+      <p>⚠️ Error: </p>
+      <button class="btn btn-primary" data-cwl-action="loadMikrotikDevices" aria-label="Load Mikrotik Devices">Retry</button>
+    </div>
+
 </div></div>
 
         <div class="no-devices-overlay" hidden aria-hidden="true">
@@ -986,6 +1000,10 @@
       <button class="close-btn" data-cwl-action="onClose" aria-label="Close">✕</button>
     </div>
   </div>
+
+    <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+    <div class="alert alert-success" hidden aria-hidden="true"></div>
 
   <div class="panel-content">
     <!-- System Overview -->
@@ -1345,6 +1363,16 @@
           </div>
         </p>
       </div>
+
+        <div class="alert alert-error" hidden aria-hidden="true">
+          <span>⚠️</span>
+          <span></span>
+        </div>
+
+        <div class="alert alert-success" hidden aria-hidden="true">
+          <span>✅</span>
+          <span></span>
+        </div>
 
       <form data-cwl-on-submit="action:saveCredentials">
         <div class="form-group">
@@ -2237,6 +2265,10 @@
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
+
       <div class="modal-body">
         <!-- Step Progress Indicator -->
         <div class="step-indicator">
@@ -2637,11 +2669,11 @@
 
 <!-- Alert Details Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeAlertDetailsModal" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showAlertDetailsModal:false" hidden aria-hidden="true">
     <div class="modal-content alert-details-modal">
       <div class="modal-header">
         <h3>🚨 Alert Details</h3>
-        <button class="modal-close" data-cwl-action="closeAlertDetailsModal" aria-label="Close Alert Details Modal">×</button>
+        <button class="modal-close" data-cwl-toggle="showAlertDetailsModal:false" aria-label="Show Alert Details Modal">×</button>
       </div>
 
       <div class="modal-body">
@@ -2687,7 +2719,7 @@
             <button class="btn btn-primary" data-cwl-action="createTicketFromAlert" data-cwl-action-args="selectedAlert" aria-label="Create Ticket From Alert">
               🎫 Create Ticket
             </button>
-            <button class="btn btn-secondary" data-cwl-action="closeAlertDetailsModal" aria-label="Close Alert Details Modal">
+            <button class="btn btn-secondary" data-cwl-toggle="showAlertDetailsModal:false" aria-label="Show Alert Details Modal">
               ✓ Acknowledge
             </button>
           </div>
@@ -2698,11 +2730,11 @@
 
 <!-- Create Ticket from Alert Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeCreateTicketModal" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showCreateTicketModal:false" hidden aria-hidden="true">
     <div class="modal-content create-ticket-modal">
       <div class="modal-header">
         <h3>🎫 Create Ticket from Alert</h3>
-        <button class="modal-close" data-cwl-action="closeCreateTicketModal" aria-label="Close Create Ticket Modal">×</button>
+        <button class="modal-close" data-cwl-toggle="showCreateTicketModal:false" aria-label="Show Create Ticket Modal">×</button>
       </div>
 
       <div class="modal-body">
@@ -2749,7 +2781,7 @@
 
           <div class="form-actions">
             <button type="submit" class="btn btn-primary">Create Ticket</button>
-            <button type="button" class="btn btn-secondary" data-cwl-action="closeCreateTicketModal" aria-label="Close Create Ticket Modal">Cancel</button>
+            <button type="button" class="btn btn-secondary" data-cwl-toggle="showCreateTicketModal:false" aria-label="Show Create Ticket Modal">Cancel</button>
           </div>
         </form>
       </div>
@@ -2765,6 +2797,8 @@
         <h2>📋 Site Details: <span data-cwl-bind="interp" data-cwl-hole-detail="site.name"></span></h2>
         <button class="close-btn" data-cwl-action="closeModal" aria-label="Close Modal">✕</button>
       </div>
+
+        <div class="error-banner" hidden aria-hidden="true"></div>
 
       <!-- Site Info -->
       <div class="site-info">
@@ -2987,6 +3021,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

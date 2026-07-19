@@ -50,6 +50,8 @@ export const DEFAULT_SHOWCASE_LOAD_BOOLS: Readonly<Record<string, boolean>> = {
   /** Demo showcase user is an authorized admin — render the module content,
    * not the Access Denied fallback; runtime auth re-gates on the live site. */
   hasPlatformAdminAccess: true,
+  /** User-management invite/role chrome is admin-gated; keep it visible for the demo. */
+  canManageUsers: true,
   success: false,
   statusLoading: false,
   statusError: false,
@@ -608,9 +610,8 @@ export function findPascalComponentTagEnd(source: string, start: number): number
  * dispatch/close bookkeeping) — resolve their names to nav targets so
  * `on:click={setupCbrs}` compiles to data-cwl-nav instead of an unbound action.
  */
-export function extractHandlerNavTargets(source: string): Readonly<Record<string, string>> {
-  const script = extractScriptBlocks(source);
-  const out: Record<string, string> = {};
+function extractFunctionBodies(script: string): Array<{ name: string; body: string }> {
+  const out: Array<{ name: string; body: string }> = [];
   const fnRe = /function\s+([a-zA-Z_$][\w$]*)\s*\([^)]*\)\s*\{/g;
   let m: RegExpExecArray | null;
   while ((m = fnRe.exec(script))) {
@@ -629,7 +630,15 @@ export function extractHandlerNavTargets(source: string): Readonly<Record<string
       }
     }
     if (end < 0) continue;
-    const body = script.slice(open + 1, end);
+    out.push({ name: m[1]!, body: script.slice(open + 1, end) });
+  }
+  return out;
+}
+
+export function extractHandlerNavTargets(source: string): Readonly<Record<string, string>> {
+  const script = extractScriptBlocks(source);
+  const out: Record<string, string> = {};
+  for (const { name, body } of extractFunctionBodies(script)) {
     const gotos = [...body.matchAll(/\bgoto\s*\(\s*(['"])([^'"$]*)\1\s*\)/g)];
     if (gotos.length !== 1) continue;
     // Only bookkeeping besides the goto: dispatch(...), handleClose(), close flags.
@@ -641,7 +650,36 @@ export function extractHandlerNavTargets(source: string): Readonly<Record<string
       .replace(/\/\/[^\n]*/g, "")
       .trim();
     if (residue.length > 0) continue;
-    out[m[1]!] = gotos[0]![2]!;
+    out[name] = gotos[0]![2]!;
+  }
+  return out;
+}
+
+/**
+ * Script functions whose intent is opening/closing a boolean overlay flag
+ * (`showInviteModal = true`, optionally with form resets / early returns).
+ * Resolves `on:click={openInviteModal}` → `data-cwl-toggle="showInviteModal:true"`.
+ */
+export function extractHandlerToggleTargets(
+  source: string,
+): Readonly<Record<string, string>> {
+  const script = extractScriptBlocks(source);
+  const out: Record<string, string> = {};
+  const flagRe =
+    /\b((?:show|is|open)[A-Z][A-Za-z0-9_]*)\s*=\s*(true|false)\b/g;
+  for (const { name, body } of extractFunctionBodies(script)) {
+    // Skip pure navigators — those already become data-cwl-nav.
+    if (/\bgoto\s*\(/.test(body)) continue;
+    const flags = [...body.matchAll(flagRe)];
+    if (flags.length === 0) continue;
+    // Prefer the last assignment (open after reset / early-return guards).
+    const last = flags[flags.length - 1]!;
+    const flagName = last[1]!;
+    const flagValue = last[2]!;
+    // Residue may include object/array resets and early returns — still a toggle.
+    // Reject only if the body also drives another primary UI intent (fetch/API).
+    if (/\b(?:fetch|await\s+|api\.|service\.)\b/i.test(body)) continue;
+    out[name] = `${flagName}:${flagValue}`;
   }
   return out;
 }
@@ -649,6 +687,7 @@ export function extractHandlerNavTargets(source: string): Readonly<Record<string
 export function rewriteSvelteEventAttributes(
   html: string,
   handlerNavTargets: Readonly<Record<string, string>> = {},
+  handlerToggleTargets: Readonly<Record<string, string>> = {},
 ): string {
   let out = "";
   let i = 0;
@@ -778,6 +817,8 @@ export function rewriteSvelteEventAttributes(
         );
       const setString = /\b([a-zA-Z_$][\w$]*)\s*=\s*(['"])(.*?)\2/.exec(body);
       const setBool = /\b([a-zA-Z_$][\w$]*)\s*=\s*(true|false)\b/.exec(body);
+      // `error = null` / `success = null` — dismiss banner (same as clearing a string).
+      const setNull = /\b([a-zA-Z_$][\w$]*)\s*=\s*null\b/.exec(body);
       // `list = list.filter((_, i) => i !== index)` — row removal by index.
       const removeRowAssign =
         /\b([\w$]+(?:\.[\w$]+)*)\s*=\s*\1\s*\.filter\s*\(/.exec(body);
@@ -795,6 +836,8 @@ export function rewriteSvelteEventAttributes(
         emitBehavior("action", dispatchCall[2]!);
       } else if (call && handlerNavTargets[call[2]!] && !call[3]!.trim()) {
         emitBehavior("nav", handlerNavTargets[call[2]!]!);
+      } else if (call && handlerToggleTargets[call[2]!] && !call[3]!.trim()) {
+        emitBehavior("toggle", handlerToggleTargets[call[2]!]!);
       } else if (call) {
         const actionName = call[2]!.replace(/"/g, "");
         if (clickEvent) {
@@ -814,6 +857,8 @@ export function rewriteSvelteEventAttributes(
         }
       } else if (directHandler && handlerNavTargets[directHandler[1]!]) {
         emitBehavior("nav", handlerNavTargets[directHandler[1]!]!);
+      } else if (directHandler && handlerToggleTargets[directHandler[1]!]) {
+        emitBehavior("toggle", handlerToggleTargets[directHandler[1]!]!);
       } else if (directHandler) {
         emitBehavior("action", directHandler[1]!);
       } else if (removeRowAssign) {
@@ -828,6 +873,8 @@ export function rewriteSvelteEventAttributes(
         emitBehavior("set", `${setString[1]!}:${setString[3]!}`);
       } else if (setBool) {
         emitBehavior("toggle", `${setBool[1]!}:${setBool[2]!}`);
+      } else if (setNull) {
+        emitBehavior("set", `${setNull[1]!}:`);
       } else if (flipBool && flipBool[1] === flipBool[2]) {
         emitBehavior("toggle", `${flipBool[1]!}:flip`);
       }
@@ -1780,9 +1827,11 @@ function expandControlFlow(
       // if — resolve simple idents and !ident against loadBools (D6443 login form).
       const simple = /^([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
       const negated = /^!\s*([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(block.header);
-      const strEq = /^([a-zA-Z_][a-zA-Z0-9_]*)\s*===\s*['"]([^'"]*)['"]$/.exec(block.header);
-      const tabAndCompanion =
-        /^([a-zA-Z_][a-zA-Z0-9_]*)\s*===\s*['"]([^'"]*)['"]\s*&&\s*[a-zA-Z_][a-zA-Z0-9_]*$/.exec(
+      // Allow an optional data companion (`activeTab === 'overview' && schema`) so
+      // tab chains whose first branch carries a load guard still compile into
+      // state panels instead of dropping the sibling tabs (voice-telephony D6448).
+      const strEq =
+        /^([a-zA-Z_][a-zA-Z0-9_]*)\s*===\s*['"]([^'"]*)['"](?:\s*&&\s*!?[a-zA-Z_$][\w.]*)?$/.exec(
           block.header,
         );
       const busyCompound = resolveNegatedBusyCompound(block.header, loadBools);
@@ -1808,8 +1857,19 @@ function expandControlFlow(
       ) {
         // `{#if !showPasswordReset}` must show the form when showPasswordReset is false —
         // never stampClosed the trueBody (that hid email/password on management login).
+        // When the true branch is visible, still keep the else chrome stamped closed
+        // (`Back to Sign In` after passwordResetSent) so toggles can reveal it.
         const on = loadBools[negated[1]!] === true;
-        replacement = !on ? block.trueBody : idle();
+        if (!on) {
+          const idleHtml = idle();
+          replacement =
+            block.trueBody +
+            (isUiToggleOverlayIfHeader(negated[1]!) && idleHtml.trim().length > 0
+              ? stampClosedUiChrome(idleHtml)
+              : "");
+        } else {
+          replacement = idle();
+        }
       } else if (
         simple &&
         Object.prototype.hasOwnProperty.call(loadBools, simple[1]!)
@@ -1828,6 +1888,20 @@ function expandControlFlow(
             // Closed overlay chrome: keep markup hidden in DOM (D6442).
             replacement = stampClosedUiChrome(block.trueBody);
           }
+        } else if (on && isUiToggleOverlayIfHeader(block.header)) {
+          // Visible toggle with an else branch — keep the else stamped closed.
+          const idleHtml = idle();
+          replacement =
+            block.trueBody +
+            (idleHtml.trim().length > 0 ? stampClosedUiChrome(idleHtml) : "");
+        } else if (!on && /^(?:error|success)$/i.test(simple[1]!)) {
+          // Error/success banners settle false on first paint — keep Retry chrome.
+          const idleHtml = idle();
+          replacement =
+            (idleHtml.trim().length > 0 ? idleHtml : "") +
+            (block.trueBody.trim().length > 0
+              ? stampClosedUiChrome(block.trueBody)
+              : "");
         } else {
           replacement = on ? block.trueBody : idle();
         }
@@ -1838,7 +1912,9 @@ function expandControlFlow(
       ) {
         const ident = strEq[1]!;
         const current = String(scalarValues[ident]);
-        const identEq = new RegExp(`^${ident}\\s*===\\s*['"]([^'"]*)['"]$`);
+        const identEq = new RegExp(
+          `^${ident}\\s*===\\s*['"]([^'"]*)['"](?:\\s*&&\\s*!?[a-zA-Z_$][\\w.]*)?$`,
+        );
         const chainBranches = parseElseChain(block.elseChainRaw);
         const isStateChain =
           chainBranches.length > 0 &&
@@ -1888,17 +1964,11 @@ function expandControlFlow(
               idle();
           }
         }
-      } else if (
-        tabAndCompanion &&
-        Object.prototype.hasOwnProperty.call(scalarValues, tabAndCompanion[1]!) &&
-        typeof scalarValues[tabAndCompanion[1]!] === "string" &&
-        String(scalarValues[tabAndCompanion[1]!]) === tabAndCompanion[2]
-      ) {
-        // `activeTab === 'overview' && schema` — companion data loads later; keep tab chrome.
-        replacement = block.trueBody;
-      } else if (simple && /Message$/i.test(simple[1]!)) {
-        // Toast/banner messages default closed until hydrate.
-        replacement = stampClosedUiChrome(block.trueBody);
+      } else if (simple && /^(?:error|success)$|Message$/i.test(simple[1]!)) {
+        // Toast/banner messages and error/success banners default closed until hydrate.
+        replacement =
+          (idle().trim().length > 0 ? idle() : "") +
+          (block.trueBody.trim().length > 0 ? stampClosedUiChrome(block.trueBody) : "");
       } else if (/^[a-zA-Z_][\w]*\?\.[\w.?[\]]*$/.test(block.header)) {
         // Optional presence (`mapState?.activePlan`) — closed until hydrate (D6448).
         replacement =
@@ -2205,7 +2275,11 @@ export function liftStructuralSveltePageHtml(
   // Events compile to data-cwl-nav/action/set/toggle below. Native form values
   // remain usable after bind:* is removed, so neither is an unsupported hole.
   // Named handlers that only navigate resolve to their goto target (nav, not action).
-  s = rewriteSvelteEventAttributes(s, extractHandlerNavTargets(normalizedSource));
+  s = rewriteSvelteEventAttributes(
+    s,
+    extractHandlerNavTargets(normalizedSource),
+    extractHandlerToggleTargets(normalizedSource),
+  );
   s = rewriteSvelteDynamicAttributes(s);
   s = s.replace(/\s+bind:[a-zA-Z][a-zA-Z0-9_]*\s*=\s*\{[^}]*\}/g, "");
   s = s.replace(/\s+bind:[a-zA-Z][a-zA-Z0-9_]*/g, "");

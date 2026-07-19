@@ -10,13 +10,25 @@
     </div>
 
     <div class="header-actions">
-      <button class="btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+      <button class="btn-primary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
         ➕ Create Bundle
       </button>
     </div>
   </div>
 
   <!-- Alerts -->
+
+    <div class="alert alert-error" hidden aria-hidden="true">
+      <span>❌</span>
+      <span></span>
+      <button data-cwl-set="error:">✕</button>
+    </div>
+
+    <div class="alert alert-success" hidden aria-hidden="true">
+      <span>✓</span>
+      <span></span>
+      <button data-cwl-set="success:">✕</button>
+    </div>
 
   <!-- Filters -->
   <div class="filters">
@@ -145,7 +157,7 @@
       <span class="empty-icon">📦</span>
       <h3>No bundles found</h3>
       <p>Create your first hardware bundle to get started</p>
-      <button class="btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+      <button class="btn-primary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
         ➕ Create Bundle
       </button>
     </div>
@@ -167,6 +179,11 @@
       </div>
 
       <div class="modal-body">
+
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
 
         <div class="form-section">
           <h3>Basic Information</h3>
@@ -368,6 +385,11 @@
       </div>
 
       <div class="modal-body">
+
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
 
           <div class="section" hidden aria-hidden="true">
             <h3>Description</h3>

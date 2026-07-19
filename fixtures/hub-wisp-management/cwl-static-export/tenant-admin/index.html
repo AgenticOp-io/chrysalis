@@ -42,6 +42,12 @@
         </button>
       </div>
 
+    <div class="success-message" hidden aria-hidden="true">
+      <span class="success-icon">✅</span>
+      <span></span>
+      <button class="dismiss-btn" data-cwl-set="success:">✕</button>
+    </div>
+
   <div data-cwl-bind="if" data-cwl-hole-detail="error && tenant"><div class="error-message">
       <span class="error-icon">⚠️</span>
       <span></span>
@@ -89,7 +95,8 @@
           </button>
         </div>
 
-      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'devices' && settings"><div class="settings-panel">
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'devices'" hidden aria-hidden="true">
+        <div class="settings-panel">
           <h2>Device Management Settings</h2>
 
           <div class="form-group">
@@ -139,9 +146,11 @@
           <button class="btn-primary" type="button" data-cwl-action="saveDeviceSettings" data-cwl-attr-disabled="isSaving" aria-label="Save Device Settings">
             Save Device Settings
           </button>
-        </div></div>
+        </div>
+      </div>
 
-      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'connection' && settings"><div class="settings-panel">
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'connection'" hidden aria-hidden="true">
+        <div class="settings-panel">
           <h2>Connection Information</h2>
 
           <div class="info-box">
@@ -222,9 +231,11 @@
               <li>Device should appear in your device list within 5 minutes</li>
             </ol>
           </div>
-        </div></div>
+        </div>
+      </div>
 
-      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'limits' && limits"><div class="settings-panel">
+      <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'limits'" hidden aria-hidden="true">
+        <div class="settings-panel">
           <h2>Limits & Quotas</h2>
           <p class="subtitle">Current plan limits for your organization</p>
 
@@ -257,7 +268,8 @@
           <button class="btn-primary" data-cwl-action="saveLimits" data-cwl-attr-disabled="isSaving" aria-label="Save Limits">
             Update Limits
           </button>
-        </div></div>
+        </div>
+      </div>
 
       <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'users'" hidden aria-hidden="true">
         <div class="settings-panel">

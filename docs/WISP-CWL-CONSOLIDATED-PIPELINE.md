@@ -125,3 +125,22 @@ then optionally mirror the static export to Hosting.
 - Verify conversion fidelity on **GCE**.
 - Use Firebase only when a second CDN URL is required.
 - Record remaining map/button gaps against the GCE demo, not Hosting.
+
+## Deepened fidelity pass (2026-07-19)
+
+The “~60% feel” usually means three conversion gaps stacking:
+
+1. **Help button occluded** — plan/deploy inject `#plan-active-summary.plan-summary`
+   at `z-index: 11`, which sits above the origin help FAB (fixed inside the
+   `z-index: 10` header stacking context). Origin uses `z-index: 5` for the
+   summary; CWL modules CSS must match so Help stays clickable.
+2. **Tab chains with data companions** — `{#if activeTab === 'overview' && schema}
+   {:else if activeTab === 'accounts'}…` must compile every branch into a
+   `data-cwl-bind="if"` state panel. Dropping the companion `&& schema` case
+   collapses voice-telephony (and similar) to the overview only.
+3. **Open-modal handlers** — `on:click={openInviteModal}` / `openAddTn` where the
+   function body only sets `showX = true` must emit `data-cwl-toggle`, not an
+   unbound `data-cwl-action`.
+
+Census blocker added: `missing-origin-labels` (origin `<button>` / `<h2>` labels
+absent from the export after decoding `data-cwl-each-tpl`).

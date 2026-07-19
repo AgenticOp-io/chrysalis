@@ -77,6 +77,8 @@
         <button type="button" class="linkish" data-cwl-nav="/modules/voice-telephony">Show all</button>
       </div></div>
 
+      <div class="alert err" role="alert" hidden aria-hidden="true"></div>
+
     <nav class="tabs">
       <button type="button" data-cwl-set="activeTab:overview">Overview</button>
       <button type="button" data-cwl-set="activeTab:accounts">Provider accounts</button>
@@ -85,6 +87,7 @@
       <button type="button" data-cwl-set="activeTab:locations">Service locations</button>
     </nav>
 
+    <div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'overview'">
       <section class="panel">
         <h2>Bounded contexts</h2>
         <ul class="ctx-list">
@@ -138,7 +141,168 @@
           <div data-cwl-bind="each" data-cwl-hole-detail="schema.phased_rollout as ph"><li><strong>Phase </strong> — </li></div>
         </ol>
       </section>
+    </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'accounts'" hidden aria-hidden="true">
+      <section class="panel">
+        <div class="row">
+          <h2>Voice provider accounts</h2>
+          <button type="button" class="btn primary" data-cwl-toggle="showAddAccount:true" aria-label="Show Add Account">Add account</button>
+        </div>
 
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Provider</th>
+                  <th>External account ID</th>
+                  <th>Display name</th>
+                  <th>Credential ref</th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="accounts as a" data-cwl-each-item="a" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%3Ccode%3E%7Ba.provider%7D%3C%2Fcode%3E%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Ba.externalAccountId%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Ba.displayName%20%7C%7C%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Ba.credentialRef%20%3F%20'%E2%80%A2%E2%80%A2%E2%80%A2%E2%80%A2'%20%3A%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td><code></code></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div hidden aria-hidden="true"><p class="muted">No provider accounts yet. Add one to represent your Bandwidth site, Twilio subaccount, or Telnyx connection.</p>
+        </div>
+      </section>
+    </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'numbers'" hidden aria-hidden="true">
+      <section class="panel">
+        <div class="row">
+          <h2>Telephone numbers</h2>
+          <button
+            type="button"
+            class="btn primary" data-cwl-attr-disabled="accounts.length === 0" data-cwl-attr-title="accounts.length === 0 ? 'Add a provider account first' : ''" data-cwl-toggle="showAddTn:true"
+          >
+            Add number
+          </button>
+        </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>E.164</th>
+                  <th>Status</th>
+                  <th>911</th>
+                  <div data-cwl-bind="if" data-cwl-hole-detail="!filterCustomerId"><th>Customer</th></div>
+                  <th>Rate center</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="numbers as n" data-cwl-each-item="n" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%3Ccode%3E%7Bn.e164%7D%3C%2Fcode%3E%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bn.status%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%20title%3D%22From%20linked%20emergency%20address%22%3E%7Bn.e911Display%20%3F%3F%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20!filterCustomerId%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20n.customerId%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ca%20href%3D%22%2Fmodules%2Fvoice-telephony%3FcustomerId%3D%7BencodeURIComponent(n.customerId)%7D%22%20class%3D%22map-link%22%3E%7Bn.customerId%7D%3C%2Fa%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%80%94%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bn.rateCenter%20%7C%7C%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%20type%3D%22button%22%20class%3D%22btn%20sm%22%20data-cwl-action%3D%22openEditTn%22%20data-cwl-action-args%3D%22n%22%20aria-label%3D%22Open%20Edit%20Tn%22%3EEdit%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td><code></code></td>
+                    <td></td>
+                    <td title="From linked emergency address"></td>
+                    <div data-cwl-bind="if" data-cwl-hole-detail="!filterCustomerId"><td>
+
+                          —
+
+                          <div hidden aria-hidden="true"><a href="/modules/voice-telephony?customerId=" class="map-link"></a>
+                        </div>
+                      </td></div>
+                    <td></td>
+                    <td>
+                      <button type="button" class="btn sm" data-cwl-action="openEditTn" data-cwl-action-args="n" aria-label="Open Edit Tn">Edit</button>
+                    </td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div hidden aria-hidden="true"><p class="muted">No numbers yet. Add one above or import from your carrier later.</p>
+        </div>
+          <div hidden aria-hidden="true"><p class="muted">Add a voice provider account on the <strong>Provider accounts</strong> tab before creating numbers.</p>
+        </div>
+      </section>
+    </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'ports'" hidden aria-hidden="true">
+      <section class="panel">
+        <h2>Port orders (LNP)</h2>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>TNs</th>
+                  <th>Losing carrier</th>
+                  <th>FOC target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="portOrders as o" data-cwl-each-item="o" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%3Ccode%3E%7Bo.status%7D%3C%2Fcode%3E%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7B(o.telephoneNumbersE164%20%7C%7C%20%5B%5D).join('%2C%20')%20%7C%7C%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bo.losingCarrierName%20%7C%7C%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7Bo.focTargetDate%20%7C%7C%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td><code></code></td>
+                    <td><span data-cwl-bind="interp" data-cwl-hole-detail="(o.telephoneNumbersE164 || []).join(', ') || '—'"></span></td>
+                    <td></td>
+                    <td></td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div hidden aria-hidden="true"><p class="muted">No port orders yet.</p>
+        </div>
+      </section>
+    </div><div data-cwl-bind="if" data-cwl-hole-detail="activeTab === 'locations'" hidden aria-hidden="true">
+      <section class="panel">
+        <div class="row">
+          <h2>Service locations (E911 / geocode)</h2>
+          <button type="button" class="btn primary" data-cwl-toggle="showAddLocation:true" aria-label="Show Add Location">Add location</button>
+        </div>
+        <p class="muted small">
+          Use the same <code>customerId</code> as the Customers module to tie addresses together. Coverage Map opens centered on
+          coordinates when available.
+        </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Customer</th>
+                  <th>Geocode</th>
+                  <th>Map</th>
+                </tr>
+              </thead>
+              <tbody>
+                <div data-cwl-bind="each" data-cwl-hole-detail="locations as loc" data-cwl-each-item="loc" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%7B%5Bloc.street%2C%20loc.unit%2C%20loc.city%2C%20loc.state%2C%20loc.postal%5D.filter(Boolean).join('%2C%20')%20%7C%7C%20'%E2%80%94'%7D%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20loc.customerId%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ca%20href%3D%22%2Fmodules%2Fvoice-telephony%3FcustomerId%3D%7BencodeURIComponent(loc.customerId)%7D%22%20class%3D%22map-link%22%3E%7Bloc.customerId%7D%3C%2Fa%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%80%94%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bloc.geocodeSource%20%7C%7C%20'%E2%80%94'%7D%7B%23if%20loc.geocodeScore%20!%3D%20null%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(score%20%7Bloc.geocodeScore%7D)%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ctd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20loc.latitude%20!%3D%20null%20%26%26%20loc.longitude%20!%3D%20null%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Ca%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22map-link%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20href%3D%22%2Fmodules%2Fcoverage-map%3FfocusLat%3D%7Bloc.latitude%7D%26focusLng%3D%7Bloc.longitude%7D%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Coverage%20map%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fa%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%3Aelse%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%80%94%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftd%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ftr%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20"><tr>
+                    <td><span data-cwl-bind="interp" data-cwl-hole-detail="[loc.street, loc.unit, loc.city, loc.state, loc.postal].filter(Boolean).join(', "></span></td>
+                    <td>
+
+                        —
+
+                        <div hidden aria-hidden="true"><a href="/modules/voice-telephony?customerId=" class="map-link"></a>
+                      </div>
+                    </td>
+                    <td>
+                      <div data-cwl-bind="if" data-cwl-hole-detail="loc.geocodeScore != null">(score )</div>
+                    </td>
+                    <td>
+                      <div data-cwl-bind="if" data-cwl-hole-detail="loc.latitude != null && loc.longitude != null"><a
+                          class="map-link"
+                          href="/modules/coverage-map?focusLat=&focusLng="
+                        >
+                          Coverage map
+                        </a></div>
+                        —
+
+                    </td>
+                  </tr></div>
+              </tbody>
+            </table>
+          </div>
+
+          <div hidden aria-hidden="true"><p class="muted">No service locations yet. Add one above.</p>
+        </div>
+      </section>
+    </div>
   </div>
 
     <div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add provider account" hidden aria-hidden="true">

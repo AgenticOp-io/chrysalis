@@ -79,6 +79,16 @@
 
   <!-- Alerts -->
 
+    <div class="alert alert-error" hidden aria-hidden="true">
+      ⚠️
+      <button class="dismiss-btn" data-cwl-set="error:">✕</button>
+    </div>
+
+    <div class="alert alert-success" hidden aria-hidden="true">
+      ✅
+      <button class="dismiss-btn" data-cwl-set="success:">✕</button>
+    </div>
+
   <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card">
@@ -400,11 +410,16 @@
       <p class="hint">Devices discovered by EPC agents will appear here</p>
     </div>
 
+    <div class="error-state" hidden aria-hidden="true">
+      <p>⚠️ Error: </p>
+      <button class="btn btn-primary" data-cwl-action="loadDiscoveredDevices" aria-label="Load Discovered Devices">Retry</button>
+    </div>
+
 </div>
 
 <!-- Link Device to Hardware Deployment Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeModals" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showPairModal:false" hidden aria-hidden="true">
     <div class="modal-content large">
       <h3>Link Device to Deployed Hardware</h3>
       <p>Select hardware at a site to link with <strong><span data-cwl-bind="interp" data-cwl-hole-detail="selectedDevice.name || selectedDevice.ipAddress"></span></strong></p>
@@ -442,7 +457,7 @@
       <div data-cwl-bind="if" data-cwl-hole-detail="pairError"><div class="error-message"><span data-cwl-bind="interp" data-cwl-hole-detail="pairError"></span></div></div>
 
       <div class="modal-actions">
-        <button class="btn btn-secondary" data-cwl-action="closeModals" data-cwl-attr-disabled="pairingDevice" aria-label="Close Modals">Cancel</button>
+        <button class="btn btn-secondary" data-cwl-toggle="showPairModal:false" data-cwl-attr-disabled="pairingDevice" aria-label="Show Pair Modal">Cancel</button>
       </div>
     </div>
   </div></div>
@@ -656,6 +671,16 @@
 
       <div class="modal-body">
 
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
+
+          <div class="alert alert-success" hidden aria-hidden="true">
+            <span>✓</span>
+            <span></span>
+          </div>
+
         <!-- Scanner Section -->
         <div class="scanner-section">
           <div class="input-group">
@@ -857,6 +882,10 @@
         <h2>🚀 Server Deployment</h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
       </div>
+
+        <div class="error-banner" hidden aria-hidden="true"></div>
+
+        <div class="success-banner" hidden aria-hidden="true"></div>
 
       <div class="modal-body">
         <!-- Step Progress Indicator -->
@@ -1460,6 +1489,8 @@ readonly"
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

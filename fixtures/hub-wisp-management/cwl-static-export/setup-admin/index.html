@@ -14,6 +14,11 @@
       </ul>
     </div>
 
+      <div class="alert alert-error" hidden aria-hidden="true">
+        <span>❌</span>
+        <pre></pre>
+      </div>
+
     <div data-cwl-bind="if" data-cwl-hole-detail="result"><div class="alert">
         <pre></pre>
       </div></div>
@@ -22,7 +27,18 @@
 
         🚀 Setup Admin Access
 
+        <div hidden aria-hidden="true">✅ Setup Complete
+      </div>
     </button>
+
+      <div class="next-steps" hidden aria-hidden="true">
+        <h3>🎉 Success!</h3>
+        <p>You are now an owner of your tenants.</p>
+        <a href="/dashboard" class="btn btn-secondary">
+          ← Back to Dashboard
+        </a>
+        <p class="hint">Refresh the page (Ctrl+Shift+R) to see User Management and Help Desk modules</p>
+      </div>
 
   </div>
 </div></div>

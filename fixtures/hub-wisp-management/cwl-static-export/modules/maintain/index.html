@@ -286,6 +286,11 @@
     <form data-cwl-on-submit="action:handleSubmit">
       <section class="modal-body">
 
+          <div class="alert alert-error" role="alert" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
+
         <div class="form-group">
           <label for="title">Ticket Title *</label>
           <input
@@ -407,6 +412,16 @@
     </header>
 
     <section class="modal-body">
+
+        <div class="alert alert-error" hidden aria-hidden="true">
+          <span>❌</span>
+          <span></span>
+        </div>
+
+        <div class="alert alert-success" hidden aria-hidden="true">
+          <span>✅</span>
+          <span></span>
+        </div>
 
       <div class="ticket-header">
         <h3 class="ticket-title"><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.title || 'Untitled ticket'"></span></h3>
@@ -653,6 +668,10 @@
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
+      <div class="success" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Basic Information -->
@@ -1015,6 +1034,10 @@
       <h2><span data-cwl-bind="interp" data-cwl-hole-detail="customer ? '✏️ Edit Customer' : '➕ Add Customer'"></span></h2>
       <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">✕</button>
     </div>
+
+      <div class="error-banner" hidden aria-hidden="true"></div>
+
+      <div class="success" hidden aria-hidden="true"></div>
 
     <div class="modal-body">
       <!-- Basic Information -->

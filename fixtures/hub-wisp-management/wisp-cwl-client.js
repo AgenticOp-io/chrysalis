@@ -2069,6 +2069,19 @@
         var setSpec = (setEl.getAttribute("data-cwl-set") || "").split(":");
         var setKey = setSpec.shift() || "";
         var setValue = setSpec.join(":");
+        if (setKey && !setValue) {
+          // `error = null` / clear-string dismiss — hide the nearest banner/panel.
+          ev.preventDefault();
+          var clearBanner = setEl.closest(
+            ".alert, .alert-banner, .error-banner, .error-message, .warning-banner, .notice, .banner, [data-cwl-bind='if']",
+          );
+          if (clearBanner) {
+            clearBanner.hidden = true;
+            clearBanner.setAttribute("aria-hidden", "true");
+            clearBanner.style.display = "none";
+          }
+          return;
+        }
         if (setKey && setValue) {
           ev.preventDefault();
           document.querySelectorAll("[data-cwl-set^='" + setKey + ":']").forEach(function (el) {
@@ -4608,6 +4621,12 @@ function initModuleWizardMenus() {
   initDashboardModules();
   initShellIslands();
   initModuleTipsIslands();
+  // Origin help FAB is position:fixed inside .module-header-overlay (z=10).
+  // Reparent to <body> so z-index:999 is not trapped below .plan-summary.
+  document.querySelectorAll("button.help-button").forEach(function (btn) {
+    if (btn.parentElement === document.body) return;
+    document.body.appendChild(btn);
+  });
   initNotificationsBadge();
   initExtraListSurfaces();
   initDeepenN10gSurfaces();

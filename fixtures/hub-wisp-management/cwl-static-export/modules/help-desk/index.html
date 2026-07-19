@@ -16,14 +16,20 @@
       >
         📊 Reports
       </button>
-      <button class="btn btn-secondary" data-cwl-action="openCustomerLookup" aria-label="Open Customer Lookup">
+      <button class="btn btn-secondary" data-cwl-toggle="showCustomerLookup:true" aria-label="Show Customer Lookup">
         🔍 Customer Lookup
       </button>
-      <button class="btn btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+      <button class="btn btn-primary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
         ➕ Create Ticket
       </button>
     </div>
   </div>
+
+    <div class="alert alert-error" hidden aria-hidden="true">
+      <span>❌</span>
+      <span></span>
+      <button data-cwl-set="error:">✕</button>
+    </div>
 
   <div class="stats-grid">
     <div class="stat-card">
@@ -148,7 +154,7 @@
           Clear Filters
         </button></div>
         <p>All caught up! No pending tickets.</p>
-        <button class="btn btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+        <button class="btn btn-primary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
           Create First Ticket
         </button>
 
@@ -183,6 +189,11 @@
 
     <form data-cwl-on-submit="action:handleSubmit">
       <section class="modal-body">
+
+          <div class="alert alert-error" role="alert" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
 
         <div class="form-group">
           <label for="title">Ticket Title *</label>
@@ -305,6 +316,16 @@
     </header>
 
     <section class="modal-body">
+
+        <div class="alert alert-error" hidden aria-hidden="true">
+          <span>❌</span>
+          <span></span>
+        </div>
+
+        <div class="alert alert-success" hidden aria-hidden="true">
+          <span>✅</span>
+          <span></span>
+        </div>
 
       <div class="ticket-header">
         <h3 class="ticket-title"><span data-cwl-bind="interp" data-cwl-hole-detail="ticketData.title || 'Untitled ticket'"></span></h3>
@@ -579,6 +600,8 @@
         />
       </div>
 
+        <div class="error-message" role="alert" hidden aria-hidden="true"></div>
+
         <div class="customer-list" role="listbox" aria-label="Customer results">
           <div data-cwl-bind="each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)" data-cwl-each-item="customer" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22customer-item%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22option%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20aria-selected%3D%7BselectedCustomerId%20%3D%3D%3D%20(customer._id%20%7C%7C%20customer.customerId)%7D%20data-cwl-action%3D%22selectCustomer%22%20data-cwl-action-args%3D%22customer%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%20Customer%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-header%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-name%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstrong%3E%7Bcustomer.fullName%20%7C%7C%20%60%24%7Bcustomer.firstName%7D%20%24%7Bcustomer.lastName%7D%60%7D%3C%2Fstrong%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.customerId%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22customer-id%22%3E%23%7Bcustomer.customerId%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22status-badge%20status-%7Bcustomer.serviceStatus%7D%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceStatus%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-details%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.primaryPhone%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%9E%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7BformatPhone(customer.primaryPhone)%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%A7%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.email%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress%3F.street%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%8D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Bcustomer.serviceAddress.street%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.serviceAddress.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2C%20%7Bcustomer.serviceAddress.city%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.networkInfo%3F.imsi%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22detail-item%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22detail-label%22%20aria-hidden%3D%22true%22%3E%F0%9F%93%A1%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20IMSI%3A%20%7Bcustomer.networkInfo.imsi%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.servicePlan%3F.planName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22customer-plan%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Plan%3A%20%7Bcustomer.servicePlan.planName%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20customer.servicePlan.downloadMbps%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%7Bcustomer.servicePlan.downloadMbps%7D%2F%7Bcustomer.servicePlan.uploadMbps%7D%20Mbps)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%20%20"><button
               class="customer-item"
@@ -714,6 +737,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

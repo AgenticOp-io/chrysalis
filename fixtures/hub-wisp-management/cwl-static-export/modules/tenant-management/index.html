@@ -22,6 +22,18 @@
     </div>
   </div>
 
+    <div class="error-message" hidden aria-hidden="true">
+      <span class="error-icon">⚠️</span>
+      <span></span>
+      <button class="dismiss-btn" data-cwl-set="error:">✕</button>
+    </div>
+
+    <div class="success-message" hidden aria-hidden="true">
+      <span class="success-icon">✅</span>
+      <span></span>
+      <button class="dismiss-btn" data-cwl-set="success:">✕</button>
+    </div>
+
   <!-- Create Tenant Form -->
 
     <div class="create-form" hidden aria-hidden="true">
@@ -160,7 +172,7 @@
     <div class="modal-content" role="document">
       <div class="modal-header">
         <h2>Manage Tenant: <span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.displayName"></span></h2>
-        <button class="close-btn" data-cwl-action="closeEditModal" aria-label="Close Edit Modal">✕</button>
+        <button class="close-btn" data-cwl-toggle="showEditModal:false" aria-label="Show Edit Modal">✕</button>
       </div>
 
       <div class="modal-body">
@@ -243,7 +255,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" data-cwl-action="closeEditModal" aria-label="Close Edit Modal">
+        <button class="btn-secondary" data-cwl-toggle="showEditModal:false" aria-label="Show Edit Modal">
           Close
         </button>
       </div>
@@ -262,7 +274,7 @@
     <div class="modal-content delete-confirm-modal" role="document">
       <div class="modal-header danger">
         <h2>⚠️ Confirm Deletion</h2>
-        <button class="close-btn" data-cwl-action="cancelDelete" aria-label="Cancel Delete">✕</button>
+        <button class="close-btn" data-cwl-toggle="showDeleteConfirm:false" aria-label="Show Delete Confirm">✕</button>
       </div>
 
       <div class="modal-body">
@@ -299,7 +311,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" data-cwl-action="cancelDelete" data-cwl-attr-disabled="isDeleting" aria-label="Cancel Delete">
+        <button class="btn-secondary" data-cwl-toggle="showDeleteConfirm:false" data-cwl-attr-disabled="isDeleting" aria-label="Show Delete Confirm">
           Cancel
         </button>
         <button
@@ -379,6 +391,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

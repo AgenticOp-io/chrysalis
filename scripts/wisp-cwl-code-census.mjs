@@ -401,6 +401,99 @@ function routeCoverage(route, page, exportDir, modalsForFile, lifecycleForFile, 
     if (!probe) continue;
     if (!html.includes(probe)) missingHelpDocs.push({ module: doc.module, probe });
   }
+  // Deep pass 4 — primary control labels from the origin page must survive into
+  // the export (raw HTML or URL-decoded each-tpl). Dropped tab bodies / gated
+  // headers show up here even when the HelpModal shell is present.
+  // Brace-aware: Svelte attrs like on:click={() => …} contain `>`, so a naive
+  // `[^>]*` opener match would scrape handler source into the "label".
+  const missingOriginLabels = [];
+  const pageSourcePath = page?.file ? join(sourceDir, page.file) : "";
+  if (!isRedirectShell && pageSourcePath && existsSync(pageSourcePath)) {
+    const markup = readFileSync(pageSourcePath, "utf8")
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "");
+    const labels = new Set();
+    const openRe = /<(button|h2)\b/gi;
+    let om;
+    while ((om = openRe.exec(markup))) {
+      const tag = om[1].toLowerCase();
+      let i = om.index + om[0].length;
+      let depth = 0;
+      let inQuote = null;
+      let gt = -1;
+      for (; i < markup.length; i++) {
+        const ch = markup[i];
+        if (inQuote) {
+          if (ch === inQuote && markup[i - 1] !== "\\") inQuote = null;
+          continue;
+        }
+        if (ch === '"' || ch === "'") {
+          inQuote = ch;
+          continue;
+        }
+        if (ch === "{") {
+          depth++;
+          continue;
+        }
+        if (ch === "}") {
+          depth = Math.max(0, depth - 1);
+          continue;
+        }
+        if (ch === ">" && depth === 0) {
+          gt = i;
+          break;
+        }
+      }
+      if (gt < 0) continue;
+      const closeTag = `</${tag}>`;
+      const closeAt = markup.toLowerCase().indexOf(closeTag, gt + 1);
+      if (closeAt < 0) continue;
+      const inner = markup.slice(gt + 1, closeAt);
+      const text = inner
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\{[^}]*\}/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text.length < 3 || text.length > 48) continue;
+      // Normalize away emoji prefixes and empty dynamic-count parens so
+      // "➕ Add User" / "📁 Projects ( )" match export text "Add User" / "Projects".
+      const normalized = text
+        .replace(/^[^\p{L}\p{N}]+/u, "")
+        .replace(/\(\s*\)/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (normalized.length < 3) continue;
+      // Skip busy-state dual labels ("Signing in... Sign In").
+      if (
+        /^(Sending|Signing|Starting|Loading|Creating|Verifying|Resetting|Saving)\b/i.test(
+          normalized,
+        )
+      ) {
+        continue;
+      }
+      // Skip mangled multi-field headings / template residue left after interp strip.
+      if ((normalized.match(/:/g) || []).length >= 2) continue;
+      if (/[`{}]|\)\s*`|Open Open/i.test(normalized)) continue;
+      // Keep only labels with a clear word core (avoids "Frequency )` : ''}" noise).
+      if (!/[\p{L}]{3,}/u.test(normalized)) continue;
+      labels.add(normalized);
+    }
+    let decoded = html;
+    try {
+      decoded = html.replace(/data-cwl-each-tpl="([^"]+)"/g, (_a, p) => {
+        try {
+          return decodeURIComponent(p);
+        } catch {
+          return p;
+        }
+      });
+    } catch {
+      /* keep raw */
+    }
+    for (const label of [...labels].sort()) {
+      if (!decoded.includes(label)) missingOriginLabels.push(label);
+    }
+  }
   const hasDataLoad = lifecycleForFile.some((row) => row.classification.includes("data-load"));
   const hasRedirect = lifecycleForFile.some((row) => row.hook === "onMount" && row.classification.includes("redirect"));
   const hasBindHoles = /data-cwl-bind=/.test(html);
@@ -473,6 +566,7 @@ function routeCoverage(route, page, exportDir, modalsForFile, lifecycleForFile, 
     absentComponents,
     emptyLiftedShells,
     missingHelpDocs,
+    missingOriginLabels: missingOriginLabels.slice(0, 40),
     onMountDataLoad: hasDataLoad,
     dataLoadRepresentation: !hasDataLoad
       ? "not-applicable"
@@ -680,6 +774,24 @@ export function runWispCodeCensus(options = {}) {
     if (coverage.missingHelpDocs?.length) {
       gaps.push({ priority: 91 + sampleBoost, file: page.file, route: page.route, kind: "missing-help-content", detail: `Help docs imported by the page are absent from the export: ${coverage.missingHelpDocs.map((d) => `$lib/docs/${d.module} (probe "${d.probe}")`).join("; ")}.`, suggestedConverterChange: "Inline static template-literal docs constants from $lib/docs and pass them through HelpModal content props during the lift." });
     }
+    if (coverage.missingOriginLabels?.length) {
+      const sample = coverage.missingOriginLabels.slice(0, 12).join(", ");
+      // Advisory on non-sample routes; blocking only for the operator sample set
+      // where dropped tab bodies / invite chrome are the fidelity signal.
+      gaps.push({
+        priority:
+          (coverage.sampled ? 90 : 70) +
+          sampleBoost +
+          Math.min(4, Math.floor(coverage.missingOriginLabels.length / 3)),
+        file: page.file,
+        route: page.route,
+        kind: "missing-origin-labels",
+        detail: `${coverage.missingOriginLabels.length} origin button/heading labels absent from export (sample: ${sample}).`,
+        suggestedConverterChange:
+          "Preserve scalar-state tab/else-if chains and admin-gated chrome as hidden state panels; resolve open*/show* handler functions to data-cwl-toggle so section labels and their openers survive the lift.",
+        sampled: !!coverage.sampled,
+      });
+    }
   }
 
   for (const row of reactiveState) {
@@ -739,8 +851,14 @@ export function runWispCodeCensus(options = {}) {
     }
   }
   const blockingGaps = gaps.filter(
-    (g) => blockingKinds.has(g.kind) || (String(g.kind || "").startsWith("missing-blind-spot:") && g.priority >= 90),
+    (g) =>
+      (g.kind === "missing-origin-labels" && g.sampled) ||
+      (g.kind !== "missing-origin-labels" && blockingKinds.has(g.kind)) ||
+      (String(g.kind || "").startsWith("missing-blind-spot:") && g.priority >= 90),
   );
+  if (blockingGaps.some((g) => g.kind === "missing-origin-labels")) {
+    blockingKinds.add("missing-origin-labels");
+  }
   const summary = {
     pageCount: pages.length,
     lifecycleCount: lifecycle.length,

@@ -228,8 +228,12 @@ export function prepareWispCwlDeployBundle(opts = {}) {
 
   // D6443/D6444 restart: structural convert owns routes.cwl. Do not re-apply
   // Phase 30 parity shells or force-settle bind (they overwrite origin lifts).
+  // skipLift implies structural-only — never let an asset-only redeploy wipe
+  // origin-convert pages with Phase 30 synthetic shells.
   const structuralOnly =
-    opts.structuralOnly === true || process.env.CHRYSALIS_WISP_STRUCTURAL_ONLY === "1";
+    opts.structuralOnly === true ||
+    opts.skipLift === true ||
+    process.env.CHRYSALIS_WISP_STRUCTURAL_ONLY === "1";
 
   if (structuralOnly) {
     // CSS already synced above; keep routes as converted.

@@ -20,6 +20,8 @@
       <!-- Step Content -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
         <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
           <div class="wizard-panel">
             <div class="welcome-content">
@@ -515,7 +517,25 @@
           <div class="tab-content full-height">
             <div data-cwl-component="UserManagementEmbedded" data-cwl-lifted-component="UserManagementEmbedded"><div class="user-management-embedded">
 
+    <div class="alert alert-error" hidden aria-hidden="true">
+      <span>❌</span>
+      <span></span>
+      <button data-cwl-set="error:">✕</button>
+    </div>
+
   <div class="header-section">
+
+      <div class="header-actions">
+        <button class="btn btn-link" data-cwl-nav="/modules/user-management/roles">
+          👥 Role Management
+        </button>
+        <button class="btn btn-link" data-cwl-nav="/modules/user-management/permissions">
+          🔐 User Permissions
+        </button>
+        <button class="btn btn-primary" data-cwl-toggle="showInviteModal:true" aria-label="Show Invite Modal">
+          ➕ Add User
+        </button>
+      </div>
 
   </div>
 
@@ -559,6 +579,8 @@
             <th>Status</th>
             <th>Last Login</th>
 
+              <th>Actions</th>
+
           </tr>
         </thead>
         <tbody>
@@ -592,6 +614,12 @@
 
               </td>
 
+                <td>
+                  <button class="btn btn-sm btn-ghost" data-cwl-action="openEditModal" data-cwl-action-args="user" aria-label="Open Edit Modal">
+                    ✏️ Edit
+                  </button>
+                </td>
+
             </tr></div>
         </tbody>
       </table>
@@ -604,7 +632,10 @@
         <button class="btn btn-secondary" data-cwl-action="applyFilters" aria-label="Apply Filters">
           Clear Filters
         </button></div>
-        <p>No team members available in your view.</p>
+        <p>Invite your first user to get started</p>
+        <button class="btn btn-primary" data-cwl-toggle="showInviteModal:true" aria-label="Show Invite Modal">
+          Invite User
+        </button>
 
     </div>
 
@@ -624,6 +655,11 @@
     </div>
 
       <form data-cwl-on-submit="action:handleSubmit">
+
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
 
         <div class="form-group">
           <label for="email">Email Address *</label>
@@ -701,6 +737,17 @@
         </div>
       </form>
 
+      <div class="success-message" hidden aria-hidden="true">
+        <span class="success-icon">✅</span>
+        <h3>User Added!</h3>
+        <p>
+          <strong></strong> has been added to your team.
+        </p>
+        <p class="email-note">
+          📧 A welcome email with login instructions has been sent.
+        </p>
+      </div>
+
   </div>
 </div></div>
 </div>
@@ -724,6 +771,11 @@
     </div>
 
     <div class="modal-body">
+
+        <div class="alert alert-error" hidden aria-hidden="true">
+          <span>❌</span>
+          <span></span>
+        </div>
 
       <div class="user-info-section">
         <div class="user-avatar-large">
@@ -801,6 +853,24 @@
             </button>
           </div></div>
 
+        <div class="confirm-delete" hidden aria-hidden="true">
+          <span class="warning-icon">⚠️</span>
+          <h3>Remove User?</h3>
+          <p>Are you sure you want to remove <strong><span data-cwl-bind="interp" data-cwl-hole-detail="user.email"></span></strong> from this organization?</p>
+          <p class="warning-text">This action cannot be undone.</p>
+
+          <div class="confirm-actions">
+            <button class="btn btn-secondary" data-cwl-toggle="showDeleteConfirm:false" data-cwl-attr-disabled="loading" aria-label="Show Delete Confirm">
+              Cancel
+            </button>
+            <button class="btn btn-danger" data-cwl-action="handleDelete" data-cwl-attr-disabled="loading" aria-label="Delete">
+
+                Yes, Remove User
+
+            </button>
+          </div>
+        </div>
+
     </div>
   </div>
 </div></div>
@@ -813,6 +883,10 @@
     <div class="branding-form">
       <h3>Customer Portal Branding</h3>
       <p class="description">Customize your customer portal appearance and messaging</p>
+
+        <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+        <div class="alert alert-success" hidden aria-hidden="true"></div>
 
       <div class="form-section">
         <h4>Logo</h4>
@@ -946,7 +1020,7 @@
                   <li>Expose detailed system information</li>
                 </ul>
                 <p><strong>This should only be enabled when working with a wisptools.io engineer.</strong></p>
-                <button class="btn-acknowledge" data-cwl-action="acknowledgeDebugWarning" aria-label="Acknowledge Debug Warning">
+                <button class="btn-acknowledge" data-cwl-toggle="showDebugWarning:false" aria-label="Show Debug Warning">
                   I Understand
                 </button>
               </div>
@@ -963,7 +1037,7 @@
                 </div>
                 <label class="toggle-switch">
                   <input
-                    type="checkbox" data-cwl-on-change="action:toggleDebugMode"
+                    type="checkbox" data-cwl-on-change="toggle:showDebugWarning:true"
                   />
                   <span class="toggle-slider"></span>
                 </label>
@@ -1007,6 +1081,18 @@
       </div>
 
       <div class="import-content">
+
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+            <button data-cwl-set="error:">✕</button>
+          </div>
+
+          <div class="alert alert-success" hidden aria-hidden="true">
+            <span>✓</span>
+            <span></span>
+            <button data-cwl-set="success:">✕</button>
+          </div>
 
           <div hidden aria-hidden="true"><!-- Step 1: Select Import Type -->
           <div class="import-step">
@@ -1113,7 +1199,7 @@
                     <span class="file-name"><span data-cwl-bind="interp" data-cwl-hole-detail="uploadedFile.name"></span></span>
                     <span class="file-size">(<span data-cwl-bind="interp" data-cwl-hole-detail="(uploadedFile.size / 1024).toFixed(2)"></span> KB)</span>
                   </div>
-                  <button class="btn-remove" data-cwl-action="reset" aria-label="Reset">✕</button>
+                  <button class="btn-remove" data-cwl-toggle="showPreview:false" aria-label="Show Preview">✕</button>
                 </div>
 
             </div>
@@ -1176,7 +1262,7 @@
             </div>
 
             <div class="import-actions">
-              <button class="btn-secondary" data-cwl-action="cancelImport" aria-label="Cancel Import">
+              <button class="btn-secondary" data-cwl-toggle="showPreview:false" aria-label="Show Preview">
                 Cancel
               </button>
               <button

@@ -29,7 +29,7 @@
         <h1>🏢 Platform Admin - Tenant Management</h1>
         <p>Create and manage organization tenants</p>
       </div>
-      <button class="btn-create" data-cwl-action="openCreateModal" aria-label="Open Create Modal">
+      <button class="btn-create" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">
         ➕ Create New Tenant
       </button>
     </div>
@@ -99,7 +99,11 @@
 
       <div class="empty-state" hidden aria-hidden="true">
         <p>📭 No tenants found</p>
-        <button class="btn-primary" data-cwl-action="openCreateModal" aria-label="Open Create Modal">Create First Tenant</button>
+        <button class="btn-primary" data-cwl-toggle="showCreateModal:true" aria-label="Show Create Modal">Create First Tenant</button>
+      </div>
+
+      <div class="error-banner" hidden aria-hidden="true">
+        ❌
       </div>
 
   </main>
@@ -107,11 +111,11 @@
 
 <!-- Create/Edit Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeModals" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showUsersModal:false" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>✏️ Edit Tenant</h2>
-        <button class="close-btn" data-cwl-action="closeModals" aria-label="Close Modals">✕</button>
+        <button class="close-btn" data-cwl-toggle="showUsersModal:false" aria-label="Show Users Modal">✕</button>
       </div>
 
       <div class="modal-body">
@@ -153,7 +157,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" data-cwl-action="closeModals" data-cwl-attr-disabled="processing" aria-label="Close Modals">
+        <button class="btn-secondary" data-cwl-toggle="showUsersModal:false" data-cwl-attr-disabled="processing" aria-label="Show Users Modal">
           Cancel
         </button>
         <button
@@ -167,11 +171,11 @@
 
 <!-- Delete Confirmation Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeModals" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showUsersModal:false" hidden aria-hidden="true">
     <div class="modal-content modal-danger">
       <div class="modal-header">
         <h2>🗑️ Delete Tenant</h2>
-        <button class="close-btn" data-cwl-action="closeModals" aria-label="Close Modals">✕</button>
+        <button class="close-btn" data-cwl-toggle="showUsersModal:false" aria-label="Show Users Modal">✕</button>
       </div>
 
       <div class="modal-body">
@@ -182,7 +186,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" data-cwl-action="closeModals" data-cwl-attr-disabled="processing" aria-label="Close Modals">
+        <button class="btn-secondary" data-cwl-toggle="showUsersModal:false" data-cwl-attr-disabled="processing" aria-label="Show Users Modal">
           Cancel
         </button>
         <button class="btn-danger" data-cwl-action="deleteTenant" data-cwl-attr-disabled="processing" aria-label="Delete Tenant">
@@ -194,11 +198,11 @@
 
 <!-- Assign Owner Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeModals" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showUsersModal:false" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>👤 Assign/Change Owner</h2>
-        <button class="close-btn" data-cwl-action="closeModals" aria-label="Close Modals">✕</button>
+        <button class="close-btn" data-cwl-toggle="showUsersModal:false" aria-label="Show Users Modal">✕</button>
       </div>
 
       <div class="modal-body">
@@ -218,7 +222,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" data-cwl-action="closeModals" data-cwl-attr-disabled="processing" aria-label="Close Modals">
+        <button class="btn-secondary" data-cwl-toggle="showUsersModal:false" data-cwl-attr-disabled="processing" aria-label="Show Users Modal">
           Cancel
         </button>
         <button
@@ -232,11 +236,11 @@
 
 <!-- Users Modal -->
 
-  <div class="modal-overlay" data-cwl-action="closeModals" hidden aria-hidden="true">
+  <div class="modal-overlay" data-cwl-toggle="showUsersModal:false" hidden aria-hidden="true">
     <div class="modal-content modal-large">
       <div class="modal-header">
         <h2>👥 Users in <span data-cwl-bind="interp" data-cwl-hole-detail="selectedTenant.displayName"></span></h2>
-        <button class="close-btn" data-cwl-action="closeModals" aria-label="Close Modals">✕</button>
+        <button class="close-btn" data-cwl-toggle="showUsersModal:false" aria-label="Show Users Modal">✕</button>
       </div>
 
       <div class="modal-body">
@@ -268,7 +272,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" data-cwl-action="closeModals" aria-label="Close Modals">
+        <button class="btn-secondary" data-cwl-toggle="showUsersModal:false" aria-label="Show Users Modal">
           Close
         </button>
       </div>

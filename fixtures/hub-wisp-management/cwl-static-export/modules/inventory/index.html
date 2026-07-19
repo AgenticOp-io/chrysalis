@@ -63,6 +63,16 @@
 
   <!-- Alerts -->
 
+    <div class="alert alert-error" hidden aria-hidden="true">
+      ⚠️
+      <button class="dismiss-btn" data-cwl-set="error:">✕</button>
+    </div>
+
+    <div class="alert alert-success" hidden aria-hidden="true">
+      ✅
+      <button class="dismiss-btn" data-cwl-set="success:">✕</button>
+    </div>
+
   <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card">
@@ -418,6 +428,16 @@
 
       <div class="modal-body">
 
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
+
+          <div class="alert alert-success" hidden aria-hidden="true">
+            <span>✓</span>
+            <span></span>
+          </div>
+
         <!-- Scanner Section -->
         <div class="scanner-section">
           <div class="input-group">
@@ -641,6 +661,10 @@
 
       <!-- Content Area -->
       <div class="wizard-content">
+
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
 
         <!-- Slot for step content -->
         <slot name="content" 0 />
@@ -1036,6 +1060,10 @@
       <!-- Content Area -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <!-- Slot for step content -->
         <slot name="content" 0 />
       </div>
@@ -1116,6 +1144,14 @@
             Mark as RMA
           </button>
 
+          <div hidden aria-hidden="true"><h3>🎉 RMA recorded</h3>
+          <p></p>
+          <div class="info-box success">
+            <p><strong><span data-cwl-bind="interp" data-cwl-hole-detail="selectedItem?.serialNumber || selectedItem?.assetTag"></span></strong></p>
+            <p>RMA:  — </p>
+          </div>
+          <a href="/modules/inventory" class="next-step-item">View in Inventory →</a>
+        </div>
       </div></div>
   </div>
 
@@ -1538,6 +1574,11 @@
         </div>
       </div>
 
+        <div class="error-banner" hidden aria-hidden="true">
+          <span>⚠️</span>
+          <span></span>
+        </div>
+
       <!-- Transfer Form -->
       <form data-cwl-on-submit="action:handleTransfer">
         <!-- New Location -->
@@ -1670,6 +1711,11 @@
 
       <div class="modal-body">
 
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
+
           <div class="section" hidden aria-hidden="true">
             <h3>Description</h3>
             <p><span data-cwl-bind="interp" data-cwl-hole-detail="bundle.description"></span></p>
@@ -1773,6 +1819,11 @@
       </div>
 
       <div class="modal-body">
+
+          <div class="alert alert-error" hidden aria-hidden="true">
+            <span>❌</span>
+            <span></span>
+          </div>
 
         <div class="form-section">
           <h3>Basic Information</h3>
@@ -1981,6 +2032,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">

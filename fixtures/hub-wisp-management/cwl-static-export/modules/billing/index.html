@@ -20,6 +20,11 @@
     <!-- Main Content -->
     <div class="module-content">
 
+        <div class="error-banner" hidden aria-hidden="true">
+          <p>⚠️ </p>
+          <button class="retry-btn" data-cwl-action="loadBillingData" aria-label="Load Billing Data">Retry</button>
+        </div>
+
         <!-- Current Subscription -->
         <div class="current-subscription">
           <h2>Current Subscription</h2>
@@ -172,11 +177,11 @@
 
     <!-- Edit Payment Method Modal -->
 
-      <div class="modal-overlay" data-cwl-action="closeEditPaymentModal" hidden aria-hidden="true">
+      <div class="modal-overlay" data-cwl-toggle="showEditPaymentModal:false" hidden aria-hidden="true">
         <div class="modal-content">
           <div class="modal-header">
             <h3>Edit Payment Method</h3>
-            <button class="modal-close" data-cwl-action="closeEditPaymentModal" aria-label="Close Edit Payment Modal">✕</button>
+            <button class="modal-close" data-cwl-toggle="showEditPaymentModal:false" aria-label="Show Edit Payment Modal">✕</button>
           </div>
           <div class="modal-body">
             <div class="form-group">
@@ -189,7 +194,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn-secondary" data-cwl-action="closeEditPaymentModal" aria-label="Close Edit Payment Modal">Cancel</button>
+            <button class="btn-secondary" data-cwl-toggle="showEditPaymentModal:false" aria-label="Show Edit Payment Modal">Cancel</button>
             <button class="btn-primary" data-cwl-action="handleSavePaymentMethod" aria-label="Save Payment Method">Save</button>
           </div>
         </div>

@@ -239,7 +239,7 @@
     <div class="settings-panel" hidden aria-hidden="true">
       <div class="settings-header">
         <h3>⚙️ Settings</h3>
-        <button class="close-btn" data-cwl-action="closeMenu" aria-label="Close Menu">×</button>
+        <button class="close-btn" data-cwl-toggle="isOpen:false" aria-label="Is Open">×</button>
       </div>
 
       <div class="settings-content">
@@ -1684,7 +1684,7 @@
               placeholder="Search towers by eNodeB or sector ID..."
             />
           </div>
-          <button class="add-tower-btn" data-cwl-action="handleAddTower" aria-label="Add Tower">
+          <button class="add-tower-btn" data-cwl-toggle="showSiteEditor:true" aria-label="Show Site Editor">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1822,7 +1822,7 @@
                 <p>Try adjusting your search terms.</p></div>
                 <h3>No Towers Yet</h3>
                 <p>Add your first cell tower to start planning your network.</p>
-                <button class="add-first-tower-btn" data-cwl-action="handleAddTower" aria-label="Add Tower">
+                <button class="add-first-tower-btn" data-cwl-toggle="showSiteEditor:true" aria-label="Show Site Editor">
                   ➕ Add First Tower
                 </button>
 
@@ -2661,8 +2661,8 @@
         Generate a comprehensive conflict analysis report with detailed statistics and recommendations.
       </p>
       <button
-        class="generate-button" data-cwl-action="generateReport" data-cwl-attr-disabled="isGenerating || cells.length === 0"
-       aria-label="Generate Report">
+        class="generate-button" data-cwl-toggle="isGenerating:false" data-cwl-attr-disabled="isGenerating || cells.length === 0"
+       aria-label="Is Generating">
 
           📋 Generate Conflict Report
 
@@ -2920,6 +2920,10 @@
       <!-- Content Area -->
       <div class="wizard-content">
 
+          <div class="alert alert-error" hidden aria-hidden="true"></div>
+
+          <div class="alert alert-success" hidden aria-hidden="true"></div>
+
         <!-- Slot for step content -->
         <slot name="content" 0 />
       </div>
@@ -3080,6 +3084,8 @@
       </div>
 
       <div class="auth-body">
+
+          <div class="error-message" hidden aria-hidden="true"></div>
 
         <div data-cwl-bind="if" data-cwl-hole-detail="mode === 'signin'">
           <form data-cwl-on-submit="action:handleSignIn">
