@@ -37,7 +37,7 @@ export const WISP_THEME_BOOT_SCRIPT =
   '}catch(e){}})();</' + 'script>';
 
 /** Cache-bust additive CWL assets when [hidden] / client wiring changes (D6443). */
-export const WISP_CWL_ASSET_BUST = "20260719m";
+export const WISP_CWL_ASSET_BUST = "20260719n";
 const WISP_APP_CSS = `/assets/wisp-cwl-app.css?v=${WISP_CWL_ASSET_BUST}`;
 const WISP_CLIENT_JS = `/assets/wisp-cwl-client.js?v=${WISP_CWL_ASSET_BUST}`;
 
@@ -206,7 +206,7 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
     // (it redefines origin selectors / invented chrome). Island host uses origin
     // `.coverage-map-container` / `.map-container` classes from markup lift.
     const title = isPciMap ? "PCI Resolution" : "Coverage Map";
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-map-island.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-map-island.css?v=${WISP_CWL_ASSET_BUST}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-map.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
   }
 
   const isDocsShell = trimmed.includes("wisp-docs-shell");

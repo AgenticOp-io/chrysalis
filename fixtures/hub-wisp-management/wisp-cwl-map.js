@@ -85,6 +85,8 @@
   /** @type {any} */
   var equipmentLayer = null;
   /** @type {any} */
+  var deploymentsLayer = null;
+  /** @type {any} */
   var marketingLayer = null;
   /** @type {any} */
   var draftLayer = null;
@@ -126,7 +128,7 @@
     statusFilter: [],
   };
 
-  var dataCache = { towers: [], sectors: [], cpeDevices: [], equipment: [] };
+  var dataCache = { towers: [], sectors: [], cpeDevices: [], equipment: [], deployments: [] };
   var marketingAddresses = [];
   var activePlanId = params.get("planId") || null;
   var statsEl = null;
@@ -428,6 +430,7 @@
     renderSectors(sectors);
     renderCpe(cpe);
     renderEquipment(equipment);
+    renderDeployments(dataCache.deployments || []);
     renderMarketing(marketingAddresses);
     updateStats(towers, sectors, cpe, equipment);
   }
@@ -527,6 +530,48 @@
       );
     });
     equipmentLayer.visible = !!filters.showEquipment;
+  }
+
+  /**
+   * Hardware deployments (site-nested lat/lng). Distinct from inventory equipment
+   * so productionHardware state-updates never wipe live network equipment.
+   */
+  function renderDeployments(rows) {
+    if (!deploymentsLayer || !Graphic || !Point || !SimpleMarkerSymbol) return;
+    deploymentsLayer.removeAll();
+    (rows || []).forEach(function (d) {
+      if (!d) return;
+      var site = d.siteId && typeof d.siteId === "object" ? d.siteId : null;
+      var merged = Object.assign({}, d, {
+        location: (site && site.location) || d.location,
+        name: d.name || (site && site.name) || "Deployment",
+      });
+      var ll = latLngOf(merged);
+      if (!ll) return;
+      deploymentsLayer.add(
+        new Graphic({
+          geometry: new Point({ longitude: ll.lng, latitude: ll.lat }),
+          symbol: new SimpleMarkerSymbol({
+            style: "triangle",
+            color: [34, 197, 94, 0.95],
+            size: 11,
+            outline: { color: [26, 35, 50, 1], width: 1 },
+          }),
+          attributes: Object.assign({}, merged, {
+            kind: "deployment",
+            type: "deployment",
+            lat: ll.lat,
+            lng: ll.lng,
+            hardware_type: d.hardware_type || d.type || "hardware",
+          }),
+          popupTemplate: {
+            title: "{name}",
+            content: "Deployment · {hardware_type} · {status}",
+          },
+        }),
+      );
+    });
+    deploymentsLayer.visible = !!filters.showEquipment;
   }
 
   function renderMarketing(addresses) {
@@ -705,8 +750,12 @@
     if (Array.isArray(state.stagedFeatures)) {
       renderStagedFeatures(state.stagedFeatures);
     }
-    if (Array.isArray(state.productionHardware) && state.productionHardware.length) {
-      renderEquipment(state.productionHardware);
+    // Origin does NOT paint productionHardware as the equipment layer — coverage-map
+    // owns towers/sectors/cpe/equipment via loadNetworkData. Re-rendering equipment
+    // from HardwareView wiped live network graphics and made the map feel fake.
+    if (Array.isArray(state.hardwareDeployments)) {
+      dataCache.deployments = state.hardwareDeployments;
+      renderDeployments(state.hardwareDeployments);
     }
     // Origin MapCapabilities: only monitor is readOnly. Deploy stays interactive
     // (assign tasks / mark progress). Do not kill Sketch solely because mode=deploy.
@@ -1118,6 +1167,14 @@
     }
     if (type === "zoom-out" && view) {
       view.zoom -= 1;
+      return;
+    }
+    if (type === "hardware-deployments") {
+      var deps = payload.deployments || payload.items || payload;
+      if (Array.isArray(deps)) {
+        dataCache.deployments = deps;
+        renderDeployments(deps);
+      }
       return;
     }
     if (type === "reload-network") {
@@ -2325,6 +2382,7 @@
       .filter(Boolean);
     dataCache.cpeDevices = payload.cpeDevices || payload.cpe || [];
     dataCache.equipment = payload.equipment || [];
+    dataCache.deployments = payload.deployments || dataCache.deployments || [];
     applyFilters();
   }
 
@@ -2337,11 +2395,13 @@
       fetchJson("/api/network/sectors"),
       fetchJson("/api/network/cpe"),
       fetchJson("/api/network/equipment"),
+      fetchJson("/api/network/hardware-deployments"),
     ]).then(function (parts) {
       var sitesBody = parts[0];
       var sectorsBody = parts[1];
       var cpeBody = parts[2];
       var equipmentBody = parts[3];
+      var deploymentsBody = parts[4];
 
       var sites = asArray(sitesBody, ["sites", "towers"]).map(normalizeSite).filter(Boolean);
       var sitesById = {};
@@ -2357,8 +2417,15 @@
 
       var cpe = asArray(cpeBody, ["cpe", "cpeDevices"]);
       var equipment = asArray(equipmentBody, ["equipment"]);
+      var deployments = asArray(deploymentsBody, ["deployments", "items", "hardware"]);
 
-      setData({ towers: sites, sectors: sectors, cpeDevices: cpe, equipment: equipment });
+      setData({
+        towers: sites,
+        sectors: sectors,
+        cpeDevices: cpe,
+        equipment: equipment,
+        deployments: deployments,
+      });
 
       var allPts = sites.concat(
         sectors.map(function (s) {
@@ -2371,11 +2438,29 @@
         );
         return;
       }
-      setHonesty("");
+      var depCount = (dataCache.deployments || []).length;
+      var eqCount = (dataCache.equipment || []).length;
+      setHonesty(
+        "Network loaded: " +
+          sites.length +
+          " sites, " +
+          sectors.length +
+          " sectors, " +
+          cpe.length +
+          " CPE, " +
+          eqCount +
+          " equipment, " +
+          depCount +
+          " deployments.",
+      );
+      setTimeout(function () {
+        setHonesty("");
+      }, 4000);
       if (allPts.length === 1) return centerOn(allPts[0].lat, allPts[0].lng, 10);
       var graphics = [];
       if (towersLayer) graphics = graphics.concat(towersLayer.graphics.toArray());
       if (sectorsLayer) graphics = graphics.concat(sectorsLayer.graphics.toArray());
+      if (deploymentsLayer) graphics = graphics.concat(deploymentsLayer.graphics.toArray());
       return view.goTo(graphics).catch(function () {});
     });
   }
@@ -2409,6 +2494,7 @@
         sectorsLayer = new api.GraphicsLayer({ title: "Sectors" });
         cpeLayer = new api.GraphicsLayer({ title: "CPE Devices" });
         equipmentLayer = new api.GraphicsLayer({ title: "Equipment" });
+        deploymentsLayer = new api.GraphicsLayer({ title: "Hardware Deployments" });
         marketingLayer = new api.GraphicsLayer({ title: "Marketing Addresses" });
         draftLayer = new api.GraphicsLayer({ title: "Plan draft / draw" });
         mapRef.addMany([
@@ -2416,6 +2502,7 @@
           sectorsLayer,
           cpeLayer,
           equipmentLayer,
+          deploymentsLayer,
           marketingLayer,
           draftLayer,
         ]);

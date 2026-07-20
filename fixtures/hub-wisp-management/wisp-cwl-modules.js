@@ -61,6 +61,7 @@
     projects: [],
     stagedFeatures: [],
     productionHardware: [],
+    hardwareDeployments: [],
     visibleProjects: [],
     projectOverlays: [],
     layerFilters: {
@@ -208,13 +209,21 @@
       mode: mapState.mode,
       state: {
         mode: mapState.mode,
+        tenantId:
+          mapState.tenantId ||
+          (typeof localStorage !== "undefined" && localStorage.getItem("selectedTenantId")) ||
+          null,
         activePlanId: mapState.activePlanId,
         activePlan: activePlanSummary(plan),
         activePlanMarketing: activePlanMarketing,
         stagedSummary: mapState.stagedSummary || { total: 0, byType: {}, byStatus: {} },
         stagedFeatures: Array.isArray(mapState.stagedFeatures) ? mapState.stagedFeatures : [],
+        // HardwareView aggregate for modals/filters — NOT a paint instruction for equipmentLayer.
         productionHardware: Array.isArray(mapState.productionHardware)
           ? mapState.productionHardware
+          : [],
+        hardwareDeployments: Array.isArray(mapState.hardwareDeployments)
+          ? mapState.hardwareDeployments
           : [],
         visibleProjects: Array.isArray(mapState.visibleProjects) ? mapState.visibleProjects : [],
         projectOverlays: Array.isArray(mapState.projectOverlays) ? mapState.projectOverlays : [],
@@ -238,41 +247,157 @@
     return { total: (features || []).length, byType: byType, byStatus: byStatus };
   }
 
-  /** Load plan features + production hardware like origin MapLayerManager.loadPlan. */
-  function loadPlanMapLayers(plan) {
-    var planId = planIdOf(plan);
-    var hardwareP = apiFetch("/api/network/equipment")
-      .then(function (r) {
-        return r.ok ? r.json() : [];
-      })
-      .then(function (data) {
-        var rows = Array.isArray(data)
-          ? data
-          : Array.isArray(data && data.equipment)
-            ? data.equipment
-            : Array.isArray(data && data.items)
-              ? data.items
-              : [];
-        mapState.productionHardware = rows;
-        return rows;
+  /** Pull array body from HSS/CWL JSON (items|sites|… wrappers). */
+  function rowsOfBody(data, keys) {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    var list = keys || [];
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if (Array.isArray(data[list[i]])) return data[list[i]];
+    }
+    return [];
+  }
+
+  function latLngFromRow(row) {
+    if (!row || typeof row !== "object") return null;
+    var loc = row.location || {};
+    var lat = Number(
+      row.lat != null
+        ? row.lat
+        : row.latitude != null
+          ? row.latitude
+          : loc.lat != null
+            ? loc.lat
+            : loc.latitude,
+    );
+    var lng = Number(
+      row.lng != null
+        ? row.lng
+        : row.lon != null
+          ? row.lon
+          : row.longitude != null
+            ? row.longitude
+            : loc.lng != null
+              ? loc.lng
+              : loc.lon != null
+                ? loc.lon
+                : loc.longitude,
+    );
+    if (!isFinite(lat) || !isFinite(lng) || (lat === 0 && lng === 0)) return null;
+    return { latitude: lat, longitude: lng, address: loc.address || row.address || "" };
+  }
+
+  /**
+   * Origin planService.getAllExistingHardware shape (HardwareView).
+   * Aggregate sites/sectors/cpe/equipment/deployments — never equipment-only.
+   */
+  function hardwareViewFromRow(row, type, moduleHint) {
+    var ll = latLngFromRow(row);
+    if (!ll) return null;
+    var modules = row.modules || {};
+    var module =
+      moduleHint ||
+      (modules.acs ? "acs" : modules.hss ? "hss" : modules.pci ? "pci" : type === "equipment" ? "inventory" : "manual");
+    var name = row.name;
+    if (!name && type === "cpe") {
+      name = [row.manufacturer, row.model, row.serialNumber].filter(Boolean).join(" ") || "CPE";
+    }
+    if (!name && type === "equipment") {
+      name = [row.manufacturer, row.model, row.serialNumber].filter(Boolean).join(" ") || "Equipment";
+    }
+    if (!name && type === "sector" && row.azimuth != null) {
+      name = (row.towerName || row.siteName || "Sector") + " - Sector " + row.azimuth + "°";
+    }
+    return {
+      id: String(row.id || row._id || ""),
+      type: type,
+      name: String(name || row.id || type),
+      location: ll,
+      status: String(row.status || "unknown"),
+      module: module,
+      lastUpdated: row.updatedAt || row.createdAt || new Date().toISOString(),
+      isReadOnly: true,
+      inventoryId: row.inventoryId || null,
+      siteId:
+        (row.siteId && (row.siteId._id || row.siteId.id || row.siteId)) ||
+        row.site_id ||
+        null,
+      hardware_type: row.hardware_type || row.type || type,
+      source: row,
+    };
+  }
+
+  function loadProductionHardwareAggregate() {
+    return Promise.all([
+      apiFetch("/api/network/sites").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }),
+      apiFetch("/api/network/sectors").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }),
+      apiFetch("/api/network/cpe").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }),
+      apiFetch("/api/network/equipment").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }),
+      apiFetch("/api/network/hardware-deployments").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }),
+    ])
+      .then(function (parts) {
+        var out = [];
+        var seen = {};
+        function push(view) {
+          if (!view || !view.id) return;
+          if (seen[view.type + ":" + view.id]) return;
+          seen[view.type + ":" + view.id] = true;
+          out.push(view);
+        }
+        rowsOfBody(parts[0], ["sites", "towers", "items"]).forEach(function (row) {
+          push(hardwareViewFromRow(row, "tower", "manual"));
+        });
+        rowsOfBody(parts[1], ["sectors", "items"]).forEach(function (row) {
+          push(hardwareViewFromRow(row, "sector", row.modules && row.modules.pci ? "pci" : "manual"));
+        });
+        rowsOfBody(parts[2], ["cpe", "cpeDevices", "items"]).forEach(function (row) {
+          push(hardwareViewFromRow(row, "cpe"));
+        });
+        rowsOfBody(parts[3], ["equipment", "items"]).forEach(function (row) {
+          push(hardwareViewFromRow(row, "equipment"));
+        });
+        // Deployments often nest site location; treat as equipment-linked HardwareView.
+        rowsOfBody(parts[4], ["deployments", "items", "hardware"]).forEach(function (row) {
+          var site = row.siteId && typeof row.siteId === "object" ? row.siteId : null;
+          var merged = Object.assign({}, row, {
+            location: (site && site.location) || row.location,
+            name: row.name || (site && site.name) || "Deployment",
+          });
+          push(hardwareViewFromRow(merged, "equipment", "inventory"));
+        });
+        mapState.productionHardware = out;
+        mapState.hardwareDeployments = rowsOfBody(parts[4], ["deployments", "items", "hardware"]);
+        return out;
       })
       .catch(function () {
         mapState.productionHardware = mapState.productionHardware || [];
+        mapState.hardwareDeployments = mapState.hardwareDeployments || [];
         return mapState.productionHardware;
       });
+  }
+
+  /** Load plan features + production hardware like origin MapLayerManager.loadPlan. */
+  function loadPlanMapLayers(plan) {
+    var planId = planIdOf(plan);
+    var hardwareP = loadProductionHardwareAggregate();
     var featuresP = planId
       ? apiFetch("/api/plans/" + encodeURIComponent(planId) + "/features")
           .then(function (r) {
             return r.ok ? r.json() : [];
           })
           .then(function (data) {
-            var rows = Array.isArray(data)
-              ? data
-              : Array.isArray(data && data.features)
-                ? data.features
-                : Array.isArray(data && data.items)
-                  ? data.items
-                  : [];
+            var rows = rowsOfBody(data, ["features", "items"]);
             mapState.stagedFeatures = rows;
             mapState.stagedSummary = summarizeStaged(rows);
             return rows;
@@ -286,6 +411,10 @@
     return Promise.all([hardwareP, featuresP]).then(function () {
       mapState.lastUpdated = Date.now();
       postStateToIframe();
+      // Tell the island to refresh deployments without wiping network layers.
+      postToMapBoth("hardware-deployments", {
+        deployments: mapState.hardwareDeployments || [],
+      });
     });
   }
 
@@ -1139,57 +1268,47 @@
     if (layersPanel) layersPanel.hidden = true;
     if (projectsPanel) projectsPanel.hidden = true;
     panel.hidden = false;
-    list.innerHTML = '<p class="plan-panel-loading">Loading inventory…</p>';
-    Promise.all([
-      apiFetch("/api/inventory")
-        .then(function (r) {
-          return r.ok ? r.json() : null;
-        })
-        .catch(function () {
-          return null;
-        }),
-      apiFetch("/api/hardware")
-        .then(function (r) {
-          return r.ok ? r.json() : null;
-        })
-        .catch(function () {
-          return null;
-        }),
-    ]).then(function (pair) {
-      var inv = rowsFromInventory(pair[0]);
-      var hw = rowsFromInventory(pair[1]);
-      var merged = inv.slice();
-      var seen = {};
-      var i;
-      for (i = 0; i < inv.length; i++) {
-        seen[String(inv[i].id || inv[i]._id || inv[i].name || i)] = true;
-      }
-      for (i = 0; i < hw.length; i++) {
-        var key = String(hw[i].id || hw[i]._id || hw[i].name || "hw-" + i);
-        if (!seen[key]) merged.push(hw[i]);
-      }
-      if (!merged.length) {
+
+    function renderHardwareViews(views) {
+      if (!views.length) {
         list.innerHTML =
-          '<p class="plan-panel-empty cwl-empty-honest" data-cwl-empty-honest="1">No inventory/hardware rows returned from /api/inventory or /api/hardware.</p>';
+          '<p class="plan-panel-empty cwl-empty-honest" data-cwl-empty-honest="1">No geo hardware returned from /api/network (sites/sectors/cpe/equipment/deployments).</p>';
         return;
       }
-      var rows = merged
+      var rows = views
         .map(function (row) {
+          var loc = row.location || {};
           return (
             "<tr><td>" +
-            escapeHtml(row.name || row.model || row.id || "item") +
+            escapeHtml(row.name || row.id || "item") +
             "</td><td>" +
-            escapeHtml(row.status || row.state || "") +
+            escapeHtml(row.type || "") +
             "</td><td>" +
-            escapeHtml(row.serialNumber || row.serial || row.id || "") +
+            escapeHtml(row.module || "") +
+            "</td><td>" +
+            escapeHtml(row.status || "") +
+            "</td><td>" +
+            escapeHtml(
+              loc.latitude != null ? Number(loc.latitude).toFixed(4) + ", " + Number(loc.longitude).toFixed(4) : "",
+            ) +
             "</td></tr>"
           );
         })
         .join("");
       list.innerHTML =
-        '<table class="wisp-demo-table"><thead><tr><th>Name</th><th>Status</th><th>Id / Serial</th></tr></thead><tbody>' +
+        '<table class="wisp-demo-table"><thead><tr><th>Name</th><th>Type</th><th>Module</th><th>Status</th><th>Location</th></tr></thead><tbody>' +
         rows +
         "</tbody></table>";
+    }
+
+    // Prefer origin HardwareView aggregate already loaded for the map.
+    if (Array.isArray(mapState.productionHardware) && mapState.productionHardware.length) {
+      renderHardwareViews(mapState.productionHardware);
+      return;
+    }
+    list.innerHTML = '<p class="plan-panel-loading">Loading network hardware…</p>';
+    loadProductionHardwareAggregate().then(function (views) {
+      renderHardwareViews(views || []);
     });
   }
 
@@ -2402,8 +2521,12 @@
           return null;
         }),
     ]).then(function (pair) {
-      var deployments = rowsOf(pair[0], ["deployments", "items", "hardware"]);
+      var deployments =
+        (mapState.hardwareDeployments && mapState.hardwareDeployments.length
+          ? mapState.hardwareDeployments
+          : null) || rowsOf(pair[0], ["deployments", "items", "hardware"]);
       var epcDevices = rowsOf(pair[1], ["devices", "items", "epcs"]);
+      mapState.hardwareDeployments = deployments;
       if (window.__wispHydrateShellScope) {
         window.__wispHydrateShellScope(
           lifted,

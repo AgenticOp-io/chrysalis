@@ -178,3 +178,91 @@ Still known gaps (not modal-toggle resolution):
   state, not a page-level shell.
 - List/row actions that need selected-entity hydrate (`openEditModal` with a
   row payload) still depend on API-bound islands.
+
+## Empirical fidelity discovery recipe (required)
+
+When the operator says “most of this isn’t working” or “looks fake,” do **not**
+guess from census counts alone. Run this discovery loop on **GCE** before more
+converter work.
+
+### 1. Confirm the live build
+
+- Asset bust on `wisp-cwl-client.js` / `wisp-cwl-modules.js` / `wisp-cwl-map.js`
+  matches the deploy you just shipped.
+- Structural routes are large (tens of KB), not thin Phase-30 shells.
+- `skipLift` redeploys must keep `structuralOnly` so `routes.cwl` is never wiped.
+
+### 2. Dead-control discovery (modals / buttons)
+
+1. For each sampled page, collect visible `[data-cwl-toggle$=":true"]` keys.
+2. Resolve each key against:
+   - `[data-cwl-shell-key="<key>"]` (exact — preferred),
+   - then `[data-cwl-lifted-component]` / modal-shell names,
+   - then overlay `aria-label` word match.
+3. Click every unmatched and matched opener; record open / no-op / wrong shell.
+4. Converter must stamp `data-cwl-shell-key` on closed `{#if showX}` chrome and
+   on `show={ident}` / `bind:show={ident}` inlined components.
+5. Client must `findShellByKey` before fuzzy `findShellByName`.
+6. Never invent toolbar buttons (`initDeepenN10*`) to paper over gaps — they
+   make the demo feel fake. Keep them behind
+   `__WISP_CWL_ENABLE_DEEPEN_SURFACES__`.
+
+### 3. Map / hardware connection discovery (plan + deploy)
+
+Origin truth is `MapLayerManager` + `planService.getAllExistingHardware` +
+coverage-map network loads — **not** a single `/api/network/equipment` dump.
+
+Compare origin vs CWL on GCE:
+
+| Contract | Origin | CWL must match |
+| --- | --- | --- |
+| Production hardware | Aggregate towers + sectors + CPE + equipment (+ inventory links) into `HardwareView` (`id`, `type`, `name`, `location`, `status`, `module`) | Same aggregate into `mapState.productionHardware` |
+| Map base layers | Coverage page loads `/api/network/sites\|sectors\|cpe\|equipment` | Island `loadNetworkData` owns towers/sectors/cpe/equipment layers |
+| Parent → iframe | `state-update` with staged features, production hardware, overlays, filters, capabilities | Same payload; **do not** re-paint equipment layer from productionHardware (wipes live network graphics) |
+| Deployed hardware | `/api/network/hardware-deployments` (site-nested lat/lng) | Load + plot + hydrate DeployedHardwareModal |
+| Deploy overlays | `projectOverlays` from plan features of visible projects | Fill + render; empty arrays feel “fake connection” |
+| Hardware panel | Module tabs over `HardwareView` | Prefer `productionHardware`, not inventory-only fallback |
+
+Live probes (same-origin on GCE):
+
+```text
+GET /api/network/sites
+GET /api/network/sectors
+GET /api/network/cpe
+GET /api/network/equipment
+GET /api/network/hardware-deployments
+GET /api/plans/:id/features
+```
+
+If markers exist but names look synthetic (`Bulk …`, `CWL Eq …`), that is
+**tenant seed data**, not a missing iframe — still hydrate correctly so clicks
+and modals match origin.
+
+### 4. Close the loop
+
+1. Fix converter and/or island (never a generated-output mutator).
+2. One-pass or asset redeploy to GCE; bump `WISP_CWL_ASSET_BUST`.
+3. Re-run toggle click harness + map layer counts + hardware modal hydrate.
+4. Record the gap and fix in this doc (or the census) so the next pass starts
+   from evidence.
+
+## Map / hardware hydrate fix (2026-07-19n)
+
+Root cause of “fake map connection / fake hardware”:
+
+1. `loadPlanMapLayers` only fetched `/api/network/equipment` and treated it as
+   `productionHardware` (wrong vs origin `getAllExistingHardware`).
+2. `applyStateUpdate` called `renderEquipment(productionHardware)`, wiping the
+   live sites/sectors/CPE/equipment layers the island had just loaded.
+3. `/api/network/hardware-deployments` was never plotted; hardware panel fell
+   back to inventory-only tables.
+4. Coverage-map island loaded `wisp-cwl-map.js` **without** asset bust, so map
+   fixes often never reached the iframe.
+
+Fix: aggregate HardwareView from sites+sectors+cpe+equipment+deployments;
+stop painting productionHardware onto equipmentLayer; add deployments layer;
+hardware panel prefers `mapState.productionHardware`; bust map island assets.
+
+Live GCE check (`20260719n`): Tower Sites 57, Sectors 46, CPE 53, Equipment 8,
+Hardware Deployments 1; Hardware panel lists geo HardwareView rows with lat/lng.
+Names like `Bulk …` / `CWL Eq …` are **tenant seed data**, not a missing iframe.
