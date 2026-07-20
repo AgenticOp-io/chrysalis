@@ -1,6 +1,6 @@
 <div class="wisp-app-surface" data-wisp-page="cbrs-management" data-wisp-path="/modules/cbrs-management" data-cwl-island="client"><!-- CBRS Setup Wizard -->
 
-  <div data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true"><div data-cwl-component="CBRSSetupWizard" data-cwl-lifted-component="CBRSSetupWizard"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true">
+  <div data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true"><div data-cwl-component="CBRSSetupWizard" data-cwl-lifted-component="CBRSSetupWizard"><div class="cwl-self-gated-shell" data-cwl-shell-key="showSetupWizard" hidden aria-hidden="true"><div class="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden aria-hidden="true">
     <div class="wizard-modal">
       <div class="wizard-header">
         <h2 id="wizard-title">📡 CBRS Setup Wizard</h2>
@@ -199,7 +199,7 @@
         </div>
       </div>
     </div>
-  </div></div>
+  </div></div></div>
 </div>
 <!-- CBRS Device Registration Wizard -->
 <div class="cwl-wizard-shell" data-cwl-wizard-shell="CBRSDeviceRegistrationWizard" aria-hidden="true" role="dialog"></div>
@@ -693,7 +693,7 @@
   </div>
 
 <!-- Settings Modal -->
-  <div data-cwl-component="SettingsModal" data-cwl-lifted-component="SettingsModal"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showSettingsModal" hidden aria-hidden="true">
+  <div data-cwl-component="SettingsModal" data-cwl-lifted-component="SettingsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showSettingsModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
     <div class="modal-content settings-modal">
       <div class="modal-header">
         <h3>⚙️ CBRS Configuration</h3>
@@ -812,10 +812,10 @@
         </form>
       </div>
     </div>
-  </div></div>
+  </div></div></div>
 
 <!-- User ID / Network Selector Modal (includes Google login) -->
-<div data-cwl-component="UserIDSelector" data-cwl-lifted-component="UserIDSelector"><div class="modal-overlay" data-cwl-action="handleClose" data-cwl-shell-key="showUserIDSelector" hidden aria-hidden="true">
+<div data-cwl-component="UserIDSelector" data-cwl-lifted-component="UserIDSelector"><div class="cwl-self-gated-shell" data-cwl-shell-key="showUserIDSelector" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3>🆔 Select Network / Customer</h3>
@@ -902,7 +902,7 @@
 
       </div>
     </div>
-  </div></div>
+  </div></div></div>
 
 <!-- Help Button - Fixed Position -->
 <button class="help-button" data-cwl-toggle="showHelpModal:true" aria-label="Open Help" title="Help">
@@ -914,7 +914,7 @@
 </button>
 
 <!-- Help Modal -->
-<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
+<div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">CBRS Management Help</h2>
@@ -1395,10 +1395,10 @@ The SAS is a cloud-based database and spectrum management system that:
 
       </div>
     </div>
-  </div></div>
+  </div></div></div>
 
 <!-- Quick Tips Modal -->
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -1431,7 +1431,7 @@ The SAS is a cloud-based database and spectrum management system that:
         <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
       </div>
     </div>
-  </div></div></div></div>
+  </div></div></div></div></div>
 <div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
     class="auth-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"

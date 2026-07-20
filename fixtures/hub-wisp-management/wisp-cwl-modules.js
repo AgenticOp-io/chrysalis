@@ -2660,14 +2660,26 @@
       ) {
         ev.preventDefault();
         openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "approved");
-        var filterPanel = page.querySelector(
-          "[data-cwl-lifted-component='ProjectFilterPanel'], .project-filter-panel",
-        );
+        var filterPanel =
+          page.querySelector('[data-cwl-shell-key="showProjectFilters"]') ||
+          page.querySelector(
+            "[data-cwl-lifted-component='ProjectFilterPanel'] .project-filter-panel, .project-filter-panel",
+          );
         if (filterPanel) {
           filterPanel.hidden = false;
           filterPanel.removeAttribute("hidden");
           filterPanel.setAttribute("aria-hidden", "false");
           filterPanel.style.display = "";
+          filterPanel.classList.add("cwl-shell-open");
+          var filterHost = filterPanel.closest(
+            "[data-cwl-lifted-component], .cwl-self-gated-shell",
+          );
+          if (filterHost && filterHost !== filterPanel) {
+            filterHost.hidden = false;
+            filterHost.removeAttribute("hidden");
+            filterHost.setAttribute("aria-hidden", "false");
+            filterHost.classList.add("cwl-shell-open");
+          }
         }
         return;
       }
@@ -2772,14 +2784,25 @@
       },
       openApproved: function () {
         openProjectsPanel(projectsPanel, layersPanel, hardwarePanel, listEl, "approved");
-        var filterPanel = page.querySelector(
-          "[data-cwl-lifted-component='ProjectFilterPanel'], .project-filter-panel",
-        );
+        var filterPanel =
+          page.querySelector('[data-cwl-shell-key="showProjectFilters"]') ||
+          page.querySelector(
+            "[data-cwl-lifted-component='ProjectFilterPanel'] .project-filter-panel, .project-filter-panel",
+          );
         if (filterPanel) {
           filterPanel.hidden = false;
           filterPanel.removeAttribute("hidden");
           filterPanel.setAttribute("aria-hidden", "false");
           filterPanel.style.display = "";
+          filterPanel.classList.add("cwl-shell-open");
+          // Also reveal self-gated wrapper / lifted host.
+          var host = filterPanel.closest("[data-cwl-lifted-component], .cwl-self-gated-shell");
+          if (host && host !== filterPanel) {
+            host.hidden = false;
+            host.removeAttribute("hidden");
+            host.setAttribute("aria-hidden", "false");
+            host.classList.add("cwl-shell-open");
+          }
         }
       },
       openHardware: function () {

@@ -719,12 +719,45 @@
     if (
       el.hasAttribute("data-cwl-lifted-component") ||
       el.hasAttribute("data-cwl-modal-shell") ||
-      el.hasAttribute("data-cwl-wizard-shell")
+      el.hasAttribute("data-cwl-wizard-shell") ||
+      el.classList.contains("cwl-self-gated-shell")
     ) {
       var surface = el.querySelector(
-        ":scope > .modal-overlay, :scope > .wizard-overlay, :scope > .help-overlay, :scope > .tips-overlay, :scope > .settings-overlay, :scope > .project-filter-panel, :scope > .modal-backdrop",
+        ":scope > .modal-overlay, :scope > .wizard-overlay, :scope > .help-overlay, :scope > .tips-overlay, :scope > .settings-overlay, :scope > .project-filter-panel, :scope > .modal-backdrop, :scope > .cwl-self-gated-shell",
       );
       if (surface) revealOverlayNode(surface);
+    }
+    // Nested self-gated wraps (e.g. BaseWizard inside DeploymentWizard, or a
+    // page-gate shell around a component that also self-gates) must open with
+    // the parent — otherwise overlays report display:flex at 0×0.
+    el.querySelectorAll(".cwl-self-gated-shell").forEach(function (nested) {
+      revealOverlayNode(nested);
+    });
+    // Origin `{#if show && plan}` becomes a bind-if wrapper around the overlay —
+    // reveal those so the modal isn't an open shell with a 0×0 child.
+    el.querySelectorAll('[data-cwl-bind="if"]').forEach(function (panel) {
+      var detail = panel.getAttribute("data-cwl-hole-detail") || "";
+      if (/^show\b|\bshow\s*&&/.test(detail) || panel.querySelector(".modal-overlay, .wizard-overlay, .project-filter-panel")) {
+        revealOverlayNode(panel);
+      }
+    });
+    // Re-query overlays after nested shells/panels are open.
+    el.querySelectorAll(
+      ".modal-overlay, .wizard-overlay, .help-overlay, .tips-overlay, .settings-overlay, .project-filter-panel, .modal-backdrop",
+    ).forEach(function (ov) {
+      revealOverlayNode(ov);
+      if (ov.style && ov.style.width === "0px") ov.style.width = "";
+      if (ov.style && ov.style.height === "0px") ov.style.height = "";
+    });
+    // Slot bodies that escaped BaseWizard as siblings must open with the gate.
+    var host =
+      el.closest("[data-cwl-lifted-component]") ||
+      (el.hasAttribute("data-cwl-lifted-component") ? el : null);
+    if (host) {
+      Array.prototype.forEach.call(host.querySelectorAll("[slot]"), function (slotEl) {
+        revealOverlayNode(slotEl);
+        if (slotEl.style && slotEl.style.display === "none") slotEl.style.display = "";
+      });
     }
     return true;
   }
@@ -1096,6 +1129,33 @@
         return true;
       }
       cwlToast("Select a plan project before deploying");
+      return true;
+    }
+    // Origin DeploymentWizard / SiteDeploymentWizard entry points.
+    if (/select\s*deployment\s*type|deployment\s*type|start\s*deployment/.test(norm + " " + a)) {
+      ev.preventDefault();
+      var depShell =
+        findShellByKey("showDeploymentWizard") ||
+        findShellByName("DeploymentWizard") ||
+        findShellByKey("showSiteDeploymentWizard") ||
+        findShellByName("SiteDeploymentWizard");
+      if (depShell && openOverlayEl(depShell)) {
+        // Prefill type card selection when args carry sector|radio|cpe.
+        var depType = actionArgs.replace(/^['"]|['"]$/g, "").trim();
+        if (depType) {
+          depShell.querySelectorAll(".type-card, [data-cwl-action='selectDeploymentType']").forEach(
+            function (card) {
+              var args = String(card.getAttribute("data-cwl-action-args") || "").replace(
+                /^['"]|['"]$/g,
+                "",
+              );
+              card.classList.toggle("selected", args === depType);
+            },
+          );
+        }
+        return true;
+      }
+      cwlToast("Deployment wizard is not on this page");
       return true;
     }
     if (/^toggle$/.test(norm) || (/^toggle$/.test(a) && el.classList.contains("wizard-trigger"))) {
@@ -4643,6 +4703,23 @@ function initModuleWizardMenus() {
   document.querySelectorAll("button.help-button").forEach(function (btn) {
     if (btn.parentElement === document.body) return;
     document.body.appendChild(btn);
+  });
+  // Defensive: Svelte slot bodies that escaped BaseWizard as siblings of a
+  // closed shell must stay hidden until the gate opens (deploy wizard leak).
+  document.querySelectorAll("[data-cwl-lifted-component]").forEach(function (host) {
+    var closed = host.querySelector(
+      ":scope > [data-cwl-shell-key][hidden], :scope > .cwl-self-gated-shell[hidden], :scope > [hidden][data-cwl-component]",
+    );
+    if (!closed) return;
+    Array.prototype.forEach.call(host.children, function (child) {
+      if (child === closed || (closed.contains && closed.contains(child))) return;
+      if (child.getAttribute && child.getAttribute("slot")) {
+        child.hidden = true;
+        child.setAttribute("hidden", "");
+        child.setAttribute("aria-hidden", "true");
+        if (child.style) child.style.display = "none";
+      }
+    });
   });
   initNotificationsBadge();
   initExtraListSurfaces();

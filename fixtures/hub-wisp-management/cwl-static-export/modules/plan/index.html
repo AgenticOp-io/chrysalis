@@ -1013,7 +1013,7 @@
   <!-- Global Settings Button - Hidden in plan mode, shown in coverage-map iframe instead -->
 
   <!-- Help Modal -->
-  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true">
+  <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
       <div class="help-header">
         <h2 id="help-modal-title">Plan Module Help</h2>
@@ -1271,7 +1271,7 @@
 
       </div>
     </div>
-  </div></div>
+  </div></div></div>
 
 <!-- MapLayerManager: overlay/visibleProjects/projectOverlays wired. Staging CRUD (site/equipment add/edit/delete from plan) planned – see docs/PROJECT_WORKFLOW_STATUS.md --></div>
 <div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">

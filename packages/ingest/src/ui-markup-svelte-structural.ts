@@ -2122,9 +2122,18 @@ function tryInlineStructuralComponent(
     // `hidden` would leave an empty open modal (D6443).
     const selfGated =
       /\bexport\s+let\s+show\b/.test(raw) || /\{#if\s+show(?:\s|&&|\})/.test(raw);
-    // Stamp the page-level gate ident (`bind:show={showCreateModal}`) so
-    // data-cwl-toggle="showCreateModal:true" resolves this shell exactly.
-    const body = selfGated ? stampClosedUiChrome(lifted.html, gateKey) : lifted.html;
+    // Self-gated components often compile to MULTIPLE roots (BaseWizard shell +
+    // leftover `<div slot="content">` / `<div slot="footer">` siblings). Stamping
+    // only the first root left wizard step bodies painted on plan/deploy pages.
+    // Wrap the entire lifted HTML in one closed shell keyed to the page gate.
+    let body = lifted.html;
+    if (selfGated) {
+      const key =
+        gateKey && gateKey.length > 0
+          ? gateKey
+          : `show${name.replace(/[^A-Za-z0-9_]/g, "")}`;
+      body = `<div class="cwl-self-gated-shell" data-cwl-shell-key="${key.replace(/"/g, "&quot;")}" hidden aria-hidden="true">${lifted.html}</div>`;
+    }
     return `<div data-cwl-component="${safe}" data-cwl-lifted-component="${safe}">${body}</div>`;
   } catch {
     return null;

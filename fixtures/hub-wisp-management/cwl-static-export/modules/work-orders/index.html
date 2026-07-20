@@ -220,13 +220,13 @@
     </div>
 
   <!-- Create Modal -->
-  <div data-cwl-component="CreateWorkOrderModal" data-cwl-lifted-component="CreateWorkOrderModal"><div
+  <div data-cwl-component="CreateWorkOrderModal" data-cwl-lifted-component="CreateWorkOrderModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showCreateModal" hidden aria-hidden="true"><div
   class="modal-overlay"
   role="dialog"
   aria-modal="true"
   tabindex="0"
   aria-label="Create work order dialog" data-cwl-action="handleOverlayClick" data-cwl-on-keydown="action:handleOverlayKeydown"
- data-cwl-shell-key="showCreateModal" hidden aria-hidden="true">
+ hidden aria-hidden="true">
   <div class="modal-content" role="document">
     <div class="modal-header">
       <h2>➕ Create Work Order</h2>
@@ -524,10 +524,10 @@
     </section>
   </div>
 </div></div>
-</div></div>
+</div></div></div>
 
   <!-- Work Order Creation Wizard -->
-  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard" data-cwl-shell-key="showWorkOrderWizard" hidden aria-hidden="true"><div
+  <div data-cwl-component="WorkOrderCreationWizard" data-cwl-lifted-component="WorkOrderCreationWizard"><div class="cwl-self-gated-shell" data-cwl-shell-key="showWorkOrderWizard" hidden aria-hidden="true"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard"><div class="cwl-self-gated-shell" data-cwl-shell-key="showBaseWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
     role="dialog"
     aria-modal="true"
@@ -570,7 +570,7 @@
         <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
       </div>
     </div>
-  </div></div>
+  </div></div></div>
   <div slot="content">
     <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
       <div class="wizard-panel">
@@ -1032,7 +1032,7 @@
     </section>
   </div>
 </div></div>
-</div></div>
+</div></div></div>
 </div></div>
 <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal" data-cwl-orphan-modal="1"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">

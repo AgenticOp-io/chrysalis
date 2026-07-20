@@ -266,3 +266,23 @@ hardware panel prefers `mapState.productionHardware`; bust map island assets.
 Live GCE check (`20260719n`): Tower Sites 57, Sectors 46, CPE 53, Equipment 8,
 Hardware Deployments 1; Hardware panel lists geo HardwareView rows with lat/lng.
 Names like `Bulk …` / `CWL Eq …` are **tenant seed data**, not a missing iframe.
+
+## Deploy wizard / route audit (2026-07-19p)
+
+Full GCE module audit found deploy looking “broken” for a different reason than
+missing routes (all origin static pages exist in CWL):
+
+1. **Wizard slot leak** — `DeploymentWizard` / `SiteDeploymentWizard` compile to
+   a closed `BaseWizard` shell **plus** visible `<div slot="content|footer">`
+   siblings. Those siblings painted under the map. Converter must wrap the
+   entire self-gated lift in one `cwl-self-gated-shell` with `data-cwl-shell-key`.
+2. **Approved filters** — `openApproved` opened the lifted wrapper, not
+   `[data-cwl-shell-key="showProjectFilters"]`.
+3. **`selectDeploymentType`** — wired as `data-cwl-action` but had no client
+   handler to open `showDeploymentWizard`.
+4. Thin/auth redirects (`/modules/monitor` → monitoring, portal login shells)
+   are intentional; inventory `/add` and `/reports` are present.
+
+Discovery addition: after opening any module, assert no
+`[data-cwl-lifted-component]` hosts visible `[slot]` siblings while a child
+`[data-cwl-shell-key][hidden]` remains closed.
