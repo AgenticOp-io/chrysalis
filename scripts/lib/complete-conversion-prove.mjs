@@ -10,6 +10,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { countCwlMarkupHoles } from "./cwl-hole-metrics.mjs";
+import { unescapeCwlHtmlLiteral } from "./unescape-cwl-html.mjs";
 
 export const PROVE_KIND = "chrysalis.complete-conversion.prove";
 export const PROVE_GATE = "D6448-ST";
@@ -21,17 +22,13 @@ const routesPath = join(fixtureDir, "routes.cwl");
 const conversionReportPath = join(root, "reports/wisp/complete-conversion.json");
 const outPath = join(root, "reports/wisp/complete-conversion-prove.json");
 
-function unescapeCwl(s) {
-  return s.replace(/\\n/g, "\n").replace(/\\"/g, '"');
-}
-
 function extractPageHtml(cwl, httpPath) {
   const re = new RegExp(
-    `@page\\s+GET\\s+"${httpPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[\\s\\S]*?return\\s+html\\s+"((?:\\\\.|[^"\\\\])*)"`,
+    `@page\\s+GET\\s+"${httpPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[\\s\\S]*?return\\s+html\\s+("(?:\\\\.|[^"\\\\])*")`,
     "m",
   );
   const m = re.exec(cwl);
-  return m ? unescapeCwl(m[1]) : null;
+  return m ? unescapeCwlHtmlLiteral(m[1]) : null;
 }
 
 /**
@@ -122,12 +119,15 @@ export function runCompleteConversionProve(opts = {}) {
     id: "plan-no-empty-map-placeholder-only",
     ok: !(plan && /data-cwl-map-shell="SharedMap"/.test(plan) && !/<iframe/i.test(plan)),
   });
-  const planModalTags = plan ? [...plan.matchAll(/<[^>]*\bmodal-overlay\b[^>]*>/gi)] : [];
-  const planModalsOpen = planModalTags.filter((m) => !/\bhidden\b/i.test(m[0])).length;
+  const hasBoolHidden = (tag) => /(?:^|\s)hidden(?:\s|=|>|$)/i.test(tag);
+  const planModalTags = plan
+    ? [...plan.matchAll(/<[^>]*\b(?:modal-overlay|popup-overlay)\b[^>]*>/gi)]
+    : [];
+  const planModalsOpen = planModalTags.filter((m) => !hasBoolHidden(m[0])).length;
   checks.push({
     id: "plan-modal-overlays-hidden",
     ok: !plan || planModalsOpen === 0,
-    detail: { openOverlays: planModalsOpen },
+    detail: { openOverlays: planModalsOpen, total: planModalTags.length },
   });
 
   const deploy = extractPageHtml(cwl, "/modules/deploy");

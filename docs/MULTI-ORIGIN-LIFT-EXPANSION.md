@@ -103,14 +103,31 @@ Blazor, Ruby ERB, Django templates, Flutter web — **shared convert orchestrati
 
 Keep logic in packages; language adapters only:
 
-1. `liftProjectUiAssets` / `liftProjectUiMarkup`
-2. `convertSiteProjectUi({ markupMode: "structural-shell", forceSettleResidualHoles })`
-3. `bindSiteProjectLoadFromTraces`
-4. `verifySiteScaleMatrix`
-5. Chimera `cwlNativePrefixes` + native API
-6. `resolveShorthandForTask` / `governConvertAction` / verify-apply
+1. **Site inventory** — `scripts/lib/site-inventory/` (+ `chrysalis-site-inventory.mjs`) — Step 1 before convert
+2. `liftProjectUiAssets` / `liftProjectUiMarkup`
+3. `convertSiteProjectUi({ markupMode: "structural-shell", forceSettleResidualHoles })`
+4. `bindSiteProjectLoadFromTraces`
+5. `verifySiteScaleMatrix`
+6. Chimera `cwlNativePrefixes` + native API
+7. `resolveShorthandForTask` / `governConvertAction` / verify-apply
+8. **Gap catalog** — `chrysalis-gap-catalog.mjs` (`chrysalis.gap-catalog.v1`) — not WISP-only
 
-New origins add **adapters + fixtures**, not new deploy topologies.
+New origins add **inventory + markup/CSS adapters + fixtures**, not new deploy topologies.
+
+### 5A. Inventory adapters (Step 1 — required)
+
+| Adapter | Package path | Paired markup lift |
+| --- | --- | --- |
+| `sveltekit` | `scripts/lib/site-inventory/sveltekit.mjs` | `svelteKitMarkupAdapter` |
+| `vite-vue` | `…/vue.mjs` | `viteVueMarkupAdapter` |
+| `next-app` | `…/next.mjs` | `nextAppMarkupAdapter` |
+| `angular` | `…/angular.mjs` | `angularMarkupAdapter` |
+| `php-blade` | `…/php-blade.mjs` | Tier C Blade markup (server ingest today) |
+| `php` | `…/php.mjs` | PHP handler ingest + oracle |
+
+Live census is always CWL-attribute based (`data-cwl-shell-key`, toggles, lifts). Method: [`UNIVERSAL-CONVERSION-METHOD.md`](./UNIVERSAL-CONVERSION-METHOD.md) §2.
+
+Smoke: `pnpm run chrysalis:site-inventory-adapters-smoke`
 
 ---
 

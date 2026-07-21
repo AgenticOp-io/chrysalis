@@ -87,6 +87,19 @@ function parseArgs(argv) {
 
 export async function runWispConvertRestart(opts = {}) {
   const wispRoot = resolve(opts.wispRoot ?? resolveWispRoot());
+  // Compatibility entry point: the former restart/deepen loop now delegates to
+  // the canonical one-pass compiler. Set CHRYSALIS_WISP_LEGACY_RESTART=1 only
+  // to diagnose historical conversion artifacts.
+  if (process.env.CHRYSALIS_WISP_LEGACY_RESTART !== "1") {
+    const { runWispCwlOnePass } = await import("../wisp-cwl-one-pass.mjs");
+    return runWispCwlOnePass({
+      wispRoot,
+      bundle: true,
+      deployGce: opts.skipDeploy !== true,
+      allowIncomplete: opts.allowIncomplete === true,
+      maxUnsupportedHoles: opts.allowIncomplete === true ? 4 : 0,
+    });
+  }
   process.env.CHRYSALIS_WISP_ROOT = wispRoot;
   process.env.WISP_MODULE_DIR = wispRoot;
   // Lock D6443 structural convert: forbid Phase30 parity + force-settle overwrite.

@@ -1,0 +1,18 @@
+---
+description: WISP CWL fidelity canon (GCE map/modals/shells) — filled proof of universal method
+alwaysApply: true
+---
+
+# WISP CWL fidelity canon
+
+**Universal method first:** `docs/UNIVERSAL-CONVERSION-METHOD.md` (inventory before convert).  
+Authoritative WISP detail: `docs/WISP-CWL-CONSOLIDATED-PIPELINE.md` (§ Empirical fidelity + § Map interaction + embed + sub-modal catalog).
+
+1. **Inventory first** — `chrysalis-site-inventory.mjs` / `wisp-cwl-sub-modal-census.mjs` before more wire work.
+2. **Target** — Verify on GCE chimera `http://34.61.255.147:19100`; ship Firebase with `pnpm run wisp:deploy:firebase` when asked.
+3. **Deploy** — `runWispGceDeploy({ skipLift: true, structuralOnly: true })`. Never wipe structural `routes.cwl`. Bump `WISP_CWL_ASSET_BUST` for JS **and** CSS.
+4. **No invent** — Do not enable `initDeepenN10*` / fake toolbar buttons. Lift origin or honest hole (**D6442/D6447**).
+5. **Shells** — Open lifted menus/modals with `revealLiftedHost` (nested `.cwl-self-gated-shell` + bind-if + overlay). Outer host alone is a no-op.
+6. **Map CRUD** — Right-click hitTest → selected asset menus; never `dataCache.*[0]`. Plan mode uses `/api/plans/:id/features`. Client must not steal map menu clicks.
+7. **Embed scale** — Plan/Deploy iframe sets `data-cwl-map-embed=1`; fit modals/menus to the pane.
+8. **Sub-modals** — Gap catalog in pipeline doc + `reports/wisp/sub-modal-gap-catalog.json` (P0–P3 closed through `20260720d`).

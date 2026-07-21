@@ -37,7 +37,7 @@ export const WISP_THEME_BOOT_SCRIPT =
   '}catch(e){}})();</' + 'script>';
 
 /** Cache-bust additive CWL assets when [hidden] / client wiring changes (D6443). */
-export const WISP_CWL_ASSET_BUST = "20260719q";
+export const WISP_CWL_ASSET_BUST = "20260720e";
 const WISP_APP_CSS = `/assets/wisp-cwl-app.css?v=${WISP_CWL_ASSET_BUST}`;
 const WISP_CLIENT_JS = `/assets/wisp-cwl-client.js?v=${WISP_CWL_ASSET_BUST}`;
 
@@ -194,19 +194,23 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
   }
 
   if (isPlanModule) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css?v=${WISP_CWL_ASSET_BUST}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
   }
 
   if (isDeployModule) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-modules.css?v=${WISP_CWL_ASSET_BUST}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-modules.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
   }
 
   if (isCoverageMap || isPciMap) {
     // D6443: origin CSS only for coverage-map — do not load wisp-cwl-modules.css
     // (it redefines origin selectors / invented chrome). Island host uses origin
     // `.coverage-map-container` / `.map-container` classes from markup lift.
+    // Early embed stamp so map-island.css can fit modals to the iframe pane
+    // before deferred map.js runs (Plan/Deploy SharedMap).
+    const mapEmbedBoot =
+      `<script>(function(){try{var q=location.search||"";var embed=window.parent!==window||/[?&]mode=(plan|deploy)(?:&|$)/.test(q)||/[?&](?:plan|deploy)Mode=true(?:&|$)/.test(q);if(embed)document.documentElement.setAttribute("data-cwl-map-embed","1");}catch(e){}})();</script>`;
     const title = isPciMap ? "PCI Resolution" : "Coverage Map";
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-map-island.css?v=${WISP_CWL_ASSET_BUST}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-map.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>${mapEmbedBoot}${wispOriginalCssLink(pathname)}<link rel="stylesheet" href="/assets/wisp-cwl-map-island.css?v=${WISP_CWL_ASSET_BUST}"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}${corsAndClient}<script src="/assets/wisp-cwl-map.js?v=${WISP_CWL_ASSET_BUST}" defer></script></body></html>`;
   }
 
   const isDocsShell = trimmed.includes("wisp-docs-shell");

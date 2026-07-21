@@ -1,3 +1,9 @@
+/** WISP CWL UI parity helpers — Module_Manager look/markup authority (D6442 translate-only). */
+import { existsSync, readFileSync } from "node:fs";
+import { join, resolve, dirname } from "node:path";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+
 /** @param {RegExp[]} patterns */
 export function htmlContainsForbiddenStub(html, patterns = WISP_FORBIDDEN_STUB_PATTERNS) {
   return patterns.some((re) => re.test(html));
@@ -22,6 +28,90 @@ export const WISP_FORBIDDEN_STUB_PATTERNS = [
 
 /** @typedef {{ path: string; required: string[]; minLength?: number }} WispUiAnchorSpec */
 
+const require = createRequire(import.meta.url);
+const parityLibRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+/** @returns {string} */
+function resolveWispRootForParity() {
+  for (const key of ["CHRYSALIS_WISP_ROOT", "WISP_MODULE_DIR"]) {
+    const v = process.env[key];
+    if (v && existsSync(resolve(v))) return resolve(v);
+  }
+  for (const c of [
+    "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+    "C:/Users/david/Downloads/WISPTools/Module_Manager",
+  ]) {
+    if (existsSync(c)) return resolve(c);
+  }
+  return resolve("C:/Users/david/AgenticOps/products/wisptools/Module_Manager");
+}
+
+/**
+ * Lift Module_Manager coverage-map/+page.svelte → HTML with modal/map/nav shells (D6442).
+ * @returns {string}
+ */
+export function liftWispCoverageMapPageHtml() {
+  const wispRoot = resolveWispRootForParity();
+  const pagePath = join(wispRoot, "src/routes/modules/coverage-map/+page.svelte");
+  if (!existsSync(pagePath)) {
+    throw new Error(
+      `coverage-map/+page.svelte missing under ${wispRoot} — set CHRYSALIS_WISP_ROOT to AgenticOps Module_Manager`,
+    );
+  }
+  /** @type {{ liftStructuralSveltePageHtml: Function, indexSvelteComponentSources: Function, DEFAULT_STRUCTURAL_INLINE_COMPONENTS?: Set<string> }} */
+  let ingest;
+  try {
+    ingest = require("@chrysalis/ingest");
+  } catch {
+    ingest = require(join(parityLibRoot, "packages/ingest/dist/index.js"));
+  }
+  const raw = readFileSync(pagePath, "utf8");
+  const componentSources = ingest.indexSvelteComponentSources(join(wispRoot, "src"));
+  const lifted = ingest.liftStructuralSveltePageHtml(raw, {
+    applyShowcaseLoadBools: true,
+    componentSources,
+    structuralInlineComponents: ingest.DEFAULT_STRUCTURAL_INLINE_COMPONENTS,
+    loadBools: {
+      // Keep chrome closed via stampClosedUiChrome (do not delete panels).
+      isDeployMode: false,
+      hideStats: false,
+      isLoading: false,
+      error: false,
+      success: false,
+    },
+  });
+  if (!lifted || typeof lifted.html !== "string" || lifted.html.length < 500) {
+    throw new Error("liftStructuralSveltePageHtml failed for coverage-map/+page.svelte");
+  }
+  let html = lifted.html;
+  // ArcGIS island host uses Module_Manager CoverageMapView classes (D6443) — not invented map-view-host chrome.
+  html = html.replace(
+    /<div class="cwl-map-shell" data-cwl-map-shell="CoverageMapView"[^>]*><\/div>/,
+    '<div class="coverage-map-container" data-cwl-map-shell="CoverageMapView"><div id="arcgis-map-view" class="map-container" role="application" aria-label="Coverage map"></div></div>\n  <div id="map-loading" class="map-loading" hidden>Loading map…</div>',
+  );
+  if (!html.includes("arcgis-map-view")) {
+    html =
+      '<div class="coverage-map-container"><div id="arcgis-map-view" class="map-container" role="application" aria-label="Coverage map"></div></div>\n  <div id="map-loading" class="map-loading" hidden>Loading map…</div>\n' +
+      html;
+  } else if (!html.includes("coverage-map-container")) {
+    html = html.replace(
+      /(<div id="arcgis-map-view")([^>]*>)/,
+      '<div class="coverage-map-container">$1 class="map-container"$2</div>',
+    );
+  }
+  // Prefer origin map-container class if an older map-view-host rewrite remains.
+  html = html.replace(/\bmap-view-host\b/g, "map-container");
+  if (!html.includes("wisp-coverage-map") && !html.includes("fullscreen-map")) {
+    html = `<div class="wisp-coverage-map fullscreen-map" data-wisp-page="coverage-map" data-cwl-island="client">${html}</div>`;
+  } else if (!html.includes("data-wisp-page")) {
+    html = html.replace(
+      /class="([^"]*fullscreen-map[^"]*)"/,
+      'class="$1 wisp-coverage-map" data-wisp-page="coverage-map" data-cwl-island="client"',
+    );
+  }
+  return html;
+}
+
 /** @returns {WispUiAnchorSpec[]} */
 export function wispUiAnchorSpecs() {
   return [
@@ -29,7 +119,11 @@ export function wispUiAnchorSpecs() {
     { path: "/dashboard", required: ["dashboard-container", "modules-grid", "WISP Management"], minLength: 800 },
     { path: "/modules/plan", required: ["wisp-plan-app", "plan-map-iframe", "wisp-header-overlay"], minLength: 500 },
     { path: "/modules/deploy", required: ["wisp-deploy-app", "deploy-map-iframe", "wisp-header-overlay"], minLength: 500 },
-    { path: "/modules/coverage-map", required: ["wisp-coverage-map", "arcgis-map-view"], minLength: 80 },
+    {
+      path: "/modules/coverage-map",
+      required: ["arcgis-map-view", "floating-controls", "filters-modal", "filter-panel", "stats-modal"],
+      minLength: 4000,
+    },
     { path: "/modules/hardware", required: ["hardware-page", "Hardware Management"], minLength: 400 },
     {
       path: "/modules/hardware/add",
@@ -330,6 +424,7 @@ export function buildWispDeployParityHtml() {
       <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
       <button type="button" class="wisp-control-btn" data-action="approved" title="Approved projects ready for deployment"><span class="control-icon">🔍</span><span class="control-label">Approved</span></button>
       <button type="button" class="wisp-control-btn" data-action="projects" title="Projects"><span class="control-icon">📋</span><span class="control-label">Projects</span></button>
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
       <button type="button" class="wisp-control-btn" data-action="deployed" title="Deployed projects"><span class="control-icon">✅</span><span class="control-label">Deployed</span></button>
       <button type="button" class="wisp-control-btn" data-action="pci" title="PCI Planner"><span class="control-icon">📊</span><span class="control-label">PCI</span></button>
       <button type="button" class="wisp-control-btn" data-action="frequency" title="Frequency Planner"><span class="control-icon">📡</span><span class="control-label">Frequency</span></button>
@@ -384,6 +479,7 @@ export function buildWispPlanParityHtml() {
       <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
       <button type="button" class="wisp-control-btn" data-action="hardware" title="View hardware on map context"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
       <button type="button" class="wisp-control-btn" data-action="projects" title="Project list"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"></div>
       <button type="button" class="wisp-control-btn" data-action="create-project" title="Create plan project"><span class="control-icon">➕</span><span class="control-label">Create</span></button>
       <button type="button" class="wisp-control-btn" data-action="layers" title="Layer filters"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
       <button type="button" class="wisp-control-btn marketing-btn" data-action="marketing" title="Find addresses"><span class="control-icon">🔍</span><span class="control-label">Find Addresses</span></button>
@@ -400,12 +496,17 @@ export function buildWispPlanParityHtml() {
 </div>`;
 }
 
-/** Coverage map — ArcGIS MapView host (embedded by Plan/Deploy iframes). */
+/** Coverage map — structural lift of Module_Manager coverage-map/+page.svelte (D6442). */
 export function buildWispCoverageMapParityHtml() {
-  return `<div class="wisp-coverage-map" data-wisp-page="coverage-map" data-cwl-island="client">
-  <div id="arcgis-map-view" class="map-view-host" role="application" aria-label="Coverage map"></div>
-  <div id="map-loading" class="map-loading">Loading map…</div>
-</div>`;
+  try {
+    return liftWispCoverageMapPageHtml();
+  } catch (e) {
+    console.warn(
+      "[wisp-ui-parity] coverage-map lift failed; refusing invented stub:",
+      e && /** @type {Error} */ (e).message ? /** @type {Error} */ (e).message : e,
+    );
+    throw e;
+  }
 }
 
 /**
@@ -415,14 +516,16 @@ export function buildWispCoverageMapParityHtml() {
  * @param {string} [loadMeta]
  */
 export function buildWispModuleHtmlPageBlock(path, pageName, html, loadMeta) {
-  const body = html.replace(/\n/g, "\\n").replace(/"/g, '\\"');
+  // CWL string literals are JSON-parsed — use JSON.stringify so control chars
+  // from deep-lifted modals (AddSite, etc.) do not break ingest/export.
+  const bodyLit = JSON.stringify(html);
   const load = loadMeta ?? `{ source: "wisp-m30" }`;
   return `@page GET "${path}"
 page ${pageName} {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load ${load};
-  return html "${body}";
+  return html ${bodyLit};
 }`;
 }
 

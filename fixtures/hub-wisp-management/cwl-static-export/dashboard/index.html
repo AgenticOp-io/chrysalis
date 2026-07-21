@@ -298,7 +298,7 @@
               </svg>
             </button>
 
-              <div hidden aria-hidden="true"><div data-cwl-component="NotificationCenter" data-cwl-lifted-component="NotificationCenter"><div class="notification-center">
+              <div hidden aria-hidden="true"><div data-cwl-component="NotificationCenter" data-cwl-lifted-component="NotificationCenter"><div class="cwl-self-gated-shell" data-cwl-shell-key="showNotificationCenter" hidden aria-hidden="true"><div class="notification-center">
   <button
     type="button"
     class="bell-btn" data-cwl-action="toggle"
@@ -312,7 +312,7 @@
     <div data-cwl-bind="if" data-cwl-hole-detail="$unreadCount > 0"><span class="badge" aria-label="unread"><span data-cwl-bind="interp" data-cwl-hole-detail="$unreadCount > 99 ? '99+' : $unreadCount"></span></span></div>
   </button>
 
-    <div class="panel" role="dialog" aria-label="Notifications panel" data-cwl-shell-key="open" hidden aria-hidden="true">
+    <div class="panel" role="dialog" aria-label="Notifications panel">
       <div class="panel-header">
         <h3>Notifications</h3>
         <div data-cwl-bind="if" data-cwl-hole-detail="$unreadCount > 0"><span class="unread-label"><span data-cwl-bind="interp" data-cwl-hole-detail="$unreadCount"></span> unread</span></div>
@@ -328,7 +328,7 @@
       </div>
     </div>
 
-</div></div>
+</div></div></div>
 
                 <span class="admin-badge" title="Administrator">Admin</span>
 

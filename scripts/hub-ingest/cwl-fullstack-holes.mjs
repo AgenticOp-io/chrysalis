@@ -41,7 +41,8 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     rfc: "0012",
     origin: "svelte",
     surface: "client",
-    summary: "@arcgis/core MapView, widgets, and geocoding not lowered; client bundle required.",
+    summary:
+      "@arcgis/core MapView/widgets stay a vendor client island — preserve source ArcGIS Vite/@arcgis/core load (D6441/D6442); do not rewrite to Bing, OSM-default, or CDN AMD/ESM dialects.",
   },
   "hub-svelte:cross-frame-messaging": {
     rfc: "0012",

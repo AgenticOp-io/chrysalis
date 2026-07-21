@@ -20,11 +20,17 @@ export async function runWispNavWizardShellSmoke(opts = {}) {
 
   const checks = {
     mainMenuShell: menu?.html.includes('data-cwl-nav-shell="MainMenu"') === true,
-    wizardMenuShell: wizardMenu?.html.includes('data-cwl-nav-shell="ModuleWizardMenu"') === true,
+    // ModuleWizardMenu is structural-inline (not empty nav shell) — without sources → component hole.
+    wizardMenuNotNavShell:
+      wizardMenu?.html.includes('data-cwl-nav-shell="ModuleWizardMenu"') !== true &&
+      /ModuleWizardMenu/.test(wizardMenu?.html ?? "") === true,
     breadcrumbShell: crumb?.html.includes('data-cwl-nav-shell="AdminBreadcrumb"') === true,
     wizardShell: wizard?.html.includes('data-cwl-wizard-shell="DeploymentWizard"') === true,
     widgetStillHoles: widget?.html.includes("legacy:markup-lift-svelte-component") === true,
     exportNavSet: ingest.DEFAULT_NAV_SHELL_COMPONENTS?.has("MainMenu") === true,
+    exportWizardMenuStructural:
+      ingest.DEFAULT_STRUCTURAL_INLINE_COMPONENTS?.has("ModuleWizardMenu") === true &&
+      ingest.DEFAULT_NAV_SHELL_COMPONENTS?.has("ModuleWizardMenu") !== true,
     exportWizardSet: ingest.DEFAULT_WIZARD_SHELL_COMPONENTS?.has("DeploymentWizard") === true,
   };
   const ok = Object.values(checks).every(Boolean);

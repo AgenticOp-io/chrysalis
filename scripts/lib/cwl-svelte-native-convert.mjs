@@ -65,6 +65,17 @@ export async function runWispSvelteNativeConvert(opts = {}) {
     };
   }
 
+  // Compatibility API: all Svelte-native WISP conversion now uses the same
+  // canonical one-pass compiler as the operator pipeline.
+  if (process.env.CHRYSALIS_WISP_LEGACY_NATIVE_CONVERT !== "1") {
+    const { runWispCwlOnePass } = await import("../wisp-cwl-one-pass.mjs");
+    return runWispCwlOnePass({
+      wispRoot,
+      bundle: true,
+      deployGce: deploy,
+    });
+  }
+
   const patched = patchOperatorGceDeployPipelineConfig(loadWispPipelineConfig());
   const pipelinePath = join(scriptRoot, "fixtures/hub-wisp-management/wisp-pipeline.config.json");
   writeFileSync(pipelinePath, `${JSON.stringify(patched, null, 2)}\n`, "utf8");

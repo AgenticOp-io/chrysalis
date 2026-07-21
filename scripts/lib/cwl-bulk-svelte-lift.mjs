@@ -39,7 +39,11 @@ export function titleFromHttpPath(httpPath) {
 export function sveltePagePathForRoute(wispRoot, httpPath) {
   const root = resolve(wispRoot);
   if (httpPath === "/") return join(root, "src/routes/+page.svelte");
-  return join(root, "src/routes", httpPath.replace(/^\//, ""), "+page.svelte");
+  // CWL / corpus use `:id`; SvelteKit files use `[id]`.
+  const rel = httpPath
+    .replace(/^\//, "")
+    .replace(/:([A-Za-z_][\w]*)/g, "[$1]");
+  return join(root, "src/routes", rel, "+page.svelte");
 }
 
 /** @param {string} source */
@@ -86,10 +90,12 @@ export function routeBlockNeedsBulkLift(block, patterns = WISP_FORBIDDEN_STUB_PA
   return false;
 }
 
+import { unescapeCwlHtmlLiteral } from "./unescape-cwl-html.mjs";
+
 /** @param {string} block */
 function extractRouteResponseBody(block) {
-  const htmlMatch = /return\s+html\s+"((?:\\.|[^"\\])*)"/s.exec(block);
-  if (htmlMatch) return htmlMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+  const htmlMatch = /return\s+html\s+("(?:\\.|[^"\\])*")/s.exec(block);
+  if (htmlMatch) return unescapeCwlHtmlLiteral(htmlMatch[1]);
   const uiMatch = /return\s+ui\s*\{([\s\S]*)\}\s*;?\s*$/.exec(block);
   if (uiMatch) return uiMatch[1];
   return block;

@@ -2309,6 +2309,15 @@
       var actionEl =
         ev.target && ev.target.closest && ev.target.closest("[data-cwl-action]");
       if (actionEl) {
+        // Coverage-map island owns right-click menus — generic create/open
+        // routing would steal "Add Tower Site" into the wrong structural editor.
+        if (
+          actionEl.closest(
+            '[data-cwl-lifted-component="MapContextMenu"], [data-cwl-lifted-component="TowerActionsMenu"], [data-cwl-lifted-component="SectorActionsMenu"], [data-cwl-lifted-component="BackhaulActionsMenu"], [data-cwl-shell-key="showPlanDraftMenu"], .plan-draft-menu',
+          )
+        ) {
+          return;
+        }
         var cwlAction = actionEl.getAttribute("data-cwl-action") || "";
         var actionState = actionEl.getAttribute("data-cwl-action-state") || "";
         var stateParts = actionState.split(":");
@@ -2874,6 +2883,36 @@
 
   function openStructuralCustomerEditor(isEdit, prefill) {
     prefill = prefill || {};
+    // Prefer origin AddEditCustomerModal when the page carries it.
+    var S = window.WispCwlShell;
+    var lifted =
+      (S && S.find && (S.find(isEdit ? "showEditModal" : "showAddModal") || S.find("AddEditCustomerModal"))) ||
+      document.querySelector(
+        '[data-cwl-shell-key="' +
+          (isEdit ? "showEditModal" : "showAddModal") +
+          '"], [data-cwl-lifted-component="AddEditCustomerModal"]',
+      );
+    if (lifted && S && typeof S.open === "function") {
+      S.open(lifted);
+      if (window.__wispHydrateShellScope) {
+        try {
+          window.__wispHydrateShellScope(
+            lifted,
+            {
+              show: true,
+              isEdit: !!isEdit,
+              customer: prefill || null,
+              formData: prefill || {},
+            },
+            [],
+          );
+        } catch (e) {
+          /* honest holes */
+        }
+      }
+      return;
+    }
+    prefill = prefill || {};
     var parts = String(prefill.fullName || "")
       .trim()
       .split(/\s+/);
@@ -3087,6 +3126,16 @@
   }
 
   function openStructuralSiteEditor() {
+    var S = window.WispCwlShell;
+    var lifted =
+      (S && S.find && (S.find("showEditModal") || S.find("SiteEditModal") || S.find("AddSiteModal"))) ||
+      document.querySelector(
+        '[data-cwl-shell-key="showEditModal"], [data-cwl-lifted-component="SiteEditModal"], [data-cwl-lifted-component="AddSiteModal"]',
+      );
+    if (lifted && S && typeof S.open === "function") {
+      S.open(lifted);
+      return;
+    }
     var html =
       '<form id="wisp-struct-site-form" class="wisp-wizard-form">' +
       '<div class="form-group"><label>Name *</label><input name="name" required placeholder="Tower site" /></div>' +
@@ -3169,6 +3218,29 @@
 
   function openStructuralWorkOrderEditor(isEdit, prefill) {
     prefill = prefill || {};
+    var S = window.WispCwlShell;
+    var lifted =
+      (S &&
+        S.find &&
+        (S.find("showCreateModal") || S.find("CreateWorkOrderModal") || S.find("showWorkOrderWizard"))) ||
+      document.querySelector(
+        '[data-cwl-shell-key="showCreateModal"], [data-cwl-lifted-component="CreateWorkOrderModal"]',
+      );
+    if (!isEdit && lifted && S && typeof S.open === "function") {
+      S.open(lifted);
+      if (window.__wispHydrateShellScope) {
+        try {
+          window.__wispHydrateShellScope(
+            lifted,
+            { show: true, workOrder: prefill || null, formData: prefill || {} },
+            [],
+          );
+        } catch (e) {
+          /* honest holes */
+        }
+      }
+      return;
+    }
     var html =
       '<form id="wisp-struct-wo-form" class="wisp-wizard-form">' +
       (isEdit
@@ -4721,8 +4793,26 @@ function initModuleWizardMenus() {
       }
     });
   });
+  // Also hide slot bodies that sit *inside* a still-closed gate (siblings of
+  // nested BaseWizard) so they cannot paint if CSS escapes [hidden].
+  document.querySelectorAll('[slot="content"], [slot="footer"]').forEach(function (slotEl) {
+    var gate = slotEl.closest("[data-cwl-shell-key], .cwl-self-gated-shell");
+    var gateClosed =
+      !gate ||
+      gate.hasAttribute("hidden") ||
+      gate.getAttribute("aria-hidden") === "true" ||
+      (gate.style && gate.style.display === "none");
+    if (!gateClosed && gate && gate.classList.contains("cwl-shell-open")) return;
+    if (!gateClosed) return;
+    slotEl.hidden = true;
+    slotEl.setAttribute("hidden", "");
+    slotEl.setAttribute("aria-hidden", "true");
+    if (slotEl.style) slotEl.style.display = "none";
+  });
   initNotificationsBadge();
   initExtraListSurfaces();
+  initP2NestedModalBridges();
+  initP3ModuleModalBridges();
   // Fidelity deepen injectors (n10g–n10x) invent synthetic toolbar buttons that
   // are not in the origin Svelte UI. Leave them off unless explicitly enabled —
   // they make the demo feel half-fake and mask real conversion gaps.
@@ -5907,6 +5997,577 @@ function initDashboardModules() {
       }
     })
     .catch(function () {});
+}
+
+/**
+ * P2 nested modal bridges — open lifted parents and nested child shells
+ * (CustomerLookup, Assign, SiteDevices→Add, alert→ticket, PCI analysis stack).
+ * Prefer WispCwlShell / shell-key; never invent origin-dead chrome.
+ */
+function initP2NestedModalBridges() {
+  var S = window.WispCwlShell;
+  if (!S || typeof S.open !== "function") return;
+
+  function toast(msg) {
+    var t = document.querySelector(".cwl-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.className = "cwl-toast";
+      t.setAttribute("role", "status");
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t.__cwlTimer);
+    t.__cwlTimer = setTimeout(function () {
+      t.classList.remove("show");
+    }, 4200);
+  }
+
+  function openKey(key, name) {
+    var el =
+      document.querySelector('[data-cwl-shell-key="' + key + '"]') ||
+      (name
+        ? document.querySelector(
+            '[data-cwl-lifted-component="' +
+              name +
+              '"], [data-cwl-modal-shell="' +
+              name +
+              '"], [data-cwl-wizard-shell="' +
+              name +
+              '"]',
+          )
+        : null) ||
+      (S.find && (S.find(key) || (name && S.find(name))));
+    if (!el) return null;
+    S.open(el);
+    return el;
+  }
+
+  function openNested(host, key, fallbackSel) {
+    if (!host) return openKey(key);
+    var el =
+      host.querySelector('[data-cwl-shell-key="' + key + '"]') ||
+      (fallbackSel ? host.querySelector(fallbackSel) : null) ||
+      document.querySelector('[data-cwl-shell-key="' + key + '"]');
+    if (!el) return null;
+    S.open(el);
+    return el;
+  }
+
+  function hydrate(el, data) {
+    if (!el || !data || !window.__wispHydrateShellScope) return;
+    try {
+      window.__wispHydrateShellScope(el, data, data.rows || []);
+    } catch (e) {
+      /* honest */
+    }
+  }
+
+  function wireHostClicks(hostSel, rules) {
+    document.querySelectorAll(hostSel).forEach(function (host) {
+      if (host.getAttribute("data-cwl-p2-wired") === "1") return;
+      host.setAttribute("data-cwl-p2-wired", "1");
+      host.addEventListener("click", function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest("button, a, .btn, .menu-item") : null;
+        if (!btn || !host.contains(btn)) return;
+        var label = ((btn.textContent || "") + " " + (btn.getAttribute("title") || "")).toLowerCase();
+        for (var i = 0; i < rules.length; i++) {
+          var rule = rules[i];
+          if (!rule.test.test(label)) continue;
+          ev.preventDefault();
+          ev.stopPropagation();
+          rule.run(host, btn, label);
+          return;
+        }
+      });
+    });
+  }
+
+  // Work orders: CreateWorkOrderModal → CustomerLookup
+  wireHostClicks(
+    '[data-cwl-lifted-component="CreateWorkOrderModal"], [data-cwl-shell-key="showCreateModal"]',
+    [
+      {
+        test: /lookup|select customer|find customer|search customer|choose customer/,
+        run: function (host) {
+          var nest = openNested(host, "showCustomerLookup", '[data-cwl-lifted-component="CustomerLookupModal"]');
+          if (!nest) openKey("showCustomerLookup", "CustomerLookupModal");
+        },
+      },
+    ],
+  );
+
+  // Help desk: TicketDetails → Assign
+  wireHostClicks(
+    '[data-cwl-lifted-component="TicketDetailsModal"], [data-cwl-shell-key="showDetailsModal"]',
+    [
+      {
+        test: /\bassign\b|reassign|technician/,
+        run: function (host) {
+          var nest =
+            openNested(host, "showAssignModal", ".assign-modal-overlay") ||
+            openKey("showAssignModal");
+          if (!nest) {
+            var inline = host.querySelector(".assign-modal-overlay");
+            if (inline) S.open(inline);
+          }
+        },
+      },
+    ],
+  );
+
+  // Monitoring: Alert details → Create ticket; setup wizard
+  wireHostClicks(
+    '[data-cwl-shell-key="showAlertDetailsModal"], [data-cwl-lifted-component*="Alert"]',
+    [
+      {
+        test: /create ticket|open ticket|new ticket|ticket/,
+        run: function (host) {
+          openNested(host, "showCreateTicketModal") || openKey("showCreateTicketModal", "CreateTicketModal");
+        },
+      },
+    ],
+  );
+
+  // HSS: RemoteEPCs → SiteDevices → Add device
+  wireHostClicks(
+    '[data-cwl-lifted-component="RemoteEPCs"], [data-cwl-lifted-component="SiteDevicesModal"], [data-cwl-shell-key="showSiteDevicesModal"]',
+    [
+      {
+        test: /manage devices|site devices|view devices|devices/,
+        run: function (host, btn) {
+          if (host.getAttribute("data-cwl-lifted-component") === "SiteDevicesModal") return;
+          var siteName = "";
+          var card = btn.closest("[data-id], .epc-card, .site-card, tr, li");
+          if (card) siteName = (card.textContent || "").trim().slice(0, 80);
+          var el = openKey("showSiteDevicesModal", "SiteDevicesModal");
+          hydrate(el, { show: true, siteName: siteName, isLoading: false });
+        },
+      },
+      {
+        test: /add device|register device|new device|\badd\b/,
+        run: function (host) {
+          openNested(host, "showAddDeviceModal", ".modal-overlay.nested, .add-device-overlay") ||
+            openKey("showAddDeviceModal");
+        },
+      },
+    ],
+  );
+
+  // Customers: onboarding wizard
+  wireHostClicks('[data-wisp-page="customers"], .customers-page, .customer-page', [
+    {
+      test: /onboard/,
+      run: function () {
+        openKey("showOnboardingWizard", "CustomerOnboardingWizard");
+      },
+    },
+  ]);
+
+  // PCI analysis stack + SiteEditor by name (orphan toggles use isOpen)
+  if ((location.pathname || "").toLowerCase().indexOf("pci-resolution") >= 0) {
+    wireHostClicks(
+      '[data-wisp-page="pci-resolution"], [data-wisp-path*="pci-resolution"], .pci-resolution, .app',
+      [
+        {
+          test: /^analysis$|open analysis|pci analysis|show analysis/,
+          run: function () {
+            var el = openKey("showAnalysisModal", "AnalysisModal");
+            hydrate(el, { show: true, loading: false, isAnalyzing: false });
+          },
+        },
+        {
+          test: /conflicts?$/,
+          run: function () {
+            openKey("showConflictsModal", "ConflictsModal");
+          },
+        },
+        {
+          test: /recommend/,
+          run: function () {
+            openKey("showRecommendationsModal", "RecommendationsModal");
+          },
+        },
+        {
+          test: /optim/,
+          run: function () {
+            openKey("showOptimizationResultModal", "OptimizationResultModal");
+          },
+        },
+        {
+          test: /import/,
+          run: function () {
+            openKey("showImportWizard", "ImportWizard");
+          },
+        },
+        {
+          test: /conflict resolution|resolution wizard/,
+          run: function () {
+            openKey("showConflictResolutionWizard", "ConflictResolutionWizard");
+          },
+        },
+        {
+          test: /add site|edit site|site editor/,
+          run: function () {
+            var site = document.querySelector('[data-cwl-lifted-component="SiteEditor"]');
+            if (site) S.open(site);
+          },
+        },
+        {
+          test: /cell editor|edit cell/,
+          run: function () {
+            var cell = document.querySelector('[data-cwl-lifted-component="CellEditor"]');
+            if (cell) S.open(cell);
+          },
+        },
+      ],
+    );
+
+    // PCI ContextMenu → SiteEditor / Import / CellEditor
+    wireHostClicks('[data-cwl-lifted-component="ContextMenu"], [data-cwl-shell-key="showContextMenu"]', [
+      {
+        test: /site|add tower|add site/,
+        run: function () {
+          var site = document.querySelector('[data-cwl-lifted-component="SiteEditor"]');
+          if (site) S.open(site);
+        },
+      },
+      {
+        test: /import/,
+        run: function () {
+          openKey("showImportWizard", "ImportWizard");
+        },
+      },
+      {
+        test: /cell|sector/,
+        run: function () {
+          var cell = document.querySelector('[data-cwl-lifted-component="CellEditor"]');
+          if (cell) S.open(cell);
+        },
+      },
+    ]);
+
+    // ImportWizard nested SiteEditor
+    wireHostClicks('[data-cwl-lifted-component="ImportWizard"], [data-cwl-shell-key="showImportWizard"]', [
+      {
+        test: /add site|new site|site editor/,
+        run: function (host) {
+          var site =
+            host.querySelector('[data-cwl-lifted-component="SiteEditor"]') ||
+            document.querySelector('[data-cwl-lifted-component="SiteEditor"]');
+          if (site) S.open(site);
+        },
+      },
+    ]);
+  }
+  // Billing upgrade — honest skip (no origin chrome)
+  document.querySelectorAll('[data-cwl-toggle="showUpgradeModal:true"], [data-cwl-action*="Upgrade"]').forEach(
+    function (el) {
+      if (el.getAttribute("data-cwl-p2-billing") === "1") return;
+      el.setAttribute("data-cwl-p2-billing", "1");
+      el.addEventListener(
+        "click",
+        function (ev) {
+          var path = (location.pathname || "").toLowerCase();
+          if (path.indexOf("billing") < 0) return;
+          // No stamped overlay exists — toast only (PayPal redirect in origin).
+            if (!document.querySelector('[data-cwl-shell-key="showUpgradeModal"]')) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            toast("Upgrade — PayPal redirect not mounted in CWL demo (origin has no modal chrome)");
+          }
+        },
+        true,
+      );
+    },
+  );
+
+  // Inventory / HSS: prefer key opens for common toolbar labels (fallback if label→shell miss)
+  document.addEventListener(
+    "click",
+    function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("button, a.btn") : null;
+      if (!btn) return;
+      var label = (btn.textContent || "").toLowerCase();
+      var path = (location.pathname || "").toLowerCase();
+      if (path.indexOf("/modules/inventory") >= 0) {
+        if (/check\s*in/.test(label) && openKey("showCheckInWizard", "InventoryCheckInWizard")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/rma/.test(label) && openKey("showRMAWizard", "RMATrackingWizard")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/scan/.test(label) && openKey("showScanModal", "ScanModal")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/manual/.test(label) && openKey("showManualEntry")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/asset\s*tag/.test(label) && openKey("showAssetTag", "AssetTagViewer")) {
+          ev.preventDefault();
+          return;
+        }
+      }
+      if (path.indexOf("/modules/monitoring") >= 0) {
+        if (/setup|configure monitoring|wizard/.test(label) && openKey("showSetupWizard", "MonitoringSetupWizard")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/alert/.test(label) && openKey("showAlertDetailsModal")) {
+          ev.preventDefault();
+          return;
+        }
+      }
+      if (path.indexOf("/modules/help-desk") >= 0 || path.indexOf("/modules/helpdesk") >= 0) {
+        if (/customer lookup|lookup customer/.test(label) && openKey("showCustomerLookup", "CustomerLookupModal")) {
+          ev.preventDefault();
+          return;
+        }
+      }
+    },
+    true,
+  );
+
+  // Origin map hook never defined — optional fill only opens lifted modal if present.
+  if (typeof window.configureMikrotikCredentials !== "function") {
+    window.configureMikrotikCredentials = function () {
+      var el =
+        document.querySelector('[data-cwl-lifted-component="MikrotikCredentialsModal"]') ||
+        document.querySelector('[data-cwl-shell-key="showMikrotikCredentialsModal"]');
+      if (el) {
+        S.open(el);
+        return;
+      }
+      if (typeof toast === "function") {
+        toast("MikroTik credentials — origin window.configureMikrotikCredentials was never defined");
+      }
+    };
+  }
+}
+
+/**
+ * P3 module modal bridges — voice/sites/CBRS/user-management open paths.
+ * Prefer stamped shell keys + lifted hosts; leave honest-unavailable / origin-dead alone.
+ */
+function initP3ModuleModalBridges() {
+  var S = window.WispCwlShell;
+  if (!S || typeof S.open !== "function") return;
+
+  function openKey(key, name) {
+    var el =
+      document.querySelector('[data-cwl-shell-key="' + key + '"]') ||
+      (name
+        ? document.querySelector(
+            '[data-cwl-lifted-component="' +
+              name +
+              '"], [data-cwl-modal-shell="' +
+              name +
+              '"], [data-cwl-wizard-shell="' +
+              name +
+              '"]',
+          )
+        : null) ||
+      (S.find && (S.find(key) || (name && S.find(name))));
+    if (!el) return null;
+    S.open(el);
+    return el;
+  }
+
+  function openNested(host, key, fallbackSel) {
+    if (!host) return openKey(key);
+    var el =
+      host.querySelector('[data-cwl-shell-key="' + key + '"]') ||
+      (fallbackSel ? host.querySelector(fallbackSel) : null) ||
+      document.querySelector('[data-cwl-shell-key="' + key + '"]');
+    if (!el) return null;
+    S.open(el);
+    return el;
+  }
+
+  function hydrate(el, data) {
+    if (!el || !data || !window.__wispHydrateShellScope) return;
+    try {
+      window.__wispHydrateShellScope(el, data, data.rows || []);
+    } catch (e) {
+      /* honest */
+    }
+  }
+
+  document.addEventListener(
+    "click",
+    function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("button, a.btn, .btn") : null;
+      if (!btn) return;
+      var label = ((btn.textContent || "") + " " + (btn.getAttribute("title") || "")).toLowerCase();
+      var path = (location.pathname || "").toLowerCase();
+
+      // Voice telephony — inline account / TN / location / tips
+      if (path.indexOf("voice-telephony") >= 0 || path.indexOf("/modules/voice") >= 0) {
+        if (/add account|new account/.test(label) && openKey("showAddAccount")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/add (tn|number|did)|new (tn|number|did)|add telephone/.test(label) && openKey("showAddTn")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/edit (tn|number|did)/.test(label) && openKey("showEditTn")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/add location|new location/.test(label) && openKey("showAddLocation")) {
+          ev.preventDefault();
+          return;
+        }
+        if (/^tips$|show tips/.test(label) && (openKey("showTipsModal", "TipsModal") || openKey("showTipsModal"))) {
+          ev.preventDefault();
+          return;
+        }
+      }
+
+      // Sites — mirror coverage-map create/edit chain via lifted modals
+      if (path.indexOf("/modules/sites") >= 0) {
+        if (
+          (/edit site|edit tower/.test(label) || /showEditModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showEditModal", "SiteEditModal") || openKey("showEditModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/deploy epc|deploy hardware|epc deploy|snmp deploy/.test(label) ||
+            /showDeployModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showDeployModal", "EPCDeploymentModal") || openKey("showDeployModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/add sector|new sector/.test(label) || /showSectorModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showSectorModal", "AddSectorModal") || openKey("showSectorModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/add cpe|new cpe/.test(label) || /showCPEModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showCPEModal", "AddCPEModal") || openKey("showCPEModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/add backhaul|new backhaul|backhaul link/.test(label) ||
+            /showBackhaulModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showBackhaulModal", "AddBackhaulLinkModal") || openKey("showBackhaulModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+      }
+
+      // CBRS — setup / registration / settings / add device / user id
+      if (path.indexOf("cbrs") >= 0) {
+        if (
+          (/setup|get started|configure cbrs/.test(label) || /showSetupWizard/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showSetupWizard", "CBRSSetupWizard") || openKey("showSetupWizard"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/register device|device registration|registration wizard/.test(label) ||
+            /showDeviceRegistrationWizard/i.test(btn.getAttribute("data-cwl-toggle") || "") ||
+            /cbrs-device-registration/i.test(btn.getAttribute("data-wizard-id") || "")) &&
+          (openKey("showDeviceRegistrationWizard", "DeviceRegistrationWizard") ||
+            openKey("showDeviceRegistrationWizard", "CBRSDeviceRegistrationWizard") ||
+            openKey("showAddDeviceModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/settings/.test(label) || /showSettingsModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showSettingsModal", "SettingsModal") || openKey("showSettingsModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/add device|new device|register/.test(label) || /showAddDeviceModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          openKey("showAddDeviceModal")
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/user id|userid|select user/.test(label) || /showUserIDSelector/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showUserIDSelector", "UserIDSelector") || openKey("showUserIDSelector"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (/grant request|request grant/.test(label) && openKey("showGrantRequestModal")) {
+          ev.preventDefault();
+          return;
+        }
+      }
+
+      // User management — invite / edit / delete confirm nest
+      if (path.indexOf("user-management") >= 0) {
+        if (
+          (/invite|add user|new user/.test(label) || /showInviteModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showInviteModal", "InviteUserModal") || openKey("showInviteModal"))
+        ) {
+          ev.preventDefault();
+          return;
+        }
+        if (
+          (/^edit$|edit user|✏️/.test(label) || /showEditModal/i.test(btn.getAttribute("data-cwl-toggle") || "")) &&
+          (openKey("showEditModal", "EditUserModal") || openKey("showEditModal"))
+        ) {
+          ev.preventDefault();
+          var editHost =
+            document.querySelector('[data-cwl-lifted-component="EditUserModal"]') ||
+            document.querySelector('[data-cwl-shell-key="showEditModal"]');
+          if (editHost && window.__wispHydrateShellScope) {
+            var row = btn.closest("[data-id], tr, .user-card, li");
+            var uid =
+              (row && row.getAttribute("data-id")) ||
+              (row && row.querySelector("[data-id]") && row.querySelector("[data-id]").getAttribute("data-id")) ||
+              "";
+            hydrate(editHost, { show: true, userId: uid, user: { id: uid } });
+          }
+          return;
+        }
+      }
+    },
+    true,
+  );
+
+  // EditUserModal → Delete confirm nest
+  document
+    .querySelectorAll('[data-cwl-lifted-component="EditUserModal"], [data-cwl-shell-key="showEditModal"]')
+    .forEach(function (host) {
+      if (host.getAttribute("data-cwl-p3-del-wired") === "1") return;
+      if ((location.pathname || "").toLowerCase().indexOf("user-management") < 0) return;
+      host.setAttribute("data-cwl-p3-del-wired", "1");
+      host.addEventListener("click", function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest("button") : null;
+        if (!btn || !host.contains(btn)) return;
+        var t = (btn.textContent || "").toLowerCase();
+        if (t.indexOf("delete") < 0 && t.indexOf("remove") < 0) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        openNested(host, "showDeleteConfirm", ".delete-confirm, .confirm-overlay") ||
+          openKey("showDeleteConfirm");
+      });
+    });
 }
 
 /**

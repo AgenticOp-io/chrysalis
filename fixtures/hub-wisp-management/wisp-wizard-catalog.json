@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp-wizard-catalog",
   "schemaVersion": 1,
   "source": "Module_Manager/src/lib/config/wizardCatalog.ts",
-  "generatedAt": "2026-07-19T05:32:56.295Z",
+  "generatedAt": "2026-07-21T00:37:54.215Z",
   "entryCount": 29,
   "wizardsByPath": {
     "/onboarding": [

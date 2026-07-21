@@ -25,7 +25,9 @@ export function buildNoSourceMarkupHoleHtml(httpPath: string, detail?: string): 
  */
 export function buildNoSourceFormShellHtml(httpPath: string): string {
   const safePath = httpPath.replace(/"/g, "'");
-  const parent = httpPath.replace(/\/add\/?$/, "") || "/";
+  const parent = (httpPath.replace(/\/add\/?$/, "") || "/")
+    .replace(/:tenantId/g, "preview-tenant")
+    .replace(/:([A-Za-z0-9_]+)/g, "preview");
   const safeParent = parent.replace(/"/g, "'");
   const leaf = httpPath
     .replace(/\/add\/?$/, "")
@@ -33,16 +35,17 @@ export function buildNoSourceFormShellHtml(httpPath: string): string {
     .filter(Boolean)
     .pop();
   const label = leaf
-    ? `Add ${leaf.replace(/-/g, " ")}`
+    ? `Add ${leaf.replace(/-/g, " ").replace(/^:/, "")}`
     : "Add";
   // Avoid load-field idents in free text (G1189): no bare "source" / "path".
+  // Converted empty add pages get a live POST form host; client fills fields from route.
   return (
-    `<section class="cwl-form-shell" data-cwl-form-shell="no-source-add" data-cwl-route="${safePath}">` +
+    `<section class="cwl-form-shell" data-cwl-form-shell="converted-add" data-cwl-route="${safePath}" data-cwl-island="form">` +
     `<header class="cwl-form-shell-header"><h1>${label}</h1>` +
     `<a class="cwl-form-shell-back" href="${safeParent}">Back</a></header>` +
-    `<form class="cwl-form-shell-form" method="post" action="${safePath}" data-cwl-form-shell-empty="true">` +
-    `<p class="cwl-form-shell-note">Missing +page.svelte — empty shell (no invented fields).</p>` +
-    `<button type="submit" disabled>Save</button></form></section>`
+    `<form class="cwl-converted-shell-form cwl-form-shell-form" method="post" action="${safePath}" data-cwl-form-shell-empty="true">` +
+    `<p class="cwl-form-shell-note">Converted add form — fields hydrate from the page API.</p>` +
+    `<button type="submit" class="btn-primary">Save</button></form></section>`
   );
 }
 

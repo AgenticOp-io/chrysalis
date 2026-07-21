@@ -16,7 +16,7 @@
       <button class="btn-secondary" data-cwl-set="scanMode:check-in">
         📥 Scan Check In
       </button>
-      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="module-wizard-menu">
+      <div data-cwl-component="ModuleWizardMenu" data-cwl-lifted-component="ModuleWizardMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showModuleWizardMenu" hidden aria-hidden="true"><div class="module-wizard-menu">
     <button
       type="button"
       class="wizard-trigger" data-cwl-attr-disabled="disabled" data-cwl-action="toggle" data-cwl-on-blur="action:handleBlur"
@@ -28,7 +28,7 @@
       <span class="wizard-trigger-chevron">▼</span>
     </button>
 
-      <div class="wizard-dropdown" role="menu" data-cwl-shell-key="open" hidden aria-hidden="true">
+      <div class="wizard-dropdown" role="menu">
         <div data-cwl-bind="each" data-cwl-hole-detail="wizards as w" data-cwl-each-item="w" data-cwl-each-tpl="%0A%20%20%20%20%20%20%20%20%20%20%3Cbutton%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3D%22button%22%0A%20%20%20%20%20%20%20%20%20%20%20%20role%3D%22menuitem%22%0A%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22wizard-item%22%20data-cwl-action%3D%22select%22%20data-cwl-action-args%3D%22w.id%22%0A%20%20%20%20%20%20%20%20%20%20%20aria-label%3D%22Select%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%23if%20w.icon%7D%3Cspan%20class%3D%22wizard-item-icon%22%3E%7Bw.icon%7D%3C%2Fspan%3E%7B%2Fif%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22wizard-item-label%22%3E%7Bw.label%7D%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%20%20%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20"><button
             type="button"
             role="menuitem"
@@ -39,7 +39,7 @@
           </button></div>
       </div>
 
-  </div></div>
+  </div></div></div>
       <button class="btn-secondary" data-cwl-set="scanMode:check-out">
         📤 Scan Check Out
       </button>
@@ -667,17 +667,7 @@
           <div class="alert alert-success" hidden aria-hidden="true"></div>
 
         <!-- Slot for step content -->
-        <slot name="content" 0 />
-      </div>
-
-      <!-- Footer -->
-      <div class="wizard-footer">
-        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
-      </div>
-    </div>
-  </div></div></div>
-  <div slot="content">
-    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><!-- Welcome Step -->
       <div class="wizard-panel">
         <h3>Welcome to Inventory Check-in! 📦</h3>
         <p>This wizard will guide you through checking in inventory items.</p>
@@ -1004,10 +994,11 @@
 
         </div>
       </div></div>
-  </div>
+      </div>
 
-  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">
         ← Previous
       </button></div>
       <button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">
@@ -1026,9 +1017,10 @@
           Finish →
         </button>
 
+    </div></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
+      </div>
     </div>
-  </div>
-</div></div></div>
+  </div></div></div></div></div>
   <!-- RMA Tracking Wizard -->
   <div data-cwl-component="RMATrackingWizard" data-cwl-lifted-component="RMATrackingWizard"><div class="cwl-self-gated-shell" data-cwl-shell-key="showRMAWizard" hidden aria-hidden="true"><div data-cwl-component="BaseWizard" data-cwl-lifted-component="BaseWizard"><div class="cwl-self-gated-shell" data-cwl-shell-key="showBaseWizard" hidden aria-hidden="true"><div
     class="wizard-overlay"
@@ -1065,17 +1057,7 @@
           <div class="alert alert-success" hidden aria-hidden="true"></div>
 
         <!-- Slot for step content -->
-        <slot name="content" 0 />
-      </div>
-
-      <!-- Footer -->
-      <div class="wizard-footer">
-        <slot name="footer" 0 <span data-cwl-bind="interp" data-cwl-hole-detail="nextStep"></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
-      </div>
-    </div>
-  </div></div></div>
-  <div slot="content">
-    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><div class="wizard-panel">
         <h3>RMA (Return Merchandise Authorization)</h3>
         <p>Mark an inventory item as sent for RMA and record the RMA number, vendor, and reason.</p>
         <div class="info-box">
@@ -1153,15 +1135,17 @@
           <a href="/modules/inventory" class="next-step-item">View in Inventory →</a>
         </div>
       </div></div>
-  </div>
+      </div>
 
-  <div slot="footer" let:currentStep let:nextStep let:prevStep let:handleClose let:isLoading>
-    <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <div data-cwl-bind="if" data-cwl-hole-detail="currentStep > 0 && currentStep < steps.length - 1"><button class="wizard-btn-secondary" data-cwl-action="prevStep" data-cwl-attr-disabled="isLoading" aria-label="Prev Step">← Previous</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 0"><button class="wizard-btn-secondary" data-cwl-action="handleClose" data-cwl-attr-disabled="isLoading" aria-label="Close">Cancel</button></div>
     <div class="footer-actions">
       <div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 2"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep === 3 && success"><button class="wizard-btn-primary" data-cwl-action="handleClose" aria-label="Close">Done</button></div><div data-cwl-bind="if" data-cwl-hole-detail="currentStep < steps.length - 1"><button class="wizard-btn-primary" data-cwl-action="nextStep" data-cwl-attr-disabled="isLoading" aria-label="Next Step">Next →</button></div>
+    </div></span> <span data-cwl-bind="interp" data-cwl-hole-detail="prevStep"></span>    />
+      </div>
     </div>
-  </div>
-</div></div></div>
+  </div></div></div></div></div>
 </div>
 
 <!-- Help Button - Fixed Position -->

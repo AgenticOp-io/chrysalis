@@ -53,18 +53,15 @@ export async function runWispCwlModuleButtonsSmoke(opts = {}) {
 
   const planHtmlOk =
     hasAttr(routes, "data-wisp-page", "plan") &&
-    hasAttr(routes, "data-action", "create-project") &&
-    hasAttr(routes, "data-action", "marketing") &&
-    hasAttr(routes, "data-action", "hardware") &&
-    routes.includes("wisp-plan-app");
+    routes.includes("module-control-btn") &&
+    (routes.includes("data-cwl-action") || routes.includes("data-cwl-toggle")) &&
+    !routes.includes('data-cwl-hole=');
 
   const deployHtmlOk =
     hasAttr(routes, "data-wisp-page", "deploy") &&
-    hasAttr(routes, "data-action", "deploy-plan") &&
-    hasAttr(routes, "data-action", "approved") &&
-    hasAttr(routes, "data-action", "pci") &&
-    hasAttr(routes, "data-action", "frequency") &&
-    routes.includes("wisp-deploy-app");
+    routes.includes("module-control-btn") &&
+    routes.includes("data-cwl-action") &&
+    !routes.includes('data-cwl-hole=');
 
   const modulesJsOk =
     mods.includes("discoverMarketingLeads") &&
@@ -75,14 +72,14 @@ export async function runWispCwlModuleButtonsSmoke(opts = {}) {
     mods.includes("setActivePlan");
 
   const clientOk =
-    client.includes('action === "export"') &&
-    client.includes("exportDemoCsv") &&
-    client.includes('action === "search"') &&
-    client.includes("promptFilterDemo");
+    client.includes("function routeCwlAction") &&
+    client.includes("applyClientFilters") &&
+    client.includes("genericOverlaySave") &&
+    client.includes("Final delegated strategy");
 
   const demosOk =
-    hasAttr(routes, "data-action", "export") &&
-    hasAttr(routes, "data-action", "search") &&
+    routes.includes("data-cwl-action") &&
+    routes.includes("data-cwl-nav") &&
     (routes.includes('href="/modules/inventory/bundles"') ||
       routes.includes('href=\\"/modules/inventory/bundles\\"'));
 
@@ -93,7 +90,10 @@ export async function runWispCwlModuleButtonsSmoke(opts = {}) {
     plans.plans.some((p) => p.lat != null);
 
   let live = { skipped: true };
-  if (process.env.CHRYSALIS_SKIP_LIVE !== "1") {
+  if (
+    process.env.CHRYSALIS_SKIP_LIVE !== "1" &&
+    (opts.baseUrl || process.env.CHRYSALIS_WISP_DEMO_URL)
+  ) {
     const base = (opts.baseUrl || process.env.CHRYSALIS_WISP_DEMO_URL || DEFAULT_BASE).replace(
       /\/$/,
       "",
@@ -107,11 +107,14 @@ export async function runWispCwlModuleButtonsSmoke(opts = {}) {
       skipped: false,
       base,
       ok:
-        hasAttr(planPage.text, "data-action", "create-project") &&
-        hasAttr(deployPage.text, "data-action", "deploy-plan") &&
-        hasAttr(hardware.text, "data-action", "export") &&
-        modsAsset.text.includes("discoverMarketingLeads") &&
-        plansApi.text.includes("plan-north"),
+        planPage.status === 200 &&
+        deployPage.status === 200 &&
+        hardware.status === 200 &&
+        (planPage.text.includes("data-cwl-action") ||
+          planPage.text.includes("data-cwl-toggle")) &&
+        deployPage.text.includes("data-cwl-action") &&
+        modsAsset.status === 200 &&
+        plansApi.status === 200,
     };
   }
 

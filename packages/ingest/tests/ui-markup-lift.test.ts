@@ -1,6 +1,6 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { describe, expect, test } from "vitest";
 import {
@@ -257,7 +257,9 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
     );
     expect(r?.html).toContain("hardware-table");
     expect(r?.html).toContain("all-tab");
-    expect(r?.html).not.toContain("epc-only");
+    // Off-tab panels stay in DOM (hidden bind) so data-cwl-set can reveal them.
+    expect(r?.html).toContain("epc-only");
+    expect(r?.html).toMatch(/epc-only[\s\S]*?hidden|hidden[\s\S]*?epc-only/);
     expect(r?.html).toMatch(/loading-state[^>]*\bhidden\b/);
   });
 
@@ -279,7 +281,9 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
       { applyShowcaseLoadBools: true },
     );
     expect(r?.html).toContain("overview-panel");
-    expect(r?.html).not.toContain("locations-panel");
+    // Sibling tab panels stay stamped closed for client tab toggles.
+    expect(r?.html).toContain("locations-panel");
+    expect(r?.html).toMatch(/locations-panel[\s\S]*?hidden|hidden[\s\S]*?locations-panel/);
     expect(r?.html).not.toContain(">wait<");
   });
 
@@ -539,5 +543,56 @@ describe("liftUiMarkup structural-shell mode", () => {
     const dash = shellResult.bundles.find((b) => b.routeId === "/dashboard");
     expect(dash?.liftMode).toBe("structural-shell");
     expect(dash?.html).toContain("dashboard-shell");
+  });
+});
+
+describe("slot fold + isOpen gate alias (full-lift residuals)", () => {
+  test("BaseWizard folds slot bodies inside self-gated shell", () => {
+    const tmp = join(tmpdir(), `cwl-slot-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    writeFileSync(
+      join(tmp, "BaseWizard.svelte"),
+      `<script>export let show = false;</script>
+{#if show}
+  <div class="wizard-overlay"><div class="wizard-content"><slot name="content" /></div><div class="wizard-footer"><slot name="footer" /></div></div>
+{/if}`,
+    );
+    const sources = new Map([["BaseWizard", join(tmp, "BaseWizard.svelte")]]);
+    const r = liftStructuralSveltePageHtml(
+      `<BaseWizard show={showDeploymentWizard}>
+  <div slot="content"><p class="step-body">Welcome</p></div>
+  <div slot="footer"><button type="button">Next</button></div>
+</BaseWizard>`,
+      {
+        componentSources: sources,
+        structuralInlineComponents: new Set(["BaseWizard"]),
+        loadBools: { showDeploymentWizard: false },
+      },
+    );
+    expect(r?.html).toContain('data-cwl-shell-key="showDeploymentWizard"');
+    expect(r?.html).toContain("Welcome");
+    expect(r?.html).toContain(">Next<");
+    expect(r?.html).not.toMatch(/\sslot="content"/);
+  });
+
+  test("SiteEditor isOpen aliases parent showSiteEditor shell key", () => {
+    const tmp = join(tmpdir(), `cwl-isopen-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    writeFileSync(
+      join(tmp, "SiteEditor.svelte"),
+      `<script>export let isOpen = false;</script>
+{#if isOpen}
+  <div class="modal-overlay"><div class="modal-content">Site editor</div></div>
+{/if}`,
+    );
+    const sources = new Map([["SiteEditor", join(tmp, "SiteEditor.svelte")]]);
+    const r = liftStructuralSveltePageHtml(`<SiteEditor isOpen={showSiteEditor} />`, {
+      componentSources: sources,
+      structuralInlineComponents: new Set(["SiteEditor"]),
+      loadBools: { showSiteEditor: false },
+    });
+    expect(r?.html).toContain('data-cwl-shell-key="showSiteEditor"');
+    expect(r?.html).not.toContain('data-cwl-shell-key="isOpen"');
+    expect(r?.html).toContain("Site editor");
   });
 });

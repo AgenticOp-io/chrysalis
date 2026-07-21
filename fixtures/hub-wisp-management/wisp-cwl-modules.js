@@ -1700,9 +1700,38 @@
       showAssetDetail(data.detail || data.payload);
       return;
     }
+    if (data.type === "plan-features-changed") {
+      var plan = mapState.activePlan;
+      var pid = (data.planId || data.detail && data.detail.planId) || planIdOf(plan);
+      if (pid) {
+        loadPlanMapLayers(plan || { id: pid });
+      }
+      return;
+    }
     if (data.type === "object-action") {
+      var action = String(data.action || "").toLowerCase();
+      var payload = data.data || data.payload || {};
+      var tower = payload.tower || payload;
+      if (action === "view-inventory" || action === "open-hardware") {
+        // Origin deploy: view-inventory → SiteEquipmentModal (not DeployedHardware).
+        if (openSiteEquipmentLifted(tower)) return;
+        if (window.wispSharedMap && window.wispSharedMap.openHardware) {
+          window.wispSharedMap.openHardware();
+        }
+        showAssetDetail(tower);
+        return;
+      }
+      if (action === "view-details" || action === "view-site" || action === "site-details") {
+        if (openSiteDetailsLifted(tower)) return;
+        showAssetDetail(tower);
+        return;
+      }
+      if (action === "edit-site" || action === "edit-sector" || action === "select") {
+        showAssetDetail(tower && (tower.id || tower.name) ? tower : { id: data.objectId, name: data.action });
+        return;
+      }
       showAssetDetail(
-        (data.data && (data.data.tower || data.data)) || {
+        (payload && (payload.tower || payload)) || {
           id: data.objectId,
           name: data.action,
         },
@@ -1905,11 +1934,7 @@
     // True rendering: the lifted FrequencyPlannerModal from the origin page.
     var lifted = openLiftedShell("FrequencyPlannerModal", null);
     if (lifted) {
-      loadSitesAndSectors().then(function (data) {
-        var sectors = (data.sectors || []).filter(function (s) {
-          var st = String(s.status || "").toLowerCase();
-          return st === "active" || st === "deployed" || st === "online" || !st;
-        });
+      function hydrateFreq(sectors) {
         var conflicts = pciConflictGroups(sectors);
         if (window.__wispHydrateShellScope) {
           window.__wispHydrateShellScope(
@@ -1918,15 +1943,41 @@
               sectors: sectors,
               cells: sectors,
               conflicts: conflicts,
-              plan: null,
+              conflictCount: conflicts.length,
+              plan: mapState.activePlan || null,
               isAnalyzing: false,
               isOptimizing: false,
               loading: false,
               isLoading: false,
               activeTab: "analysis",
+              analysisComplete: true,
             },
             sectors,
           );
+        }
+      }
+      loadSitesAndSectors().then(function (data) {
+        var sectors = (data.sectors || []).filter(function (s) {
+          var st = String(s.status || "").toLowerCase();
+          return st === "active" || st === "deployed" || st === "online" || !st;
+        });
+        hydrateFreq(sectors);
+        if (lifted.getAttribute("data-cwl-freq-analyze-wired") !== "1") {
+          lifted.setAttribute("data-cwl-freq-analyze-wired", "1");
+          lifted.addEventListener("click", function (ev) {
+            var btn = ev.target && ev.target.closest ? ev.target.closest("button") : null;
+            if (!btn || !lifted.contains(btn)) return;
+            var t = (btn.textContent || "").toLowerCase();
+            if (t.indexOf("analy") < 0 && t.indexOf("optim") < 0 && t.indexOf("refresh") < 0) return;
+            ev.preventDefault();
+            loadSitesAndSectors().then(function (d2) {
+              var secs = (d2.sectors || []).filter(function (s) {
+                var st = String(s.status || "").toLowerCase();
+                return st === "active" || st === "deployed" || st === "online" || !st;
+              });
+              hydrateFreq(secs);
+            });
+          });
         }
       });
       return;
@@ -2088,11 +2139,7 @@
     // True rendering: the lifted PCIPlannerModal from the origin Svelte page.
     var lifted = openLiftedShell("PCIPlannerModal", null);
     if (lifted) {
-      loadSitesAndSectors().then(function (data) {
-        var sectors = (data.sectors || []).filter(function (s) {
-          var st = String(s.status || "").toLowerCase();
-          return st === "active" || st === "deployed" || st === "online" || !st;
-        });
+      function hydratePci(sectors) {
         var conflicts = pciConflictGroups(sectors);
         if (window.__wispHydrateShellScope) {
           window.__wispHydrateShellScope(
@@ -2101,13 +2148,39 @@
               cells: sectors,
               sectors: sectors,
               conflicts: conflicts,
+              conflictCount: conflicts.length,
               isAnalyzing: false,
               loading: false,
               isLoading: false,
               activeTab: "analysis",
+              analysisComplete: true,
             },
             sectors,
           );
+        }
+      }
+      loadSitesAndSectors().then(function (data) {
+        var sectors = (data.sectors || []).filter(function (s) {
+          var st = String(s.status || "").toLowerCase();
+          return st === "active" || st === "deployed" || st === "online" || !st;
+        });
+        hydratePci(sectors);
+        if (lifted.getAttribute("data-cwl-pci-analyze-wired") !== "1") {
+          lifted.setAttribute("data-cwl-pci-analyze-wired", "1");
+          lifted.addEventListener("click", function (ev) {
+            var btn = ev.target && ev.target.closest ? ev.target.closest("button") : null;
+            if (!btn || !lifted.contains(btn)) return;
+            var t = (btn.textContent || "").toLowerCase();
+            if (t.indexOf("analy") < 0 && t.indexOf("optim") < 0 && t.indexOf("refresh") < 0) return;
+            ev.preventDefault();
+            loadSitesAndSectors().then(function (d2) {
+              var secs = (d2.sectors || []).filter(function (s) {
+                var st = String(s.status || "").toLowerCase();
+                return st === "active" || st === "deployed" || st === "online" || !st;
+              });
+              hydratePci(secs);
+            });
+          });
         }
       });
       return;
@@ -2490,7 +2563,75 @@
         return String(x || "");
       },
     });
+    if (lifted) wirePlanApprovalActions(lifted, normalized);
     return !!lifted;
+  }
+
+  function wirePlanApprovalActions(host, plan) {
+    if (!host || host.getAttribute("data-cwl-approval-wired") === "1") return;
+    host.setAttribute("data-cwl-approval-wired", "1");
+    host.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("button") : null;
+      if (!btn || !host.contains(btn)) return;
+      var t = (btn.textContent || "").toLowerCase();
+      var id = planIdOf(plan);
+      if (!id) return;
+      if (t.indexOf("approve") >= 0 && t.indexOf("reject") < 0) {
+        ev.preventDefault();
+        toastSummary("<h3>Approving…</h3><p>POST /api/plans/" + escapeHtml(id) + "/approve</p>");
+        apiFetch("/api/plans/" + encodeURIComponent(id) + "/approve", {
+          method: "POST",
+          body: JSON.stringify({ notes: "chrysalis-plan-approve" }),
+        })
+          .then(function (r) {
+            if (r && r.ok) {
+              toastSummary("<h3>Approved</h3><p>Plan " + escapeHtml(id) + " approved.</p>");
+              if (window.WispCwlShell) window.WispCwlShell.close(host);
+              return;
+            }
+            return patchPlanStatus(id, "approved").then(function () {
+              toastSummary("<h3>Approved</h3><p>Plan status set to approved.</p>");
+              if (window.WispCwlShell) window.WispCwlShell.close(host);
+            });
+          })
+          .catch(function (e) {
+            toastSummary(
+              "<h3>Approve failed</h3><p class=\"cwl-empty-honest\">" +
+                escapeHtml((e && e.message) || "error") +
+                "</p>",
+            );
+          });
+        return;
+      }
+      if (t.indexOf("reject") >= 0) {
+        ev.preventDefault();
+        var reason = "chrysalis-reject";
+        var reasonIn = host.querySelector("textarea, select, input[name*='reason' i]");
+        if (reasonIn && reasonIn.value) reason = String(reasonIn.value);
+        apiFetch("/api/plans/" + encodeURIComponent(id) + "/reject", {
+          method: "POST",
+          body: JSON.stringify({ reason: reason, notes: "chrysalis-plan-reject" }),
+        })
+          .then(function (r) {
+            if (r && r.ok) {
+              toastSummary("<h3>Rejected</h3><p>Plan " + escapeHtml(id) + " rejected.</p>");
+              if (window.WispCwlShell) window.WispCwlShell.close(host);
+              return;
+            }
+            return patchPlanStatus(id, "rejected").then(function () {
+              toastSummary("<h3>Rejected</h3><p>Plan status set to rejected.</p>");
+              if (window.WispCwlShell) window.WispCwlShell.close(host);
+            });
+          })
+          .catch(function (e) {
+            toastSummary(
+              "<h3>Reject failed</h3><p class=\"cwl-empty-honest\">" +
+                escapeHtml((e && e.message) || "error") +
+                "</p>",
+            );
+          });
+      }
+    });
   }
 
   /** Open the lifted DeployedHardwareModal with live deployment data. */
@@ -2527,6 +2668,7 @@
           : null) || rowsOf(pair[0], ["deployments", "items", "hardware"]);
       var epcDevices = rowsOf(pair[1], ["devices", "items", "epcs"]);
       mapState.hardwareDeployments = deployments;
+      mapState.epcDevices = epcDevices;
       if (window.__wispHydrateShellScope) {
         window.__wispHydrateShellScope(
           lifted,
@@ -2543,7 +2685,266 @@
           deployments,
         );
       }
+      wireDeployedHardwareNestedEdits(lifted, deployments, epcDevices);
     });
+    return true;
+  }
+
+  /**
+   * Origin DeployedHardwareModal openEdit / openEPCEdit — nested showEditModal /
+   * showEPCEditModal shells need row hydrate (orphan keys on live GCE).
+   */
+  function wireDeployedHardwareNestedEdits(host, deployments, epcDevices) {
+    if (!host || host.getAttribute("data-cwl-hw-edit-wired") === "1") return;
+    host.setAttribute("data-cwl-hw-edit-wired", "1");
+    host.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("button, .btn-edit, .menu-item") : null;
+      if (!btn || !host.contains(btn)) return;
+      var label = (btn.textContent || "").toLowerCase();
+      var row =
+        btn.closest("[data-id], tr, .hardware-card, .deployment-card, .device-card, .epc-card, li") ||
+        null;
+      var rowId = "";
+      if (row) {
+        rowId =
+          row.getAttribute("data-id") ||
+          (row.querySelector && row.querySelector("[data-id]") &&
+            row.querySelector("[data-id]").getAttribute("data-id")) ||
+          "";
+      }
+      var isEpc =
+        label.indexOf("epc") >= 0 ||
+        (row && /epc/i.test(row.className || "")) ||
+        (btn.closest && btn.closest('[data-cwl-shell-key="showEPCEditModal"]'));
+      if (label.indexOf("edit") < 0 && label.indexOf("configure") < 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (isEpc || (label.indexOf("epc") >= 0 && label.indexOf("edit") >= 0)) {
+        var device =
+          (epcDevices || []).find(function (d) {
+            return (
+              String(d.id || d._id || d.epc_id || "") === String(rowId) ||
+              (row &&
+                String(d.device_code || "") &&
+                (row.textContent || "").indexOf(String(d.device_code || "")) >= 0)
+            );
+          }) || null;
+        if (!device) {
+          toastSummary(
+            '<h3>Edit EPC</h3><p class="cwl-empty-honest" data-cwl-empty-honest="1">Select an EPC row first — no invent edit.</p>',
+          );
+          return;
+        }
+        openNestedShellUnder(host, "showEPCEditModal", {
+          show: true,
+          selectedEPCDevice: device,
+          epcEditForm: {
+            deployment_type: device.deployment_type || "both",
+            device_code: device.device_code || "",
+            hss_config: device.hss_config || device.network_config || {},
+            snmp_config: device.snmp_config || {},
+          },
+          isSaving: false,
+        });
+        return;
+      }
+      var deployment =
+        (deployments || []).find(function (d) {
+          return String(d.id || d._id || "") === String(rowId);
+        }) ||
+        (rowId
+          ? null
+          : null) ||
+        (deployments || []).find(function (d) {
+          return row && (row.textContent || "").indexOf(String(d.name || "")) >= 0;
+        }) ||
+        null;
+      if (!deployment) {
+        toastSummary(
+          '<h3>Edit deployment</h3><p class="cwl-empty-honest" data-cwl-empty-honest="1">Select a hardware row first — no invent edit.</p>',
+        );
+        return;
+      }
+      openNestedShellUnder(host, "showEditModal", {
+        show: true,
+        selectedDeployment: deployment,
+        editForm: {
+          name: deployment.name || "",
+          hardware_type: deployment.hardware_type || "",
+          status: deployment.status || "deployed",
+          config: deployment.config || {},
+          planId: deployment.planId || "",
+        },
+        isSaving: false,
+      });
+    });
+  }
+
+  function openNestedShellUnder(host, shellKey, data) {
+    var S = window.WispCwlShell;
+    var el =
+      (host && host.querySelector('[data-cwl-shell-key="' + shellKey + '"]')) ||
+      document.querySelector('[data-cwl-shell-key="' + shellKey + '"]');
+    if (!el) return false;
+    if (S && typeof S.open === "function") S.open(el);
+    else {
+      el.hidden = false;
+      el.removeAttribute("hidden");
+      el.setAttribute("aria-hidden", "false");
+      el.classList.add("cwl-shell-open");
+    }
+    if (data && window.__wispHydrateShellScope) {
+      try {
+        window.__wispHydrateShellScope(el, data, []);
+      } catch (e) {
+        /* honest holes */
+      }
+    }
+    return true;
+  }
+
+  /** Origin view-inventory → SiteEquipmentModal (+ AddInventory nest). */
+  function openSiteEquipmentLifted(site) {
+    if (!site) return false;
+    var normalized = Object.assign({}, site);
+    if (normalized.id == null && normalized._id != null) normalized.id = normalized._id;
+    var siteId = String(normalized.id || normalized._id || "");
+    var lifted = openLiftedShell("SiteEquipmentModal", {
+      show: true,
+      site: normalized,
+      tenantId: (window.__WISP_TENANT_ID__ || ""),
+      isLoading: true,
+      hardwareDeployments: [],
+      equipment: [],
+      sectors: [],
+      error: "",
+    });
+    if (!lifted) return false;
+    lifted.setAttribute("data-cwl-selected-site-id", siteId);
+    wireSiteEquipmentAddInventory(lifted, normalized);
+    Promise.all([
+      apiFetch("/api/network/sectors").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }).catch(function () { return null; }),
+      apiFetch("/api/network/equipment").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }).catch(function () { return null; }),
+      apiFetch("/api/network/hardware-deployments").then(function (r) {
+        return r && r.ok ? r.json() : null;
+      }).catch(function () { return null; }),
+    ]).then(function (parts) {
+      function rows(body, keys) {
+        if (!body) return [];
+        if (Array.isArray(body)) return body;
+        for (var i = 0; i < keys.length; i++) {
+          if (Array.isArray(body[keys[i]])) return body[keys[i]];
+        }
+        return [];
+      }
+      function sameSite(row) {
+        var sid = String(
+          row.siteId ||
+            row.site_id ||
+            row.towerId ||
+            (row.site && (row.site.id || row.site._id)) ||
+            "",
+        );
+        return sid && sid === siteId;
+      }
+      var sectors = rows(parts[0], ["sectors", "items"]).filter(sameSite);
+      var equipment = rows(parts[1], ["equipment", "items"]).filter(sameSite);
+      var deployments = rows(parts[2], ["deployments", "items", "hardware"]).filter(sameSite);
+      if (window.__wispHydrateShellScope) {
+        window.__wispHydrateShellScope(
+          lifted,
+          {
+            show: true,
+            site: normalized,
+            tenantId: window.__WISP_TENANT_ID__ || "",
+            isLoading: false,
+            hardwareDeployments: deployments,
+            equipment: equipment,
+            sectors: sectors,
+            error: "",
+          },
+          deployments.concat(equipment, sectors),
+        );
+      }
+    });
+    return true;
+  }
+
+  function wireSiteEquipmentAddInventory(host, site) {
+    if (!host || host.getAttribute("data-cwl-add-inv-wired") === "1") return;
+    host.setAttribute("data-cwl-add-inv-wired", "1");
+    host.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("button, .btn, a") : null;
+      if (!btn || !host.contains(btn)) return;
+      var t = (btn.textContent || "").toLowerCase();
+      if (
+        t.indexOf("add equipment") < 0 &&
+        t.indexOf("add inventory") < 0 &&
+        t.indexOf("add hardware") < 0 &&
+        !(btn.getAttribute("data-cwl-action") || "").toLowerCase().match(/add.?equip|add.?inventory/)
+      ) {
+        return;
+      }
+      ev.preventDefault();
+      ev.stopPropagation();
+      openAddInventoryLifted(site);
+    });
+  }
+
+  function openAddInventoryLifted(site) {
+    var lifted = openLiftedShell("AddInventoryModal", {
+      show: true,
+      site: site || null,
+      tenantId: window.__WISP_TENANT_ID__ || "",
+    });
+    return !!lifted;
+  }
+
+  function openSiteDetailsLifted(site) {
+    if (!site) return false;
+    var normalized = Object.assign({}, site);
+    var lifted = openLiftedShell("SiteDetailsModal", {
+      show: true,
+      site: normalized,
+      tenantId: window.__WISP_TENANT_ID__ || "",
+      isLoading: false,
+    });
+    return !!lifted;
+  }
+
+  /** Prefer origin PlanLayerFilterPanel over synthetic #plan-layers-panel. */
+  function openPlanFilterPanelLifted(page) {
+    var shell =
+      (page && page.querySelector('[data-cwl-shell-key="showFilterPanel"]')) ||
+      document.querySelector('[data-cwl-shell-key="showFilterPanel"]') ||
+      document.querySelector('[data-cwl-lifted-component="PlanLayerFilterPanel"]');
+    if (!shell) return false;
+    var S = window.WispCwlShell;
+    if (S && typeof S.open === "function") S.open(shell);
+    else {
+      shell.hidden = false;
+      shell.removeAttribute("hidden");
+      shell.classList.add("cwl-shell-open");
+    }
+    if (window.__wispHydrateShellScope) {
+      try {
+        window.__wispHydrateShellScope(
+          shell,
+          {
+            show: true,
+            layerFilters: mapState.layerFilters || {},
+            filters: mapState.layerFilters || {},
+          },
+          [],
+        );
+      } catch (e) {
+        /* leave holes */
+      }
+    }
     return true;
   }
 
@@ -2718,6 +3119,14 @@
         return;
       }
       if (action === "layers") {
+        ev.preventDefault();
+        // Prefer origin PlanLayerFilterPanel when present (plan page).
+        if (openPlanFilterPanelLifted(page)) {
+          if (projectsPanel) projectsPanel.hidden = true;
+          if (hardwarePanel) hardwarePanel.hidden = true;
+          postToMapBoth("layer-filters-changed", mapState.layerFilters);
+          return;
+        }
         if (layersPanel) {
           layersPanel.hidden = !layersPanel.hidden;
           if (projectsPanel) projectsPanel.hidden = true;
@@ -2812,6 +3221,12 @@
       openDeployedHardware: function () {
         if (openDeployedHardwareLifted()) return;
         openHardwarePanel(page, layersPanel, projectsPanel);
+      },
+      openSiteEquipment: openSiteEquipmentLifted,
+      openSiteDetails: openSiteDetailsLifted,
+      openAddInventory: openAddInventoryLifted,
+      openPlanFilters: function () {
+        openPlanFilterPanelLifted(page);
       },
       openPlanApproval: function (plan) {
         if (openPlanApprovalLifted(plan || mapState.activePlan || mapState.projects[0]))

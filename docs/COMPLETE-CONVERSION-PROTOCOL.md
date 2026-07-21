@@ -25,15 +25,18 @@ A conversion is **complete** only when:
 
 | Phase | Name | Action | Forbidden |
 | --- | --- | --- | --- |
-| **0** | Corpus | Index all origin files → queue (**D6444**) | Stub page convert |
+| **0** | **Complete site inventory** | Origin + live inventory via **language adapter** (**first** — [`UNIVERSAL-CONVERSION-METHOD.md`](./UNIVERSAL-CONVERSION-METHOD.md) §2; `scripts/lib/site-inventory/`); then corpus queue (**D6444**) | Starting lift from vibes; stub page convert; Svelte detectors on non-Svelte trees |
 | **1** | Structural lift | Convert every queue piece from origin | Invented parity HTML |
 | **2** | Honest hole-close loop | Repeat until complete or plateau (see §2) | `forceSettle: true`, deep-lift-all-holes as done |
 | **3** | Census | Honest hole report + residual ledger | Claiming zero without evidence |
 | **4** | Export / CSS / islands | Original CSS + vendor islands (**D6443**/**D6441**) | Overlay redesign |
-| **5** | API deepen | External-deps + deepen-until-exhausted (**D6445**) | Inventing vendors/keys |
-| **6** | Prove | Sign in and test against **origin** site | Deploy OK as fidelity |
+| **5** | API deepen + shell/nest fidelity | External-deps + selected-entity nests (**D6445** + universal method §3) | Inventing vendors/keys; `*[0]` entity fallbacks |
+| **6** | Prove + dual deploy | Sign in vs **origin**; chimera + production host | Deploy OK as fidelity |
 
-CLI (POC): `pnpm run hub:wisp-convert-restart` runs 0–6 with Phase 2 wired.  
+**Default agent entry:** [`docs/UNIVERSAL-CONVERSION-METHOD.md`](./UNIVERSAL-CONVERSION-METHOD.md) (inventory first).  
+CLI inventory: `node scripts/chrysalis-site-inventory.mjs --origin <path> [--live <url>] [--framework <adapter>]` · `pnpm run chrysalis:site-inventory-adapters-smoke`.  
+Gap catalog: `pnpm run chrysalis:gap-catalog -- --inventory reports/chrysalis/site-inventory.json [--policy …]`.  
+POC convert (WISP): `pnpm run hub:wisp-convert-restart` runs 0–6 with Phase 2 wired.  
 Standalone Phase 2: `pnpm run hub:complete-conversion` (`scripts/lib/wisp-complete-conversion-protocol.mjs`).
 
 ---

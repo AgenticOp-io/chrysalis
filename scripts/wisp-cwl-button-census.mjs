@@ -121,6 +121,17 @@ function censusRuntimeButtons(source, file) {
     const attrs = attrsFromTag(tag);
     const tail = source.slice(match.index, Math.min(source.length, match.index + 500));
     const label = cleanText((/^([\s\S]*?)<\/button>/.exec(tail.slice(tag.length)) || [])[1] || "");
+    // JS template fragments (`' + String(x) + '`) are not literal DOM buttons —
+    // do not treat them as unwired runtime definitions.
+    if (/['"`]\s*\+|String\s*\(|\$\{/.test(`${tag}${label}`)) {
+      definitions.push({
+        file,
+        kind: "html-template",
+        label: label.slice(0, 80) || "(runtime expression)",
+        classification: "runtime-expression",
+      });
+      continue;
+    }
     const explicit = EXPLICIT_WIRING.some((name) => name in attrs);
     const submit = (attrs.type || "").toLowerCase() === "submit";
     const delegated =

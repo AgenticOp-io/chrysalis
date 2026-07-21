@@ -28,7 +28,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [Web-LLM training recipe](./WEB-LLM-TRAINING-RECIPE.md) | Shard export |
 | [Web Verify Benchmark](./WEB-VERIFY-BENCHMARK.md) | WVB manifest |
 
-**Governance:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) (locked build order) · [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**D6438** product canon) · [`ROADMAP.md`](../ROADMAP.md) (status) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) (default queue hangoffs) · [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json) (what we tried)
+**Governance:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) (locked build order) · [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**D6438** product canon) · [**Universal conversion method**](./UNIVERSAL-CONVERSION-METHOD.md) (**inventory first** — default agent method) · [`COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md) (**D6448**) · [`ROADMAP.md`](../ROADMAP.md) (status) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) (default queue hangoffs) · [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json) (what we tried)
 
 ---
 
@@ -85,7 +85,7 @@ Closed strategic-plan phases, CWL language waves, and WISP programs remain in-tr
 | [Strategic plan ship log](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) | G5680–G6257 reinforcement history |
 | [CWL full-stack build log](./archive/CWL-FULLSTACK-BUILD-LOG.md) | Queues 6–437 build log |
 
-**WISP conversion:** [`WISP-CWL-CONSOLIDATED-PIPELINE.md`](./WISP-CWL-CONSOLIDATED-PIPELINE.md) (includes **GCE vs Firebase deploy targets**) · [`WISP-CWL-COMPLETENESS-PLAN.md`](./WISP-CWL-COMPLETENESS-PLAN.md) · [`WISP-CWL-SCRIPT-INVENTORY.md`](./WISP-CWL-SCRIPT-INVENTORY.md). Historical showcase material: [`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md) (**G9992**) · [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) · [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md).
+**WISP conversion:** [`WISP-CWL-CONSOLIDATED-PIPELINE.md`](./WISP-CWL-CONSOLIDATED-PIPELINE.md) (one-pass, **GCE vs Firebase**, empirical fidelity recipe, **map interaction + embed fidelity canon**, **sub-modal gap catalog**) · [`WISP-CWL-COMPLETENESS-PLAN.md`](./WISP-CWL-COMPLETENESS-PLAN.md) · [`WISP-CWL-SCRIPT-INVENTORY.md`](./WISP-CWL-SCRIPT-INVENTORY.md) · regen census: `node scripts/wisp-cwl-sub-modal-census.mjs` → `reports/wisp/sub-modal-gap-catalog.json`. Historical showcase material: [`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md) (**G9992**) · [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) · [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md).
 
 **WPTP umbrella:** [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) and `WPTP-D*.md` exit reports.
 

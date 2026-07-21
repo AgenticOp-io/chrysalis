@@ -18,6 +18,7 @@ import {
   htmlContainsForbiddenStub,
 } from "./wisp-cwl-ui-parity-lib.mjs";
 import { collectMissingModuleAddPaths } from "./wisp-cwl-module-demo-lib.mjs";
+import { unescapeCwlHtmlLiteral } from "./lib/unescape-cwl-html.mjs";
 
 export const WISP_UI_PARITY_VERIFY_KIND = `${WISP_UI_PARITY_KIND}.verify`;
 
@@ -26,10 +27,8 @@ const defaultManifestPath = join(scriptRoot, "fixtures/hub-wisp-management/chrys
 
 /** @param {string} block */
 function extractRouteResponseSlice(block) {
-  const htmlMatch = /return\s+html\s+"((?:\\.|[^"\\])*)"/s.exec(block);
-  if (htmlMatch) {
-    return htmlMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
-  }
+  const htmlMatch = /return\s+html\s+("(?:\\.|[^"\\])*")/s.exec(block);
+  if (htmlMatch) return unescapeCwlHtmlLiteral(htmlMatch[1]);
   const uiMatch = /return\s+ui\s*\{([\s\S]*)\}\s*;?\s*$/.exec(block);
   if (uiMatch) return uiMatch[1];
   return block;

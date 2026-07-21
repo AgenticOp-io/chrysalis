@@ -16,7 +16,7 @@ describe("applyNoSourceMarkupHolesToCwlSource (G9480 / G9790)", () => {
 
   test("buildNoSourceFormShellHtml is empty chrome without invented fields", () => {
     const html = buildNoSourceFormShellHtml("/modules/hardware/add");
-    expect(html).toContain('data-cwl-form-shell="no-source-add"');
+    expect(html).toContain('data-cwl-form-shell="converted-add"');
     expect(html).toContain('data-cwl-route="/modules/hardware/add"');
     expect(html).toContain("data-cwl-form-shell-empty");
     expect(html).toContain("<form");
@@ -53,7 +53,7 @@ page hardware_add {
     });
     expect(result.routesRewritten).toBe(1);
     expect(result.text).toContain("data-cwl-form-shell");
-    expect(result.text).toContain("no-source-add");
+    expect(result.text).toContain("converted-add");
     expect(result.text).toContain('source: "markup-form-shell"');
     expect(result.text).not.toContain(MARKUP_NO_SOURCE_HOLE_REASON);
   });

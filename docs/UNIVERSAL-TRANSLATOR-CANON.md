@@ -98,7 +98,9 @@ When the operator says **“do not add new code”** / **“no demo code”** / 
 
 **Top rule:** Convert is not complete after one lift pass. The convert process **must** run an honest hole-close loop until **zero** `data-cwl-hole` markers (without force-settle), or **fail incomplete** with a residual ledger.
 
-Normative protocol: [`COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md).
+Normative protocol: [`COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md).  
+**Default agent method (inventory first):** [`UNIVERSAL-CONVERSION-METHOD.md`](./UNIVERSAL-CONVERSION-METHOD.md).  
+WISP Module_Manager remains **POC evidence** of that method — not package/queue identity.
 
 | Requirement | Detail |
 | --- | --- |

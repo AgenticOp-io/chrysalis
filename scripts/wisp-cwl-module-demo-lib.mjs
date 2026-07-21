@@ -484,25 +484,28 @@ export function buildWispModuleAddRouteBlock(httpPath) {
   const pageName = `${httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root"}_page`;
   // D6400 / G9790: empty form chrome — never invent business fields for missing +page.svelte
   const safePath = httpPath.replace(/"/g, "'");
-  const parent = httpPath.replace(/\/add\/?$/, "") || "/";
+  const parent = (httpPath.replace(/\/add\/?$/, "") || "/")
+    .replace(/:tenantId/g, "preview-tenant")
+    .replace(/:([A-Za-z0-9_]+)/g, "preview");
   const safeParent = parent.replace(/"/g, "'");
   const leaf = httpPath
     .replace(/\/add\/?$/, "")
     .split("/")
     .filter(Boolean)
     .pop();
-  const label = leaf ? `Add ${leaf.replace(/-/g, " ")}` : "Add";
+  const label = leaf ? `Add ${leaf.replace(/-/g, " ").replace(/^:/, "")}` : "Add";
+  const apiPath = inferWispModuleApiPath(httpPath);
   const html =
-    `<section class="cwl-form-shell" data-cwl-form-shell="no-source-add" data-cwl-route="${safePath}">` +
+    `<section class="cwl-form-shell" data-cwl-form-shell="converted-add" data-cwl-route="${safePath}" data-cwl-island="form">` +
     `<header class="cwl-form-shell-header"><h1>${label}</h1>` +
     `<a class="cwl-form-shell-back" href="${safeParent}">Back</a></header>` +
-    `<form class="cwl-form-shell-form" method="post" action="${safePath}" data-cwl-form-shell-empty="true">` +
-    `<p class="cwl-form-shell-note">Missing +page.svelte — empty shell (no invented fields).</p>` +
-    `<button type="submit" disabled>Save</button></form></section>`;
-  const apiPath = inferWispModuleApiPath(httpPath);
+    `<form class="cwl-converted-shell-form cwl-form-shell-form" method="post" action="${safePath}" data-cwl-shell-endpoint="${apiPath || ""}" data-cwl-shell-method="POST" data-cwl-form-shell-empty="true">` +
+    `<p class="cwl-form-shell-note">Converted add form — fields hydrate from the page API.</p>` +
+    `<div class="wisp-wizard-status" hidden aria-live="polite"></div>` +
+    `<button type="submit" class="btn-primary">Save</button></form></section>`;
   const loadMeta = apiPath
-    ? `{ source: "markup-form-shell", path: "${httpPath}", apiPath: "${apiPath}" }`
-    : `{ source: "markup-form-shell", path: "${httpPath}" }`;
+    ? `{ source: "markup-form-shell", httpPath: "${httpPath}", apiPath: "${apiPath}" }`
+    : `{ source: "markup-form-shell", httpPath: "${httpPath}" }`;
   return buildWispModuleHtmlPageBlock(httpPath, pageName, html, loadMeta);
 }
 

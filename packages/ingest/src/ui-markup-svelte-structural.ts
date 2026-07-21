@@ -2069,6 +2069,102 @@ function tryInlineStaticComponent(
 }
 
 /**
+ * Find matching `</Name>` for a non-self-closing PascalCase open tag (nest-aware).
+ */
+export function findMatchingPascalClose(
+  source: string,
+  afterOpenEnd: number,
+  name: string,
+): { start: number; end: number } | null {
+  const openRe = new RegExp(`<${name}\\b`);
+  const closeRe = new RegExp(`</${name}\\s*>`);
+  let depth = 1;
+  let i = afterOpenEnd;
+  while (i < source.length && depth > 0) {
+    const rest = source.slice(i);
+    const openM = openRe.exec(rest);
+    const closeM = closeRe.exec(rest);
+    if (closeM === null) return null;
+    const openIdx = openM ? openM.index : Number.POSITIVE_INFINITY;
+    const closeIdx = closeM.index;
+    if (openIdx < closeIdx) {
+      depth += 1;
+      i += openIdx + (openM?.[0].length ?? 0);
+    } else {
+      depth -= 1;
+      if (depth === 0) {
+        return { start: i + closeIdx, end: i + closeIdx + closeM[0].length };
+      }
+      i += closeIdx + closeM[0].length;
+    }
+  }
+  return null;
+}
+
+/**
+ * Pull named Svelte slot bodies (`slot="content|footer|default"`) from caller markup.
+ * Uses a shallow tag-balanced scan so nested divs inside the slot are kept.
+ */
+export function extractNamedSlotBodies(innerHtml: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  const re =
+    /<(div|span|section|footer|header|aside|main|fragment)\b([^>]*\bslot\s*=\s*["'](content|footer|default)["'][^>]*)>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(innerHtml)) !== null) {
+    const tag = m[1]!;
+    const slotName = m[3]!.toLowerCase();
+    const openEnd = m.index + m[0].length;
+    let depth = 1;
+    let j = openEnd;
+    const openTagRe = new RegExp(`<${tag}\\b`, "i");
+    const closeTagRe = new RegExp(`</${tag}\\s*>`, "i");
+    while (j < innerHtml.length && depth > 0) {
+      const rest = innerHtml.slice(j);
+      const om = openTagRe.exec(rest);
+      const cm = closeTagRe.exec(rest);
+      if (cm === null) break;
+      const oi = om ? om.index : Number.POSITIVE_INFINITY;
+      const ci = cm.index;
+      if (oi < ci) {
+        depth += 1;
+        j += oi + (om?.[0].length ?? 0);
+      } else {
+        depth -= 1;
+        if (depth === 0) {
+          out[slotName] = innerHtml.slice(openEnd, j + ci).trim();
+          j += ci + cm[0].length;
+          break;
+        }
+        j += ci + cm[0].length;
+      }
+    }
+  }
+  return out;
+}
+
+/** Substitute `<slot name="…">` sites in lifted component HTML with caller bodies. */
+export function foldNamedSlotsIntoHtml(
+  liftedHtml: string,
+  slotBodies: Readonly<Record<string, string>>,
+): string {
+  let html = liftedHtml;
+  for (const [name, body] of Object.entries(slotBodies)) {
+    if (!body) continue;
+    const voidRe = new RegExp(
+      `<slot\\b[^>]*\\bname=["']${name}["'][^>]*\\/?>`,
+      "gi",
+    );
+    const pairRe = new RegExp(
+      `<slot\\b[^>]*\\bname=["']${name}["'][^>]*>[\\s\\S]*?<\\/slot>`,
+      "gi",
+    );
+    if (pairRe.test(html)) html = html.replace(pairRe, () => body);
+    else html = html.replace(voidRe, () => body);
+  }
+  return html;
+}
+
+/**
  * Inline panel markup allowing holes; wrap closed with hidden (D6442 / coverage-map).
  */
 function tryInlineStructuralComponent(
@@ -2082,6 +2178,7 @@ function tryInlineStructuralComponent(
   propScalars: Readonly<Record<string, string | number | boolean>> = {},
   propBools: Readonly<Record<string, boolean>> = {},
   gateKey?: string,
+  slotBodies: Readonly<Record<string, string>> = {},
 ): string | null {
   if (depth > 6) return null;
   if (!structuralInline.has(name) || !componentSources?.has(name)) return null;
@@ -2089,8 +2186,15 @@ function tryInlineStructuralComponent(
   try {
     if (!existsSync(path) || !statSync(path).isFile()) return null;
     const raw = readFileSync(path, "utf8");
-    // Open `{#if show}` chrome so closed-source panels still lift into the DOM.
-    const inlineBools = { ...loadBools, ...propBools, show: true };
+    // Open `{#if show|isOpen}` chrome so closed-source panels still lift into the DOM.
+    const inlineBools = {
+      ...loadBools,
+      ...propBools,
+      show: true,
+      isOpen: true,
+      open: true,
+      visible: true,
+    };
     // The component's own `.svelte` imports are source truth for its children
     // (HSSManagementModal → SubscriberList). Charts/maps stay runtime islands.
     const nestedInline = new Set(structuralInline);
@@ -2116,23 +2220,30 @@ function tryInlineStructuralComponent(
       return null;
     }
     const safe = name.replace(/"/g, "'");
-    // Only stamp closed when the component itself gates chrome with `show`
-    // (AddSiteModal, HelpModal, …). Nested panels like FilterPanel sit under a
-    // page-level `{#if showFilters}` that already stamps the overlay — double
-    // `hidden` would leave an empty open modal (D6443).
+    // Self-gated: export let show|isOpen|open|visible or {#if show|isOpen…}.
+    // Nested panels like FilterPanel sit under a page-level `{#if showFilters}`
+    // that already stamps the overlay — only wrap when the component itself gates.
     const selfGated =
-      /\bexport\s+let\s+show\b/.test(raw) || /\{#if\s+show(?:\s|&&|\})/.test(raw);
+      /\bexport\s+let\s+(?:show|isOpen|open|visible)\b/.test(raw) ||
+      /\{#if\s+(?:show|isOpen|open|visible)(?:\s|&&|\})/.test(raw);
+    let body = foldNamedSlotsIntoHtml(lifted.html, slotBodies);
+    // Parent `isOpen={showSiteEditor}` must win over local `{#if isOpen}` stamp.
+    if (gateKey && gateKey.length > 0) {
+      const keyEsc = gateKey.replace(/"/g, "&quot;");
+      body = body.replace(
+        /\sdata-cwl-shell-key="(?:isOpen|show|open|visible)"/g,
+        ` data-cwl-shell-key="${keyEsc}"`,
+      );
+    }
     // Self-gated components often compile to MULTIPLE roots (BaseWizard shell +
-    // leftover `<div slot="content">` / `<div slot="footer">` siblings). Stamping
-    // only the first root left wizard step bodies painted on plan/deploy pages.
-    // Wrap the entire lifted HTML in one closed shell keyed to the page gate.
-    let body = lifted.html;
+    // leftover `<div slot="content">` / `<div slot="footer">` siblings). After
+    // slot fold, wrap the entire tree in one closed shell keyed to the page gate.
     if (selfGated) {
       const key =
         gateKey && gateKey.length > 0
           ? gateKey
           : `show${name.replace(/[^A-Za-z0-9_]/g, "")}`;
-      body = `<div class="cwl-self-gated-shell" data-cwl-shell-key="${key.replace(/"/g, "&quot;")}" hidden aria-hidden="true">${lifted.html}</div>`;
+      body = `<div class="cwl-self-gated-shell" data-cwl-shell-key="${key.replace(/"/g, "&quot;")}" hidden aria-hidden="true">${body}</div>`;
     }
     return `<div data-cwl-component="${safe}" data-cwl-lifted-component="${safe}">${body}</div>`;
   } catch {
@@ -2229,10 +2340,9 @@ export function liftStructuralSveltePageHtml(
   const stringMaps = extractConstStringMapsFromSvelte(normalizedSource);
   s = expandControlFlow(s, loadBools, holes, staticArrays, scalarValues, stringArrays);
 
-  // Component tags (PascalCase) — brace-aware so `() =>` does not truncate (G9904)
-  s = s.replace(/<\/([A-Z][A-Za-z0-9_]*)>/g, (_m, name) =>
-    passthrough.has(String(name)) ? "" : "</div>",
-  );
+  // Component tags (PascalCase) — brace-aware so `() =>` does not truncate (G9904).
+  // Fold named slots into inlined BaseWizard/etc. BEFORE rewriting closes to </div>,
+  // otherwise slot siblings escape the self-gated shell (deploy/inventory/HSS leak).
   {
     let out = "";
     let i = 0;
@@ -2244,7 +2354,20 @@ export function liftStructuralSveltePageHtml(
           const n = nameMatch[1]!;
           const selfClosing = s.slice(end - 2, end) === "/>";
           const tagText = s.slice(i, end);
+          // Default: consume only the open tag so children stay in-stream
+          // (shell/hole wrappers + `</Name>` → `</div>` post-pass). Only
+          // structural inline (slot fold) may swallow through the close.
+          let consumeThrough = end;
+          let slotBodies: Record<string, string> = {};
+          let matchingClose: { start: number; end: number } | null = null;
+          if (!selfClosing && !passthrough.has(n)) {
+            matchingClose = findMatchingPascalClose(s, end, n);
+            if (matchingClose) {
+              slotBodies = extractNamedSlotBodies(s.slice(end, matchingClose.start));
+            }
+          }
           if (passthrough.has(n)) {
+            // Unwrap: drop open tag; children stay; close stripped in post-pass.
             out += "";
           } else if (n === "SharedMap") {
             // Origin iframe → /modules/coverage-map ArcGIS (D6442 / D6448-ST).
@@ -2266,9 +2389,12 @@ export function liftStructuralSveltePageHtml(
               tagProps.scalars,
               tagProps.bools,
               gateKey,
+              slotBodies,
             );
             if (structural !== null) {
               out += structural;
+              // Children (incl. slot siblings) are folded into the inlined body.
+              if (matchingClose) consumeThrough = matchingClose.end;
             } else {
               const shell = shellMarkupFor(n);
               if (shell !== null) {
@@ -2284,6 +2410,7 @@ export function liftStructuralSveltePageHtml(
                 );
                 if (inlined !== null) {
                   out += inlined;
+                  if (matchingClose) consumeThrough = matchingClose.end;
                 } else {
                   pushHole(holes, HOLE_COMPONENT, n);
                   if (selfClosing) {
@@ -2291,12 +2418,13 @@ export function liftStructuralSveltePageHtml(
                   } else {
                     const safe = n.replace(/"/g, "'");
                     out += `<div data-cwl-hole="${HOLE_COMPONENT}" data-cwl-hole-detail="${safe}" data-cwl-component="${safe}">`;
+                    // Keep inner + close as </div> via post-pass
                   }
                 }
               }
             }
           }
-          i = end;
+          i = consumeThrough;
           continue;
         }
       }
@@ -2305,6 +2433,10 @@ export function liftStructuralSveltePageHtml(
     }
     s = out;
   }
+  // Remaining PascalCase closes (unmatched / hole wrappers) → </div>
+  s = s.replace(/<\/([A-Z][A-Za-z0-9_]*)>/g, (_m, name) =>
+    passthrough.has(String(name)) ? "" : "</div>",
+  );
 
   // Event handlers and binds on attributes — brace-aware; promote goto() to data-cwl-nav.
   // Events compile to data-cwl-nav/action/set/toggle below. Native form values

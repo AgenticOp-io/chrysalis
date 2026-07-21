@@ -16,6 +16,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { countCwlMarkupHoles, classifyCwlHoleBuckets } from "./cwl-hole-metrics.mjs";
 import { convertAllOriginPieces } from "./convert-origin-pieces.mjs";
 import { writeWispHoleReport } from "./wisp-hole-report.mjs";
+import { unescapeCwlHtmlLiteral } from "./unescape-cwl-html.mjs";
 
 export const COMPLETE_CONVERSION_KIND = "chrysalis.complete-conversion-protocol";
 export const COMPLETE_CONVERSION_SCHEMA_VERSION = 1;
@@ -31,7 +32,7 @@ const residualPath = join(reportDir, "complete-conversion-residuals.json");
 const residualMdPath = join(reportDir, "COMPLETE-CONVERSION-RESIDUALS.md");
 
 function unescapeCwlHtml(s) {
-  return s.replace(/\\n/g, "\n").replace(/\\"/g, '"');
+  return unescapeCwlHtmlLiteral(s.startsWith('"') ? s : `"${s}"`);
 }
 
 function parseArgs(argv) {

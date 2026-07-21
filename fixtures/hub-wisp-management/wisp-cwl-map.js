@@ -73,6 +73,14 @@
         : "coverage");
   var inIframe = window.parent && window.parent !== window;
   var hideStats = params.get("hideStats") === "true";
+  // Plan/Deploy SharedMap iframe — fit chrome + modals to the pane, not 100vw desktop.
+  if (inIframe || mode === "plan" || mode === "deploy") {
+    try {
+      document.documentElement.setAttribute("data-cwl-map-embed", "1");
+    } catch (_e) {
+      /* ignore */
+    }
+  }
 
   /** @type {any} */
   var view = null;
@@ -131,6 +139,8 @@
   var dataCache = { towers: [], sectors: [], cpeDevices: [], equipment: [], deployments: [] };
   var marketingAddresses = [];
   var activePlanId = params.get("planId") || null;
+  /** @type {{ id: string, kind: string, name?: string, lat?: number, lng?: number, planFeatureId?: string, raw?: object } | null} */
+  var selectedMapAsset = null;
   var statsEl = null;
 
   var BAND_COLORS = {
@@ -706,9 +716,12 @@
           attributes: Object.assign({}, f, {
             kind: "staged-feature",
             type: f.type || f.kind || "staged",
-            name: f.name || f.label || f.id,
+            name: f.name || f.label || (f.properties && f.properties.name) || f.id,
             lat: ll.lat,
             lng: ll.lng,
+            planFeatureId: String(f.id || f._id || f.featureId || ""),
+            id: String(f.id || f._id || f.featureId || ""),
+            featureType: f.featureType || (f.properties && f.properties.featureType) || f.type,
           }),
           popupTemplate: {
             title: "{name}",
@@ -1059,54 +1072,300 @@
   /** @param {Element} el @param {boolean} hidden */
   function setHidden(el, hidden) {
     if (!el) return;
-    if (hidden) el.setAttribute("hidden", "");
-    else el.removeAttribute("hidden");
-    el.setAttribute("aria-hidden", hidden ? "true" : "false");
+    if (hidden) {
+      el.setAttribute("hidden", "");
+      el.hidden = true;
+      el.setAttribute("aria-hidden", "true");
+      el.classList.remove("cwl-shell-open");
+      if (el.style && el.style.display === "flex") el.style.display = "none";
+    } else {
+      el.removeAttribute("hidden");
+      el.hidden = false;
+      el.setAttribute("aria-hidden", "false");
+      el.classList.add("cwl-shell-open");
+      if (el.style && el.style.display === "none") el.style.display = "";
+    }
+  }
+
+  /**
+   * Lifted MapContextMenu / AddSiteModal / TowerActionsMenu wrap a still-hidden
+   * .cwl-self-gated-shell — unhide host alone does nothing (ancestor [hidden]).
+   */
+  function revealLiftedHost(host) {
+    if (!host) return null;
+    setHidden(host, false);
+    host.querySelectorAll(".cwl-self-gated-shell, [data-cwl-shell-key]").forEach(function (shell) {
+      setHidden(shell, false);
+    });
+    host.querySelectorAll('[data-cwl-bind="if"]').forEach(function (panel) {
+      var detail = panel.getAttribute("data-cwl-hole-detail") || "";
+      if (
+        /^show\b|\bshow\s*&&/.test(detail) ||
+        panel.querySelector(
+          ".context-menu, .tower-menu, .sector-menu, .backhaul-menu, .actions-menu, .modal-overlay, .menu-item",
+        )
+      ) {
+        setHidden(panel, false);
+      }
+    });
+    host
+      .querySelectorAll(
+        ".modal-overlay, .context-menu, .tower-menu, .sector-menu, .backhaul-menu, .actions-menu, .plan-draft-menu",
+      )
+      .forEach(function (surface) {
+        setHidden(surface, false);
+        if (surface.style) {
+          if (surface.style.width === "0px") surface.style.width = "";
+          if (surface.style.height === "0px") surface.style.height = "";
+        }
+      });
+    return host;
+  }
+
+  function concealLiftedHost(host) {
+    if (!host) return;
+    host
+      .querySelectorAll(
+        ".modal-overlay, .context-menu, .tower-menu, .sector-menu, .backhaul-menu, .actions-menu, .cwl-self-gated-shell, [data-cwl-shell-key]",
+      )
+      .forEach(function (el) {
+        setHidden(el, true);
+      });
+    setHidden(host, true);
+  }
+
+  /** Keep fixed menus inside the available iframe/viewport. */
+  function placeFixedMenu(menu, screenX, screenY) {
+    if (!menu) return;
+    menu.style.position = "fixed";
+    menu.style.zIndex = "10050";
+    menu.style.visibility = "hidden";
+    menu.style.left = "0px";
+    menu.style.top = "0px";
+    var margin = 8;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 800;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 600;
+    var rect = menu.getBoundingClientRect();
+    var w = rect.width || menu.offsetWidth || 260;
+    var h = rect.height || menu.offsetHeight || 200;
+    var maxH = Math.max(120, vh - margin * 2);
+    menu.style.maxWidth = Math.max(160, vw - margin * 2) + "px";
+    menu.style.maxHeight = maxH + "px";
+    menu.style.overflowY = "auto";
+    menu.style.overflowX = "hidden";
+    var left = Math.min(Math.max(margin, screenX), Math.max(margin, vw - w - margin));
+    var top = Math.min(Math.max(margin, screenY), Math.max(margin, vh - Math.min(h, maxH) - margin));
+    menu.style.left = left + "px";
+    menu.style.top = top + "px";
+    menu.style.visibility = "";
+  }
+
+  /** Shrink Add/Edit modal cards to the available map pane. */
+  function fitModalToViewport(host) {
+    if (!host) return;
+    var overlay = host.querySelector(".modal-overlay") || host;
+    if (overlay && overlay.classList && overlay.classList.contains("modal-overlay")) {
+      overlay.style.display = "flex";
+      overlay.style.alignItems = "center";
+      overlay.style.justifyContent = "center";
+      overlay.style.padding = "0.5rem";
+      overlay.style.boxSizing = "border-box";
+      overlay.style.overflow = "auto";
+    }
+    var content =
+      host.querySelector(".modal-content") ||
+      host.querySelector(".help-modal") ||
+      host.querySelector(".tips-modal");
+    if (!content) return;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 800;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 600;
+    content.style.width = Math.min(vw - 16, 576) + "px";
+    content.style.maxWidth = Math.max(200, vw - 16) + "px";
+    content.style.maxHeight = Math.max(160, vh - 16) + "px";
+    content.style.boxSizing = "border-box";
+    content.style.overflow = "hidden";
+    content.style.display = "flex";
+    content.style.flexDirection = "column";
+    var body = content.querySelector(".modal-body");
+    if (body) {
+      body.style.flex = "1 1 auto";
+      body.style.minHeight = "0";
+      body.style.overflowY = "auto";
+    }
   }
 
   function toggleFiltersOverlay() {
-    var overlay =
+    var shell =
+      document.querySelector('[data-cwl-shell-key="showFilters"]') ||
       document.querySelector(".modal-overlay:has(.filters-modal)") ||
-      document.querySelector(".filters-modal") ||
-      document.querySelector(".filter-panel") ||
       document.querySelector('[data-cwl-lifted-component="FilterPanel"]') ||
-      document.querySelector('[data-cwl-nav-shell="FilterPanel"]') ||
       document.getElementById("cwl-map-filter-panel");
-    if (!overlay) return;
-    var root = overlay.classList.contains("filters-modal")
-      ? overlay.closest(".modal-overlay") || overlay
-      : overlay;
-    var willHide = !root.hasAttribute("hidden");
-    setHidden(root, willHide);
+    if (!shell) return;
+    var open =
+      !shell.hasAttribute("hidden") &&
+      shell.getAttribute("aria-hidden") !== "true" &&
+      shell.classList.contains("cwl-shell-open");
+    if (open) concealLiftedHost(shell);
+    else {
+      revealLiftedHost(shell);
+      fitModalToViewport(shell);
+      wireFilterPanel();
+    }
   }
 
   function toggleStatsOverlay() {
-    var overlay =
+    var shell =
+      document.querySelector('[data-cwl-shell-key="showStats"]') ||
       document.querySelector(".modal-overlay:has(.stats-modal)") ||
       document.querySelector(".stats-modal");
-    if (overlay) {
-      var root = overlay.classList.contains("stats-modal")
-        ? overlay.closest(".modal-overlay") || overlay
-        : overlay;
-      setHidden(root, !root.hasAttribute("hidden"));
+    if (shell) {
+      var open =
+        !shell.hasAttribute("hidden") &&
+        shell.getAttribute("aria-hidden") !== "true" &&
+        shell.classList.contains("cwl-shell-open");
+      if (open) concealLiftedHost(shell);
+      else {
+        revealLiftedHost(shell);
+        hydrateStatsOverlay(shell);
+        fitModalToViewport(shell);
+      }
       return;
     }
     if (statsEl) setHidden(statsEl, !statsEl.hasAttribute("hidden"));
+  }
+
+  function hydrateStatsOverlay(shell) {
+    if (!shell) return;
+    var towers = (dataCache.towers || []).length;
+    var sectors = (dataCache.sectors || []).length;
+    var cpe = (dataCache.cpeDevices || []).length;
+    var equipment = (dataCache.equipment || []).length;
+    var deployments = (dataCache.deployments || []).length;
+    var cards = shell.querySelectorAll(".stat-card, .stat-content");
+    // Fill known interp holes / numeric slots with live cache counts.
+    var map = {
+      tower: towers,
+      site: towers,
+      sector: sectors,
+      cpe: cpe,
+      equipment: equipment,
+      deployment: deployments,
+      hardware: equipment + deployments,
+    };
+    shell.querySelectorAll(".stat-value, .stat-number, [data-cwl-bind='interp']").forEach(function (el) {
+      var label = ((el.closest(".stat-card") || el.parentElement || el).textContent || "").toLowerCase();
+      var key = Object.keys(map).find(function (k) {
+        return label.indexOf(k) >= 0;
+      });
+      if (key != null && (el.classList.contains("stat-value") || el.classList.contains("stat-number") || !String(el.textContent || "").trim() || /\{|interp|null|undefined/i.test(el.textContent || ""))) {
+        el.textContent = String(map[key]);
+      }
+    });
+    // Dedicated honesty line if cards are empty.
+    if (!cards.length) {
+      setHonesty(
+        "Stats — towers " +
+          towers +
+          ", sectors " +
+          sectors +
+          ", CPE " +
+          cpe +
+          ", equipment " +
+          equipment,
+      );
+    }
   }
 
   /** @param {string} sel */
   function togglePanel(sel) {
     var el = document.querySelector(sel);
     if (!el) return;
-    setHidden(el, !el.hasAttribute("hidden"));
+    var shell =
+      el.matches && el.matches("[data-cwl-shell-key], .cwl-self-gated-shell")
+        ? el
+        : el.querySelector("[data-cwl-shell-key], .cwl-self-gated-shell") || el;
+    var host = el.closest("[data-cwl-lifted-component]") || el;
+    var open =
+      !shell.hasAttribute("hidden") &&
+      shell.getAttribute("aria-hidden") !== "true" &&
+      (shell.classList.contains("cwl-shell-open") || host.classList.contains("cwl-shell-open"));
+    if (open) concealLiftedHost(host);
+    else {
+      revealLiftedHost(host);
+      if (/DeviceManagement/i.test(sel) || host.getAttribute("data-cwl-lifted-component") === "DeviceManagementPanel") {
+        hydrateDeviceManagementPanel(host);
+      }
+    }
+  }
+
+  function hydrateDeviceManagementPanel(host) {
+    if (!host) return;
+    var body =
+      host.querySelector(".panel-body, .device-list, .panel-content, [data-cwl-device-list]") ||
+      host.querySelector(".device-panel");
+    if (!body) return;
+    var list = body.querySelector("[data-cwl-device-list]");
+    if (!list) {
+      list = document.createElement("div");
+      list.setAttribute("data-cwl-device-list", "1");
+      list.className = "cwl-hydrated-list";
+      body.appendChild(list);
+    }
+    var rows = []
+      .concat(
+        (dataCache.towers || []).map(function (r) {
+          return Object.assign({}, r, { kind: "tower" });
+        }),
+        (dataCache.sectors || []).map(function (r) {
+          return Object.assign({}, r, { kind: "sector" });
+        }),
+        (dataCache.cpeDevices || []).map(function (r) {
+          return Object.assign({}, r, { kind: "cpe" });
+        }),
+        (dataCache.equipment || []).map(function (r) {
+          return Object.assign({}, r, { kind: "equipment" });
+        }),
+      )
+      .slice(0, 80);
+    if (!rows.length) {
+      list.textContent = "No network devices loaded yet.";
+      return;
+    }
+    list.innerHTML = rows
+      .map(function (r) {
+        var id = r.id || r._id || "";
+        var name = r.name || id || r.kind;
+        return (
+          '<button type="button" class="menu-item cwl-device-row" data-cwl-device-id="' +
+          String(id).replace(/"/g, "") +
+          '" data-cwl-device-kind="' +
+          String(r.kind || "") +
+          '">' +
+          String(r.kind || "").toUpperCase() +
+          " · " +
+          String(name) +
+          "</button>"
+        );
+      })
+      .join("");
+    if (list.getAttribute("data-cwl-device-wired") === "1") return;
+    list.setAttribute("data-cwl-device-wired", "1");
+    list.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("[data-cwl-device-id]") : null;
+      if (!btn) return;
+      ev.preventDefault();
+      var id = btn.getAttribute("data-cwl-device-id");
+      var kind = btn.getAttribute("data-cwl-device-kind");
+      var device = findCachedEntity(kind, id);
+      openLiftedModal("UnifiedDeviceDetailsModal", { device: device || { id: id, kind: kind } });
+    });
   }
 
   /** @param {string} sel */
   function openShell(sel) {
     var el = document.querySelector(sel);
     if (!el) return;
-    setHidden(el, false);
-    el.classList.add("cwl-shell-open");
+    revealLiftedHost(el.closest("[data-cwl-lifted-component]") || el);
   }
 
   function handleIncomingMessage(ev) {
@@ -1192,41 +1451,88 @@
         });
         if (!hit) return;
         var attrs = hit.graphic.attributes;
+        selectedMapAsset = normalizeHitAttrs(attrs);
         postToParent("asset-click", {
-          detail: {
-            id: attrs.id,
-            name: attrs.name,
-            kind: attrs.kind || attrs.type,
-            status: attrs.status,
-            lat: attrs.lat,
-            lng: attrs.lng,
+          detail: Object.assign({}, selectedMapAsset, {
+            isRightClick: false,
+            screenX: event.x,
+            screenY: event.y,
             planId: activePlanId,
-          },
+          }),
         });
         postToParent("object-action", {
-          objectId: attrs.id,
+          objectId: selectedMapAsset && selectedMapAsset.id,
           action: "select",
-          data: attrs,
+          data: selectedMapAsset,
         });
       });
     });
-    // Origin MapContextMenu opens on map blank click / context — wire right-click (D6442).
+    // Origin: right-click hitTest → asset menu; blank map → MapContextMenu.
+    // ArcGIS may expose button on the event or native MouseEvent.
+    var lastRightClickAt = 0;
+    function handleMapRightClick(screenX, screenY, mapPointHint) {
+      var now = Date.now();
+      if (now - lastRightClickAt < 350) return;
+      lastRightClickAt = now;
+      var mapPoint =
+        mapPointHint ||
+        (view && view.toMap ? view.toMap({ x: screenX, y: screenY }) : null);
+      view.hitTest({ x: screenX, y: screenY }).then(function (response) {
+        var results = (response && response.results) || [];
+        var hit = results.find(function (r) {
+          return r.graphic && r.graphic.attributes && r.graphic.attributes.kind;
+        });
+        if (hit) {
+          var attrs = hit.graphic.attributes;
+          selectedMapAsset = normalizeHitAttrs(attrs);
+          postToParent("asset-click", {
+            detail: Object.assign({}, selectedMapAsset, {
+              isRightClick: true,
+              screenX: screenX,
+              screenY: screenY,
+              planId: activePlanId,
+            }),
+          });
+          openAssetActionsMenu(selectedMapAsset, screenX, screenY);
+          return;
+        }
+        selectedMapAsset = null;
+        if (mapPoint) {
+          openMapContextMenu(screenX, screenY, mapPoint.latitude, mapPoint.longitude);
+        }
+      });
+    }
     view.on("pointer-down", function (event) {
-      if (!event || event.button !== 2) return;
+      var btn =
+        event && event.button != null
+          ? event.button
+          : event && event.native && event.native.button != null
+            ? event.native.button
+            : -1;
+      if (btn !== 2) return;
       try {
         if (typeof event.stopPropagation === "function") event.stopPropagation();
       } catch (_e) {
         /* ignore */
       }
-      var mapPoint = view.toMap({ x: event.x, y: event.y });
-      if (!mapPoint) return;
-      openMapContextMenu(event.x, event.y, mapPoint.latitude, mapPoint.longitude);
+      var mapPoint =
+        event.mapPoint && event.mapPoint.latitude != null ? event.mapPoint : null;
+      handleMapRightClick(event.x, event.y, mapPoint);
     });
     if (host && host.getAttribute("data-cwl-ctx-wired") !== "1") {
       host.setAttribute("data-cwl-ctx-wired", "1");
-      host.addEventListener("contextmenu", function (ev) {
-        ev.preventDefault();
-      });
+      host.addEventListener(
+        "contextmenu",
+        function (ev) {
+          ev.preventDefault();
+          if (!view) return;
+          var rect = host.getBoundingClientRect();
+          var screenX = ev.clientX - rect.left;
+          var screenY = ev.clientY - rect.top;
+          handleMapRightClick(screenX, screenY, null);
+        },
+        true,
+      );
     }
     view.watch("extent", function () {
       broadcastExtent();
@@ -1247,12 +1553,265 @@
     wireAddInventoryModalSave();
     wireHonestUnavailableMapModals();
     wireMapActionMenus();
+    wirePlanDraftMenuActions();
+    wireHardwareDeploymentEpcBridge();
+    wireEpcDeploymentModalSave();
     wireSiteEditModalSave();
     wireSectorEditModalSave();
     wireCpeEditModalSave();
     wireMapContextMenuActions();
     wireMapGeocodeControls();
     wireMapReverseGeocodeControl();
+  }
+
+  function normalizeHitAttrs(attrs) {
+    if (!attrs || typeof attrs !== "object") return null;
+    var kind = String(attrs.kind || attrs.type || "").toLowerCase();
+    return {
+      id: String(attrs.id || attrs._id || attrs.featureId || ""),
+      kind: kind,
+      name: attrs.name || attrs.label || attrs.id,
+      status: attrs.status,
+      lat: attrs.lat,
+      lng: attrs.lng,
+      planFeatureId: attrs.planFeatureId || (kind.indexOf("staged") >= 0 ? attrs.id : null),
+      hardware_type: attrs.hardware_type,
+      raw: attrs,
+    };
+  }
+
+  /**
+   * Open the lifted Tower/Sector/Backhaul/plan-draft action menu at the cursor,
+   * bound to selectedMapAsset (origin right-click object menus).
+   */
+  function openAssetActionsMenu(asset, screenX, screenY) {
+    if (!asset) return;
+    var kind = String(asset.kind || "").toLowerCase();
+    // Origin: plan drafts use the inline plan-draft-menu, not TowerActionsMenu.
+    if (kind === "staged-feature" || asset.planFeatureId) {
+      openPlanDraftMenu(asset, screenX, screenY);
+      return;
+    }
+    var menuName = "TowerActionsMenu";
+    if (kind === "sector") menuName = "SectorActionsMenu";
+    else if (kind === "equipment" || kind === "backhaul" || kind === "deployment")
+      menuName = "BackhaulActionsMenu";
+    else if (kind === "cpe") menuName = "TowerActionsMenu";
+    var wrap =
+      document.querySelector('[data-cwl-lifted-component="' + menuName + '"]') ||
+      document.querySelector('[data-cwl-lifted-component*="' + menuName.replace("ActionsMenu", "") + '"]');
+    if (!wrap) {
+      if (asset.lat != null && asset.lng != null) {
+        openMapContextMenu(screenX, screenY, asset.lat, asset.lng);
+      }
+      setHonesty(
+        (asset.name || asset.kind || "Feature") +
+          " selected — use Edit/Delete from the action menu when available.",
+      );
+      return;
+    }
+    ["TowerActionsMenu", "SectorActionsMenu", "BackhaulActionsMenu", "MapContextMenu"].forEach(
+      function (n) {
+        var el = document.querySelector('[data-cwl-lifted-component="' + n + '"]');
+        if (el && el !== wrap) concealLiftedHost(el);
+      },
+    );
+    var draftMenu = document.querySelector('[data-cwl-shell-key="showPlanDraftMenu"], .plan-draft-menu');
+    if (draftMenu) setHidden(draftMenu, true);
+    revealLiftedHost(wrap);
+    var menu =
+      wrap.querySelector(".tower-menu, .sector-menu, .backhaul-menu, .actions-menu, .context-menu, .menu") ||
+      wrap;
+    wrap.setAttribute("data-cwl-selected-id", String(asset.id || ""));
+    wrap.setAttribute("data-cwl-selected-kind", String(asset.kind || ""));
+    if (asset.planFeatureId) wrap.setAttribute("data-cwl-plan-feature-id", String(asset.planFeatureId));
+    else wrap.removeAttribute("data-cwl-plan-feature-id");
+    placeFixedMenu(menu, screenX, screenY);
+    setHonesty((asset.name || asset.kind || "Feature") + " — right-click actions");
+  }
+
+  function openPlanDraftMenu(asset, screenX, screenY) {
+    hideActionMenus();
+    var menu =
+      document.querySelector('[data-cwl-shell-key="showPlanDraftMenu"]') ||
+      document.querySelector(".plan-draft-menu");
+    if (!menu) {
+      setHonesty("Plan draft menu not on this page");
+      return;
+    }
+    revealLiftedHost(menu);
+    menu.setAttribute("data-cwl-selected-id", String(asset.id || asset.planFeatureId || ""));
+    menu.setAttribute("data-cwl-plan-feature-id", String(asset.planFeatureId || asset.id || ""));
+    menu.setAttribute("data-cwl-selected-kind", "staged-feature");
+    if (asset.lat != null) menu.setAttribute("data-cwl-ctx-lat", String(asset.lat));
+    if (asset.lng != null) menu.setAttribute("data-cwl-ctx-lng", String(asset.lng));
+    var title = menu.querySelector(".menu-header strong, .menu-header");
+    if (title) {
+      var nameEl = title.querySelector("span") || title;
+      nameEl.textContent = String(asset.name || asset.featureType || "Draft Object");
+    }
+    var coords = menu.querySelector(".coords");
+    if (coords && asset.lat != null && asset.lng != null) {
+      coords.textContent =
+        "📍 " + Number(asset.lat).toFixed(5) + ", " + Number(asset.lng).toFixed(5);
+    }
+    // Ensure remove affordance.
+    if (!menu.querySelector("[data-cwl-remove-plan-feature]")) {
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "menu-item danger";
+      rm.setAttribute("data-cwl-remove-plan-feature", "1");
+      rm.textContent = "🗑️ Remove From Plan";
+      menu.appendChild(rm);
+    }
+    placeFixedMenu(menu, screenX, screenY);
+    wirePlanDraftMenuActions();
+    setHonesty((asset.name || "Draft") + " — plan draft actions");
+  }
+
+  function wirePlanDraftMenuActions() {
+    var menu =
+      document.querySelector('[data-cwl-shell-key="showPlanDraftMenu"]') ||
+      document.querySelector(".plan-draft-menu");
+    if (!menu || menu.getAttribute("data-wisp-draft-wired") === "1") return;
+    menu.setAttribute("data-wisp-draft-wired", "1");
+    menu.addEventListener("click", function (ev) {
+      var item = ev.target && ev.target.closest ? ev.target.closest("button, .menu-item") : null;
+      if (!item || !menu.contains(item)) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var args = String(item.getAttribute("data-cwl-action-args") || "")
+        .replace(/^['"]|['"]$/g, "")
+        .toLowerCase();
+      var label = ((item.textContent || "") + " " + args).toLowerCase();
+      var lat = Number(menu.getAttribute("data-cwl-ctx-lat"));
+      var lng = Number(menu.getAttribute("data-cwl-ctx-lng"));
+      var fid =
+        menu.getAttribute("data-cwl-plan-feature-id") ||
+        menu.getAttribute("data-cwl-selected-id") ||
+        "";
+      var siteHint = {
+        id: fid,
+        lat: lat,
+        lng: lng,
+        name: (selectedMapAsset && selectedMapAsset.name) || "Draft site",
+      };
+      setHidden(menu, true);
+
+      if (item.getAttribute("data-cwl-remove-plan-feature") === "1" || label.indexOf("remove") >= 0) {
+        if (!fid || !activePlanId) {
+          setHonesty("Select a plan draft to remove");
+          return;
+        }
+        setHonesty("Removing plan feature…");
+        apiFetch(
+          "/api/plans/" +
+            encodeURIComponent(activePlanId) +
+            "/features/" +
+            encodeURIComponent(fid),
+          { method: "DELETE" },
+        )
+          .then(function (r) {
+            if (!r || !r.ok) throw new Error("Plan feature DELETE failed (" + (r && r.status) + ")");
+            selectedMapAsset = null;
+            setHonesty("Removed from plan");
+            return reloadStagedFeatures();
+          })
+          .catch(function (e) {
+            setHonesty((e && e.message) || "Remove failed");
+          });
+        return;
+      }
+      if (args.indexOf("edit-site") >= 0 || label.indexOf("edit") >= 0) {
+        openLiftedModal("AddSiteModal", { lat: lat, lng: lng, type: "tower" });
+        return;
+      }
+      if (args.indexOf("add-sector") >= 0 || label.indexOf("sector") >= 0) {
+        openLiftedModal("AddSectorModal", { lat: lat, lng: lng, siteId: fid });
+        return;
+      }
+      if (args.indexOf("add-backhaul") >= 0 || label.indexOf("backhaul") >= 0) {
+        openLiftedModal("AddBackhaulLinkModal", { lat: lat, lng: lng, fromSiteId: fid });
+        return;
+      }
+      if (args.indexOf("add-inventory") >= 0 || label.indexOf("equipment") >= 0 || label.indexOf("inventory") >= 0) {
+        openLiftedModal("AddInventoryModal", { lat: lat, lng: lng });
+        return;
+      }
+      if (args.indexOf("deploy-epc") >= 0 || label.indexOf("epc") >= 0 || label.indexOf("snmp") >= 0) {
+        openEpcDeploymentModal(siteHint);
+        return;
+      }
+      if (args.indexOf("deploy-hardware") >= 0 || (label.indexOf("deploy") >= 0 && label.indexOf("hardware") >= 0)) {
+        openLiftedModal("HardwareDeploymentModal", { siteId: fid, site: siteHint });
+        return;
+      }
+    });
+  }
+
+  function openEpcDeploymentModal(site) {
+    hideActionMenus();
+    var host = document.querySelector('[data-cwl-lifted-component="EPCDeploymentModal"]');
+    if (!host) {
+      setHonesty("EPCDeploymentModal not lifted");
+      return;
+    }
+    revealLiftedHost(host);
+    fitModalToViewport(host);
+    var overlay = host.querySelector(".modal-overlay") || host;
+    setHidden(overlay, false);
+    if (site) {
+      host.setAttribute("data-cwl-epc-site-id", String(site.id || ""));
+      if (site.lat != null) host.setAttribute("data-cwl-ctx-lat", String(site.lat));
+      if (site.lng != null) host.setAttribute("data-cwl-ctx-lng", String(site.lng));
+      // Prefill obvious name/lat/lng fields when present.
+      var nameIn = overlay.querySelector('input[name="siteName"], input[placeholder*="Site" i], input[type="text"]');
+      if (nameIn && site.name) nameIn.value = String(site.name);
+      var nums = overlay.querySelectorAll('input[type="number"]');
+      if (nums[0] && site.lat != null) /** @type {HTMLInputElement} */ (nums[0]).value = String(site.lat);
+      if (nums[1] && site.lng != null) /** @type {HTMLInputElement} */ (nums[1]).value = String(site.lng);
+    }
+    setHonesty("EPC / SNMP deployment — complete the form (HSS agent mount may be unavailable)");
+    wireEpcDeploymentModalSave();
+  }
+
+  function wireEpcDeploymentModalSave() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="EPCDeploymentModal"]');
+    if (!hostEl || hostEl.getAttribute("data-cwl-epc-save-wired") === "1") return;
+    hostEl.setAttribute("data-cwl-epc-save-wired", "1");
+    hostEl.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest(".btn-primary, button") : null;
+      if (!btn || !hostEl.contains(btn)) return;
+      var label = (btn.textContent || "").toLowerCase();
+      if (label.indexOf("deploy") < 0 && label.indexOf("save") < 0 && label.indexOf("create") < 0) return;
+      ev.preventDefault();
+      // Origin posts to HSS/deploy endpoints; without a live agent, stay honest.
+      setHonesty("EPCDeploymentModal — HSS/agent mount unavailable (form opened; no invent POST)");
+      concealLiftedHost(hostEl);
+    });
+  }
+
+  function wireHardwareDeploymentEpcBridge() {
+    var hostEl = document.querySelector('[data-cwl-lifted-component="HardwareDeploymentModal"]');
+    if (!hostEl || hostEl.getAttribute("data-cwl-epc-bridge") === "1") return;
+    hostEl.setAttribute("data-cwl-epc-bridge", "1");
+    hostEl.addEventListener("click", function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest("button, .btn, .menu-item") : null;
+      if (!btn || !hostEl.contains(btn)) return;
+      var t = (btn.textContent || "").toLowerCase();
+      if (t.indexOf("epc") < 0 && t.indexOf("snmp") < 0 && t.indexOf("server") < 0) return;
+      if (t.indexOf("deploy") < 0 && t.indexOf("open") < 0 && t.indexOf("continue") < 0 && t.indexOf("epc") < 0)
+        return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var siteId = hostEl.getAttribute("data-cwl-selected-id") || "";
+      var site =
+        findCachedEntity("tower", siteId) ||
+        (selectedMapAsset && selectedMapAsset.kind === "tower" ? selectedMapAsset : null) ||
+        { id: siteId };
+      concealLiftedHost(hostEl);
+      openEpcDeploymentModal(site);
+    });
   }
 
   /** Pass 44 — POST /api/network/reverse-geocode from map controls (D6442). */
@@ -1376,25 +1935,37 @@
 
   /** @param {number} screenX @param {number} screenY @param {number} lat @param {number} lng */
   function openMapContextMenu(screenX, screenY, lat, lng) {
+    ["TowerActionsMenu", "SectorActionsMenu", "BackhaulActionsMenu"].forEach(function (n) {
+      var el = document.querySelector('[data-cwl-lifted-component="' + n + '"]');
+      if (el) concealLiftedHost(el);
+    });
     var wrap =
       document.querySelector('[data-cwl-lifted-component="MapContextMenu"]') ||
       document.querySelector(".context-menu");
-    if (!wrap) return;
-    var menu = wrap.classList.contains("context-menu") ? wrap : wrap.querySelector(".context-menu");
-    var root = wrap.classList.contains("context-menu") ? wrap : wrap;
-    setHidden(root, false);
-    if (menu) {
-      menu.style.left = Math.max(8, screenX) + "px";
-      menu.style.top = Math.max(8, screenY) + "px";
-      menu.style.position = "fixed";
-      menu.setAttribute("data-cwl-ctx-lat", String(lat));
-      menu.setAttribute("data-cwl-ctx-lng", String(lng));
-      var coords = menu.querySelector(".coords");
-      if (coords) {
-        coords.textContent =
-          "📍 " + (Number(lat).toFixed(5) || "") + ", " + (Number(lng).toFixed(5) || "");
-      }
+    if (!wrap) {
+      setHonesty("Map context menu not on this page");
+      return;
     }
+    revealLiftedHost(wrap);
+    var menu =
+      (wrap.classList && wrap.classList.contains("context-menu") && wrap) ||
+      wrap.querySelector(".context-menu") ||
+      wrap;
+    menu.setAttribute("data-cwl-ctx-lat", String(lat));
+    menu.setAttribute("data-cwl-ctx-lng", String(lng));
+    var coords = menu.querySelector(".coords");
+    if (coords) {
+      coords.textContent =
+        "📍 " + (Number(lat).toFixed(5) || "") + ", " + (Number(lng).toFixed(5) || "");
+    }
+    placeFixedMenu(menu, screenX, screenY);
+    setHonesty(
+      "Map menu @ " +
+        Number(lat).toFixed(5) +
+        ", " +
+        Number(lng).toFixed(5) +
+        (isPlanStagingMode() ? " (plan mode)" : ""),
+    );
   }
 
   function wireMapContextMenuActions() {
@@ -1402,14 +1973,18 @@
     if (!wrap || wrap.getAttribute("data-wisp-wired") === "1") return;
     wrap.setAttribute("data-wisp-wired", "1");
     wrap.addEventListener("click", function (ev) {
-      var item = ev.target && ev.target.closest ? ev.target.closest(".menu-item") : null;
-      if (!item) return;
+      var item = ev.target && ev.target.closest ? ev.target.closest(".menu-item, button") : null;
+      if (!item || !wrap.contains(item)) return;
       ev.preventDefault();
-      var label = (item.textContent || "").toLowerCase();
+      ev.stopPropagation();
+      var args = String(item.getAttribute("data-cwl-action-args") || "")
+        .replace(/^['"]|['"]$/g, "")
+        .toLowerCase();
+      var label = ((item.textContent || "") + " " + args).toLowerCase();
       var menu = wrap.querySelector(".context-menu") || wrap;
       var lat = Number(menu.getAttribute("data-cwl-ctx-lat"));
       var lng = Number(menu.getAttribute("data-cwl-ctx-lng"));
-      setHidden(wrap, true);
+      concealLiftedHost(wrap);
       if (label.indexOf("copy") >= 0) {
         try {
           navigator.clipboard.writeText(lat + ", " + lng);
@@ -1419,7 +1994,7 @@
         }
         return;
       }
-      if (label.indexOf("reverse") >= 0 || label.indexOf("address") >= 0) {
+      if (label.indexOf("reverse") >= 0 || (label.indexOf("address") >= 0 && label.indexOf("add") < 0)) {
         setHonesty("Reverse-geocoding…");
         apiFetch("/api/network/reverse-geocode", {
           method: "POST",
@@ -1447,23 +2022,32 @@
         importCbrs();
         return;
       }
-      if (label.indexOf("tower") >= 0 || label.indexOf("other site") >= 0) {
-        openLiftedModal("AddSiteModal", { lat: lat, lng: lng, type: label.indexOf("other") >= 0 ? "other" : "tower" });
+      if (
+        args.indexOf("create-site-tower") >= 0 ||
+        label.indexOf("tower") >= 0 ||
+        label.indexOf("other site") >= 0 ||
+        args.indexOf("create-site-other") >= 0
+      ) {
+        openLiftedModal("AddSiteModal", {
+          lat: lat,
+          lng: lng,
+          type: args.indexOf("other") >= 0 || label.indexOf("other") >= 0 ? "other" : "tower",
+        });
         return;
       }
-      if (label.indexOf("noc") >= 0) {
+      if (args.indexOf("create-site-noc") >= 0 || label.indexOf("noc") >= 0) {
         openLiftedModal("AddNOCModal", { lat: lat, lng: lng });
         return;
       }
-      if (label.indexOf("warehouse") >= 0) {
+      if (args.indexOf("create-site-warehouse") >= 0 || label.indexOf("warehouse") >= 0) {
         openLiftedModal("AddWarehouseModal", { lat: lat, lng: lng });
         return;
       }
-      if (label.indexOf("sector") >= 0) {
+      if (args.indexOf("create-sector") >= 0 || label.indexOf("sector") >= 0) {
         openLiftedModal("AddSectorModal", { lat: lat, lng: lng });
         return;
       }
-      if (label.indexOf("cpe") >= 0) {
+      if (args.indexOf("create-cpe") >= 0 || label.indexOf("cpe") >= 0) {
         openLiftedModal("AddCPEModal", { lat: lat, lng: lng });
         return;
       }
@@ -1472,6 +2056,28 @@
         return;
       }
       if (label.indexOf("equipment") >= 0 || label.indexOf("radio") >= 0) {
+        if (isPlanStagingMode()) {
+          setHonesty("Staging equipment on plan…");
+          apiFetch("/api/plans/" + encodeURIComponent(activePlanId) + "/features", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              featureType: "equipment",
+              geometry: { type: "Point", coordinates: [lng, lat] },
+              properties: { name: "Plan Equip " + Date.now(), latitude: lat, longitude: lng },
+              status: "draft",
+            }),
+          })
+            .then(function (r) {
+              if (!r || !r.ok) throw new Error("Plan equipment stage failed (" + (r && r.status) + ")");
+              setHonesty("Equipment staged in plan");
+              return reloadStagedFeatures();
+            })
+            .catch(function (e) {
+              setHonesty((e && e.message) || "Plan equipment stage failed");
+            });
+          return;
+        }
         setHonesty("Creating equipment at " + lat.toFixed(5) + ", " + lng.toFixed(5) + "…");
         apiFetch("/api/network/equipment", {
           method: "POST",
@@ -1577,6 +2183,10 @@
   /** @param {string} name @param {{ lat?: number, lng?: number, type?: string }} [opts] */
   function openLiftedModal(name, opts) {
     opts = opts || {};
+    if (name === "EPCDeploymentModal") {
+      openEpcDeploymentModal(opts.site || { id: opts.siteId, lat: opts.lat, lng: opts.lng, name: opts.name });
+      return;
+    }
     var hostEl =
       document.querySelector('[data-cwl-lifted-component="' + name + '"]') ||
       document.querySelector('[data-cwl-modal-shell="' + name + '"]');
@@ -1584,9 +2194,11 @@
       setHonesty(name + " not lifted");
       return;
     }
+    hideActionMenus();
+    revealLiftedHost(hostEl);
+    fitModalToViewport(hostEl);
     var overlay = hostEl.querySelector(".modal-overlay") || hostEl;
     setHidden(overlay, false);
-    setHidden(hostEl, false);
     overlay.removeAttribute("data-cwl-edit-mode");
     overlay.removeAttribute("data-cwl-edit-sector-id");
     overlay.removeAttribute("data-cwl-edit-cpe-id");
@@ -1624,12 +2236,29 @@
     }
     if (name === "AddBackhaulLinkModal") {
       var sels = overlay.querySelectorAll("select");
-      if (sels[0]) fillSiteOptions(sels[0]);
-      if (sels[1]) fillSiteOptions(sels[1]);
-      if ((dataCache.towers || []).length >= 2 && sels[0] && sels[1]) {
-        sels[0].value = String(dataCache.towers[0].id);
-        sels[1].value = String(dataCache.towers[1].id);
+      var fromPrefer =
+        opts.fromSiteId ||
+        (selectedMapAsset && selectedMapAsset.kind === "tower" && selectedMapAsset.id) ||
+        nearestSiteId(Number(opts.lat), Number(opts.lng));
+      if (sels[0]) fillSiteOptions(sels[0], fromPrefer);
+      if (sels[1]) {
+        var toPrefer = "";
+        (dataCache.towers || []).some(function (t) {
+          var tid = String(t.id || t._id || "");
+          if (tid && tid !== String(fromPrefer || "")) {
+            toPrefer = tid;
+            return true;
+          }
+          return false;
+        });
+        fillSiteOptions(sels[1], toPrefer);
       }
+    }
+    if (name === "HardwareDeploymentModal") {
+      var hwSite = opts.site || findCachedEntity("tower", opts.siteId) || selectedMapAsset;
+      var hwId = opts.siteId || (hwSite && (hwSite.id || hwSite._id)) || "";
+      if (hwId) hostEl.setAttribute("data-cwl-selected-id", String(hwId));
+      wireHardwareDeploymentEpcBridge();
     }
     if (name === "SiteEditModal" && opts.site) {
       var site = opts.site;
@@ -1657,10 +2286,13 @@
     if (name === "UnifiedDeviceDetailsModal") {
       var detail =
         opts.device ||
-        (dataCache.cpeDevices || [])[0] ||
-        (dataCache.sectors || [])[0] ||
-        (dataCache.equipment || [])[0] ||
-        (dataCache.towers || [])[0] ||
+        (opts.deviceId &&
+          (findCachedEntity("cpe", opts.deviceId) ||
+            findCachedEntity("sector", opts.deviceId) ||
+            findCachedEntity("equipment", opts.deviceId) ||
+            findCachedEntity("tower", opts.deviceId))) ||
+        (selectedMapAsset && selectedMapAsset.raw) ||
+        selectedMapAsset ||
         null;
       var host = overlay.querySelector(".modal-body, .device-details, [data-cwl-device-details]") || overlay;
       var pre = host.querySelector("[data-cwl-device-json]");
@@ -1672,7 +2304,7 @@
       }
       pre.textContent = detail
         ? JSON.stringify(detail, null, 2).slice(0, 3500)
-        : "No device/site in map cache yet — load network layers first.";
+        : "No device/site selected — right-click a map feature first.";
     }
   }
 
@@ -1805,6 +2437,109 @@
     }, true);
   }
 
+  /** Origin plan mode: POST /api/plans/:id/features instead of live network creates. */
+  function isPlanStagingMode() {
+    return (mode === "plan" || mode === "planning") && !!activePlanId;
+  }
+
+  function featureTypeFromNetworkEndpoint(endpoint, body) {
+    var ep = String(endpoint || "");
+    if (ep.indexOf("/sites") >= 0) return "site";
+    if (ep.indexOf("/sectors") >= 0) return "sector";
+    if (ep.indexOf("/cpe") >= 0) return "cpe";
+    if (ep.indexOf("/equipment") >= 0) return "equipment";
+    if (ep.indexOf("/backhaul") >= 0 || ep.indexOf("/links") >= 0) return "link";
+    var t = body && (body.type || body.featureType);
+    if (Array.isArray(t)) t = t[0];
+    return String(t || "site").toLowerCase();
+  }
+
+  function geometryFromBody(body) {
+    var loc = (body && body.location) || {};
+    var lat = Number(
+      (body && body.latitude) != null
+        ? body.latitude
+        : loc.latitude != null
+          ? loc.latitude
+          : loc.lat,
+    );
+    var lng = Number(
+      (body && body.longitude) != null
+        ? body.longitude
+        : loc.longitude != null
+          ? loc.longitude
+          : loc.lng != null
+            ? loc.lng
+            : loc.lon,
+    );
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return { type: "Point", coordinates: [-104.99, 39.74] };
+    return { type: "Point", coordinates: [lng, lat] };
+  }
+
+  function reloadStagedFeatures() {
+    if (!activePlanId) return Promise.resolve();
+    return apiFetch("/api/plans/" + encodeURIComponent(activePlanId) + "/features")
+      .then(function (r) {
+        return r && r.ok ? r.json() : [];
+      })
+      .then(function (data) {
+        var rows = Array.isArray(data)
+          ? data
+          : Array.isArray(data && data.features)
+            ? data.features
+            : Array.isArray(data && data.items)
+              ? data.items
+              : [];
+        renderStagedFeatures(rows);
+        postToParent("plan-features-changed", { planId: activePlanId, features: rows });
+        return rows;
+      })
+      .catch(function () {
+        postToParent("plan-features-changed", { planId: activePlanId });
+      });
+  }
+
+  function hideActionMenus() {
+    ["TowerActionsMenu", "SectorActionsMenu", "BackhaulActionsMenu", "MapContextMenu"].forEach(
+      function (n) {
+        var el = document.querySelector('[data-cwl-lifted-component="' + n + '"]');
+        if (el) concealLiftedHost(el);
+      },
+    );
+    var draft =
+      document.querySelector('[data-cwl-shell-key="showPlanDraftMenu"]') ||
+      document.querySelector(".plan-draft-menu");
+    if (draft) setHidden(draft, true);
+  }
+
+  function findCachedEntity(kind, id) {
+    var want = String(id || "");
+    if (!want) return null;
+    var bags = [];
+    var k = String(kind || "").toLowerCase();
+    if (k === "tower" || k === "site" || k === "noc" || k === "warehouse") bags = dataCache.towers || [];
+    else if (k === "sector") bags = dataCache.sectors || [];
+    else if (k === "cpe") bags = dataCache.cpeDevices || [];
+    else if (k === "equipment" || k === "backhaul" || k === "deployment")
+      bags = [].concat(dataCache.equipment || [], dataCache.deployments || []);
+    else
+      bags = [].concat(
+        dataCache.towers || [],
+        dataCache.sectors || [],
+        dataCache.cpeDevices || [],
+        dataCache.equipment || [],
+        dataCache.deployments || [],
+      );
+    var i;
+    for (i = 0; i < bags.length; i++) {
+      var row = bags[i];
+      if (!row) continue;
+      var rid = String(row.id || row._id || "");
+      if (rid === want) return row;
+    }
+    return selectedMapAsset && selectedMapAsset.raw ? selectedMapAsset.raw : null;
+  }
+
   /** @param {HTMLElement} hostEl @param {string} match @param {() => { endpoint: string, body: object, okMsg: string } | null} build */
   function wireLiftedModalSave(hostEl, match, build) {
     if (!hostEl || hostEl.getAttribute("data-cwl-save-wired") === "1") return;
@@ -1819,6 +2554,34 @@
       var built = build(overlay);
       if (!built) return;
       setHonesty("Saving…");
+      // Plan mode stages drafts on the active plan (origin Add*Modal + mapLayerManager).
+      if (isPlanStagingMode() && String(built.endpoint || "").indexOf("/api/network/") === 0) {
+        var featureType = featureTypeFromNetworkEndpoint(built.endpoint, built.body);
+        var props = Object.assign({}, built.body || {}, {
+          name: (built.body && built.body.name) || featureType,
+          featureType: featureType,
+        });
+        apiFetch("/api/plans/" + encodeURIComponent(activePlanId) + "/features", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            featureType: featureType,
+            geometry: geometryFromBody(built.body),
+            properties: props,
+            status: "draft",
+          }),
+        })
+          .then(function (r) {
+            if (!r || !r.ok) throw new Error("Plan feature save failed (" + (r && r.status) + ")");
+            setHidden(overlay, true);
+            setHonesty((built.okMsg || "Saved") + " (staged in plan)");
+            return reloadStagedFeatures();
+          })
+          .catch(function (e) {
+            setHonesty((e && e.message) || "Plan feature save failed");
+          });
+        return;
+      }
       apiFetch(built.endpoint, {
         method: built.method || "POST",
         headers: { "content-type": "application/json" },
@@ -2127,7 +2890,7 @@
 
   /** Honest: lifted but no HSS product mount — open shows banner, no invent POST. */
   function wireHonestUnavailableMapModals() {
-    ["AddVehicleModal", "AddRMAModal", "EPCDeploymentModal", "HSSRegistrationModal"].forEach(function (name) {
+    ["AddVehicleModal", "AddRMAModal", "HSSRegistrationModal"].forEach(function (name) {
       var hostEl = document.querySelector('[data-cwl-lifted-component="' + name + '"]');
       if (!hostEl || hostEl.getAttribute("data-wisp-honest-wired") === "1") return;
       hostEl.setAttribute("data-wisp-honest-wired", "1");
@@ -2149,17 +2912,72 @@
         var item = ev.target && ev.target.closest ? ev.target.closest("button, .menu-item, a") : null;
         if (!item || !hostEl.contains(item)) return;
         var t = (item.textContent || "").toLowerCase();
+        var selId =
+          hostEl.getAttribute("data-cwl-selected-id") ||
+          (selectedMapAsset && selectedMapAsset.id) ||
+          "";
+        var selKind =
+          hostEl.getAttribute("data-cwl-selected-kind") ||
+          (selectedMapAsset && selectedMapAsset.kind) ||
+          "";
+        var planFeatureId =
+          hostEl.getAttribute("data-cwl-plan-feature-id") ||
+          (selectedMapAsset && selectedMapAsset.planFeatureId) ||
+          (String(selKind).indexOf("staged") >= 0 ? selId : "");
+        var asset = selectedMapAsset;
+        var entity = findCachedEntity(selKind || (name === "SectorActionsMenu" ? "sector" : name === "BackhaulActionsMenu" ? "equipment" : "tower"), selId);
+
+        // Remove staged plan draft (origin PlanDraftActionsMenu).
+        if (
+          item.getAttribute("data-cwl-remove-plan-feature") === "1" ||
+          ((t.indexOf("remove") >= 0 || t.indexOf("delete") >= 0) &&
+            (planFeatureId || String(selKind).indexOf("staged") >= 0) &&
+            activePlanId)
+        ) {
+          ev.preventDefault();
+          var fid = planFeatureId || selId;
+          if (!fid || !activePlanId) {
+            setHonesty("Select a plan draft to remove");
+            return;
+          }
+          hideActionMenus();
+          setHonesty("Removing plan feature…");
+          apiFetch(
+            "/api/plans/" +
+              encodeURIComponent(activePlanId) +
+              "/features/" +
+              encodeURIComponent(fid),
+            { method: "DELETE" },
+          )
+            .then(function (r) {
+              if (!r || !r.ok) throw new Error("Plan feature DELETE failed (" + (r && r.status) + ")");
+              selectedMapAsset = null;
+              setHonesty("Removed from plan — refreshing drafts");
+              return reloadStagedFeatures();
+            })
+            .catch(function (e) {
+              setHonesty((e && e.message) || "Remove from plan failed");
+            });
+          return;
+        }
+
         if (t.indexOf("edit") >= 0 && t.indexOf("cpe") >= 0) {
           ev.preventDefault();
-          var cpeRow = (dataCache.cpeDevices || [])[0];
+          hideActionMenus();
+          var cpeRow =
+            (selKind === "cpe" && entity) ||
+            findCachedEntity("cpe", selId) ||
+            (selectedMapAsset && selectedMapAsset.kind === "cpe" ? selectedMapAsset.raw || selectedMapAsset : null);
           if (cpeRow) openLiftedModal("AddCPEModal", { cpeId: cpeRow.id || cpeRow._id, cpe: cpeRow });
-          else setHonesty("No CPE in map cache to edit");
+          else setHonesty("No CPE selected to edit");
           return;
         }
         if (t.indexOf("edit") >= 0 && name === "TowerActionsMenu") {
           ev.preventDefault();
-          var prefer = (dataCache.towers || [])[0];
-          openLiftedModal("SiteEditModal", prefer ? { siteId: prefer.id, site: prefer } : {});
+          hideActionMenus();
+          var prefer = entity || findCachedEntity("tower", selId);
+          if (prefer) openLiftedModal("SiteEditModal", { siteId: prefer.id || prefer._id, site: prefer });
+          else setHonesty("No site selected to edit");
           return;
         }
         if (
@@ -2168,31 +2986,44 @@
           (t.indexOf("deploy") >= 0 && name === "TowerActionsMenu" && t.indexOf("epc") < 0)
         ) {
           ev.preventDefault();
-          var towerHw = (dataCache.towers || [])[0];
+          hideActionMenus();
+          var towerHw = entity || findCachedEntity("tower", selId);
           openLiftedModal(
             "HardwareDeploymentModal",
-            towerHw ? { siteId: towerHw.id, site: towerHw } : {},
+            towerHw ? { siteId: towerHw.id || towerHw._id, site: towerHw } : {},
           );
+          return;
+        }
+        if (t.indexOf("view") >= 0 && t.indexOf("inventory") >= 0) {
+          ev.preventDefault();
+          hideActionMenus();
+          postToParent("object-action", {
+            objectId: selId,
+            action: "view-inventory",
+            data: { tower: entity || asset },
+          });
           return;
         }
         if (t.indexOf("edit") >= 0 && name === "SectorActionsMenu") {
           ev.preventDefault();
-          var sec = (dataCache.sectors || [])[0];
+          hideActionMenus();
+          var sec = entity || findCachedEntity("sector", selId);
           if (sec) openLiftedModal("AddSectorModal", { sectorId: sec.id || sec._id, sector: sec });
-          else setHonesty("No sector in map cache to edit");
+          else setHonesty("No sector selected to edit");
           return;
         }
         if (t.indexOf("edit") >= 0 && name === "BackhaulActionsMenu") {
           ev.preventDefault();
-          var eq = (dataCache.equipment || [])[0];
+          hideActionMenus();
+          var eq = entity || findCachedEntity("equipment", selId);
           if (!eq) {
-            setHonesty("No equipment/backhaul in map cache to edit");
+            setHonesty("No equipment/backhaul selected to edit");
             return;
           }
           openLiftedModal("UnifiedDeviceDetailsModal", { device: eq });
-          setHonesty("Editing backhaul via PUT /api/network/equipment/:id");
           var eid = eq.id || eq._id;
-          if (!eid || !window.WispCwlApi) return;
+          if (!eid) return;
+          setHonesty("Editing backhaul via PUT /api/network/equipment/:id");
           apiFetch("/api/network/equipment/" + encodeURIComponent(eid), {
             method: "PUT",
             headers: { "content-type": "application/json" },
@@ -2214,29 +3045,30 @@
         }
         if (t.indexOf("delete") >= 0 || t.indexOf("remove") >= 0) {
           ev.preventDefault();
+          hideActionMenus();
           var delPath = "";
-          var delId = "";
-          if (name === "TowerActionsMenu") {
-            var site = (dataCache.towers || [])[0];
-            delId = site && (site.id || site._id);
-            delPath = delId ? "/api/network/sites/" + encodeURIComponent(delId) : "";
-          } else if (name === "SectorActionsMenu") {
-            var secDel = (dataCache.sectors || [])[0];
-            delId = secDel && (secDel.id || secDel._id);
+          var delId = selId || (entity && (entity.id || entity._id)) || "";
+          var kindHint = String(selKind || "").toLowerCase();
+          if (name === "TowerActionsMenu" || kindHint === "tower" || kindHint === "site" || kindHint === "cpe") {
+            if (kindHint === "cpe") {
+              delPath = delId ? "/api/network/cpe/" + encodeURIComponent(delId) : "";
+            } else {
+              delPath = delId ? "/api/network/sites/" + encodeURIComponent(delId) : "";
+            }
+          } else if (name === "SectorActionsMenu" || kindHint === "sector") {
             delPath = delId ? "/api/network/sectors/" + encodeURIComponent(delId) : "";
-          } else if (name === "BackhaulActionsMenu") {
-            var eqDel = (dataCache.equipment || [])[0];
-            delId = eqDel && (eqDel.id || eqDel._id);
+          } else if (name === "BackhaulActionsMenu" || kindHint === "equipment" || kindHint === "backhaul") {
             delPath = delId ? "/api/network/equipment/" + encodeURIComponent(delId) : "";
           }
           if (!delPath) {
-            setHonesty("No network entity in cache to delete");
+            setHonesty("No selected map entity to delete — right-click a feature first");
             return;
           }
           setHonesty("Deleting " + delPath + "…");
           apiFetch(delPath, { method: "DELETE" })
             .then(function (r) {
               if (!r || !r.ok) throw new Error("DELETE failed (" + (r && r.status) + ")");
+              selectedMapAsset = null;
               setHonesty("Deleted — reloading map");
               return loadNetworkData();
             })
@@ -2247,30 +3079,65 @@
         }
         if (t.indexOf("detail") >= 0 || t.indexOf("device") >= 0) {
           ev.preventDefault();
-          var device =
-            (dataCache.cpeDevices || [])[0] ||
-            (dataCache.sectors || [])[0] ||
-            (dataCache.equipment || [])[0] ||
-            (dataCache.towers || [])[0] ||
-            null;
+          hideActionMenus();
+          var device = entity || asset || null;
           openLiftedModal("UnifiedDeviceDetailsModal", { device: device });
           return;
         }
         if (t.indexOf("add sector") >= 0) {
           ev.preventDefault();
-          openLiftedModal("AddSectorModal", {});
+          hideActionMenus();
+          openLiftedModal(
+            "AddSectorModal",
+            entity || asset
+              ? { lat: (entity || asset).lat, lng: (entity || asset).lng, siteId: selId }
+              : {},
+          );
           return;
         }
         if (t.indexOf("add cpe") >= 0) {
           ev.preventDefault();
-          openLiftedModal("AddCPEModal", {});
+          hideActionMenus();
+          openLiftedModal("AddCPEModal", entity || asset ? { lat: (entity || asset).lat, lng: (entity || asset).lng } : {});
           return;
         }
         if (t.indexOf("add equipment") >= 0 || (t.indexOf("add") >= 0 && t.indexOf("equip") >= 0)) {
           ev.preventDefault();
-          var site = (dataCache.towers || [])[0];
-          var lat = site && site.lat != null ? site.lat : 39.74;
-          var lng = site && site.lng != null ? site.lng : -104.99;
+          hideActionMenus();
+          var siteRow =
+            entity ||
+            findCachedEntity("tower", selId) ||
+            (selectedMapAsset && selectedMapAsset.kind === "tower"
+              ? selectedMapAsset.raw || selectedMapAsset
+              : null);
+          if (!siteRow) {
+            setHonesty("Select a site before adding equipment");
+            return;
+          }
+          var lat = siteRow.lat != null ? siteRow.lat : 39.74;
+          var lng = siteRow.lng != null ? siteRow.lng : -104.99;
+          if (isPlanStagingMode()) {
+            setHonesty("Staging equipment on plan…");
+            apiFetch("/api/plans/" + encodeURIComponent(activePlanId) + "/features", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                featureType: "equipment",
+                geometry: { type: "Point", coordinates: [lng, lat] },
+                properties: { name: "Plan Equip " + Date.now(), latitude: lat, longitude: lng },
+                status: "draft",
+              }),
+            })
+              .then(function (r) {
+                if (!r || !r.ok) throw new Error("Plan equipment stage failed (" + (r && r.status) + ")");
+                setHonesty("Equipment staged in plan");
+                return reloadStagedFeatures();
+              })
+              .catch(function (e) {
+                setHonesty((e && e.message) || "Plan equipment stage failed");
+              });
+            return;
+          }
           setHonesty("Creating equipment…");
           apiFetch("/api/network/equipment", {
             method: "POST",

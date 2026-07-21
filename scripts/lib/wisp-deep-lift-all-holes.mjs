@@ -12,13 +12,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { countWispMarkupHoles } from "../wisp-hole-metrics-lib.mjs";
+import { unescapeCwlHtmlLiteral } from "./unescape-cwl-html.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureDir = join(scriptRoot, "fixtures/hub-wisp-management");
 const routesPath = join(fixtureDir, "routes.cwl");
 
 function unescapeCwlHtml(s) {
-  return s.replace(/\\n/g, "\n").replace(/\\"/g, '"');
+  return unescapeCwlHtmlLiteral(s.startsWith('"') ? s : `"${s}"`);
 }
 
 export async function deepLiftAllHoles(opts = {}) {

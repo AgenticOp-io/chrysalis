@@ -798,6 +798,18 @@ const server = createServer(async (req, res) => {
     res.end(html);
     return;
   }
+  if (req.method === "GET" && (url.pathname === "/convert" || url.pathname === "/convert/")) {
+    const html = await readFile(join(__dir, "chrysalis-convert-console.html"), "utf8");
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", ...noCache });
+    res.end(html);
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/convert/app.js") {
+    const js = await readFile(join(__dir, "chrysalis-convert-console.js"), "utf8");
+    res.writeHead(200, { "content-type": "application/javascript; charset=utf-8", ...noCache });
+    res.end(js);
+    return;
+  }
   if (req.method === "GET" && url.pathname.startsWith("/ui.js")) {
     await loadStatic();
     res.writeHead(200, { "content-type": "application/javascript; charset=utf-8", ...noCache });

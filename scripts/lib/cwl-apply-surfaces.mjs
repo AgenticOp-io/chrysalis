@@ -108,14 +108,25 @@ export function inspectRoutesCwlIntegrity(text, filePath = routesPath) {
     (rootHtml.includes("location.replace") ||
       rootHtml.includes("http-equiv=\\\"refresh\\\"") ||
       rootHtml.includes("url=/login"));
+  // A fully converted root page is also valid; redirects were required only
+  // while the root route had no native CWL surface.
+  const rootPageOk =
+    rootIdx >= 0 &&
+    /page\s+root_page\s*\{/.test(rootSlice) &&
+    rootHtml.trim().length > 0;
   const loginOk = src.includes('@page GET "/login"') && src.includes("login-page");
   const dashboardOk = src.includes('@page GET "/dashboard"') && src.includes("dashboard-container");
-  const ok = junkLines.length === 0 && rootRedirectOk && loginOk && dashboardOk;
+  const ok =
+    junkLines.length === 0 &&
+    (rootRedirectOk || rootPageOk) &&
+    loginOk &&
+    dashboardOk;
   return {
     ok,
     junkLines,
     junkCount: junkLines.length,
     rootRedirectOk,
+    rootPageOk,
     loginOk,
     dashboardOk,
     filePath,

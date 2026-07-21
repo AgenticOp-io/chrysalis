@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chrysalis — Conversion Method Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0e1a1f;
+      --paper: #f3f6f4;
+      --panel: rgba(255, 255, 255, 0.72);
+      --line: rgba(14, 26, 31, 0.12);
+      --muted: #5a6b72;
+      --accent: #0f766e;
+      --accent-2: #c45c26;
+      --ok: #1b7f4a;
+      --warn: #a16207;
+      --track: rgba(14, 26, 31, 0.08);
+      --glow: rgba(15, 118, 110, 0.18);
+      --radius: 14px;
+      --font: "IBM Plex Sans", system-ui, sans-serif;
+      --display: "Syne", "IBM Plex Sans", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(900px 480px at 8% -10%, var(--glow), transparent 55%),
+        radial-gradient(700px 420px at 100% 0%, rgba(196, 92, 38, 0.12), transparent 50%),
+        linear-gradient(165deg, #e8efeb 0%, var(--paper) 42%, #e4ebe7 100%);
+      background-attachment: fixed;
+    }
+    .shell { max-width: 1120px; margin: 0 auto; padding: 2rem 1.25rem 3.5rem; }
+    .brand {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin: 0 0 0.55rem;
+      animation: rise 0.7s ease both;
+    }
+    .lede {
+      max-width: 36rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.5;
+      margin: 0 0 1.5rem;
+      animation: rise 0.7s ease 0.08s both;
+    }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.75rem; animation: rise 0.7s ease 0.12s both; }
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+      border-radius: 999px;
+      padding: 0.28rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .pill.on { border-color: rgba(15, 118, 110, 0.35); color: var(--accent); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.1rem;
+      animation: rise 0.7s ease 0.16s both;
+    }
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.95rem 1rem;
+      backdrop-filter: blur(10px);
+    }
+    .stat strong {
+      display: block;
+      font-family: var(--display);
+      font-size: 1.65rem;
+      letter-spacing: -0.03em;
+    }
+    .stat span { color: var(--muted); font-size: 0.82rem; }
+    .meter-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem 1.15rem;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(10px);
+      animation: rise 0.7s ease 0.2s both;
+    }
+    .meter-head { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.55rem; font-size: 0.86rem; }
+    .meter-head span:last-child { color: var(--muted); }
+    .track {
+      height: 12px;
+      background: var(--track);
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+    }
+    .seg { height: 100%; transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+    .seg.done { background: var(--ok); }
+    .seg.active { background: var(--accent); }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      align-items: start;
+    }
+    @media (max-width: 880px) {
+      .layout, .stats { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.15rem 1.25rem;
+      backdrop-filter: blur(10px);
+      animation: rise 0.75s ease both;
+    }
+    .panel h2 {
+      font-family: var(--display);
+      font-size: 1.15rem;
+      margin: 0 0 0.9rem;
+      letter-spacing: -0.02em;
+    }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin: 0.55rem 0 0.3rem; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.55rem 0.65rem;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+    textarea { min-height: 4.5rem; resize: vertical; }
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(14, 26, 31, 0.06);
+      font-size: 0.92rem;
+    }
+    .toggle:last-of-type { border-bottom: 0; }
+    .switch {
+      width: 40px; height: 22px; border-radius: 999px; border: 0; cursor: pointer;
+      background: #c5d0d4; position: relative; flex: 0 0 auto;
+      transition: background 0.2s ease;
+    }
+    .switch[aria-checked="true"] { background: var(--accent); }
+    .switch i {
+      position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; transition: transform 0.2s ease;
+    }
+    .switch[aria-checked="true"] i { transform: translateX(18px); }
+    .cli {
+      margin-top: 0.85rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: 8px;
+      background: #0e1a1f;
+      color: #d7e6e2;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+    .steps { list-style: none; margin: 0; padding: 0; }
+    .steps li {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.4rem 0; font-size: 0.92rem;
+    }
+    .badge {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 0.18rem 0.45rem; border-radius: 6px; background: var(--track); color: var(--muted);
+    }
+    .badge.active { background: rgba(15, 118, 110, 0.15); color: var(--accent); }
+    .badge.done { background: rgba(27, 127, 74, 0.15); color: var(--ok); }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.85rem; }
+    button {
+      font: inherit; font-weight: 500; border-radius: 8px; border: 1px solid var(--line);
+      padding: 0.5rem 0.85rem; cursor: pointer; background: #fff; color: var(--ink);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    button.ghost { background: transparent; }
+    .chat {
+      display: flex; flex-direction: column; gap: 0.65rem;
+      max-height: 280px; overflow: auto;
+      padding: 0.75rem; border-radius: 10px; background: rgba(14, 26, 31, 0.03);
+      margin-bottom: 0.75rem;
+    }
+    .bubble { font-size: 0.9rem; line-height: 1.45; }
+    .bubble .who { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.15rem; }
+    .adapters { display: grid; gap: 0.65rem; }
+    .adapter-row .meter-head { margin-bottom: 0.3rem; font-size: 0.8rem; }
+    .adapter-row .track { height: 8px; }
+    .adapter-row .seg { background: var(--accent); }
+    .foot {
+      margin-top: 1.75rem; color: var(--muted); font-size: 0.82rem;
+      border-top: 1px solid var(--line); padding-top: 1rem;
+    }
+    .foot a { color: var(--accent); }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <h1 class="brand">Chrysalis</h1>
+    <p class="lede">Conversion method console — configure the run, watch step meters, and ask the coach. Translate only; never invent chrome.</p>
+    <div class="pills" id="pills"></div>
+
+    <div class="stats">
+      <div class="stat"><strong id="pct">0%</strong><span>Method complete</span></div>
+      <div class="stat"><strong id="stepsDone">0/8</strong><span>Steps done</span></div>
+      <div class="stat"><strong id="activeLabel">Inventory</strong><span>Active step</span></div>
+    </div>
+
+    <div class="meter-block">
+      <div class="meter-head"><span>Conversion method progress</span><span id="meterRight">0 / 100</span></div>
+      <div class="track" id="methodTrack" aria-label="Method progress"></div>
+    </div>
+
+    <div class="layout">
+      <div class="panel" style="animation-delay:0.22s">
+        <h2>Settings</h2>
+        <label for="framework">Origin framework adapter</label>
+        <select id="framework">
+          <option value="auto">Auto-detect</option>
+          <option value="sveltekit">SvelteKit</option>
+          <option value="vite-vue">Vue / Nuxt</option>
+          <option value="next-app">Next.js App Router</option>
+          <option value="angular">Angular</option>
+          <option value="php-blade">PHP Blade / Laravel</option>
+          <option value="php">PHP (handlers)</option>
+        </select>
+        <label for="origin">Origin path</label>
+        <input id="origin" placeholder="C:/path/to/app" />
+        <label for="live">Live base URL (optional)</label>
+        <input id="live" placeholder="http://host:port" />
+        <div style="margin-top:0.75rem">
+          <div class="toggle"><span>Deploy chimera (verify)</span><button type="button" class="switch" id="togChimera" aria-checked="true"><i></i></button></div>
+          <div class="toggle"><span>Deploy production host</span><button type="button" class="switch" id="togProd" aria-checked="true"><i></i></button></div>
+          <div class="toggle"><span>Honor honest-skip policy</span><button type="button" class="switch" id="togHonest" aria-checked="true"><i></i></button></div>
+          <div class="toggle"><span>Refuse invent / demo façades</span><button type="button" class="switch" id="togNoInvent" aria-checked="true"><i></i></button></div>
+        </div>
+        <div class="cli" id="cli"></div>
+        <div class="actions">
+          <button type="button" class="primary" id="btnCopy">Copy CLI</button>
+          <button type="button" class="ghost" id="btnRunHint">Show next action</button>
+        </div>
+      </div>
+
+      <div class="panel" style="animation-delay:0.28s">
+        <h2>Method steps</h2>
+        <ul class="steps" id="stepList"></ul>
+        <div class="actions">
+          <button type="button" class="primary" id="btnAdvance">Advance step</button>
+          <button type="button" id="btnReset">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel" style="animation-delay:0.32s">
+        <h2>Adapter readiness</h2>
+        <div class="adapters" id="adapters"></div>
+      </div>
+
+      <div class="panel" style="animation-delay:0.36s">
+        <h2>Method coach</h2>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <label for="ask">Ask about inventory, adapters, gaps, prove…</label>
+        <textarea id="ask" placeholder="How do Vue gates become shell-keys?"></textarea>
+        <div class="actions">
+          <button type="button" class="primary" id="btnAsk">Ask coach</button>
+          <button type="button" id="btnAskInv">Ask: inventory</button>
+          <button type="button" id="btnAskOrphan">Ask: orphans</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      Laws: D6442 translate-only · D6447 no demo façades · D6448 complete conversion.
+      Docs: <a href="/docs/UNIVERSAL-CONVERSION-METHOD.md">UNIVERSAL-CONVERSION-METHOD.md</a>
+      · Hub home: <a href="/">/</a>
+    </div>
+  </div>
+  <script src="/convert/app.js"></script>
+</body>
+</html>
