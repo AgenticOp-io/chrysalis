@@ -120,6 +120,19 @@ Smoke: `pnpm run hub:matrix-depth-full-gold-smoke`
 
 **Honest limit:** Wave 9 proves hub gold emit/verify green for registered nextjs suites when WPTP siblings are installed — not customer-repo Next.js parity. Prove track is **stGreen** + **signedInOriginCompare=passed** (2026-07-22): evidence-only hole zero, live management markers vs Module_Manager source, demo sign-in verified.
 
+## WISP multi-target prove (closed 2026-07-22)
+
+Gate: `pnpm run hub:wisp-multi-target-prove-smoke`
+
+| Bar | Result |
+| --- | --- |
+| Svelte gold structured+middleware | **48/48** suites → **24/24** emit targets |
+| Real WISP `routes.cwl` outbound emit | **24/24** targets (**~106** routes each; nextjs **105**) |
+
+Emit targets: c, cpp, csharp, css, cwl, fastify, go, hono, html, java, json, kotlin, markdown, nextjs, php, python, ruby, rust, scala, scss, sql, swift, vue, yaml.
+
+**Honest limit:** Gold + outbound emit prove lift→WebIR→emit works for WISP’s origin language cells and the live CWL corpus. It is **not** a claim that each target is a production-parity rewrite of the full SvelteKit app (ArcGIS islands, auth, etc. remain CWL/static-host proven).
+
 ## Refuse
 
 - Marketing “601 production-ready”
