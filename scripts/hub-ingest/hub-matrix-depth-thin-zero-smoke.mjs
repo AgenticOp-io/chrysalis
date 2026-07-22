@@ -7,7 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import { describeHubGoldPairCoverage } from "./hub-gold-coverage.mjs";
-import { buildLanguageReadinessReport } from "../chrysalis-hub-store.mjs";
+import { buildLanguageReadinessReport, hubDirectedPairCount } from "../chrysalis-hub-store.mjs";
 import { HUB_GOLD_SUITES } from "./hub-gold-manifest.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
@@ -31,7 +31,7 @@ export async function runMatrixDepthThinZeroSmoke() {
   }
 
   const docOk = existsSync(join(ROOT, "docs/MATRIX-DEPTH-PROGRAM.md"));
-  const ok = thin.length === 0 && docOk && report.pairs.length === 601;
+  const ok = thin.length === 0 && docOk && report.pairs.length === hubDirectedPairCount();
 
   progress.end("Matrix depth thin-zero", ok, t0);
   return {

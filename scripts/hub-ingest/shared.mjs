@@ -32,6 +32,7 @@ export const EXT_BY_LANG = {
   csharp: [".cs"],
   cpp: [".cpp"],
   c: [".c", ".h"],
+  cobol: [".cob", ".cbl", ".cpy"],
   rust: [".rs"],
   swift: [".swift"],
   scala: [".scala"],

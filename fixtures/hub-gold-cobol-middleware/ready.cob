@@ -1,0 +1,5 @@
+      * READY
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. READY.
+       PROCEDURE DIVISION.
+           STOP RUN.

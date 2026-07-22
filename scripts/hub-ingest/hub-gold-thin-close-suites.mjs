@@ -50,6 +50,7 @@ const LITERAL_FIXTURE = {
   markdown: "fixtures/hub-pattern-lift/markdown",
   c: "fixtures/hub-pattern-lift/c",
   cpp: "fixtures/hub-pattern-lift/cpp",
+  cobol: "fixtures/hub-pattern-lift/cobol",
 };
 
 /** Mirror of hubGoldEmitTargetForOutput — keep local to avoid circular import. */

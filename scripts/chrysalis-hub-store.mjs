@@ -65,6 +65,7 @@ const SILVER_FILE_LIFT_ORIGIN_IDS = new Set([
   "markdown",
   "c",
   "cpp",
+  "cobol",
 ]);
 
 /** Hub mission: every origin×output pair is runnable (oracle gold remains PHP→TS only). */
@@ -103,6 +104,9 @@ export const EXT_TO_LANGUAGE = {
   ".cpp": "cpp",
   ".c": "c",
   ".h": "c",
+  ".cob": "cobol",
+  ".cbl": "cobol",
+  ".cpy": "cobol",
   ".rs": "rust",
   ".swift": "swift",
   ".scala": "scala",

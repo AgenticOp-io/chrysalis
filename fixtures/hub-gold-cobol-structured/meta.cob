@@ -1,0 +1,5 @@
+      * META
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. META.
+       PROCEDURE DIVISION.
+           STOP RUN.

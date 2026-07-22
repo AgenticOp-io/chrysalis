@@ -7,7 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import { describeHubGoldPairCoverage } from "./hub-gold-coverage.mjs";
-import { buildLanguageReadinessReport } from "../chrysalis-hub-store.mjs";
+import { buildLanguageReadinessReport, hubDirectedPairCount } from "../chrysalis-hub-store.mjs";
 import { HUB_GOLD_SUITES } from "./hub-gold-manifest.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
@@ -25,6 +25,7 @@ const REQUIRED_FIXTURES = [
   "fixtures/hub-gold-json-middleware",
   "fixtures/hub-gold-sql-structured",
   "fixtures/hub-gold-c-structured",
+  "fixtures/hub-gold-cobol-structured",
 ];
 
 export async function runMatrixDepthFullGoldSmoke() {
@@ -46,7 +47,8 @@ export async function runMatrixDepthFullGoldSmoke() {
   }
 
   const docOk = existsSync(join(ROOT, "docs/MATRIX-DEPTH-PROGRAM.md"));
-  const ok = notFull.length === 0 && missingFixtures.length === 0 && docOk && report.pairs.length === 601;
+  const expectedPairs = hubDirectedPairCount();
+  const ok = notFull.length === 0 && missingFixtures.length === 0 && docOk && report.pairs.length === expectedPairs;
 
   progress.end("Matrix depth full gold", ok, t0);
   return {

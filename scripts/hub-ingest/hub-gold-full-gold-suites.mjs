@@ -34,6 +34,7 @@ const STRUCTURED_FIXTURE = {
   markdown: "fixtures/hub-gold-markdown-structured",
   c: "fixtures/hub-gold-c-structured",
   cpp: "fixtures/hub-gold-cpp-structured",
+  cobol: "fixtures/hub-gold-cobol-structured",
 };
 
 /** Web emit targets that accept js/ts middleware with body.key. */
@@ -65,6 +66,7 @@ const MIDDLEWARE_FIXTURE = {
   markdown: "fixtures/hub-gold-markdown-middleware",
   c: "fixtures/hub-gold-c-middleware",
   cpp: "fixtures/hub-gold-cpp-middleware",
+  cobol: "fixtures/hub-gold-cobol-middleware",
 };
 
 const JS_TS_PLAIN_MW = {

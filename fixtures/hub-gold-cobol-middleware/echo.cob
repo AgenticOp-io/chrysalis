@@ -1,0 +1,5 @@
+      * ECHO
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ECHO.
+       PROCEDURE DIVISION.
+           STOP RUN.

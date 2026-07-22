@@ -28,6 +28,7 @@ const ASSET_WAVE_ORIGINS = [
   "scss",
   "c",
   "cpp",
+  "cobol",
 ];
 
 /** @type {Readonly<Record<string, string>>} */
@@ -54,6 +55,7 @@ const ORIGIN_FIXTURE = {
   scss: "fixtures/hub-pattern-lift/scss",
   c: "fixtures/hub-pattern-lift/c",
   cpp: "fixtures/hub-pattern-lift/cpp",
+  cobol: "fixtures/hub-pattern-lift/cobol",
 };
 
 /**

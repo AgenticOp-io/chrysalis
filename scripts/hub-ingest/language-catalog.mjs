@@ -20,6 +20,7 @@ export const LANGUAGE_LABELS = {
   scala: "Scala",
   cpp: "C++",
   c: "C",
+  cobol: "COBOL",
   swift: "Swift",
   sql: "SQL",
   html: "HTML",
@@ -38,6 +39,7 @@ export const LANGUAGE_LABELS = {
  * Manual origin dropdown + route sources.
  * Includes app stacks plus common non-web source formats so all detected
  * languages can still be translated through open/scaffold routes.
+ * `cobol` is origin-only (legacy enterprise silver file-lift → WebIR; not a hub emit).
  */
 export const HUB_WEB_ORIGIN_LANGUAGE_IDS = [
   "php",
@@ -55,6 +57,7 @@ export const HUB_WEB_ORIGIN_LANGUAGE_IDS = [
   "scala",
   "cpp",
   "c",
+  "cobol",
   "swift",
   "sql",
   "html",
@@ -114,6 +117,7 @@ export const LANGUAGE_POPULARITY_ORDER = [
   "go",
   "c",
   "cpp",
+  "cobol",
   "rust",
   "kotlin",
   "swift",
@@ -195,4 +199,5 @@ export const HUB_SILVER_FILE_LIFT_ORIGIN_IDS = [
   "markdown",
   "c",
   "cpp",
+  "cobol",
 ];

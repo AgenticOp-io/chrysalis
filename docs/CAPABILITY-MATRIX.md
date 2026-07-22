@@ -54,15 +54,17 @@ The canonical **oracle micro surface** is **`fixtures/tiny-blog`** (5 routes): i
 
 ---
 
-## Open hub grid (601 directed pairs)
+## Open hub grid (627 directed pairs)
 
-The Translation Hub catalog exposes **601** directed origin→output pairs (24 origins × 26 outputs minus identity overlaps; **`svelte`** is origin-only). Machine count: `hubDirectedPairCount()` in `language-catalog.mjs`.
+The Translation Hub catalog exposes **627** directed origin→output pairs (25 origins × 26 outputs minus identity overlaps; **`svelte`** and **`cobol`** are origin-only). Machine count: `hubDirectedPairCount()` in `language-catalog.mjs`.
 
-**Census (maintenance close, G9160 / D6357):** **601/601** pairs have at least one **trace-replay** suite (`hub:extended-matrix-oracle-progress-smoke`). Waves **1–16** closed the extended-matrix promote bar.
+**COBOL:** silver file-lift origin (`.cob` / `.cbl` / `.cpy`) → WebIR → full outbound matrix. Best commercial depth targets remain **Java / C# / Python / Go**; fixture gold covers all emit targets the same way as C/C++ file-lift.
 
-**Depth (closed through Wave 9):** [`MATRIX-DEPTH-PROGRAM.md`](./MATRIX-DEPTH-PROGRAM.md) Waves **1–9** — **full gold 601/601**; all nextjs gold-verify; flagship→swift/assets via structured body lowering. Smokes include `hub:matrix-depth-wave7-nextjs-smoke`, `hub:matrix-depth-wave8-nextjs-replay-smoke`, `hub:matrix-depth-wave9-nextjs-all-smoke`, `hub:matrix-depth-program-close-smoke`.
+**Census (maintenance close, G9160 / D6357):** **627/627** pairs have at least one **trace-replay** suite (`hub:extended-matrix-oracle-progress-smoke`). Waves **1–16** closed the extended-matrix promote bar; COBOL added as origin-only silver file-lift.
 
-**Honest limit:** Suite-depth full gold is closed (**structured + middleware / pair**). Flagship depth remains concentrated on **PHP** (+ Express/JS) and the **WISP** UI POC (**D6448-ST** evidence-only green). **Do not** headline “601 languages production-ready” without that caveat.
+**Depth (closed through Wave 9 + COBOL origin):** [`MATRIX-DEPTH-PROGRAM.md`](./MATRIX-DEPTH-PROGRAM.md) — **full gold 627/627**; all nextjs gold-verify; flagship→swift/assets via structured body lowering. Smokes include `hub:matrix-depth-wave7-nextjs-smoke`, `hub:matrix-depth-wave8-nextjs-replay-smoke`, `hub:matrix-depth-wave9-nextjs-smoke`, `hub:matrix-depth-program-close-smoke`, `hub:matrix-depth-full-gold-smoke`.
+
+**Honest limit:** Suite-depth full gold is closed (**structured + middleware / pair**). Flagship depth remains concentrated on **PHP** (+ Express/JS) and the **WISP** UI POC (**D6448-ST** evidence-only green). **Do not** headline “627 languages production-ready” without that caveat.
 
 All pairs without flagship/customer evidence stay **gold-fixture** depth unless promoted with richer traces.
 
@@ -76,7 +78,7 @@ All pairs without flagship/customer evidence stay **gold-fixture** depth unless 
 | `hub-completion.json` `phpOracleSmoke` | Oracle | tiny-blog ingest + emit + verify debt |
 | `hub-completion.json` `goldVerify` / `traceReplay` | Structural | 119+ structural suites; 93+ trace suites |
 | `hub-gold-coverage.json` `coverageGaps` | Packaging truth | oracle tier without chrysalis CI gold |
-| `hub-path-knowledge.json` | Scaffold | Planning only (601-pair grid) |
+| `hub-path-knowledge.json` | Scaffold | Planning only (627-pair grid) |
 | `hub-migration-plan` API | Scaffold | Steps, not correctness proof |
 
 ---
@@ -99,7 +101,7 @@ All pairs without flagship/customer evidence stay **gold-fixture** depth unless 
 
 **Matrix schema v42** adds wave-2 extended matrix + `horizonCTrain` operator close (**G9130**).
 
-**Matrix schema v41** adds `extendedMatrixOracle` census (601-pair waves, **G9030** wave-1 close).
+**Matrix schema v41** adds `extendedMatrixOracle` census (directed-pair waves, **G9030** wave-1 close; count from `hubDirectedPairCount()`).
 
 **Matrix schema v40** adds Phase 44 `phase44` (active **G9000**).
 
@@ -109,8 +111,8 @@ All pairs without flagship/customer evidence stay **gold-fixture** depth unless 
 
 - **Say:** “Verified PHP backend migration with oracle replay and dual-stack cutover.”
 - **Say:** “72 core language pairs with gold-fixture trace oracle evidence (Phase 41).”
-- **Say:** “601-pair hub census is full fixture gold (structured + middleware per directed pair) — not customer-repo parity.”
+- **Say:** “627-pair hub census is full fixture gold (structured + middleware per directed pair) — not customer-repo parity.”
 - **Say:** “Translation Hub operations for multi-site programs with evidence dashboards.”
-- **Do not say:** “601 languages production-ready” or “convert any website.”
+- **Do not say:** “627 languages production-ready” or “convert any website.”
 
-See also: `docs/STRATEGIC-PLAN.md`, `docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`, `docs/CWL.md`, `docs/PHASE-46-PROGRAM.md` (post-close waves 8–16 → 601/601).
+See also: `docs/STRATEGIC-PLAN.md`, `docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`, `docs/CWL.md`, `docs/PHASE-46-PROGRAM.md` (post-close waves 8–16 → full directed-pair census).

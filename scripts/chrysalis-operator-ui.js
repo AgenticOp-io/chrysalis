@@ -398,7 +398,7 @@
       const data = await api("/api/hub/capability-matrix");
       const ext = data.extendedMatrixOracle ?? {};
       const core = data.fullMatrixOracle?.corePairCount ?? 72;
-      const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 601;
+      const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 627;
       const oracle = ext.oracleProductCount ?? 0;
       const below = ext.belowTarget ?? Math.max(0, total - oracle);
       const extended = ext.extendedOraclePairs ?? Math.max(0, oracle - core);
@@ -463,7 +463,7 @@
       if (!r.ok) throw new Error(data.message || data.error || r.statusText);
       const ext = data.extendedMatrixOracle ?? {};
       const core = data.fullMatrixOracle?.corePairCount ?? 72;
-      const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 601;
+      const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 627;
       const oracle = ext.oracleProductCount ?? total;
       const pairsEl = $("capMetricPairs");
       const oracleEl = $("capMetricOracle");
@@ -478,7 +478,7 @@
     } catch (e) {
       if (status) {
         status.textContent =
-          "Showing catalog defaults (matrix API unavailable): 601/601 fixture gold · 72 core oracle · 24 emit · deep prove hono/fastify/nextjs/python · WISP ST on CWL.";
+          "Showing catalog defaults (matrix API unavailable): 627/627 fixture gold · 72 core oracle · 24 emit · deep prove hono/fastify/nextjs/python · WISP ST on CWL.";
       }
     }
   }

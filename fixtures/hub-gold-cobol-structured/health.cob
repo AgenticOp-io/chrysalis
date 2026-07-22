@@ -1,0 +1,5 @@
+      * HEALTH
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. HEALTH.
+       PROCEDURE DIVISION.
+           STOP RUN.

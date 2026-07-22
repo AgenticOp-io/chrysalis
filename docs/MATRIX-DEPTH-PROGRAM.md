@@ -1,12 +1,12 @@
 # Matrix depth program (thin gold → multi-suite)
 
-> **Status:** **closed through Wave 9** (2026-07-21) — **full gold 601/601**; all nextjs gold-verify; program-close composite  
-> **Authority:** extends closed Phase 41/44–46 census (**601/601** oracle-product)  
+> **Status:** **closed through Wave 9** (2026-07-21) + **COBOL origin** (2026-07-22) — **full gold 627/627**; all nextjs gold-verify; program-close composite  
+> **Authority:** extends closed Phase 41/44–46 census (**directed-pair** oracle-product; count = `hubDirectedPairCount()`)  
 > **North star:** promote pairs from **1 literal suite** to **literal + structured + middleware** (python/js pattern) without inventing customer façades.
 
 ## Thesis
 
-Hub census **601/601** means every directed pair has ≥1 trace-replay suite. Most are **thin gold**. Depth is extra fixtures + `HUB_GOLD_SUITES` rows — not new catalog languages.
+Hub census **627/627** means every directed pair has ≥1 trace-replay suite. Most are **thin gold**. Depth is extra fixtures + `HUB_GOLD_SUITES` rows — catalog growth (e.g. **COBOL** origin-only silver file-lift) raises the pair count when WebIR outbound already covers all emit targets.
 
 | Depth tier | Suites per popular web output | Bar |
 | --- | --- | --- |
@@ -150,12 +150,12 @@ Selective high-value path first; then **all 24** emit targets. Gate: `pnpm run h
 
 ## Refuse
 
-- Marketing “601 production-ready”
+- Marketing “627 production-ready” / “601 production-ready”
 - Demo-only handlers that do not lift from origin idioms
 - Auto-apply LLM patches without verify
 
 ## Related
 
 - [`CAPABILITY-MATRIX.md`](./CAPABILITY-MATRIX.md)
-- [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) (post-close 601 census)
+- [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) (post-close directed-pair census)
 - `scripts/hub-ingest/hub-gold-manifest.mjs`
