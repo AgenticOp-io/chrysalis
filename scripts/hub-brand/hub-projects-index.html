@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgenticOp · Demo hub</title>
+  <meta name="description" content="Demo launcher for Chrysalis Translation Hub, WISP conversion proof, and Fragility Discovery Engine — honest capability bars you can show live." />
+  <meta name="theme-color" content="#020208" />
+  <link rel="canonical" href="https://hub.agenticop.io/" />
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/agenticops.css" />
+  <style>
+    .demo-hero {
+      position: relative;
+      padding: clamp(3rem, 8vh, 5.5rem) 0 2.75rem;
+      border-bottom: 1px solid rgba(148,163,184,0.14);
+      background:
+        radial-gradient(ellipse 80% 60% at 12% 10%, rgba(34,211,238,0.16), transparent 55%),
+        radial-gradient(ellipse 60% 50% at 92% 70%, rgba(14,116,144,0.2), transparent 50%);
+    }
+    .demo-brand {
+      font-size: clamp(2.6rem, 6.5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin: 0 0 1rem;
+      background: linear-gradient(105deg, #5eead4 0%, #22d3ee 45%, #67e8f9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: demoRise 0.8s cubic-bezier(0.22,1,0.36,1) 0.06s forwards;
+    }
+    .demo-headline {
+      margin: 0 0 0.65rem;
+      font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+      font-weight: 560;
+      color: #e8eefc;
+      max-width: 34rem;
+      line-height: 1.35;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: demoRise 0.75s cubic-bezier(0.22,1,0.36,1) 0.18s forwards;
+    }
+    .demo-lede {
+      margin: 0 0 1.4rem;
+      color: #98a3b8;
+      max-width: 36rem;
+      line-height: 1.55;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: demoRise 0.75s cubic-bezier(0.22,1,0.36,1) 0.3s forwards;
+    }
+    .demo-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: demoRise 0.7s cubic-bezier(0.22,1,0.36,1) 0.42s forwards;
+    }
+    @keyframes demoRise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .demo-proof {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0;
+    }
+    .demo-proof li {
+      display: grid;
+      grid-template-columns: minmax(5.5rem, 7rem) 1fr;
+      gap: 0.35rem 1.1rem;
+      padding: 1rem 0;
+      border-top: 1px solid rgba(148,163,184,0.12);
+      align-items: baseline;
+    }
+    .demo-proof li:first-child { border-top: none; }
+    .demo-proof-metric {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #5eead4;
+      letter-spacing: -0.02em;
+    }
+    .demo-proof-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e8eefc;
+    }
+    .demo-proof-note {
+      margin: 0.2rem 0 0;
+      font-size: 0.88rem;
+      color: #98a3b8;
+      line-height: 1.45;
+      grid-column: 2;
+    }
+    @media (max-width: 640px) {
+      .demo-proof li { grid-template-columns: 1fr; }
+      .demo-proof-note { grid-column: 1; }
+    }
+    .demo-honesty {
+      margin: 1.25rem 0 0;
+      padding-left: 1rem;
+      border-left: 3px solid rgba(94,234,212,0.45);
+      color: #98a3b8;
+      max-width: 40rem;
+      line-height: 1.55;
+    }
+    .demo-honesty strong { color: #e8eefc; }
+  </style>
+  <script>
+    // Old Translation Hub deep links were hub.agenticop.io/#/... — send them to /hub/
+    (function () {
+      var h = location.hash || "";
+      if (h.length > 1) {
+        location.replace("/hub/" + h);
+      }
+    })();
+  </script>
+</head>
+<body class="ao-page" data-ao-page="hub">
+  <div class="ao-bg-fx" aria-hidden="true"><div class="ao-vignette"></div><div class="ao-orb ao-orb-a"></div><div class="ao-orb ao-orb-b"></div><div class="ao-grid"></div><div class="ao-noise"></div></div>
+
+  <header class="ao-nav" role="banner">
+    <div class="ao-wrap ao-nav-inner">
+      <a class="ao-brand" href="/" aria-label="AgenticOp demo hub">
+        <img class="ao-brand-mark" src="/logo.svg" alt="" width="56" height="56" />
+        <span class="ao-brand-stack">
+          <span class="ao-brand-name">AgenticOp</span>
+          <span class="ao-brand-domain">hub.agenticop.io</span>
+        </span>
+      </a>
+      <nav class="ao-nav-links" aria-label="Primary">
+        <a class="ao-nav-link ao-nav-link-active" href="/">Demo</a>
+        <a class="ao-nav-link" href="https://chrysalis.agenticop.io/">Translation Hub</a>
+        <a class="ao-nav-link" href="https://management.wisptools.io/">WISP</a>
+        <a class="ao-nav-link" href="https://fragility.agenticop.io/">FDE</a>
+        <a class="ao-nav-link" href="https://agenticop.io/">Corporate</a>
+        <a class="ao-nav-cta" href="https://chrysalis.agenticop.io/">Open demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="ao-page-main">
+    <section class="demo-hero">
+      <div class="ao-wrap">
+        <h1 class="demo-brand">AgenticOp</h1>
+        <p class="demo-headline">Live demos you can walk — with evidence, not slides.</p>
+        <p class="demo-lede">
+          This host is the demo network: Translation Hub for convert &amp; prove,
+          WISP for a full-site CWL product, FDE for stress-search.
+          Start with the bars below, then open the surface you want to show.
+        </p>
+        <div class="demo-ctas">
+          <a class="ao-btn ao-btn-primary" href="https://chrysalis.agenticop.io/">Translation Hub</a>
+          <a class="ao-btn ao-btn-ghost" href="https://management.wisptools.io/">WISP product</a>
+          <a class="ao-btn ao-btn-ghost" href="https://fragility.agenticop.io/">FDE workbench</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="ao-section">
+      <div class="ao-wrap">
+        <p class="ao-kicker">What you can claim in the room</p>
+        <h2 class="ao-h2">Proven today</h2>
+        <p class="ao-sub">Honest bars from the Chrysalis capability matrix — fixture gold vs customer depth stay separate.</p>
+        <ul class="demo-proof">
+          <li>
+            <span class="demo-proof-metric">601/601</span>
+            <p class="demo-proof-title">Directed hub pairs at full fixture gold</p>
+            <p class="demo-proof-note">Structured + middleware per origin→output. Trace replay in CI — not “every language production-ready.”</p>
+          </li>
+          <li>
+            <span class="demo-proof-metric">72</span>
+            <p class="demo-proof-title">Core oracle language pairs</p>
+            <p class="demo-proof-note">9×9 matrix with gold-fixture behavioral replay (CWL, C#, Go, Java, JS, PHP, Python, Ruby, TS).</p>
+          </li>
+          <li>
+            <span class="demo-proof-metric">24/24</span>
+            <p class="demo-proof-title">WISP CWL outbound emit targets</p>
+            <p class="demo-proof-note">Real management corpus (~106 routes) emits to every hub target. Deep prove on hono · fastify · nextjs · python.</p>
+          </li>
+          <li>
+            <span class="demo-proof-metric">ST</span>
+            <p class="demo-proof-title">WISP product success template on CWL static</p>
+            <p class="demo-proof-note">Evidence-only hole zero + signed-in origin compare — the full-site demo at management.wisptools.io.</p>
+          </li>
+        </ul>
+        <p class="demo-honesty">
+          <strong>Say in demos:</strong> verified PHP migration, 72 core oracle pairs, 601 fixture-gold census, Hub ops with evidence.
+          <strong>Do not say:</strong> “601 languages production-ready” or “convert any website.”
+        </p>
+      </div>
+    </section>
+
+    <section class="ao-section ao-section-alt">
+      <div class="ao-wrap">
+        <p class="ao-kicker">Demo surfaces</p>
+        <h2 class="ao-h2">Open these live</h2>
+        <p class="ao-sub">Pick the story for the audience — convert/prove, product fidelity, or fragility search.</p>
+
+        <div class="ao-project-list" role="list">
+          <article class="ao-project" role="listitem">
+            <div class="ao-project-top">
+              <div>
+                <h3 class="ao-project-name">Chrysalis Translation Hub</h3>
+                <p class="ao-project-desc">
+                  Capability landing, path explorer, convert method, and multi-site operator console.
+                  Best for “how translation works” demos.
+                </p>
+              </div>
+              <span class="ao-pill ao-pill-live">Live · HTTPS</span>
+            </div>
+            <p class="ao-project-host"><a href="https://chrysalis.agenticop.io/">chrysalis.agenticop.io</a></p>
+            <div class="ao-project-actions">
+              <a class="ao-btn ao-btn-primary" href="https://chrysalis.agenticop.io/">Open capabilities</a>
+              <a class="ao-btn ao-btn-ghost" href="https://chrysalis.agenticop.io/convert">Convert method</a>
+              <a class="ao-btn ao-btn-ghost" href="https://chrysalis.agenticop.io/#/paths">Path explorer</a>
+              <a class="ao-btn ao-btn-link" href="/hub/">via /hub/ →</a>
+            </div>
+          </article>
+
+          <article class="ao-project" role="listitem">
+            <div class="ao-project-top">
+              <div>
+                <h3 class="ao-project-name">WISP · converted product</h3>
+                <p class="ao-project-desc">
+                  Full-site SvelteKit → CWL static with evidence-only ST. Sign in and walk login → dashboard → plan.
+                  Best for “real app, real UI” demos.
+                </p>
+              </div>
+              <span class="ao-pill ao-pill-live">Live · HTTPS</span>
+            </div>
+            <p class="ao-project-host"><a href="https://management.wisptools.io/">management.wisptools.io</a></p>
+            <div class="ao-project-actions">
+              <a class="ao-btn ao-btn-primary" href="https://management.wisptools.io/">Open WISP</a>
+              <a class="ao-btn ao-btn-ghost" href="https://management.wisptools.io/login">Login</a>
+              <a class="ao-btn ao-btn-link" href="https://chrysalis.agenticop.io/#/guide?doc=complete-conversion-success-template">ST template →</a>
+            </div>
+          </article>
+
+          <article class="ao-project" role="listitem">
+            <div class="ao-project-top">
+              <div>
+                <h3 class="ao-project-name">Fragility Discovery Engine</h3>
+                <p class="ao-project-desc">
+                  Stress-search workbench — scenarios, replays, Pareto charts, evidence samples.
+                  Browse-first; live runs are API-key gated.
+                </p>
+              </div>
+              <span class="ao-pill ao-pill-live">Live · HTTPS</span>
+            </div>
+            <p class="ao-project-host"><a href="https://fragility.agenticop.io/">fragility.agenticop.io</a></p>
+            <div class="ao-project-actions">
+              <a class="ao-btn ao-btn-primary" href="https://fragility.agenticop.io/">Open workbench</a>
+              <a class="ao-btn ao-btn-ghost" href="https://fragility.agenticop.io/docs/demo-guide.html">Demo guide</a>
+              <a class="ao-btn ao-btn-link" href="https://github.com/AgenticOp-io/fragility-discovery-engine" target="_blank" rel="noopener">GitHub →</a>
+            </div>
+          </article>
+
+          <article class="ao-project" role="listitem">
+            <div class="ao-project-top">
+              <div>
+                <h3 class="ao-project-name">Corporate</h3>
+                <p class="ao-project-desc">Marketing and method pages on Firebase — for context after a technical walkthrough.</p>
+              </div>
+              <span class="ao-pill ao-pill-live">Live · HTTPS</span>
+            </div>
+            <p class="ao-project-host"><a href="https://agenticop.io/">agenticop.io</a></p>
+            <div class="ao-project-actions">
+              <a class="ao-btn ao-btn-ghost" href="https://agenticop.io/">Home</a>
+              <a class="ao-btn ao-btn-link" href="https://agenticop.io/contact.html">Start a Pilot →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="ao-section">
+      <div class="ao-wrap">
+        <p class="ao-kicker">Same GCE instance</p>
+        <h2 class="ao-h2">How this box is laid out</h2>
+        <div class="ao-stack-grid">
+          <div><strong>This page</strong><span>hub.agenticop.io · demo launcher</span></div>
+          <div><strong>Translation Hub</strong><span>chrysalis.agenticop.io</span></div>
+          <div><strong>Hub path</strong><span>hub.agenticop.io/hub/ → same app</span></div>
+          <div><strong>WISP product</strong><span>management.wisptools.io · Firebase</span></div>
+          <div><strong>FDE workbench</strong><span>fragility.agenticop.io</span></div>
+          <div><strong>Corporate</strong><span>agenticop.io · Firebase</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ao-footer">
+    <div class="ao-wrap ao-footer-inner">
+      <div class="ao-footer-brand">
+        <img class="ao-footer-mark" src="/logo.svg" alt="" width="48" height="48" />
+        <span class="ao-brand-stack">
+          <span class="ao-brand-name ao-brand-name--footer">AgenticOp</span>
+          <span class="ao-brand-domain">hub.agenticop.io</span>
+        </span>
+      </div>
+      <nav class="ao-footer-links" aria-label="Footer">
+        <a class="ao-footer-link-active" href="/">Demo</a>
+        <a href="https://chrysalis.agenticop.io/">Chrysalis</a>
+        <a href="https://management.wisptools.io/">WISP</a>
+        <a href="https://fragility.agenticop.io/">FDE</a>
+        <a href="https://agenticop.io/">agenticop.io</a>
+        <a href="https://github.com/AgenticOp-io" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <p class="ao-footer-fine">© <span id="ao-year"></span> AgenticOp. Chrysalis and Fragility Discovery Engine are open source — evidence beats guesswork.</p>
+    </div>
+  </footer>
+  <script>document.getElementById("ao-year").textContent = String(new Date().getFullYear());</script>
+</body>
+</html>
