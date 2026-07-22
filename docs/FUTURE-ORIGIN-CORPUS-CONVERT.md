@@ -201,6 +201,7 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-22 | **WISP multi-target prove:** `hub:wisp-multi-target-prove-smoke` — svelte gold **48/48** + WISP CWL outbound emit **24/24** targets | **done** |
 | 2026-07-22 | **WISP deep emit prove (selective):** `hub:wisp-deep-emit-prove-smoke` — svelte gold replay **8/8** (hono/fastify/nextjs/python) + WISP CWL emit **4/4** + in-process hono/fastify **correctness=1** (106 routes). Not ST on every language. | **done** |
 | 2026-07-22 | **WISP deep emit prove (all 24):** same gate expanded — gold **48** suites + WISP emit **24/24** + inProcess web + asset/cwl WISP replay; natives = gold probe + WISP emit. Toolchain skips honest. | **done** |
+| 2026-07-22 | **COBOL origin-only:** silver file-lift (`.cob`/`.cbl`/`.cpy`) → WebIR → full outbound matrix; census **627/627** full gold; `hub:cobol-best-fit-smoke` proves java/csharp/python/go (+ hono). Not semantic COBOL AST. | **done** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 
