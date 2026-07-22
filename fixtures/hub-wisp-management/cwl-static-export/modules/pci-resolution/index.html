@@ -558,6 +558,8 @@
 
             🏗️ Create New Cell Site
 
+            <div hidden aria-hidden="true">🏗️ Edit Cell Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site?.name || 'Unknown'"></span>
+          </div>
         </h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
@@ -862,12 +864,14 @@
 
             🏗️ Create Site
 
+            <div hidden aria-hidden="true">💾 Save Changes
+          </div>
         </button>
       </div>
     </div>
   </div></div></div></div></div>
 
-  <div data-cwl-component="AnalysisModal" data-cwl-lifted-component="AnalysisModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showAnalysisModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && analysis"><div
+  <div data-cwl-component="AnalysisModal" data-cwl-lifted-component="AnalysisModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showAnalysisModal" hidden aria-hidden="true"><div
     class="modal-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
@@ -910,7 +914,7 @@
         </div>
       </div>
     </div>
-  </div></div></div></div>
+  </div></div></div>
 
   <div data-cwl-component="ConflictsModal" data-cwl-lifted-component="ConflictsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showConflictsModal" hidden aria-hidden="true"><div
     class="modal-overlay"
@@ -954,7 +958,7 @@
     </div>
   </div></div></div>
 
-  <div data-cwl-component="RecommendationsModal" data-cwl-lifted-component="RecommendationsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showRecommendationsModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && geminiAnalysis"><div
+  <div data-cwl-component="RecommendationsModal" data-cwl-lifted-component="RecommendationsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showRecommendationsModal" hidden aria-hidden="true"><div
     class="modal-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
@@ -974,9 +978,9 @@
         </div>
       </div>
     </div>
-  </div></div></div></div>
+  </div></div></div>
 
-  <div data-cwl-component="OptimizationResultModal" data-cwl-lifted-component="OptimizationResultModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showOptimizationResultModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && result"><div
+  <div data-cwl-component="OptimizationResultModal" data-cwl-lifted-component="OptimizationResultModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showOptimizationResultModal" hidden aria-hidden="true"><div
     class="modal-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
    hidden aria-hidden="true">
@@ -1013,7 +1017,7 @@
         </div>
       </div>
     </div>
-  </div></div></div></div>
+  </div></div></div>
 
   <div data-cwl-component="CellEditor" data-cwl-lifted-component="CellEditor"><div class="cwl-self-gated-shell" data-cwl-shell-key="showCellEditor" hidden aria-hidden="true"><div class="modal-backdrop">
     <div class="cell-editor">
@@ -1307,8 +1311,8 @@
       <div class="editor-header">
         <h2>
 
-            🏗️ Edit Cell Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site?.name || 'Unknown'"></span>
-
+            <div data-cwl-shell-key="isNewSite" hidden aria-hidden="true">🏗️ Create New Cell Site
+          </div>
         </h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
@@ -1611,8 +1615,8 @@
         <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
         <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
 
-            💾 Save Changes
-
+            <div data-cwl-shell-key="isNewSite" hidden aria-hidden="true">🏗️ Create Site
+          </div>
         </button>
       </div>
     </div>
@@ -1839,8 +1843,8 @@
       <div class="editor-header">
         <h2>
 
-            🏗️ Edit Cell Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site?.name || 'Unknown'"></span>
-
+            <div data-cwl-shell-key="isNewSite" hidden aria-hidden="true">🏗️ Create New Cell Site
+          </div>
         </h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
@@ -2143,8 +2147,8 @@
         <button type="button" class="cancel-btn" data-cwl-action="handleClose" aria-label="Close">Cancel</button>
         <button type="button" class="save-btn" data-cwl-action="handleSave" aria-label="Save">
 
-            💾 Save Changes
-
+            <div data-cwl-shell-key="isNewSite" hidden aria-hidden="true">🏗️ Create Site
+          </div>
         </button>
       </div>
     </div>
@@ -2326,6 +2330,8 @@
 
             🏗️ Create New Cell Site
 
+            <div hidden aria-hidden="true">🏗️ Edit Cell Site: <span data-cwl-bind="interp" data-cwl-hole-detail="site?.name || 'Unknown'"></span>
+          </div>
         </h2>
         <button class="close-btn" data-cwl-action="handleClose" aria-label="Close">×</button>
       </div>
@@ -2630,6 +2636,8 @@
 
             🏗️ Create Site
 
+            <div hidden aria-hidden="true">💾 Save Changes
+          </div>
         </button>
       </div>
     </div>
@@ -3019,7 +3027,7 @@
   </div></div></div></div></div>
 
         </div></div>
-<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose">
+<div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal" data-cwl-orphan-modal="1"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -3052,7 +3060,7 @@
         <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
       </div>
     </div>
-  </div></div></div>
+  </div></div>
 <div data-cwl-component="AuthModal" data-cwl-lifted-component="AuthModal" data-cwl-orphan-modal="1"><div
     class="auth-overlay"
     role="presentation" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose"
@@ -3207,4 +3215,4 @@
       </div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"pci-resolution"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"pci-resolution","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>

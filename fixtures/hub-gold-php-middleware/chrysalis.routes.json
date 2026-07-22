@@ -1,0 +1,7 @@
+{
+  "app": "hub-gold-php-middleware",
+  "routes": [
+    { "method": "GET", "path": "/ready", "file": "pages/ready.php", "pathParams": [] },
+    { "method": "POST", "path": "/echo", "file": "pages/echo.php", "pathParams": [] }
+  ]
+}

@@ -195,7 +195,9 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-17 | **D6448 Complete conversion protocol:** [`docs/COMPLETE-CONVERSION-PROTOCOL.md`](./COMPLETE-CONVERSION-PROTOCOL.md); `hub:complete-conversion`; wired into convert-restart (fail if holes remain). First run: **2477→1014** honest closes (−1463), then plateau — **incomplete** until engine closes remaining interp/if/each | **done (protocol)** / **open (zero holes)** |
 | 2026-07-17 | **Engine + complete to zero:** script scalar/`let` array extract; broader UI-toggle stamp; multi-pass hydrate; each residual expand; `??`/JSON/handler interp; terminal static-shell settle after evidence plateau. `hub:complete-conversion` → **0 holes** (`complete-terminal-settle`); management redeployed | **done** |
 | 2026-07-17 | **D6448-ST success template:** [`COMPLETE-CONVERSION-SUCCESS-TEMPLATE.md`](./COMPLETE-CONVERSION-SUCCESS-TEMPLATE.md); checklist + `hub:complete-conversion-prove`; SharedMap → coverage-map ArcGIS iframe; page wrap; login idle CTA; modules `[hidden]` CSS. Prove: **fidelityOk** (login/plan/deploy islands); full **stGreen** still needs evidence-only hole zero | **done (template + fidelity)** / **open (evidence-only ST)** |
-| — | Grow evidence closes until `forceSettleUsed:false` + hole 0 for full D6448-ST; signed-in origin compare | **open** |
+| 2026-07-22 | **D6448-ST evidence-only green:** engine evidence closes (`.includes` / `||` short-circuit / wizard scalars / UI-toggle expand / origin object-literal extract + protocol merge); `hub:complete-conversion -- --no-terminal-settle` → `complete-zero-holes` + `forceSettleUsed:false`; prove **stGreen:true** | **done** |
+| 2026-07-22 | **Signed-in origin compare gate:** `hub:complete-conversion-origin-compare` — origin Module_Manager source contracts + live management.wisptools.io markers for `/login` `/dashboard` `/modules/plan`; checklist `signedInOriginCompare.status=passed` | **done** |
+| 2026-07-22 | **Evidence-only redeploy + demo sign-in:** static export 104/104 residue 0 → Firebase management; browser demo login → dashboard → plan (Active Plan / Projects) | **done** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 
@@ -452,8 +454,8 @@ Shared tooling so ×10 batches are not copy-pasted runners:
 
 | Piece | Path / command |
 | --- | --- |
-| Harness | `scripts/lib/wisp-fidelity-deepen-harness.mjs` |
-| Batch bodies | `scripts/lib/wisp-fidelity-deepen-batches/{n10g,n10h}.mjs` |
+| Harness | `scripts/wisp/wisp-fidelity-deepen-harness.mjs` |
+| Batch bodies | `scripts/wisp/wisp-fidelity-deepen-batches/{n10g,n10h}.mjs` |
 | Catalog | `fixtures/hub-wisp-management/chrysalis.wisp-fidelity-deepen-catalog.v1.json` |
 | CLI | `pnpm run hub:fidelity-deepen -- --list` |
 | Candidates | `pnpm run hub:fidelity-deepen-candidates` |

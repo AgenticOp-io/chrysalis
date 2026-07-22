@@ -54,6 +54,8 @@ export async function runNextStructuralShellDepthSmoke() {
     html.includes("data-cwl-hole") &&
     !/\{title\}/.test(html);
 
+  const shellOk = html.includes('data-cwl-shell-key="showUpgradeModal"');
+
   const unit = ingest.liftStructuralNextPageJsx(`
 "use client";
 export default function P() {
@@ -66,10 +68,26 @@ export default function P() {
     unit.holes.some((h) => h.reason === "legacy:markup-lift-next-interp") &&
     unit.holes.some((h) => h.reason === "legacy:markup-lift-next-client");
 
+  const overlayUnit = ingest.liftStructuralNextPageJsx(`
+export default function P() {
+  return (<main>{showModal && (<div class="m">Hi</div>)}</main>);
+}
+`);
+  const overlayOk =
+    overlayUnit !== null &&
+    String(overlayUnit.html).includes('data-cwl-shell-key="showModal"');
+
   const staticRefuse = ingest.liftStaticNextPageJsx(`export default function P(){return (<h1>{x}</h1>);}`);
   const staticOk = staticRefuse === null;
 
-  const ok = convert.ok === true && markup?.ok === true && holeOk && unitOk && staticOk;
+  const ok =
+    convert.ok === true &&
+    markup?.ok === true &&
+    holeOk &&
+    shellOk &&
+    unitOk &&
+    overlayOk &&
+    staticOk;
 
   return {
     kind: NEXT_STRUCTURAL_SHELL_DEPTH_SMOKE_KIND,
@@ -79,9 +97,11 @@ export default function P() {
     loginLiftMode: login?.liftMode ?? null,
     holeReasons: [...reasons].sort(),
     holeCount: holes.length,
+    shellOk,
     unitOk,
+    overlayOk,
     staticOk,
-    note: "Next structural-shell records holes — static mode refuses silent strip",
+    note: "Next structural-shell records holes + overlay shell keys",
     generatedAt: new Date().toISOString(),
   };
 }

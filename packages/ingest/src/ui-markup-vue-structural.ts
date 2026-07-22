@@ -1,11 +1,18 @@
 /**
  * Structural-shell Vue template lift (G9924 / D6418; wrap for load-bind G9927 / D6420).
  * Preserve layout; emit named holes for v-if / v-for / interp / events / components.
- * v-if / v-for wrap elements in `data-cwl-hole` markers so shared load-bind can hydrate.
- * Never invent live data (§3).
+ * Overlay gates (showX / isOpen / open / visible) stamp closed self-keyed chrome like Svelte.
+ * Never invent live data (section 3).
  */
 import { finalizeStaticMarkup } from "./ui-markup-static.js";
 import { extractHtmlClassNames } from "./ui-markup-svelte.js";
+import {
+  aliasShellKeyToParent,
+  extractVueNamedSlotBodies,
+  extractVueParentGate,
+  maybeStampOverlayGate,
+  wrapSelfGatedOverlayShell,
+} from "./ui-markup-overlay-shell.js";
 
 export type VueMarkupLiftHole = { readonly reason: string; readonly detail: string };
 
@@ -22,6 +29,7 @@ export const HOLE_VUE_INTERP = "legacy:markup-lift-vue-interp";
 export const HOLE_VUE_EVENT = "legacy:markup-lift-vue-event";
 export const HOLE_VUE_BIND = "legacy:markup-lift-vue-bind";
 export const HOLE_VUE_COMPONENT = "legacy:markup-lift-vue-component";
+export const HOLE_VUE_SLOT = "legacy:markup-lift-vue-slot";
 
 function holeMarker(reason: string, detail: string, inner = ""): string {
   const safe = detail.replace(/"/g, "'").slice(0, 200);
@@ -37,10 +45,26 @@ function pushHole(holes: VueMarkupLiftHole[], reason: string, detail: string): v
   }
 }
 
+/** Extract the root `<template>` body from a Vue SFC (nested slot templates allowed). */
+export function extractVueSfcTemplate(source: string): string | null {
+  const open = /<template\b[^>]*>/i.exec(source);
+  if (open === null) return null;
+  const start = open.index + open[0].length;
+  // Depth-count so nested <template #slot> does not truncate the SFC root.
+  const token = /<\/?template\b[^>]*>/gi;
+  token.lastIndex = start;
+  let depth = 1;
+  let t: RegExpExecArray | null;
+  while ((t = token.exec(source)) !== null) {
+    if (/^<\//.test(t[0])) depth -= 1;
+    else depth += 1;
+    if (depth === 0) return source.slice(start, t.index);
+  }
+  return null;
+}
+
 function extractTemplate(source: string): string | null {
-  const m = /<template[^>]*>([\s\S]*?)<\/template>/i.exec(source);
-  if (m === null || m[1] === undefined) return null;
-  return m[1];
+  return extractVueSfcTemplate(source);
 }
 
 function vueDirValue(attrs: string, name: string): string | null {
@@ -58,6 +82,33 @@ function stripVueControlAttrs(attrs: string): string {
     .replace(/\s+v-(?:for|if|else-if|else|show)(?:=(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, "")
     .replace(/\s+:key=(?:"[^"]*"|'[^']*'|[^\s>]+)/g, "")
     .replace(/\s+v-bind:key=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+}
+
+function liftVueComponent(
+  name: string,
+  attrs: string,
+  inner: string,
+  holes: VueMarkupLiftHole[],
+): string {
+  pushHole(holes, HOLE_VUE_COMPONENT, name);
+  const { bodies, residual } = extractVueNamedSlotBodies(inner);
+  for (const slotName of Object.keys(bodies)) {
+    pushHole(holes, HOLE_VUE_SLOT, `${name}#${slotName}`);
+  }
+  const slotMarkers = Object.entries(bodies)
+    .map(([n, b]) => `<div data-cwl-slot="${n}">${b}</div>`)
+    .join("");
+  let body = holeMarker(
+    HOLE_VUE_COMPONENT,
+    name,
+    `${residual.trim()}${slotMarkers}`.trim(),
+  );
+  const parentGate = extractVueParentGate(attrs);
+  if (parentGate) {
+    body = aliasShellKeyToParent(body, parentGate);
+    body = wrapSelfGatedOverlayShell(body, parentGate);
+  }
+  return body;
 }
 
 /** Structural-shell lift for a Vue SFC (or raw template HTML). */
@@ -80,15 +131,22 @@ export function liftStructuralVueTemplateHtml(source: string): VueMarkupLiftResu
 
   const holes: VueMarkupLiftHole[] = [];
 
-  html = html.replace(/<([A-Z][A-Za-z0-9_]*)\b([^>]*)\/>/g, (_m, name: string) => {
-    pushHole(holes, HOLE_VUE_COMPONENT, name);
-    return holeMarker(HOLE_VUE_COMPONENT, name);
+  // Teleport → slot-like honesty marker (do not invent portal target).
+  html = html.replace(
+    /<Teleport\b([^>]*)>([\s\S]*?)<\/Teleport>/gi,
+    (_m, _attrs: string, inner: string) => {
+      pushHole(holes, HOLE_VUE_SLOT, "Teleport");
+      return `<div data-cwl-slot="teleport">${inner}</div>`;
+    },
+  );
+
+  html = html.replace(/<([A-Z][A-Za-z0-9_]*)\b([^>]*)\/>/g, (_m, name: string, attrs: string) => {
+    return liftVueComponent(name, attrs, "", holes);
   });
   html = html.replace(
     /<([A-Z][A-Za-z0-9_]*)\b([^>]*)>([\s\S]*?)<\/\1>/g,
-    (_m, name: string, _attrs: string, inner: string) => {
-      pushHole(holes, HOLE_VUE_COMPONENT, name);
-      return holeMarker(HOLE_VUE_COMPONENT, name, inner);
+    (_m, name: string, attrs: string, inner: string) => {
+      return liftVueComponent(name, attrs, inner, holes);
     },
   );
 
@@ -119,7 +177,10 @@ export function liftStructuralVueTemplateHtml(source: string): VueMarkupLiftResu
         "v-if";
       pushHole(holes, HOLE_VUE_IF, detail);
       const clean = stripVueControlAttrs(attrs);
-      return holeMarker(HOLE_VUE_IF, detail, `<${tag}${clean}>${inner}</${tag}>`);
+      const el = `<${tag}${clean}>${inner}</${tag}>`;
+      const stamped = maybeStampOverlayGate(detail, el);
+      if (stamped) return stamped;
+      return holeMarker(HOLE_VUE_IF, detail, el);
     },
   );
 

@@ -56,6 +56,11 @@ export async function runAngularStructuralShellDepthSmoke() {
       reasons.has("legacy:markup-lift-angular-component") ||
       reasons.has("legacy:markup-lift-angular-async"));
 
+  const html = login?.html ?? "";
+  const shellOk =
+    html.includes('data-cwl-shell-key="showHint"') &&
+    html.includes('data-cwl-shell-key="showUpgradeModal"');
+
   const unit = ingest.liftStructuralAngularTemplateHtml(
     `<p *ngIf="x">{{ y }}</p><button (click)="go()">Go</button>`,
   );
@@ -63,6 +68,13 @@ export async function runAngularStructuralShellDepthSmoke() {
     unit !== null &&
     unit.liftMode === "structural-shell" &&
     unit.holes.some((h) => h.reason === "legacy:markup-lift-angular-if");
+
+  const overlayUnit = ingest.liftStructuralAngularTemplateHtml(
+    `<div *ngIf="showModal" class="m">Hi</div>`,
+  );
+  const overlayOk =
+    overlayUnit !== null &&
+    String(overlayUnit.html).includes('data-cwl-shell-key="showModal"');
 
   const di = ingest.scanAngularTsForDiHoles(`import { inject } from "@angular/core";
 const s = inject(Svc);`);
@@ -74,7 +86,14 @@ const s = inject(Svc);`);
   const staticOk = staticRefuse === null;
 
   const ok =
-    convert.ok === true && markup?.ok === true && holeOk && unitOk && diOk && staticOk;
+    convert.ok === true &&
+    markup?.ok === true &&
+    holeOk &&
+    shellOk &&
+    unitOk &&
+    overlayOk &&
+    diOk &&
+    staticOk;
 
   return {
     kind: ANGULAR_STRUCTURAL_SHELL_DEPTH_SMOKE_KIND,
@@ -84,10 +103,12 @@ const s = inject(Svc);`);
     loginLiftMode: login?.liftMode ?? null,
     holeReasons: [...reasons].sort(),
     holeCount: holes.length,
+    shellOk,
     unitOk,
+    overlayOk,
     diOk,
     staticOk,
-    note: "Angular structural-shell emits named template + DI holes — not static-only",
+    note: "Angular structural-shell emits named template + DI holes + overlay shells",
     generatedAt: new Date().toISOString(),
   };
 }

@@ -52,6 +52,11 @@ export async function runVueStructuralShellDepthSmoke() {
     reasons.has("legacy:markup-lift-vue-interp") &&
     (reasons.has("legacy:markup-lift-vue-event") || reasons.has("legacy:markup-lift-vue-component"));
 
+  const html = login?.html ?? "";
+  const shellOk =
+    html.includes('data-cwl-shell-key="showHint"') &&
+    html.includes('data-cwl-shell-key="showUpgradeModal"');
+
   const unit = ingest.liftStructuralVueTemplateHtml(
     `<template><p v-if="x">{{ y }}</p></template>`,
   );
@@ -60,7 +65,15 @@ export async function runVueStructuralShellDepthSmoke() {
     unit.liftMode === "structural-shell" &&
     unit.holes.some((h) => h.reason === "legacy:markup-lift-vue-if");
 
-  const ok = convert.ok === true && markup?.ok === true && holeOk && unitOk;
+  const overlayUnit = ingest.liftStructuralVueTemplateHtml(
+    `<template><div v-if="showModal" class="m">Hi</div></template>`,
+  );
+  const overlayOk =
+    overlayUnit !== null &&
+    String(overlayUnit.html).includes('data-cwl-shell-key="showModal"');
+
+  const ok =
+    convert.ok === true && markup?.ok === true && holeOk && shellOk && unitOk && overlayOk;
 
   return {
     kind: VUE_STRUCTURAL_SHELL_DEPTH_SMOKE_KIND,
@@ -70,8 +83,10 @@ export async function runVueStructuralShellDepthSmoke() {
     loginLiftMode: login?.liftMode ?? null,
     holeReasons: [...reasons].sort(),
     holeCount: holes.length,
+    shellOk,
     unitOk,
-    note: "Vue structural-shell emits named holes — not a static-only proof",
+    overlayOk,
+    note: "Vue structural-shell emits named holes + overlay shell keys",
     generatedAt: new Date().toISOString(),
   };
 }

@@ -908,6 +908,36 @@ export function vaporRouteArgs(path) {
  */
 export function renderSwiftBody(body, routePath) {
   void routePath;
+
+  /** @param {HubStructuredValue} v */
+  function structured(v) {
+    if (v.t === "lit") return { expr: swiftLiteral(v.value) };
+    if (v.t === "ref") {
+      if (v.source === "path") {
+        return { expr: `req.parameters.get(${JSON.stringify(v.name)}) ?? ""` };
+      }
+      if (v.source === "query") {
+        const def = Object.prototype.hasOwnProperty.call(v, "default")
+          ? swiftLiteral(v.default)
+          : `""`;
+        return {
+          expr: `(try? req.query.get(String.self, at: ${JSON.stringify(v.name)})) ?? ${def}`,
+        };
+      }
+      return null;
+    }
+    if (v.t === "obj") {
+      const pairs = [];
+      for (const e of v.entries) {
+        const inner = structured(/** @type {HubStructuredValue} */ (e.value));
+        if (!inner || inner.expr == null) return null;
+        pairs.push(`"${e.key}": ${inner.expr}`);
+      }
+      return { expr: `[${pairs.join(", ")}]` };
+    }
+    return null;
+  }
+
   if (body.kind === "hole") {
     return {
       lines: [`throw Abort(.internalServerError, reason: ${JSON.stringify(body.reason ?? "hub:hole")})`],
@@ -926,10 +956,14 @@ export function renderSwiftBody(body, routePath) {
     return { lines: [`return ${swiftLiteral(v)}`], hole: false };
   }
   if (body.kind === "structured") {
-    return {
-      lines: [`throw Abort(.internalServerError, reason: "hub:unsupported-body-shape")`],
-      hole: true,
-    };
+    const lowered = structured(/** @type {HubStructuredValue} */ (body.value));
+    if (!lowered || lowered.expr == null) {
+      return {
+        lines: [`throw Abort(.internalServerError, reason: "hub:unsupported-body-shape")`],
+        hole: true,
+      };
+    }
+    return { lines: [`return ${lowered.expr}`], hole: false };
   }
   return {
     lines: [`throw Abort(.internalServerError, reason: "hub:unsupported-body")`],

@@ -7,6 +7,14 @@
         <li v-for="item in items" :key="item.id">{{ item.label }}</li>
       </ul>
       <StatusBadge />
+      <Modal :visible="showUpgradeModal">
+        <template #footer>
+          <button type="button" @click="closeModal">Close</button>
+        </template>
+      </Modal>
+      <Teleport to="body">
+        <div v-if="showToast" class="toast">Saved</div>
+      </Teleport>
       <button type="button" @click="onSubmit">Sign in</button>
     </div>
   </main>
@@ -15,8 +23,11 @@
 <script setup>
 const title = "Vue Sign in";
 const showHint = true;
+const showUpgradeModal = false;
+const showToast = false;
 const items = [];
 function onSubmit() {}
+function closeModal() {}
 </script>
 
 <style scoped>
@@ -31,6 +42,9 @@ function onSubmit() {}
 }
 .hint {
   color: #9ca3af;
+}
+.toast {
+  z-index: 50;
 }
 :deep(.child-slot) {
   color: #e5e7eb;

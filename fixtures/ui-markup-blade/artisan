@@ -1,0 +1,3 @@
+#!/usr/bin/env php
+<?php
+// Marker so php-blade inventory detect() succeeds.

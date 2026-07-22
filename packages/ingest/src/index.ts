@@ -492,6 +492,7 @@ export {
   indexSvelteComponentSources,
   isUiToggleOverlayIfHeader,
   extractConstObjectArraysFromSvelte,
+  extractConstObjectLiteralsFromSvelte,
   extractConstStringArraysFromSvelte,
   extractScriptScalarsFromSvelte,
   sharedMapIslandMarkup,
@@ -525,6 +526,7 @@ export {
   HOLE_ANGULAR_FOR,
   HOLE_ANGULAR_IF,
   HOLE_ANGULAR_INTERP,
+  HOLE_ANGULAR_SLOT,
 } from "./ui-markup-angular-structural.js";
 export {
   buildAngularDiGraph,
@@ -552,6 +554,7 @@ export {
   HOLE_NEXT_CLIENT,
   HOLE_NEXT_COMPONENT,
   HOLE_NEXT_FONT,
+  HOLE_NEXT_IF,
   HOLE_NEXT_INTERP,
   HOLE_NEXT_LOADING,
   HOLE_NEXT_RSC,
@@ -569,7 +572,31 @@ export {
   HOLE_VUE_FOR,
   HOLE_VUE_IF,
   HOLE_VUE_INTERP,
+  HOLE_VUE_SLOT,
 } from "./ui-markup-vue-structural.js";
+export {
+  bladeSourceFileToRouteId,
+  liftStaticBladeTemplateHtml,
+  phpBladeMarkupAdapter,
+} from "./ui-markup-blade.js";
+export {
+  liftStructuralBladeTemplateHtml,
+  HOLE_BLADE_ALPINE,
+  HOLE_BLADE_ECHO,
+  HOLE_BLADE_FOR,
+  HOLE_BLADE_IF,
+  HOLE_BLADE_INCLUDE,
+  HOLE_BLADE_LIVEWIRE,
+  HOLE_BLADE_YIELD,
+} from "./ui-markup-blade-structural.js";
+export {
+  aliasShellKeyToParent,
+  extractOverlayGateIdent,
+  foldNamedSlotBodies,
+  maybeStampOverlayGate,
+  stampOverlayGate,
+  wrapSelfGatedOverlayShell,
+} from "./ui-markup-overlay-shell.js";
 export { finalizeStaticMarkup, isStaticHtmlFragment } from "./ui-markup-static.js";
 export {
   liftUiMarkup,

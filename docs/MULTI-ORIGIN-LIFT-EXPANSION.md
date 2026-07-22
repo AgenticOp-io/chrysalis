@@ -52,21 +52,21 @@ Success metric: **% routes with signed CWL + hole manifest + verify evidence**, 
 | **SvelteKit** | WISP showcase through **G9908** (hydrate + shells + attr scrub + filter honesty) | Remaining live-widget depth only with oracle/traces |
 | **PHP** | Adoption vector; port-site | Keep matrix + oracle; feed IS from PHP ports |
 | **OpenAPI / HAR** | Sink ingest | Contract → CWL routes |
-| **Vue / Nuxt** | Load-bind (**G9927**) + SFC scoped-CSS (**G9929**) + layout sheets (**G9942**) + App.vue shell (**G9946**) + structural depth (**G9924**) | Optional middleware honesty |
-| **Angular** | DI graph (**G9931**) + providedIn/providers (**G9941**) + NgModule (**G9945**) + structural depth (**G9926**) | Optional standalone `bootstrapApplication` variants |
-| **React / Next** | RSC (**G9928**) + CSS modules (**G9930**) + layout/globals (**G9940**) + loading/font honesty (**G9944**) + structural depth (**G9925**) | Optional `error.tsx` / `template.tsx` honesty |
+| **Vue / Nuxt** | Load-bind (**G9927**) + SFC scoped-CSS (**G9929**) + layout sheets (**G9942**) + App.vue shell (**G9946**) + structural depth (**G9924**) + **overlay shell keys** (shared `ui-markup-overlay-shell`) | Optional middleware honesty |
+| **Angular** | DI graph (**G9931**) + providedIn/providers (**G9941**) + NgModule (**G9945**) + structural depth (**G9926**) + **overlay shell keys** | Optional standalone `bootstrapApplication` variants |
+| **React / Next** | RSC (**G9928**) + CSS modules (**G9930**) + layout/globals (**G9940**) + loading/font honesty (**G9944**) + structural depth (**G9925**) + **overlay shell keys** | Optional `error.tsx` / `template.tsx` honesty |
+| **PHP Blade** | Inventory + basic structural markup (`phpBladeMarkupAdapter`) + `@if($showX)` shell stamp | Alpine/Livewire remain honesty holes (no invented runtime) |
 
 ### Tier B — adapter exists or partial (expand next)
 
 | Origin | Expansion slice | Gate idea |
 | --- | --- | --- |
-| **Vue / Nuxt** | Mirror Svelte structural-shell + scoped CSS | `hub:vue-structural-shell-smoke` ✅ · depth `hub:vue-structural-shell-depth-smoke` ✅ (**G9924**) · layouts `hub:vue-nuxt-layout-css-smoke` ✅ (**G9942**) |
-| **React / Next** | App router pages → `@page` + RSC/client/interp holes | `hub:next-structural-shell-smoke` ✅ · depth `hub:next-structural-shell-depth-smoke` ✅ (**G9925**) |
-| **Angular** | Component templates → shell + DI holes | `hub:angular-structural-shell-smoke` ✅ · depth `hub:angular-structural-shell-depth-smoke` ✅ (**G9926**) · providedIn `hub:angular-provided-in-smoke` ✅ (**G9941**) |
+| **PHP Blade** | Alpine `x-show` / Livewire `wire:*` hydrate (honesty today) | Extend beyond hole markers only with origin traces |
+| **Blazor / ERB / Django** | Inventory + markup adapters | Explicit plan amendment before start |
 
 ### Tier C — later matrix (shared convert orch precondition met)
 
-Blazor, Ruby ERB, Django templates, Flutter web — **shared convert orchestration shipped** (`convertMultiOriginProjects`, **G9943**). Start a named origin only after an explicit plan amendment (adapters + fixtures; no publish fork).
+Flutter web and other non-HTML shell origins — **shared convert orchestration shipped** (`convertMultiOriginProjects`, **G9943**). Start a named origin only after an explicit plan amendment (adapters + fixtures; no publish fork).
 
 ---
 
@@ -122,7 +122,7 @@ New origins add **inventory + markup/CSS adapters + fixtures**, not new deploy t
 | `vite-vue` | `…/vue.mjs` | `viteVueMarkupAdapter` |
 | `next-app` | `…/next.mjs` | `nextAppMarkupAdapter` |
 | `angular` | `…/angular.mjs` | `angularMarkupAdapter` |
-| `php-blade` | `…/php-blade.mjs` | Tier C Blade markup (server ingest today) |
+| `php-blade` | `…/php-blade.mjs` | `phpBladeMarkupAdapter` (basic; Alpine/Livewire = honesty holes) |
 | `php` | `…/php.mjs` | PHP handler ingest + oracle |
 
 Live census is always CWL-attribute based (`data-cwl-shell-key`, toggles, lifts). Method: [`UNIVERSAL-CONVERSION-METHOD.md`](./UNIVERSAL-CONVERSION-METHOD.md) §2.

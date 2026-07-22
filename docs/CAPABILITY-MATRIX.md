@@ -58,7 +58,13 @@ The canonical **oracle micro surface** is **`fixtures/tiny-blog`** (5 routes): i
 
 The Translation Hub catalog exposes **601** directed origin→output pairs (24 origins × 26 outputs minus identity overlaps; **`svelte`** is origin-only). Machine count: `hubDirectedPairCount()` in `language-catalog.mjs`.
 
-All pairs **not** listed above as oracle product are **structural**, **scaffold**, or **asset** tiers unless promoted with trace oracle evidence. **Do not** headline “601 languages production-ready.”
+**Census (maintenance close, G9160 / D6357):** **601/601** pairs have at least one **trace-replay** suite (`hub:extended-matrix-oracle-progress-smoke`). Waves **1–16** closed the extended-matrix promote bar.
+
+**Depth (closed through Wave 9):** [`MATRIX-DEPTH-PROGRAM.md`](./MATRIX-DEPTH-PROGRAM.md) Waves **1–9** — **full gold 601/601**; all nextjs gold-verify; flagship→swift/assets via structured body lowering. Smokes include `hub:matrix-depth-wave7-nextjs-smoke`, `hub:matrix-depth-wave8-nextjs-replay-smoke`, `hub:matrix-depth-wave9-nextjs-all-smoke`, `hub:matrix-depth-program-close-smoke`.
+
+**Honest limit:** Suite-depth full gold is closed (**structured + middleware / pair**). Flagship depth remains concentrated on **PHP** (+ Express/JS) and the **WISP** UI POC (**D6448-ST** evidence-only green). **Do not** headline “601 languages production-ready” without that caveat.
+
+All pairs without flagship/customer evidence stay **gold-fixture** depth unless promoted with richer traces.
 
 ---
 
@@ -103,7 +109,8 @@ All pairs **not** listed above as oracle product are **structural**, **scaffold*
 
 - **Say:** “Verified PHP backend migration with oracle replay and dual-stack cutover.”
 - **Say:** “72 core language pairs with gold-fixture trace oracle evidence (Phase 41).”
+- **Say:** “601-pair hub census is full fixture gold (structured + middleware per directed pair) — not customer-repo parity.”
 - **Say:** “Translation Hub operations for multi-site programs with evidence dashboards.”
 - **Do not say:** “601 languages production-ready” or “convert any website.”
 
-See also: `docs/STRATEGIC-PLAN.md`, `docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`, `docs/CWL.md`.
+See also: `docs/STRATEGIC-PLAN.md`, `docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`, `docs/CWL.md`, `docs/PHASE-46-PROGRAM.md` (post-close waves 8–16 → 601/601).

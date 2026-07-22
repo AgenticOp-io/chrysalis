@@ -2768,6 +2768,6 @@
     "API_PROXY_CF": "https://us-central1-wisptools-production.cloudfunctions.net/apiProxy",
     "USER_TENANTS_CF": "https://usertenants-nxulhoqnyq-uc.a.run.app"
   },
-  "syncedAt": "2026-07-21T00:37:54.147Z",
+  "syncedAt": "2026-07-21T02:48:18.784Z",
   "backendRoot": "C:/Users/david/AgenticOps/products/wisptools/backend-services"
 }

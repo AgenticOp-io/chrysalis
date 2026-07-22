@@ -13,8 +13,8 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { buildWispClient, resolveWispToolsRoot } from "./wisp-cwl-client-build.mjs";
 import { loadWispPipelineConfig, resolveWispRoot } from "./wisp-cwl-pipeline.mjs";
-import { prepareWispFirebaseDeployEnv } from "./lib/wisp-firebase-auth-env.mjs";
-import { ensureWispManagementFirebaseApiRewrites } from "./lib/wisp-firebase-management-rewrites.mjs";
+import { prepareWispFirebaseDeployEnv } from "./wisp/wisp-firebase-auth-env.mjs";
+import { ensureWispManagementFirebaseApiRewrites } from "./wisp/wisp-firebase-management-rewrites.mjs";
 
 export const WISP_CWL_FIREBASE_DEPLOY_KIND = "chrysalis.wisp.firebase-deploy";
 export const WISP_CWL_FIREBASE_DEPLOY_SCHEMA_VERSION = 1;

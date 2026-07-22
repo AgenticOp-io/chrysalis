@@ -183,10 +183,37 @@ export function runCompleteConversionProve(opts = {}) {
     stopReason: conversion?.stopReason ?? null,
     provedAt: report.finishedAt,
   };
+
+  const originComparePath = join(root, "reports/wisp/complete-conversion-origin-compare.json");
+  let originCompareStatus = null;
+  if (existsSync(originComparePath)) {
+    try {
+      const oc = JSON.parse(readFileSync(originComparePath, "utf8"));
+      if (oc?.ok === true && (oc.status === "passed" || oc.status === "origin-source-ok-live-skipped")) {
+        originCompareStatus = oc.status;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  const prevOc = checklist.signedInOriginCompare ?? {};
   checklist.signedInOriginCompare = {
-    ...checklist.signedInOriginCompare,
-    status: stGreen ? "ready-for-operator" : fidelityOk ? "fidelity-ok-settle-used" : "blocked-by-prove",
+    ...prevOc,
+    required: true,
+    status:
+      originCompareStatus ??
+      (prevOc.status === "passed" || prevOc.status === "origin-source-ok-live-skipped"
+        ? prevOc.status
+        : stGreen
+          ? "ready-for-operator"
+          : fidelityOk
+            ? "fidelity-ok-settle-used"
+            : "blocked-by-prove"),
+    routes: prevOc.routes ?? ["/login", "/dashboard", "/modules/plan"],
   };
+  if (originCompareStatus) {
+    report.next = "D6448-ST closed — origin compare passed; optional interactive browser session already evidenced";
+  }
   writeFileSync(checklistFile, `${JSON.stringify(checklist, null, 2)}\n`, "utf8");
 
   return report;

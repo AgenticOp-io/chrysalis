@@ -84,6 +84,11 @@ export const DEFAULT_SHOWCASE_LOAD_BOOLS: Readonly<Record<string, boolean>> = {
   isSigningIn: false,
   isLoggedIn: true,
   isAdmin: true,
+  /** Idle first-paint toggles — closed / desktop / not new-site create. */
+  isOpen: false,
+  isNewSite: false,
+  isMobile: false,
+  isEditing: false,
   autoRefresh: false,
   existingConfig: false,
 };
@@ -150,7 +155,7 @@ export const DEFAULT_STRUCTURAL_INLINE_COMPONENTS: ReadonlySet<string> = new Set
 
 /** Page-local UI toggles whose closed chrome must remain in the DOM (hidden), not deleted. */
 const UI_TOGGLE_OVERLAY_RE =
-  /\b(show[A-Z][A-Za-z0-9_]*|hide[A-Z][A-Za-z0-9_]*|open|visible|loading[A-Z][A-Za-z0-9_]*|is(?:Open|Visible|Loading|Editing|SigningIn|Saving|DeployMode|PlanMode|LoggedIn)\b|is[A-Z][A-Za-z0-9_]*(?:Open|Visible|Loading|Editing|DeployMode|PlanMode)|showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu|showOnboardingWizard|showSetupWizard|showDemoChrome|showPasswordReset|passwordResetSent|demoVisitorEnabled|showSettings|showCreateModal|showEditModal|showDeleteConfirm|showDeleteModal|showAssignOwnerModal|showUsersModal)\b/;
+  /\b(show[A-Z][A-Za-z0-9_]*|\bshow\b|hide[A-Z][A-Za-z0-9_]*|open|visible|loading[A-Z][A-Za-z0-9_]*|is(?:Open|Visible|Loading|Editing|SigningIn|Saving|DeployMode|PlanMode|LoggedIn|NewSite|Mobile)\b|is[A-Z][A-Za-z0-9_]*(?:Open|Visible|Loading|Editing|DeployMode|PlanMode)|isNewSite|isMobile|isOpen|showFilters|showStats|showDevicePanel|showHelpModal|showTipsModal|showContextMenu|showTowerActionsMenu|showSectorActionsMenu|showBackhaulActionsMenu|showPlanDraftMenu|showOnboardingWizard|showSetupWizard|showDemoChrome|showPasswordReset|passwordResetSent|demoVisitorEnabled|showSettings|showCreateModal|showEditModal|showDeleteConfirm|showDeleteModal|showAssignOwnerModal|showUsersModal)\b/;
 
 export function isUiToggleOverlayIfHeader(header: string): boolean {
   return UI_TOGGLE_OVERLAY_RE.test(header);
@@ -1568,6 +1573,146 @@ export function extractConstObjectArraysFromSvelte(
     if (rows.length > 0) out[name] = rows;
   }
   return out;
+}
+
+/**
+ * Pull `const|let name = { … }` object literals from Svelte `<script>` (origin truth).
+ * Nested braces supported via balanced scan + {@link parseLooseObjectLiteral}.
+ */
+export function extractConstObjectLiteralsFromSvelte(
+  source: string,
+): Readonly<Record<string, Readonly<Record<string, unknown>>>> {
+  const script = extractScriptBlocks(source);
+  /** @type {Record<string, Record<string, unknown>>} */
+  const out: Record<string, Record<string, unknown>> = {};
+  const startRe = /(?:export\s+)?(?:const|let)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::[^=]+)?=\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = startRe.exec(script))) {
+    const name = m[1]!;
+    const openIdx = (m.index ?? 0) + m[0].length - 1;
+    let depth = 0;
+    let i = openIdx;
+    for (; i < script.length; i++) {
+      const ch = script[i];
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          i++;
+          break;
+        }
+      } else if (ch === "'" || ch === '"' || ch === "`") {
+        const quote = ch;
+        i++;
+        while (i < script.length) {
+          if (script[i] === "\\") {
+            i += 2;
+            continue;
+          }
+          if (script[i] === quote) break;
+          i++;
+        }
+      }
+    }
+    const lit = script.slice(openIdx, i);
+    const row = parseLooseObjectLiteralNested(lit);
+    if (Object.keys(row).length > 0) out[name] = row;
+  }
+  return out;
+}
+
+/**
+ * Like {@link parseLooseObjectLiteral} but also accepts nested `{…}` object values.
+ */
+function parseLooseObjectLiteralNested(objLit: string): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  const inner = objLit.trim().replace(/^\{/, "").replace(/\}$/, "");
+  let i = 0;
+  while (i < inner.length) {
+    while (i < inner.length && /[\s,]/.test(inner[i]!)) i++;
+    if (i >= inner.length) break;
+    const keyMatch = /^(['"]?)([\w-]+)\1\s*:/.exec(inner.slice(i));
+    if (!keyMatch) break;
+    const key = keyMatch[2]!;
+    i += keyMatch[0].length;
+    while (i < inner.length && /\s/.test(inner[i]!)) i++;
+    if (i >= inner.length) break;
+    const ch = inner[i]!;
+    if (ch === "'" || ch === '"') {
+      const quote = ch;
+      i++;
+      let val = "";
+      while (i < inner.length) {
+        if (inner[i] === "\\") {
+          val += inner[i + 1] ?? "";
+          i += 2;
+          continue;
+        }
+        if (inner[i] === quote) {
+          i++;
+          break;
+        }
+        val += inner[i];
+        i++;
+      }
+      row[key] = val;
+    } else if (ch === "{") {
+      let depth = 0;
+      const start = i;
+      for (; i < inner.length; i++) {
+        if (inner[i] === "{") depth++;
+        else if (inner[i] === "}") {
+          depth--;
+          if (depth === 0) {
+            i++;
+            break;
+          }
+        }
+      }
+      row[key] = parseLooseObjectLiteralNested(inner.slice(start, i));
+    } else if (ch === "[") {
+      let depth = 0;
+      const start = i;
+      for (; i < inner.length; i++) {
+        if (inner[i] === "[") depth++;
+        else if (inner[i] === "]") {
+          depth--;
+          if (depth === 0) {
+            i++;
+            break;
+          }
+        }
+      }
+      const arrLit = inner.slice(start, i);
+      const items: unknown[] = [];
+      const itemRe = /'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"|(true|false)|(-?\d+(?:\.\d+)?)/g;
+      let im: RegExpExecArray | null;
+      while ((im = itemRe.exec(arrLit))) {
+        if (im[1] != null) items.push(im[1].replace(/\\'/g, "'"));
+        else if (im[2] != null) items.push(im[2].replace(/\\"/g, '"'));
+        else if (im[3] != null) items.push(im[3] === "true");
+        else if (im[4] != null) items.push(Number(im[4]));
+      }
+      row[key] = items;
+    } else if (/^true\b/.test(inner.slice(i))) {
+      row[key] = true;
+      i += 4;
+    } else if (/^false\b/.test(inner.slice(i))) {
+      row[key] = false;
+      i += 5;
+    } else if (/^-?\d/.test(inner.slice(i))) {
+      const numM = /^-?\d+(?:\.\d+)?/.exec(inner.slice(i));
+      if (numM) {
+        row[key] = Number(numM[0]);
+        i += numM[0].length;
+      } else break;
+    } else {
+      break;
+    }
+  }
+  // Fallback for flat-only literals when nested parser found nothing.
+  if (Object.keys(row).length === 0) return parseLooseObjectLiteral(objLit);
+  return row;
 }
 
 /**

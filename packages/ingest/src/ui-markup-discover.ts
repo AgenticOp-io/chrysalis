@@ -7,6 +7,7 @@ import { angularMarkupAdapter } from "./ui-markup-angular.js";
 import { svelteKitMarkupAdapter } from "./ui-markup-svelte.js";
 import { viteVueMarkupAdapter } from "./ui-markup-vue.js";
 import { nextAppMarkupAdapter } from "./ui-markup-next.js";
+import { phpBladeMarkupAdapter } from "./ui-markup-blade.js";
 import {
   liftUiMarkup,
   writeUiMarkupLiftArtifacts,
@@ -21,6 +22,7 @@ const MARKUP_DISCOVER_ADAPTERS = [
   viteVueMarkupAdapter,
   angularMarkupAdapter,
   nextAppMarkupAdapter,
+  phpBladeMarkupAdapter,
 ] as const;
 
 const SUBDIR_CANDIDATES = [

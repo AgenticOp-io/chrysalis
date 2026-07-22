@@ -11,10 +11,10 @@
   "originAuthority": "https://wisptools.io",
   "convertedHost": "https://management.wisptools.io",
   "holeCensus": {
-    "total": 302,
-    "forceSettleUsed": true,
-    "stopReason": "complete-terminal-settle",
-    "provedAt": "2026-07-17T05:45:44.703Z"
+    "total": 0,
+    "forceSettleUsed": false,
+    "stopReason": "complete-zero-holes",
+    "provedAt": "2026-07-22T03:17:22.372Z"
   },
   "islands": [
     {
@@ -77,11 +77,24 @@
   ],
   "signedInOriginCompare": {
     "required": true,
-    "status": "fidelity-ok-settle-used",
+    "status": "passed",
     "routes": [
       "/login",
       "/dashboard",
       "/modules/plan"
-    ]
+    ],
+    "comparedAt": "2026-07-22T03:16:57.043Z",
+    "reportRel": "reports/wisp/complete-conversion-origin-compare.json",
+    "browserSession": {
+      "ok": true,
+      "host": "https://management.wisptools.io",
+      "routes": [
+        "/login",
+        "/dashboard",
+        "/modules/plan"
+      ],
+      "notes": "demo@wisptools.io sign-in; plan Active Plan + Projects(67); map iframe host present",
+      "at": "2026-07-22T03:17:21.243Z"
+    }
   }
 }

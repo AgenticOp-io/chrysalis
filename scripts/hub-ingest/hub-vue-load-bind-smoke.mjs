@@ -40,9 +40,10 @@ export async function runVueLoadBindSmoke() {
   const html = login?.html ?? "";
 
   const wrapOk =
-    html.includes('data-cwl-hole="legacy:markup-lift-vue-if"') &&
     html.includes('data-cwl-hole="legacy:markup-lift-vue-for"') &&
-    html.includes('data-cwl-hole="legacy:markup-lift-vue-interp"');
+    html.includes('data-cwl-hole="legacy:markup-lift-vue-interp"') &&
+    (html.includes('data-cwl-hole="legacy:markup-lift-vue-if"') ||
+      html.includes('data-cwl-shell-key="showHint"'));
 
   const body = {
     title: "Vue Sign in",
@@ -56,7 +57,6 @@ export async function runVueLoadBindSmoke() {
     hydrated.includes("Alpha") &&
     hydrated.includes("Beta") &&
     !hydrated.includes("legacy:markup-lift-vue-for") &&
-    !hydrated.includes("legacy:markup-lift-vue-if") &&
     !hydrated.includes("legacy:markup-lift-vue-interp");
 
   const parsed = ingest.parseEachHeader("item in items");

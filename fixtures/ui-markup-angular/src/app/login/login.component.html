@@ -7,6 +7,9 @@
     </ul>
     <p>{{ status$ | async }}</p>
     <app-status-badge></app-status-badge>
+    <app-upgrade-modal [isOpen]="showUpgradeModal">
+      <ng-content></ng-content>
+    </app-upgrade-modal>
     <button type="button" [disabled]="busy" (click)="onSubmit()">Sign in</button>
   </div>
 </main>

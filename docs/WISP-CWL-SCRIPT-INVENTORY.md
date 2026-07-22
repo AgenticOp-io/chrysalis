@@ -55,7 +55,7 @@ They are not chained wholesale because many assert obsolete phase-specific
 fixtures. Stable, generally applicable checks are being consolidated into:
 
 - ingest unit tests;
-- `scripts/lib/wisp-conversion-audit.mjs`;
+- `scripts/wisp/wisp-conversion-audit.mjs`;
 - GCE bundle verification;
 - `scripts/hub-ingest/hub-wisp-live-all-routes-audit.mjs`.
 

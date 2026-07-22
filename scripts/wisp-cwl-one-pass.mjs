@@ -26,7 +26,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { convertAllOriginPieces } from "./lib/convert-origin-pieces.mjs";
 import { runWispCwlStaticExport } from "./lib/cwl-static-export.mjs";
-import { writeWispHoleReport } from "./lib/wisp-hole-report.mjs";
+import { writeWispHoleReport } from "./wisp/wisp-hole-report.mjs";
 import { inspectRoutesCwlIntegrity } from "./lib/cwl-apply-surfaces.mjs";
 import { syncWispApiPathsFromBackend } from "./lib/sync-api-paths-from-backend.mjs";
 import { generateWispApiProxyCwl } from "./lib/cwl-generate-api-proxy.mjs";
@@ -34,7 +34,7 @@ import { applyWispApiGoldenHandlers } from "./wisp-cwl-apply-api-golden-handlers
 import { extractWispModuleTips } from "./lib/extract-wisp-module-tips.mjs";
 import { extractWispWizardCatalog } from "./lib/extract-wisp-wizard-catalog.mjs";
 import { buildWispCwlArcgisBundle } from "./build-wisp-cwl-arcgis-bundle.mjs";
-import { auditWispConversion } from "./lib/wisp-conversion-audit.mjs";
+import { auditWispConversion } from "./wisp/wisp-conversion-audit.mjs";
 import { runWispSurfaceCensus } from "./lib/cwl-surface-census.mjs";
 import { runWispButtonCensus } from "./wisp-cwl-button-census.mjs";
 import { runWispCodeCensus } from "./wisp-cwl-code-census.mjs";

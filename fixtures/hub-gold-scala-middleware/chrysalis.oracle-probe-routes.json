@@ -1,0 +1,6 @@
+{
+  "routes": [
+    { "method": "GET", "path": "/ready" },
+    { "method": "POST", "path": "/echo" }
+  ]
+}

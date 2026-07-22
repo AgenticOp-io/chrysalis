@@ -1,0 +1,7 @@
+{
+  "app": "hub-gold-php-structured",
+  "routes": [
+    { "method": "GET", "path": "/health", "file": "pages/health.php", "pathParams": [] },
+    { "method": "GET", "path": "/meta", "file": "pages/meta.php", "pathParams": [] }
+  ]
+}

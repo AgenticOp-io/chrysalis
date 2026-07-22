@@ -15,6 +15,7 @@ import { extractHtmlClassNames, svelteKitMarkupAdapter } from "./ui-markup-svelt
 import { viteVueMarkupAdapter } from "./ui-markup-vue.js";
 import { angularMarkupAdapter } from "./ui-markup-angular.js";
 import { nextAppMarkupAdapter } from "./ui-markup-next.js";
+import { phpBladeMarkupAdapter } from "./ui-markup-blade.js";
 import { uiRouteBundleSlug } from "./ui-route-patterns.js";
 import type { LiftStructuralSvelteOptions } from "./ui-markup-svelte-structural.js";
 import { indexSvelteComponentSources } from "./ui-markup-svelte-structural.js";
@@ -59,6 +60,7 @@ export const UI_FRAMEWORK_MARKUP_ADAPTERS: ReadonlyArray<UiFrameworkMarkupAdapte
   viteVueMarkupAdapter,
   angularMarkupAdapter,
   nextAppMarkupAdapter,
+  phpBladeMarkupAdapter,
 ];
 
 export interface LiftUiMarkupOptions {

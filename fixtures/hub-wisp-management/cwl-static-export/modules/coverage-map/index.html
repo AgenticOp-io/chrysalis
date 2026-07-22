@@ -148,6 +148,8 @@
      aria-label="Toggle Section">
       <h4>Asset Types</h4>
 
+        <div data-cwl-shell-key="isMobile" hidden aria-hidden="true"><span class="expand-icon">▼</span>
+      </div>
     </button>
     <div class="filter-options">
       <label class="filter-checkbox">
@@ -208,6 +210,8 @@
        aria-label="Toggle Section">
         <h4>Backhaul Types</h4>
 
+          <div data-cwl-shell-key="isMobile" hidden aria-hidden="true"><span class="expand-icon">▼</span>
+        </div>
       </button>
       <div class="filter-options">
         <label class="filter-checkbox">
@@ -253,8 +257,15 @@
 
       </div>
 
+        <div data-cwl-shell-key="isMobile" hidden aria-hidden="true"><span class="expand-icon">▼</span>
+      </div>
     </div>
     <div class="filter-options">
+
+        <div class="filter-actions mobile-actions" data-cwl-shell-key="isMobile" hidden aria-hidden="true">
+          <button class="btn-link" data-cwl-action="showAllBands" aria-label="Show All Bands">All</button>
+          <button class="btn-link" data-cwl-action="clearAllBandFilters" aria-label="Clear All Band Filters">None</button>
+        </div>
 
         <label class="filter-checkbox">
           <input
@@ -313,6 +324,8 @@
      aria-label="Toggle Section">
       <h4>Status</h4>
 
+        <div data-cwl-shell-key="isMobile" hidden aria-hidden="true"><span class="expand-icon">▼</span>
+      </div>
     </button>
     <div class="filter-options">
       <label class="filter-checkbox">
@@ -510,7 +523,7 @@
     </div>
   </div></div></div>
 
-<div data-cwl-component="UnifiedDeviceDetailsModal" data-cwl-lifted-component="UnifiedDeviceDetailsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showUnifiedDeviceModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && device"><div class="modal-overlay" data-cwl-action="handleBackdropClick" hidden aria-hidden="true">
+<div data-cwl-component="UnifiedDeviceDetailsModal" data-cwl-lifted-component="UnifiedDeviceDetailsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showUnifiedDeviceModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleBackdropClick" hidden aria-hidden="true">
     <div class="modal-content unified-device-modal">
       <div class="modal-header">
         <div class="header-left">
@@ -708,7 +721,7 @@
 
       </div>
     </div>
-  </div></div></div></div>
+  </div></div></div>
 
 <!-- Modals -->
 <div data-cwl-component="AddSiteModal" data-cwl-lifted-component="AddSiteModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showAddSiteModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
@@ -1895,7 +1908,7 @@
   </div>
 </div></div></div>
 
-<div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showAddInventoryModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && site"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
+<div data-cwl-component="AddInventoryModal" data-cwl-lifted-component="AddInventoryModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showAddInventoryModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
       <div>
@@ -2099,13 +2112,13 @@
       </button>
     </div>
   </div>
-</div></div></div></div>
+</div></div></div>
 
 <!-- Context Menus -->
-<div data-cwl-component="MapContextMenu" data-cwl-lifted-component="MapContextMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showContextMenu" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && !disabled"><div
+<div data-cwl-component="MapContextMenu" data-cwl-lifted-component="MapContextMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showContextMenu" hidden aria-hidden="true"><div
   class="context-menu"
   style="left: px; top: px"
->
+ hidden aria-hidden="true">
   <div class="menu-header">
     <span class="coords">
       📍 <span data-cwl-bind="interp" data-cwl-hole-detail="latitude != null && longitude != null ? `, $"></span>
@@ -2144,12 +2157,12 @@
     <span class="menu-icon">📋</span>
     <span>Copy Coordinates</span>
   </button>
-</div></div></div></div>
+</div></div></div>
 
-<div data-cwl-component="TowerActionsMenu" data-cwl-lifted-component="TowerActionsMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showTowerActionsMenu" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower"><div
+<div data-cwl-component="TowerActionsMenu" data-cwl-lifted-component="TowerActionsMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showTowerActionsMenu" hidden aria-hidden="true"><div
   class="tower-menu"
   style="left: px; top: px"
->
+ hidden aria-hidden="true">
   <div class="menu-header">
     <span class="tower-name">📡 <span data-cwl-bind="interp" data-cwl-hole-detail="tower?.name || 'Unknown Site'"></span></span>
     <span class="tower-type"><span data-cwl-bind="interp" data-cwl-hole-detail="siteTypeLabel"></span></span>
@@ -2237,12 +2250,12 @@
         </div>
 
     </div></div>
-</div></div></div></div>
+</div></div></div>
 
-<div data-cwl-component="SectorActionsMenu" data-cwl-lifted-component="SectorActionsMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showSectorActionsMenu" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && sector"><div
+<div data-cwl-component="SectorActionsMenu" data-cwl-lifted-component="SectorActionsMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showSectorActionsMenu" hidden aria-hidden="true"><div
   class="sector-menu"
   style="left: px; top: px"
->
+ hidden aria-hidden="true">
   <div class="menu-header">
     <span class="sector-name">📶 <span data-cwl-bind="interp" data-cwl-hole-detail="sector?.name || 'Unknown Sector'"></span></span>
     <span class="sector-type"><span data-cwl-bind="interp" data-cwl-hole-detail="sector?.technology || 'Unknown'"></span></span>
@@ -2292,12 +2305,12 @@
         </div>
 
     </div></div>
-</div></div></div></div>
+</div></div></div>
 
-<div data-cwl-component="BackhaulActionsMenu" data-cwl-lifted-component="BackhaulActionsMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showBackhaulActionsMenu" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && backhaul"><div
+<div data-cwl-component="BackhaulActionsMenu" data-cwl-lifted-component="BackhaulActionsMenu"><div class="cwl-self-gated-shell" data-cwl-shell-key="showBackhaulActionsMenu" hidden aria-hidden="true"><div
   class="backhaul-menu"
   style="left: px; top: px"
->
+ hidden aria-hidden="true">
   <div class="menu-header">
     <span class="backhaul-name">🔗 <span data-cwl-bind="interp" data-cwl-hole-detail="backhaul?.name || 'Unknown Backhaul'"></span></span>
     <span class="backhaul-type"><span data-cwl-bind="interp" data-cwl-hole-detail="backhaul?.backhaulType || 'Unknown'"></span></span>
@@ -2347,7 +2360,7 @@
         </div>
 
     </div></div>
-</div></div></div></div>
+</div></div></div>
 
 <!-- EPC Deployment Modal -->
 <div data-cwl-component="EPCDeploymentModal" data-cwl-lifted-component="EPCDeploymentModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showEPCDeploymentModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-action="handleClose" hidden aria-hidden="true">
@@ -2981,7 +2994,7 @@
   </div></div></div>
 
 <!-- Hardware Deployment Modal -->
-<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showHardwareDeploymentModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && tower"><div class="modal-overlay" data-cwl-toggle="isLoadingInventory:false" hidden aria-hidden="true">
+<div data-cwl-component="HardwareDeploymentModal" data-cwl-lifted-component="HardwareDeploymentModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showHardwareDeploymentModal" hidden aria-hidden="true"><div class="modal-overlay" data-cwl-toggle="isLoadingInventory:false" hidden aria-hidden="true">
   <div class="modal">
     <div class="modal-header">
       <h2>🔧 Deploy Hardware to <span data-cwl-bind="interp" data-cwl-hole-detail="tower?.name || 'Selected Site'"></span></h2>
@@ -3106,10 +3119,10 @@
       <button class="btn btn-secondary" data-cwl-toggle="isLoadingInventory:false" aria-label="Is Loading Inventory">Cancel</button>
     </div>
   </div>
-</div></div></div></div>
+</div></div></div>
 
 <!-- Help Modal -->
-<div data-cwl-bind="if" data-cwl-hole-detail="!isEmbedded"><div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div data-cwl-bind="if" data-cwl-hole-detail="show && currentTip"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
+<div data-cwl-bind="if" data-cwl-hole-detail="!isEmbedded"><div data-cwl-component="TipsModal" data-cwl-lifted-component="TipsModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showTipsModal" hidden aria-hidden="true"><div class="tips-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="tips-modal" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
       <div class="tips-header">
         <div class="tips-title-section">
@@ -3142,7 +3155,7 @@
         <button class="close-button" data-cwl-action="handleClose" type="button" aria-label="Close">Close</button>
       </div>
     </div>
-  </div></div></div></div></div>
+  </div></div></div></div>
 
 <div data-cwl-component="HelpModal" data-cwl-lifted-component="HelpModal"><div class="cwl-self-gated-shell" data-cwl-shell-key="showHelpModal" hidden aria-hidden="true"><div class="help-overlay" data-cwl-action="handleClose" data-cwl-on-keydown="action:handleClose" hidden aria-hidden="true">
     <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
@@ -4274,4 +4287,4 @@
       </div>
     </div>
   </div></div>
-<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"coverage-map"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"origin-convert-all","moduleSupport":"coverage-map","apiPath":"/api/coverage","api_ok":true,"itemCount":1,"tracedApiStatus":200}</script>

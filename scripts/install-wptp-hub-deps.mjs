@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Install WPTP siblings required by Translation Hub (Next.js emit path).
- * Clones AgenticOp-io/wptp-emit-nextjs (+ ensures @wptp/ir via npm) next to the Chrysalis repo by default.
+ * Install WPTP siblings required by Translation Hub (Next.js emit + contract-first compose).
+ * Clones AgenticOp-io/wptp-emit-nextjs (+ ensures @wptp/ir via npm) and wptp-matrix
+ * next to the Chrysalis repo by default.
  *
  * Usage:
  *   node scripts/install-wptp-hub-deps.mjs
@@ -18,10 +19,19 @@ const siblingsRoot = resolve(process.env.WPTP_SIBLINGS_ROOT ?? join(chrysalisRoo
 const emitNextJsTag = process.env.WPTP_EMIT_NEXTJS_REF ?? "v0.1.1";
 const emitRepo = process.env.WPTP_EMIT_NEXTJS_REPO ?? "https://github.com/AgenticOp-io/wptp-emit-nextjs.git";
 const emitDir = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(siblingsRoot, "wptp-emit-nextjs"));
+const matrixTag = process.env.WPTP_MATRIX_REF ?? "v0.1.10";
+const matrixRepo = process.env.WPTP_MATRIX_REPO ?? "https://github.com/AgenticOp-io/wptp-matrix.git";
+const matrixDir = resolve(process.env.WPTP_MATRIX_ROOT ?? join(siblingsRoot, "wptp-matrix"));
+
+const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
 
 function run(cmd, args, opts = {}) {
   return new Promise((resolveP, reject) => {
-    const child = spawn(cmd, args, { stdio: "inherit", ...opts });
+    const child = spawn(cmd, args, {
+      stdio: "inherit",
+      shell: process.platform === "win32",
+      ...opts,
+    });
     child.on("close", (code) => (code === 0 ? resolveP() : reject(new Error(`${cmd} ${args.join(" ")} exit ${code}`))));
     child.on("error", reject);
   });
@@ -46,7 +56,7 @@ async function cloneRepo(url, dest, ref) {
 
 async function npmBuild(dir, label) {
   process.stdout.write(`[install-wptp-hub-deps] npm install ${label}...\n`);
-  await run("npm", ["install", "--no-audit", "--no-fund"], {
+  await run(npmCmd, ["install", "--no-audit", "--no-fund"], {
     cwd: dir,
     env: {
       ...process.env,
@@ -58,25 +68,19 @@ async function npmBuild(dir, label) {
     const pkg = JSON.parse(await readFile(join(dir, "package.json"), "utf8"));
     if (pkg.scripts?.build) {
       process.stdout.write(`[install-wptp-hub-deps] npm run build ${label}...\n`);
-      await run("npm", ["run", "build"], { cwd: dir, env: process.env });
+      await run(npmCmd, ["run", "build"], { cwd: dir, env: process.env });
     }
   }
 }
 
-async function main() {
-  if (process.env.CHRYSALIS_SKIP_WPTP_HUB_DEPS === "1") {
-    process.stdout.write("[install-wptp-hub-deps] skipped (CHRYSALIS_SKIP_WPTP_HUB_DEPS=1)\n");
-    return;
-  }
-
+async function ensureEmitNextJs() {
   const distIndex = join(emitDir, "dist", "index.js");
   if (await exists(distIndex)) {
     try {
       const mod = await import(pathToFileURL(distIndex).href);
       if (typeof mod.emitNextJsAppRouter === "function") {
         process.stdout.write(`[install-wptp-hub-deps] OK: ${distIndex} already built\n`);
-        process.stdout.write(`${JSON.stringify({ ok: true, emitNextJsRoot: emitDir, skipped: true })}\n`);
-        return;
+        return { ok: true, skipped: true, emitNextJsRoot: emitDir };
       }
     } catch {
       process.stdout.write(`[install-wptp-hub-deps] stale ${distIndex}; rebuilding\n`);
@@ -86,7 +90,8 @@ async function main() {
   await cloneRepo(emitRepo, emitDir, emitNextJsTag).catch(async () => {
     process.stdout.write(`[install-wptp-hub-deps] tag ${emitNextJsTag} failed; cloning default branch...\n`);
     if (await exists(emitDir)) {
-      await run("rm", ["-rf", emitDir]);
+      const { rm } = await import("node:fs/promises");
+      await rm(emitDir, { recursive: true, force: true });
     }
     await run("git", ["clone", "--depth", "1", emitRepo, emitDir]);
   });
@@ -96,9 +101,51 @@ async function main() {
   if (!(await exists(distIndex))) {
     throw new Error(`missing ${distIndex} after build`);
   }
+  return { ok: true, skipped: false, emitNextJsRoot: emitDir };
+}
+
+async function ensureMatrix() {
+  const composeNext = join(matrixDir, "dist", "compose-chrysalis-nextjs.js");
+  if (await exists(composeNext)) {
+    process.stdout.write(`[install-wptp-hub-deps] OK: ${composeNext} already built\n`);
+    return { ok: true, skipped: true, matrixRoot: matrixDir };
+  }
+
+  await cloneRepo(matrixRepo, matrixDir, matrixTag).catch(async () => {
+    process.stdout.write(`[install-wptp-hub-deps] tag ${matrixTag} failed; cloning default branch...\n`);
+    if (await exists(matrixDir)) {
+      const { rm } = await import("node:fs/promises");
+      await rm(matrixDir, { recursive: true, force: true });
+    }
+    await run("git", ["clone", "--depth", "1", matrixRepo, matrixDir]);
+  });
+
+  await npmBuild(matrixDir, "wptp-matrix");
+
+  if (!(await exists(composeNext))) {
+    throw new Error(`missing ${composeNext} after build`);
+  }
+  return { ok: true, skipped: false, matrixRoot: matrixDir };
+}
+
+async function main() {
+  if (process.env.CHRYSALIS_SKIP_WPTP_HUB_DEPS === "1") {
+    process.stdout.write("[install-wptp-hub-deps] skipped (CHRYSALIS_SKIP_WPTP_HUB_DEPS=1)\n");
+    return;
+  }
+
+  const emit = await ensureEmitNextJs();
+  const matrix = await ensureMatrix();
 
   process.stdout.write(
-    `${JSON.stringify({ ok: true, emitNextJsRoot: emitDir, wptpIrRoot: join(emitDir, "node_modules", "@wptp", "ir") })}\n`,
+    `${JSON.stringify({
+      ok: true,
+      emitNextJsRoot: emit.emitNextJsRoot,
+      matrixRoot: matrix.matrixRoot,
+      emitSkipped: emit.skipped,
+      matrixSkipped: matrix.skipped,
+      wptpIrRoot: join(emit.emitNextJsRoot, "node_modules", "@wptp", "ir"),
+    })}\n`,
   );
 }
 

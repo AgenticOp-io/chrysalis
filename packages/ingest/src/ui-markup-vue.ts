@@ -7,13 +7,16 @@ import type { UiFrameworkMarkupAdapter } from "./ui-markup.js";
 import { uiRoutePatternSource } from "./ui-route-patterns.js";
 import { kebabCase } from "./ui-assets-vite-shared.js";
 import { finalizeStaticMarkup } from "./ui-markup-static.js";
-import { liftStructuralVueTemplateHtml } from "./ui-markup-vue-structural.js";
+import {
+  extractVueSfcTemplate,
+  liftStructuralVueTemplateHtml,
+} from "./ui-markup-vue-structural.js";
 
 /** Extract static template HTML from a .vue SFC. */
 export function liftStaticVueTemplateHtml(source: string): string | null {
-  const m = /<template[^>]*>([\s\S]*?)<\/template>/i.exec(source);
-  if (m === null || m[1] === undefined) return null;
-  const finalized = finalizeStaticMarkup(m[1]);
+  const body = extractVueSfcTemplate(source);
+  if (body === null) return null;
+  const finalized = finalizeStaticMarkup(body);
   return finalized?.html ?? null;
 }
 

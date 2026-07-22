@@ -55,11 +55,11 @@ failure stops the pipeline before packaging or deployment.
   extraction.
 - `scripts/lib/cwl-generate-api-proxy.mjs` — specificity-ordered API module.
 - `scripts/wisp-cwl-apply-api-golden-handlers.mjs` — recorded response bodies.
-- `scripts/lib/extract-wisp-module-tips.mjs` — source-owned tips asset.
-- `scripts/lib/extract-wisp-wizard-catalog.mjs` — source-owned wizard asset.
+- `scripts/wisp/extract-wisp-module-tips.mjs` — source-owned tips asset.
+- `scripts/wisp/extract-wisp-wizard-catalog.mjs` — source-owned wizard asset.
 - `scripts/build-wisp-cwl-arcgis-bundle.mjs` — ArcGIS vendor island.
 - `scripts/lib/cwl-static-export.mjs` — clean static export.
-- `scripts/lib/wisp-conversion-audit.mjs` — behavioral completeness gate.
+- `scripts/wisp/wisp-conversion-audit.mjs` — behavioral completeness gate.
 - `scripts/wisp-cwl-pipeline.mjs` — deployment/bundle implementation library.
 
 ## Historical script policy

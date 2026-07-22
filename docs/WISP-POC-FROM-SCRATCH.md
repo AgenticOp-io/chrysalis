@@ -32,4 +32,4 @@ the GCE conversion path.
 
 ## Auth / deploy
 
-ADC via `scripts/lib/wisp-firebase-auth-env.mjs`. See also `UNIVERSAL-TRANSLATOR-CANON.md`.
+ADC via `scripts/wisp/wisp-firebase-auth-env.mjs`. See also `UNIVERSAL-TRANSLATOR-CANON.md`.

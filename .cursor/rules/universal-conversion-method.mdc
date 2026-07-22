@@ -15,7 +15,7 @@ WISP filled proof (SvelteKit): `docs/WISP-CWL-CONSOLIDATED-PIPELINE.md` + `wisp-
    Adapters: `scripts/lib/site-inventory/`. Smoke: `pnpm run chrysalis:site-inventory-adapters-smoke`.
 2. **Diff + gaps** — `chrysalis:site-inventory-diff` then `chrysalis:gap-catalog` (policy: `reports/chrysalis/inventory-policy.example.json`). Do not start lift/wire from vibes.
 3. **Translate only / no demo-only** — **D6442** / **D6447**. Origin-dead and honest-skip stay unwired. Hub 23×26 catalog ≠ site fidelity.
-4. **Lift with matching markup adapter** — SvelteKit / Vue / Next / Angular (`@chrysalis/ingest`); PHP server ingest + oracle (Blade UI markup is Tier C).
+4. **Lift with matching markup adapter** — SvelteKit / Vue / Next / Angular / Blade basic (`@chrysalis/ingest`); PHP handlers + oracle. Alpine/Livewire remain honesty holes (no invented runtime). Overlay gates stamp `data-cwl-shell-key` via shared `ui-markup-overlay-shell`.
 5. **Shells / nests** — Reveal nested self-gated shells; selected-entity hydrate; never `*[0]` fallbacks; no deepen injectors.
 6. **Prove + deploy** — Sign in vs origin (**D6448-ST**); chimera for verify; production host when shipping.
 7. **WISP POC only** — Verify on GCE; bump `WISP_CWL_ASSET_BUST`; Firebase via `pnpm run wisp:deploy:firebase`. Do not hardcode WISP page lists for other sites (use origin routes or `--live-pages`).

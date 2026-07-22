@@ -54,6 +54,10 @@ export function inventoryOrigin(root) {
       pushGate(b, m[1], "overlay", r);
       showGates.push(m[1]);
     }
+    for (const m of text.matchAll(/\[(?:isOpen|visible|open|show)\]\s*=\s*["'](show[A-Za-z0-9_]+|isOpen[A-Za-z0-9_]*)/g)) {
+      pushGate(b, m[1], "dialog", r);
+      showGates.push(m[1]);
+    }
     for (const m of text.matchAll(/\[ngIf\]\s*=\s*["'](show[A-Za-z0-9_]+)/g)) {
       pushGate(b, m[1], "overlay", r);
       showGates.push(m[1]);
@@ -76,6 +80,9 @@ export function inventoryOrigin(root) {
     if (/<ng-content\b/i.test(text)) b.slots.push(`${r}#ng-content`);
     for (const m of text.matchAll(/<ng-template\b[^>]*#(\w+)/g)) {
       b.slots.push(`${r}#${m[1]}`);
+    }
+    if (/\[isOpen\]|app-.*-modal/i.test(text)) {
+      b.nests.push(`${r}#modal-nest`);
     }
     for (const m of text.matchAll(/\((click|submit|change)\)=/g)) {
       b.events.push(m[1]);

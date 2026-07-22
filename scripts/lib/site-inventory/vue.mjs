@@ -82,7 +82,10 @@ export function inventoryOrigin(root) {
     for (const m of text.matchAll(/<slot\b[^>]*\bname=["']([^"']+)["']/g)) {
       b.slots.push(`${r}#${m[1]}`);
     }
-    if (/<Teleport\b/i.test(text)) b.slots.push(`${r}#teleport`);
+    if (/<Teleport\b/i.test(text)) {
+      b.slots.push(`${r}#teleport`);
+      b.nests.push(`${r}#teleport`);
+    }
     for (const m of text.matchAll(/@(click|submit|change|input)=/g)) {
       b.events.push(m[1]);
     }

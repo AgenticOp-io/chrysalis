@@ -1,10 +1,18 @@
 /**
  * Structural-shell Angular template + DI lift (G9926 / D6419).
  * Preserve layout; emit named holes for *ngIf/*ngFor/interp/events/binds/components
- * and companion .ts inject()/constructor DI. Never invent live data (§3).
+ * and companion .ts inject()/constructor DI. Overlay gates stamp closed chrome like Svelte.
+ * Never invent live data (§3).
  */
 import { finalizeStaticMarkup } from "./ui-markup-static.js";
 import { extractHtmlClassNames } from "./ui-markup-svelte.js";
+import {
+  aliasShellKeyToParent,
+  extractAngularParentGate,
+  extractOverlayGateIdent,
+  maybeStampOverlayGate,
+  wrapSelfGatedOverlayShell,
+} from "./ui-markup-overlay-shell.js";
 
 export type AngularMarkupLiftHole = { readonly reason: string; readonly detail: string };
 
@@ -23,6 +31,7 @@ export const HOLE_ANGULAR_BIND = "legacy:markup-lift-angular-bind";
 export const HOLE_ANGULAR_COMPONENT = "legacy:markup-lift-angular-component";
 export const HOLE_ANGULAR_DI = "legacy:markup-lift-angular-di";
 export const HOLE_ANGULAR_ASYNC = "legacy:markup-lift-angular-async";
+export const HOLE_ANGULAR_SLOT = "legacy:markup-lift-angular-slot";
 
 function holeMarker(reason: string, detail: string, inner = ""): string {
   const safe = detail.replace(/"/g, "'").slice(0, 200);
@@ -56,6 +65,31 @@ export function scanAngularTsForDiHoles(source: string): AngularMarkupLiftHole[]
   return holes;
 }
 
+function liftAngularComponent(
+  tag: string,
+  attrs: string,
+  inner: string,
+  holes: AngularMarkupLiftHole[],
+): string {
+  pushHole(holes, HOLE_ANGULAR_COMPONENT, tag);
+  // ng-content / projected content → slot honesty
+  let bodyInner = inner;
+  if (/<ng-content\b/i.test(inner)) {
+    pushHole(holes, HOLE_ANGULAR_SLOT, `${tag}#ng-content`);
+    bodyInner = inner.replace(
+      /<ng-content\b[^>]*\/?>/gi,
+      '<div data-cwl-slot="ng-content"></div>',
+    );
+  }
+  let body = holeMarker(HOLE_ANGULAR_COMPONENT, tag, bodyInner);
+  const parentGate = extractAngularParentGate(attrs);
+  if (parentGate) {
+    body = aliasShellKeyToParent(body, parentGate);
+    body = wrapSelfGatedOverlayShell(body, parentGate);
+  }
+  return body;
+}
+
 /** Structural-shell lift for an Angular component template (HTML). */
 export function liftStructuralAngularTemplateHtml(source: string): AngularMarkupLiftResult | null {
   const trimmed = source.trim();
@@ -77,18 +111,14 @@ export function liftStructuralAngularTemplateHtml(source: string): AngularMarkup
   // Custom elements / components (app-*, lib-*, or unknown hyphenated tags)
   html = html.replace(
     /<(app|lib|shared)-([a-z][\w-]*)\b([^>]*)\/>/gi,
-    (_m, pfx: string, name: string) => {
-      const tag = `${pfx}-${name}`;
-      pushHole(holes, HOLE_ANGULAR_COMPONENT, tag);
-      return holeMarker(HOLE_ANGULAR_COMPONENT, tag);
+    (_m, pfx: string, name: string, attrs: string) => {
+      return liftAngularComponent(`${pfx}-${name}`, attrs, "", holes);
     },
   );
   html = html.replace(
     /<(app|lib|shared)-([a-z][\w-]*)\b([^>]*)>([\s\S]*?)<\/\1-\2>/gi,
-    (_m, pfx: string, name: string, _a: string, inner: string) => {
-      const tag = `${pfx}-${name}`;
-      pushHole(holes, HOLE_ANGULAR_COMPONENT, tag);
-      return holeMarker(HOLE_ANGULAR_COMPONENT, tag, inner);
+    (_m, pfx: string, name: string, attrs: string, inner: string) => {
+      return liftAngularComponent(`${pfx}-${name}`, attrs, inner, holes);
     },
   );
 
@@ -126,14 +156,28 @@ export function liftStructuralAngularTemplateHtml(source: string): AngularMarkup
       const detail = (m?.[1] ?? m?.[2] ?? m?.[3] ?? "ngIf").trim();
       pushHole(holes, HOLE_ANGULAR_IF, detail);
       const clean = attrs.replace(/\s+\*ngIf=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
-      return holeMarker(HOLE_ANGULAR_IF, detail, `<${tag}${clean}>${inner}</${tag}>`);
+      const el = `<${tag}${clean}>${inner}</${tag}>`;
+      const stamped = maybeStampOverlayGate(detail, el);
+      if (stamped) return stamped;
+      return holeMarker(HOLE_ANGULAR_IF, detail, el);
     },
   );
 
-  // Angular control-flow (@if / @for) — comment markers only (block body not HTML-shaped).
+  // Angular control-flow (@if (showX) { … }) — stamp overlay bodies when HTML-shaped.
+  html = html.replace(
+    /@if\s*\(\s*((?:show|isOpen|open|visible)[A-Za-z0-9_]*)\s*\)\s*\{([\s\S]*?)\}/g,
+    (_m, gate: string, body: string) => {
+      pushHole(holes, HOLE_ANGULAR_IF, gate);
+      const stamped = maybeStampOverlayGate(gate, body.trim());
+      return stamped ?? `<!--${HOLE_ANGULAR_IF}:${gate}-->`;
+    },
+  );
+
   html = html.replace(/@(?:if|else if|else|for|switch|case|default)\b[^{]*\{/g, (m) => {
     const kind = /@for\b/.test(m) ? HOLE_ANGULAR_FOR : HOLE_ANGULAR_IF;
+    const gate = extractOverlayGateIdent(m);
     pushHole(holes, kind, m.trim().slice(0, 120));
+    if (gate) return `<!--${kind}:${gate}-->`;
     return `<!--${kind}-->`;
   });
 

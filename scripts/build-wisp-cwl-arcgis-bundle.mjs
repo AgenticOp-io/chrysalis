@@ -18,7 +18,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const ENTRY = join(ROOT, "scripts/lib/wisp-cwl-arcgis-entry.mjs");
+const ENTRY = join(ROOT, "scripts/wisp/wisp-cwl-arcgis-entry.mjs");
 const OUT_DIR = join(ROOT, "fixtures/hub-wisp-management");
 const OUT_JS = join(OUT_DIR, "wisp-cwl-arcgis.bundle.js");
 const OUT_CSS = join(OUT_DIR, "wisp-cwl-arcgis.bundle.css");

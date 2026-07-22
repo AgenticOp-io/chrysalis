@@ -1,0 +1,14 @@
+<main class="dashboard-page">
+  <header class="dash-bar">
+    <h1>{{ title }}</h1>
+    <button type="button" (click)="showFilters = true">Filters</button>
+  </header>
+  <aside *ngIf="showFilters" class="filters-panel">
+    <h2>Filters</h2>
+    <button type="button" (click)="showFilters = false">Close</button>
+  </aside>
+  <ul>
+    <li *ngFor="let row of rows">{{ row.name }}</li>
+  </ul>
+  <app-upgrade-modal [isOpen]="showUpgradeModal"></app-upgrade-modal>
+</main>

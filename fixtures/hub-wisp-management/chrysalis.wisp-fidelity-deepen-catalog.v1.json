@@ -8,25 +8,25 @@
     560
   ],
   "desk": {
-    "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
-    "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
+    "harness": "scripts/wisp/wisp-fidelity-deepen-harness.mjs",
+    "cli": "scripts/wisp/wisp-fidelity-deepen-cli.mjs",
     "workflow": [
       "pnpm run hub:fidelity-deepen-candidates",
       "pnpm run hub:fidelity-deepen-external-deps",
       "pnpm run hub:fidelity-deepen-source-doc",
       "pnpm run hub:fidelity-deepen-probe",
       "AI proposes ×10 from source docs + external-deps briefing (D6442/D6445) — live probe is parity only; missing keys → honest residual",
-      "Add scripts/lib/wisp-fidelity-deepen-batches/<id>.mjs + catalog entry",
+      "Add scripts/wisp/wisp-fidelity-deepen-batches/<id>.mjs + catalog entry",
       "pnpm run hub:fidelity-deepen -- --batch <id>",
       "Stage/deploy + FUTURE §7"
     ],
     "externalDeps": {
-      "protocol": "scripts/lib/wisp-external-deps-protocol.mjs",
+      "protocol": "scripts/wisp/wisp-external-deps-protocol.mjs",
       "fixture": "fixtures/hub-wisp-management/chrysalis.wisp-external-deps.v1.json",
       "decision": "D6445"
     },
     "autoExhaust": {
-      "protocol": "scripts/lib/wisp-fidelity-deepen-auto.mjs",
+      "protocol": "scripts/wisp/wisp-fidelity-deepen-auto.mjs",
       "stopAfterNoImprovement": 3,
       "decision": "D6445",
       "lastBatchId": "n12d",

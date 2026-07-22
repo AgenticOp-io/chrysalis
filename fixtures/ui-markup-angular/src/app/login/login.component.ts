@@ -12,6 +12,7 @@ export class LoginComponent {
   private readonly logger = inject(LoginLogger);
   title = "Angular Sign in";
   showHint = true;
+  showUpgradeModal = false;
   items: { label: string }[] = [];
   busy = false;
   status$ = this.auth.status$;

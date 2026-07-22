@@ -12,12 +12,12 @@
   ];
 
   const ADAPTERS = [
-    { id: "sveltekit", label: "SvelteKit inventory + markup", value: 100 },
-    { id: "vite-vue", label: "Vue / Nuxt", value: 92 },
-    { id: "next-app", label: "Next App Router", value: 90 },
-    { id: "angular", label: "Angular", value: 88 },
-    { id: "php-blade", label: "PHP Blade inventory (markup Tier C)", value: 55 },
-    { id: "php", label: "PHP handlers + oracle", value: 78 },
+    { id: "sveltekit", label: "SvelteKit inventory + markup + shells", value: 100 },
+    { id: "vite-vue", label: "Vue / Nuxt inventory + overlay shells", value: 100 },
+    { id: "next-app", label: "Next App Router inventory + overlay shells", value: 100 },
+    { id: "angular", label: "Angular inventory + overlay shells", value: 100 },
+    { id: "php-blade", label: "PHP Blade inventory + basic markup", value: 100 },
+    { id: "php", label: "PHP handlers + oracle (server track)", value: 100 },
   ];
 
   const KB = [
@@ -49,7 +49,7 @@
     {
       keys: ["vue", "next", "angular", "react", "blade"],
       answer:
-        "Markup lift: SvelteKit, Vue, Next, Angular. Inventory mirrors them. Blade inventory exists; Blade UI markup is Tier C. PHP server ingest is deepest.",
+        "Markup lift: SvelteKit, Vue, Next, Angular, and Blade (basic). Inventory mirrors them. Overlay gates stamp data-cwl-shell-key like Svelte. Alpine/Livewire remain honesty holes — not invented runtimes.",
     },
     {
       keys: ["prove", "d6448", "success"],

@@ -1,12 +1,21 @@
 /**
  * Structural-shell Next.js App Router page lift (G9925 / D6418; loading/fonts G9944 / D6429).
  * Do not silently strip `{…}` — emit named holes for interp / client / RSC / components /
- * loading.tsx / next/font. Never invent @font-face or skeleton UI (§3).
+ * loading.tsx / next/font. Overlay gates stamp closed chrome like Svelte.
+ * Never invent @font-face or skeleton UI (§3).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { finalizeStaticMarkup } from "./ui-markup-static.js";
 import { extractHtmlClassNames } from "./ui-markup-svelte.js";
+import {
+  aliasShellKeyToParent,
+  extractJsxParentGate,
+  extractOverlayGateIdent,
+  maybeStampOverlayGate,
+  stampOverlayGate,
+  wrapSelfGatedOverlayShell,
+} from "./ui-markup-overlay-shell.js";
 
 export type NextMarkupLiftHole = { readonly reason: string; readonly detail: string };
 
@@ -23,6 +32,7 @@ export const HOLE_NEXT_CLIENT = "legacy:markup-lift-next-client";
 export const HOLE_NEXT_RSC = "legacy:markup-lift-next-rsc";
 export const HOLE_NEXT_LOADING = "legacy:markup-lift-next-loading";
 export const HOLE_NEXT_FONT = "legacy:markup-lift-next-font";
+export const HOLE_NEXT_IF = "legacy:markup-lift-next-if";
 
 function holeMarker(reason: string, detail: string, inner = ""): string {
   const safe = detail.replace(/"/g, "'").slice(0, 200);
@@ -103,6 +113,22 @@ export function scanNextCompanionHoles(opts: {
   return holes;
 }
 
+function liftNextComponent(
+  name: string,
+  attrs: string,
+  inner: string,
+  holes: NextMarkupLiftHole[],
+): string {
+  pushHole(holes, HOLE_NEXT_COMPONENT, name);
+  let body = holeMarker(HOLE_NEXT_COMPONENT, name, inner);
+  const parentGate = extractJsxParentGate(attrs);
+  if (parentGate) {
+    body = aliasShellKeyToParent(body, parentGate);
+    body = wrapSelfGatedOverlayShell(body, parentGate);
+  }
+  return body;
+}
+
 /** Structural-shell lift for a Next.js page module. */
 export function liftStructuralNextPageJsx(
   source: string,
@@ -137,20 +163,64 @@ export function liftStructuralNextPageJsx(
     }
   }
 
-  jsx = jsx.replace(/<([A-Z][A-Za-z0-9_]*)\b([^>]*)\/>/g, (_m, name: string) => {
-    pushHole(holes, HOLE_NEXT_COMPONENT, name);
-    return holeMarker(HOLE_NEXT_COMPONENT, name);
+  // Overlay short-circuit: {showX && (<div>…</div>)} / {showX ? (…) : null}
+  jsx = jsx.replace(
+    /\{((?:show|isOpen|open|visible)[A-Za-z0-9_]*)\s*&&\s*\(([\s\S]*?)\)\}/g,
+    (_m, gate: string, inner: string) => {
+      pushHole(holes, HOLE_NEXT_IF, gate);
+      return stampOverlayGate(inner.trim(), gate);
+    },
+  );
+  jsx = jsx.replace(
+    /\{((?:show|isOpen|open|visible)[A-Za-z0-9_]*)\s*\?\s*\(([\s\S]*?)\)\s*:\s*(?:null|undefined|false)\}/g,
+    (_m, gate: string, inner: string) => {
+      pushHole(holes, HOLE_NEXT_IF, gate);
+      return stampOverlayGate(inner.trim(), gate);
+    },
+  );
+
+  jsx = jsx.replace(/<([A-Z][A-Za-z0-9_]*)\b([^>]*)\/>/g, (_m, name: string, attrs: string) => {
+    return liftNextComponent(name, attrs, "", holes);
   });
   jsx = jsx.replace(
     /<([A-Z][A-Za-z0-9_]*)\b([^>]*)>([\s\S]*?)<\/\1>/g,
-    (_m, name: string, _a: string, inner: string) => {
-      pushHole(holes, HOLE_NEXT_COMPONENT, name);
-      return holeMarker(HOLE_NEXT_COMPONENT, name, inner);
+    (_m, name: string, attrs: string, inner: string) => {
+      return liftNextComponent(name, attrs, inner, holes);
+    },
+  );
+
+  // Native elements with open={showX} (dialogs)
+  jsx = jsx.replace(
+    /<(dialog|div|section|aside)\b([^>]*?\s(?:open|isOpen|visible|show)\s*=\s*\{[^{}]*\}[^>]*)>([\s\S]*?)<\/\1>/gi,
+    (_m, tag: string, attrs: string, inner: string) => {
+      const gate = extractJsxParentGate(attrs);
+      const clean = attrs
+        .replace(/\s(?:open|isOpen|visible|show)\s*=\s*\{[^{}]*\}/gi, "")
+        .replace(/\s(?:open|isOpen|visible|show)\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
+      const el = `<${tag}${clean}>${inner}</${tag}>`;
+      if (gate) {
+        pushHole(holes, HOLE_NEXT_IF, gate);
+        return stampOverlayGate(el, gate);
+      }
+      return el;
     },
   );
 
   jsx = jsx.replace(/\{([^{}]*)\}/g, (_m, inner: string) => {
     const detail = String(inner).replace(/\s+/g, " ").trim().slice(0, 120) || "expr";
+    const gate = extractOverlayGateIdent(detail);
+    if (gate) {
+      pushHole(holes, HOLE_NEXT_IF, detail);
+      // Bare {showX} boolean paint — honesty hole (no body to stamp).
+      return holeMarker(HOLE_NEXT_IF, detail);
+    }
+    // Conditional with nested markup already handled; residual && without paren
+    const andM = /^(show[A-Za-z0-9_]+|isOpen[A-Za-z0-9_]*)\s*&&\s*(.+)$/.exec(detail);
+    if (andM) {
+      pushHole(holes, HOLE_NEXT_IF, andM[1]!);
+      const stamped = maybeStampOverlayGate(andM[1]!, andM[2]!);
+      if (stamped) return stamped;
+    }
     pushHole(holes, HOLE_NEXT_INTERP, detail);
     return holeMarker(HOLE_NEXT_INTERP, detail);
   });

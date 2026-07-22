@@ -279,6 +279,16 @@ export function resolveInterpDetail(root: unknown, detail: string): unknown {
   // Event handlers are not display text
   if (/^handle[A-Z][A-Za-z0-9_]*$/.test(d) || /^\(\)\s*=>/.test(d)) return "";
 
+  // Arithmetic: currentTipIndex + 1 / currentStep - 0 (origin wizard labels)
+  const arith = /^([a-zA-Z_$][\w.?$]*)\s*([+-])\s*(-?\d+)$/.exec(d);
+  if (arith) {
+    const leftRaw = resolveInterpDetail(root, arith[1]!.replace(/\?/g, ""));
+    const left = typeof leftRaw === "number" ? leftRaw : Number(leftRaw);
+    if (!Number.isFinite(left)) return undefined;
+    const right = Number(arith[3]);
+    return arith[2] === "+" ? left + right : left - right;
+  }
+
   const call = /^(formatCurrency|formatDate|formatDateTime|formatNumber|String)\((.+)\)$/.exec(d);
   if (call) {
     const inner = call[2]!.trim();
@@ -338,6 +348,12 @@ export const DEFAULT_SHOWCASE_HYDRATE_CONSTANTS: Readonly<Record<string, unknown
   activeTab: "customers",
   mapView: "geographic",
   step: 1,
+  /** Origin wizard idle: `let currentStep = 0` (evidence close, not invent). */
+  currentStep: 0,
+  currentTipIndex: 0,
+  tips: [],
+  wizards: [],
+  steps: [],
   role: "platform_admin",
   brandName: "WISP Management",
   tenantName: "Demo Tenant",
@@ -901,21 +917,44 @@ export function evaluateIfDetail(detail: string, body: unknown): boolean | null 
   if (!d) return null;
 
   if (d.includes("&&")) {
-    const parts = d.split("&&").map((p) => p.trim());
-    const vals = parts.map((p) => evaluateIfDetail(p, body));
-    if (vals.some((v) => v === null)) return null;
-    return vals.every(Boolean);
+    const parts = d.split("&&").map((p) => p.trim()).filter(Boolean);
+    let sawUnknown = false;
+    for (const p of parts) {
+      const v = evaluateIfDetail(p, body);
+      if (v === null) {
+        sawUnknown = true;
+        continue;
+      }
+      if (!v) return false;
+    }
+    return sawUnknown ? null : true;
   }
   if (d.includes("||")) {
-    const parts = d.split("||").map((p) => p.trim());
-    const vals = parts.map((p) => evaluateIfDetail(p, body));
-    if (vals.some((v) => v === null)) return null;
-    return vals.some(Boolean);
+    const parts = d.split("||").map((p) => p.trim()).filter(Boolean);
+    let sawUnknown = false;
+    for (const p of parts) {
+      const v = evaluateIfDetail(p, body);
+      if (v === null) {
+        sawUnknown = true;
+        continue;
+      }
+      if (v) return true;
+    }
+    return sawUnknown ? null : false;
   }
 
   if (d.startsWith("!")) {
     const inner = evaluateIfDetail(d.slice(1).trim(), body);
     return inner === null ? null : !inner;
+  }
+
+  // formData.types.includes('cpe') — origin array membership (evidence close)
+  const includesLit =
+    /^([a-zA-Z_$][\w.?$]*)\.includes\((['"])([^'"]*)\2\)$/.exec(d);
+  if (includesLit) {
+    const arr = resolveInterpDetail(body, includesLit[1]!.replace(/\?/g, ""));
+    if (!Array.isArray(arr)) return null;
+    return arr.map(String).includes(includesLit[3]!);
   }
 
   // getFailedPayments().length > 0 (G9790)

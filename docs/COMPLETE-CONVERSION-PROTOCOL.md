@@ -37,7 +37,7 @@ A conversion is **complete** only when:
 CLI inventory: `node scripts/chrysalis-site-inventory.mjs --origin <path> [--live <url>] [--framework <adapter>]` · `pnpm run chrysalis:site-inventory-adapters-smoke`.  
 Gap catalog: `pnpm run chrysalis:gap-catalog -- --inventory reports/chrysalis/site-inventory.json [--policy …]`.  
 POC convert (WISP): `pnpm run hub:wisp-convert-restart` runs 0–6 with Phase 2 wired.  
-Standalone Phase 2: `pnpm run hub:complete-conversion` (`scripts/lib/wisp-complete-conversion-protocol.mjs`).
+Standalone Phase 2: `pnpm run hub:complete-conversion` (`scripts/wisp/wisp-complete-conversion-protocol.mjs`).
 
 ---
 

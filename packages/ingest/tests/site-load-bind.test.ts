@@ -167,6 +167,11 @@ page hardware {
     expect(evaluateIfDetail("tenants.length === 0", body)).toBe(false);
     expect(evaluateIfDetail("showCreateModal || showEditModal", body)).toBe(false);
     expect(evaluateIfDetail("networkDevices.length === 0 && epcDevices.length === 0", body)).toBe(false);
+    expect(evaluateIfDetail("formData.types.includes('cpe')", {
+      formData: { types: ["cpe", "sector"] },
+    })).toBe(true);
+    expect(evaluateIfDetail("missing || tenants.length > 0", body)).toBe(true);
+    expect(resolveInterpDetail({ currentTipIndex: 0 }, "currentTipIndex + 1")).toBe(1);
     expect(resolveInterpDetail(body, "tenants.length")).toBe(1);
     const html =
       '<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === \'customers\'"><span>TAB</span></div>' +

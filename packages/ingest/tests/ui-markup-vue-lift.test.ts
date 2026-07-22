@@ -7,7 +7,11 @@ import { verifyUiRouteMarkupParity } from "@chrysalis/verify";
 const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtures/ui-markup-vue");
 
 describe("liftUiMarkup (vite-vue fixture)", () => {
-  const result = liftUiMarkup({ buildRoot: FIXTURE, adapter: viteVueMarkupAdapter });
+  const result = liftUiMarkup({
+    buildRoot: FIXTURE,
+    adapter: viteVueMarkupAdapter,
+    mode: "structural-shell",
+  });
 
   test("lifts per-route vue template bundles", () => {
     expect(result.ok).toBe(true);
@@ -16,12 +20,14 @@ describe("liftUiMarkup (vite-vue fixture)", () => {
     expect(result.bundles.map((b) => b.routeId).sort()).toEqual(["/login", "/portal/login"]);
   });
 
-  test("preserves per-route isolation", () => {
+  test("preserves per-route isolation and overlay shells", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     const login = result.bundles.find((b) => b.routeId === "/login");
     const portal = result.bundles.find((b) => b.routeId === "/portal/login");
-    expect(login?.html).toContain("Vue Sign in");
+    expect(login?.html).toContain("login-card");
+    expect(login?.html).toContain('data-cwl-shell-key="showHint"');
+    expect(login?.html).toContain('data-cwl-shell-key="showUpgradeModal"');
     expect(login?.html).not.toContain("portal-shell");
     expect(portal?.html).toContain("Vue Portal Sign in");
   });

@@ -68,7 +68,7 @@ Index the origin tree with the matching **site-inventory adapter** (auto-detect 
 | `vite-vue` | `viteVueMarkupAdapter` |
 | `next-app` | `nextAppMarkupAdapter` |
 | `angular` | `angularMarkupAdapter` |
-| `php-blade` / `php` | Server ingest + oracle today; Blade UI markup adapter is Tier C |
+| `php-blade` / `php` | `phpBladeMarkupAdapter` (basic structural) + PHP handler ingest / oracle. Alpine/Livewire stay honesty holes. |
 
 ### 2B. Converted / live inventory (always CWL attrs)
 

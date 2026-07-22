@@ -71,6 +71,10 @@ export function inventoryOrigin(root) {
       pushGate(b, m[1], "overlay", r);
       showGates.push(m[1]);
     }
+    for (const m of text.matchAll(/\b(?:const|let)\s+(show[A-Za-z0-9_]+|isOpen[A-Za-z0-9_]*)\s*=/g)) {
+      pushGate(b, m[1], "overlay", r);
+      showGates.push(m[1]);
+    }
     for (const m of text.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
       if (/Modal|Wizard|Dialog|Drawer|Sheet|Map/i.test(m[1])) b.components.push(m[1]);
     }
@@ -78,6 +82,9 @@ export function inventoryOrigin(root) {
       b.apis.push(m[1].split("?")[0]);
     }
     if (/createPortal\s*\(/.test(text)) b.slots.push(`${r}#portal`);
+    if (/Modal|Dialog|showUpgrade|cwl-self-gated/i.test(text)) {
+      b.nests.push(`${r}#overlay-nest`);
+    }
     for (const m of text.matchAll(/\bon(?:Click|Submit|Change)=\{/g)) {
       b.events.push(m[0].replace(/=.*/, "").replace(/^on/, "").toLowerCase());
     }
