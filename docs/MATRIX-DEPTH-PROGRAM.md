@@ -133,17 +133,20 @@ Emit targets: c, cpp, csharp, css, cwl, fastify, go, hono, html, java, json, kot
 
 **Honest limit:** Gold + outbound emit prove lift→WebIR→emit works for WISP’s origin language cells and the live CWL corpus. It is **not** a claim that each target is a production-parity rewrite of the full SvelteKit app (ArcGIS islands, auth, etc. remain CWL/static-host proven).
 
-## WISP deep emit prove (closed 2026-07-22)
+## WISP deep emit prove (closed 2026-07-22; expanded all-24)
 
-Selective high-value path (not ST on all 24). Gate: `pnpm run hub:wisp-deep-emit-prove-smoke`
+Selective high-value path first; then **all 24** emit targets. Gate: `pnpm run hub:wisp-deep-emit-prove-smoke`
 
 | Bar | Result |
 | --- | --- |
-| Svelte gold trace-replay (structured+middleware × hono/fastify/nextjs/python) | **8/8** |
-| Real WISP `routes.cwl` emit → those four | **4/4** (~106 routes; nextjs ~105) |
-| In-process hub replay WISP→hono + WISP→fastify | **correctness=1** on **106** routes each |
+| Svelte gold trace-replay (structured+middleware × all emit targets) | **48** suites (toolchain skips allowed) |
+| Real WISP `routes.cwl` emit → **24/24** | structural + route counts |
+| In-process WISP→hono / fastify / nextjs | **correctness=1** (nextjs may skip without WPTP) |
+| Asset manifest replay on WISP (10 targets) | correctness=1 |
+| Native | gold probe + WISP emit/structural (HTML corpus not native-oracle) |
+| CWL round-trip replay on WISP | correctness=1 |
 
-**Honest limit:** Deep prove is emit+replay evidence for priority web/native targets. Product ST remains **CWL static** (`stGreen` + signed-in origin compare). Do not treat hono/fastify emits as D6448-ST equivalents.
+**Honest limit:** Deep prove is emit+replay evidence. Product ST remains **CWL static**. Native WISP pages are emit-depth; native behavioral depth is gold fixtures. Do not treat every emit as D6448-ST.
 
 ## Refuse
 
