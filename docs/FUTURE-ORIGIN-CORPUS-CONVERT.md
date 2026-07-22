@@ -199,6 +199,7 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-22 | **Signed-in origin compare gate:** `hub:complete-conversion-origin-compare` — origin Module_Manager source contracts + live management.wisptools.io markers for `/login` `/dashboard` `/modules/plan`; checklist `signedInOriginCompare.status=passed` | **done** |
 | 2026-07-22 | **Evidence-only redeploy + demo sign-in:** static export 104/104 residue 0 → Firebase management; browser demo login → dashboard → plan (Active Plan / Projects) | **done** |
 | 2026-07-22 | **WISP multi-target prove:** `hub:wisp-multi-target-prove-smoke` — svelte gold **48/48** + WISP CWL outbound emit **24/24** targets | **done** |
+| 2026-07-22 | **WISP deep emit prove (selective):** `hub:wisp-deep-emit-prove-smoke` — svelte gold replay **8/8** (hono/fastify/nextjs/python) + WISP CWL emit **4/4** + in-process hono/fastify **correctness=1** (106 routes). Not ST on every language. | **done** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

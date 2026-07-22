@@ -133,6 +133,18 @@ Emit targets: c, cpp, csharp, css, cwl, fastify, go, hono, html, java, json, kot
 
 **Honest limit:** Gold + outbound emit prove lift→WebIR→emit works for WISP’s origin language cells and the live CWL corpus. It is **not** a claim that each target is a production-parity rewrite of the full SvelteKit app (ArcGIS islands, auth, etc. remain CWL/static-host proven).
 
+## WISP deep emit prove (closed 2026-07-22)
+
+Selective high-value path (not ST on all 24). Gate: `pnpm run hub:wisp-deep-emit-prove-smoke`
+
+| Bar | Result |
+| --- | --- |
+| Svelte gold trace-replay (structured+middleware × hono/fastify/nextjs/python) | **8/8** |
+| Real WISP `routes.cwl` emit → those four | **4/4** (~106 routes; nextjs ~105) |
+| In-process hub replay WISP→hono + WISP→fastify | **correctness=1** on **106** routes each |
+
+**Honest limit:** Deep prove is emit+replay evidence for priority web/native targets. Product ST remains **CWL static** (`stGreen` + signed-in origin compare). Do not treat hono/fastify emits as D6448-ST equivalents.
+
 ## Refuse
 
 - Marketing “601 production-ready”
