@@ -8,11 +8,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/agenticops.css" />
-  <title>AgenticOp</title>
+  <title>AgenticOp — Translation Hub</title>
   <style>
-    :root { --bg: var(--ao-bg, #010104); --panel: #0c1228; --text: var(--ao-text, #e8eefc); --muted: var(--ao-text-dim, #98a3b8); --accent: var(--ao-cyan, #06b6d4); --accent2: var(--ao-violet, #a78bfa); --ok:#10b981; --err:#ef4444; --border:rgba(148,163,184,0.22); }
+    :root {
+      --bg: var(--ao-bg, #010104);
+      --panel: #0c1228;
+      --text: var(--ao-text, #e8eefc);
+      --muted: var(--ao-text-dim, #98a3b8);
+      --accent: var(--ao-cyan, #06b6d4);
+      --accent2: var(--ao-violet, #a78bfa);
+      --ok: #10b981;
+      --err: #ef4444;
+      --border: rgba(148,163,184,0.22);
+      --cap-ink: #f4f7ff;
+      --cap-line: rgba(94, 234, 212, 0.35);
+    }
     * { box-sizing: border-box; }
     main { padding: 1.25rem; max-width: 56rem; margin: 0 auto; position: relative; }
+    html.capabilities-mode main { max-width: min(68rem, 94vw); padding-top: 0; }
     .hero { padding: 2rem 0 1.5rem; }
     .hero h1 { font-size: 2rem; margin: 0 0 0.5rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero p { color: var(--muted); max-width: 40rem; line-height: 1.5; }
@@ -20,8 +33,8 @@
     label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
     input, select, textarea { width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid var(--border); background: #0b1022; color: var(--text); margin-bottom: 0.65rem; }
     .grid2 { display: grid; gap: 0.65rem; grid-template-columns: 1fr 1fr; }
-    button { cursor: pointer; border: none; border-radius: 6px; padding: 0.55rem 1rem; font-weight: 500; }
-    button.primary { background: var(--accent); color: #fff; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 0.55rem 1rem; font-weight: 500; font-family: inherit; }
+    button.primary { background: var(--accent); color: #041018; }
     button.secondary { background: #0b1022; color: var(--text); border: 1px solid var(--border); }
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
     .muted { color: var(--muted); font-size: 0.9rem; }
@@ -33,7 +46,7 @@
     .bar-wrap { height: 10px; background: #0d1218; border-radius: 5px; overflow: hidden; margin: 0.75rem 0; }
     .bar { height: 100%; background: linear-gradient(90deg, var(--accent), #6eb6ff); width: 0%; transition: width 0.35s ease; }
     .pct { font-size: 1.5rem; font-weight: 600; }
-    #log { font-family: ui-monospace, monospace; font-size: 0.78rem; background: #0d1218; border-radius: 6px; padding: 0.65rem; height: 12rem; overflow-y: auto; white-space: pre-wrap; margin: 0; }
+    #log { font-family: var(--ao-mono, ui-monospace, monospace); font-size: 0.78rem; background: #0d1218; border-radius: 6px; padding: 0.65rem; height: 12rem; overflow-y: auto; white-space: pre-wrap; margin: 0; }
     pre.json { font-size: 0.75rem; max-height: 10rem; overflow: auto; margin: 0; }
     .badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem; background: #111827; }
     .badge.run { background: #083344; color: #67e8f9; }
@@ -45,20 +58,20 @@
     .hub-banner { background: rgba(6,182,212,0.08); color: var(--muted); padding: 0.55rem 1.25rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); text-align: center; }
     .hub-banner strong { color: var(--text); }
     .hub-banner#demoBanner { background: rgba(217,119,6,0.12); border-bottom-color: rgba(217,119,6,0.35); color: #fcd34d; }
-    /* Header is just the mark + wordmark; page nav lives in its own slim bar below it. */
-    .ao-nav .ao-brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+    .ao-nav .ao-brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; color: inherit; }
     .ao-nav .ao-brand-mark { border-radius: 8px; }
     .ao-subnav { border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
     .ao-subnav-inner { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center; padding: 0.6rem 0; }
     .ao-subnav .ao-nav-link { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
     .ao-subnav .ao-nav-link:hover { color: var(--text); }
     .ao-subnav .ao-nav-link.ao-nav-link-active { color: var(--accent); }
-    .ao-subnav #navSignOut { margin-left: auto; }
-    /* Signed-out: only the header + login card — no app chrome or demo banner noise. */
+    .ao-subnav #navSignIn, .ao-subnav #navSignOut { margin-left: auto; }
     body.hub-auth-mode .hub-banner { display: none !important; }
-    body.hub-auth-mode main { display: flex; align-items: flex-start; justify-content: center; min-height: calc(100vh - 8rem); padding-top: 1rem; }
+    body.hub-auth-mode:not(.hub-public-showcase) main { display: flex; align-items: flex-start; justify-content: center; min-height: calc(100vh - 8rem); padding-top: 1rem; }
     body.hub-auth-mode #authGate { width: 100%; }
     body.hub-auth-mode #authGate .auth-card { max-width: 24rem; margin: 2rem auto; }
+    body.hub-public-showcase #hubSubnav { display: block !important; }
+    body.hub-public-showcase #hubSubnav .ao-nav-link-protected { opacity: 0.55; }
     .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .auth-tabs button { flex: 1; }
     .ao-footer-inner { justify-content: center; text-align: center; padding: 1.25rem 0; }
@@ -79,7 +92,7 @@
     .guide-nav details { border-bottom: 1px solid rgba(148,163,184,0.12); padding: 0.15rem 0; }
     .guide-nav summary { cursor: pointer; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 0.45rem 0.35rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
     .guide-nav summary::-webkit-details-marker { display: none; }
-    .guide-nav summary .count { font-size: 0.68rem; font-weight: 500; background: #111827; padding: 0.1rem 0.4rem; border-radius: 999px; }
+    .guide-nav summary .count { font-size: 0.68rem; font-weight: 500; background: #111827; padding: 0.1rem 0.4rem; border-radius: 4px; }
     .guide-nav ul { list-style: none; margin: 0; padding: 0 0 0.35rem; }
     .guide-nav a { display: block; padding: 0.38rem 0.55rem; margin: 0.08rem 0; border-radius: 6px; color: var(--text); text-decoration: none; font-size: 0.86rem; line-height: 1.35; border: 1px solid transparent; }
     .guide-nav a:hover { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.2); }
@@ -112,6 +125,240 @@
     table.readiness { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     table.readiness th, table.readiness td { border-bottom: 1px solid var(--border); padding: 0.4rem 0.5rem; text-align: left; vertical-align: top; }
     table.readiness th { position: sticky; top: 0; background: #0b1022; }
+
+    /* —— Capability showcase —— */
+    .cap-hero {
+      position: relative;
+      margin: 0 -1.25rem 2.5rem;
+      padding: clamp(3.5rem, 10vh, 6.5rem) 1.25rem 3.25rem;
+      min-height: min(78vh, 42rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      background:
+        radial-gradient(ellipse 90% 70% at 15% 20%, rgba(34, 211, 238, 0.18), transparent 55%),
+        radial-gradient(ellipse 70% 60% at 90% 80%, rgba(14, 116, 144, 0.22), transparent 50%),
+        linear-gradient(165deg, #030712 0%, #0a1628 48%, #06101c 100%);
+    }
+    .cap-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 85%);
+      pointer-events: none;
+    }
+    .cap-hero-inner { position: relative; z-index: 1; max-width: 40rem; }
+    .cap-brand {
+      font-size: clamp(2.75rem, 7vw, 4.25rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin: 0 0 1rem;
+      color: var(--cap-ink);
+      opacity: 0;
+      transform: translateY(18px);
+      animation: capRise 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.08s forwards;
+    }
+    .cap-brand span {
+      display: block;
+      background: linear-gradient(105deg, #5eead4 0%, #22d3ee 42%, #67e8f9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cap-headline {
+      font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+      font-weight: 500;
+      color: var(--text);
+      margin: 0 0 0.65rem;
+      line-height: 1.35;
+      max-width: 32rem;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: capRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s forwards;
+    }
+    .cap-lede {
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+      max-width: 34rem;
+      line-height: 1.55;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: capRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.34s forwards;
+    }
+    .cap-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: capRise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.46s forwards;
+    }
+    .cap-cta a, .cap-cta button {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      padding: 0.55rem 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.92rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .cap-cta a.primary, .cap-cta button.primary {
+      background: #22d3ee;
+      color: #041018;
+      border-color: #22d3ee;
+    }
+    .cap-cta a.primary:hover, .cap-cta button.primary:hover {
+      background: #67e8f9;
+      color: #041018;
+    }
+    .cap-cta a.secondary, .cap-cta button.secondary {
+      background: rgba(11, 16, 34, 0.72);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .cap-cta a.secondary:hover, .cap-cta button.secondary:hover {
+      border-color: rgba(94, 234, 212, 0.45);
+      color: #fff;
+    }
+    @keyframes capRise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .cap-section {
+      padding: 2.25rem 0 1.5rem;
+      border-bottom: 1px solid rgba(148,163,184,0.12);
+    }
+    .cap-section:last-of-type { border-bottom: none; }
+    .cap-section h2 {
+      margin: 0 0 0.4rem;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      color: var(--cap-ink);
+    }
+    .cap-section > .cap-support {
+      margin: 0 0 1.35rem;
+      color: var(--muted);
+      max-width: 36rem;
+      line-height: 1.5;
+    }
+    .cap-proof-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .cap-proof {
+      display: grid;
+      grid-template-columns: minmax(5.5rem, 7rem) 1fr;
+      gap: 0.85rem 1.1rem;
+      align-items: baseline;
+      padding: 0.85rem 0;
+      border-top: 1px solid rgba(148,163,184,0.1);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .cap-proof.is-in { opacity: 1; transform: translateY(0); }
+    .cap-proof:first-child { border-top: none; }
+    .cap-proof-metric {
+      font-family: var(--ao-mono, ui-monospace, monospace);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #5eead4;
+      letter-spacing: -0.02em;
+    }
+    .cap-proof-title { margin: 0; font-size: 1rem; color: var(--text); font-weight: 600; }
+    .cap-proof-note { margin: 0.2rem 0 0; font-size: 0.88rem; color: var(--muted); line-height: 1.45; }
+    .cap-meter {
+      grid-column: 1 / -1;
+      height: 3px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      border-radius: 1px;
+    }
+    .cap-meter > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #0e7490, #5eead4);
+      transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .cap-proof.is-in .cap-meter > span { width: var(--cap-fill, 100%); }
+    .cap-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: capflow;
+    }
+    .cap-flow li {
+      position: relative;
+      padding: 1rem 0.85rem 1rem 0;
+      border-top: 2px solid var(--cap-line);
+      counter-increment: capflow;
+    }
+    .cap-flow li::before {
+      content: counter(capflow, decimal-leading-zero);
+      display: block;
+      font-family: var(--ao-mono, ui-monospace, monospace);
+      font-size: 0.72rem;
+      color: #5eead4;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.06em;
+    }
+    .cap-flow strong { display: block; color: var(--text); font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .cap-flow span { display: block; color: var(--muted); font-size: 0.84rem; line-height: 1.4; }
+    .cap-targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 0.65rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-family: var(--ao-mono, ui-monospace, monospace);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .cap-targets li {
+      padding: 0.35rem 0.55rem;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(6, 12, 28, 0.55);
+    }
+    .cap-targets li.cap-deep {
+      color: #5eead4;
+      border-color: rgba(94, 234, 212, 0.35);
+    }
+    .cap-honesty {
+      padding: 1.15rem 0;
+      border-left: 3px solid rgba(94, 234, 212, 0.45);
+      padding-left: 1rem;
+      color: var(--muted);
+      max-width: 40rem;
+      line-height: 1.55;
+    }
+    .cap-honesty strong { color: var(--text); }
+    .cap-live-status {
+      font-family: var(--ao-mono, ui-monospace, monospace);
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0.75rem 0 0;
+    }
+    @media (max-width: 720px) {
+      .cap-proof { grid-template-columns: 1fr; gap: 0.25rem; }
+      .cap-flow { grid-template-columns: 1fr 1fr; }
+      .cap-hero { min-height: auto; padding-top: 3rem; }
+    }
   </style>
 </head>
 <body class="ao-page" data-ao-page="hub">
@@ -124,24 +371,154 @@
   </div>
   <header class="ao-nav" role="banner">
     <div class="ao-wrap ao-nav-inner">
-      <span class="ao-brand" aria-label="AgenticOp">
+      <a class="ao-brand" href="#/" aria-label="AgenticOp home">
         <img class="ao-brand-mark" src="/assets/logo.svg" alt="" width="40" height="40" loading="eager" />
         <span class="ao-brand-name">AgenticOp</span>
-      </span>
+      </a>
     </div>
   </header>
   <nav class="ao-subnav" id="hubSubnav" aria-label="Primary" hidden>
     <div class="ao-wrap ao-subnav-inner">
-      <a class="ao-nav-link" href="#/" id="navHome">Projects</a>
-      <a class="ao-nav-link" href="#/new" id="navNew">New project</a>
+      <a class="ao-nav-link" href="#/" id="navCapabilities">Capabilities</a>
+      <a class="ao-nav-link ao-nav-link-protected" href="#/projects" id="navHome">Projects</a>
+      <a class="ao-nav-link ao-nav-link-protected" href="#/new" id="navNew">New project</a>
       <a class="ao-nav-link" href="/convert" id="navConvert">Convert console</a>
-      <a class="ao-nav-link" href="#/guide" id="navGuide">Documentation</a>
-      <a class="ao-nav-link" href="#/paths" id="navPaths">Path explorer</a>
+      <a class="ao-nav-link ao-nav-link-protected" href="#/guide" id="navGuide">Documentation</a>
+      <a class="ao-nav-link ao-nav-link-protected" href="#/paths" id="navPaths">Path explorer</a>
+      <a class="ao-nav-link" href="#/signin" id="navSignIn" hidden>Sign in</a>
       <a class="ao-nav-link" href="#" id="navSignOut" hidden>Sign out</a>
     </div>
   </nav>
   <div class="hub-banner" id="demoBanner" hidden></div>
   <main>
+    <section id="viewCapabilities" hidden>
+      <div class="cap-hero">
+        <div class="cap-hero-inner">
+          <h1 class="cap-brand"><span>AgenticOp</span></h1>
+          <p class="cap-headline">Translate working software — with evidence, not guesswork.</p>
+          <p class="cap-lede">
+            Origin apps lift into WebIR, emit to real stacks, and prove behavior with oracle replay.
+            This hub runs multi-site programs; the matrix below is what we can honestly claim today.
+          </p>
+          <div class="cap-cta">
+            <a class="primary" href="#/new" id="capCtaProject">Start a project</a>
+            <a class="secondary" href="#/paths" id="capCtaPaths">Explore paths</a>
+            <a class="secondary" href="/convert">Convert method</a>
+          </div>
+        </div>
+      </div>
+
+      <section class="cap-section" aria-labelledby="capProofHeading">
+        <h2 id="capProofHeading">What we prove today</h2>
+        <p class="cap-support">Live census from the hub capability matrix — fixture gold and product depth, kept separate on purpose.</p>
+        <ul class="cap-proof-list" id="capProofList">
+          <li class="cap-proof" data-cap="pairs" style="--cap-fill:100%">
+            <div class="cap-proof-metric" id="capMetricPairs">601/601</div>
+            <div>
+              <p class="cap-proof-title">Directed hub pairs at full fixture gold</p>
+              <p class="cap-proof-note">Structured + middleware depth per origin→output cell. Trace replay in CI — not customer-repo parity.</p>
+            </div>
+            <div class="cap-meter" aria-hidden="true"><span></span></div>
+          </li>
+          <li class="cap-proof" data-cap="oracle" style="--cap-fill:100%">
+            <div class="cap-proof-metric" id="capMetricOracle">72</div>
+            <div>
+              <p class="cap-proof-title">Core language pairs with gold-fixture oracle</p>
+              <p class="cap-proof-note">9×9 matrix (CWL, C#, Go, Java, JS, PHP, Python, Ruby, TS) with behavioral replay evidence.</p>
+            </div>
+            <div class="cap-meter" aria-hidden="true"><span></span></div>
+          </li>
+          <li class="cap-proof" data-cap="emit" style="--cap-fill:100%">
+            <div class="cap-proof-metric" id="capMetricEmit">24/24</div>
+            <div>
+              <p class="cap-proof-title">WISP CWL outbound emit targets</p>
+              <p class="cap-proof-note">Real management corpus (~106 routes) emits cleanly to every hub target language.</p>
+            </div>
+            <div class="cap-meter" aria-hidden="true"><span></span></div>
+          </li>
+          <li class="cap-proof" data-cap="deep" style="--cap-fill:100%">
+            <div class="cap-proof-metric" id="capMetricDeep">4</div>
+            <div>
+              <p class="cap-proof-title">Priority deep prove (hono · fastify · nextjs · python)</p>
+              <p class="cap-proof-note">Gold replay plus in-process WISP→hono/fastify correctness=1. Not D6448-ST on every emit.</p>
+            </div>
+            <div class="cap-meter" aria-hidden="true"><span></span></div>
+          </li>
+          <li class="cap-proof" data-cap="st" style="--cap-fill:100%">
+            <div class="cap-proof-metric" id="capMetricSt">ST</div>
+            <div>
+              <p class="cap-proof-title">WISP product success template on CWL static</p>
+              <p class="cap-proof-note">Evidence-only hole zero, signed-in origin compare, live management demo — the customer-depth bar.</p>
+            </div>
+            <div class="cap-meter" aria-hidden="true"><span></span></div>
+          </li>
+        </ul>
+        <p class="cap-live-status" id="capLiveStatus">Loading live matrix…</p>
+      </section>
+
+      <section class="cap-section" aria-labelledby="capDepthHeading">
+        <h2 id="capDepthHeading">Where depth is real</h2>
+        <p class="cap-support">Flagship and product work concentrates on backends we can verify end-to-end.</p>
+        <ul class="cap-proof-list">
+          <li class="cap-proof is-in">
+            <div class="cap-proof-metric">PHP</div>
+            <div>
+              <p class="cap-proof-title">→ Hono, Fastify, Next.js, TypeScript</p>
+              <p class="cap-proof-note">tiny-blog oracle micro + plain PHP / Symfony pilots with verify replay.</p>
+            </div>
+          </li>
+          <li class="cap-proof is-in">
+            <div class="cap-proof-metric">Node</div>
+            <div>
+              <p class="cap-proof-title">Express → Hono</p>
+              <p class="cap-proof-note">Live Express flagship with capture and oracle verify.</p>
+            </div>
+          </li>
+          <li class="cap-proof is-in">
+            <div class="cap-proof-metric">WISP</div>
+            <div>
+              <p class="cap-proof-title">SvelteKit → CWL static (+ Firebase)</p>
+              <p class="cap-proof-note">Full-site convert with evidence-only ST — the UI product proof.</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="cap-section" aria-labelledby="capMethodHeading">
+        <h2 id="capMethodHeading">How conversion runs</h2>
+        <p class="cap-support">Translate-only method — no demo façades, no invented widgets.</p>
+        <ol class="cap-flow">
+          <li><strong>Inventory</strong><span>Routes, adapters, gaps from the real origin.</span></li>
+          <li><strong>Lift</strong><span>Origin idioms → WebIR; holes stay honest.</span></li>
+          <li><strong>Emit</strong><span>Target stack handlers from WebIR, not stubs.</span></li>
+          <li><strong>Prove</strong><span>Oracle replay, origin compare, operator evidence.</span></li>
+        </ol>
+      </section>
+
+      <section class="cap-section" aria-labelledby="capTargetsHeading">
+        <h2 id="capTargetsHeading">Emit targets</h2>
+        <p class="cap-support">All 24 hub emits are proven outbound from WISP CWL. Highlighted names have selective deep prove.</p>
+        <ul class="cap-targets" id="capTargetList">
+          <li>c</li><li>cpp</li><li>csharp</li><li>css</li><li>cwl</li>
+          <li class="cap-deep">fastify</li><li>go</li><li class="cap-deep">hono</li><li>html</li><li>java</li>
+          <li>json</li><li>kotlin</li><li>markdown</li><li class="cap-deep">nextjs</li><li>php</li>
+          <li class="cap-deep">python</li><li>ruby</li><li>rust</li><li>scala</li><li>scss</li>
+          <li>sql</li><li>swift</li><li>vue</li><li>yaml</li>
+        </ul>
+      </section>
+
+      <section class="cap-section" aria-labelledby="capHonestHeading">
+        <h2 id="capHonestHeading">Honest limits</h2>
+        <p class="cap-honesty">
+          <strong>Do not read “601/601” as production-ready for every language.</strong>
+          Fixture gold means the hub cell lifts, emits, and replays on gold suites.
+          Customer cutover depth today is PHP (+ Express) backends and the WISP CWL product track.
+          Ask for a pilot when you need your corpus on that bar —
+          <a href="mailto:hello@agenticop.io">hello@agenticop.io</a>.
+        </p>
+      </section>
+    </section>
+
     <section id="authGate" hidden>
       <div class="card auth-card">
         <h3 style="margin-top:0" id="authTitle">Create your demo account</h3>
@@ -165,13 +542,12 @@
     </section>
     <section id="viewHome" hidden>
       <div class="hero">
-        <h1>AgenticOp multi-site translation</h1>
+        <h1>Projects &amp; workspace</h1>
         <p>
-          Professional converters run this <strong>server</strong>; your browser is the <strong>client</strong>.
-          Create a project, attach <strong>many legacy sites over SSH</strong>, pick one web output language, then
-          <strong>Run all sites</strong> with parallel jobs and per-site progress bars in the project Console.
+          Run this <strong>hub server</strong> from your browser: attach <strong>legacy sites over SSH</strong>,
+          pick one web output language, then <strong>Run all sites</strong> with parallel jobs in the project Console.
         </p>
-        <p class="muted"><a href="#/guide">Documentation</a> — Migration OS, CLI, hub install, GCE verify, and full operator library.</p>
+        <p class="muted"><a href="#/">Capabilities</a> · <a href="#/guide">Documentation</a> · Migration OS, CLI, install, and operator library.</p>
       </div>
       <div class="card">
         <h2 style="margin-top:0">Organizations</h2>
@@ -243,7 +619,7 @@
       <div class="hero">
         <h1>Translation path explorer</h1>
         <p class="muted">
-          Browse the <strong>575-pair</strong> hub matrix: per-pair ingest/emit/verify lanes, similarities, differences, and consolidated cross-language synthesis.
+          Browse the <strong>601-pair</strong> hub matrix: per-pair ingest/emit/verify lanes, similarities, differences, and consolidated cross-language synthesis.
         </p>
       </div>
       <div class="card">
@@ -393,7 +769,7 @@
           <h1>Documentation</h1>
           <p class="muted" style="margin:0">Chrysalis operator library — Migration OS, CLI, hub, governance, and WISP programs.</p>
         </div>
-        <a href="#/" class="secondary" style="text-decoration:none;padding:0.45rem 0.85rem;border-radius:6px;border:1px solid var(--border);color:var(--text);font-size:0.88rem">← Projects</a>
+        <a href="#/projects" class="secondary" style="text-decoration:none;padding:0.45rem 0.85rem;border-radius:6px;border:1px solid var(--border);color:var(--text);font-size:0.88rem">← Projects</a>
       </header>
       <div class="guide-shell-grid">
         <aside class="guide-sidebar card">

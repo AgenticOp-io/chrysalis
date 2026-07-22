@@ -2,6 +2,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   const views = {
+    capabilities: $("viewCapabilities"),
     home: $("viewHome"),
     newProject: $("viewNew"),
     guide: $("viewGuide"),
@@ -9,13 +10,26 @@
     console: $("viewConsole"),
   };
 
-  const NAV_LINK_BY_VIEW = { home: "navHome", newProject: "navNew", guide: "navGuide", paths: "navPaths" };
+  const NAV_LINK_BY_VIEW = {
+    capabilities: "navCapabilities",
+    home: "navHome",
+    newProject: "navNew",
+    guide: "navGuide",
+    paths: "navPaths",
+  };
+
+  const PUBLIC_PAGES = new Set(["", "capabilities", "signin", "login"]);
+
+  function isPublicPage(page) {
+    return PUBLIC_PAGES.has(page || "");
+  }
 
   function show(view) {
     for (const [k, el] of Object.entries(views)) {
       if (el) el.hidden = k !== view;
     }
     document.documentElement.classList.toggle("guide-mode", view === "guide");
+    document.documentElement.classList.toggle("capabilities-mode", view === "capabilities");
     const activeId = NAV_LINK_BY_VIEW[view];
     for (const id of Object.values(NAV_LINK_BY_VIEW)) {
       $(id)?.classList.toggle("ao-nav-link-active", id === activeId);
@@ -33,34 +47,57 @@
     else location.hash = hash;
   }
 
+  function currentPage() {
+    const h = (location.hash || "#/").replace(/^#\/?/, "");
+    return h.split("?")[0] || "";
+  }
+
   function route() {
     // Wait for /api/config before routing — otherwise authRequired=false briefly looks "open".
     if (!authBootComplete) return;
-    // Deep links (typed URLs, back/forward, bookmarks) must not reach protected views/data.
+    const h = (location.hash || "#/").replace(/^#\/?/, "");
+    const [page, query] = h.split("?");
+    const pageKey = page || "";
+
+    if (pageKey === "signin" || pageKey === "login") {
+      showAuthGate({ allowHash: true });
+      return;
+    }
+
+    // Public capability landing — no login required.
+    if (!pageKey || pageKey === "capabilities") {
+      showPublicShowcase();
+      show("capabilities");
+      loadCapabilitiesShowcase().catch(() => {});
+      return;
+    }
+
     if (!isAuthed()) {
       showAuthGate();
       return;
     }
-    const h = (location.hash || "#/").replace(/^#\/?/, "");
-    const [page, query] = h.split("?");
-    if (page === "new" || page === "newProject") {
+
+    hideAuthGate();
+    if (pageKey === "new" || pageKey === "newProject") {
       show("newProject");
       loadOrgs($("newOrgId")).catch(() => {});
-    }
-    else if (page === "guide" || page === "install") {
+    } else if (pageKey === "guide" || pageKey === "install") {
       show("guide");
       const docId = new URLSearchParams(query || "").get("doc") || "hub-install";
       initGuideNav(docId).catch(() => {});
-    } else if (page === "paths" || page === "path-explorer") {
+    } else if (pageKey === "paths" || pageKey === "path-explorer") {
       show("paths");
       initPathExplorer().catch(() => {});
-    } else if (page === "console") {
+    } else if (pageKey === "console") {
       show("console");
       const id = new URLSearchParams(query || "").get("id");
       if (id) loadConsoleProject(id);
-    } else {
+    } else if (pageKey === "projects" || pageKey === "home" || pageKey === "workspace") {
       show("home");
       loadHome().catch(() => {});
+    } else {
+      show("capabilities");
+      loadCapabilitiesShowcase().catch(() => {});
     }
   }
 
@@ -127,7 +164,20 @@
     return pending;
   }
 
-  function showAuthGate() {
+  function showPublicShowcase() {
+    document.body.classList.add("hub-public-showcase");
+    document.body.classList.remove("hub-auth-mode");
+    $("authGate").hidden = true;
+    $("hubSubnav").hidden = false;
+    const signIn = $("navSignIn");
+    const signOut = $("navSignOut");
+    if (signIn) signIn.hidden = isAuthed();
+    if (signOut) signOut.hidden = !isAuthed() || !authRequired;
+    const demo = $("demoBanner");
+    if (demo) demo.hidden = !demoBannerOn || !isAuthed();
+  }
+
+  function showAuthGate(opts = {}) {
     // A 401 here means the stored token is gone/invalid (e.g. server-side reset) — drop it
     // so the UI doesn't look half logged-in behind the gate.
     hubAuthToken = "";
@@ -140,11 +190,14 @@
     }
     const signOut = $("navSignOut");
     if (signOut) signOut.hidden = true;
+    const signIn = $("navSignIn");
+    if (signIn) signIn.hidden = true;
+    document.body.classList.remove("hub-public-showcase");
     $("hubSubnav").hidden = true;
     for (const el of Object.values(views)) {
       if (el) el.hidden = true;
     }
-    stashPendingHash();
+    if (!opts.allowHash) stashPendingHash();
     const demo = $("demoBanner");
     if (demo) demo.hidden = true;
     document.body.classList.add("hub-auth-mode");
@@ -154,6 +207,9 @@
     $("authGate").hidden = true;
     $("hubSubnav").hidden = false;
     document.body.classList.remove("hub-auth-mode");
+    document.body.classList.remove("hub-public-showcase");
+    const signIn = $("navSignIn");
+    if (signIn) signIn.hidden = true;
     if (demoBannerOn) {
       const demo = $("demoBanner");
       if (demo) demo.hidden = false;
@@ -209,6 +265,9 @@
       $("authPassword").value = "";
       const signOut = $("navSignOut");
       if (signOut) signOut.hidden = false;
+      const pending = takePendingHash();
+      if (pending) location.hash = pending;
+      else if (currentPage() === "signin" || currentPage() === "login") location.hash = "#/projects";
       void loadProtectedData();
     } catch (e) {
       errEl.textContent = e instanceof Error ? e.message : String(e);
@@ -223,7 +282,20 @@
   $("navSignOut")?.addEventListener("click", (e) => {
     e.preventDefault();
     sessionStorage.removeItem(PENDING_HASH_KEY);
-    showAuthGate();
+    hubAuthToken = "";
+    localStorage.removeItem("chrysalis_hub_token");
+    if (es) {
+      try {
+        es.close();
+      } catch {}
+      es = null;
+    }
+    navigateHash("#/");
+  });
+
+  $("navSignIn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateHash("#/signin");
   });
 
   async function loadOrgs(selectEl) {
@@ -370,6 +442,46 @@
   $("btnLoadExtendedMatrix")?.addEventListener("click", () => {
     loadExtendedMatrixSummary().catch(() => {});
   });
+
+  let capabilitiesLoaded = false;
+
+  function revealCapabilityProofs() {
+    const items = document.querySelectorAll("#capProofList .cap-proof");
+    items.forEach((el, i) => {
+      window.setTimeout(() => el.classList.add("is-in"), 80 + i * 90);
+    });
+  }
+
+  async function loadCapabilitiesShowcase() {
+    const status = $("capLiveStatus");
+    revealCapabilityProofs();
+    try {
+      const r = await fetch("/api/hub/capability-matrix", {
+        headers: buildHeaders({}),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.message || data.error || r.statusText);
+      const ext = data.extendedMatrixOracle ?? {};
+      const core = data.fullMatrixOracle?.corePairCount ?? 72;
+      const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 601;
+      const oracle = ext.oracleProductCount ?? total;
+      const pairsEl = $("capMetricPairs");
+      const oracleEl = $("capMetricOracle");
+      if (pairsEl) pairsEl.textContent = `${oracle}/${total}`;
+      if (oracleEl) oracleEl.textContent = String(core);
+      if (status) {
+        status.textContent = capabilitiesLoaded
+          ? `Matrix live · ${oracle}/${total} fixture-gold pairs · ${core} core oracle · updated ${new Date().toISOString().slice(0, 10)}`
+          : `Matrix live · ${oracle}/${total} fixture-gold pairs · ${core} core oracle`;
+      }
+      capabilitiesLoaded = true;
+    } catch (e) {
+      if (status) {
+        status.textContent =
+          "Showing catalog defaults (matrix API unavailable): 601/601 fixture gold · 72 core oracle · 24 emit · deep prove hono/fastify/nextjs/python · WISP ST on CWL.";
+      }
+    }
+  }
 
   let pathCatalogLoaded = false;
 
@@ -2552,7 +2664,7 @@
     if (!consoleProjectId) return;
     if (!confirm(`Delete project ${consoleProjectId}?`)) return;
     await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}`, { method: "DELETE" });
-    location.hash = "#/";
+    location.hash = "#/projects";
     route();
     loadHome();
   });
@@ -2590,9 +2702,13 @@
   });
 
   // Nav links only change the hash — route() (via hashchange) owns view switching and data loads.
-  $("navHome").addEventListener("click", (e) => {
+  $("navCapabilities")?.addEventListener("click", (e) => {
     e.preventDefault();
     navigateHash("#/");
+  });
+  $("navHome").addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateHash("#/projects");
   });
   $("navNew").addEventListener("click", (e) => {
     e.preventDefault();
@@ -2606,6 +2722,20 @@
     e.preventDefault();
     navigateHash("#/paths");
   });
+  $("capCtaProject")?.addEventListener("click", (e) => {
+    if (!isAuthed()) {
+      e.preventDefault();
+      sessionStorage.setItem(PENDING_HASH_KEY, "#/new");
+      navigateHash("#/signin");
+    }
+  });
+  $("capCtaPaths")?.addEventListener("click", (e) => {
+    if (!isAuthed()) {
+      e.preventDefault();
+      sessionStorage.setItem(PENDING_HASH_KEY, "#/paths");
+      navigateHash("#/signin");
+    }
+  });
 
   window.addEventListener("hashchange", route);
   if ($("footerYear")) $("footerYear").textContent = String(new Date().getFullYear());
@@ -2617,6 +2747,9 @@
     await loadHubLanguages().catch(() => {});
     const pending = takePendingHash();
     if (pending) location.hash = pending;
+    else if (!location.hash || location.hash === "#" || location.hash === "#/") {
+      /* keep capabilities landing */
+    }
     route();
     api("/api/state")
       .then((s) => {
@@ -2650,6 +2783,12 @@
       authBootComplete = true;
     }
     if (!isAuthed()) {
+      // Public landing first; sign-in only when a protected route is requested.
+      const page = currentPage();
+      if (isPublicPage(page) || !page) {
+        route();
+        return;
+      }
       showAuthGate();
       return;
     }

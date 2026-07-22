@@ -722,6 +722,7 @@ function isPublicHubApiPath(pathname) {
     pathname === "/api/config" ||
     pathname.startsWith("/api/hub/auth/") ||
     pathname === "/api/hub/docs" ||
+    pathname === "/api/hub/capability-matrix" ||
     pathname.startsWith("/docs/") ||
     pathname.endsWith(".md")
   );
