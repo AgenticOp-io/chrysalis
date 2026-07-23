@@ -3,6 +3,7 @@
  */
 import { PATTERN_PARSERS } from "./pattern-route-parsers.mjs";
 import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral, lowerHubObjectLiteral, lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
+import { cobolBodyAfter } from "./cobol-pattern-lift.mjs";
 
 const LITERAL_RETURN_RE =
   /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|"""[\s\S]*?"""|`[^`]*`)\s*;/;
@@ -296,7 +297,12 @@ export function liftPatternRoutesFile(opts) {
               ? scalaMapCompleteAfter(source, idx)
               : language === "swift"
                 ? swiftDictReturnAfter(source, idx)
-                : null;
+                : language === "cobol"
+                  ? (() => {
+                      const b = cobolBodyAfter(source, idx);
+                      return b?.kind === "object" ? { object: b.value, line: b.line } : null;
+                    })()
+                  : null;
     const lit =
       literalReturnAfter(source, idx) ??
       (language === "ruby"
@@ -311,7 +317,12 @@ export function liftPatternRoutesFile(opts) {
                 ? scalaCompleteLiteralAfter(source, idx)
                 : language === "swift"
                   ? swiftReturnLiteralAfter(source, idx)
-                  : null);
+                  : language === "cobol"
+                    ? (() => {
+                        const b = cobolBodyAfter(source, idx);
+                        return b?.kind === "literal" ? { value: b.value, line: b.line } : null;
+                      })()
+                    : null);
     const bodyId = statusOnly
       ? lowerHubStatusOnly(ctx, statusOnly.status, { file, line: statusOnly.line })
       : objectLit?.object

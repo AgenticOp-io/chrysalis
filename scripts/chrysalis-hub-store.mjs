@@ -65,7 +65,6 @@ const SILVER_FILE_LIFT_ORIGIN_IDS = new Set([
   "markdown",
   "c",
   "cpp",
-  "cobol",
 ]);
 
 /** Hub mission: every origin×output pair is runnable (oracle gold remains PHP→TS only). */

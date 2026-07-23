@@ -199,5 +199,4 @@ export const HUB_SILVER_FILE_LIFT_ORIGIN_IDS = [
   "markdown",
   "c",
   "cpp",
-  "cobol",
 ];

@@ -1,5 +1,6 @@
-      * ECHO
+      *> chrysalis-route: POST /echo
+      *> chrysalis-return: {"ok":true}
        IDENTIFICATION DIVISION.
        PROGRAM-ID. ECHO.
        PROCEDURE DIVISION.
-           STOP RUN.
+           GOBACK.

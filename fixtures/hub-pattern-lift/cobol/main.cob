@@ -1,5 +1,6 @@
-      * Hub COBOL pattern-lift fixture
+      * Hub COBOL pattern-lift fixture (PROGRAM-ID → GET /main)
        IDENTIFICATION DIVISION.
        PROGRAM-ID. MAIN.
        PROCEDURE DIVISION.
-           STOP RUN.
+           MOVE TRUE TO WS-OK
+           GOBACK.

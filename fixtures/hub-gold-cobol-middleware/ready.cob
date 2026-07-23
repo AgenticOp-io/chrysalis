@@ -1,5 +1,7 @@
-      * READY
+      *> chrysalis-route: GET /ready
+      *> chrysalis-return: {"ready":true}
        IDENTIFICATION DIVISION.
        PROGRAM-ID. READY.
        PROCEDURE DIVISION.
-           STOP RUN.
+           MOVE TRUE TO WS-READY
+           GOBACK.

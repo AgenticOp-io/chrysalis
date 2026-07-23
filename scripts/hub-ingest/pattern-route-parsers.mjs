@@ -5,8 +5,9 @@ import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
 import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
 import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
 import { parseCsharpRoutes } from "../../packages/hub-native-bridge/dist/csharp.js";
+import { parseCobolRoutes } from "./cobol-pattern-lift.mjs";
 
-export { parseRubyRoutes, parseCsharpRoutes };
+export { parseRubyRoutes, parseCsharpRoutes, parseCobolRoutes };
 
 /**
  * @typedef {{ method: string, path: string, line: number, name?: string }} HubRoute
@@ -131,6 +132,7 @@ export const PATTERN_PARSERS = {
   scala: (s) => parseScalaRoutes(s),
   swift: (s) => parseSwiftRoutes(s),
   vue: (s, f) => parseVueRoutes(s, f),
+  cobol: (s, f) => parseCobolRoutes(s, f),
 };
 
 export const PATTERN_LIFT_LANGUAGE_IDS = Object.keys(PATTERN_PARSERS);

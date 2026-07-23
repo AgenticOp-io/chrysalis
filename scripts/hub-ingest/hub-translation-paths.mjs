@@ -62,7 +62,6 @@ const FILE_LIFT_ORIGIN_IDS = new Set([
   "markdown",
   "c",
   "cpp",
-  "cobol",
 ]);
 
 const AST_LIFT_ORIGIN_IDS = new Set(["javascript", "typescript", "python", "java", "go"]);

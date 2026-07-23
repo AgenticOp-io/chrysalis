@@ -63,7 +63,7 @@ export async function runCobolBestFitSmoke() {
     failed: failed.slice(0, 20),
     results,
     note:
-      "COBOL silver file-lift → WebIR → best-fit native emits (fixture gold, not mainframe semantic AST)",
+      "COBOL pattern-lift → WebIR → best-fit native emits (PROGRAM-ID/annotations; not full dialect AST)",
     generatedAt: new Date().toISOString(),
   };
 }
