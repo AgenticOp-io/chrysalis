@@ -1,0 +1,1 @@
+{"routes":[{"method":"GET","path":"/p100-process-request"},{"method":"GET","path":"/p200-display-menu"},{"method":"GET","path":"/p300-portfolio-inquiry"},{"method":"GET","path":"/p400-history-inquiry"},{"method":"GET","path":"/p900-error-routine"}]}

@@ -204,6 +204,7 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-22 | **COBOL origin-only:** silver file-lift (`.cob`/`.cbl`/`.cpy`) → WebIR → full outbound matrix; census **627/627** full gold; `hub:cobol-best-fit-smoke` proves java/csharp/python/go (+ hono). Not semantic COBOL AST. | **done** |
 | 2026-07-23 | **COBOL pattern-lift:** promote off silver file-lift — `parseCobolRoutes` (PROGRAM-ID + `chrysalis-route`/`chrysalis-return`); CALL/ACCEPT/DISPLAY → holes; `hub:cobol-best-fit-smoke` still green. Not full dialect AST. | **done** |
 | 2026-07-23 | **COBOL pattern depth:** PROCEDURE paragraph routes; MOVE/DISPLAY literal lower; hole fixture; best-fit smoke v2 (+ hono trace correctness=1). | **done** |
+| 2026-07-23 | **CLBS modernization prove:** north-star [`COBOL-MODERNIZATION-PROVE.md`](./COBOL-MODERNIZATION-PROVE.md) (CLBS + LegacyCodeBench 3-track + GnuCOBOL parallel strategy); mini INQONLN/CLBSMATH fixtures; `hub:cobol-clbs-prove-smoke`. | **done** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

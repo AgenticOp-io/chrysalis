@@ -29,6 +29,13 @@ const DISPLAY_LITERAL_RE = /\bDISPLAY\s+("[^"]*"|'[^']*'|TRUE|FALSE|-?\d+(?:\.\d
 const CALL_RE = /\bCALL\s+/i;
 const ACCEPT_RE = /\bACCEPT\s+/i;
 const DISPLAY_RE = /\bDISPLAY\s+/i;
+const COPY_RE = /\bCOPY\s+([A-Za-z][A-Za-z0-9-]*)\s*\./gi;
+const EXEC_CICS_RE = /\bEXEC\s+CICS\b/gi;
+const EXEC_SQL_RE = /\bEXEC\s+SQL\b/gi;
+const PERFORM_RE = /\bPERFORM\s+([A-Za-z0-9][A-Za-z0-9-]*)/gi;
+const EVALUATE_WHEN_RE = /\bWHEN\s+'([^']+)'/gi;
+const READ_WRITE_RE = /\b(READ|WRITE|REWRITE|DELETE|START)\s+/gi;
+const COMPUTE_RE = /\bCOMPUTE\s+/gi;
 const PROCEDURE_DIV_RE = /\bPROCEDURE\s+DIVISION\b/i;
 /** Paragraph / SECTION headers inside PROCEDURE DIVISION (fixed or free form). */
 const PARAGRAPH_RE =
@@ -57,6 +64,18 @@ const RESERVED_PARAGRAPH = new Set([
   "END",
   "COPY",
   "REPLACE",
+  "EVALUATE",
+  "WHEN",
+  "OTHER",
+  "IF",
+  "ELSE",
+  "END-IF",
+  "END-EVALUATE",
+  "END-PERFORM",
+  "END-EXEC",
+  "EXEC",
+  "CICS",
+  "SQL",
 ]);
 
 /**
@@ -112,6 +131,7 @@ function pushProcedureParagraphRoutes(source, routes, seen) {
     const name = m[1];
     if (!name || RESERVED_PARAGRAPH.has(name.toUpperCase())) continue;
     if (name.length < 2) continue;
+    if (/-EXIT$/i.test(name)) continue;
     const absIndex = base + (m.index ?? 0) + (m[0].startsWith("\n") ? 1 : 0);
     pushRoute(routes, source, "GET", cobolProgramIdToPath(name), absIndex, seen, name);
   }
@@ -231,11 +251,76 @@ export function cobolBodyAfter(source, fromIndex) {
     }
   }
 
-  if (CALL_RE.test(slice) || ACCEPT_RE.test(slice) || DISPLAY_RE.test(slice)) {
+  if (
+    CALL_RE.test(slice) ||
+    ACCEPT_RE.test(slice) ||
+    DISPLAY_RE.test(slice) ||
+    /\bEXEC\s+CICS\b/i.test(slice) ||
+    /\bEXEC\s+SQL\b/i.test(slice)
+  ) {
     return null;
   }
 
   return null;
+}
+
+/**
+ * Inventory CLBS-shaped COBOL idioms (structural completeness / hole planning).
+ *
+ * @param {string} source
+ * @param {string} [file]
+ */
+export function inventoryCobolSource(source, file = "") {
+  const programIds = [];
+  PROGRAM_ID_RE.lastIndex = 0;
+  let m;
+  while ((m = PROGRAM_ID_RE.exec(source)) !== null) programIds.push(m[1]);
+
+  const copybooks = [];
+  COPY_RE.lastIndex = 0;
+  while ((m = COPY_RE.exec(source)) !== null) copybooks.push(m[1]);
+
+  const performs = [];
+  PERFORM_RE.lastIndex = 0;
+  while ((m = PERFORM_RE.exec(source)) !== null) {
+    const name = m[1];
+    if (name && !RESERVED_PARAGRAPH.has(name.toUpperCase())) performs.push(name);
+  }
+
+  const evaluateWhens = [];
+  EVALUATE_WHEN_RE.lastIndex = 0;
+  while ((m = EVALUATE_WHEN_RE.exec(source)) !== null) evaluateWhens.push(m[1]);
+
+  const execCics = (source.match(EXEC_CICS_RE) || []).length;
+  const execSql = (source.match(EXEC_SQL_RE) || []).length;
+  const fileIo = (source.match(READ_WRITE_RE) || []).length;
+  const computes = (source.match(COMPUTE_RE) || []).length;
+  const routes = parseCobolRoutes(source, file);
+  const unresolved = cobolUnresolvedOps(source);
+
+  const commentLines = source.split(/\r?\n/).filter((l) => /^\s*\*/.test(l) || /^\s*\*>/.test(l)).length;
+  const totalLines = Math.max(1, source.split(/\r?\n/).length);
+  const commentRatio = commentLines / totalLines;
+
+  return {
+    file,
+    programIds,
+    routes,
+    routeCount: routes.length,
+    copybooks: [...new Set(copybooks)],
+    performs: [...new Set(performs)],
+    evaluateWhens: [...new Set(evaluateWhens)],
+    execCics,
+    execSql,
+    fileIo,
+    computes,
+    unresolved,
+    commentLines,
+    totalLines,
+    commentRatio,
+    hasIdentificationHeader: /\bIDENTIFICATION\s+DIVISION\b/i.test(source),
+    looksLikeCopybook: programIds.length === 0 && /\b01\s+/.test(source) && !PROCEDURE_DIV_RE.test(source),
+  };
 }
 
 /**
@@ -245,11 +330,16 @@ export function cobolBodyAfter(source, fromIndex) {
  * @param {number} [fromIndex]
  */
 export function cobolUnresolvedOps(source, fromIndex = 0) {
-  const slice = source.slice(fromIndex, fromIndex + 4000);
+  const slice = source.slice(fromIndex);
   /** @type {string[]} */
   const ops = [];
-  if (CALL_RE.test(slice)) ops.push("call");
-  if (ACCEPT_RE.test(slice)) ops.push("accept");
-  if (DISPLAY_RE.test(slice) && !DISPLAY_LITERAL_RE.test(slice)) ops.push("display");
-  return ops;
+  if (/\bCALL\s+/i.test(slice)) ops.push("call");
+  if (/\bACCEPT\s+/i.test(slice)) ops.push("accept");
+  if (/\bDISPLAY\s+/i.test(slice) && !DISPLAY_LITERAL_RE.test(slice)) ops.push("display");
+  if (/\bEXEC\s+CICS\b/i.test(slice)) ops.push("exec-cics");
+  if (/\bEXEC\s+SQL\b/i.test(slice)) ops.push("exec-sql");
+  if (/\bCOPY\s+[A-Za-z0-9]/i.test(slice)) ops.push("copy");
+  if (/\bPERFORM\s+[A-Za-z0-9]/i.test(slice)) ops.push("perform");
+  if (/\b(READ|WRITE|REWRITE|DELETE|START)\s+/i.test(slice)) ops.push("file-io");
+  return [...new Set(ops)];
 }
