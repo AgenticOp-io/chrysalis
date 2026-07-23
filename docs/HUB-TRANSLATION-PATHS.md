@@ -58,7 +58,7 @@ flowchart LR
 | --- | --- | --- |
 | **chrysalis-ingest** | `php` | `@chrysalis/ingest` + parser bridge → WebIR with full semantic lowering where supported |
 | **hub-ast-lift** | `javascript`, `typescript`, `python`, `java`, `go` | Language-specific AST or pattern parsers (`*-ast-ingest.mjs`) |
-| **hub-pattern-lift** | `ruby`, `csharp`, `kotlin`, `rust`, `scala`, `swift`, `vue`, `cobol`, … | Framework / language route patterns (`pattern-route-lift.mjs`; COBOL = PROGRAM-ID + optional `chrysalis-route` annotations) |
+| **hub-pattern-lift** | `ruby`, `csharp`, `kotlin`, `rust`, `scala`, `swift`, `vue`, `cobol`, … | Framework / language route patterns (`pattern-route-lift.mjs`; COBOL = PROGRAM-ID, PROCEDURE paragraphs, optional `chrysalis-route` annotations) |
 | **hub-file-lift** | `sql`, `html`, `css`, `json`, `yaml`, `markdown`, `c`, `cpp`, … | One GET route per scanned asset file |
 
 Dispatcher: `hub-lift-dispatch.mjs` → `trySpecializedHubLift` before generic `lift-to-webir.mjs`.

@@ -58,7 +58,7 @@ The canonical **oracle micro surface** is **`fixtures/tiny-blog`** (5 routes): i
 
 The Translation Hub catalog exposes **627** directed origin→output pairs (25 origins × 26 outputs minus identity overlaps; **`svelte`** and **`cobol`** are origin-only). Machine count: `hubDirectedPairCount()` in `language-catalog.mjs`.
 
-**COBOL:** pattern-lift origin (`.cob` / `.cbl` / `.cpy`) — `PROGRAM-ID` and optional `chrysalis-route` / `chrysalis-return` annotations → WebIR → full outbound matrix. CALL/ACCEPT/DISPLAY without a declared return stay honest holes. Best commercial depth targets remain **Java / C# / Python / Go**. Not a full COBOL dialect AST.
+**COBOL:** pattern-lift origin (`.cob` / `.cbl` / `.cpy`) — `PROGRAM-ID`, **PROCEDURE paragraphs**, and optional `chrysalis-route` / `chrysalis-return` annotations → WebIR → full outbound matrix. CALL/ACCEPT/non-literal DISPLAY stay honest holes. Best-fit prove: `hub:cobol-best-fit-smoke` (java/csharp/python/go + hono trace). Not a full COBOL dialect AST.
 
 **Census (maintenance close, G9160 / D6357):** **627/627** pairs have at least one **trace-replay** suite (`hub:extended-matrix-oracle-progress-smoke`). Waves **1–16** closed the extended-matrix promote bar; COBOL added as origin-only silver file-lift.
 
