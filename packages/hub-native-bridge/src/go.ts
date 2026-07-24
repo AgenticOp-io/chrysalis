@@ -1,6 +1,7 @@
 import type { HubNativeRoute } from "./schema.js";
 
-const GO_VERB_RE = /\b([a-zA-Z_][\w]*)\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]+)"/g;
+const GO_GIN_VERB_RE = /\b([a-zA-Z_][\w]*)\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]+)"/g;
+const GO_CHI_VERB_RE = /\b([a-zA-Z_][\w]*)\.(Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"([^"]+)"/g;
 const GO_HANDLE_FUNC_RE = /\bhttp\.HandleFunc\s*\(\s*"([^"]+)"/g;
 
 export function parseGoRoutes(source: string): HubNativeRoute[] {
@@ -19,10 +20,15 @@ export function parseGoRoutes(source: string): HubNativeRoute[] {
     });
   }
 
-  GO_VERB_RE.lastIndex = 0;
+  GO_GIN_VERB_RE.lastIndex = 0;
   let m: RegExpExecArray | null;
-  while ((m = GO_VERB_RE.exec(source)) !== null) {
+  while ((m = GO_GIN_VERB_RE.exec(source)) !== null) {
     push(m[2] ?? "GET", m[3] ?? "/", m.index);
+  }
+
+  GO_CHI_VERB_RE.lastIndex = 0;
+  while ((m = GO_CHI_VERB_RE.exec(source)) !== null) {
+    push(m[2] ?? "Get", m[3] ?? "/", m.index);
   }
 
   GO_HANDLE_FUNC_RE.lastIndex = 0;

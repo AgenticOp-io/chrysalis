@@ -44,6 +44,8 @@ function pushRoute(routes, source, method, path, index, seen) {
 const RUST_ROUTE_RE =
   /\.route\s*\(\s*"([^"]+)"\s*,\s*(?:web::)?(get|post|put|patch|delete|head|options)\s*\(/gi;
 const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]/g;
+const RUST_MACRO_FN_RE =
+  /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]\s*(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gi;
 const SCALA_PLAY_RE = /\(\s*"(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)"\s*,\s*"([^"]+)"\s*\)/g;
 const SCALA_SIRD_RE = /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s*\(\s*p"([^"]+)"\s*\)/gi;
 const SCALA_AKKA_ROUTE_RE =
@@ -52,7 +54,11 @@ const SCALA_AKKA_ROUTE_RE =
 const SCALA_HTTP4S_CASE_RE =
   /\bcase\s+(?:(?:[A-Za-z_][A-Za-z0-9_]*)\s*@\s*)?(?:Method\.)?(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*->\s*Root((?:\s*\/\s*(?:"[^"]+"|(?:IntVar|LongVar|UUIDVar)\(\s*[A-Za-z_][A-Za-z0-9_]*\s*\)|[A-Za-z_][A-Za-z0-9_]*))+)\s*=>/gi;
 const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
-const SWIFT_VERB_HEAD_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(/gi;
+const SWIFT_VAPOR_VERB_HEAD_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(/gi;
+/** Hummingbird secondary dialect — single-string path: `router.get("/items/:id")`. */
+const HUMMINGBIRD_ROUTE_RE =
+  /\brouter\.(get|post|put|patch|delete|head)\s*\(\s*(['"])([^'"]+)\2/gi;
+const HUMMINGBIRD_VERB_HEAD_RE = /\brouter\.(get|post|put|patch|delete|head)\s*\(/gi;
 
 /**
  * @param {string} source
@@ -182,6 +188,26 @@ export function collectAxumNestPrefixes(source) {
 }
 
 /**
+ * Rocket `.mount("/prefix", routes![handler, …])` → handler fn → prefix.
+ * @param {string} source
+ * @returns {Map<string, string>}
+ */
+export function collectRocketMountPrefixes(source) {
+  /** @type {Map<string, string>} */
+  const byHandler = new Map();
+  const mountRe = /\.mount\s*\(\s*"([^"]+)"\s*,\s*routes!\s*\[([\s\S]*?)\]\s*,?\s*\)/gi;
+  let m;
+  while ((m = mountRe.exec(source)) !== null) {
+    const prefix = m[1];
+    for (const raw of m[2].split(",")) {
+      const name = raw.trim();
+      if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) byHandler.set(name, prefix);
+    }
+  }
+  return byHandler;
+}
+
+/**
  * Brace body range for `fn name(…) { … }` (first match).
  * @param {string} source
  * @param {string} fnName
@@ -241,6 +267,7 @@ export function parseRustRoutes(source) {
   const seen = new Set();
   const methodMap = { get: "GET", post: "POST", put: "PUT", delete: "DELETE", patch: "PATCH" };
   const nestByFn = collectAxumNestPrefixes(source);
+  const mountByHandler = collectRocketMountPrefixes(source);
   /** @type {{ name: string, prefix: string, start: number, end: number }[]} */
   const nestRanges = [];
   for (const [name, prefix] of nestByFn) {
@@ -259,10 +286,14 @@ export function parseRustRoutes(source) {
     }
     pushRoute(routes, source, m[2], path, m.index, seen);
   }
-  RUST_MACRO_RE.lastIndex = 0;
-  while ((m = RUST_MACRO_RE.exec(source)) !== null) {
+  RUST_MACRO_FN_RE.lastIndex = 0;
+  while ((m = RUST_MACRO_FN_RE.exec(source)) !== null) {
     const verb = methodMap[m[1].toLowerCase()];
-    if (verb) pushRoute(routes, source, verb, m[2], m.index, seen);
+    if (!verb) continue;
+    let path = m[2];
+    const mountPrefix = mountByHandler.get(m[3]);
+    if (mountPrefix) path = joinAxumNestPath(mountPrefix, path);
+    pushRoute(routes, source, verb, path, m.index, seen);
   }
   return routes;
 }
@@ -346,18 +377,42 @@ export function parseDartRoutes(source) {
   return routes;
 }
 
+/**
+ * Normalize Hummingbird `:id` / `{id}` path templates to CWL `{id}` form.
+ * @param {string} path
+ */
+export function normalizeHummingbirdRoutePath(path) {
+  return path.replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, "{$1}");
+}
+
 export function parseSwiftRoutes(source) {
   const routes = [];
   const seen = new Set();
   let m;
-  SWIFT_VERB_HEAD_RE.lastIndex = 0;
-  while ((m = SWIFT_VERB_HEAD_RE.exec(source)) !== null) {
+  SWIFT_VAPOR_VERB_HEAD_RE.lastIndex = 0;
+  while ((m = SWIFT_VAPOR_VERB_HEAD_RE.exec(source)) !== null) {
     const openIdx = m.index + m[0].length - 1;
     const bal = extractBalancedParenInner(source, openIdx);
     if (!bal) continue;
     const path = vaporPathFromComponentArgs(bal.inner);
     if (!path) continue;
     pushRoute(routes, source, m[1], path, m.index, seen);
+  }
+  HUMMINGBIRD_ROUTE_RE.lastIndex = 0;
+  while ((m = HUMMINGBIRD_ROUTE_RE.exec(source)) !== null) {
+    const raw = m[3];
+    const path = normalizeHummingbirdRoutePath(raw.startsWith("/") ? raw : `/${raw}`);
+    pushRoute(routes, source, m[1], path, m.index, seen);
+  }
+  HUMMINGBIRD_VERB_HEAD_RE.lastIndex = 0;
+  while ((m = HUMMINGBIRD_VERB_HEAD_RE.exec(source)) !== null) {
+    const openIdx = m.index + m[0].length - 1;
+    const bal = extractBalancedParenInner(source, openIdx);
+    if (!bal) continue;
+    if (/^\s*['"]/.test(bal.inner)) continue;
+    const path = vaporPathFromComponentArgs(bal.inner);
+    if (!path) continue;
+    pushRoute(routes, source, m[1], normalizeHummingbirdRoutePath(path), m.index, seen);
   }
   return routes;
 }

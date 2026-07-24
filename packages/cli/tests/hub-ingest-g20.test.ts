@@ -67,6 +67,29 @@ test("javascript AST lowers literal return handler body", async () => {
   expect(webir.countHoles(mod)).toBe(0);
 });
 
+test("javascript AST peels Hapi method array to one route per method (G10014)", async () => {
+  const { parseJavaScriptSource, liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const source = `const server = {};\nserver.route({ method: ['GET','POST'], path: '/echo', handler: () => ({ ok: true }) });\n`;
+  const ast = parseJavaScriptSource(source, "hapi.js");
+  expect(ast.type).toBe("Program");
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-hapi-multi" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "hapi.js",
+    language: "javascript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(2);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("python AST finds Flask routes and lowers literal return", async () => {
   const py = process.env.CHRYSALIS_HUB_PYTHON ?? "python3";
   const check = spawnSync(py, ["-c", "import ast, json; print('ok')"], { encoding: "utf8" });
@@ -131,6 +154,32 @@ test("java AST finds Spring mappings", async () => {
   expect(r.usedAst).toBe(true);
   const mod = builder.finish();
   expect(mod.roots.length).toBeGreaterThanOrEqual(2);
+});
+
+test("java AST lifts JAX-RS resource 20/20 hole-free (G10012)", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-jaxrs/src/HubResource.java"),
+    "utf8",
+  );
+  const routes = parseJavaRoutes(source, "HubResource.java");
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-jaxrs" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubResource.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
 test("dart AST resolves same-file named Shelf handlers (G10007)", async () => {
@@ -208,6 +257,49 @@ test("hub store: outputSupportsContractSilver", async () => {
   expect(hub.outputSupportsContractSilver("hono")).toBe(true);
   expect(hub.outputSupportsContractSilver("nextjs")).toBe(true);
   expect(hub.outputSupportsContractSilver("java")).toBe(false);
+});
+
+test("rust AST resolves Rocket mount + Json/Status peels (G10011)", async () => {
+  const { parseRustRoutes, collectRocketMountPrefixes, joinAxumNestPath } = await import(
+    resolve(ROOT, "scripts/hub-ingest/pattern-route-parsers.mjs")
+  );
+  const {
+    normalizeRustRoutePath,
+    queryParamRefsFromRocketPath,
+    liftRustFileToWebir,
+  } = await import(resolve(ROOT, "scripts/hub-ingest/rust-ast-ingest.mjs"));
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-rocket/src/main.rs"), "utf8");
+  const mounts = collectRocketMountPrefixes(source);
+  expect(mounts.get("get_item")).toBe("/items");
+  expect(normalizeRustRoutePath("/items/<id>")).toBe("/items/{id}");
+  expect(normalizeRustRoutePath("/search?<q>")).toBe("/search");
+  expect(queryParamRefsFromRocketPath("/search?<q>").q).toEqual({
+    source: "query",
+    name: "q",
+    default: "",
+  });
+  const routes = parseRustRoutes(source)
+    .map((r) => ({ ...r, path: normalizeRustRoutePath(r.path) }))
+    .map((r) => `${r.method} ${r.path}`)
+    .sort();
+  expect(routes).toContain("GET /items/{id}");
+  expect(routes).toContain("GET /search");
+  expect(joinAxumNestPath("/items", "/")).toBe("/items");
+
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-rocket" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftRustFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.rs",
+    language: "rust",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
 test("pattern route parsers find ruby and rust routes (G25)", async () => {

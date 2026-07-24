@@ -3,7 +3,9 @@
  * Handler bodies are brace-bounded so later gin.H / JSON calls cannot bleed
  * into earlier routes (hub-flagship-go / D6448-ST cwl-api). Named Gin handlers
  * (`r.GET("/path", health)` → `func health(c *gin.Context)`) resolve beyond
- * anonymous lambdas (hub-go-routes).
+ * anonymous lambdas (hub-go-routes). Chi (`chi.URLParam` + `json.NewEncoder`)
+ * and Echo (`c.Param` + `c.QueryParam` + `c.JSON`) secondary peels share the
+ * same route scan via `detectGoWebDialect`.
  */
 import { parseGoRoutes } from "../../packages/hub-native-bridge/dist/go.js";
 import {
@@ -27,6 +29,25 @@ const GIN_JSON_SCALAR_RE =
   /c\.JSON\s*\(\s*(\d+)\s*,\s*(?!gin\.H)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)/;
 const GO_SQL_CALL_RE = /\w+\.(?:Query|QueryRow|Exec)\(\s*"([^"]+)"(?:\s*,\s*([^)]*))?\s*\)/g;
 const GIN_H_PAIR_RE = /"([^"]+)"\s*:\s*(?:"([^"]*)"|(true|false|-?\d+)|(\w+))/g;
+const GO_CHI_MAP_PAIR_RE = /"([^"]+)"\s*:\s*(?:"([^"]*)"|(true|false|-?\d+)|(\w+))/g;
+const GO_CHI_JSON_MAP_RE =
+  /json\.NewEncoder\s*\(\s*w\s*\)\.Encode\s*\(\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)/;
+const GO_CHI_JSON_SCALAR_RE =
+  /json\.NewEncoder\s*\(\s*w\s*\)\.Encode\s*\(\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)/;
+const GO_CHI_WRITE_STRING_RE = /io\.WriteString\s*\(\s*w\s*,\s*"([^"]*)"\s*\)/;
+const ECHO_JSON_MAP_RE =
+  /(?:return\s+)?c\.JSON\s*\(\s*(\d+)\s*,\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)/;
+const ECHO_JSON_SCALAR_RE =
+  /(?:return\s+)?c\.JSON\s*\(\s*(\d+)\s*,\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)/;
+const ECHO_STRING_RE = /(?:return\s+)?c\.String\s*\(\s*(\d+)\s*,\s*"([^"]*)"\s*\)/;
+const GO_HTTP_STATUS_CONST = {
+  StatusOK: 200,
+  StatusCreated: 201,
+  StatusAccepted: 202,
+  StatusNoContent: 204,
+  StatusBadRequest: 400,
+  StatusNotFound: 404,
+};
 
 /**
  * @param {string} language
@@ -123,6 +144,349 @@ export function extractGoGinHandlerBody(source, fromIndex) {
   );
   if (!namedM) return null;
   return extractGoNamedGinHandlerBody(source, namedM[1]);
+}
+
+/**
+ * @param {string} source
+ */
+export function isGoChiSource(source) {
+  return /github\.com\/go-chi\/chi/.test(source);
+}
+
+/**
+ * @param {string} source
+ */
+export function isGoEchoSource(source) {
+  return /github\.com\/labstack\/echo/.test(source);
+}
+
+/**
+ * @param {string} source
+ * @returns {"chi" | "echo" | "gin"}
+ */
+export function detectGoWebDialect(source) {
+  if (isGoChiSource(source)) return "chi";
+  if (isGoEchoSource(source)) return "echo";
+  return "gin";
+}
+
+/**
+ * Resolve a named Chi handler `func name(w http.ResponseWriter, r *http.Request) { ... }`.
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractGoNamedChiHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+(?:\([^)]*\)\s+)?${handlerName}\s*\(\s*w\s+http\.ResponseWriter\s*,\s*r\s*\*http\.Request\s*\)\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, named: handlerName };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoChiHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\(\s*w\s+http\.ResponseWriter\s*,\s*r\s*\*http\.Request\s*\)\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  const namedM = slice.match(
+    /\.(?:Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedChiHandlerBody(source, namedM[1]);
+}
+
+/**
+ * Resolve a named Echo handler `func name(c echo.Context) error { ... }`.
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractGoNamedEchoHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+(?:\([^)]*\)\s+)?${handlerName}\s*\(\s*c\s+echo\.Context\s*\)\s*error\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, named: handlerName };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoEchoHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\(\s*c\s+echo\.Context\s*\)\s*error\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  const namedM = slice.match(
+    /\.(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedEchoHandlerBody(source, namedM[1]);
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoChiWriteHeaderStatus(bodySlice) {
+  const m = bodySlice.match(/w\.WriteHeader\s*\(\s*(?:(\d+)|http\.(Status\w+))\s*\)/);
+  if (!m) return undefined;
+  if (m[1] !== undefined) return Number.parseInt(m[1], 10);
+  const name = m[2];
+  if (name && GO_HTTP_STATUS_CONST[name] !== undefined) return GO_HTTP_STATUS_CONST[name];
+  return undefined;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoChiRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*chi\.URLParam\s*\(\s*r\s*,\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*r\.URL\.Query\(\)\.Get\s*\(\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoChiMapEncode(bodySlice, byVar) {
+  const m = bodySlice.match(GO_CHI_JSON_MAP_RE);
+  if (!m) return null;
+  const status = parseGoChiWriteHeaderStatus(bodySlice) ?? 200;
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GO_CHI_MAP_PAIR_RE.lastIndex = 0;
+  for (const pair of m[1].matchAll(GO_CHI_MAP_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoChiJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(GO_CHI_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = parseGoChiWriteHeaderStatus(bodySlice) ?? 200;
+  if (m[1] !== undefined) {
+    return { status, kind: "lit", value: m[1] === "true" };
+  }
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[2], 10) };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: m[3] };
+  }
+  const varName = m[4];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoChiHandlerBody(bodySlice) {
+  const byVar = parseGoChiRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const mapEnc = parseGoChiMapEncode(bodySlice, byVar);
+  const jsonScalar = mapEnc ? null : parseGoChiJsonScalar(bodySlice, byVar);
+  const writeStr = !mapEnc && !jsonScalar ? bodySlice.match(GO_CHI_WRITE_STRING_RE) : null;
+  const litRet = !mapEnc && !jsonScalar && !writeStr ? bodySlice.match(LITERAL_RETURN_RE) : null;
+  const writeHeaderOnly =
+    !mapEnc && !jsonScalar && !writeStr && !litRet && parseGoChiWriteHeaderStatus(bodySlice);
+
+  if (mapEnc || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: mapEnc?.returnTree ?? null,
+      status: mapEnc?.status,
+    };
+  }
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  if (writeStr) {
+    return { kind: "scalar", status: 200, value: writeStr[1] };
+  }
+  if (writeHeaderOnly) {
+    return { kind: "status", status: writeHeaderOnly };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoEchoRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*c\.Param\s*\(\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*c\.QueryParam\s*\(\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoEchoMapReturn(bodySlice, byVar) {
+  const m = bodySlice.match(ECHO_JSON_MAP_RE);
+  if (!m) return null;
+  const status = Number.parseInt(m[1], 10);
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GIN_H_PAIR_RE.lastIndex = 0;
+  for (const pair of m[2].matchAll(GIN_H_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoEchoJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(ECHO_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = Number.parseInt(m[1], 10);
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: m[2] === "true" };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[3], 10) };
+  }
+  if (m[4] !== undefined) {
+    return { status, kind: "lit", value: m[4] };
+  }
+  const varName = m[5];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoEchoHandlerBody(bodySlice) {
+  const byVar = parseGoEchoRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const jsonMap = parseGoEchoMapReturn(bodySlice, byVar);
+  const jsonScalar = jsonMap ? null : parseGoEchoJsonScalar(bodySlice, byVar);
+  const echoStr = !jsonMap && !jsonScalar ? bodySlice.match(ECHO_STRING_RE) : null;
+  const litRet = !jsonMap && !jsonScalar && !echoStr ? bodySlice.match(LITERAL_RETURN_RE) : null;
+
+  if (jsonMap || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: jsonMap?.returnTree ?? null,
+      status: jsonMap?.status,
+    };
+  }
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  if (echoStr) {
+    return { kind: "scalar", status: Number.parseInt(echoStr[1], 10), value: echoStr[2] };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
 }
 
 /**
@@ -336,12 +700,74 @@ export function liftGoFileToWebir(opts) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false };
   }
 
+  const dialect = detectGoWebDialect(source);
+
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
-    const extracted = extractGoGinHandlerBody(source, idx);
+    const extracted =
+      dialect === "chi"
+        ? extractGoChiHandlerBody(source, idx)
+        : dialect === "echo"
+          ? extractGoEchoHandlerBody(source, idx)
+          : extractGoGinHandlerBody(source, idx);
     let bodyId;
     if (!extracted) {
-      bodyId = hubHandlerBodyHole(ctx, "hub-go:handler-body", { file, line: r.line });
+      bodyId = hubHandlerBodyHole(
+        ctx,
+        dialect === "chi"
+          ? "hub-chi:handler-body"
+          : dialect === "echo"
+            ? "hub-echo:handler-body"
+            : "hub-go:handler-body",
+        {
+          file,
+          line: r.line,
+        },
+      );
+    } else if (dialect === "chi") {
+      const { bodySlice, line } = extracted;
+      const loc = { file, line };
+      const parsed = parseGoChiHandlerBody(bodySlice);
+      if (parsed?.kind === "handler") {
+        bodyId =
+          lowerGoHandlerBody(
+            ctx,
+            {
+              sqlEffects: parsed.sqlEffects,
+              returnTree: parsed.returnTree,
+              status: parsed.status,
+              line,
+            },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-chi:handler-body", loc);
+      } else if (parsed?.kind === "scalar") {
+        bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+      } else if (parsed?.kind === "status") {
+        bodyId = lowerHubStatusOnly(ctx, parsed.status, loc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-chi:handler-body", loc);
+      }
+    } else if (dialect === "echo") {
+      const { bodySlice, line } = extracted;
+      const loc = { file, line };
+      const parsed = parseGoEchoHandlerBody(bodySlice);
+      if (parsed?.kind === "handler") {
+        bodyId =
+          lowerGoHandlerBody(
+            ctx,
+            {
+              sqlEffects: parsed.sqlEffects,
+              returnTree: parsed.returnTree,
+              status: parsed.status,
+              line,
+            },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-echo:handler-body", loc);
+      } else if (parsed?.kind === "scalar") {
+        bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-echo:handler-body", loc);
+      }
     } else {
       const { bodySlice, line } = extracted;
       const loc = { file, line };

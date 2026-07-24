@@ -1,11 +1,11 @@
 /**
- * Swift hub ingest — Vapor `app.*` routes deepened for D6448-ST cwl-api flagship:
- * multi-segment PathComponents (`app.get("items", ":id")`) and single-string
- * templates, brace-bounded closures, dict returns (+ path/query refs),
- * encodeResponse status, scalar returns (hub-flagship-swift). Prefer this over
+ * Swift hub ingest — Vapor `app.*` + Hummingbird `router.*` routes (G10016 secondary):
+ * multi-segment PathComponents / single-string paths, brace-bounded closures,
+ * dict returns (+ path/query refs), encodeResponse / Response(status:) status,
+ * scalar returns (hub-flagship-swift / hub-gold-hummingbird). Prefer this over
  * thin pattern-route-lift.
  */
-import { parseSwiftRoutes } from "./pattern-route-parsers.mjs";
+import { parseSwiftRoutes, normalizeHummingbirdRoutePath } from "./pattern-route-parsers.mjs";
 import {
   emitHubRoute,
   hubHandlerBodyHole,
@@ -231,9 +231,38 @@ function parseSwiftBodyReturn(bodySlice, paramRefs) {
       ...(m[3] !== undefined ? { default: m[3] } : {}),
     };
   }
+  for (const m of bodySlice.matchAll(
+    /(?:let|var)\s+(\w+)\s*=\s*context\.parameters\.get\s*\(\s*"([^"]+)"\s*\)(?:\s*!\s*)?(?:\s*as\s*:\s*[\w.]+\.self)?/g,
+  )) {
+    paramRefs[m[1]] = {
+      source: "path",
+      name: m[2],
+    };
+  }
+  for (const m of bodySlice.matchAll(
+    /(?:let|var)\s+(\w+)\s*=\s*request\.uri\.queryParameters\.get\s*\(\s*"([^"]+)"\s*\)(?:\s*\?\?\s*"([^"]*)")?/g,
+  )) {
+    paramRefs[m[1]] = {
+      source: "query",
+      name: m[2],
+      ...(m[3] !== undefined ? { default: m[3] } : {}),
+    };
+  }
+  for (const m of bodySlice.matchAll(
+    /(?:let|var)\s+(\w+)\s*=\s*request\.uri\.queryParameters\s*\[\s*"([^"]+)"\s*\](?:\s*\?\?\s*"([^"]*)")?/g,
+  )) {
+    paramRefs[m[1]] = {
+      source: "query",
+      name: m[2],
+      ...(m[3] !== undefined ? { default: m[3] } : {}),
+    };
+  }
 
   const encodeStatus = /(?:return\s+)?(?:try\s+await\s+)?\[/.exec(bodySlice);
   const encodeTail = /\.encodeResponse\s*\(\s*status:\s*(?:HTTPStatus\.)?\.?(\w+)/.exec(bodySlice);
+  const hbStatusJson = /return\s+Response\s*\(\s*status:\s*\.(\w+)\s*,\s*body:\s*HTTPBody\s*\(\s*json:\s*\[/.exec(
+    bodySlice,
+  );
   const plainReturnDict = /return\s*\[/.exec(bodySlice);
   const litReturn = /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*")\s*$/m.exec(bodySlice);
   const refReturn = /return\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/m.exec(bodySlice);
@@ -241,6 +270,12 @@ function parseSwiftBodyReturn(bodySlice, paramRefs) {
   if (encodeStatus && encodeTail) {
     status = parseSwiftHttpStatus(encodeTail[1]);
     const openIdx = (encodeStatus.index ?? 0) + encodeStatus[0].length - 1;
+    const dict = extractBalancedBracketInner(bodySlice, openIdx);
+    returnTree = dict ? parseSwiftDictReturnTree(dict.inner, paramRefs) : null;
+    kind = returnTree ? "json" : null;
+  } else if (hbStatusJson) {
+    status = parseSwiftHttpStatus(hbStatusJson[1]);
+    const openIdx = (hbStatusJson.index ?? 0) + hbStatusJson[0].length - 1;
     const dict = extractBalancedBracketInner(bodySlice, openIdx);
     returnTree = dict ? parseSwiftDictReturnTree(dict.inner, paramRefs) : null;
     kind = returnTree ? "json" : null;
@@ -317,7 +352,7 @@ export function liftSwiftFileToWebir(opts) {
   const ctx = { data, effect, webir };
   const routes = parseSwiftRoutes(source, file).map((r) => ({
     ...r,
-    path: normalizeSwiftRoutePath(r.path),
+    path: normalizeSwiftRoutePath(normalizeHummingbirdRoutePath(r.path)),
   }));
   if (routes.length === 0) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false };

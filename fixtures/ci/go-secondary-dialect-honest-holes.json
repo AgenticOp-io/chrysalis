@@ -1,0 +1,51 @@
+{
+  "kind": "chrysalis.hub.go-secondary-dialect-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T22:55:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
+  "dialects": {
+    "chi": {
+      "fixture": "fixtures/hub-gold-chi",
+      "smoke": "pnpm run hub:chi-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "r.Get|Post|Put|Patch|Delete literal paths",
+        "Same-file named handlers (func name(w http.ResponseWriter, r *http.Request))",
+        "chi.URLParam(r, \"id\") path peels",
+        "r.URL.Query().Get(\"q\") query peels",
+        "json.NewEncoder(w).Encode(lit|map[string]interface{}{…})",
+        "w.WriteHeader(http.Status*) before encode"
+      ],
+      "honestHoles": [
+        { "shape": "r.Use / middleware chains", "reason": "hub-chi:middleware" },
+        { "shape": "Mount / nested routers beyond cheap peel", "reason": "hub-chi:mount" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    },
+    "echo": {
+      "fixture": "fixtures/hub-gold-echo",
+      "smoke": "pnpm run hub:echo-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "e.GET|POST|PUT|PATCH|DELETE literal paths",
+        "Same-file named handlers (func name(c echo.Context) error)",
+        "c.Param(\"id\") path peels",
+        "c.QueryParam(\"q\") query peels (empty default)",
+        "return c.JSON(status, lit|map[string]interface{}{…})",
+        "return c.String(status, \"…\")"
+      ],
+      "honestHoles": [
+        { "shape": "e.Use / middleware chains", "reason": "hub-echo:middleware" },
+        { "shape": "e.Group deep nesting beyond cheap peel", "reason": "hub-echo:group" },
+        { "shape": "c.Bind / struct binders", "reason": "hub-echo:bind" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    }
+  },
+  "absentOrigins": [],
+  "nextTargets": [
+    "Go secondary set: Gin ST + Chi + Echo smokes closed (G10009/G10010)",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

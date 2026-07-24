@@ -122,14 +122,39 @@ function objectPropKeyName(prop) {
 }
 
 /**
+ * Hapi `method` property: scalar string or `['GET','POST',…]` array (G10014).
+ * @param {import('estree').Expression | null | undefined} value
+ * @returns {string[]}
+ */
+function peelHapiMethodValues(value) {
+  if (value?.type === "Literal" && typeof value.value === "string") {
+    const m = String(value.value).toUpperCase();
+    return HTTP_METHODS.has(m.toLowerCase()) ? [m] : [];
+  }
+  if (value?.type === "ArrayExpression") {
+    /** @type {string[]} */
+    const out = [];
+    for (const el of value.elements ?? []) {
+      if (el?.type === "Literal" && typeof el.value === "string") {
+        const m = String(el.value).toUpperCase();
+        if (HTTP_METHODS.has(m.toLowerCase())) out.push(m);
+      }
+    }
+    return out;
+  }
+  return [];
+}
+
+/**
  * Peel one Hapi `server.route({ method, path, handler })` config object.
+ * `method: ['GET','POST']` expands to one CWL route per method (same handler/path).
  * @param {import('estree').ObjectExpression} obj
  * @param {import('estree').CallExpression} callNode
- * @returns {{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } } | null}
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>}
  */
-function peelHapiRouteObject(obj, callNode) {
-  /** @type {string | null} */
-  let method = null;
+function peelHapiRouteObjects(obj, callNode) {
+  /** @type {string[]} */
+  let methods = [];
   /** @type {string | null} */
   let path = null;
   /** @type {import('estree').Function | null} */
@@ -139,10 +164,7 @@ function peelHapiRouteObject(obj, callNode) {
     const key = objectPropKeyName(p);
     if (!key) continue;
     if (key === "method") {
-      if (p.value?.type === "Literal" && typeof p.value.value === "string") {
-        method = String(p.value.value).toUpperCase();
-      }
-      // method: ['GET','POST'] etc. → leave unwired (honest hole / skip)
+      methods = peelHapiMethodValues(p.value);
     } else if (key === "path") {
       if (p.value?.type === "Literal" && typeof p.value.value === "string") {
         path = p.value.value;
@@ -151,14 +173,9 @@ function peelHapiRouteObject(obj, callNode) {
       fn = handlerCallback(p.value);
     }
   }
-  if (!method || !path || !fn) return null;
-  if (!HTTP_METHODS.has(method.toLowerCase())) return null;
-  return {
-    method,
-    path,
-    fn,
-    loc: callNode.loc?.start ?? obj.loc?.start ?? { line: 1, column: 0 },
-  };
+  if (methods.length === 0 || !path || !fn) return [];
+  const loc = callNode.loc?.start ?? obj.loc?.start ?? { line: 1, column: 0 };
+  return methods.map((method) => ({ method, path, fn, loc }));
 }
 
 /**
@@ -174,16 +191,14 @@ function extractHapiRoutesFromCall(node) {
   const arg = node.arguments[0];
   if (!arg) return [];
   if (arg.type === "ObjectExpression") {
-    const r = peelHapiRouteObject(arg, node);
-    return r ? [r] : [];
+    return peelHapiRouteObjects(arg, node);
   }
   if (arg.type === "ArrayExpression") {
     /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} */
     const out = [];
     for (const el of arg.elements ?? []) {
       if (el?.type !== "ObjectExpression") continue;
-      const r = peelHapiRouteObject(el, node);
-      if (r) out.push(r);
+      out.push(...peelHapiRouteObjects(el, node));
     }
     return out;
   }

@@ -59,6 +59,18 @@ function parseJavaParamRefs(paramSource) {
   for (const m of paramSource.matchAll(/@PathVariable(?:\([^)]*\))?\s+\w+\s+(\w+)/g)) {
     byVar[m[1]] = { source: "path", name: m[1] };
   }
+  for (const m of paramSource.matchAll(/@PathParam(?:\(\s*"([^"]+)"\s*\))?\s+\w+\s+(\w+)/g)) {
+    byVar[m[2]] = { source: "path", name: m[1] ?? m[2] };
+  }
+  for (const m of paramSource.matchAll(
+    /@QueryParam(?:\(\s*"([^"]+)"\s*\))?\s+(?:@DefaultValue(?:\(\s*"([^"]*)"\s*\))\s+)?\w+\s+(\w+)/g,
+  )) {
+    byVar[m[3]] = {
+      source: "query",
+      name: m[1] ?? m[3],
+      ...(m[2] !== undefined ? { default: m[2] } : {}),
+    };
+  }
   for (const m of paramSource.matchAll(/@RequestParam(?:\(([^)]*)\))?\s+\w+\s+(\w+)/g)) {
     const ann = m[1] ?? "";
     const varName = m[2];
@@ -155,7 +167,9 @@ function parseJavaHttpStatus(statusRaw) {
  */
 export function extractJavaMethodBody(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 8000);
-  const methodM = slice.match(/public\s+[\w<>,.\s?]+\s+\w+\s*\(([\s\S]*?)\)\s*\{/);
+  const methodM = slice.match(
+    /(?:@\w+(?:\([^)]*\))?\s*)*public\s+[\w<>,.\s?]+\s+\w+\s*\(([\s\S]*?)\)\s*\{/,
+  );
   if (!methodM) return null;
   const openInSlice = (methodM.index ?? 0) + methodM[0].lastIndexOf("{");
   const absOpen = fromIndex + openInSlice;
@@ -183,9 +197,18 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   const reStatusBody = bodySlice.match(
     /return\s+ResponseEntity\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/,
   );
+  const reJaxrsStatusEntity = bodySlice.match(
+    /return\s+Response\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*entity\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/,
+  );
   const reOkBody = bodySlice.match(/return\s+ResponseEntity\.ok\s*\(\s*([\s\S]*?)\s*\)\s*;/);
+  const reJaxrsOk = bodySlice.match(
+    /return\s+Response\.ok\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/,
+  );
   const reAccepted = bodySlice.match(
     /return\s+ResponseEntity\.accepted\s*\(\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/i,
+  );
+  const reJaxrsAccepted = bodySlice.match(
+    /return\s+Response\.accepted\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/i,
   );
   const reCreated = bodySlice.match(
     /return\s+ResponseEntity\.created\s*\([^)]*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/i,
@@ -205,6 +228,10 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = parseJavaHttpStatus(reStatusBody[1]);
     returnTree = mapFromExpr(reStatusBody[2]);
     kind = returnTree ? "json" : null;
+  } else if (reJaxrsStatusEntity) {
+    status = parseJavaHttpStatus(reJaxrsStatusEntity[1]);
+    returnTree = mapFromExpr(reJaxrsStatusEntity[2]);
+    kind = returnTree ? "json" : null;
   } else if (reCreated) {
     status = 201;
     returnTree = mapFromExpr(reCreated[1]);
@@ -213,9 +240,17 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = 202;
     returnTree = mapFromExpr(reAccepted[1]);
     kind = returnTree ? "json" : null;
+  } else if (reJaxrsAccepted) {
+    status = 202;
+    returnTree = mapFromExpr(reJaxrsAccepted[1]);
+    kind = returnTree ? "json" : null;
   } else if (reOkBody) {
     status = 200;
     returnTree = mapFromExpr(reOkBody[1]);
+    kind = returnTree ? "json" : null;
+  } else if (reJaxrsOk) {
+    status = 200;
+    returnTree = mapFromExpr(reJaxrsOk[1]);
     kind = returnTree ? "json" : null;
   } else if (rePlainMap) {
     returnTree = parseJavaMapOfReturnTree(rePlainMap[1], paramRefs);

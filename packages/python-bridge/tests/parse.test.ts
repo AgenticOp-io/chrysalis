@@ -64,6 +64,17 @@ def create_item():
     });
   });
 
+  it.skipIf(!pythonAvailable())("parses hub-gold-starlette @app.route routes", async () => {
+    const fixture = join(repoRoot, "fixtures/hub-gold-starlette/app.py");
+    const result = await parseFile(fixture);
+    expect(result.routes.length).toBe(20);
+    const search = result.routes.find((r) => r.path === "/search");
+    expect(search?.returnKind).toBe("tree");
+    expect(search?.returnTree?.t).toBe("obj");
+    const create = result.routes.find((r) => r.method === "POST" && r.path === "/items");
+    expect(create?.statusCode).toBe(201);
+  });
+
   it("parse script file exists", () => {
     const script = join(dirname(fileURLToPath(import.meta.url)), "..", "python", "parse_routes.py");
     expect(readFileSync(script, "utf8")).toContain("route_from_decorator");

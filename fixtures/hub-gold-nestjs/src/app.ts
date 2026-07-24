@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Cookies,
   Delete,
   Get,
+  Headers,
   HttpCode,
   Param,
   Patch,
@@ -12,7 +14,7 @@ import {
 } from "@nestjs/common";
 
 // hub-gold-nestjs — 20-route NestJS TypeScript origin dialect (secondary to Express/TS ST).
-// Mirrors hub-flagship-express route set via @Controller + @Get/@Post/… (+ path join + @Param/@Query).
+// Mirrors hub-flagship-express route set via @Controller + @Get/@Post/… (+ path join + @Param/@Query/@Headers/@Cookies/@Body).
 // No Nest DI / modules / guards / pipes invented (**D6447**).
 
 @Controller()
@@ -23,8 +25,8 @@ export class AppController {
   }
 
   @Get("ping")
-  ping() {
-    return 42;
+  ping(@Headers("x-request-id") reqId: string) {
+    return reqId;
   }
 
   @Get("version")
@@ -43,8 +45,8 @@ export class AppController {
   }
 
   @Get("flag")
-  flag() {
-    return "chrysalis";
+  flag(@Cookies("session") session: string) {
+    return session;
   }
 
   @Get("build")
@@ -63,8 +65,8 @@ export class AppController {
   }
 
   @Post("echo")
-  echo() {
-    return { echo: true };
+  echo(@Body("message") message: string) {
+    return { echo: true, message: message ?? "" };
   }
 
   @Get("search")

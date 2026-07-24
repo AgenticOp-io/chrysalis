@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-24 (G10008 ASP.NET controller secondary dialect)
+**As of:** 2026-07-24 (G10012 JAX-RS Java secondary dialect)
 
 ---
 
@@ -41,7 +41,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G9947–d | Nuxt Nitro/h3 | `hub:vue-nitro-smoke` | 20 routes + nested `server/middleware` presets |
 | G9948 | Fastify TS | `hub:fastify-smoke` | 20/20; ≠ emit-fastify |
 | G9949–b | Axum Rust | `hub:axum-smoke` | named handlers + nest |
-| G9950 | NestJS decorators | `hub:nestjs-smoke` | DI/guards/pipes = honest holes; **route-surface ST** via `hub:nestjs-flagship` |
+| G9950 | NestJS decorators | `hub:nestjs-smoke` | DI/guards/pipes = honest holes; **route-surface ST** via `hub:nestjs-flagship`; G10015 @Headers/@Cookies/@Body field peels |
 | G9951 | Hapi | `hub:hapi-smoke` | plugins/lifecycle = honest holes; G10005 params/query/payload destructure peel |
 | G10005 | Koa / Hapi / Restify / Polka | `hub:koa-smoke` … `hub:polka-smoke` | IDENT destructure from params/query/payload (shared JS AST); 20 + pass-through mw (G9959); no onion invent |
 | G9957 | Restify | `hub:restify-smoke` | 20 + pass-through `pre`/`use` (G9959) |
@@ -49,8 +49,12 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | — | Scala Http4s | `hub:scala-http4s-smoke` | secondary to Akka ST |
 | — | cpp-httplib | `hub:cpp-httplib-smoke` | secondary to Crow ST |
 | G10003 | FastAPI | `hub:fastapi-smoke` | secondary to Flask Python ST; Depends/OAuth = honest holes |
+| G10013 | Starlette | `hub:starlette-smoke` | secondary to Flask Python ST; Mount/middleware = honest holes |
+| G10012 | JAX-RS Java | `hub:jaxrs-smoke` | secondary to Spring Java ST; CDI/filters/providers/Application = honest holes |
 | G10008 | ASP.NET controllers | `hub:aspnet-controllers-smoke` | secondary to Minimal API C# ST; DI/filter/Razor = honest holes |
 | G10004 | Ktor Kotlin | `hub:ktor-smoke` | secondary to Spring Kotlin ST; auth/plugins/nested routing = honest holes |
+| G10009 | Go Chi | `hub:chi-smoke` | secondary to Gin Go ST; middleware/Mount = honest holes |
+| G10010 | Go Echo | `hub:echo-smoke` | secondary to Gin Go ST; middleware/Group/binders = honest holes |
 
 **Thin Node set (complete):** Fastify · Nest · Koa · Hapi · Restify · Polka (all secondary to Express/TS ST).
 
@@ -67,6 +71,10 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Rails secondary (`routes.rb` → controller) | skipped (G10006) | `fixtures/ci/rails-controller-honest-skip.json` |
 | Flutter / Dart Frog / Pipeline | honest holes | Dart ST is Shelf + same-file named handlers (G10007) |
 | FastAPI Depends / OAuth / middleware | honest holes | G10003 route surface only |
+| Go Chi middleware / Mount / non-literal paths | honest holes | G10009 route surface only |
+| Go Echo middleware / Group / binders | honest holes | G10010 route surface only |
+| Starlette Mount / middleware / ASGI onion | honest holes | G10013 `@app.route` surface only |
+| JAX-RS CDI / filters / providers / Application | honest holes | G10012 resource route surface only |
 | ASP.NET DI / filter pipeline / Razor | honest holes | G10008 controller attribute route surface only |
 | COBOL primary | paused **61/61** behavioral; structural CardDemo deepen continues | no LCB claim; G10001 closed CSUTLDWY/CSSETATY COPY resolve; DFHAID/DFHBMSCA stay holes |
 | Dependabot merges | operator-only | do not merge unless asked |
@@ -75,14 +83,18 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 ## Cheap deepen queue
 
-**Closed this wave (G10001–G10008):**
+**Closed this wave (G10001–G10013, G10009–G10012):**
 - G10001 — `CSUTLDWY`/`CSSETATY` COPY resolve on COACTUPC/COTRTUPC
 - G10002 — OpenAPI `in: header` + flat `requestBody` body params; HAR IDENT-safe headers + flat `postData` body params; `CKPRST.cpy` + `CKPRSTCP` structural COPY resolve; NestJS ST board/claim sync; CONTRIBUTING private-corpora clause
 - G10003 — FastAPI secondary dialect (`hub:fastapi-smoke` 20/20); `{id}` paths + `query_params` + `status_code=` decorator peel
+- G10013 — Starlette secondary dialect (`hub:starlette-smoke` 20/20); `@app.route` + `{id}` paths + `query_params` + status tuple peel
 - G10004 — Ktor secondary dialect (`hub:ktor-smoke` 20/20); `{id}` paths + `call.parameters` + `queryParameters` + `HttpStatusCode` on `call.respond`
 - G10005 — Thin-Node IDENT destructure peel (`const { id } = ctx|req|request.params|query|payload`) for Koa/Hapi/Restify/Polka smokes (20/20); nested/computed/rest patterns stay honest holes
 - G10007 — Dart Shelf same-file named handlers (`router.get('/x', myHandler)` peel; cross-file = honest hole)
+- G10012 — JAX-RS Java secondary dialect (`hub:jaxrs-smoke` 20/20); class `@Path` prefix join + `@GET|POST|…` + `@PathParam`/`@QueryParam` + `Response.status().entity().build()` peel
 - G10008 — ASP.NET controller secondary dialect (`hub:aspnet-controllers-smoke` 20/20); `[Route]` prefix join + `[HttpGet|Post|…]` + controller method body peel
+- G10009 — Go Chi secondary dialect (`hub:chi-smoke` 20/20); `r.Get|Post` + `{id}` paths + `chi.URLParam` + `r.URL.Query().Get` + `json.NewEncoder`/`w.WriteHeader` peel
+- G10010 — Go Echo secondary dialect (`hub:echo-smoke` 20/20); `:id` paths + `c.Param` + `c.QueryParam` + `c.JSON`/`c.String`; Gin remains Go ST
 
 **Skipped (G10006):** Rails secondary — cross-file `controller#action` + ActionController (Phoenix-class); inline rack lambda probe 6/6 handler holes on Sinatra-only peel. Sinatra ST unchanged (`hub-flagship-ruby`).
 

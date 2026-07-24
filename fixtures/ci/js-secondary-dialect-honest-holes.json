@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T22:45:00.000Z",
+  "generatedAt": "2026-07-24T22:50:00.000Z",
   "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, or Polka middleware runtimes. Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka. G10005: IDENT destructure from params/query/payload peeled when origin uses const { x } = ctx|req|request.*.",
   "dialects": {
     "koa": {
@@ -30,8 +30,9 @@
       "stScope": "route-surface cwl-api only; DI/guards not in gold",
       "supported": [
         "@Controller prefix + @Get|Post|Put|Patch|Delete",
-        "@Param / @Query / @Body / @HttpCode",
-        "controller path join"
+        "@Param / @Query / @Body / @Headers / @Cookies / @HttpCode",
+        "controller path join",
+        "@Body('field') / @Headers('x') / @Cookies('y') → requestFields (G10015)"
       ],
       "honestHoles": [
         { "shape": "@Module / providers / constructor DI", "reason": "hub-js:nest-di" },
@@ -46,6 +47,7 @@
       "smoke": "pnpm run hub:hapi-smoke",
       "supported": [
         "server.route({ method, path, handler }) (+ array form)",
+        "method: ['GET','POST'] multi-method → one CWL route per method (G10014)",
         "handler return literal|object|param|query",
         "request.params.* / request.query.* / request.payload.*",
         "h.response(value).code(N)",
@@ -55,7 +57,6 @@
         { "shape": "server.ext / onPreHandler lifecycle", "reason": "hub-js:hapi-lifecycle" },
         { "shape": "server.register plugins / toolkits", "reason": "hub-js:hapi-plugins" },
         { "shape": "auth / validate / pre route options", "reason": "hub-js:hapi-route-options" },
-        { "shape": "method: ['GET','POST'] multi-method", "reason": "hub-js:hapi-multi-method" },
         { "shape": "nested/computed/rest destructure from params|query|payload", "reason": "hub-js:hapi-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
@@ -101,7 +102,7 @@
   "nextTargets": [
     "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); G10005 IDENT destructure peel closed for params/query/payload",
+    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
     "Phoenix router+controller peel skipped — not cheap without cross-file Ctrl,:action resolve + LiveView invent risk (D6447); stays honest hole",
     "Flutter / Dart Frog / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

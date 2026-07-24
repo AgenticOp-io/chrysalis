@@ -9,7 +9,6 @@ const server = Hapi.server();
 server.route({ method: "GET", path: "/health", handler: () => true });
 server.route({ method: "GET", path: "/ping", handler: () => 42 });
 server.route({ method: "GET", path: "/version", handler: () => 1 });
-server.route({ method: "GET", path: "/ready", handler: () => "ok" });
 server.route({ method: "GET", path: "/count", handler: () => 3 });
 server.route({ method: "GET", path: "/flag", handler: () => "chrysalis" });
 server.route({ method: "GET", path: "/build", handler: () => 2026 });
@@ -22,12 +21,9 @@ server.route({
 });
 
 server.route({
-  method: "POST",
+  method: ["GET", "POST"],
   path: "/echo",
-  handler: (request) => {
-    const { kind = "plain" } = request.payload;
-    return { echo: true, kind };
-  },
+  handler: () => ({ echo: true }),
 });
 
 server.route({ method: "GET", path: "/items", handler: () => true });
@@ -69,7 +65,10 @@ server.route({ method: "GET", path: "/stats", handler: () => 3 });
 server.route({
   method: "POST",
   path: "/notify",
-  handler: (_request, h) => h.response({ ok: true }).code(202),
+  handler: (request, h) => {
+    const { channel = "default" } = request.payload;
+    return h.response({ ok: true, channel }).code(202);
+  },
 });
 
 export default server;

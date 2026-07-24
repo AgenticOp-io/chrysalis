@@ -1,5 +1,5 @@
 /**
- * Rust hub ingest — Actix Web macros (+ Axum `.route`) deepened for D6448-ST
+ * Rust hub ingest — Actix Web macros (+ Axum `.route` + Rocket `#[get]`/`.mount`) deepened for D6448-ST
  * cwl-api flagship: brace-bounded handler bodies, serde_json::json! (+ path/query
  * refs), HttpResponse status+json, scalar returns (hub-flagship-rust). Prefer
  * this over thin pattern-route-lift for flagship depth.
@@ -40,11 +40,47 @@ export function canRustAstIngest(language, ext) {
 }
 
 /**
- * Normalize Actix/Axum path templates to CWL `{name}` form.
+ * Normalize Actix/Axum/Rocket path templates to CWL `{name}` form.
  * @param {string} path
  */
 export function normalizeRustRoutePath(path) {
-  return path.replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, "{$1}");
+  return path
+    .replace(/\?<[A-Za-z_][A-Za-z0-9_]*>(?:&<[A-Za-z_][A-Za-z0-9_]*>)*/g, "")
+    .replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, "{$1}")
+    .replace(/<([A-Za-z_][A-Za-z0-9_]*)>/g, "{$1}");
+}
+
+/**
+ * Rocket `?<q>` query segments on route paths (before normalize strips them).
+ * @param {string} path
+ */
+export function queryParamRefsFromRocketPath(path) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const refs = {};
+  for (const m of path.matchAll(/\?<([A-Za-z_][A-Za-z0-9_]*)>/g)) {
+    refs[m[1]] = { source: "query", name: m[1], default: "" };
+  }
+  return refs;
+}
+
+/**
+ * Bind Rocket/Actix handler param names to path/query refs from signatures.
+ * @param {string} paramSource
+ * @param {string} path
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} paramRefs
+ */
+export function mergeRustFnParamRefs(paramSource, path, paramRefs) {
+  for (const m of paramSource.matchAll(
+    /([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:Option<[^>]+>|String|&'static str|&str|impl\s+[A-Za-z_]+)/g,
+  )) {
+    const name = m[1];
+    const bare = name.startsWith("_") ? name.slice(1) : name;
+    if (path.includes(`{${bare}}`)) {
+      paramRefs[name] = { source: "path", name: bare };
+    } else if (paramRefs[bare]?.source === "query") {
+      paramRefs[name] = { ...paramRefs[bare] };
+    }
+  }
 }
 
 /**
@@ -368,14 +404,14 @@ function parseRustBodyReturn(bodySlice, paramRefs) {
     const arg = argAfterMarker(bodySlice, ".json(", statusJson.index ?? 0);
     returnTree = treeFromJsonArg(arg?.inner);
     kind = returnTree ? "json" : null;
-  } else if (bareJson) {
-    returnTree = jsonFromExpr(bodySlice.slice(bareJson.index ?? 0));
+  } else if (bareJson || /Json\s*\(\s*serde_json::json!\s*\(/.test(bodySlice)) {
+    const startIdx = bareJson?.index ?? bodySlice.search(/Json\s*\(\s*serde_json::json!\s*\(/);
+    returnTree = jsonFromExpr(bodySlice.slice(startIdx >= 0 ? startIdx : 0));
     kind = returnTree ? "json" : null;
-    // Axum: (StatusCode::CREATED, Json(serde_json::json!(…)))
     if (kind === "json") {
-      const axumSt = /StatusCode::([A-Za-z_]+)/.exec(bodySlice);
-      if (axumSt && RUST_HTTP_STATUS[axumSt[1]] !== undefined) {
-        status = RUST_HTTP_STATUS[axumSt[1]];
+      const stM = /(?:StatusCode|Status)::([A-Za-z_]+)/.exec(bodySlice);
+      if (stM && RUST_HTTP_STATUS[stM[1]] !== undefined) {
+        status = RUST_HTTP_STATUS[stM[1]];
       }
     }
   } else if (bodyStr) {
@@ -447,10 +483,11 @@ export function liftRustFileToWebir(opts) {
   const data = webir.dataDialect.builders(builder);
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };
-  const routes = parseRustRoutes(source, file).map((r) => ({
-    ...r,
-    path: normalizeRustRoutePath(r.path),
-  }));
+  const routes = parseRustRoutes(source, file).map((r) => {
+    const queryRefs = queryParamRefsFromRocketPath(r.path);
+    const path = normalizeRustRoutePath(r.path);
+    return { ...r, path, queryRefs };
+  });
   if (routes.length === 0) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false };
   }
@@ -462,10 +499,11 @@ export function liftRustFileToWebir(opts) {
     if (!extracted) {
       bodyId = hubHandlerBodyHole(ctx, "hub-rust:handler-body", { file, line: r.line });
     } else {
-      const { bodySlice, line } = extracted;
+      const { bodySlice, line, paramSource } = extracted;
       const loc = { file, line };
       /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
-      const paramRefs = { ...pathParamRefsFromPath(r.path) };
+      const paramRefs = { ...pathParamRefsFromPath(r.path), ...r.queryRefs };
+      if (paramSource) mergeRustFnParamRefs(paramSource, r.path, paramRefs);
       const { status, returnTree, kind } = parseRustBodyReturn(bodySlice, paramRefs);
 
       if (kind === "scalar-lit" && returnTree?.t === "lit") {

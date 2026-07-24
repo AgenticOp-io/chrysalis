@@ -1,4 +1,4 @@
-"""Extract Flask/FastAPI-style route metadata from Python source (hub ingest)."""
+"""Extract Flask/FastAPI/Starlette-style route metadata from Python source (hub ingest)."""
 import ast
 import json
 import re

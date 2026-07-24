@@ -103,6 +103,7 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9949b** | Axum named handlers + nest | Named `get(handler)` resolve (Go Gin parallel) + `.nest("/prefix", fn())` path join; merge of helpers via global `.route` scan; inline `Router::new()` nest stays unwired | `hub:axum-smoke` ✅ |
 | **G9950** | NestJS decorator route foundation | `@Controller` + `@Get`/`@Post`/… path join + `@Param`/`@Query`/`@HttpCode` via TS decorator AST (secondary; Express/TS remain ST; DI/guards/pipes = honest holes) | `hub:nestjs-smoke` ✅ |
 | **G9951** | Hapi JS secondary dialect | `server.route({ method, path, handler })` + `request.params|query|payload` + `h.response().code` (secondary; Express/TS remain ST; plugins/lifecycle = honest holes) | `hub:hapi-smoke` ✅ |
+| **G10014** | Hapi multi-method array peel | `method: ['GET','POST']` in `server.route` → one CWL route per method (same handler/path); no invented plugins/lifecycle | `hub:hapi-smoke` ✅ |
 | **G9953** | Elixir Plug.Router foundation | `get\|post\|… "/path" do…end` + `send_resp` + `Jason.encode!` + `conn.params\|query_params\|body_params` (new origin language; Phoenix LiveView/controllers = honest holes) | `hub:elixir-smoke` ✅ |
 | **G9954** | Dart/Shelf foundation | `router.get\|post\|…('/path', …)` + `Response.ok`/`Response(status)` + `jsonEncode` + query/body peels + `<id>` path params (new origin language; Flutter/Dart Frog/Pipeline = honest holes) | `hub:dart-smoke` ✅ |
 | **G9955** | Elixir Plug route-surface D6448-ST | Promote gold → `hub:elixir-flagship` + checklist/verify seed; Phoenix/LiveView stay holes | `hub:complete-conversion-prove:elixir` ✅ |
@@ -111,6 +112,8 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9957** | Restify JS secondary dialect | `server.get\|post\|…\|del` + `res.send` / Restify `res.send(code, body)` + `req.params\|query` (secondary; Express/TS remain ST; plugins = honest holes) | `hub:restify-smoke` ✅ |
 | **G9958** | Polka JS secondary dialect | `app.get\|post\|…` + `res.writeHead` / `res.end(JSON.stringify)` + `req.params\|query` (secondary; completes thin Node set) | `hub:polka-smoke` ✅ |
 | **G9959** | Thin-Node pass-through middleware | Koa/Polka `app.use` + Restify `server.pre\|use` empty/next-only peels as `js.passthrough` / `restify.passthrough` presets; complex mw = honest holes (no onion invent) | `hub:koa-smoke` / `hub:restify-smoke` / `hub:polka-smoke` v2 ✅ |
+| **G10009** | Go Chi secondary dialect | `r.Get\|Post\|…` + `{id}` paths + `chi.URLParam` + `r.URL.Query().Get` + `json.NewEncoder`/`w.WriteHeader` (secondary; Gin remains Go ST) | `hub:chi-smoke` ✅ |
+| **G10010** | Go Echo secondary dialect | `e.GET\|POST\|…` + `:id` paths + `c.Param` + `c.QueryParam` + `c.JSON`/`c.String` (secondary; Gin remains Go ST; Chi/Gin peels coexist in `go-ast-ingest`) | `hub:echo-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 **Phoenix controller peel:** skipped (not cheap — cross-file `Ctrl,:action` resolve + LiveView invent risk). Catalog: `fixtures/ci/phoenix-controller-honest-skip.json`.

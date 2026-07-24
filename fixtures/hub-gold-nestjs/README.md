@@ -1,7 +1,8 @@
 # hub-gold-nestjs
 
 Secondary TypeScript origin dialect fixture: **NestJS** `@Controller` +
-`@Get`/`@Post`/`@Put`/`@Patch`/`@Delete` (+ `@Param` / `@Query` / `@HttpCode`)
+`@Get`/`@Post`/`@Put`/`@Patch`/`@Delete` (+ `@Param` / `@Query` / `@Body` /
+`@Headers` / `@Cookies` / `@HttpCode`)
 via the shared JS/TS AST lift (TypeScript decorator AST — acorn-after-strip
 cannot see Nest decorators).
 
