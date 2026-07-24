@@ -151,14 +151,113 @@ export function parseKotlinRoutes(source, file) {
   return routes;
 }
 
+/**
+ * Join Axum `.nest("/prefix", …)` with an inner route path.
+ * @param {string} prefix
+ * @param {string} path
+ */
+export function joinAxumNestPath(prefix, path) {
+  const p = String(prefix || "").replace(/\/$/, "");
+  const rest = !path || path === "/" ? "" : path.startsWith("/") ? path : `/${path}`;
+  if (!p) return rest || "/";
+  return `${p}${rest}` || "/";
+}
+
+/**
+ * Map nested router fn names → nest path prefix (`.nest("/api", api())`).
+ * Inline `Router::new()` nest targets are not lowered (honest hole / skip).
+ * @param {string} source
+ * @returns {Map<string, string>}
+ */
+export function collectAxumNestPrefixes(source) {
+  /** @type {Map<string, string>} */
+  const byFn = new Map();
+  const nestRe =
+    /\.nest\s*\(\s*"([^"]+)"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\)/gi;
+  let m;
+  while ((m = nestRe.exec(source)) !== null) {
+    byFn.set(m[2], m[1]);
+  }
+  return byFn;
+}
+
+/**
+ * Brace body range for `fn name(…) { … }` (first match).
+ * @param {string} source
+ * @param {string} fnName
+ * @returns {{ start: number, end: number } | null}
+ */
+function rustFnBodyRange(source, fnName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(fnName)) return null;
+  const headRe = new RegExp(String.raw`(?:pub\s+)?(?:async\s+)?fn\s+${fnName}\s*\(`);
+  const headM = headRe.exec(source);
+  if (!headM || headM.index === undefined) return null;
+  const parenOpen = headM.index + headM[0].length - 1;
+  const params = extractBalancedParenInner(source, parenOpen);
+  if (!params) return null;
+  let i = params.end + 1;
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (source.startsWith("->", i)) {
+    i += 2;
+    let depth = 0;
+    while (i < source.length) {
+      const ch = source[i];
+      if (ch === "(" || ch === "<") depth += 1;
+      else if (ch === ")" || ch === ">") depth = Math.max(0, depth - 1);
+      else if (ch === "{" && depth === 0) break;
+      i += 1;
+    }
+  }
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (source[i] !== "{") return null;
+  let depth = 0;
+  const openIdx = i;
+  for (let j = openIdx; j < source.length; j++) {
+    const ch = source[j];
+    if (ch === '"' || ch === "'") {
+      const quote = ch;
+      j += 1;
+      while (j < source.length) {
+        if (source[j] === "\\") {
+          j += 2;
+          continue;
+        }
+        if (source[j] === quote) break;
+        j += 1;
+      }
+      continue;
+    }
+    if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return { start: openIdx, end: j };
+    }
+  }
+  return null;
+}
+
 export function parseRustRoutes(source) {
   const routes = [];
   const seen = new Set();
   const methodMap = { get: "GET", post: "POST", put: "PUT", delete: "DELETE", patch: "PATCH" };
+  const nestByFn = collectAxumNestPrefixes(source);
+  /** @type {{ name: string, prefix: string, start: number, end: number }[]} */
+  const nestRanges = [];
+  for (const [name, prefix] of nestByFn) {
+    const range = rustFnBodyRange(source, name);
+    if (range) nestRanges.push({ name, prefix, ...range });
+  }
   let m;
   RUST_ROUTE_RE.lastIndex = 0;
   while ((m = RUST_ROUTE_RE.exec(source)) !== null) {
-    pushRoute(routes, source, m[2], m[1], m.index, seen);
+    let path = m[1];
+    for (const fr of nestRanges) {
+      if (m.index >= fr.start && m.index <= fr.end) {
+        path = joinAxumNestPath(fr.prefix, path);
+        break;
+      }
+    }
+    pushRoute(routes, source, m[2], path, m.index, seen);
   }
   RUST_MACRO_RE.lastIndex = 0;
   while ((m = RUST_MACRO_RE.exec(source)) !== null) {

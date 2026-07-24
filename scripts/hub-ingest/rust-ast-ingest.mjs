@@ -106,8 +106,52 @@ function extractBalancedParenInner(source, openIdx) {
 }
 
 /**
+ * Resolve a named Axum handler `async fn name(...) { … }` referenced from
+ * `.route("/path", get(name))` (Go Gin named-func parallel).
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractRustNamedHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const headRe = new RegExp(String.raw`(?:pub\s+)?(?:async\s+)?fn\s+${handlerName}\s*\(`);
+  const headM = headRe.exec(source);
+  if (!headM || headM.index === undefined) return null;
+  const parenOpen = headM.index + headM[0].length - 1;
+  const params = extractBalancedParenInner(source, parenOpen);
+  if (!params) return null;
+  let i = params.end + 1;
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (source.startsWith("->", i)) {
+    i += 2;
+    let depth = 0;
+    while (i < source.length) {
+      const ch = source[i];
+      if (ch === "(" || ch === "<") depth += 1;
+      else if (ch === ")" || ch === ">") depth = Math.max(0, depth - 1);
+      else if (ch === "{" && depth === 0) break;
+      i += 1;
+    }
+  }
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (source[i] !== "{") return null;
+  const bal = extractBalancedBraceInner(source, i);
+  if (!bal) return null;
+  const line = source.slice(0, i).split("\n").length;
+  return {
+    paramSource: params.inner,
+    bodySlice: bal.inner,
+    line,
+    absOpen: i,
+    absEnd: bal.end,
+    kind: "axum-named",
+    named: handlerName,
+  };
+}
+
+/**
  * Bound Actix `async fn … { … }` after a `#[get("/…")]` macro, or Axum
- * `.route("/…", get(|| async { … }))` / `get(|Path(id): Path<_>| async move { … })`.
+ * `.route("/…", get(|| async { … }))` / `get(|Path(id): Path<_>| async move { … })`
+ * / named `get(handler)` (resolve `async fn handler`).
  * Prefer Axum closure when the match starts at `.route` so a later `fn main` is not stolen.
  * @param {string} source
  * @param {number} fromIndex
@@ -137,9 +181,8 @@ export function extractRustHandlerBody(source, fromIndex) {
   /**
    * Axum: `.route("/x", get(|| async { … }))` /
    * `get(|Path(id): Path<String>| async move { … })`.
-   * Named `get(handler)` without a closure body → null (honest hole).
    */
-  const tryAxum = () => {
+  const tryAxumClosure = () => {
     const axumM = slice.match(
       /(?:,|\()\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*(?:\|\|\s*(?:async\s+)?(?:move\s+)?|\|\s*[^|]*\|\s*(?:async\s+)?(?:move\s+)?)\{/i,
     );
@@ -156,8 +199,17 @@ export function extractRustHandlerBody(source, fromIndex) {
     };
   };
 
-  if (looksLikeAxumRoute) return tryAxum();
-  return tryFn() ?? tryAxum();
+  /** Axum named: `.route("/x", get(handler))` → resolve `fn handler`. */
+  const tryAxumNamed = () => {
+    const namedM = slice.match(
+      /(?:,|\()\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/i,
+    );
+    if (!namedM) return null;
+    return extractRustNamedHandlerBody(source, namedM[1]);
+  };
+
+  if (looksLikeAxumRoute) return tryAxumClosure() ?? tryAxumNamed();
+  return tryFn() ?? tryAxumClosure() ?? tryAxumNamed();
 }
 
 /**

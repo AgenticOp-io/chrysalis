@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Smoke: hub-gold-axum Axum dialect → WebIR hole-free (20 routes).
- * Does not replace Actix hub-flagship-rust D6448-ST.
+ * Named get(handler) + nest("/items", item_routes()); Actix remains Rust ST.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

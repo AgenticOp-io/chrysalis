@@ -1,7 +1,8 @@
 # hub-gold-axum
 
-Secondary Rust dialect fixture: **Axum** `.route(path, get|post|…(|| async { … }))`
-closures + `Json(serde_json::json!(…))` + `(StatusCode::*, Json(…))` + `Path` / `Query`.
+Secondary Rust dialect fixture: **Axum** named `.route(path, get|post|…(handler))`
++ `.nest("/items", item_routes())` + `Json(serde_json::json!(…))` + `(StatusCode::*, Json(…))`
++ `Path` / `Query`.
 
 - Same 20-route express-depth API surface as `hub-flagship-rust` (Actix remains D6448-ST).
 - Prove hole-free lift: `pnpm run hub:axum-smoke`
@@ -11,7 +12,7 @@ closures + `Json(serde_json::json!(…))` + `(StatusCode::*, Json(…))` + `Path
 
 | Shape | Hole / status |
 | --- | --- |
-| Named `get(handler)` without inline closure | `hub-rust:handler-body` |
-| `Router::merge` / nested `nest` / middleware layers | not lowered |
+| Inline nest `Router::new()` (unnamed) as nest/merge target | not lowered (use named `fn …() -> Router`) |
+| Middleware layers / towers | not lowered |
 | Extractors beyond Path/Query used in peels (State, Extension, TypedHeader) | not lowered |
 | Non-literal path templates | not lowered |

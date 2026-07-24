@@ -2,6 +2,7 @@
 
 Newest first.
 
+2026-07-24 | Chrysalis | Axum deepen G9949b: named `get(handler)` + `.nest` path join (`hub:axum-smoke` 20/20); rust ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Axum secondary dialect 20/20 (`hub:axum-smoke`) + Nitro deepen v4 destructure readBody (`hub:vue-nitro-smoke`); rust ST + fastify-smoke reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Nitro deepen v3 (getHeader/getCookie + readBody bindings) + Fastify TS origin dialect (`hub:vue-nitro-smoke` v3 + `hub:fastify-smoke` 20/20); vue+typescript+express ST reconfirm; AgenticOps umbrella CHANGELOG line left uncommitted (git identity missing; do not git config); Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Nitro deepen: readBody field peel + server/middleware (nested) presets (`hub-gold-vue-nitro` via `hub:vue-nitro-smoke` v2 20 routes + 2 mw hole-free); vue ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
