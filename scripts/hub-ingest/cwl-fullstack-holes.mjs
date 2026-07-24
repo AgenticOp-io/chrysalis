@@ -84,7 +84,15 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     rfc: "0012",
     origin: "nuxt",
     surface: "api",
-    summary: "Nuxt Nitro/h3 defineEventHandler body not lowered (unsupported h3 helpers or shapes).",
+    summary:
+      "Nuxt Nitro/h3 defineEventHandler body not lowered (unsupported h3 helpers or shapes). Supported: getRouterParam, getQuery.field, setResponseStatus, (await) readBody(event).field; not: body bindings, whole-body readBody without member access, getCookie/getRequestHeader depth.",
+  },
+  "hub-nuxt:nitro-middleware": {
+    rfc: "0012",
+    origin: "nuxt",
+    surface: "middleware",
+    summary:
+      "Nuxt Nitro server/middleware defineEventHandler body not lowered. Empty/pass-through presets lower; nested dirs are discovered but do not imply path mounts (Nitro middleware is global unless origin encodes a mount).",
   },
 };
 

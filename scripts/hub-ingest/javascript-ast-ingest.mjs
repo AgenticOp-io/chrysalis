@@ -302,6 +302,41 @@ function h3GetQueryMemberFieldOf(expr) {
 }
 
 /**
+ * Peel `await` so `await readBody(event)` matches `readBody(event)`.
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function peelAwaitExpression(expr) {
+  if (expr?.type === "AwaitExpression") return expr.argument ?? null;
+  return expr ?? null;
+}
+
+/**
+ * Nitro/h3: `readBody(event)` / `await readBody(event)` call.
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {import('estree').CallExpression | null}
+ */
+function h3ReadBodyCallOf(expr) {
+  const call = peelAwaitExpression(expr);
+  if (call?.type !== "CallExpression") return null;
+  if (call.callee?.type !== "Identifier" || call.callee.name !== "readBody") return null;
+  return call;
+}
+
+/**
+ * Nitro/h3: `(await) readBody(event).name` → body request field.
+ * Binding forms (`const body = await readBody(event); body.x`) stay holes.
+ * @param {import('estree').MemberExpression} expr
+ * @returns {{ name: string } | null}
+ */
+function h3ReadBodyMemberFieldOf(expr) {
+  if (expr.type !== "MemberExpression") return null;
+  const name = memberPropName(expr);
+  if (!name) return null;
+  if (!h3ReadBodyCallOf(expr.object)) return null;
+  return { name };
+}
+
+/**
  * Nitro/h3: `setResponseStatus(event, N)` → status code.
  * @param {import('estree').Function} fn
  * @returns {number | null}
@@ -616,6 +651,16 @@ function lowerExpression(ctx, expr) {
         type: T.string,
         origin,
         provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-get-query")],
+      });
+    }
+    const h3Body = h3ReadBodyMemberFieldOf(expr);
+    if (h3Body) {
+      return data.requestField({
+        source: "body",
+        name: h3Body.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-read-body")],
       });
     }
     return data.hole({

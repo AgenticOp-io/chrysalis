@@ -8,6 +8,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** **Post–G9990 maintain** — **translate-only** (**D6442**) + **source-authoritative UI** (**D6443**) + **origin source corpus / piecemeal queue** (**D6444** / **G9993**); Migration OS (**G8550**); UT regression (**G7690**). WISP = POC only; GenieACS OOS; **LiteRT.js refused**. **Maps = ArcGIS when source is ArcGIS**.
+- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen** — `readBody` field peel + `server/middleware` (nested) presets; `hub:vue-nitro-smoke` v2 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
 - **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 server dialect** — `hub:vue-nitro-smoke` / `hub-gold-vue-nitro` 20/20 hole-free (`defineEventHandler`); Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
 - **Canon:** [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9960–G9990** + **§2A–2C**)
 - **Locked (2026-07-15):** **D6444** — ingest all origin files → SQLite/JSON code DB → convert one piece at a time (**G9993**).

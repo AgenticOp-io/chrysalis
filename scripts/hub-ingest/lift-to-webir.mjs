@@ -95,6 +95,8 @@ async function main() {
     const lifted = await liftNitroProjectToWebir({ projectDir, webir, builder, wr, language: "nuxt" });
     astRouteCount = lifted.astRouteCount ?? 0;
     fileCount = lifted.fileCount ?? 0;
+    middlewareUseCount = lifted.middlewareUseCount ?? 0;
+    middlewareLoweredCount = lifted.middlewareRootCount ?? 0;
   } else {
     const exts = new Set(EXT_BY_LANG[language] ?? []);
     if (exts.size === 0) throw new Error(`unsupported language: ${language}`);

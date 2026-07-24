@@ -1,16 +1,22 @@
 /**
- * Nuxt Nitro / h3 file-route lift: server/api (and server/routes) defineEventHandler.
+ * Nuxt Nitro / h3 file-route lift: server/api (and server/routes) defineEventHandler,
+ * plus server/middleware (including nested dirs) as global middleware roots.
  * Secondary Vue/Nuxt dialect — does not replace Express-in-SFC hub-flagship-vue D6448-ST.
  */
 import { readFile, readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
+import { simple as walkSimple } from "acorn-walk";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
-import { liftNitroEventHandlerBody } from "./javascript-ast-ingest.mjs";
+import { liftNitroEventHandlerBody, parseJavaScriptSource } from "./javascript-ast-ingest.mjs";
 import { emitHubRoute, hubHandlerBodyHole } from "./hub-lift-webir-route.mjs";
 
 const HOLE_ROUTE = "hub-nuxt:nitro-handler";
+const HOLE_MW = "hub-nuxt:nitro-middleware";
 if (!CWL_FULLSTACK_HOLE_CATALOG[HOLE_ROUTE]) {
   throw new Error("nitro-route-lift: RFC-0012 hole catalog missing nuxt nitro entry");
+}
+if (!CWL_FULLSTACK_HOLE_CATALOG[HOLE_MW]) {
+  throw new Error("nitro-route-lift: RFC-0012 hole catalog missing nuxt nitro middleware entry");
 }
 
 const METHOD_SUFFIXES = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
@@ -84,20 +90,19 @@ export async function findNitroServerRoot(projectDir) {
       const p = join(dir, ent.name);
       if (!ent.isDirectory()) continue;
       if (ent.name === "server") {
-        const api = join(p, "api");
-        const routes = join(p, "routes");
-        try {
-          const apiEnt = await readdir(api);
-          if (apiEnt.length > 0) hits.push(p);
-        } catch {
-          /* no api */
+        let hasSurface = false;
+        for (const sub of ["api", "routes", "middleware"]) {
+          try {
+            const kids = await readdir(join(p, sub));
+            if (kids.length > 0) {
+              hasSurface = true;
+              break;
+            }
+          } catch {
+            /* missing */
+          }
         }
-        try {
-          const routesEnt = await readdir(routes);
-          if (routesEnt.length > 0 && !hits.includes(p)) hits.push(p);
-        } catch {
-          /* no routes */
-        }
+        if (hasSurface) hits.push(p);
       } else {
         await walk(p, depth + 1);
       }
@@ -154,14 +159,159 @@ export async function discoverNitroServerRouteFiles(projectDir) {
 }
 
 /**
+ * Discover Nitro server/middleware files (nested dirs included).
+ * Nitro runs these globally; nested path does not imply an Express-style mount.
+ *
+ * @param {string} serverRoot
+ */
+export async function discoverNitroMiddlewareFiles(serverRoot) {
+  const mwRoot = join(serverRoot, "middleware");
+  /** @type {Array<{ file: string, rel: string }>} */
+  const files = [];
+  async function walk(dir, depth) {
+    if (depth > 14) return;
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const p = join(dir, ent.name);
+      if (ent.isDirectory()) await walk(p, depth + 1);
+      else if (ent.isFile() && SERVER_FILE_RE.test(ent.name)) {
+        files.push({
+          file: p,
+          rel: relative(mwRoot, p).replace(/\\/g, "/"),
+        });
+      }
+    }
+  }
+  await walk(mwRoot, 0);
+  files.sort((a, b) => a.rel.localeCompare(b.rel));
+  return files;
+}
+
+/**
+ * Empty / pass-through `defineEventHandler` body (no statements).
+ * @param {string} source
+ * @param {string} file
+ */
+function nitroMiddlewareIsPassThrough(source, file) {
+  let ast;
+  try {
+    ast = parseJavaScriptSource(source, file);
+  } catch {
+    return false;
+  }
+  /** @type {import('estree').Function | null} */
+  let fn = null;
+  walkSimple(ast, {
+    ExportDefaultDeclaration(node) {
+      if (fn) return;
+      const decl = node.declaration;
+      if (decl?.type === "CallExpression") {
+        const callee = decl.callee;
+        const name =
+          callee?.type === "Identifier"
+            ? callee.name
+            : callee?.type === "MemberExpression" && !callee.computed && callee.property?.type === "Identifier"
+              ? callee.property.name
+              : null;
+        if (name !== "defineEventHandler" && name !== "eventHandler") return;
+        const arg = decl.arguments[0];
+        if (arg?.type === "ArrowFunctionExpression" || arg?.type === "FunctionExpression") fn = arg;
+      } else if (
+        decl?.type === "ArrowFunctionExpression" ||
+        decl?.type === "FunctionExpression" ||
+        decl?.type === "FunctionDeclaration"
+      ) {
+        fn = decl;
+      }
+    },
+  });
+  if (!fn) return false;
+  const body = fn.body;
+  if (!body) return true;
+  if (body.type === "BlockStatement") return body.body.length === 0;
+  return false;
+}
+
+/**
+ * @param {object} opts
+ */
+async function liftNitroMiddlewareFiles(opts) {
+  const { serverRoot, webir, builder, wr } = opts;
+  const files = await discoverNitroMiddlewareFiles(serverRoot);
+  if (files.length === 0) {
+    return { middlewareUseCount: 0, middlewareRootCount: 0 };
+  }
+  const data = webir.dataDialect.builders(builder);
+  let order = 0;
+  let rootCount = 0;
+  for (const spec of files) {
+    order += 1;
+    const source = await readFile(spec.file, "utf8");
+    const loc = { file: spec.file, line: 1, column: 1 };
+    const kind = "nitro.middleware";
+    /** @type {string} */
+    let bodyId;
+    if (nitroMiddlewareIsPassThrough(source, spec.file)) {
+      bodyId = data.literal({
+        value: { preset: kind, path: spec.rel },
+        type: { kind: "unknown" },
+        origin: loc,
+        provenance: [webir.provenance("hub-ingest", `middleware-preset:${kind}`)],
+      });
+    } else {
+      const lifted = liftNitroEventHandlerBody({
+        source,
+        file: spec.file,
+        webir,
+        builder,
+        wr,
+      });
+      if (lifted.ok && lifted.bodyId) {
+        bodyId = lifted.bodyId;
+      } else {
+        bodyId = data.hole({
+          reason: HOLE_MW,
+          input: { kind: "unknown" },
+          output: { kind: "unknown" },
+          origin: loc,
+          provenance: [webir.provenance("hub-ingest", "middleware-shell")],
+        });
+      }
+    }
+    const middlewareId = wr.middleware({
+      attrs: { kind, mount: "*", order, path: spec.rel },
+      body: bodyId,
+      origin: loc,
+      provenance: [webir.provenance("hub-ingest", `middleware:${kind}`)],
+    });
+    builder.addRoot(middlewareId);
+    rootCount += 1;
+  }
+  return { middlewareUseCount: files.length, middlewareRootCount: rootCount };
+}
+
+/**
  * @param {object} opts
  */
 export async function liftNitroProjectToWebir(opts) {
   const { projectDir, webir, builder, wr, language } = opts;
   const wrBuilders = wr ?? webir.webRequest.builders(builder);
   const { serverRoot, files } = await discoverNitroServerRouteFiles(projectDir);
-  if (!serverRoot || files.length === 0) {
-    return { routeCount: 0, astRouteCount: 0, usedAst: false, serverRoot, fileCount: 0 };
+  if (!serverRoot) {
+    return {
+      routeCount: 0,
+      astRouteCount: 0,
+      usedAst: false,
+      serverRoot: null,
+      fileCount: 0,
+      middlewareUseCount: 0,
+      middlewareRootCount: 0,
+    };
   }
 
   let routeCount = 0;
@@ -222,12 +372,21 @@ export async function liftNitroProjectToWebir(opts) {
     routeCount += 1;
   }
 
+  const mw = await liftNitroMiddlewareFiles({
+    serverRoot,
+    webir,
+    builder,
+    wr: wrBuilders,
+  });
+
   return {
     routeCount,
     astRouteCount: routeCount,
     astLiftCount,
     usedAst: astLiftCount > 0,
     serverRoot,
-    fileCount: files.length,
+    fileCount: files.length + mw.middlewareUseCount,
+    middlewareUseCount: mw.middlewareUseCount,
+    middlewareRootCount: mw.middlewareRootCount,
   };
 }
