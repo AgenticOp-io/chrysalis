@@ -1,10 +1,11 @@
 {
   "kind": "chrysalis.hub.elixir-plug-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T16:00:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Phoenix LiveView, controller dispatch, or Plug pipeline runtime. Lift Plug.Router shapes that appear, else leave honest holes.",
+  "generatedAt": "2026-07-24T20:40:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Phoenix LiveView, controller dispatch, or Plug pipeline runtime. Lift Plug.Router shapes that appear, else leave honest holes. Route-surface ST closed via hub:elixir-flagship + hub:complete-conversion-prove:elixir.",
   "fixture": "fixtures/hub-gold-elixir-plug",
   "smoke": "pnpm run hub:elixir-smoke",
+  "st": "pnpm run hub:elixir-flagship && pnpm run hub:complete-conversion-prove:elixir",
   "supported": [
     "Plug.Router get|post|put|patch|delete \"/path\" do…end",
     "send_resp(conn, status, Jason.encode!(lit|%{…}))",
@@ -21,9 +22,8 @@
   ],
   "absentOrigins": [],
   "nextTargets": [
-    "Dart/Shelf foundation closed (hub:dart-smoke / G9954)",
-    "Phoenix router+controller peel only when origin shapes exist (no invented LiveView)",
-    "Elixir/Dart D6448-ST flagship only after honest prove path (not claimed here)",
-    "Restify/Polka only if inventory shows demand"
+    "Restify/Polka only if inventory shows demand",
+    "Phoenix router+controller peel only when real origin shapes exist (no invented LiveView)",
+    "COBOL 61/61 remains paused"
   ]
 }

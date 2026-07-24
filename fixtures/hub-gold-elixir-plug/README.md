@@ -1,13 +1,15 @@
 # hub-gold-elixir-plug
 
-Elixir **Plug.Router** foundation fixture: `get|post|put|patch|delete "/path" do … end`
+Elixir **Plug.Router** origin fixture: `get|post|put|patch|delete "/path" do … end`
 + `send_resp(conn, status, Jason.encode!(…))` + `conn.params` / `conn.query_params` /
 `conn.body_params`.
 
-- Same 20-route express-depth API surface as Express/Axum golds.
-- Prove hole-free lift: `pnpm run hub:elixir-smoke`
-- No Phoenix LiveView / controller runtime invented (**D6447**).
-- Not D6448-ST — foundation smoke only until a Phoenix/Plug flagship prove path is honest.
+- Same 20-route express-depth API surface as Express/Axum/Nest golds.
+- **Route-surface Elixir ST (cwl-api):** `pnpm run hub:elixir-flagship` then
+  `pnpm run hub:complete-conversion-prove:elixir` → `stGreen`+`stClosed`.
+  Phoenix LiveView / controller dispatch / pipeline plugs stay honest unsupported
+  shapes (**D6447** — not present in this gold; do not invent Phoenix runtime).
+- Hole-free lift smoke: `pnpm run hub:elixir-smoke`
 
 ## Honest holes (unsupported shapes)
 
@@ -18,3 +20,4 @@ Elixir **Plug.Router** foundation fixture: `get|post|put|patch|delete "/path" do
 | Nested `case`/`with`/`fn`/`do` inside route bodies | not lowered |
 | Non-literal path templates / `forward`/`match` catch-alls | not lowered |
 | `put_status` + `json` Phoenix.Controller helpers | not lowered (use `send_resp` + `Jason.encode!`) |
+| Phoenix LiveView / `live "/…"` | not lowered |

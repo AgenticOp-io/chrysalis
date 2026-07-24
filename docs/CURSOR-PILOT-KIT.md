@@ -82,6 +82,8 @@ Sold as **AgenticOp practice** on the **Chrysalis engine** — not a second prod
 | Non-PHP ST (python) | `pnpm run hub:complete-conversion-prove:python` — first Python Flask→CWL `cwl-api` ST (`hub-flagship-python` 20/20) |
 | Non-PHP ST (go) | `pnpm run hub:complete-conversion-prove:go` — first Go Gin→CWL `cwl-api` ST (`hub-flagship-go` 20/20) |
 | Non-PHP ST (csharp) | `pnpm run hub:complete-conversion-prove:csharp` — first C# ASP.NET Minimal API→CWL `cwl-api` ST (`hub-flagship-csharp` 20/20) |
+| Non-PHP ST (elixir) | `pnpm run hub:complete-conversion-prove:elixir` — first Elixir Plug.Router→CWL `cwl-api` ST (`hub-gold-elixir-plug` 20/20; Phoenix/LiveView honest holes) |
+| Non-PHP ST (dart) | `pnpm run hub:complete-conversion-prove:dart` — first Dart Shelf→CWL `cwl-api` ST (`hub-gold-dart-shelf` 20/20; Flutter/Frog honest holes) |
 | UI ST (WISP management) | `pnpm run hub:complete-conversion-prove:wisp` — first filled `wisp-ui` D6448-ST; evidence-only hole zero + origin-compare (no deepen injectors) |
 | Site-inventory adapters | `pnpm run chrysalis:site-inventory-adapters-smoke` |
 | Express depth (non-COBOL scoreboard) | `pnpm run hub:express-depth-batch-smoke` (+ `hub:plain-php-depth-batch-smoke` / `hub:symfony-depth-batch-smoke`) — all three green on GCE 2026-07-24 |

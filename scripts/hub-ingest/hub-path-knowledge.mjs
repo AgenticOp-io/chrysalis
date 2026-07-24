@@ -127,7 +127,7 @@ export const LANGUAGE_PROFILES = {
     typicalFrameworks: ["Plug", "Phoenix"],
     routeStyle: "Plug.Router macros",
     notes:
-      "Plug.Router get|post do…end + Jason.encode!/send_resp foundation (hub-gold-elixir-plug / hub:elixir-smoke). Phoenix LiveView / controller dispatch = honest holes (D6447).",
+      "Plug.Router route-surface D6448-ST (hub-gold-elixir-plug / hub:elixir-flagship / hub:complete-conversion-prove:elixir). Phoenix LiveView / controller dispatch = honest holes (D6447).",
   },
   dart: {
     kind: "static",
@@ -137,7 +137,7 @@ export const LANGUAGE_PROFILES = {
     typicalFrameworks: ["shelf", "shelf_router"],
     routeStyle: "Router verb methods",
     notes:
-      "Shelf router.get|post + Response.ok/status + jsonEncode foundation (hub-gold-dart-shelf / hub:dart-smoke). Flutter / Dart Frog / Pipeline = honest holes (D6447).",
+      "Shelf route-surface D6448-ST (hub-gold-dart-shelf / hub:dart-flagship / hub:complete-conversion-prove:dart). Flutter / Dart Frog / Pipeline = honest holes (D6447).",
   },
   scala: {
     kind: "static",

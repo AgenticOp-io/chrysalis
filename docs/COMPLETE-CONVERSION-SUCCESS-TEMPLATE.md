@@ -66,6 +66,8 @@ Prove CLI: `pnpm run hub:complete-conversion-prove`
 | Scala (Akka HTTP) | **none** for API-only flagship | Hole-free Scala→CWL + verify gold (`hub:complete-conversion-prove:scala`) — first Scala `cwl-api` ST (`hub-flagship-scala` 20/20); Http4s dialect secondary (`hub:scala-http4s-smoke` / `hub-gold-scala-http4s` 20/20) |
 | Swift (Vapor) | **none** for API-only flagship | Hole-free Swift→CWL + verify gold (`hub:complete-conversion-prove:swift`) — first Swift `cwl-api` ST (`hub-flagship-swift` 20/20); multi-segment `app.get("items", ":id")` PathComponents |
 | Rust (Actix Web) | **none** for API-only flagship | Hole-free Rust→CWL + verify gold (`hub:complete-conversion-prove:rust`) — first Rust `cwl-api` ST (`hub-flagship-rust` 20/20) |
+| Elixir (Plug.Router) | **none** for API-only flagship | Hole-free Elixir→CWL + verify gold (`hub:complete-conversion-prove:elixir`) — first Elixir `cwl-api` ST (`hub-gold-elixir-plug` 20/20); Phoenix LiveView/controllers honest holes |
+| Dart (Shelf) | **none** for API-only flagship | Hole-free Dart→CWL + verify gold (`hub:complete-conversion-prove:dart`) — first Dart `cwl-api` ST (`hub-gold-dart-shelf` 20/20); Flutter/Dart Frog/Pipeline honest holes |
 | SvelteKit (WISP POC) | ArcGIS MapView + origin client islands | `proveProfile: wisp-ui` — evidence-only hole zero + signed-in origin compare (`hub:complete-conversion-prove:wisp`); no Bing/OSM substitutes / deepen injectors |
 | Next / React | Client components marked island | No rewrite to alternate map stack |
 | Kotlin / Compose web | Platform views | Preserve bindings |

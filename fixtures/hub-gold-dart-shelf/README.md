@@ -1,13 +1,15 @@
 # hub-gold-dart-shelf
 
-Dart **Shelf** + **shelf_router** foundation fixture: `router.get|post|put|patch|delete('/path', …)`
+Dart **Shelf** + **shelf_router** origin fixture: `router.get|post|put|patch|delete('/path', …)`
 + `Response.ok` / `Response(status, body: …)` + `jsonEncode` + `request.url.queryParameters`
 + `jsonDecode(await request.readAsString())` body peels + `<id>` path params.
 
 - Same 20-route express-depth API surface as Express/Axum/Elixir golds.
-- Prove hole-free lift: `pnpm run hub:dart-smoke`
-- No Flutter / Dart Frog / shelf_static / middleware pipeline invent (**D6447**).
-- Not D6448-ST — foundation smoke only until a Dart flagship prove path is honest.
+- **Route-surface Dart ST (cwl-api):** `pnpm run hub:dart-flagship` then
+  `pnpm run hub:complete-conversion-prove:dart` → `stGreen`+`stClosed`.
+  Flutter / Dart Frog / Pipeline / named handlers / mount stay honest unsupported
+  shapes (**D6447** — not present in this gold; do not invent Flutter/Frog runtime).
+- Hole-free lift smoke: `pnpm run hub:dart-smoke`
 
 ## Honest holes (unsupported shapes)
 
