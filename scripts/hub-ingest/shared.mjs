@@ -37,6 +37,7 @@ export const EXT_BY_LANG = {
   rust: [".rs"],
   swift: [".swift"],
   scala: [".scala"],
+  elixir: [".ex", ".exs"],
   sql: [".sql"],
   html: [".html"],
   css: [".css"],

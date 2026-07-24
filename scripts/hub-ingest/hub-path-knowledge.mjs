@@ -117,7 +117,17 @@ export const LANGUAGE_PROFILES = {
     typing: "static",
     typicalFrameworks: ["actix-web", "axum"],
     routeStyle: "macros / attributes",
-    notes: "Pattern route lift.",
+    notes: "Pattern route lift; Actix flagship ST; Axum secondary (hub-gold-axum / hub:axum-smoke).",
+  },
+  elixir: {
+    kind: "dynamic",
+    role: "origin",
+    family: "beam",
+    typing: "dynamic",
+    typicalFrameworks: ["Plug", "Phoenix"],
+    routeStyle: "Plug.Router macros",
+    notes:
+      "Plug.Router get|post do…end + Jason.encode!/send_resp foundation (hub-gold-elixir-plug / hub:elixir-smoke). Phoenix LiveView / controller dispatch = honest holes (D6447).",
   },
   scala: {
     kind: "static",

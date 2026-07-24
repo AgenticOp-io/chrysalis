@@ -1,0 +1,28 @@
+{
+  "kind": "chrysalis.hub.elixir-plug-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T16:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Phoenix LiveView, controller dispatch, or Plug pipeline runtime. Lift Plug.Router shapes that appear, else leave honest holes.",
+  "fixture": "fixtures/hub-gold-elixir-plug",
+  "smoke": "pnpm run hub:elixir-smoke",
+  "supported": [
+    "Plug.Router get|post|put|patch|delete \"/path\" do…end",
+    "send_resp(conn, status, Jason.encode!(lit|%{…}))",
+    "conn.params / conn.query_params / conn.body_params field peels",
+    ":id path templates → {id}"
+  ],
+  "honestHoles": [
+    { "shape": "Phoenix get \"/x\", Ctrl, :action controller dispatch", "reason": "hub-elixir:phoenix-controller" },
+    { "shape": "Phoenix LiveView / live \"/…\"", "reason": "hub-elixir:liveview" },
+    { "shape": "plug MyPlug pipelines beyond :match/:dispatch", "reason": "hub-elixir:pipeline-plug" },
+    { "shape": "Nested case/with/fn/do inside route bodies", "reason": "hub-elixir:nested-do" },
+    { "shape": "forward / match catch-alls / non-literal paths", "reason": "hub-elixir:forward-match" },
+    { "shape": "Phoenix.Controller json/put_status helpers", "reason": "hub-elixir:phoenix-json-helper" }
+  ],
+  "absentOrigins": ["dart"],
+  "nextTargets": [
+    "Dart/Shelf foundation if inventory demand (still absent)",
+    "Phoenix router+controller peel only when origin shapes exist (no invented LiveView)",
+    "Elixir D6448-ST flagship only after honest prove path (not claimed here)"
+  ]
+}

@@ -109,6 +109,8 @@ export const EXT_TO_LANGUAGE = {
   ".rs": "rust",
   ".swift": "swift",
   ".scala": "scala",
+  ".ex": "elixir",
+  ".exs": "elixir",
   ".sql": "sql",
   ".html": "html",
   ".css": "css",
