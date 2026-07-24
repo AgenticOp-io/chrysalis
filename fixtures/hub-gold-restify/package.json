@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-restify",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "restify": "^11.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "chrysalis.hub.phoenix-controller-honest-skip",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T20:45:00.000Z",
+  "decision": "skip",
+  "note": "Phoenix controller peel deferred (D6447). Not cheap on shared Elixir AST: requires cross-file get \"/x\", Ctrl, :action → defmodule XxxController / def action resolve plus Phoenix.Controller json/put_status helpers. LiveView must not be invented. Plug.Router route-surface ST already closed (hub:complete-conversion-prove:elixir).",
+  "requiredOriginShapes": [
+    "defmodule XxxController do … end",
+    "def action(conn, params) do … end",
+    "router get|post \"/path\", XxxController, :action"
+  ],
+  "honestHoles": [
+    { "shape": "Phoenix get \"/x\", Ctrl, :action controller dispatch", "reason": "hub-elixir:phoenix-controller" },
+    { "shape": "Phoenix LiveView / live \"/…\"", "reason": "hub-elixir:liveview" },
+    { "shape": "Phoenix.Controller json/put_status helpers", "reason": "hub-elixir:phoenix-json-helper" },
+    { "shape": "pipeline plugs / scopes", "reason": "hub-elixir:pipeline" }
+  ],
+  "revisitWhen": "Chartered origin corpus includes real Phoenix controller+router pairs without LiveView, and peel cost is bounded (no invented runtime)."
+}

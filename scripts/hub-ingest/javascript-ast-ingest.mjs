@@ -14,6 +14,8 @@ import {
 } from "./nestjs-ast-ingest.mjs";
 
 const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
+/** Restify aliases `del` for DELETE (origin shape — not invented). */
+const HTTP_METHOD_ALIASES = new Map([["del", "delete"]]);
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
 
 const T = {
@@ -83,7 +85,8 @@ function handlerCallback(node) {
 function extractRouteFromCall(node) {
   if (node.callee?.type !== "MemberExpression" || node.callee.computed) return null;
   if (node.callee.property?.type !== "Identifier") return null;
-  const method = node.callee.property.name;
+  const rawMethod = node.callee.property.name;
+  const method = HTTP_METHOD_ALIASES.get(rawMethod) ?? rawMethod;
   if (!HTTP_METHODS.has(method)) return null;
   const recv = node.callee.object;
   if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return null;
@@ -720,7 +723,13 @@ function peelResSendArgument(expr) {
   const callee = expr.callee;
   if (callee?.type === "MemberExpression" && !callee.computed && callee.property?.type === "Identifier") {
     if (callee.property.name === "send") {
-      return expr.arguments[0] ?? null;
+      const a0 = expr.arguments[0];
+      const a1 = expr.arguments[1];
+      // Restify: `res.send(code, body)` — peel body when first arg is numeric status.
+      if (a0?.type === "Literal" && typeof a0.value === "number" && a1) {
+        return a1;
+      }
+      return a0 ?? null;
     }
   }
   return null;
@@ -1089,6 +1098,10 @@ function lowerExpression(ctx, expr) {
     if (jsonArg) {
       return lowerExpression(ctx, jsonArg);
     }
+    const stringifyArg = peelJsonStringifyArgument(expr);
+    if (stringifyArg) {
+      return lowerExpression(ctx, stringifyArg);
+    }
     const parseIntCall = peelParseIntCall(expr);
     if (parseIntCall) {
       const innerId = lowerExpression(ctx, parseIntCall.arg);
@@ -1155,7 +1168,7 @@ function resJsonPayloadExpression(fn) {
 
 /**
  * Walk a `res.status(N).json(...)` / `res.status(N).send(...)` chain to recover
- * the explicit HTTP status, if any.
+ * the explicit HTTP status, if any. Also Restify `res.send(N, body)`.
  * @param {import('estree').Expression | null | undefined} expr
  * @returns {number | null}
  */
@@ -1165,6 +1178,14 @@ function extractResStatus(expr) {
     const callee = cur.callee;
     if (callee?.type !== "MemberExpression" || callee.computed || callee.property?.type !== "Identifier") {
       break;
+    }
+    // Restify: `res.send(code, body)` — numeric first arg is status when a body follows.
+    if (callee.property.name === "send") {
+      const a0 = cur.arguments[0];
+      const a1 = cur.arguments[1];
+      if (a0?.type === "Literal" && typeof a0.value === "number" && a1) {
+        return a0.value;
+      }
     }
     // Express `status` / `sendStatus`; Fastify also aliases `code`.
     if (
@@ -1176,6 +1197,129 @@ function extractResStatus(expr) {
       if (arg?.type === "Literal" && typeof arg.value === "number") return arg.value;
     }
     cur = callee.object;
+  }
+  return null;
+}
+
+/**
+ * Polka / Node http: `res.writeHead(N, …)` → status.
+ * @param {import('estree').Function} fn
+ * @returns {number | null}
+ */
+function extractWriteHeadStatus(fn) {
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") return null;
+  for (const s of body.body) {
+    const expr =
+      s.type === "ExpressionStatement"
+        ? s.expression
+        : s.type === "ReturnStatement"
+          ? s.argument
+          : null;
+    if (expr?.type !== "CallExpression") continue;
+    const callee = expr.callee;
+    if (
+      callee?.type !== "MemberExpression" ||
+      callee.computed ||
+      callee.property?.type !== "Identifier" ||
+      callee.property.name !== "writeHead"
+    ) {
+      continue;
+    }
+    const a0 = expr.arguments[0];
+    if (a0?.type === "Literal" && typeof a0.value === "number") return a0.value;
+  }
+  return null;
+}
+
+/**
+ * Polka / Node http: `res.statusCode = N`.
+ * @param {import('estree').Function} fn
+ * @returns {number | null}
+ */
+function extractStatusCodeAssign(fn) {
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") return null;
+  for (const s of body.body) {
+    if (s.type !== "ExpressionStatement" || s.expression?.type !== "AssignmentExpression") continue;
+    const asgn = s.expression;
+    if (asgn.operator !== "=" || asgn.left?.type !== "MemberExpression") continue;
+    const left = asgn.left;
+    if (
+      left.computed ||
+      left.property?.type !== "Identifier" ||
+      left.property.name !== "statusCode"
+    ) {
+      continue;
+    }
+    if (asgn.right?.type === "Literal" && typeof asgn.right.value === "number") {
+      return asgn.right.value;
+    }
+  }
+  return null;
+}
+
+/**
+ * `JSON.stringify(value)` → inner expression.
+ * @param {import('estree').Expression} expr
+ * @returns {import('estree').Expression | null}
+ */
+function peelJsonStringifyArgument(expr) {
+  if (expr?.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (
+    callee?.type === "MemberExpression" &&
+    !callee.computed &&
+    callee.object?.type === "Identifier" &&
+    callee.object.name === "JSON" &&
+    callee.property?.type === "Identifier" &&
+    callee.property.name === "stringify"
+  ) {
+    return expr.arguments[0] ?? null;
+  }
+  return null;
+}
+
+/**
+ * Polka / Node http: `res.end(payload)` argument (any statement in handler).
+ * @param {import('estree').Function} fn
+ * @returns {import('estree').Expression | null}
+ */
+function resEndPayloadExpression(fn) {
+  const expr = extractHandlerExpression(fn);
+  if (expr?.type === "CallExpression") {
+    const callee = expr.callee;
+    if (
+      callee?.type === "MemberExpression" &&
+      !callee.computed &&
+      callee.property?.type === "Identifier" &&
+      callee.property.name === "end" &&
+      expr.arguments[0]
+    ) {
+      return expr.arguments[0];
+    }
+  }
+  const body = fn.body;
+  if (body?.type === "BlockStatement") {
+    for (const s of body.body) {
+      const call =
+        s.type === "ExpressionStatement" && s.expression?.type === "CallExpression"
+          ? s.expression
+          : s.type === "ReturnStatement" && s.argument?.type === "CallExpression"
+            ? s.argument
+            : null;
+      if (!call) continue;
+      const callee = call.callee;
+      if (
+        callee?.type === "MemberExpression" &&
+        !callee.computed &&
+        callee.property?.type === "Identifier" &&
+        callee.property.name === "end" &&
+        call.arguments[0]
+      ) {
+        return call.arguments[0];
+      }
+    }
   }
   return null;
 }
@@ -1207,8 +1351,49 @@ function lowerHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
   const primaryExpr = extractHandlerExpression(fn);
   const status =
-    extractResStatus(primaryExpr) ?? extractCtxStatus(fn) ?? ctx.nestHttpCode ?? null;
+    extractResStatus(primaryExpr) ??
+    extractWriteHeadStatus(fn) ??
+    extractStatusCodeAssign(fn) ??
+    extractCtxStatus(fn) ??
+    ctx.nestHttpCode ??
+    null;
   const statusId = lowerStatusEffect(ctx, status, primaryExpr?.loc?.start);
+  // Polka / Node http: `res.end(payload)` (+ optional writeHead/statusCode).
+  // Bare `res.end()` stays status-only (204 default).
+  if (isResEndCall(primaryExpr) && !primaryExpr.arguments?.[0]) {
+    return lowerHubStatusOnly(ctx, status ?? 204, {
+      file,
+      line: primaryExpr?.loc?.start?.line ?? 1,
+    });
+  }
+  const endRaw = resEndPayloadExpression(fn);
+  if (endRaw) {
+    const endPayload = peelJsonStringifyArgument(endRaw) ?? endRaw;
+    const valId = lowerExpression(ctx, endPayload);
+    const isObj = endPayload.type === "ObjectExpression";
+    const usedStringify = endPayload !== endRaw;
+    if (isObj || usedStringify) {
+      const retId = data.call({
+        callee: "__return_json",
+        args: [valId],
+        type: T.unknown,
+        origin: endPayload.loc?.start ? originAt(endPayload.loc.start, file) : ctx.origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:res-end-json")],
+      });
+      return data.block({
+        statements: statusId ? [statusId, retId] : [retId],
+        type: T.unknown,
+        origin: ctx.origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:res-end")],
+      });
+    }
+    return data.block({
+      statements: statusId ? [statusId, valId] : [valId],
+      type: T.unknown,
+      origin: endPayload.loc?.start ? originAt(endPayload.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:res-end")],
+    });
+  }
   if (isResEndCall(primaryExpr)) {
     return lowerHubStatusOnly(ctx, status ?? 204, {
       file,

@@ -22,8 +22,8 @@
   ],
   "absentOrigins": [],
   "nextTargets": [
-    "Restify/Polka only if inventory shows demand",
-    "Phoenix router+controller peel only when real origin shapes exist (no invented LiveView)",
-    "COBOL 61/61 remains paused"
+    "Thin Node secondary set closed (Restify/Polka G9957/G9958)",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]
 }

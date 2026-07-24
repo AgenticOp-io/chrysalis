@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T16:00:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Koa onion middleware runtime, Nest DI/guards, or Hapi plugins/lifecycle. Lift origin shapes that appear, else leave honest holes.",
+  "generatedAt": "2026-07-24T20:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, or Polka middleware runtimes. Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka.",
   "dialects": {
     "koa": {
       "fixture": "fixtures/hub-gold-koa",
@@ -57,12 +57,48 @@
         { "shape": "destructure const { id } = request.params", "reason": "hub-js:hapi-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
+    },
+    "restify": {
+      "fixture": "fixtures/hub-gold-restify",
+      "smoke": "pnpm run hub:restify-smoke",
+      "supported": [
+        "server.get|post|put|patch|del literal paths",
+        "res.send(value) / Restify res.send(code, body)",
+        "req.params.* / req.query.*",
+        "return next() after send (ignored peel)"
+      ],
+      "honestHoles": [
+        { "shape": "server.pre / server.use middleware", "reason": "hub-js:restify-middleware" },
+        { "shape": "server.on lifecycle / plugins.*", "reason": "hub-js:restify-plugins" },
+        { "shape": "named handler refs / next.ifError", "reason": "hub-js:restify-named-handler" },
+        { "shape": "destructure const { id } = req.params", "reason": "hub-js:restify-destructure" },
+        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+      ]
+    },
+    "polka": {
+      "fixture": "fixtures/hub-gold-polka",
+      "smoke": "pnpm run hub:polka-smoke",
+      "supported": [
+        "app.get|post|put|patch|delete literal paths",
+        "res.writeHead(N) + res.end(JSON.stringify(…)|literal)",
+        "req.params.* / req.query.*",
+        "res.statusCode = N"
+      ],
+      "honestHoles": [
+        { "shape": "app.use middleware chains", "reason": "hub-js:polka-middleware" },
+        { "shape": "named handlers / chained polka().get without Identifier recv", "reason": "hub-js:polka-named-handler" },
+        { "shape": "streaming res.write chunk loops / hijack", "reason": "hub-js:polka-stream" },
+        { "shape": "destructure const { id } = req.params", "reason": "hub-js:polka-destructure" },
+        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
     "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "JS secondary foundation: Express ST + Fastify/Koa/Nest/Hapi smokes closed; thinner Restify/Polka only if inventory shows demand; Elixir/Dart route-surface D6448-ST closed (hub:complete-conversion-prove:elixir|dart)"
+    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes)",
+    "Phoenix router+controller peel skipped — not cheap without cross-file Ctrl,:action resolve + LiveView invent risk (D6447); stays honest hole",
+    "Flutter / Dart Frog / LiveView / COBOL 61/61 pause / no Dependabot"
   ]
 }

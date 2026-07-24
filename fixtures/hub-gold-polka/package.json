@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-polka",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "polka": "^0.5.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

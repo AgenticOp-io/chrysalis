@@ -1392,6 +1392,8 @@
     "hub:nestjs-smoke": "node scripts/hub-ingest/hub-nestjs-smoke.mjs",
     "hub:koa-smoke": "node scripts/hub-ingest/hub-koa-smoke.mjs",
     "hub:hapi-smoke": "node scripts/hub-ingest/hub-hapi-smoke.mjs",
+    "hub:restify-smoke": "node scripts/hub-ingest/hub-restify-smoke.mjs",
+    "hub:polka-smoke": "node scripts/hub-ingest/hub-polka-smoke.mjs",
     "hub:elixir-smoke": "node scripts/hub-ingest/hub-elixir-smoke.mjs",
     "hub:dart-smoke": "node scripts/hub-ingest/hub-dart-smoke.mjs",
     "hub:elixir-flagship": "node scripts/hub-ingest/hub-elixir-flagship.mjs",

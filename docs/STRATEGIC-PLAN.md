@@ -472,7 +472,11 @@ When the user says "build" without specifying:
 4. **Origin gold only where a customer/chartered UT edge fails**
 5. **Optional POC** — WISP / management.wisptools.io only if explicitly requested → **G9992** `hub:wisp-poc-from-scratch` ([`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md)) — still **true conversion only** (**D6442**/**D6447**)
 
-**Closed program regression:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:ut-wave-a-close-smoke` (**G9965**) · `hub:ut-wave-b-close-smoke` (**G9975**) · `hub:ut-wave-c-close-smoke` (**G9985**) · `hub:ut-wave-d-close-smoke` (**G9989**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**) · `hub:elixir-smoke` (**G9953**, foundation) · `hub:dart-smoke` (**G9954**, foundation) · `hub:complete-conversion-prove:elixir` (**G9955**, D6448-ST) · `hub:complete-conversion-prove:dart` (**G9956**, D6448-ST)
+**Closed program regression:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:ut-wave-a-close-smoke` (**G9965**) · `hub:ut-wave-b-close-smoke` (**G9975**) · `hub:ut-wave-c-close-smoke` (**G9985**) · `hub:ut-wave-d-close-smoke` (**G9989**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**) · `hub:elixir-smoke` (**G9953**, foundation) · `hub:dart-smoke` (**G9954**, foundation) · `hub:complete-conversion-prove:elixir` (**G9955**, D6448-ST) · `hub:complete-conversion-prove:dart` (**G9956**, D6448-ST) · `hub:restify-smoke` (**G9957**) · `hub:polka-smoke` (**G9958**)
+
+**Amended 2026-07-24 (D6462 / G9958) — Polka secondary dialect.** `hub-gold-polka` + `hub:polka-smoke` (20/20). Completes thin Node secondary set. Not ST. Phoenix controller peel skipped (not cheap; honest skip catalog).
+
+**Amended 2026-07-24 (D6461 / G9957) — Restify secondary dialect.** `hub-gold-restify` + `hub:restify-smoke` (20/20). Shared JS AST: `del`→DELETE + Restify two-arg `res.send`. Not ST.
 
 **Amended 2026-07-24 (D6460 / G9956) — Dart/Shelf route-surface D6448-ST.** `hub:dart-flagship` + `hub:complete-conversion-prove:dart` → `stGreen`+`stClosed`. Flutter/Dart Frog/Pipeline = honest holes. Phoenix peel deferred.
 
