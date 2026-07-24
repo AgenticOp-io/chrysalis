@@ -107,6 +107,141 @@ function extractRouteFromCall(node) {
 }
 
 /**
+ * Object-literal key → string (Identifier or Literal).
+ * @param {import('estree').Property} prop
+ * @returns {string | null}
+ */
+function objectPropKeyName(prop) {
+  if (prop.type !== "Property" || prop.computed) return null;
+  if (prop.key?.type === "Identifier") return prop.key.name;
+  if (prop.key?.type === "Literal" && typeof prop.key.value === "string") return prop.key.value;
+  return null;
+}
+
+/**
+ * Peel one Hapi `server.route({ method, path, handler })` config object.
+ * @param {import('estree').ObjectExpression} obj
+ * @param {import('estree').CallExpression} callNode
+ * @returns {{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } } | null}
+ */
+function peelHapiRouteObject(obj, callNode) {
+  /** @type {string | null} */
+  let method = null;
+  /** @type {string | null} */
+  let path = null;
+  /** @type {import('estree').Function | null} */
+  let fn = null;
+  for (const p of obj.properties ?? []) {
+    if (p.type !== "Property") continue;
+    const key = objectPropKeyName(p);
+    if (!key) continue;
+    if (key === "method") {
+      if (p.value?.type === "Literal" && typeof p.value.value === "string") {
+        method = String(p.value.value).toUpperCase();
+      }
+      // method: ['GET','POST'] etc. → leave unwired (honest hole / skip)
+    } else if (key === "path") {
+      if (p.value?.type === "Literal" && typeof p.value.value === "string") {
+        path = p.value.value;
+      }
+    } else if (key === "handler") {
+      fn = handlerCallback(p.value);
+    }
+  }
+  if (!method || !path || !fn) return null;
+  if (!HTTP_METHODS.has(method.toLowerCase())) return null;
+  return {
+    method,
+    path,
+    fn,
+    loc: callNode.loc?.start ?? obj.loc?.start ?? { line: 1, column: 0 },
+  };
+}
+
+/**
+ * Hapi `server.route({…})` or `server.route([{…}, …])`.
+ * @param {import('estree').CallExpression} node
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>}
+ */
+function extractHapiRoutesFromCall(node) {
+  if (node.callee?.type !== "MemberExpression" || node.callee.computed) return [];
+  if (node.callee.property?.type !== "Identifier" || node.callee.property.name !== "route") return [];
+  const recv = node.callee.object;
+  if (recv?.type !== "Identifier" || (recv.name !== "server" && recv.name !== "app")) return [];
+  const arg = node.arguments[0];
+  if (!arg) return [];
+  if (arg.type === "ObjectExpression") {
+    const r = peelHapiRouteObject(arg, node);
+    return r ? [r] : [];
+  }
+  if (arg.type === "ArrayExpression") {
+    /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} */
+    const out = [];
+    for (const el of arg.elements ?? []) {
+      if (el?.type !== "ObjectExpression") continue;
+      const r = peelHapiRouteObject(el, node);
+      if (r) out.push(r);
+    }
+    return out;
+  }
+  return [];
+}
+
+/**
+ * Hapi `h.response(value)` / `reply.response(value)` (optionally chained `.code(N)`).
+ * @param {import('estree').Expression} expr
+ * @returns {import('estree').Expression | null}
+ */
+function peelHapiResponseArgument(expr) {
+  let cur = expr;
+  while (cur && cur.type === "CallExpression") {
+    const callee = cur.callee;
+    if (
+      callee?.type !== "MemberExpression" ||
+      callee.computed ||
+      callee.property?.type !== "Identifier"
+    ) {
+      break;
+    }
+    if (
+      callee.property.name === "response" &&
+      callee.object?.type === "Identifier" &&
+      (callee.object.name === "h" || callee.object.name === "reply")
+    ) {
+      return cur.arguments[0] ?? null;
+    }
+    cur = callee.object;
+  }
+  return null;
+}
+
+/**
+ * @param {import('estree').Function} fn
+ * @returns {import('estree').Expression | null}
+ */
+function hapiResponsePayloadExpression(fn) {
+  const expr = extractHandlerExpression(fn);
+  if (expr?.type === "CallExpression") {
+    const peeled = peelHapiResponseArgument(expr);
+    if (peeled) return peeled;
+  }
+  const body = fn.body;
+  if (body.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ReturnStatement" && s.argument?.type === "CallExpression") {
+        const peeled = peelHapiResponseArgument(s.argument);
+        if (peeled) return peeled;
+      }
+      if (s.type === "ExpressionStatement" && s.expression?.type === "CallExpression") {
+        const peeled = peelHapiResponseArgument(s.expression);
+        if (peeled) return peeled;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * @param {import('estree').ObjectExpression} expr
  */
 function lowerObjectExpression(ctx, expr, origin) {
@@ -179,10 +314,11 @@ function memberPropName(expr) {
 }
 
 /**
- * Detect an Express/Fastify/Koa request-field access:
- * - `<req|request>.params|query|body|headers|cookies.<name>`
+ * Detect an Express/Fastify/Koa/Hapi request-field access:
+ * - `<req|request>.params|query|body|payload|headers|cookies.<name>`
  * - `ctx.params|query.<name>` (Koa)
  * - `ctx.request.body|headers|query.<name>` (Koa nested request)
+ * - Hapi `request.payload.<name>` → body
  * - `params.<name>` shorthand
  * Returns the WebIR request field source and field name, or null.
  * @param {import('estree').MemberExpression} expr
@@ -201,6 +337,7 @@ function requestFieldOf(expr) {
     params: "path",
     query: "query",
     body: "body",
+    payload: "body", // Hapi
     headers: "header",
     cookies: "cookie",
   };
@@ -1138,6 +1275,17 @@ function lowerHandlerBody(ctx, fn) {
       provenance: [webir.provenance("hub-ingest", "javascript-ast:ctx-body")],
     });
   }
+  // Hapi: `h.response(value)` (+ optional `.code(N)`); status via extractResStatus.
+  const hapiPayload = hapiResponsePayloadExpression(fn);
+  if (hapiPayload) {
+    const valId = lowerExpression(ctx, hapiPayload);
+    return data.block({
+      statements: statusId ? [statusId, valId] : [valId],
+      type: T.unknown,
+      origin: hapiPayload.loc?.start ? originAt(hapiPayload.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:hapi-response")],
+    });
+  }
   const expr = primaryExpr;
   // Skip bare `ctx.status = N` / other assignments that are not response payloads.
   if (expr && expr.type === "AssignmentExpression") {
@@ -1204,6 +1352,7 @@ export function liftJavaScriptFileToWebir(opts) {
       CallExpression(node) {
         const r = extractRouteFromCall(node);
         if (r) routes.push(r);
+        for (const hr of extractHapiRoutesFromCall(node)) routes.push(hr);
       },
     });
   }

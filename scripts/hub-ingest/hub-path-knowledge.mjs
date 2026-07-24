@@ -41,19 +41,20 @@ export const LANGUAGE_PROFILES = {
     role: "origin",
     family: "js-ecosystem",
     typing: "dynamic",
-    typicalFrameworks: ["Express", "Fastify", "Koa"],
+    typicalFrameworks: ["Express", "Fastify", "Koa", "Hapi"],
     routeStyle: "middleware chains",
-    notes: "AST lift; literal returns can reach hub gold verify + trace replay.",
+    notes:
+      "AST lift; literal returns can reach hub gold verify + trace replay; Hapi via server.route (hub-gold-hapi / hub:hapi-smoke).",
   },
   "origin:typescript": {
     kind: "dynamic",
     role: "origin",
     family: "js-ecosystem",
     typing: "structural",
-    typicalFrameworks: ["Express", "NestJS", "Fastify"],
+    typicalFrameworks: ["Express", "NestJS", "Fastify", "Hapi"],
     routeStyle: "decorators / middleware",
     notes:
-      "Same ingest lane as JavaScript (acorn after strip); NestJS @Controller/@Get… via TypeScript decorator AST (hub-gold-nestjs / hub:nestjs-smoke).",
+      "Same ingest lane as JavaScript (acorn after strip); NestJS @Controller/@Get… via TypeScript decorator AST (hub-gold-nestjs / hub:nestjs-smoke); Hapi server.route (hub-gold-hapi / hub:hapi-smoke).",
   },
   python: {
     kind: "dynamic",

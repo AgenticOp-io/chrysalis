@@ -33,6 +33,8 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run hub:fastify-smoke` → Fastify TypeScript origin dialect hole-free (`hub-gold-fastify` 20/20; secondary to Express/TS ST; distinct from emit-fastify)  
 - [x] `pnpm run hub:axum-smoke` → Axum Rust origin dialect hole-free (`hub-gold-axum` 20/20 named handlers + nest; secondary to Actix Rust ST)  
 - [x] `pnpm run hub:nestjs-smoke` → NestJS TypeScript origin dialect hole-free (`hub-gold-nestjs` 20/20 `@Controller`+HTTP decorators + path join + `@Param`/`@Query`/`@HttpCode`; secondary to Express/TS ST; DI/guards/pipes unwired)  
+- [x] `pnpm run hub:koa-smoke` → Koa TypeScript origin dialect hole-free (`hub-gold-koa` 20/20 `app.get|post` + `ctx.body`/`ctx.status`/`ctx.params`/`ctx.query`/`ctx.request.body`; secondary to Express/TS ST)  
+- [x] `pnpm run hub:hapi-smoke` → Hapi TypeScript origin dialect hole-free (`hub-gold-hapi` 20/20 `server.route` + `request.params|query|payload` + `h.response().code`; secondary to Express/TS ST; plugins/lifecycle unwired)  
 - [x] `pnpm run hub:complete-conversion-prove:cpp` → `stGreen`+`stClosed` (2026-07-24) — first C++ cwl-api D6448-ST at **express-depth** (`hub-flagship-cpp` Crow 20/20 hole-free; verbs/path/query/JSON/status via `cpp-ast-ingest`); secondary cpp-httplib dialect hole-free (`pnpm run hub:cpp-httplib-smoke` / `hub-gold-cpp-httplib` 20/20); no invented UI  
 - [x] `pnpm run hub:complete-conversion-prove:wisp` → `stGreen`+`stClosed` (2026-07-24) — first filled `wisp-ui` D6448-ST (evidence-only hole zero + signed-in origin-compare; no deepen injectors / D6447)  
 - [ ] Trademark notice for AgenticOp / Chrysalis  

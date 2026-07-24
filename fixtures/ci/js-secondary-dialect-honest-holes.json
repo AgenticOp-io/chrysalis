@@ -2,7 +2,7 @@
   "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
   "schemaVersion": 1,
   "generatedAt": "2026-07-24T16:00:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Koa onion middleware runtime or Nest DI/guards. Lift origin shapes that appear, else leave honest holes.",
+  "note": "Catalog only (D6447). Do not invent Koa onion middleware runtime, Nest DI/guards, or Hapi plugins/lifecycle. Lift origin shapes that appear, else leave honest holes.",
   "dialects": {
     "koa": {
       "fixture": "fixtures/hub-gold-koa",
@@ -39,12 +39,30 @@
         { "shape": "NestFactory bootstrap / dynamic modules", "reason": "hub-js:nest-bootstrap" },
         { "shape": "versioning / non-literal paths", "reason": "hub-js:nest-versioning" }
       ]
+    },
+    "hapi": {
+      "fixture": "fixtures/hub-gold-hapi",
+      "smoke": "pnpm run hub:hapi-smoke",
+      "supported": [
+        "server.route({ method, path, handler }) (+ array form)",
+        "handler return literal|object|param|query",
+        "request.params.* / request.query.* / request.payload.*",
+        "h.response(value).code(N)"
+      ],
+      "honestHoles": [
+        { "shape": "server.ext / onPreHandler lifecycle", "reason": "hub-js:hapi-lifecycle" },
+        { "shape": "server.register plugins / toolkits", "reason": "hub-js:hapi-plugins" },
+        { "shape": "auth / validate / pre route options", "reason": "hub-js:hapi-route-options" },
+        { "shape": "method: ['GET','POST'] multi-method", "reason": "hub-js:hapi-multi-method" },
+        { "shape": "destructure const { id } = request.params", "reason": "hub-js:hapi-destructure" },
+        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+      ]
     }
   },
   "absentOrigins": ["elixir", "dart"],
   "nextTargets": [
     "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "Other JS dialects with existing AST foundation (e.g. Hapi) — inventory first"
+    "JS secondary foundation: Express ST + Fastify/Koa/Nest/Hapi smokes — thinner Restify/Polka only if inventory shows demand; else Elixir/Dart ingest (absent)"
   ]
 }
