@@ -49,14 +49,16 @@ app.get("/items", (ctx) => {
   ctx.body = true;
 });
 app.get("/items/:id", (ctx) => {
-  ctx.body = { id: ctx.params.id };
+  const { id } = ctx.params;
+  ctx.body = { id };
 });
 app.post("/items", (ctx) => {
   ctx.status = 201;
   ctx.body = { created: true };
 });
 app.get("/search", (ctx) => {
-  ctx.body = { q: ctx.query.q ?? "" };
+  const { q = "" } = ctx.query;
+  ctx.body = { q };
 });
 app.put("/items/:id", (ctx) => {
   ctx.body = { updated: true, id: ctx.params.id };

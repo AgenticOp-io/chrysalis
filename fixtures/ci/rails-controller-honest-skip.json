@@ -1,0 +1,31 @@
+{
+  "kind": "chrysalis.hub.rails-controller-honest-skip",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T22:45:00.000Z",
+  "decision": "skip",
+  "gate": "G10006",
+  "note": "Rails secondary dialect deferred (D6447). Standard Rails is routes.rb `to: 'controller#action'` plus `app/controllers/*_controller.rb` — Phoenix-class cross-file resolve (ActionController, `render json:`, filters). Bounded inline `to: ->(env) { [status, headers, [body]] }` rack lambdas in one file were probed: ruby-ast-ingest (Sinatra `do…end` peel only) lifts route verbs but leaves 6/6 handler holes; closing 20/20 would require a new rack-triple + path_parameters/Rack::Request peel, not a cheap extension. Sinatra D6448-ST remains `hub-flagship-ruby`. Do not invent ActionController or LiveView-like UI.",
+  "probeEvidence": {
+    "fixture": "fixtures/_rails-probe/routes.rb (ephemeral probe, not shipped)",
+    "routesLifted": 6,
+    "handlerHoles": 6,
+    "patterns": [
+      "get \"/path\", to: ->(_env) { [200, {}, [literal]] }",
+      "env[\"action_dispatch.request.path_parameters\"][\"id\"]",
+      "Rack::Request.new(env).params[\"q\"]"
+    ]
+  },
+  "requiredOriginShapes": [
+    "Rails.application.routes.draw do … end",
+    "get|post \"/path\", to: \"controller#action\"",
+    "class XxxController < ActionController::Base … def action … render json: … end"
+  ],
+  "honestHoles": [
+    { "shape": "Rails get \"/x\", to: \"ctrl#action\" controller dispatch", "reason": "hub-ruby:rails-controller" },
+    { "shape": "ActionController render json:/status:/head helpers", "reason": "hub-ruby:action-controller" },
+    { "shape": "resources / namespace / scope route macros", "reason": "hub-ruby:rails-route-macro" },
+    { "shape": "Inline rack lambda bodies without dedicated peel", "reason": "hub-ruby:rails-rack-lambda" },
+    { "shape": "ActiveJob / ActionCable / ViewComponent UI", "reason": "hub-ruby:rails-ui-runtime" }
+  ],
+  "revisitWhen": "Chartered origin corpus includes real Rails routes+controller pairs (no invented runtime), and peel cost is bounded — likely shared cross-file controller resolve with Phoenix, not Sinatra-only pattern lift."
+}

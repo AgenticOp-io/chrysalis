@@ -284,6 +284,9 @@ function parseKotlinBodyReturn(bodySlice, paramRefs) {
   const ktorRespondLit = bodySlice.match(
     /call\.respond(?:Text)?\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*")\s*\)/,
   );
+  const ktorRespondRef = bodySlice.match(
+    /call\.respond(?:Text)?\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
 
   /** @param {string} expr */
   function mapFromExpr(expr) {
@@ -341,6 +344,9 @@ function parseKotlinBodyReturn(bodySlice, paramRefs) {
       returnTree = { t: "lit", v };
       kind = "scalar-lit";
     }
+  } else if (ktorRespondRef && paramRefs[ktorRespondRef[1]]) {
+    returnTree = { t: "ref", ...paramRefs[ktorRespondRef[1]] };
+    kind = "scalar-ref";
   } else if (plainMapArg && /(?:return\s+)?mapOf\s*\(/.test(bodySlice)) {
     returnTree = parseKotlinMapOfReturnTree(plainMapArg.inner, paramRefs);
     kind = returnTree ? "json" : null;

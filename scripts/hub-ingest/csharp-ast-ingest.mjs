@@ -321,11 +321,64 @@ function lowerCsharpScalarLit(ctx, status, value, loc) {
 }
 
 /**
+ * @param {string} slice
+ * @returns {string | null}
+ */
+function boundCsharpControllerBody(slice) {
+  const nextAttr = slice.search(/\n\s*\[(?:Http(?:Get|Post|Put|Patch|Delete|Head|Options)|Route)\b/);
+  if (nextAttr >= 0) return slice.slice(0, nextAttr).trim();
+  return slice.replace(/\)\s*;\s*$/s, "").trim();
+}
+
+/**
+ * Controller [HttpGet] method body (expression or block return).
+ * @param {string} source
+ * @param {number} fromIndex
+ * @param {string} routePath
+ */
+function parseCsharpControllerHandlerBody(source, fromIndex, routePath) {
+  const slice = source.slice(fromIndex, fromIndex + 4000);
+  if (!/^\s*\[(?:Http(?:Get|Post|Put|Patch|Delete|Head|Options))(?:\([^)]*\))?\]/i.test(slice)) {
+    return null;
+  }
+  let rest = slice.replace(
+    /^(\s*\[(?:Http(?:Get|Post|Put|Patch|Delete|Head|Options))(?:\([^)]*\))?\]\s*)+/i,
+    "",
+  );
+  rest = rest.replace(/^(\s*\[[^\]]+\]\s*)*/, "");
+  const sigM = rest.match(
+    /^\s*public\s+(?:async\s+)?(?:[\w<>,.\[\]?]+\s+)+(\w+)\s*\(([^)]*)\)\s*(=>|\{)/s,
+  );
+  if (!sigM) return null;
+  const lambdaParams = sigM[2];
+  /** @type {string} */
+  let bodySlice;
+  if (sigM[3] === "=>") {
+    const exprStart = rest.indexOf("=>") + 2;
+    const semi = rest.indexOf(";", exprStart);
+    bodySlice = boundCsharpControllerBody(rest.slice(exprStart, semi >= 0 ? semi : undefined).trim());
+  } else {
+    const blockM = rest.match(/\{\s*return\s+([\s\S]*?)\s*;\s*\}/);
+    if (!blockM) return null;
+    bodySlice = blockM[1].trim();
+  }
+  const line = source.slice(0, fromIndex).split("\n").length;
+  const refs = parseCsharpRequestRefs(bodySlice, parseCsharpParamRefs(lambdaParams, routePath));
+  const sqlEffects = parseCsharpSqlEffects(bodySlice, refs);
+  const { status, returnTree, kind } = parseCsharpBodyReturn(bodySlice, refs);
+  if (sqlEffects.length === 0 && !returnTree && status === undefined) return null;
+  return { sqlEffects, returnTree, status, kind, line };
+}
+
+/**
  * @param {string} source
  * @param {number} fromIndex
  * @param {string} routePath
  */
 function parseCsharpHandlerBody(source, fromIndex, routePath) {
+  const controller = parseCsharpControllerHandlerBody(source, fromIndex, routePath);
+  if (controller) return controller;
+
   const slice = source.slice(fromIndex, fromIndex + 4000);
   const mapM = slice.match(/Map(?:Get|Post|Put|Patch|Delete)\s*\(\s*"[^"]+"\s*,\s*\(([^)]*)\)\s*=>\s*/i);
   if (!mapM) return null;

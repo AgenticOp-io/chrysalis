@@ -583,6 +583,100 @@ function h3GetCookieFieldOf(expr) {
 }
 
 /**
+ * @typedef {{ source: "path" | "query" | "body" | "header" | "cookie", name: string }} RequestFieldBinding
+ */
+
+/**
+ * If `expr` is `ctx.params|query`, `req.params|query|body`, `request.params|query|payload`,
+ * or Koa `ctx.request.body|query|headers`, return the WebIR request source bucket.
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {"path" | "query" | "body" | "header" | "cookie" | null}
+ */
+function requestBucketSourceOf(expr) {
+  if (expr?.type !== "MemberExpression") return null;
+  const bucketMap = {
+    params: "path",
+    query: "query",
+    body: "body",
+    payload: "body",
+    headers: "header",
+    cookies: "cookie",
+  };
+
+  if (expr.object?.type === "Identifier") {
+    const recv = expr.object.name;
+    if (recv !== "ctx" && recv !== "req" && recv !== "request") return null;
+    if (expr.computed || expr.property?.type !== "Identifier") return null;
+    return bucketMap[expr.property.name] ?? null;
+  }
+
+  if (
+    expr.object?.type === "MemberExpression" &&
+    !expr.object.computed &&
+    expr.object.property?.type === "Identifier" &&
+    expr.object.property.name === "request" &&
+    expr.object.object?.type === "Identifier" &&
+    expr.object.object.name === "ctx"
+  ) {
+    if (expr.computed || expr.property?.type !== "Identifier") return null;
+    return bucketMap[expr.property.name] ?? null;
+  }
+
+  return null;
+}
+
+/**
+ * Collect IDENT-safe destructure from params/query/payload/body at handler top:
+ * `const { id } = ctx.params` / `request.query` / `req.params` / etc.
+ * @param {import('estree').Function} fn
+ * @returns {Map<string, RequestFieldBinding>}
+ */
+function collectRequestDestructuringBindings(fn) {
+  /** @type {Map<string, RequestFieldBinding>} */
+  const bindings = new Map();
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") return bindings;
+  for (const s of body.body) {
+    if (s.type !== "VariableDeclaration") continue;
+    for (const d of s.declarations) {
+      const source = requestBucketSourceOf(d.init);
+      if (!source) continue;
+      if (d.id?.type !== "ObjectPattern") continue;
+      for (const prop of d.id.properties) {
+        if (prop.type === "RestElement") continue;
+        if (prop.type !== "Property" || prop.computed) continue;
+        /** @type {string | null} */
+        let fieldName = null;
+        if (prop.key?.type === "Identifier") fieldName = prop.key.name;
+        else if (prop.key?.type === "Literal" && typeof prop.key.value === "string") {
+          fieldName = prop.key.value;
+        }
+        if (!fieldName) continue;
+        /** @type {import('estree').Pattern | null | undefined} */
+        let local = prop.value;
+        if (local?.type === "AssignmentPattern") local = local.left;
+        if (local?.type === "Identifier") {
+          bindings.set(local.name, { source, name: fieldName });
+        }
+      }
+    }
+  }
+  return bindings;
+}
+
+/**
+ * Identifier from `const { x } = ctx.params` (or req/request/payload/query peel).
+ * @param {import('estree').Identifier} expr
+ * @param {Map<string, RequestFieldBinding> | undefined} bindings
+ * @returns {RequestFieldBinding | null}
+ */
+function destructuredRequestFieldOf(expr, bindings) {
+  if (!bindings || bindings.size === 0) return null;
+  if (expr.type !== "Identifier") return null;
+  return bindings.get(expr.name) ?? null;
+}
+
+/**
  * @typedef {{ kind: "whole" } | { kind: "field", name: string }} H3BodyBinding
  */
 
@@ -978,6 +1072,18 @@ function lowerExpression(ctx, expr) {
         provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-read-body-destructure")],
       });
     }
+    const destructBind = destructuredRequestFieldOf(expr, ctx.requestDestructBindings);
+    if (destructBind) {
+      return data.requestField({
+        source: destructBind.source,
+        name: destructBind.name,
+        type: T.string,
+        origin,
+        provenance: [
+          webir.provenance("hub-ingest", `javascript-ast:destructure-${destructBind.source}`),
+        ],
+      });
+    }
   }
   if (expr.type === "ObjectExpression") {
     return lowerObjectExpression(ctx, expr, origin);
@@ -1349,6 +1455,9 @@ function lowerStatusEffect(ctx, status, loc) {
  */
 function lowerHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
+  const requestDestructBindings = collectRequestDestructuringBindings(fn);
+  const workCtx =
+    requestDestructBindings.size > 0 ? { ...ctx, requestDestructBindings } : ctx;
   const primaryExpr = extractHandlerExpression(fn);
   const status =
     extractResStatus(primaryExpr) ??
@@ -1357,11 +1466,11 @@ function lowerHandlerBody(ctx, fn) {
     extractCtxStatus(fn) ??
     ctx.nestHttpCode ??
     null;
-  const statusId = lowerStatusEffect(ctx, status, primaryExpr?.loc?.start);
+  const statusId = lowerStatusEffect(workCtx, status, primaryExpr?.loc?.start);
   // Polka / Node http: `res.end(payload)` (+ optional writeHead/statusCode).
   // Bare `res.end()` stays status-only (204 default).
   if (isResEndCall(primaryExpr) && !primaryExpr.arguments?.[0]) {
-    return lowerHubStatusOnly(ctx, status ?? 204, {
+    return lowerHubStatusOnly(workCtx, status ?? 204, {
       file,
       line: primaryExpr?.loc?.start?.line ?? 1,
     });
@@ -1369,7 +1478,7 @@ function lowerHandlerBody(ctx, fn) {
   const endRaw = resEndPayloadExpression(fn);
   if (endRaw) {
     const endPayload = peelJsonStringifyArgument(endRaw) ?? endRaw;
-    const valId = lowerExpression(ctx, endPayload);
+    const valId = lowerExpression(workCtx, endPayload);
     const isObj = endPayload.type === "ObjectExpression";
     const usedStringify = endPayload !== endRaw;
     if (isObj || usedStringify) {
@@ -1395,17 +1504,17 @@ function lowerHandlerBody(ctx, fn) {
     });
   }
   if (isResEndCall(primaryExpr)) {
-    return lowerHubStatusOnly(ctx, status ?? 204, {
+    return lowerHubStatusOnly(workCtx, status ?? 204, {
       file,
       line: primaryExpr?.loc?.start?.line ?? 1,
     });
   }
   const jsonPayload = resJsonPayloadExpression(fn);
   if (jsonPayload) {
-    const valId = lowerExpression(ctx, jsonPayload);
+    const valId = lowerExpression(workCtx, jsonPayload);
     const body = fn.body;
     const dbEffects =
-      body.type === "BlockStatement" ? collectBlockDbQueryEffects(ctx, body) : [];
+      body.type === "BlockStatement" ? collectBlockDbQueryEffects(workCtx, body) : [];
     const retId = data.call({
       callee: "__return_json",
       args: [valId],
@@ -1423,7 +1532,7 @@ function lowerHandlerBody(ctx, fn) {
   }
   const sendPayload = resSendPayloadExpression(fn);
   if (sendPayload) {
-    const valId = lowerExpression(ctx, sendPayload);
+    const valId = lowerExpression(workCtx, sendPayload);
     return data.block({
       statements: statusId ? [statusId, valId] : [valId],
       type: T.unknown,
@@ -1434,7 +1543,7 @@ function lowerHandlerBody(ctx, fn) {
   // Koa: `ctx.body = …` (+ optional `ctx.status = N`) — assignment surface, not return/send.
   const ctxBodyPayload = ctxBodyPayloadExpression(fn);
   if (ctxBodyPayload) {
-    const valId = lowerExpression(ctx, ctxBodyPayload);
+    const valId = lowerExpression(workCtx, ctxBodyPayload);
     const isObj = ctxBodyPayload.type === "ObjectExpression";
     if (isObj) {
       const retId = data.call({
@@ -1463,7 +1572,7 @@ function lowerHandlerBody(ctx, fn) {
   // Hapi: `h.response(value)` (+ optional `.code(N)`); status via extractResStatus.
   const hapiPayload = hapiResponsePayloadExpression(fn);
   if (hapiPayload) {
-    const valId = lowerExpression(ctx, hapiPayload);
+    const valId = lowerExpression(workCtx, hapiPayload);
     return data.block({
       statements: statusId ? [statusId, valId] : [valId],
       type: T.unknown,
@@ -1476,7 +1585,7 @@ function lowerHandlerBody(ctx, fn) {
   if (expr && expr.type === "AssignmentExpression") {
     // fall through to handler-body hole unless already handled above
   } else if (expr) {
-    const valId = lowerExpression(ctx, expr);
+    const valId = lowerExpression(workCtx, expr);
     return data.block({
       statements: statusId ? [statusId, valId] : [valId],
       type: T.unknown,
@@ -1486,7 +1595,7 @@ function lowerHandlerBody(ctx, fn) {
   }
   const body = fn.body;
   if (body.type === "CallExpression" || body.type === "ObjectExpression" || body.type === "Literal") {
-    const valId = lowerExpression(ctx, body);
+    const valId = lowerExpression(workCtx, body);
     return data.block({
       statements: [valId],
       type: T.unknown,

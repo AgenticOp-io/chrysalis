@@ -124,6 +124,6 @@
       "/users/{userId}"
     ],
     "reportRel": "fixtures/hub-gold-dart-shelf/reports/verify/summary.json",
-    "notes": "Dart Shelf route-surface D6448-ST (cwl-api): hole-free shelf_router → CWL + verify gold 20/20. Flutter / Dart Frog / Pipeline / named handlers / mount remain honest unsupported shapes (not present in this gold; D6447 — do not invent Flutter/Frog runtime)."
+    "notes": "Dart Shelf route-surface D6448-ST (cwl-api): hole-free shelf_router → CWL + verify gold 20/20. Same-file named handlers (G10007). Flutter / Dart Frog / Pipeline / mount / cross-file named handlers remain honest unsupported shapes (not present in this gold; D6447 — do not invent Flutter/Frog runtime)."
   }
 }

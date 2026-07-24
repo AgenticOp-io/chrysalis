@@ -1393,6 +1393,8 @@
     "hub:koa-smoke": "node scripts/hub-ingest/hub-koa-smoke.mjs",
     "hub:hapi-smoke": "node scripts/hub-ingest/hub-hapi-smoke.mjs",
     "hub:fastapi-smoke": "node scripts/hub-ingest/hub-fastapi-smoke.mjs",
+    "hub:aspnet-controllers-smoke": "node scripts/hub-ingest/hub-aspnet-controllers-smoke.mjs",
+    "hub:ktor-smoke": "node scripts/hub-ingest/hub-ktor-smoke.mjs",
     "hub:restify-smoke": "node scripts/hub-ingest/hub-restify-smoke.mjs",
     "hub:polka-smoke": "node scripts/hub-ingest/hub-polka-smoke.mjs",
     "hub:elixir-smoke": "node scripts/hub-ingest/hub-elixir-smoke.mjs",

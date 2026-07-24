@@ -1,7 +1,8 @@
 /**
  * Dart hub ingest — Shelf + shelf_router for foundation gold (G9954).
- * Peels `router.get|post|…('/path', (Request …) { … })` + `Response.ok` /
- * `Response(status, body: …)` + `jsonEncode` + query/body peels.
+ * Peels `router.get|post|…('/path', (Request …) { … })` + same-file named handlers
+ * (`router.get('/x', myHandler)` → `Response myHandler(Request …) { … }`, G10007) +
+ * `Response.ok` / `Response(status, body: …)` + `jsonEncode` + query/body peels.
  * Does not invent Flutter / Dart Frog / Pipeline runtime (D6447).
  */
 import {
@@ -145,8 +146,46 @@ export function parseDartShelfRoutes(source) {
 }
 
 /**
- * After `router.verb('path',` find inline `(Request …) { … }` / `async { … }` body.
- * Named handler refs return null (honest hole).
+ * Resolve a same-file named Shelf handler `Response name(Request …) { … }` /
+ * `Future<Response> name(Request …) async { … }` referenced from
+ * `router.get('/path', name)` (Axum/Go Gin named-func parallel).
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractDartNamedHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const headRe = new RegExp(
+    String.raw`(?:Future\s*<\s*Response\s*>\s+|Response\s+)?${handlerName}\s*\(`,
+  );
+  const headM = headRe.exec(source);
+  if (!headM || headM.index === undefined) return null;
+  const parenOpen = headM.index + headM[0].length - 1;
+  const params = extractBalancedParenInner(source, parenOpen);
+  if (!params) return null;
+  let i = params.end + 1;
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (source.startsWith("async", i) && /\W/.test(source[i + 5] ?? " ")) {
+    i += 5;
+    while (i < source.length && /\s/.test(source[i])) i += 1;
+  }
+  if (source[i] !== "{") return null;
+  const bal = extractBalancedBraceInner(source, i);
+  if (!bal) return null;
+  const line = source.slice(0, i).split("\n").length;
+  return {
+    bodySlice: bal.inner,
+    paramSource: params.inner,
+    line,
+    absOpen: i,
+    absEnd: bal.end,
+    kind: "dart-named",
+    named: handlerName,
+  };
+}
+
+/**
+ * After `router.verb('path',` find inline `(Request …) { … }` / `async { … }` body,
+ * or resolve same-file named handler refs (`router.get('/x', myHandler)`).
  * @param {string} source
  * @param {number} fromIndex — start of `router.verb` match
  */
@@ -156,12 +195,16 @@ export function extractDartShelfHandlerBody(source, fromIndex) {
   if (commaIdx < 0) return null;
   let i = fromIndex + commaIdx + 1;
   while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (source[i] !== "(") {
+    const namedM = slice.slice(commaIdx).match(/,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/);
+    if (!namedM) return null;
+    return extractDartNamedHandlerBody(source, namedM[1]);
+  }
   // Optional async keyword before params
   if (source.startsWith("async", i) && /\W/.test(source[i + 5] ?? " ")) {
     i += 5;
     while (i < source.length && /\s/.test(source[i])) i += 1;
   }
-  if (source[i] !== "(") return null; // named handler / tear-off
   const params = extractBalancedParenInner(source, i);
   if (!params) return null;
   i = params.end + 1;

@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T20:45:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, or Polka middleware runtimes. Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka.",
+  "generatedAt": "2026-07-24T22:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, or Polka middleware runtimes. Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka. G10005: IDENT destructure from params/query/payload peeled when origin uses const { x } = ctx|req|request.*.",
   "dialects": {
     "koa": {
       "fixture": "fixtures/hub-gold-koa",
@@ -12,13 +12,14 @@
         "ctx.body = literal|object|param|query",
         "ctx.status = number",
         "ctx.params.* / ctx.query.*",
-        "ctx.request.body.* / headers.* / query.*"
+        "ctx.request.body.* / headers.* / query.*",
+        "const { id } = ctx.params|query|request.body (IDENT peel, G10005)"
       ],
       "honestHoles": [
         { "shape": "app.use / onion middleware chains", "reason": "hub-js:koa-middleware" },
         { "shape": "ctx.throw / ctx.assert / ctx.respond = false", "reason": "hub-js:koa-throw" },
         { "shape": "ctx.cookies / ctx.set / streaming body", "reason": "hub-js:koa-cookies-set" },
-        { "shape": "destructure const { id } = ctx.params", "reason": "hub-js:koa-destructure" },
+        { "shape": "nested/computed/rest destructure from params|query|body", "reason": "hub-js:koa-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
     },
@@ -47,14 +48,15 @@
         "server.route({ method, path, handler }) (+ array form)",
         "handler return literal|object|param|query",
         "request.params.* / request.query.* / request.payload.*",
-        "h.response(value).code(N)"
+        "h.response(value).code(N)",
+        "const { id } = request.params|query|payload (IDENT peel, G10005)"
       ],
       "honestHoles": [
         { "shape": "server.ext / onPreHandler lifecycle", "reason": "hub-js:hapi-lifecycle" },
         { "shape": "server.register plugins / toolkits", "reason": "hub-js:hapi-plugins" },
         { "shape": "auth / validate / pre route options", "reason": "hub-js:hapi-route-options" },
         { "shape": "method: ['GET','POST'] multi-method", "reason": "hub-js:hapi-multi-method" },
-        { "shape": "destructure const { id } = request.params", "reason": "hub-js:hapi-destructure" },
+        { "shape": "nested/computed/rest destructure from params|query|payload", "reason": "hub-js:hapi-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
     },
@@ -65,13 +67,14 @@
         "server.get|post|put|patch|del literal paths",
         "res.send(value) / Restify res.send(code, body)",
         "req.params.* / req.query.*",
-        "return next() after send (ignored peel)"
+        "return next() after send (ignored peel)",
+        "const { id } = req.params|query (IDENT peel, G10005)"
       ],
       "honestHoles": [
         { "shape": "server.pre / server.use middleware", "reason": "hub-js:restify-middleware" },
         { "shape": "server.on lifecycle / plugins.*", "reason": "hub-js:restify-plugins" },
         { "shape": "named handler refs / next.ifError", "reason": "hub-js:restify-named-handler" },
-        { "shape": "destructure const { id } = req.params", "reason": "hub-js:restify-destructure" },
+        { "shape": "nested/computed/rest destructure from params|query", "reason": "hub-js:restify-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
     },
@@ -82,13 +85,14 @@
         "app.get|post|put|patch|delete literal paths",
         "res.writeHead(N) + res.end(JSON.stringify(…)|literal)",
         "req.params.* / req.query.*",
-        "res.statusCode = N"
+        "res.statusCode = N",
+        "const { id } = req.params|query (IDENT peel, G10005)"
       ],
       "honestHoles": [
         { "shape": "app.use middleware chains", "reason": "hub-js:polka-middleware" },
         { "shape": "named handlers / chained polka().get without Identifier recv", "reason": "hub-js:polka-named-handler" },
         { "shape": "streaming res.write chunk loops / hijack", "reason": "hub-js:polka-stream" },
-        { "shape": "destructure const { id } = req.params", "reason": "hub-js:polka-destructure" },
+        { "shape": "nested/computed/rest destructure from params|query", "reason": "hub-js:polka-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
     }
@@ -97,7 +101,7 @@
   "nextTargets": [
     "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes)",
+    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); G10005 IDENT destructure peel closed for params/query/payload",
     "Phoenix router+controller peel skipped — not cheap without cross-file Ctrl,:action resolve + LiveView invent risk (D6447); stays honest hole",
     "Flutter / Dart Frog / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

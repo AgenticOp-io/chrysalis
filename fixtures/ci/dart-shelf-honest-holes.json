@@ -1,13 +1,14 @@
 {
   "kind": "chrysalis.hub.dart-shelf-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T20:40:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Flutter, Dart Frog, Pipeline middleware, or shelf_static runtime. Lift Shelf Router shapes that appear, else leave honest holes. Route-surface ST closed via hub:dart-flagship + hub:complete-conversion-prove:dart.",
+  "generatedAt": "2026-07-24T22:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Flutter, Dart Frog, Pipeline middleware, or shelf_static runtime. Lift Shelf Router shapes that appear, else leave honest holes. Route-surface ST closed via hub:dart-flagship + hub:complete-conversion-prove:dart. Same-file named handlers closed G10007.",
   "fixture": "fixtures/hub-gold-dart-shelf",
   "smoke": "pnpm run hub:dart-smoke",
   "st": "pnpm run hub:dart-flagship && pnpm run hub:complete-conversion-prove:dart",
   "supported": [
     "shelf_router Router get|post|put|patch|delete('/path', handler)",
+    "Same-file named handler refs (router.get('/x', myHandler) → Response name(Request …) { … })",
     "Response.ok(jsonEncode(lit|{…})) / Response(status, body: jsonEncode(…))",
     "request.url.queryParameters['q'] field peels",
     "jsonDecode(await request.readAsString()) as Map body peels",
@@ -15,7 +16,7 @@
   ],
   "honestHoles": [
     { "shape": "Pipeline() / middleware cascades", "reason": "hub-dart:pipeline" },
-    { "shape": "Named handler refs (router.get('/x', myHandler))", "reason": "hub-dart:named-handler" },
+    { "shape": "Cross-file named handler refs", "reason": "hub-dart:named-handler-cross-file" },
     { "shape": "Router.mount / nested routers", "reason": "hub-dart:mount" },
     { "shape": "Flutter widgets / Dart Frog Route", "reason": "hub-dart:flutter-frog" },
     { "shape": "router.all / non-literal paths", "reason": "hub-dart:all-non-literal" },

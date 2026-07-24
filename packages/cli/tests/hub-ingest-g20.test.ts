@@ -133,6 +133,48 @@ test("java AST finds Spring mappings", async () => {
   expect(mod.roots.length).toBeGreaterThanOrEqual(2);
 });
 
+test("dart AST resolves same-file named Shelf handlers (G10007)", async () => {
+  const { extractDartNamedHandlerBody, extractDartShelfHandlerBody, liftDartFileToWebir } =
+    await import(resolve(ROOT, "scripts/hub-ingest/dart-ast-ingest.mjs"));
+  const source = `import 'dart:convert';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+
+Response healthHandler(Request request) {
+  return Response.ok(jsonEncode(true));
+}
+
+Router buildRouter() {
+  final router = Router();
+  router.get('/health', healthHandler);
+  return router;
+}
+`;
+  const named = extractDartNamedHandlerBody(source, "healthHandler");
+  expect(named?.named).toBe("healthHandler");
+  expect(named?.bodySlice).toContain("Response.ok");
+
+  const routeIdx = source.indexOf("router.get");
+  const fromRoute = extractDartShelfHandlerBody(source, routeIdx);
+  expect(fromRoute?.kind).toBe("dart-named");
+  expect(fromRoute?.bodySlice).toContain("Response.ok");
+
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-dart-named" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftDartFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "hub_gold.dart",
+    language: "dart",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(1);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("go AST finds gin routes", async () => {
   const { parseGoRoutes, liftGoFileToWebir } = await import(
     resolve(ROOT, "scripts/hub-ingest/go-ast-ingest.mjs")

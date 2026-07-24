@@ -49,16 +49,18 @@ app.get("/items", (_req, res) => {
   res.end(JSON.stringify(true));
 });
 app.get("/items/:id", (req, res) => {
+  const { id } = req.params;
   res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ id: req.params.id }));
+  res.end(JSON.stringify({ id }));
 });
 app.post("/items", (_req, res) => {
   res.writeHead(201, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ created: true }));
 });
 app.get("/search", (req, res) => {
+  const { q = "" } = req.query;
   res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ q: req.query.q ?? "" }));
+  res.end(JSON.stringify({ q }));
 });
 app.put("/items/:id", (req, res) => {
   res.writeHead(200, { "Content-Type": "application/json" });

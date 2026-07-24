@@ -4,21 +4,26 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 // hub-gold-dart-shelf — 20-route Shelf Router foundation (D6442).
-// Inline router.get|post|… + Response.ok / Response(status) + jsonEncode.
+// Inline + same-file named handlers (G10007) + Response.ok / Response(status) + jsonEncode.
 // No Flutter / Dart Frog / shelf_static invent (D6447).
 
 const _jsonHeaders = {'content-type': 'application/json'};
 
+// Same-file named handlers (G10007 — Axum/Go Gin parallel; no Flutter invent).
+Response healthHandler(Request request) {
+  return Response.ok(jsonEncode(true), headers: _jsonHeaders);
+}
+
+Response pingHandler(Request request) {
+  return Response.ok(jsonEncode(42), headers: _jsonHeaders);
+}
+
 Router buildRouter() {
   final router = Router();
 
-  router.get('/health', (Request request) {
-    return Response.ok(jsonEncode(true), headers: _jsonHeaders);
-  });
+  router.get('/health', healthHandler);
 
-  router.get('/ping', (Request request) {
-    return Response.ok(jsonEncode(42), headers: _jsonHeaders);
-  });
+  router.get('/ping', pingHandler);
 
   router.get('/version', (Request request) {
     return Response.ok(jsonEncode(1), headers: _jsonHeaders);

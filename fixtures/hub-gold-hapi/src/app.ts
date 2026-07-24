@@ -24,14 +24,20 @@ server.route({
 server.route({
   method: "POST",
   path: "/echo",
-  handler: (request) => ({ echo: true, kind: request.payload.kind ?? "plain" }),
+  handler: (request) => {
+    const { kind = "plain" } = request.payload;
+    return { echo: true, kind };
+  },
 });
 
 server.route({ method: "GET", path: "/items", handler: () => true });
 server.route({
   method: "GET",
   path: "/items/{id}",
-  handler: (request) => ({ id: request.params.id }),
+  handler: (request) => {
+    const { id } = request.params;
+    return { id };
+  },
 });
 server.route({
   method: "POST",

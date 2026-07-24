@@ -59,7 +59,8 @@ server.get("/items", (_req, res, next) => {
   return next();
 });
 server.get("/items/:id", (req, res, next) => {
-  res.send({ id: req.params.id });
+  const { id } = req.params;
+  res.send({ id });
   return next();
 });
 server.post("/items", (_req, res, next) => {
@@ -67,7 +68,8 @@ server.post("/items", (_req, res, next) => {
   return next();
 });
 server.get("/search", (req, res, next) => {
-  res.send({ q: req.query.q ?? "" });
+  const { q = "" } = req.query;
+  res.send({ q });
   return next();
 });
 server.put("/items/:id", (req, res, next) => {
