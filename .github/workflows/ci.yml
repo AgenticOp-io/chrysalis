@@ -514,20 +514,20 @@ jobs:
           cache: pnpm
 
       - name: Restore Composer cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.composer/cache/files
           key: composer-cache-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs') }}
 
       - name: Restore scaffolded Laravel worktree cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: flagship/chrysalis-laravel-work
           key: laravel-full-work-breeze-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs', 'flagship/laravel-full/chrysalis-templates/**') }}
 
       - name: Restore confidence trend history
         id: confidence-history-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: reports/confidence/history
           key: confidence-history-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
@@ -604,7 +604,7 @@ jobs:
 
       - name: Save confidence trend history
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: reports/confidence/history
           key: confidence-history-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
