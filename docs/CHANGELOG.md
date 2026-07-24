@@ -2,6 +2,7 @@
 
 Newest first.
 
+2026-07-24 | Chrysalis | G9959 thin-Node pass-through middleware: Koa/Polka `app.use` + Restify `pre`/`use` empty/next-only peels as presets (`hub:koa|restify|polka-smoke` v2 20/20 + mw floors); complex mw stays honest holes (no onion invent); leadership scoreboard SSOT; COBOL still 61/61; no Dependabot; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Restify+Polka thin JS secondary dialects G9957/G9958: `hub:restify-smoke`/`hub:polka-smoke` 20/20 (completes thin Node set); Phoenix controller peel skipped (not cheap; honest-skip catalog); COBOL still 61/61; no Dependabot; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Elixir+Dart route-surface D6448-ST: `hub:elixir-flagship`/`hub:complete-conversion-prove:elixir` + `hub:dart-flagship`/`hub:complete-conversion-prove:dart` → stGreen+stClosed (G9955/G9956); Phoenix/LiveView/Flutter stay honest holes (D6447); COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Dart/Shelf foundation G9954: `router.get|post` + Response.ok/status + jsonEncode + query/body (`hub:dart-smoke` 20/20); Flutter/Frog unwired (D6447); Phoenix peel deferred; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N

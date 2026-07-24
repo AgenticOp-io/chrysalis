@@ -1856,9 +1856,13 @@ export function countExpressMiddlewareUses(source) {
     walkSimple(ast, {
       CallExpression(node) {
         if (node.callee?.type !== "MemberExpression" || node.callee.computed) return;
-        if (node.callee.property?.type !== "Identifier" || node.callee.property.name !== "use") return;
+        if (node.callee.property?.type !== "Identifier") return;
+        const method = node.callee.property.name;
+        if (method !== "use" && method !== "pre") return;
         const recv = node.callee.object;
-        if (recv?.type === "Identifier" && RECEIVER_NAMES.has(recv.name)) count += 1;
+        if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return;
+        if (method === "pre" && recv.name !== "server") return;
+        count += 1;
       },
     });
   } catch {

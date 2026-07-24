@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke: hub-gold-polka Polka TS dialect → WebIR hole-free (20 routes).
+ * Smoke: hub-gold-polka Polka TS dialect → WebIR hole-free (20 routes + pass-through middleware).
  * Does not replace Express hub-flagship-express / hub-flagship-typescript D6448-ST.
  * Not D6448-ST (thinner secondary; Nest remains the only JS secondary ST).
  */
@@ -12,13 +12,15 @@ import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
 export const HUB_POLKA_SMOKE_KIND = "chrysalis.hub.polka-smoke";
-export const HUB_POLKA_SMOKE_SCHEMA_VERSION = 1;
+export const HUB_POLKA_SMOKE_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const fixture = join(scriptRoot, "fixtures/hub-gold-polka");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 const EXPECT_ROUTES = 20;
+/** Pass-through `app.use` preset floor (G9959). */
+const EXPECT_MIDDLEWARE = 1;
 
 /**
  * @param {string} [projectDir]
@@ -76,11 +78,15 @@ export async function runPolkaSmoke(projectDir = fixture) {
   const raw = JSON.parse(readFileSync(webirPath, "utf8"));
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const projection = summarizeCwlProjection(mod);
-  const routeCount = liftReport.routeCount ?? liftReport.astRouteCount ?? 0;
+  const routeCount = liftReport.astRouteCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
+  const middlewareUseCount = liftReport.middlewareUseCount ?? 0;
+  const middlewareLoweredCount = liftReport.middlewareLoweredCount ?? 0;
   const ok =
     routeCount === EXPECT_ROUTES &&
     holeCount === 0 &&
+    middlewareUseCount === EXPECT_MIDDLEWARE &&
+    middlewareLoweredCount === EXPECT_MIDDLEWARE &&
     projection.holeFree === projection.total &&
     projection.total >= EXPECT_ROUTES;
 
@@ -90,6 +96,8 @@ export async function runPolkaSmoke(projectDir = fixture) {
     ok,
     routeCount,
     holeCount,
+    middlewareUseCount,
+    middlewareLoweredCount,
     cwlProjection: projection,
     generatedAt: new Date().toISOString(),
   };

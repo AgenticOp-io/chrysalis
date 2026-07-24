@@ -107,11 +107,13 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9954** | Dart/Shelf foundation | `router.get\|post\|…('/path', …)` + `Response.ok`/`Response(status)` + `jsonEncode` + query/body peels + `<id>` path params (new origin language; Flutter/Dart Frog/Pipeline = honest holes) | `hub:dart-smoke` ✅ |
 | **G9955** | Elixir Plug route-surface D6448-ST | Promote gold → `hub:elixir-flagship` + checklist/verify seed; Phoenix/LiveView stay holes | `hub:complete-conversion-prove:elixir` ✅ |
 | **G9956** | Dart Shelf route-surface D6448-ST | Promote gold → `hub:dart-flagship` + checklist/verify seed; Flutter/Frog/Pipeline stay holes | `hub:complete-conversion-prove:dart` ✅ |
-| **G9957** | Restify JS secondary dialect | `server.get\|post\|…\|del` + `res.send` / Restify `res.send(code, body)` + `req.params\|query` (secondary; Express/TS remain ST; plugins/pre = honest holes) | `hub:restify-smoke` ✅ |
-| **G9958** | Polka JS secondary dialect | `app.get\|post\|…` + `res.writeHead` / `res.end(JSON.stringify)` + `req.params\|query` (secondary; completes thin Node set; middleware = honest holes) | `hub:polka-smoke` ✅ |
+| **G9957** | Restify JS secondary dialect | `server.get\|post\|…\|del` + `res.send` / Restify `res.send(code, body)` + `req.params\|query` (secondary; Express/TS remain ST; plugins = honest holes) | `hub:restify-smoke` ✅ |
+| **G9958** | Polka JS secondary dialect | `app.get\|post\|…` + `res.writeHead` / `res.end(JSON.stringify)` + `req.params\|query` (secondary; completes thin Node set) | `hub:polka-smoke` ✅ |
+| **G9959** | Thin-Node pass-through middleware | Koa/Polka `app.use` + Restify `server.pre\|use` empty/next-only peels as `js.passthrough` / `restify.passthrough` presets; complex mw = honest holes (no onion invent) | `hub:koa-smoke` / `hub:restify-smoke` / `hub:polka-smoke` v2 ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 **Phoenix controller peel:** skipped (not cheap — cross-file `Ctrl,:action` resolve + LiveView invent risk). Catalog: `fixtures/ci/phoenix-controller-honest-skip.json`.
+**Leadership scoreboard (ST + secondary SSOT):** [`LEADERSHIP-SCOREBOARD.md`](./LEADERSHIP-SCOREBOARD.md).
 
 ---
 

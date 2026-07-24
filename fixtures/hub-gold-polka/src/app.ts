@@ -1,10 +1,14 @@
 import polka from "polka";
 
 // hub-gold-polka — 20-route Polka TypeScript dialect (secondary to Express flagship).
-// `app.get|post|…` + Node `res.writeHead` / `res.end(JSON.stringify(…))` + `req.params|query`
-// (**D6447** — no invented middleware / body-parser / send helpers).
+// `app.get|post|…` + Node `res.writeHead` / `res.end(JSON.stringify(…))` + `req.params|query`.
+// Pass-through `app.use` peels as preset (**D6447** — no invented body-parser / send helpers;
+// complex middleware stays an honest hole).
 
 const app = polka();
+
+// Pass-through `use` — peels as `js.passthrough` preset (no invented middleware runtime).
+app.use((_req, _res, next) => next());
 
 app.get("/health", (_req, res) => {
   res.end(JSON.stringify(true));

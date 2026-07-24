@@ -1,10 +1,15 @@
 import restify from "restify";
 
 // hub-gold-restify — 20-route Restify TypeScript dialect (secondary to Express flagship).
-// `server.get|post|…` + `res.send` / Restify `res.send(code, body)` + `req.params|query`
-// (**D6447** — no invented plugins / pre handlers / body-parser runtime).
+// `server.get|post|…` + `res.send` / Restify `res.send(code, body)` + `req.params|query`.
+// Pass-through `server.pre` / `server.use` peel as presets (**D6447** — no invented
+// plugins / body-parser runtime; complex middleware stays an honest hole).
 
 const server = restify.createServer();
+
+// Pass-through `pre` + `use` — peel as presets (no Restify plugin / onion invent).
+server.pre((_req, _res, next) => next());
+server.use((_req, _res, next) => next());
 
 server.get("/health", (_req, res, next) => {
   res.send(true);

@@ -43,3 +43,29 @@ test("countExpressMiddlewareUses detects app.use", async () => {
   const n = countExpressMiddlewareUses('const app = require("express")();\napp.use(require("express").json());\n');
   expect(n).toBe(1);
 });
+
+test("countExpressMiddlewareUses detects Restify server.pre + use", async () => {
+  const { countExpressMiddlewareUses } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/javascript-ast-ingest.mjs", import.meta.url))
+  );
+  const n = countExpressMiddlewareUses(
+    'const server = { pre() {}, use() {} };\nserver.pre(() => {});\nserver.use(() => {});\n',
+  );
+  expect(n).toBe(2);
+});
+
+test("isPassThroughMiddlewareFn accepts next-only shells", async () => {
+  const { parseJavaScriptSource } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/javascript-ast-ingest.mjs", import.meta.url))
+  );
+  const { isPassThroughMiddlewareFn } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/hub-express-middleware.mjs", import.meta.url))
+  );
+  const ast = parseJavaScriptSource("const f = async (_c, next) => { await next(); };\n", "t.js");
+  const decl = ast.body[0];
+  const fn = decl.declarations[0].init;
+  expect(isPassThroughMiddlewareFn(fn)).toBe(true);
+  const busy = parseJavaScriptSource("const f = (ctx, next) => { ctx.status = 204; next(); };\n", "t.js");
+  const busyFn = busy.body[0].declarations[0].init;
+  expect(isPassThroughMiddlewareFn(busyFn)).toBe(false);
+});

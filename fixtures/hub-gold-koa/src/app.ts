@@ -2,9 +2,15 @@ import Router from "@koa/router";
 
 // hub-gold-koa — 20-route Koa TypeScript dialect (secondary to Express flagship).
 // Uses @koa/router as `app` so `app.get|post|…` + `ctx.params|query|request.body|status|body`
-// mirror hub-flagship-express depth (**D6447** — no invented middleware/DI).
+// mirror hub-flagship-express depth. Pass-through `app.use` peels as preset (**D6447** —
+// no invented onion / DI runtime; complex middleware stays an honest hole).
 
 const app = new Router();
+
+// Pass-through onion shell — peels as `js.passthrough` preset (no invented middleware runtime).
+app.use(async (_ctx, next) => {
+  await next();
+});
 
 app.get("/health", (ctx) => {
   ctx.body = true;
