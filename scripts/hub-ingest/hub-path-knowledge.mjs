@@ -52,7 +52,8 @@ export const LANGUAGE_PROFILES = {
     typing: "structural",
     typicalFrameworks: ["Express", "NestJS", "Fastify"],
     routeStyle: "decorators / middleware",
-    notes: "Same ingest lane as JavaScript (acorn after strip).",
+    notes:
+      "Same ingest lane as JavaScript (acorn after strip); NestJS @Controller/@Get… via TypeScript decorator AST (hub-gold-nestjs / hub:nestjs-smoke).",
   },
   python: {
     kind: "dynamic",

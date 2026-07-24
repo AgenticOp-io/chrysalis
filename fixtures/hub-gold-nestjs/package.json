@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-nestjs",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@nestjs/common": "^10.4.15"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

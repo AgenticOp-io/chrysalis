@@ -101,6 +101,7 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9948** | Fastify TS origin dialect | `fastify.get|post|…` + `reply.send`/`reply.code` (secondary; Express/TS remain ST; ≠ emit-fastify) | `hub:fastify-smoke` ✅ |
 | **G9949** | Axum Rust secondary dialect | `.route` + get\|post\|… closures + `Json(serde_json::json!)` + `StatusCode` (secondary; Actix remains Rust ST) | `hub:axum-smoke` ✅ |
 | **G9949b** | Axum named handlers + nest | Named `get(handler)` resolve (Go Gin parallel) + `.nest("/prefix", fn())` path join; merge of helpers via global `.route` scan; inline `Router::new()` nest stays unwired | `hub:axum-smoke` ✅ |
+| **G9950** | NestJS decorator route foundation | `@Controller` + `@Get`/`@Post`/… path join + `@Param`/`@Query`/`@HttpCode` via TS decorator AST (secondary; Express/TS remain ST; DI/guards/pipes = honest holes) | `hub:nestjs-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 

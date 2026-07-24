@@ -8,6 +8,10 @@ import ts from "typescript";
 import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
 import { liftExpressMiddlewareToWebir } from "./hub-express-middleware.mjs";
 import { lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
+import {
+  extractNestRoutesFromTsSource,
+  looksLikeNestControllerSource,
+} from "./nestjs-ast-ingest.mjs";
 
 const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
@@ -729,6 +733,16 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "Identifier") {
+    const nestBind = ctx.nestParamBindings?.get(expr.name);
+    if (nestBind) {
+      return data.requestField({
+        source: nestBind.source,
+        name: nestBind.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", `javascript-ast:nest-${nestBind.source}`)],
+      });
+    }
     const h3Field = h3DestructuredBodyFieldOf(expr, ctx.h3BodyBindings);
     if (h3Field) {
       return data.requestField({
@@ -976,7 +990,7 @@ function lowerStatusEffect(ctx, status, loc) {
 function lowerHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
   const primaryExpr = extractHandlerExpression(fn);
-  const status = extractResStatus(primaryExpr);
+  const status = extractResStatus(primaryExpr) ?? ctx.nestHttpCode ?? null;
   const statusId = lowerStatusEffect(ctx, status, primaryExpr?.loc?.start);
   if (isResEndCall(primaryExpr)) {
     return lowerHubStatusOnly(ctx, status ?? 204, {
@@ -1054,22 +1068,37 @@ export function liftJavaScriptFileToWebir(opts) {
   const effect = webir.effectDialect.builders(builder);
   let astRouteCount = 0;
 
+  /** Nest decorator routes (TS compiler API; before acorn strip). */
+  /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number }, httpCode: number | null, paramBindings: Map<string, { source: string, name: string }> }>} */
+  const nestRoutes =
+    looksLikeNestControllerSource(source) && /\.tsx?$/i.test(file)
+      ? extractNestRoutesFromTsSource(source, file)
+      : [];
+
   let ast;
   try {
     ast = parseJavaScriptSource(source, file);
   } catch {
-    return { routeCount: 0, astRouteCount: 0, usedAst: false };
+    if (nestRoutes.length === 0) {
+      return { routeCount: 0, astRouteCount: 0, usedAst: false };
+    }
+    ast = null;
   }
 
-  const routes = [];
-  walkSimple(ast, {
-    CallExpression(node) {
-      const r = extractRouteFromCall(node);
-      if (r) routes.push(r);
-    },
-  });
+  /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc?: { line: number, column: number }, httpCode?: number | null, paramBindings?: Map<string, { source: string, name: string }> }>} */
+  const routes = [...nestRoutes];
+  if (ast) {
+    walkSimple(ast, {
+      CallExpression(node) {
+        const r = extractRouteFromCall(node);
+        if (r) routes.push(r);
+      },
+    });
+  }
 
-  const mw = liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir });
+  const mw = ast
+    ? liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir })
+    : { middlewareUseCount: 0, middlewareRootCount: 0 };
 
   if (routes.length === 0 && mw.middlewareRootCount === 0) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false, middlewareUseCount: 0, middlewareRootCount: 0 };
@@ -1078,7 +1107,15 @@ export function liftJavaScriptFileToWebir(opts) {
   for (const r of routes) {
     astRouteCount += 1;
     const origin = originAt(r.loc ?? { line: 1, column: 0 }, file);
-    const ctx = { data, effect, webir, file, origin };
+    const ctx = {
+      data,
+      effect,
+      webir,
+      file,
+      origin,
+      nestHttpCode: r.httpCode ?? null,
+      nestParamBindings: r.paramBindings ?? null,
+    };
     const bodyId = lowerHandlerBody(ctx, r.fn);
     const handlerId = wr.handler({
       attrs: {
@@ -1089,13 +1126,23 @@ export function liftJavaScriptFileToWebir(opts) {
       body: bodyId,
       effects: [],
       origin,
-      provenance: [webir.provenance("hub-ingest", `javascript-ast:${language}`)],
+      provenance: [
+        webir.provenance(
+          "hub-ingest",
+          r.paramBindings ? `javascript-ast:nestjs:${language}` : `javascript-ast:${language}`,
+        ),
+      ],
     });
     const routeId = wr.route({
       attrs: { method: r.method, path: r.path, pathParams: [] },
       handler: handlerId,
       origin,
-      provenance: [webir.provenance("hub-ingest", `route:${language}`)],
+      provenance: [
+        webir.provenance(
+          "hub-ingest",
+          r.paramBindings ? `route:nestjs:${language}` : `route:${language}`,
+        ),
+      ],
     });
     builder.addRoot(routeId);
   }
@@ -1104,6 +1151,7 @@ export function liftJavaScriptFileToWebir(opts) {
     routeCount: routes.length,
     astRouteCount,
     usedAst: true,
+    nestRouteCount: nestRoutes.length,
     middlewareUseCount: mw.middlewareUseCount,
     middlewareRootCount: mw.middlewareRootCount,
   };
