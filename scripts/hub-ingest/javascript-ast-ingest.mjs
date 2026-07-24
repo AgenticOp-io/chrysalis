@@ -274,6 +274,70 @@ function urlSearchParamsGetFieldOf(expr) {
 }
 
 /**
+ * Nitro/h3: `getRouterParam(event, "id")` → path request field.
+ * @param {import('estree').CallExpression} expr
+ * @returns {{ name: string } | null}
+ */
+function h3GetRouterParamFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  if (expr.callee?.type !== "Identifier" || expr.callee.name !== "getRouterParam") return null;
+  const nameArg = expr.arguments[1];
+  if (nameArg?.type !== "Literal" || typeof nameArg.value !== "string") return null;
+  return { name: nameArg.value };
+}
+
+/**
+ * Nitro/h3: `getQuery(event).q` → query request field.
+ * @param {import('estree').MemberExpression} expr
+ * @returns {{ name: string } | null}
+ */
+function h3GetQueryMemberFieldOf(expr) {
+  if (expr.type !== "MemberExpression") return null;
+  const name = memberPropName(expr);
+  if (!name) return null;
+  const obj = expr.object;
+  if (obj?.type !== "CallExpression") return null;
+  if (obj.callee?.type !== "Identifier" || obj.callee.name !== "getQuery") return null;
+  return { name };
+}
+
+/**
+ * Nitro/h3: `setResponseStatus(event, N)` → status code.
+ * @param {import('estree').Function} fn
+ * @returns {number | null}
+ */
+function extractSetResponseStatus(fn) {
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") return null;
+  for (const s of body.body) {
+    const call =
+      s.type === "ExpressionStatement" && s.expression?.type === "CallExpression"
+        ? s.expression
+        : null;
+    if (!call) continue;
+    if (call.callee?.type !== "Identifier" || call.callee.name !== "setResponseStatus") continue;
+    const statusArg = call.arguments[1];
+    if (statusArg?.type === "Literal" && typeof statusArg.value === "number") return statusArg.value;
+  }
+  return null;
+}
+
+/**
+ * Prefer an explicit `return` over leading ExpressionStatements (e.g. setResponseStatus).
+ * @param {import('estree').Function} fn
+ */
+function extractNitroHandlerExpression(fn) {
+  const body = fn.body;
+  if (body?.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ReturnStatement") return s.argument ?? null;
+    }
+    return null;
+  }
+  return extractHandlerExpression(fn);
+}
+
+/**
  * @param {import('estree').Expression} expr
  */
 function peelJsonCallArgument(expr) {
@@ -544,6 +608,16 @@ function lowerExpression(ctx, expr) {
         provenance: [webir.provenance("hub-ingest", `javascript-ast:req-${field.source}`)],
       });
     }
+    const h3Query = h3GetQueryMemberFieldOf(expr);
+    if (h3Query) {
+      return data.requestField({
+        source: "query",
+        name: h3Query.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-get-query")],
+      });
+    }
     return data.hole({
       reason: "hub-js:member-expression",
       input: T.unknown,
@@ -583,6 +657,16 @@ function lowerExpression(ctx, expr) {
         type: T.string,
         origin,
         provenance: [webir.provenance("hub-ingest", "javascript-ast:url-search-params")],
+      });
+    }
+    const h3Path = h3GetRouterParamFieldOf(expr);
+    if (h3Path) {
+      return data.requestField({
+        source: "path",
+        name: h3Path.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-get-router-param")],
       });
     }
     const jsonArg = peelJsonCallArgument(expr);
@@ -967,6 +1051,113 @@ export function liftSvelteKitPageLoadFunction(opts) {
  */
 export function liftNextAppRouteHandlerBodies(opts) {
   return liftSvelteKitServerHandlerBodies(opts);
+}
+
+/**
+ * Lower a Nitro/h3 `defineEventHandler` / `eventHandler` body (status + return).
+ * @param {object} ctx
+ * @param {import('estree').Function} fn
+ */
+function lowerNitroHandlerBody(ctx, fn) {
+  const { data, webir, file } = ctx;
+  const status = extractSetResponseStatus(fn) ?? extractResStatus(extractNitroHandlerExpression(fn));
+  const statusId = lowerStatusEffect(ctx, status, fn.loc?.start);
+  const expr = extractNitroHandlerExpression(fn);
+  if (!expr) {
+    return data.hole({
+      reason: "hub-js:handler-body",
+      input: T.unknown,
+      output: T.unknown,
+      origin: ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:nitro")],
+    });
+  }
+  const jsonPayload = expr.type === "CallExpression" ? peelResJsonArgument(expr) : null;
+  if (jsonPayload || expr.type === "ObjectExpression") {
+    const payload = jsonPayload ?? expr;
+    const valId = lowerExpression(ctx, payload);
+    const retId = data.call({
+      callee: "__return_json",
+      args: [valId],
+      type: T.unknown,
+      origin: payload.loc?.start ? originAt(payload.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:nitro-json")],
+    });
+    return data.block({
+      statements: statusId ? [statusId, retId] : [retId],
+      type: T.unknown,
+      origin: ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:nitro-handler")],
+    });
+  }
+  const valId = lowerExpression(ctx, expr);
+  return data.block({
+    statements: statusId ? [statusId, valId] : [valId],
+    type: T.unknown,
+    origin: expr.loc?.start ? originAt(expr.loc.start, file) : ctx.origin,
+    provenance: [webir.provenance("hub-ingest", "javascript-ast:nitro-handler")],
+  });
+}
+
+/**
+ * Extract handler fn from `export default defineEventHandler(fn)` / `eventHandler(fn)`.
+ * @param {import('estree').Node} node
+ * @returns {import('estree').Function | null}
+ */
+function nitroHandlerFromExportDefault(node) {
+  if (node.type !== "ExportDefaultDeclaration") return null;
+  const decl = node.declaration;
+  if (decl?.type === "CallExpression") {
+    const callee = decl.callee;
+    const name =
+      callee?.type === "Identifier"
+        ? callee.name
+        : callee?.type === "MemberExpression" && !callee.computed && callee.property?.type === "Identifier"
+          ? callee.property.name
+          : null;
+    if (name !== "defineEventHandler" && name !== "eventHandler") return null;
+    return handlerCallback(decl.arguments[0]);
+  }
+  if (decl?.type === "ArrowFunctionExpression" || decl?.type === "FunctionExpression" || decl?.type === "FunctionDeclaration") {
+    return decl;
+  }
+  return null;
+}
+
+/**
+ * Lower Nitro/h3 `export default defineEventHandler(...)` (single handler per file).
+ * Method comes from the caller (filename `.get.ts` / `.post.ts` / …).
+ * @param {object} opts
+ * @returns {{ ok: boolean, bodyId?: string, reason?: string }}
+ */
+export function liftNitroEventHandlerBody(opts) {
+  const { source, file, webir, builder } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
+  let ast;
+  try {
+    ast = parseJavaScriptSource(source, file);
+  } catch {
+    return { ok: false, reason: "parse-failed" };
+  }
+  /** @type {import('estree').Function | null} */
+  let fn = null;
+  /** @type {{ line: number, column: number } | null} */
+  let loc = null;
+  walkSimple(ast, {
+    ExportDefaultDeclaration(node) {
+      if (fn) return;
+      const found = nitroHandlerFromExportDefault(node);
+      if (found) {
+        fn = found;
+        loc = found.loc?.start ?? node.loc?.start ?? { line: 1, column: 0 };
+      }
+    },
+  });
+  if (!fn) return { ok: false, reason: "missing-define-event-handler" };
+  const origin = originAt(loc ?? { line: 1, column: 0 }, file);
+  const ctx = { data, effect, webir, file, origin };
+  return { ok: true, bodyId: lowerNitroHandlerBody(ctx, fn) };
 }
 
 export function countExpressMiddlewareUses(source) {

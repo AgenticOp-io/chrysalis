@@ -9,6 +9,7 @@ export const LANGUAGE_LABELS = {
   javascript: "JavaScript",
   typescript: "TypeScript",
   vue: "Vue",
+  nuxt: "Vue (Nuxt Nitro/h3)",
   svelte: "SvelteKit",
   python: "Python",
   java: "Java",

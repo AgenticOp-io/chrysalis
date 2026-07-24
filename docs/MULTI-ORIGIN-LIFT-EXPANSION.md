@@ -94,6 +94,7 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9944** | Next loading/font honesty | Companion `loading.tsx` + `next/font` holes | `hub:next-loading-font-smoke` ✅ |
 | **G9945** | Angular NgModule providers | Sibling `*.module.ts` provider edges/holes | `hub:angular-ngmodule-providers-smoke` ✅ |
 | **G9946** | Vue App.vue shell CSS | SPA/Nuxt app shell with layouted pages | `hub:vue-app-shell-css-smoke` ✅ |
+| **G9947** | Vue/Nuxt Nitro/h3 server routes | `server/api` `defineEventHandler` + h3 path/query/status (secondary dialect; Express-in-SFC remains Vue ST) | `hub:vue-nitro-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 

@@ -80,6 +80,12 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     surface: "data",
     summary: "Next.js page.server.ts load not lowered (complex shapes); simple literal+param loads use RFC-0013.",
   },
+  "hub-nuxt:nitro-handler": {
+    rfc: "0012",
+    origin: "nuxt",
+    surface: "api",
+    summary: "Nuxt Nitro/h3 defineEventHandler body not lowered (unsupported h3 helpers or shapes).",
+  },
 };
 
 /**

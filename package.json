@@ -1386,6 +1386,7 @@
     "hub:typescript-flagship": "node scripts/hub-ingest/hub-typescript-flagship.mjs",
     "hub:complete-conversion-prove:typescript": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-typescript",
     "hub:vue-flagship": "node scripts/hub-ingest/hub-vue-flagship.mjs",
+    "hub:vue-nitro-smoke": "node scripts/hub-ingest/hub-vue-nitro-smoke.mjs",
     "hub:complete-conversion-prove:vue": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-vue",
     "hub:cpp-flagship": "node scripts/hub-ingest/hub-cpp-flagship.mjs",
     "hub:cpp-httplib-smoke": "node scripts/hub-ingest/hub-cpp-httplib-smoke.mjs",

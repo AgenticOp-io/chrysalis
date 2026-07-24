@@ -24,6 +24,7 @@ export const EXT_BY_LANG = {
   javascript: [".js", ".jsx", ".mjs", ".cjs"],
   typescript: [".ts", ".tsx"],
   vue: [".vue"],
+  nuxt: [".ts", ".js", ".mjs", ".cjs"],
   python: [".py"],
   java: [".java"],
   kotlin: [".kt"],
