@@ -21,4 +21,5 @@ for hub ingest (parser-bridge pattern for Python origins).
 ## Non-goals
 
 - Full Python semantic analysis or type inference.
-- Replacing legacy Flask/FastAPI runtime behavior.
+- Replacing legacy Flask/FastAPI/Starlette/Litestar runtime behavior.
+- Inventing Provide/DI, middleware, or Controller onion peels (**D6447**).

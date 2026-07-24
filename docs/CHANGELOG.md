@@ -2,6 +2,16 @@
 
 Newest first.
 
+2026-07-24 | Chrysalis | G10017 Go Fiber secondary dialect: app.Get|Post + :id paths + c.Params/c.Query + c.JSON/c.Status(n).JSON/c.SendString peels (`hub:fiber-smoke` 20/20); Gin remains Go ST; Chi/Echo stay green; middleware/Group/BodyParser unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+
+2026-07-24 | Chrysalis | G10024 http4k Kotlin secondary dialect: "path" bind Method.GET|POST|… + {id} paths + req.path/req.query + Response(OK|CREATED|ACCEPTED).body peels (hub:http4k-smoke 20/20); Spring remains Kotlin ST; Ktor G10004 stays green; filters/lenses unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+
+2026-07-24 | Chrysalis | G10022 Roda Ruby secondary dialect: shallow r.get|post + String/|id| + Hash/response.status/r.params peels (hub:roda-smoke 20/20); Sinatra remains Ruby ST; Rails G10006 stays skipped; nested r.on/plugins unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | G10018 Go Gorilla mux secondary dialect: HandleFunc+Methods + {id} paths + mux.Vars + json.NewEncoder/w.WriteHeader peels (`hub:gorilla-smoke` 20/20); Gin remains Go ST; middleware/Subrouter unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+
+2026-07-24 | Chrysalis | G10020 Micronaut Java secondary dialect: @Controller + @Get|Post|… + @PathVariable/@QueryValue + Map.of + HttpResponse.status().body() peels (`hub:micronaut-smoke` 20/20); Spring remains Java ST; DI/filters/Application unwired; JAX-RS G10012 stays green; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | G10021 Litestar Python secondary dialect: bare `@get|post|…` + `{id}` paths + query_params + status_code= peels (`hub:litestar-smoke` 20/20); Flask remains Python ST; Provide/DI/middleware/Controller unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | G10023 Falcon Python secondary dialect: `app.add_route` + class `on_get|on_post|…` + `{id}` + `req.get_param` + `resp.media`/`resp.status` peels (`hub:falcon-smoke` 20/20); Flask remains Python ST; hooks/middleware/ASGI onion unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | G10012 JAX-RS Java secondary dialect: @Path prefix join + @GET|POST|… + @PathParam/@QueryParam/@DefaultValue + Map.of + Response.status().entity().build() peels (`hub:jaxrs-smoke` 20/20); Spring remains Java ST; CDI/filters/providers/Application unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | G10011 Rocket Rust secondary dialect: `#[get|post|…]` + `.mount("/items", routes![…])` + `<id>`/`?<q>` + `Json(serde_json::json!)` + `(Status::*, Json(…))` peels (`hub:rocket-smoke` 20/20); Actix remains Rust ST; fairings/catchers/guards stay honest holes; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | G10015 NestJS @Headers/@Cookies/@Body field peels: `@Headers('x')`/`@Cookies('y')`/`@Body('field')` → requestFields (`hub:nestjs-smoke` + `hub:nestjs-flagship` 20/20; gold ping/flag/echo); DI/guards stay honest holes; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N

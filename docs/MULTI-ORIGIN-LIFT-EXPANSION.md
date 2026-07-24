@@ -114,6 +114,9 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9959** | Thin-Node pass-through middleware | Koa/Polka `app.use` + Restify `server.pre\|use` empty/next-only peels as `js.passthrough` / `restify.passthrough` presets; complex mw = honest holes (no onion invent) | `hub:koa-smoke` / `hub:restify-smoke` / `hub:polka-smoke` v2 ✅ |
 | **G10009** | Go Chi secondary dialect | `r.Get\|Post\|…` + `{id}` paths + `chi.URLParam` + `r.URL.Query().Get` + `json.NewEncoder`/`w.WriteHeader` (secondary; Gin remains Go ST) | `hub:chi-smoke` ✅ |
 | **G10010** | Go Echo secondary dialect | `e.GET\|POST\|…` + `:id` paths + `c.Param` + `c.QueryParam` + `c.JSON`/`c.String` (secondary; Gin remains Go ST; Chi/Gin peels coexist in `go-ast-ingest`) | `hub:echo-smoke` ✅ |
+| **G10017** | Go Fiber secondary dialect | `app.Get\|Post\|…` + `:id` paths + `c.Params` + `c.Query` + `c.JSON`/`c.Status(n).JSON`/`c.SendString` (secondary; Gin remains Go ST) | `hub:fiber-smoke` ✅ |
+| **G10018** | Go Gorilla mux secondary dialect | `HandleFunc`+`Methods` + `{id}` paths + `mux.Vars` + `json.NewEncoder`/`w.WriteHeader` (secondary; Gin remains Go ST) | `hub:gorilla-smoke` ✅ |
+| **G10019** | Hono TS ORIGIN secondary dialect | `new Hono()` + `app.get|post|…` + `c.req.param`/`c.req.query` + `c.json`/`c.text` (secondary; Express/TS remain ST; **≠ emit-hono**; middleware = honest holes) | `hub:hono-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 **Phoenix controller peel:** skipped (not cheap — cross-file `Ctrl,:action` resolve + LiveView invent risk). Catalog: `fixtures/ci/phoenix-controller-honest-skip.json`.

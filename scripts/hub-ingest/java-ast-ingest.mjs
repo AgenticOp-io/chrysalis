@@ -2,6 +2,8 @@
  * Java hub ingest — route parse via @chrysalis/hub-native-bridge; lift in-process.
  * Deepened for D6448-ST cwl-api flagship: brace-bounded method bodies, ResponseEntity
  * status+body, Map.of JSON, string/scalar/path-ref returns (hub-flagship-java).
+ * Secondary: JAX-RS (G10012) + Micronaut @Controller/@Get|Post|… (G10020) peels —
+ * HttpResponse.ok/status/created/accepted + @PathVariable/@QueryValue (no DI/filter invent).
  */
 import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
 import {
@@ -56,8 +58,19 @@ function parseLiteralToken(raw) {
 function parseJavaParamRefs(paramSource) {
   /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
   const byVar = {};
-  for (const m of paramSource.matchAll(/@PathVariable(?:\([^)]*\))?\s+\w+\s+(\w+)/g)) {
-    byVar[m[1]] = { source: "path", name: m[1] };
+  for (const m of paramSource.matchAll(/@PathVariable(?:\(([^)]*)\))?\s+\w+\s+(\w+)/g)) {
+    const ann = (m[1] ?? "").trim();
+    const varName = m[2];
+    let name = varName;
+    const positional = ann.match(/^"([^"]+)"/);
+    if (positional) name = positional[1];
+    else {
+      const valueM = ann.match(/\bvalue\s*=\s*"([^"]+)"/);
+      const nameM = ann.match(/\bname\s*=\s*"([^"]+)"/);
+      if (valueM) name = valueM[1];
+      else if (nameM) name = nameM[1];
+    }
+    byVar[varName] = { source: "path", name };
   }
   for (const m of paramSource.matchAll(/@PathParam(?:\(\s*"([^"]+)"\s*\))?\s+\w+\s+(\w+)/g)) {
     byVar[m[2]] = { source: "path", name: m[1] ?? m[2] };
@@ -79,6 +92,26 @@ function parseJavaParamRefs(paramSource) {
     byVar[varName] = {
       source: "query",
       name: nameM ? nameM[1] : varName,
+      ...(defM ? { default: defM[1] } : {}),
+    };
+  }
+  /** Micronaut @QueryValue (value / defaultValue) — parallel to Spring @RequestParam. */
+  for (const m of paramSource.matchAll(/@QueryValue(?:\(([^)]*)\))?\s+\w+\s+(\w+)/g)) {
+    const ann = (m[1] ?? "").trim();
+    const varName = m[2];
+    let name = varName;
+    const positional = ann.match(/^"([^"]+)"/);
+    if (positional) name = positional[1];
+    else {
+      const valueM = ann.match(/\bvalue\s*=\s*"([^"]+)"/);
+      const nameM = ann.match(/\bname\s*=\s*"([^"]+)"/);
+      if (valueM) name = valueM[1];
+      else if (nameM) name = nameM[1];
+    }
+    const defM = ann.match(/\bdefaultValue\s*=\s*"([^"]*)"/);
+    byVar[varName] = {
+      source: "query",
+      name,
       ...(defM ? { default: defM[1] } : {}),
     };
   }
@@ -200,18 +233,29 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   const reJaxrsStatusEntity = bodySlice.match(
     /return\s+Response\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*entity\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/,
   );
+  /** Micronaut io.micronaut.http.HttpResponse.status(…).body(…) */
+  const reMicronautStatusBody = bodySlice.match(
+    /return\s+HttpResponse\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/,
+  );
   const reOkBody = bodySlice.match(/return\s+ResponseEntity\.ok\s*\(\s*([\s\S]*?)\s*\)\s*;/);
   const reJaxrsOk = bodySlice.match(
     /return\s+Response\.ok\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/,
   );
+  const reMicronautOk = bodySlice.match(/return\s+HttpResponse\.ok\s*\(\s*([\s\S]*?)\s*\)\s*;/);
   const reAccepted = bodySlice.match(
     /return\s+ResponseEntity\.accepted\s*\(\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/i,
   );
   const reJaxrsAccepted = bodySlice.match(
     /return\s+Response\.accepted\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/i,
   );
+  const reMicronautAccepted = bodySlice.match(
+    /return\s+HttpResponse\.accepted\s*\(\s*([\s\S]*?)\s*\)\s*;/i,
+  );
   const reCreated = bodySlice.match(
     /return\s+ResponseEntity\.created\s*\([^)]*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/i,
+  );
+  const reMicronautCreated = bodySlice.match(
+    /return\s+HttpResponse\.created\s*\(\s*([\s\S]*?)\s*\)\s*;/i,
   );
   const rePlainMap = bodySlice.match(/return\s+(?:java\.util\.)?Map\.of\s*\(([\s\S]*?)\)\s*;/);
   const reLit = bodySlice.match(/return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')\s*;/);
@@ -232,9 +276,17 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = parseJavaHttpStatus(reJaxrsStatusEntity[1]);
     returnTree = mapFromExpr(reJaxrsStatusEntity[2]);
     kind = returnTree ? "json" : null;
+  } else if (reMicronautStatusBody) {
+    status = parseJavaHttpStatus(reMicronautStatusBody[1]);
+    returnTree = mapFromExpr(reMicronautStatusBody[2]);
+    kind = returnTree ? "json" : null;
   } else if (reCreated) {
     status = 201;
     returnTree = mapFromExpr(reCreated[1]);
+    kind = returnTree ? "json" : null;
+  } else if (reMicronautCreated) {
+    status = 201;
+    returnTree = mapFromExpr(reMicronautCreated[1]);
     kind = returnTree ? "json" : null;
   } else if (reAccepted) {
     status = 202;
@@ -244,6 +296,10 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = 202;
     returnTree = mapFromExpr(reJaxrsAccepted[1]);
     kind = returnTree ? "json" : null;
+  } else if (reMicronautAccepted) {
+    status = 202;
+    returnTree = mapFromExpr(reMicronautAccepted[1]);
+    kind = returnTree ? "json" : null;
   } else if (reOkBody) {
     status = 200;
     returnTree = mapFromExpr(reOkBody[1]);
@@ -251,6 +307,10 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   } else if (reJaxrsOk) {
     status = 200;
     returnTree = mapFromExpr(reJaxrsOk[1]);
+    kind = returnTree ? "json" : null;
+  } else if (reMicronautOk) {
+    status = 200;
+    returnTree = mapFromExpr(reMicronautOk[1]);
     kind = returnTree ? "json" : null;
   } else if (rePlainMap) {
     returnTree = parseJavaMapOfReturnTree(rePlainMap[1], paramRefs);

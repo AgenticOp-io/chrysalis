@@ -2,6 +2,8 @@
  * Ruby hub ingest — Sinatra routes via pattern + semantic body lowering.
  * Deepened for D6448-ST cwl-api flagship: string scalars, status+json depth,
  * path/query refs (hub-flagship-ruby).
+ * G10022 / D6484: shallow Roda `r.get|post` + Hash / response.status / block
+ * captures / r.params (nested `r.on` stays honest hole).
  */
 import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
 import {
@@ -17,12 +19,14 @@ import { lowerHubDbQuery } from "./hub-native-sql-effects.mjs";
 export { parseRubyRoutes };
 
 const RUBY_JSON_HASH_RE = /json\s+(?:\{([\s\S]*?)\}|(.+?))\s*$/m;
+/** Roda json plugin: bare `{ key: val }` as the handler return. */
+const RUBY_BARE_HASH_RE = /\{([\s\S]*?)\}\s*$/m;
 const RUBY_SQL_CALL_RE = /\w+\.(?:execute|query|exec)\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/gi;
-const RUBY_STATUS_RE = /\bstatus\s+(\d+)\b/;
+const RUBY_STATUS_RE = /(?:\bstatus\s+(\d+)\b|response\.status\s*=\s*(\d+))/;
 const RUBY_SCALAR_LIT_RE =
   /(?:^|\n)\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')\s*(?:\n|$)/;
 const RUBY_PARAMS_REF_RE =
-  /(?:^|\n)\s*params\[\s*(?:['"]|:)([^'"]+)['"]?\s*\]\s*(?:\n|$)/;
+  /(?:^|\n)\s*(?:r\.)?params\[\s*(?:['"]|:)([^'"]+)['"]?\s*\]\s*(?:\n|$)/;
 
 /**
  * @param {string} language
@@ -47,27 +51,49 @@ function parseLiteralToken(raw) {
 }
 
 /**
+ * Strip leading Roda/Sinatra block params (`|id|`) from a handler body.
+ * @param {string} bodySlice
+ * @returns {{ body: string, blockParams: string[] }}
+ */
+function peelRubyBlockParams(bodySlice) {
+  const m = bodySlice.match(/^\s*\|([^|]+)\|\s*/);
+  if (!m) return { body: bodySlice, blockParams: [] };
+  const blockParams = m[1]
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return { body: bodySlice.slice(m[0].length), blockParams };
+}
+
+/**
  * @param {string} bodySlice
  * @param {string} [routePath]
+ * @param {string[]} [blockParams]
  */
-function parseRubyParamRefs(bodySlice, routePath = "") {
+function parseRubyParamRefs(bodySlice, routePath = "", blockParams = []) {
   /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
   const byVar = {};
   const pathNames = new Set([...routePath.matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1]));
-  for (const m of bodySlice.matchAll(/params\[(?:'|:)([^'"]+)(?:'|\])\]/g)) {
+  for (const name of blockParams) {
+    byVar[name] = { source: "path", name };
+    pathNames.add(name);
+  }
+  for (const m of bodySlice.matchAll(/(?:r\.|request\.)?params\[(?:'|:)([^'"]+)(?:'|\])\]/g)) {
     const name = m[1];
     byVar[name] = { source: pathNames.has(name) ? "path" : "query", name };
   }
-  for (const m of bodySlice.matchAll(/params\[["']([^"']+)["']\]/g)) {
+  for (const m of bodySlice.matchAll(/(?:r\.|request\.)?params\[["']([^"']+)["']\]/g)) {
     const name = m[1];
     if (!byVar[name]) {
       byVar[name] = { source: pathNames.has(name) ? "path" : "query", name };
     }
   }
-  for (const m of bodySlice.matchAll(/params\.fetch\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]*)['"]\s*\)/g)) {
+  for (const m of bodySlice.matchAll(
+    /(?:r\.|request\.)?params\.fetch\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]*)['"]\s*\)/g,
+  )) {
     byVar[m[1]] = { source: "query", name: m[1], default: m[2] };
   }
-  for (const m of bodySlice.matchAll(/params\[['"]([^'"]+)['"]\]/g)) {
+  for (const m of bodySlice.matchAll(/(?:r\.|request\.)?params\[['"]([^'"]+)['"]\]/g)) {
     if (!byVar[m[1]]) byVar[m[1]] = { source: "query", name: m[1] };
   }
   for (const m of bodySlice.matchAll(/request\.env\[['"]HTTP_([^'"]+)['"]\]/g)) {
@@ -81,11 +107,68 @@ function parseRubyParamRefs(bodySlice, routePath = "") {
 }
 
 /**
+ * @param {string} rawVal
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} refs
+ * @returns {object | null}
+ */
+function lowerRubyHashValue(rawVal, refs) {
+  const v = rawVal.trim();
+  if (refs[v]) return { t: "ref", ...refs[v] };
+  // Roda: `r.params["q"] || ""` / `r.params["q"].to_s`
+  const paramOr = v.match(
+    /^(?:r\.|request\.)?params\[\s*['"]([^'"]+)['"]\s*\]\s*(?:\|\|\s*['"]([^'"]*)['"]|\.to_s)?$/,
+  );
+  if (paramOr) {
+    const name = paramOr[1];
+    const ref = refs[name];
+    if (paramOr[2] !== undefined) {
+      return { t: "ref", source: "query", name, default: paramOr[2] };
+    }
+    return ref ? { t: "ref", ...ref } : { t: "ref", source: "query", name };
+  }
+  if (
+    v.startsWith("params[") ||
+    v.startsWith("params.fetch") ||
+    v.startsWith("r.params[") ||
+    v.startsWith("r.params.fetch") ||
+    v.startsWith("request.params[")
+  ) {
+    const q = v.match(/['"]([^'"]+)['"]/);
+    if (!q) return null;
+    const name = q[1];
+    const fetchDef = v.match(/\.fetch\(\s*['"][^'"]+['"]\s*,\s*['"]([^'"]*)['"]\s*\)/);
+    if (fetchDef) return { t: "ref", source: "query", name, default: fetchDef[1] };
+    const ref = refs[name];
+    return ref ? { t: "ref", ...ref } : { t: "ref", source: "query", name };
+  }
+  if (v.includes("request.env")) {
+    const h = v.match(/HTTP_([^'"]+)/);
+    if (!h) return null;
+    return { t: "ref", source: "header", name: h[1].toLowerCase().replace(/_/g, "-") };
+  }
+  if (v.includes("request.cookies")) {
+    const c = v.match(/['"]([^'"]+)['"]/);
+    if (!c) return null;
+    return { t: "ref", source: "cookie", name: c[1] };
+  }
+  if (v === "true" || v === "false") return { t: "lit", v: v === "true" };
+  if (/^-?\d+$/.test(v)) return { t: "lit", v: Number.parseInt(v, 10) };
+  if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+    return { t: "lit", v: v.slice(1, -1) };
+  }
+  // Bare IDENT path capture (Roda `|id|` / Sinatra path name)
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(v) && refs[v]?.source === "path") {
+    return { t: "ref", ...refs[v] };
+  }
+  return null;
+}
+
+/**
  * @param {string} bodySlice
  * @param {Record<string, { source: string, name: string, default?: unknown }>} refs
  */
 function parseRubyJsonReturnTree(bodySlice, refs) {
-  const m = bodySlice.match(RUBY_JSON_HASH_RE);
+  const m = bodySlice.match(RUBY_JSON_HASH_RE) ?? bodySlice.match(RUBY_BARE_HASH_RE);
   if (!m) return null;
   const inner = (m[1] ?? m[2] ?? "").trim();
   if (!inner) return null;
@@ -93,38 +176,9 @@ function parseRubyJsonReturnTree(bodySlice, refs) {
   const entries = [];
   for (const pair of inner.matchAll(/(\w+)\s*:\s*([^,\n}]+)/g)) {
     const key = pair[1];
-    const rawVal = pair[2].trim();
-    if (refs[rawVal]) {
-      entries.push({ key, value: { t: "ref", ...refs[rawVal] } });
-    } else if (rawVal.startsWith("params[") || rawVal.startsWith("params.fetch")) {
-      const q = rawVal.match(/['"]([^'"]+)['"]/);
-      if (q) {
-        const name = q[1];
-        const ref = refs[name];
-        entries.push({
-          key,
-          value: ref ? { t: "ref", ...ref } : { t: "ref", source: "query", name },
-        });
-      } else return null;
-    } else if (rawVal.includes("request.env")) {
-      const h = rawVal.match(/HTTP_([^'"]+)/);
-      if (h) {
-        const name = h[1].toLowerCase().replace(/_/g, "-");
-        entries.push({ key, value: { t: "ref", source: "header", name } });
-      } else return null;
-    } else if (rawVal.includes("request.cookies")) {
-      const c = rawVal.match(/['"]([^'"]+)['"]/);
-      if (c) entries.push({ key, value: { t: "ref", source: "cookie", name: c[1] } });
-      else return null;
-    } else if (rawVal === "true" || rawVal === "false") {
-      entries.push({ key, value: { t: "lit", v: rawVal === "true" } });
-    } else if (/^-?\d+$/.test(rawVal)) {
-      entries.push({ key, value: { t: "lit", v: Number.parseInt(rawVal, 10) } });
-    } else if (rawVal.startsWith('"') || rawVal.startsWith("'")) {
-      entries.push({ key, value: { t: "lit", v: rawVal.slice(1, -1) } });
-    } else {
-      return null;
-    }
+    const value = lowerRubyHashValue(pair[2], refs);
+    if (!value) return null;
+    entries.push({ key, value });
   }
   if (entries.length === 0) return null;
   return { t: "obj", entries };
@@ -175,11 +229,19 @@ export function extractRubyHandlerBody(source, fromIndex) {
  * @param {string} routePath
  */
 function parseRubyBodyReturn(bodySlice, routePath) {
-  const refs = parseRubyParamRefs(bodySlice, routePath);
-  const sqlEffects = parseRubySqlEffects(bodySlice, refs);
-  const statusM = bodySlice.match(RUBY_STATUS_RE);
-  const status = statusM ? Number.parseInt(statusM[1], 10) : undefined;
-  const returnTree = parseRubyJsonReturnTree(bodySlice, refs);
+  const peeled = peelRubyBlockParams(bodySlice);
+  const body = peeled.body;
+  const refs = parseRubyParamRefs(body, routePath, peeled.blockParams);
+  // Path capture names from route template also count as path refs for bare IDENT returns
+  for (const name of [...routePath.matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1])) {
+    if (!refs[name]) refs[name] = { source: "path", name };
+  }
+  const sqlEffects = parseRubySqlEffects(body, refs);
+  const statusM = body.match(RUBY_STATUS_RE);
+  const status = statusM
+    ? Number.parseInt(statusM[1] ?? statusM[2] ?? "", 10)
+    : undefined;
+  const returnTree = parseRubyJsonReturnTree(body, refs);
   if (returnTree || sqlEffects.length > 0 || status !== undefined) {
     /** @type {"json" | "scalar-lit" | "scalar-ref" | null} */
     let kind = returnTree ? "json" : null;
@@ -187,7 +249,7 @@ function parseRubyBodyReturn(bodySlice, routePath) {
     return { sqlEffects, returnTree, status, kind, refs };
   }
 
-  const litM = bodySlice.match(RUBY_SCALAR_LIT_RE);
+  const litM = body.match(RUBY_SCALAR_LIT_RE);
   if (litM) {
     const v = parseLiteralToken(litM[1]);
     if (v !== null) {
@@ -201,7 +263,19 @@ function parseRubyBodyReturn(bodySlice, routePath) {
     }
   }
 
-  const refM = bodySlice.match(RUBY_PARAMS_REF_RE);
+  // Bare path capture return: `|userId|\n      userId`
+  const bareIdent = body.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/);
+  if (bareIdent && refs[bareIdent[1]]?.source === "path") {
+    return {
+      sqlEffects: [],
+      returnTree: { t: "ref", ...refs[bareIdent[1]] },
+      status,
+      kind: "scalar-ref",
+      refs,
+    };
+  }
+
+  const refM = body.match(RUBY_PARAMS_REF_RE);
   if (refM) {
     const name = refM[1];
     const pathNames = new Set([...routePath.matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1]));
@@ -317,7 +391,8 @@ function lowerRubyScalarLit(ctx, status, value, loc) {
 function rubyBlockLiteralAfter(source, fromIndex) {
   const extracted = extractRubyHandlerBody(source, fromIndex);
   if (!extracted) return null;
-  const m = extracted.bodySlice.match(/^\s*(true|false|-?\d+|"[^"]*"|'[^']*')\s*$/);
+  const peeled = peelRubyBlockParams(extracted.bodySlice);
+  const m = peeled.body.match(/^\s*(true|false|-?\d+|"[^"]*"|'[^']*')\s*$/);
   if (!m) return null;
   const v = parseLiteralToken(m[1]);
   if (v === null) return null;

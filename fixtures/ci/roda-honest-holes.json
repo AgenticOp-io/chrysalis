@@ -1,0 +1,27 @@
+{
+  "kind": "chrysalis.hub.roda-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:05:00.000Z",
+  "gate": "G10022",
+  "note": "Catalog only (D6447 / D6484). Shallow Roda r.get|post route surface is lifted (hub:roda-smoke 20/20). Do not invent nested r.on trees, plugin auth, or multi-file Roda apps. Sinatra remains Ruby D6448-ST. Rails secondary stays skipped (G10006).",
+  "fixture": "fixtures/hub-gold-roda",
+  "smoke": "pnpm run hub:roda-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:ruby",
+  "supported": [
+    "r.get|post|put|patch|delete literal path segments",
+    "String / Integer / :id matchers → /:id path params (block |id|)",
+    "Bare Hash returns (plugin :json)",
+    "Scalar lit / bare path-capture returns",
+    "response.status = N",
+    "r.params[\"q\"] || \"\" query peels"
+  ],
+  "honestHoles": [
+    { "shape": "Nested r.on / r.is routing trees", "reason": "hub-ruby:roda-nested-on" },
+    { "shape": "Multi-file route modules / plugins beyond json", "reason": "hub-ruby:roda-plugins" },
+    { "shape": "Auth / session / csrf plugin chains", "reason": "hub-ruby:roda-auth" },
+    { "shape": "Regexp / non-literal matchers", "reason": "hub-ruby:roda-matcher-non-literal" }
+  ],
+  "relatedSkips": [
+    { "gate": "G10006", "catalog": "fixtures/ci/rails-controller-honest-skip.json" }
+  ]
+}

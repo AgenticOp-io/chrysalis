@@ -4,8 +4,10 @@
  * into earlier routes (hub-flagship-go / D6448-ST cwl-api). Named Gin handlers
  * (`r.GET("/path", health)` → `func health(c *gin.Context)`) resolve beyond
  * anonymous lambdas (hub-go-routes). Chi (`chi.URLParam` + `json.NewEncoder`)
- * and Echo (`c.Param` + `c.QueryParam` + `c.JSON`) secondary peels share the
- * same route scan via `detectGoWebDialect`.
+ * Echo (`c.Param` + `c.QueryParam` + `c.JSON`), Fiber (G10017:
+ * `c.Params` + `c.Query` + `c.JSON` / `c.Status(n).JSON` / `c.SendString`),
+ * and Gorilla mux (G10018: `HandleFunc`+`Methods` + `mux.Vars` + `json.NewEncoder`)
+ * secondary peels share the same route scan via `detectGoWebDialect`.
  */
 import { parseGoRoutes } from "../../packages/hub-native-bridge/dist/go.js";
 import {
@@ -40,6 +42,19 @@ const ECHO_JSON_MAP_RE =
 const ECHO_JSON_SCALAR_RE =
   /(?:return\s+)?c\.JSON\s*\(\s*(\d+)\s*,\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)/;
 const ECHO_STRING_RE = /(?:return\s+)?c\.String\s*\(\s*(\d+)\s*,\s*"([^"]*)"\s*\)/;
+// Fiber (G10017): c.JSON(data) or chained c.Status(n).JSON(...) / c.SendString — not Gin/Echo two-arg form.
+const FIBER_STATUS_JSON_PREFIX = String.raw`(?:return\s+)?c\.(?:Status\s*\(\s*(\d+)\s*\)\s*\.\s*)?`;
+const FIBER_JSON_MAP_RE = new RegExp(
+  FIBER_STATUS_JSON_PREFIX +
+    String.raw`JSON\s*\(\s*(?:fiber\.Map|map\[string\](?:interface\{\}|any))\s*\{([\s\S]*?)\}\s*(?:,\s*"[^"]*")?\s*\)`,
+);
+const FIBER_JSON_SCALAR_RE = new RegExp(
+  FIBER_STATUS_JSON_PREFIX +
+    String.raw`JSON\s*\(\s*(?!fiber\.Map|map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*(?:,\s*"[^"]*")?\s*\)`,
+);
+const FIBER_SEND_STRING_RE = new RegExp(
+  FIBER_STATUS_JSON_PREFIX + String.raw`SendString\s*\(\s*"([^"]*)"\s*\)`,
+);
 const GO_HTTP_STATUS_CONST = {
   StatusOK: 200,
   StatusCreated: 201,
@@ -161,12 +176,30 @@ export function isGoEchoSource(source) {
 }
 
 /**
+ * Fiber secondary dialect (G10017 / D6479).
  * @param {string} source
- * @returns {"chi" | "echo" | "gin"}
+ */
+export function isGoFiberSource(source) {
+  return /github\.com\/gofiber\/fiber/.test(source);
+}
+
+/**
+ * Gorilla mux secondary dialect (G10018 / D6480).
+ * @param {string} source
+ */
+export function isGoGorillaSource(source) {
+  return /github\.com\/gorilla\/mux/.test(source);
+}
+
+/**
+ * @param {string} source
+ * @returns {"chi" | "echo" | "fiber" | "gorilla" | "gin"}
  */
 export function detectGoWebDialect(source) {
   if (isGoChiSource(source)) return "chi";
   if (isGoEchoSource(source)) return "echo";
+  if (isGoFiberSource(source)) return "fiber";
+  if (isGoGorillaSource(source)) return "gorilla";
   return "gin";
 }
 
@@ -253,6 +286,73 @@ export function extractGoEchoHandlerBody(source, fromIndex) {
 }
 
 /**
+ * Resolve a named Fiber handler `func name(c *fiber.Ctx) error { ... }` (G10017).
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractGoNamedFiberHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+(?:\([^)]*\)\s+)?${handlerName}\s*\(\s*c\s+\*fiber\.Ctx\s*\)\s*error\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, named: handlerName };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoFiberHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\(\s*c\s+\*fiber\.Ctx\s*\)\s*error\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  // Fiber uses Chi-style Get|Post verbs.
+  const namedM = slice.match(
+    /\.(?:Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedFiberHandlerBody(source, namedM[1]);
+}
+
+/**
+ * Gorilla mux handlers share stdlib signature with Chi (G10018).
+ * Resolve named `func name(w http.ResponseWriter, r *http.Request)` from
+ * `r.HandleFunc("/path", name).Methods(...)`.
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoGorillaHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\(\s*w\s+http\.ResponseWriter\s*,\s*r\s*\*http\.Request\s*\)\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  const namedM = slice.match(
+    /\.HandleFunc\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedChiHandlerBody(source, namedM[1]);
+}
+
+/**
  * @param {string} bodySlice
  */
 function parseGoChiWriteHeaderStatus(bodySlice) {
@@ -272,6 +372,24 @@ function parseGoChiRefs(bodySlice) {
   const byVar = {};
   for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*chi\.URLParam\s*\(\s*r\s*,\s*"([^"]+)"\s*\)/g)) {
     byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  // Gorilla mux (G10018): id := mux.Vars(r)["id"]
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*mux\.Vars\s*\(\s*r\s*\)\s*\[\s*"([^"]+)"\s*\]/g,
+  )) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  // vars := mux.Vars(r); id := vars["id"]
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*mux\.Vars\s*\(\s*r\s*\)/g)) {
+    const varsName = m[1];
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(varsName)) continue;
+    const idxRe = new RegExp(
+      String.raw`(\w+)\s*:=\s*${varsName}\s*\[\s*"([^"]+)"\s*\]`,
+      "g",
+    );
+    for (const m2 of bodySlice.matchAll(idxRe)) {
+      byVar[m2[1]] = { source: "path", name: m2[2] };
+    }
   }
   for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*r\.URL\.Query\(\)\.Get\s*\(\s*"([^"]+)"\s*\)/g)) {
     byVar[m[1]] = { source: "query", name: m[2], default: "" };
@@ -482,6 +600,124 @@ function parseGoEchoHandlerBody(bodySlice) {
   }
   if (echoStr) {
     return { kind: "scalar", status: Number.parseInt(echoStr[1], 10), value: echoStr[2] };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
+}
+
+/**
+ * Fiber refs: c.Params("id"), c.Query("q"[, "default"]) — G10017.
+ * @param {string} bodySlice
+ */
+function parseGoFiberRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*c\.Params\s*\(\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*c\.Query\s*\(\s*"([^"]+)"(?:\s*,\s*"([^"]*)")?\s*\)/g,
+  )) {
+    byVar[m[1]] = {
+      source: "query",
+      name: m[2],
+      default: m[3] !== undefined ? m[3] : "",
+    };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoFiberMapReturn(bodySlice, byVar) {
+  const m = bodySlice.match(FIBER_JSON_MAP_RE);
+  if (!m) return null;
+  const status = m[1] !== undefined ? Number.parseInt(m[1], 10) : 200;
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GIN_H_PAIR_RE.lastIndex = 0;
+  for (const pair of m[2].matchAll(GIN_H_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoFiberJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(FIBER_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = m[1] !== undefined ? Number.parseInt(m[1], 10) : 200;
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: m[2] === "true" };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[3], 10) };
+  }
+  if (m[4] !== undefined) {
+    return { status, kind: "lit", value: m[4] };
+  }
+  const varName = m[5];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoFiberHandlerBody(bodySlice) {
+  const byVar = parseGoFiberRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const jsonMap = parseGoFiberMapReturn(bodySlice, byVar);
+  const jsonScalar = jsonMap ? null : parseGoFiberJsonScalar(bodySlice, byVar);
+  const sendStr = !jsonMap && !jsonScalar ? bodySlice.match(FIBER_SEND_STRING_RE) : null;
+  const litRet = !jsonMap && !jsonScalar && !sendStr ? bodySlice.match(LITERAL_RETURN_RE) : null;
+
+  if (jsonMap || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: jsonMap?.returnTree ?? null,
+      status: jsonMap?.status,
+    };
+  }
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  if (sendStr) {
+    const status = sendStr[1] !== undefined ? Number.parseInt(sendStr[1], 10) : 200;
+    return { kind: "scalar", status, value: sendStr[2] };
   }
   if (litRet) {
     return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
@@ -705,11 +941,15 @@ export function liftGoFileToWebir(opts) {
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const extracted =
-      dialect === "chi"
-        ? extractGoChiHandlerBody(source, idx)
+      dialect === "chi" || dialect === "gorilla"
+        ? dialect === "gorilla"
+          ? extractGoGorillaHandlerBody(source, idx)
+          : extractGoChiHandlerBody(source, idx)
         : dialect === "echo"
           ? extractGoEchoHandlerBody(source, idx)
-          : extractGoGinHandlerBody(source, idx);
+          : dialect === "fiber"
+            ? extractGoFiberHandlerBody(source, idx)
+            : extractGoGinHandlerBody(source, idx);
     let bodyId;
     if (!extracted) {
       bodyId = hubHandlerBodyHole(
@@ -718,13 +958,19 @@ export function liftGoFileToWebir(opts) {
           ? "hub-chi:handler-body"
           : dialect === "echo"
             ? "hub-echo:handler-body"
-            : "hub-go:handler-body",
+            : dialect === "fiber"
+              ? "hub-fiber:handler-body"
+              : dialect === "gorilla"
+                ? "hub-gorilla:handler-body"
+                : "hub-go:handler-body",
         {
           file,
           line: r.line,
         },
       );
-    } else if (dialect === "chi") {
+    } else if (dialect === "chi" || dialect === "gorilla") {
+      // Gorilla reuses Chi stdlib JSON/WriteHeader peels; mux.Vars peels live in parseGoChiRefs.
+      const holeTag = dialect === "gorilla" ? "hub-gorilla:handler-body" : "hub-chi:handler-body";
       const { bodySlice, line } = extracted;
       const loc = { file, line };
       const parsed = parseGoChiHandlerBody(bodySlice);
@@ -739,13 +985,13 @@ export function liftGoFileToWebir(opts) {
               line,
             },
             loc,
-          ) ?? hubHandlerBodyHole(ctx, "hub-chi:handler-body", loc);
+          ) ?? hubHandlerBodyHole(ctx, holeTag, loc);
       } else if (parsed?.kind === "scalar") {
         bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
       } else if (parsed?.kind === "status") {
         bodyId = lowerHubStatusOnly(ctx, parsed.status, loc);
       } else {
-        bodyId = hubHandlerBodyHole(ctx, "hub-chi:handler-body", loc);
+        bodyId = hubHandlerBodyHole(ctx, holeTag, loc);
       }
     } else if (dialect === "echo") {
       const { bodySlice, line } = extracted;
@@ -767,6 +1013,27 @@ export function liftGoFileToWebir(opts) {
         bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
       } else {
         bodyId = hubHandlerBodyHole(ctx, "hub-echo:handler-body", loc);
+      }
+    } else if (dialect === "fiber") {
+      const { bodySlice, line } = extracted;
+      const loc = { file, line };
+      const parsed = parseGoFiberHandlerBody(bodySlice);
+      if (parsed?.kind === "handler") {
+        bodyId =
+          lowerGoHandlerBody(
+            ctx,
+            {
+              sqlEffects: parsed.sqlEffects,
+              returnTree: parsed.returnTree,
+              status: parsed.status,
+              line,
+            },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-fiber:handler-body", loc);
+      } else if (parsed?.kind === "scalar") {
+        bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-fiber:handler-body", loc);
       }
     } else {
       const { bodySlice, line } = extracted;

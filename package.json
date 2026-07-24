@@ -2,7 +2,7 @@
   "name": "chrysalis-root",
   "version": "2.0.2",
   "private": true,
-  "description": "Chrysalis — a web framework you can grow inside a legacy PHP app until it consumes it.",
+  "description": "Chrysalis â€” a web framework you can grow inside a legacy PHP app until it consumes it.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -1395,13 +1395,21 @@
     "hub:hapi-smoke": "node scripts/hub-ingest/hub-hapi-smoke.mjs",
     "hub:fastapi-smoke": "node scripts/hub-ingest/hub-fastapi-smoke.mjs",
     "hub:starlette-smoke": "node scripts/hub-ingest/hub-starlette-smoke.mjs",
+    "hub:falcon-smoke": "node scripts/hub-ingest/hub-falcon-smoke.mjs",
+    "hub:litestar-smoke": "node scripts/hub-ingest/hub-litestar-smoke.mjs",
     "hub:aspnet-controllers-smoke": "node scripts/hub-ingest/hub-aspnet-controllers-smoke.mjs",
     "hub:jaxrs-smoke": "node scripts/hub-ingest/hub-jaxrs-smoke.mjs",
+    "hub:micronaut-smoke": "node scripts/hub-ingest/hub-micronaut-smoke.mjs",
     "hub:ktor-smoke": "node scripts/hub-ingest/hub-ktor-smoke.mjs",
+    "hub:http4k-smoke": "node scripts/hub-ingest/hub-http4k-smoke.mjs",
     "hub:chi-smoke": "node scripts/hub-ingest/hub-chi-smoke.mjs",
     "hub:echo-smoke": "node scripts/hub-ingest/hub-echo-smoke.mjs",
+    "hub:fiber-smoke": "node scripts/hub-ingest/hub-fiber-smoke.mjs",
+    "hub:roda-smoke": "node scripts/hub-ingest/hub-roda-smoke.mjs",
+    "hub:gorilla-smoke": "node scripts/hub-ingest/hub-gorilla-smoke.mjs",
     "hub:restify-smoke": "node scripts/hub-ingest/hub-restify-smoke.mjs",
     "hub:polka-smoke": "node scripts/hub-ingest/hub-polka-smoke.mjs",
+    "hub:hono-smoke": "node scripts/hub-ingest/hub-hono-smoke.mjs",
     "hub:elixir-smoke": "node scripts/hub-ingest/hub-elixir-smoke.mjs",
     "hub:dart-smoke": "node scripts/hub-ingest/hub-dart-smoke.mjs",
     "hub:hummingbird-smoke": "node scripts/hub-ingest/hub-hummingbird-smoke.mjs",
@@ -1447,3 +1455,4 @@
     }
   }
 }
+

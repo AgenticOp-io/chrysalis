@@ -1,0 +1,52 @@
+{
+  "kind": "chrysalis.hub.java-secondary-dialect-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST.",
+  "dialects": {
+    "jaxrs": {
+      "fixture": "fixtures/hub-gold-jaxrs",
+      "smoke": "pnpm run hub:jaxrs-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10012",
+      "supported": [
+        "Class @Path prefix join + method @Path",
+        "@GET|POST|PUT|PATCH|DELETE adjacent annotations",
+        "@PathParam / @QueryParam + @DefaultValue",
+        "Map.of JSON returns",
+        "Response.status().entity().build() / Response.ok().build()"
+      ],
+      "honestHoles": [
+        { "shape": "CDI / @Inject container", "reason": "hub-jaxrs:cdi" },
+        { "shape": "ContainerRequestFilter / ContainerResponseFilter", "reason": "hub-jaxrs:filters" },
+        { "shape": "MessageBodyReader/Writer providers", "reason": "hub-jaxrs:providers" },
+        { "shape": "javax.ws.rs.core.Application subclass", "reason": "hub-jaxrs:application" }
+      ]
+    },
+    "micronaut": {
+      "fixture": "fixtures/hub-gold-micronaut",
+      "smoke": "pnpm run hub:micronaut-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10020",
+      "supported": [
+        "@Controller prefix join + @Get|Post|Put|Patch|Delete paths",
+        "{id} path templates",
+        "@PathVariable / @QueryValue(+defaultValue) peels",
+        "Map.of JSON returns",
+        "HttpResponse.ok / .created / .accepted / .status().body()"
+      ],
+      "honestHoles": [
+        { "shape": "@Singleton / @Factory / constructor DI", "reason": "hub-micronaut:di" },
+        { "shape": "HttpServerFilter / FilterChain", "reason": "hub-micronaut:filters" },
+        { "shape": "Application.run / Micronaut bootstrap", "reason": "hub-micronaut:application" },
+        { "shape": "Non-literal path templates", "reason": "hub-java:path-non-literal" }
+      ]
+    }
+  },
+  "absentOrigins": [],
+  "nextTargets": [
+    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) smokes closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

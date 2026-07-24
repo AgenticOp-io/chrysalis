@@ -11,12 +11,15 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 
 | Catalog | Covers |
 | --- | --- |
-| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka |
-| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo secondaries; Gin ST |
+| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) |
+| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Gorilla mux secondaries; Gin ST |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
 | [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails secondary peel **skipped** (G10006; not cheap) |
+| [`fixtures/ci/roda-honest-holes.json`](../fixtures/ci/roda-honest-holes.json) | Roda secondary (G10022); nested `r.on`/plugins = holes |
 | [`fixtures/ci/dart-shelf-honest-holes.json`](../fixtures/ci/dart-shelf-honest-holes.json) | Shelf ST; Flutter / Frog / Pipeline |
+| [`fixtures/ci/http4k-honest-holes.json`](../fixtures/ci/http4k-honest-holes.json) | http4k Kotlin secondary; Spring ST; Ktor secondary |
+| [`fixtures/ci/java-secondary-dialect-honest-holes.json`](../fixtures/ci/java-secondary-dialect-honest-holes.json) | Java JAX-RS (G10012) / Micronaut (G10020); Spring ST |
 
 Update those JSON files when a hole is closed by a real peel — not by inventing runtime.
 
@@ -43,14 +46,22 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Koa / Polka | Non-empty onion `app.use` | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Restify | Plugins, complex `pre`/`use` bodies | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Hapi | Plugins, `server.ext` lifecycle, auth options | Route + `h.response().code` smoke; G10005 IDENT destructure peel |
+| Hono | `app.use` / middleware helpers, nested `app.route`, ResponseInit status | ORIGIN route surface secondary (G10019); **≠ emit-hono** |
 | FastAPI | `Depends`, OAuth, middleware onion | Route surface secondary (G10003) |
+| Starlette | `Mount`, middleware, ASGI onion, `Route()` table-only | Route surface secondary via `@app.route` (G10013) |
+| Falcon | Hooks, middleware, ASGI onion, sink responders, cross-file resources | Route surface secondary via `add_route` + `on_*` (G10023) |
 | Go Chi | Middleware, `Mount`, non-literal paths | Route surface secondary (G10009) |
 | Go Echo | Middleware, `Group` deep nesting, `c.Bind` binders | Route surface secondary (G10010) |
-| Starlette | `Mount`, middleware, ASGI onion, `Route()` table-only | Route surface secondary via `@app.route` (G10013) |
+| Go Fiber | Middleware, `Group` deep nesting, `c.BodyParser` binders | Route surface secondary (G10017) |
+| Go Gorilla mux | Middleware, `PathPrefix`/`Subrouter`, non-literal paths | Route surface secondary (G10018) |
+| Litestar | `Provide`/DI, middleware/guards, class `Controller`, `Response`/`MediaType`, WebSocket | Route surface secondary via bare `@get|post` (G10021) |
 | Java JAX-RS | CDI, filters, providers, `Application` subclass | Spring `@RestController` ST; resource routes secondary (G10012) |
+| Java Micronaut | DI (`@Singleton`/`@Factory`), filters, `Application.run` bootstrap | Spring `@RestController` ST; controller routes secondary (G10020) |
 | ASP.NET MVC | DI container, filter pipeline, Razor UI | Minimal API ST; controller attributes secondary (G10008) |
 | Ktor | Auth, plugins, nested routing beyond cheap peel | Route surface secondary (G10004) |
+| http4k | Filter/then chains, Body/Header lenses beyond req.path/query, nested/contract routing, server backends | Route surface secondary (G10024) |
 | Ruby Rails | ActionController, `render json:`, cross-file `ctrl#action`, route macros | Sinatra ST (`hub-flagship-ruby`) |
+| Ruby Roda | Nested `r.on`/`r.is`, multi-file plugins/auth, non-literal matchers | Shallow `r.get|post` secondary (G10022) |
 | Elixir | Phoenix controllers, LiveView, pipelines | Plug.Router ST |
 | Dart | Flutter, Dart Frog, Pipeline, mount/stream, cross-file named handlers | Shelf ST + same-file named handlers (G10007) |
 | PHP Blade | Alpine `x-show`, Livewire `wire:*` hydrate | Inventory + basic Blade structural |
@@ -70,6 +81,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Rails secondary | `routes.rb` + controller cross-file; inline rack lambda peel not cheap | `rails-controller-honest-skip` (G10006) |
 | Blazor / ERB / Django | Inventory + markup adapters | MULTI-ORIGIN Tier C — plan amendment |
 | JAX-RS CDI / filters / providers / Application | Full CDI container, filter pipeline, `Application` bootstrap | Spring is Java ST; JAX-RS resource routes closed (G10012); CDI/filters/providers = holes |
+| Micronaut DI / filters / Application | `@Singleton`/`@Factory` DI, `HttpServerFilter`, `Application.run` | Spring is Java ST; Micronaut controller routes closed (G10020); DI/filters/Application = holes |
 | ASP.NET MVC / Razor / DI / filters | Full MVC filter pipeline, DI container, Razor UI | Minimal API is ST; controller attribute routes closed (G10008); Razor/DI/filters = holes |
 | Middleware onion (any) | Real origin mw corpus + bounded peel | Never invent onion runtime |
 

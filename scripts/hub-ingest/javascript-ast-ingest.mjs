@@ -483,6 +483,98 @@ function reqGetHeaderFieldOf(expr) {
 }
 
 /**
+ * Hono `c.req.param("id")` / `c.req.query("q")` → path/query request field (G10019).
+ * @param {import('estree').CallExpression} expr
+ * @returns {{ source: "path" | "query", name: string } | null}
+ */
+function honoReqFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (
+    callee?.type !== "MemberExpression" ||
+    callee.computed ||
+    callee.property?.type !== "Identifier"
+  ) {
+    return null;
+  }
+  const method = callee.property.name;
+  if (method !== "param" && method !== "query") return null;
+  const req = callee.object;
+  if (
+    req?.type !== "MemberExpression" ||
+    req.computed ||
+    req.property?.type !== "Identifier" ||
+    req.property.name !== "req" ||
+    req.object?.type !== "Identifier" ||
+    req.object.name !== "c"
+  ) {
+    return null;
+  }
+  const arg = expr.arguments[0];
+  if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+  return { source: method === "param" ? "path" : "query", name: arg.value };
+}
+
+/**
+ * Hono origin factory: `new Hono()` / `new Hono<…>()` (G10019 — dialect marker only).
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isHonoNewExpression(expr) {
+  if (expr?.type !== "NewExpression") return false;
+  const callee = expr.callee;
+  if (callee?.type === "Identifier" && callee.name === "Hono") return true;
+  // TS transpile may leave `new Hono()` as Identifier; generics strip to same.
+  return false;
+}
+
+/**
+ * Hono `c.text(value)` / `c.text(value, status)` → text payload argument.
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {import('estree').Expression | null}
+ */
+function peelHonoTextArgument(expr) {
+  if (expr?.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (
+    callee?.type !== "MemberExpression" ||
+    callee.computed ||
+    callee.property?.type !== "Identifier" ||
+    callee.property.name !== "text"
+  ) {
+    return null;
+  }
+  if (callee.object?.type !== "Identifier" || callee.object.name !== "c") return null;
+  return expr.arguments[0] ?? null;
+}
+
+/**
+ * Scan handler for Hono `c.text(...)` payload.
+ * @param {import('estree').Function} fn
+ * @returns {import('estree').Expression | null}
+ */
+function honoTextPayloadExpression(fn) {
+  const expr = extractHandlerExpression(fn);
+  if (expr?.type === "CallExpression") {
+    const peeled = peelHonoTextArgument(expr);
+    if (peeled) return peeled;
+  }
+  const body = fn.body;
+  if (body?.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ReturnStatement" && s.argument?.type === "CallExpression") {
+        const peeled = peelHonoTextArgument(s.argument);
+        if (peeled) return peeled;
+      }
+      if (s.type === "ExpressionStatement" && s.expression?.type === "CallExpression") {
+        const peeled = peelHonoTextArgument(s.expression);
+        if (peeled) return peeled;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * SvelteKit / Next load: `url.searchParams.get("q")`.
  * @param {import('estree').CallExpression} expr
  */
@@ -1165,6 +1257,16 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "CallExpression") {
+    const honoReq = honoReqFieldOf(expr);
+    if (honoReq) {
+      return data.requestField({
+        source: honoReq.source,
+        name: honoReq.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", `javascript-ast:hono-req-${honoReq.source}`)],
+      });
+    }
     const reqHdr = reqGetHeaderFieldOf(expr);
     if (reqHdr) {
       return data.requestField({
@@ -1307,6 +1409,15 @@ function extractResStatus(expr) {
       if (a0?.type === "Literal" && typeof a0.value === "number" && a1) {
         return a0.value;
       }
+    }
+    // Hono: `c.json(body, status)` / `c.text(body, status)` — numeric second arg.
+    if (
+      (callee.property.name === "json" || callee.property.name === "text") &&
+      callee.object?.type === "Identifier" &&
+      callee.object.name === "c"
+    ) {
+      const a1 = cur.arguments[1];
+      if (a1?.type === "Literal" && typeof a1.value === "number") return a1.value;
     }
     // Express `status` / `sendStatus`; Fastify also aliases `code`.
     if (
@@ -1545,6 +1656,19 @@ function lowerHandlerBody(ctx, fn) {
       provenance: [webir.provenance("hub-ingest", "javascript-ast:handler-json")],
     });
   }
+  // Hono: `c.text(value)` (+ optional status via extractResStatus) — text surface, not JSON.
+  const honoTextPayload = honoTextPayloadExpression(fn);
+  if (honoTextPayload) {
+    const valId = lowerExpression(workCtx, honoTextPayload);
+    return data.block({
+      statements: statusId ? [statusId, valId] : [valId],
+      type: T.unknown,
+      origin: honoTextPayload.loc?.start
+        ? originAt(honoTextPayload.loc.start, file)
+        : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:hono-text")],
+    });
+  }
   const sendPayload = resSendPayloadExpression(fn);
   if (sendPayload) {
     const valId = lowerExpression(workCtx, sendPayload);
@@ -1656,12 +1780,16 @@ export function liftJavaScriptFileToWebir(opts) {
 
   /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc?: { line: number, column: number }, httpCode?: number | null, paramBindings?: Map<string, { source: string, name: string }> }>} */
   const routes = [...nestRoutes];
+  let honoOrigin = false;
   if (ast) {
     walkSimple(ast, {
       CallExpression(node) {
         const r = extractRouteFromCall(node);
         if (r) routes.push(r);
         for (const hr of extractHapiRoutesFromCall(node)) routes.push(hr);
+      },
+      NewExpression(node) {
+        if (isHonoNewExpression(node)) honoOrigin = true;
       },
     });
   }
@@ -1687,6 +1815,11 @@ export function liftJavaScriptFileToWebir(opts) {
       nestParamBindings: r.paramBindings ?? null,
     };
     const bodyId = lowerHandlerBody(ctx, r.fn);
+    const dialectTag = r.paramBindings
+      ? `nestjs`
+      : honoOrigin
+        ? `hono`
+        : null;
     const handlerId = wr.handler({
       attrs: {
         name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
@@ -1699,7 +1832,7 @@ export function liftJavaScriptFileToWebir(opts) {
       provenance: [
         webir.provenance(
           "hub-ingest",
-          r.paramBindings ? `javascript-ast:nestjs:${language}` : `javascript-ast:${language}`,
+          dialectTag ? `javascript-ast:${dialectTag}:${language}` : `javascript-ast:${language}`,
         ),
       ],
     });
@@ -1710,7 +1843,7 @@ export function liftJavaScriptFileToWebir(opts) {
       provenance: [
         webir.provenance(
           "hub-ingest",
-          r.paramBindings ? `route:nestjs:${language}` : `route:${language}`,
+          dialectTag ? `route:${dialectTag}:${language}` : `route:${language}`,
         ),
       ],
     });

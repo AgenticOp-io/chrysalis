@@ -1,0 +1,30 @@
+{
+  "kind": "chrysalis.hub.http4k-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent http4k Filter chains, Body/Header lenses, contract routing, or server backends. Lift cheap routes(bind)+req.path/req.query+Response(Status).body shapes that appear, else leave honest holes. Spring remains Kotlin D6448-ST; Ktor remains first Kotlin secondary (G10004). http4k secondary smoke G10024 closed when hub:http4k-smoke ok.",
+  "fixture": "fixtures/hub-gold-http4k",
+  "smoke": "pnpm run hub:http4k-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:kotlin",
+  "supported": [
+    "\"path\" bind Method.GET|POST|PUT|PATCH|DELETE to { … }",
+    "\"path\" bind GET to { … } (imported Method enum)",
+    "{id} path templates",
+    "req.path(\"id\") path peels",
+    "req.query(\"q\") ?: \"\" query peels",
+    "Response(OK|CREATED|ACCEPTED).body(lit|pathRef)"
+  ],
+  "honestHoles": [
+    { "shape": "Filter / then middleware chains", "reason": "hub-kotlin:http4k-filter" },
+    { "shape": "Body/Header/Query lenses beyond req.path/req.query", "reason": "hub-kotlin:http4k-lens" },
+    { "shape": "Nested routes( / contract routing DSL", "reason": "hub-kotlin:http4k-nested" },
+    { "shape": "Server backends (Jetty/Netty/…)", "reason": "hub-kotlin:http4k-server" },
+    { "shape": "Non-literal path templates", "reason": "hub-kotlin:path-non-literal" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Spring Kotlin ST + Ktor + http4k secondary smokes closed (G10004/G10024)",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

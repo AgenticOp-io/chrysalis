@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-hono",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

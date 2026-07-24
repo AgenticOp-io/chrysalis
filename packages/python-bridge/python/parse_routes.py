@@ -1,4 +1,4 @@
-"""Extract Flask/FastAPI/Starlette-style route metadata from Python source (hub ingest)."""
+"""Extract Flask/FastAPI/Starlette/Litestar/Falcon-style route metadata from Python source (hub ingest)."""
 import ast
 import json
 import re
@@ -13,6 +13,21 @@ except SyntaxError as e:
 
 RECEIVERS = {"app", "router", "api", "bp", "blueprint"}
 HTTP_NAMES = {"get", "post", "put", "patch", "delete", "head", "options", "route"}
+FALCON_ON = {
+    "on_get": "GET",
+    "on_post": "POST",
+    "on_put": "PUT",
+    "on_patch": "PATCH",
+    "on_delete": "DELETE",
+    "on_head": "HEAD",
+    "on_options": "OPTIONS",
+}
+FALCON_STATUS_NAMES = {
+    "HTTP_OK": 200,
+    "HTTP_CREATED": 201,
+    "HTTP_ACCEPTED": 202,
+    "HTTP_NO_CONTENT": 204,
+}
 
 
 def const_str(node):
@@ -69,11 +84,29 @@ def request_bucket_map(bucket):
     return {
         "args": "query",
         "query_params": "query",
+        "params": "query",
         "view_args": "path",
         "path_params": "path",
         "headers": "header",
         "cookies": "cookie",
     }.get(bucket)
+
+
+def request_receiver_ok(name):
+    return name in ("request", "req")
+
+
+def request_ref_default(node):
+    if len(node.args) >= 2:
+        default = const_val(node.args[1])
+        if default is not None:
+            return default
+    for k in node.keywords:
+        if k.arg in ("default", "default_val"):
+            default = const_val(k.value)
+            if default is not None:
+                return default
+    return None
 
 
 def request_ref_from_get_call(node):
@@ -84,7 +117,7 @@ def request_ref_from_get_call(node):
     inner = node.func.value
     if not isinstance(inner, ast.Attribute):
         return None
-    if not isinstance(inner.value, ast.Name) or inner.value.id != "request":
+    if not isinstance(inner.value, ast.Name) or not request_receiver_ok(inner.value.id):
         return None
     source = request_bucket_map(inner.attr)
     if not source:
@@ -98,10 +131,29 @@ def request_ref_from_get_call(node):
     if not name:
         return None
     ref = {"t": "ref", "source": source, "name": name}
-    if len(node.args) >= 2:
-        default = const_val(node.args[1])
-        if default is not None:
-            ref["default"] = default
+    default = request_ref_default(node)
+    if default is not None:
+        ref["default"] = default
+    return ref
+
+
+def request_ref_from_get_param(node):
+    """Falcon `req.get_param('q')` / `req.get_param('q', default='')` → query ref."""
+    if not isinstance(node, ast.Call):
+        return None
+    if not isinstance(node.func, ast.Attribute) or node.func.attr != "get_param":
+        return None
+    if not isinstance(node.func.value, ast.Name) or not request_receiver_ok(node.func.value.id):
+        return None
+    if not node.args:
+        return None
+    name = const_str(node.args[0])
+    if not name:
+        return None
+    ref = {"t": "ref", "source": "query", "name": name}
+    default = request_ref_default(node)
+    if default is not None:
+        ref["default"] = default
     return ref
 
 
@@ -111,7 +163,7 @@ def request_ref_from_subscript(node):
     if not isinstance(node.value, ast.Attribute):
         return None
     inner = node.value
-    if not isinstance(inner.value, ast.Name) or inner.value.id != "request":
+    if not isinstance(inner.value, ast.Name) or not request_receiver_ok(inner.value.id):
         return None
     source = request_bucket_map(inner.attr)
     if not source:
@@ -158,6 +210,9 @@ def expr_tree(node, func_args, path_params):
         return {"t": "obj", "entries": entries} if entries else None
     if isinstance(node, ast.Call):
         ref = request_ref_from_get_call(node)
+        if ref:
+            return ref
+        ref = request_ref_from_get_param(node)
         if ref:
             return ref
         if isinstance(node.func, ast.Name) and node.func.id == "jsonify":
@@ -233,10 +288,45 @@ def methods_from_keywords(kw):
     return None
 
 
+def path_from_call(dec):
+    """Positional path arg or `path=` keyword (Litestar / FastAPI)."""
+    if dec.args:
+        path = const_str(dec.args[0])
+        if path:
+            return path
+    for k in dec.keywords:
+        if k.arg == "path":
+            path = const_str(k.value)
+            if path:
+                return path
+    return None
+
+
+def route_rows(http_name, path, keywords, line):
+    if http_name == "route":
+        methods = methods_from_keywords(keywords) or ["GET"]
+    else:
+        methods = [http_name.upper()]
+    status_code = status_from_keywords(keywords)
+    rows = [{"method": m, "path": path, "line": line} for m in methods]
+    if status_code is not None:
+        for row in rows:
+            row["statusCode"] = status_code
+    return rows
+
+
 def route_from_decorator(dec):
     if not isinstance(dec, ast.Call):
         return None
     func = dec.func
+    line = dec.lineno if hasattr(dec, "lineno") else 1
+    path = path_from_call(dec)
+    if not path:
+        return None
+    # Litestar: @get("/path") / @post(..., status_code=201) — bare HTTP Name.
+    if isinstance(func, ast.Name) and func.id in HTTP_NAMES:
+        return route_rows(func.id, path, dec.keywords, line)
+    # Flask/FastAPI/Starlette: @app.get / @app.route / @router.post
     if not isinstance(func, ast.Attribute):
         return None
     if func.attr not in HTTP_NAMES:
@@ -244,22 +334,7 @@ def route_from_decorator(dec):
     recv = func.value
     if isinstance(recv, ast.Name) and recv.id not in RECEIVERS:
         return None
-    if not dec.args:
-        return None
-    path = const_str(dec.args[0])
-    if not path:
-        return None
-    if func.attr == "route":
-        methods = methods_from_keywords(dec.keywords) or ["GET"]
-    else:
-        methods = [func.attr.upper()]
-    line = dec.lineno if hasattr(dec, "lineno") else 1
-    status_code = status_from_keywords(dec.keywords)
-    rows = [{"method": m, "path": path, "line": line} for m in methods]
-    if status_code is not None:
-        for row in rows:
-            row["statusCode"] = status_code
-    return rows
+    return route_rows(func.attr, path, dec.keywords, line)
 
 
 def peel_sql_execute(node, func_args, path_params):
@@ -306,6 +381,100 @@ def collect_sql_effects(body, func_args, path_params):
     return effects
 
 
+def falcon_status_code(node):
+    """falcon.HTTP_201 / falcon.HTTP_CREATED / int / '201 Created' → status int."""
+    v = const_val(node)
+    if isinstance(v, int):
+        return v
+    if isinstance(v, str):
+        m = re.match(r"^(\d{3})\b", v.strip())
+        if m:
+            return int(m.group(1))
+    if isinstance(node, ast.Attribute):
+        name = node.attr
+        if name in FALCON_STATUS_NAMES:
+            return FALCON_STATUS_NAMES[name]
+        m = re.match(r"^HTTP_(\d{3})$", name)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def is_resp_attr(target, attr):
+    return (
+        isinstance(target, ast.Attribute)
+        and isinstance(target.value, ast.Name)
+        and target.value.id == "resp"
+        and target.attr == attr
+    )
+
+
+def peel_falcon_method_body(body):
+    """resp.media / resp.text payload + optional resp.status."""
+    media = None
+    text = None
+    status = None
+    if not isinstance(body, list):
+        return None, None
+    for stmt in body:
+        if not isinstance(stmt, ast.Assign) or len(stmt.targets) != 1:
+            continue
+        target = stmt.targets[0]
+        if is_resp_attr(target, "media"):
+            media = stmt.value
+        elif is_resp_attr(target, "text"):
+            text = stmt.value
+        elif is_resp_attr(target, "status"):
+            status = falcon_status_code(stmt.value)
+    payload = media if media is not None else text
+    return payload, status
+
+
+def falcon_resource_handlers(class_node):
+    handlers = {}
+    for item in class_node.body:
+        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name in FALCON_ON:
+            handlers[FALCON_ON[item.name]] = item
+    return handlers
+
+
+def falcon_add_route_class(node):
+    """Resource() call or bare Resource name → class id."""
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+        return node.func.id
+    if isinstance(node, ast.Name):
+        return node.id
+    return None
+
+
+def fill_return_fields(row, ret, func_args, path_params):
+    tree_val = expr_tree(ret, func_args, path_params)
+    if tree_val is not None:
+        row["returnTree"] = tree_val
+        row["returnKind"] = "tree"
+        return
+    if isinstance(ret, ast.Call) and isinstance(ret.func, ast.Name) and ret.func.id == "jsonify":
+        d = jsonify_payload(ret)
+        if d is not None:
+            row["returnKind"] = "json"
+            row["returnValue"] = d
+        else:
+            row["returnKind"] = "jsonify"
+        return
+    v = const_val(ret)
+    d = const_dict(ret) if isinstance(ret, ast.Dict) else None
+    if d is not None:
+        row["returnKind"] = "literal"
+        row["returnValue"] = d
+    elif v is not None and not isinstance(v, dict):
+        row["returnKind"] = "literal"
+        row["returnValue"] = v
+    elif isinstance(ret, ast.Dict):
+        row["returnKind"] = "dict"
+    else:
+        row["returnKind"] = type(ret).__name__
+
+
 routes = []
 for node in tree.body:
     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -337,31 +506,52 @@ for node in tree.body:
                         if payload is not None:
                             ret = payload
                             row["statusCode"] = status_code
-                        tree_val = expr_tree(ret, func_args, path_params)
-                        if tree_val is not None:
-                            row["returnTree"] = tree_val
-                            row["returnKind"] = "tree"
-                        elif isinstance(ret, ast.Call) and isinstance(ret.func, ast.Name) and ret.func.id == "jsonify":
-                            d = jsonify_payload(ret)
-                            if d is not None:
-                                row["returnKind"] = "json"
-                                row["returnValue"] = d
-                            else:
-                                row["returnKind"] = "jsonify"
-                        else:
-                            v = const_val(ret)
-                            d = const_dict(ret) if isinstance(ret, ast.Dict) else None
-                            if d is not None:
-                                row["returnKind"] = "literal"
-                                row["returnValue"] = d
-                            elif v is not None and not isinstance(v, dict):
-                                row["returnKind"] = "literal"
-                                row["returnValue"] = v
-                            elif isinstance(ret, ast.Dict):
-                                row["returnKind"] = "dict"
-                            else:
-                                row["returnKind"] = type(ret).__name__
+                        fill_return_fields(row, ret, func_args, path_params)
                 routes.append(row)
             break
+
+# Falcon: app.add_route('/path', Resource()) + class on_get/on_post/… (same-file only).
+resource_classes = {}
+for node in tree.body:
+    if not isinstance(node, ast.ClassDef):
+        continue
+    handlers = falcon_resource_handlers(node)
+    if handlers:
+        resource_classes[node.name] = handlers
+
+for node in ast.walk(tree):
+    if not isinstance(node, ast.Call):
+        continue
+    if not isinstance(node.func, ast.Attribute) or node.func.attr != "add_route":
+        continue
+    if len(node.args) < 2:
+        continue
+    path = const_str(node.args[0])
+    class_name = falcon_add_route_class(node.args[1])
+    if not path or not class_name or class_name not in resource_classes:
+        continue
+    path_params = set(path_param_names(path))
+    line = node.lineno if hasattr(node, "lineno") else 1
+    for method, fn in resource_classes[class_name].items():
+        func_args = [a.arg for a in fn.args.args]
+        row = {
+            "method": method,
+            "path": path,
+            "line": line,
+            "name": "%s_%s" % (class_name, fn.name),
+            "returns": type(fn.body[-1]).__name__ if fn.body else None,
+            "returnKind": None,
+        }
+        payload, status = peel_falcon_method_body(fn.body)
+        if status is not None:
+            row["statusCode"] = status
+        sql_effects = collect_sql_effects(fn.body, func_args, path_params)
+        if sql_effects:
+            row["sqlEffects"] = sql_effects
+        if payload is not None:
+            fill_return_fields(row, payload, func_args, path_params)
+        else:
+            row["returnKind"] = "falcon-empty"
+        routes.append(row)
 
 print(json.dumps({"schemaVersion": "0.1.0", "routes": routes}))

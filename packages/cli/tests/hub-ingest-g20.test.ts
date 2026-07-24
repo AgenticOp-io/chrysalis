@@ -182,6 +182,29 @@ test("java AST lifts JAX-RS resource 20/20 hole-free (G10012)", async () => {
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
+test("kotlin AST lifts http4k routes 20/20 hole-free (G10024)", async () => {
+  const { parseKotlinRoutes, liftKotlinFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/kotlin-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-http4k/app.kt"), "utf8");
+  const routes = parseKotlinRoutes(source, "app.kt");
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-http4k" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftKotlinFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.kt",
+    language: "kotlin",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("dart AST resolves same-file named Shelf handlers (G10007)", async () => {
   const { extractDartNamedHandlerBody, extractDartShelfHandlerBody, liftDartFileToWebir } =
     await import(resolve(ROOT, "scripts/hub-ingest/dart-ast-ingest.mjs"));
@@ -236,6 +259,30 @@ test("go AST finds gin routes", async () => {
   const wr = webir.webRequest.builders(builder);
   liftGoFileToWebir({ webir, builder, wr, source, file: "main.go", language: "go" });
   expect(builder.finish().roots.length).toBe(2);
+});
+
+test("go AST lifts Fiber dialect 20/20 hole-free (G10017)", async () => {
+  const { parseGoRoutes, detectGoWebDialect, liftGoFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/go-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-fiber/main.go"), "utf8");
+  expect(detectGoWebDialect(source)).toBe("fiber");
+  const routes = parseGoRoutes(source);
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-fiber" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftGoFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.go",
+    language: "go",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
 test("lift-to-webir java and go", async () => {

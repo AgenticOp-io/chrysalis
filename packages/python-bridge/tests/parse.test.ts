@@ -75,8 +75,36 @@ def create_item():
     expect(create?.statusCode).toBe(201);
   });
 
+  it.skipIf(!pythonAvailable())("parses hub-gold-litestar bare @get|post routes", async () => {
+    const fixture = join(repoRoot, "fixtures/hub-gold-litestar/app.py");
+    const result = await parseFile(fixture);
+    expect(result.routes.length).toBe(20);
+    const search = result.routes.find((r) => r.path === "/search");
+    expect(search?.returnKind).toBe("tree");
+    expect(search?.returnTree?.t).toBe("obj");
+    const create = result.routes.find((r) => r.method === "POST" && r.path === "/items");
+    expect(create?.statusCode).toBe(201);
+    const notify = result.routes.find((r) => r.path === "/notify");
+    expect(notify?.statusCode).toBe(202);
+  });
+
+  it.skipIf(!pythonAvailable())("parses hub-gold-falcon add_route + on_get routes", async () => {
+    const fixture = join(repoRoot, "fixtures/hub-gold-falcon/app.py");
+    const result = await parseFile(fixture);
+    expect(result.routes.length).toBe(20);
+    const search = result.routes.find((r) => r.path === "/search");
+    expect(search?.returnKind).toBe("tree");
+    expect(search?.returnTree?.t).toBe("obj");
+    const create = result.routes.find((r) => r.method === "POST" && r.path === "/items");
+    expect(create?.statusCode).toBe(201);
+    const item = result.routes.find((r) => r.method === "GET" && r.path === "/items/{id}");
+    expect(item?.returnKind).toBe("tree");
+  });
+
   it("parse script file exists", () => {
     const script = join(dirname(fileURLToPath(import.meta.url)), "..", "python", "parse_routes.py");
-    expect(readFileSync(script, "utf8")).toContain("route_from_decorator");
+    const src = readFileSync(script, "utf8");
+    expect(src).toContain("route_from_decorator");
+    expect(src).toContain("add_route");
   });
 });

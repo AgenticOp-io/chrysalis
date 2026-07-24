@@ -54,6 +54,9 @@ const SCALA_AKKA_ROUTE_RE =
 const SCALA_HTTP4S_CASE_RE =
   /\bcase\s+(?:(?:[A-Za-z_][A-Za-z0-9_]*)\s*@\s*)?(?:Method\.)?(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*->\s*Root((?:\s*\/\s*(?:"[^"]+"|(?:IntVar|LongVar|UUIDVar)\(\s*[A-Za-z_][A-Za-z0-9_]*\s*\)|[A-Za-z_][A-Za-z0-9_]*))+)\s*=>/gi;
 const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
+/** http4k secondary (G10024): `"path" bind Method.GET to` / `"path" bind GET to` / `bindMethod`. */
+const HTTP4K_ROUTE_RE =
+  /"([^"]+)"\s+bind(?:Method)?\s+(?:Method\.)?(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+to\b/gi;
 const SWIFT_VAPOR_VERB_HEAD_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(/gi;
 /** Hummingbird secondary dialect — single-string path: `router.get("/items/:id")`. */
 const HUMMINGBIRD_ROUTE_RE =
@@ -153,6 +156,11 @@ export function parseKotlinRoutes(source, file) {
   KTOR_ROUTE_RE.lastIndex = 0;
   while ((m = KTOR_ROUTE_RE.exec(source)) !== null) {
     pushRoute(routes, source, m[1], m[2], m.index, seen);
+  }
+  // http4k (G10024 / D6486) — after Ktor so Method.GET shapes do not collide with get("…").
+  HTTP4K_ROUTE_RE.lastIndex = 0;
+  while ((m = HTTP4K_ROUTE_RE.exec(source)) !== null) {
+    pushRoute(routes, source, m[2], m[1], m.index, seen);
   }
   return routes;
 }

@@ -1,8 +1,9 @@
 /**
- * Kotlin hub ingest — Spring `@*Mapping` + Ktor route parse; lift in-process.
+ * Kotlin hub ingest — Spring `@*Mapping` + Ktor + http4k (G10024) route parse; lift in-process.
  * Deepened for D6448-ST cwl-api flagship: brace/expression `fun` bodies, mapOf
  * JSON (+ path/query refs), ResponseEntity status+body, scalar returns
  * (hub-flagship-kotlin). Prefer this over thin pattern-route-lift for Spring KT.
+ * http4k secondary: `"path" bind Method.VERB to {…}`, req.path/query, Response(Status).body.
  */
 import { parseKotlinRoutes } from "./pattern-route-parsers.mjs";
 import {
@@ -207,6 +208,22 @@ export function extractKotlinMethodBody(source, fromIndex) {
       absEnd: end,
     };
   }
+  // http4k (G10024): "/path" bind Method.GET to { … } / bind GET to { req -> … }
+  const http4kM = slice.match(
+    /"[^"]+"\s+bind(?:Method)?\s+(?:Method\.)?(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+to\s*\{/i,
+  );
+  if (http4kM && http4kM.index !== undefined) {
+    const openInSlice = http4kM.index + http4kM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    return {
+      paramSource: "",
+      bodySlice: bal.inner,
+      line: source.slice(0, absOpen).split("\n").length,
+      kind: "http4k",
+    };
+  }
   // Ktor: get("/path") { ... }
   const ktorM = slice.match(/\b(?:get|post|put|patch|delete|head|options)\s*\(\s*"[^"]*"\s*\)\s*\{/i);
   if (ktorM && ktorM.index !== undefined) {
@@ -287,6 +304,10 @@ function parseKotlinBodyReturn(bodySlice, paramRefs) {
   const ktorRespondRef = bodySlice.match(
     /call\.respond(?:Text)?\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
   );
+  // http4k (G10024): Response(OK|CREATED|…).body(lit|ref) — not ResponseEntity.
+  const http4kResp = /(?<!Entity)Response\s*\(\s*(?:Status\.)?(\w+)\s*\)\s*\.\s*body\s*\(/.exec(
+    bodySlice,
+  );
 
   /** @param {string} expr */
   function mapFromExpr(expr) {
@@ -327,6 +348,20 @@ function parseKotlinBodyReturn(bodySlice, paramRefs) {
     const bodyArg = extractBalancedParenInner(bodySlice, (okM.index ?? 0) + okM[0].length - 1);
     returnTree = bodyArg ? mapFromExpr(bodyArg.inner) : null;
     kind = returnTree ? "json" : null;
+  } else if (http4kResp) {
+    status = parseKotlinHttpStatus(http4kResp[1]) ?? undefined;
+    const bodyArg = argAfterMarker(bodySlice, ".body(", http4kResp.index ?? 0);
+    if (bodyArg) {
+      const raw = bodyArg.inner.trim();
+      const lit = parseLiteralToken(raw);
+      if (lit !== null) {
+        returnTree = { t: "lit", v: lit };
+        kind = "scalar-lit";
+      } else if (paramRefs[raw]) {
+        returnTree = { t: "ref", ...paramRefs[raw] };
+        kind = "scalar-ref";
+      }
+    }
   } else if (ktorStatusMap) {
     const code = ktorStatusMap[1];
     status =
@@ -482,6 +517,21 @@ export function liftKotlinFileToWebir(opts) {
           source: "query",
           name: m[2],
           ...(m[3] !== undefined ? { default: m[3] } : {}),
+        };
+      }
+      // http4k (G10024): req.path("id") / req.query("q") ?: ""
+      for (const m of bodySlice.matchAll(
+        /(?:val|var)\s+(\w+)\s*=\s*[A-Za-z_][\w]*\.path\s*\(\s*"([^"]+)"\s*\)/g,
+      )) {
+        paramRefs[m[1]] = { source: "path", name: m[2] };
+      }
+      for (const m of bodySlice.matchAll(
+        /(?:val|var)\s+(\w+)\s*=\s*[A-Za-z_][\w]*\.query\s*\(\s*"([^"]+)"\s*\)(?:\s*\?:\s*"([^"]*)")?/g,
+      )) {
+        paramRefs[m[1]] = {
+          source: "query",
+          name: m[2],
+          ...(m[3] !== undefined ? { default: m[3] } : { default: "" }),
         };
       }
       const { status, returnTree, kind } = parseKotlinBodyReturn(bodySlice, paramRefs);
