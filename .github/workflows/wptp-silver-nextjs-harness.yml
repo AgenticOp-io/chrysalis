@@ -24,7 +24,7 @@ jobs:
     name: WebIR bundle → Next.js (silver)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 
@@ -36,13 +36,13 @@ jobs:
       - name: Build Chrysalis
         run: pnpm install --frozen-lockfile && pnpm -r build
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-matrix
           ref: main
           path: wptp-matrix
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-emit-nextjs
           ref: main

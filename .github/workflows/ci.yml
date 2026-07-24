@@ -33,7 +33,7 @@ jobs:
         # Match shivammathur/setup-php service examples (laravel-mysql.yml): stable Docker health parsing.
         options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 
@@ -243,7 +243,7 @@ jobs:
           CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 
       - name: Checkout wptp-matrix (hub contract-first oracle)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-matrix
           ref: v0.1.10
@@ -253,7 +253,7 @@ jobs:
         run: npm ci --prefix wptp-matrix && npm run build --prefix wptp-matrix
 
       - name: Checkout wptp-emit-nextjs (hub Next.js structural gold)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-emit-nextjs
           ref: main
@@ -326,7 +326,7 @@ jobs:
     name: oracle live drive (php + node)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -362,7 +362,7 @@ jobs:
     name: verify (replay corpus vs emitted app)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -428,7 +428,7 @@ jobs:
     name: verify flagship (laravel-min)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -497,7 +497,7 @@ jobs:
     name: verify flagship (laravel-full scaffold)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -613,7 +613,7 @@ jobs:
     name: insight (catalog WebIR anti-patterns)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 
@@ -660,7 +660,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: insight-catalog
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

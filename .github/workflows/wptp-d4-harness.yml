@@ -22,7 +22,7 @@ jobs:
     name: Next.js emit + contract verify (D4)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 
@@ -34,7 +34,7 @@ jobs:
       - name: Install Chrysalis (tsx for harness script)
         run: pnpm install --frozen-lockfile
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-matrix
           ref: main
@@ -53,7 +53,7 @@ jobs:
     name: "@wptp/emit-nextjs unit tests"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-emit-nextjs
           ref: main
