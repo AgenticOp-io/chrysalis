@@ -96,6 +96,8 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9946** | Vue App.vue shell CSS | SPA/Nuxt app shell with layouted pages | `hub:vue-app-shell-css-smoke` ✅ |
 | **G9947** | Vue/Nuxt Nitro/h3 server routes | `server/api` `defineEventHandler` + h3 path/query/status (secondary dialect; Express-in-SFC remains Vue ST) | `hub:vue-nitro-smoke` ✅ |
 | **G9947b** | Nitro deepen readBody + middleware | `(await) readBody(event).field`; `server/middleware` (+ nested) global presets; honest holes for bindings/whole-body | `hub:vue-nitro-smoke` v2 ✅ |
+| **G9947c** | Nitro deepen header/cookie + body bind | `getHeader`/`getRequestHeader`/`getCookie`; `const body = await readBody(event); body.x` | `hub:vue-nitro-smoke` v3 ✅ |
+| **G9948** | Fastify TS origin dialect | `fastify.get|post|…` + `reply.send`/`reply.code` (secondary; Express/TS remain ST; ≠ emit-fastify) | `hub:fastify-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 

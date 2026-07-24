@@ -206,19 +206,16 @@ function requestFieldOf(expr) {
         : expr.object.property?.type === "Identifier"
           ? expr.object.property.name
           : null;
-    if (
-      bucketName &&
-      bucketMap[bucketName] &&
-      expr.object.object?.type === "Identifier" &&
-      expr.object.object.name === "req"
-    ) {
+    const recvName =
+      expr.object.object?.type === "Identifier" ? expr.object.object.name : null;
+    // Express `req.*` and Fastify `request.*` (same request-field bags).
+    if (bucketName && bucketMap[bucketName] && (recvName === "req" || recvName === "request")) {
       return { source: bucketMap[bucketName], name };
     }
     if (
       expr.object.property?.type === "Identifier" &&
       expr.object.property.name === "headers" &&
-      expr.object.object?.type === "Identifier" &&
-      expr.object.object.name === "req"
+      (recvName === "req" || recvName === "request")
     ) {
       return { source: "header", name };
     }
@@ -324,7 +321,6 @@ function h3ReadBodyCallOf(expr) {
 
 /**
  * Nitro/h3: `(await) readBody(event).name` → body request field.
- * Binding forms (`const body = await readBody(event); body.x`) stay holes.
  * @param {import('estree').MemberExpression} expr
  * @returns {{ name: string } | null}
  */
@@ -334,6 +330,69 @@ function h3ReadBodyMemberFieldOf(expr) {
   if (!name) return null;
   if (!h3ReadBodyCallOf(expr.object)) return null;
   return { name };
+}
+
+/**
+ * Nitro/h3: `getHeader(event, "x")` / `getRequestHeader(event, "x")` → header field.
+ * @param {import('estree').CallExpression} expr
+ * @returns {{ name: string } | null}
+ */
+function h3GetHeaderFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  if (expr.callee?.type !== "Identifier") return null;
+  if (expr.callee.name !== "getHeader" && expr.callee.name !== "getRequestHeader") return null;
+  const nameArg = expr.arguments[1];
+  if (nameArg?.type !== "Literal" || typeof nameArg.value !== "string") return null;
+  return { name: nameArg.value };
+}
+
+/**
+ * Nitro/h3: `getCookie(event, "sid")` → cookie field.
+ * @param {import('estree').CallExpression} expr
+ * @returns {{ name: string } | null}
+ */
+function h3GetCookieFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  if (expr.callee?.type !== "Identifier" || expr.callee.name !== "getCookie") return null;
+  const nameArg = expr.arguments[1];
+  if (nameArg?.type !== "Literal" || typeof nameArg.value !== "string") return null;
+  return { name: nameArg.value };
+}
+
+/**
+ * Collect `const body = (await) readBody(event)` bindings in a Nitro handler block.
+ * @param {import('estree').Function} fn
+ * @returns {Map<string, "body">}
+ */
+function collectH3ReadBodyBindings(fn) {
+  /** @type {Map<string, "body">} */
+  const bindings = new Map();
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") return bindings;
+  for (const s of body.body) {
+    if (s.type !== "VariableDeclaration") continue;
+    for (const d of s.declarations) {
+      if (d.id?.type !== "Identifier") continue;
+      if (!h3ReadBodyCallOf(d.init)) continue;
+      bindings.set(d.id.name, "body");
+    }
+  }
+  return bindings;
+}
+
+/**
+ * Nitro/h3: `body.x` after `const body = await readBody(event)`.
+ * @param {import('estree').MemberExpression} expr
+ * @param {Map<string, "body"> | undefined} bindings
+ * @returns {{ name: string } | null}
+ */
+function h3BoundBodyMemberFieldOf(expr, bindings) {
+  if (!bindings || bindings.size === 0) return null;
+  if (expr.type !== "MemberExpression") return null;
+  if (expr.object?.type !== "Identifier") return null;
+  if (bindings.get(expr.object.name) !== "body") return null;
+  const name = memberPropName(expr);
+  return name ? { name } : null;
 }
 
 /**
@@ -663,6 +722,16 @@ function lowerExpression(ctx, expr) {
         provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-read-body")],
       });
     }
+    const h3BoundBody = h3BoundBodyMemberFieldOf(expr, ctx.h3BodyBindings);
+    if (h3BoundBody) {
+      return data.requestField({
+        source: "body",
+        name: h3BoundBody.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-read-body-bind")],
+      });
+    }
     return data.hole({
       reason: "hub-js:member-expression",
       input: T.unknown,
@@ -712,6 +781,26 @@ function lowerExpression(ctx, expr) {
         type: T.string,
         origin,
         provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-get-router-param")],
+      });
+    }
+    const h3Header = h3GetHeaderFieldOf(expr);
+    if (h3Header) {
+      return data.requestField({
+        source: "header",
+        name: h3Header.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-get-header")],
+      });
+    }
+    const h3Cookie = h3GetCookieFieldOf(expr);
+    if (h3Cookie) {
+      return data.requestField({
+        source: "cookie",
+        name: h3Cookie.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-get-cookie")],
       });
     }
     const jsonArg = peelJsonCallArgument(expr);
@@ -795,7 +884,12 @@ function extractResStatus(expr) {
     if (callee?.type !== "MemberExpression" || callee.computed || callee.property?.type !== "Identifier") {
       break;
     }
-    if (callee.property.name === "status" || callee.property.name === "sendStatus") {
+    // Express `status` / `sendStatus`; Fastify also aliases `code`.
+    if (
+      callee.property.name === "status" ||
+      callee.property.name === "sendStatus" ||
+      callee.property.name === "code"
+    ) {
       const arg = cur.arguments[0];
       if (arg?.type === "Literal" && typeof arg.value === "number") return arg.value;
     }
@@ -1105,8 +1199,12 @@ export function liftNextAppRouteHandlerBodies(opts) {
  */
 function lowerNitroHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
+  const nitroCtx = {
+    ...ctx,
+    h3BodyBindings: collectH3ReadBodyBindings(fn),
+  };
   const status = extractSetResponseStatus(fn) ?? extractResStatus(extractNitroHandlerExpression(fn));
-  const statusId = lowerStatusEffect(ctx, status, fn.loc?.start);
+  const statusId = lowerStatusEffect(nitroCtx, status, fn.loc?.start);
   const expr = extractNitroHandlerExpression(fn);
   if (!expr) {
     return data.hole({
@@ -1120,7 +1218,7 @@ function lowerNitroHandlerBody(ctx, fn) {
   const jsonPayload = expr.type === "CallExpression" ? peelResJsonArgument(expr) : null;
   if (jsonPayload || expr.type === "ObjectExpression") {
     const payload = jsonPayload ?? expr;
-    const valId = lowerExpression(ctx, payload);
+    const valId = lowerExpression(nitroCtx, payload);
     const retId = data.call({
       callee: "__return_json",
       args: [valId],
@@ -1135,7 +1233,7 @@ function lowerNitroHandlerBody(ctx, fn) {
       provenance: [webir.provenance("hub-ingest", "javascript-ast:nitro-handler")],
     });
   }
-  const valId = lowerExpression(ctx, expr);
+  const valId = lowerExpression(nitroCtx, expr);
   return data.block({
     statements: statusId ? [statusId, valId] : [valId],
     type: T.unknown,

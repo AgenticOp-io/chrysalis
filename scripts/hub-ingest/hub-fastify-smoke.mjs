@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Smoke: hub-gold-vue-nitro Nitro/h3 dialect → WebIR hole-free (20 routes + middleware).
- * v3: getHeader/getRequestHeader/getCookie + readBody binding peel.
- * Does not replace Express-in-SFC hub-flagship-vue D6448-ST.
+ * Smoke: hub-gold-fastify Fastify TS dialect → WebIR hole-free (20 routes).
+ * Does not replace Express hub-flagship-express / hub-flagship-typescript D6448-ST.
+ * Distinct from emit-fastify (output backend).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -11,47 +11,44 @@ import { spawnSync } from "node:child_process";
 import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
-export const HUB_VUE_NITRO_SMOKE_KIND = "chrysalis.hub.vue-nitro-smoke";
-export const HUB_VUE_NITRO_SMOKE_SCHEMA_VERSION = 3;
+export const HUB_FASTIFY_SMOKE_KIND = "chrysalis.hub.fastify-smoke";
+export const HUB_FASTIFY_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const fixture = join(scriptRoot, "fixtures/hub-gold-vue-nitro");
+const fixture = join(scriptRoot, "fixtures/hub-gold-fastify");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
-/** Expected express-depth API route count (unchanged surface). */
 const EXPECT_ROUTES = 20;
-/** Root + nested server/middleware pass-through presets. */
-const EXPECT_MIDDLEWARE = 2;
 
 /**
  * @param {string} [projectDir]
  */
-export async function runVueNitroSmoke(projectDir = fixture) {
+export async function runFastifySmoke(projectDir = fixture) {
   const root = resolve(projectDir);
-  const apiDir = join(root, "server", "api");
-  if (!existsSync(apiDir)) {
+  const appFile = join(root, "src", "app.ts");
+  if (!existsSync(appFile)) {
     return {
-      kind: HUB_VUE_NITRO_SMOKE_KIND,
-      schemaVersion: HUB_VUE_NITRO_SMOKE_SCHEMA_VERSION,
+      kind: HUB_FASTIFY_SMOKE_KIND,
+      schemaVersion: HUB_FASTIFY_SMOKE_SCHEMA_VERSION,
       ok: false,
-      skip: "missing-server-api",
+      skip: "missing-app-ts",
       routeCount: 0,
       holeCount: null,
       generatedAt: new Date().toISOString(),
     };
   }
 
-  const lift = spawnSync(process.execPath, [liftScript, root, "--language", "nuxt"], {
+  const lift = spawnSync(process.execPath, [liftScript, root, "--language", "typescript"], {
     cwd: scriptRoot,
     encoding: "utf8",
     maxBuffer: 8 * 1024 * 1024,
   });
   if (lift.status !== 0) {
     return {
-      kind: HUB_VUE_NITRO_SMOKE_KIND,
-      schemaVersion: HUB_VUE_NITRO_SMOKE_SCHEMA_VERSION,
+      kind: HUB_FASTIFY_SMOKE_KIND,
+      schemaVersion: HUB_FASTIFY_SMOKE_SCHEMA_VERSION,
       ok: false,
-      skip: "nuxt-lift-failed",
+      skip: "typescript-lift-failed",
       stderr: (lift.stderr || lift.stdout || "").slice(0, 400),
       routeCount: 0,
       holeCount: null,
@@ -64,8 +61,8 @@ export async function runVueNitroSmoke(projectDir = fixture) {
     liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
   } catch {
     return {
-      kind: HUB_VUE_NITRO_SMOKE_KIND,
-      schemaVersion: HUB_VUE_NITRO_SMOKE_SCHEMA_VERSION,
+      kind: HUB_FASTIFY_SMOKE_KIND,
+      schemaVersion: HUB_FASTIFY_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "lift-json",
       routeCount: 0,
@@ -74,39 +71,32 @@ export async function runVueNitroSmoke(projectDir = fixture) {
     };
   }
 
-  const webirPath = join(root, ".chrysalis", "hub.nuxt.webir.json");
+  const webirPath = join(root, ".chrysalis", "hub.typescript.webir.json");
   const webir = await loadWebir();
   const raw = JSON.parse(readFileSync(webirPath, "utf8"));
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const projection = summarizeCwlProjection(mod);
-  const astRouteCount = liftReport.astRouteCount ?? 0;
+  const routeCount = liftReport.routeCount ?? liftReport.astRouteCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
-  const middlewareUseCount = liftReport.middlewareUseCount ?? 0;
-  const middlewareLoweredCount = liftReport.middlewareLoweredCount ?? 0;
-  // module.roots includes middleware; prefer astRouteCount for API surface.
   const ok =
-    astRouteCount === EXPECT_ROUTES &&
+    routeCount === EXPECT_ROUTES &&
     holeCount === 0 &&
-    middlewareUseCount === EXPECT_MIDDLEWARE &&
-    middlewareLoweredCount === EXPECT_MIDDLEWARE &&
     projection.holeFree === projection.total &&
     projection.total >= EXPECT_ROUTES;
 
   return {
-    kind: HUB_VUE_NITRO_SMOKE_KIND,
-    schemaVersion: HUB_VUE_NITRO_SMOKE_SCHEMA_VERSION,
+    kind: HUB_FASTIFY_SMOKE_KIND,
+    schemaVersion: HUB_FASTIFY_SMOKE_SCHEMA_VERSION,
     ok,
-    routeCount: astRouteCount,
+    routeCount,
     holeCount,
-    middlewareUseCount,
-    middlewareLoweredCount,
     cwlProjection: projection,
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runVueNitroSmoke();
+  const report = await runFastifySmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok && !report.skip) process.exit(1);
 }

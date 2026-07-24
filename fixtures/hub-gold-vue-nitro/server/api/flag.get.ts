@@ -1,1 +1,1 @@
-export default defineEventHandler(() => "chrysalis");
+export default defineEventHandler((event) => getRequestHeader(event, "x-flag"));

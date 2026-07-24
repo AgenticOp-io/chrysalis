@@ -1,7 +1,8 @@
 ﻿# hub-gold-vue-nitro
 
 Secondary Vue/Nuxt dialect fixture: **Nitro/h3** `server/api/**` + `defineEventHandler` /
-`getRouterParam` / `getQuery` / `setResponseStatus` / `(await) readBody(event).field`,
+`getRouterParam` / `getQuery` / `setResponseStatus` / `(await) readBody(event).field` /
+`const body = await readBody(event); body.x` / `getHeader` / `getRequestHeader` / `getCookie`,
 plus `server/middleware` (root + nested) as global middleware presets.
 
 - Same 20-route express-depth API surface as `hub-flagship-vue` (Express-in-SFC remains the D6448-ST flagship).
@@ -13,8 +14,8 @@ plus `server/middleware` (root + nested) as global middleware presets.
 
 | Shape | Hole / status |
 | --- | --- |
-| `const body = await readBody(event); body.x` (binding) | `hub-js:member-expression` / handler hole |
-| Whole-body `return await readBody(event)` without `.field` | `hub-js:call-expression` |
+| Whole-body `return await readBody(event)` without `.field` / bind+member | `hub-js:call-expression` |
 | Non-empty middleware with unsupported h3 helpers | `hub-nuxt:nitro-middleware` |
 | Path-scoped middleware via `event.path` checks | not modeled as mounts (global `*`) |
-| `getCookie` / `getRequestHeader` depth | not lowered yet |
+| `getRequestHeaders` / cookie jar dumps / `parseCookies` maps | not lowered (prefer `getHeader` / `getCookie`) |
+| Destructure `const { x } = await readBody(event)` | not lowered yet |

@@ -1,1 +1,4 @@
-export default defineEventHandler((event) => ({ q: getQuery(event).q ?? "" }));
+export default defineEventHandler((event) => ({
+  q: getQuery(event).q ?? "",
+  sid: getCookie(event, "sid") ?? "",
+}));

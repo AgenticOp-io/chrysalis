@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-fastify",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "fastify": "^5.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
