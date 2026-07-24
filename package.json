@@ -1384,7 +1384,11 @@
     "hub:rust-flagship": "node scripts/hub-ingest/hub-rust-flagship.mjs",
     "hub:complete-conversion-prove:rust": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-rust",
     "hub:typescript-flagship": "node scripts/hub-ingest/hub-typescript-flagship.mjs",
-    "hub:complete-conversion-prove:typescript": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-typescript"
+    "hub:complete-conversion-prove:typescript": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-typescript",
+    "hub:vue-flagship": "node scripts/hub-ingest/hub-vue-flagship.mjs",
+    "hub:complete-conversion-prove:vue": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-vue",
+    "hub:cpp-flagship": "node scripts/hub-ingest/hub-cpp-flagship.mjs",
+    "hub:complete-conversion-prove:cpp": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-cpp"
   },
   "devDependencies": {
     "@types/node": "^20.19.41",

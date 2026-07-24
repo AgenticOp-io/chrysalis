@@ -2,6 +2,7 @@
 
 Newest first.
 
+2026-07-24 | Chrysalis | D6448-ST: first Vue cwl-api closed (hub-flagship-vue Express-in-SFC 20/20 express-depth) + first C++ cwl-api closed (hub-flagship-cpp silver GET-literal 20/20; HTTP-framework AST blocker); typescript/express ST reconfirm; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | D6448-ST: first TypeScript cwl-api closed (hub-flagship-typescript Express typed Request/Response 20/20); express/rust ST reconfirm; next: Vue or C++ flagship ST (Elixir/Dart ingest still absent); COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Scala Http4s dialect hole-free (hub-gold-scala-http4s 20/20) + Swift Vapor multi-segment PathComponents ST; rust/scala/swift ST reconfirm; next flagship: no Elixir/Dart ingest yet — TypeScript/Vue/C++ candidates; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | D6448-ST: first Rust cwl-api closed (hub-flagship-rust Actix scalar/serde_json/HttpResponse 20/20); scala/swift/kotlin ST reconfirm; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
