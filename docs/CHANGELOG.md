@@ -2,7 +2,7 @@
 
 Newest first.
 
-2026-07-24 | Chrysalis | Nitro deepen v3 (getHeader/getCookie + readBody bindings) + Fastify TS origin dialect (`hub:vue-nitro-smoke` v3 + `hub:fastify-smoke` 20/20); vue+typescript ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | Nitro deepen v3 (getHeader/getCookie + readBody bindings) + Fastify TS origin dialect (`hub:vue-nitro-smoke` v3 + `hub:fastify-smoke` 20/20); vue+typescript+express ST reconfirm; AgenticOps umbrella CHANGELOG line left uncommitted (git identity missing; do not git config); Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Nitro deepen: readBody field peel + server/middleware (nested) presets (`hub-gold-vue-nitro` via `hub:vue-nitro-smoke` v2 20 routes + 2 mw hole-free); vue ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Vue/Nuxt Nitro/h3 secondary dialect hole-free (`hub-gold-vue-nitro` server/api defineEventHandler 20/20 via `hub:vue-nitro-smoke`); vue+cpp D6448-ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | D6448-ST: C++ express-depth closed (hub-flagship-cpp Crow HTTP AST 20/20 verbs/path/query/JSON/status) + cpp-httplib secondary dialect 20/20 (`hub:cpp-httplib-smoke`); vue/typescript/express ST reconfirm; Nuxt server dialect deferred; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
