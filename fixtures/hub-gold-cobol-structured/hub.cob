@@ -6,6 +6,7 @@
        01  WS-OK         PIC X VALUE "Y".
        01  WS-SERVICE    PIC X(32) VALUE "hub-gold-cobol-structured".
        PROCEDURE DIVISION.
+       MAIN-LOGIC SECTION.
        HEALTH.
       *> chrysalis-return: {"ok":true}
            MOVE TRUE TO WS-OK

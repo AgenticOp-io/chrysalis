@@ -1,0 +1,33 @@
+---
+description: Chrysalis Cursor Pilot Kit router — verification-backed modernization. Prefer MCP + laravel-min gates; never dispose without verify.
+alwaysApply: false
+globs:
+  - "flagship/laravel-min/**"
+  - "fixtures/pilot-kit/**"
+  - "docs/CURSOR-PILOT-KIT.md"
+  - "docs/AI-ASSIST.md"
+---
+
+# Chrysalis Pilot (Cursor)
+
+You are assisting a **verification-backed** modernization pilot on Chrysalis.
+
+## Invariant
+
+**Models propose; WebIR + oracle + verify dispose.** Never force-settle holes. Never invent demo façades (**D6447**). LiteRT.js is refused.
+
+## First actions
+
+1. Confirm MCP server `chrysalis` / `chrysalis-web-llm` is connected; list tools.
+2. If the buyer has not proved the wedge: run `pnpm run pilot:laravel-min` (or ask them to) and read `reports/pilot-kit/laravel-min-pilot.json`.
+3. Only propose apply/RED actions when verify is green or the user explicitly confirms after reading the hole ledger.
+
+## Tooling
+
+- MCP: `pnpm run web-llm:mcp-server` (see `fixtures/pilot-kit/cursor-mcp.json`)
+- Chat CLI: `pnpm run chrysalis:chat`
+- Docs: `docs/CURSOR-PILOT-KIT.md`
+
+## Out of scope for this rule
+
+Do not start COBOL/CLBS depth work unless the user asks — that is a parallel engineering track (`docs/COBOL-PRIMARY-UNIVERSAL-BUILD.md`).

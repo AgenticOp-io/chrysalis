@@ -189,6 +189,11 @@ function lowerSqlEffect(
   });
 }
 
+function flaskPathToCwl(path: string): string {
+  // Flask `<id>` / `<int:id>` → CWL/Express-style `:id` (translate-only normalize).
+  return path.replace(/<(?:[^:>]+:)?([^>]+)>/g, ":$1");
+}
+
 function lowerRouteBody(
   data: DataBuilders,
   effect: EffectBuilders,
@@ -197,6 +202,20 @@ function lowerRouteBody(
 ): NodeId {
   /** @type {NodeId[]} */
   const statements: NodeId[] = [];
+  const status =
+    typeof r.statusCode === "number" && Number.isFinite(r.statusCode) && r.statusCode !== 200
+      ? r.statusCode
+      : null;
+  if (status !== null) {
+    statements.push(
+      effect.httpError({
+        status,
+        message: null,
+        origin,
+        provenance: [provenance("hub-ingest", origin, "python-ast:status")],
+      }),
+    );
+  }
   for (const sqlEffect of r.sqlEffects ?? []) {
     statements.push(lowerSqlEffect(effect, sqlEffect, data, origin));
   }
@@ -210,6 +229,16 @@ function lowerRouteBody(
         output: T.unknown,
         origin,
         provenance: [provenance("hub-ingest", origin, "python-ast")],
+      });
+    }
+    // Bare literals project as text/plain (match JS flagship); refs/objects stay JSON.
+    if (r.returnTree.t === "lit") {
+      statements.push(valId);
+      return data.block({
+        statements,
+        type: T.unknown,
+        origin,
+        provenance: [provenance("hub-ingest", origin, "python-ast:handler-lit")],
       });
     }
     const retId = data.call({
@@ -367,7 +396,7 @@ export function liftPythonRoutesToWebir(
       provenance: [provenance("hub-ingest", origin, `python-ast:${language}`)],
     });
     const routeId = wr.route({
-      attrs: { method: asHttpMethod(r.method), path: r.path, pathParams: [] },
+      attrs: { method: asHttpMethod(r.method), path: flaskPathToCwl(r.path), pathParams: [] },
       handler: handlerId,
       origin,
       provenance: [provenance("hub-ingest", origin, `route:${language}`)],

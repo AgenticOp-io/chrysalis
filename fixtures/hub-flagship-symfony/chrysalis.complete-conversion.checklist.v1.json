@@ -1,0 +1,129 @@
+{
+  "kind": "chrysalis.complete-conversion.checklist.v1",
+  "schemaVersion": 1,
+  "gate": "D6448-ST",
+  "projectId": "hub-flagship-symfony",
+  "proveProfile": "cwl-api",
+  "originPair": {
+    "originLanguage": "php",
+    "emitTarget": "cwl"
+  },
+  "routesCwl": "fixtures/hub-flagship-symfony/generated/cwl/routes.cwl",
+  "originAuthority": "fixtures/hub-flagship-symfony",
+  "convertedHost": "fixtures/hub-flagship-symfony/generated",
+  "proveReportRel": "reports/st/hub-flagship-symfony/complete-conversion-prove.json",
+  "conversionReportRel": null,
+  "minRoutes": 20,
+  "holeCensus": {
+    "total": 0,
+    "forceSettleUsed": false,
+    "stopReason": null,
+    "provedAt": "2026-07-24T12:06:10.446Z"
+  },
+  "islands": [],
+  "pages": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "prove": [
+        "content-type-text-plain"
+      ],
+      "contentType": "text/plain"
+    },
+    {
+      "path": "/echo",
+      "method": "POST",
+      "prove": [
+        "json-echo"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "echo: true"
+      ]
+    },
+    {
+      "path": "/meta",
+      "method": "GET",
+      "prove": [
+        "json-service"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "path": "/items",
+      "method": "POST",
+      "prove": [
+        "create-201"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "created: true"
+      ]
+    },
+    {
+      "path": "/items/:id",
+      "method": "GET",
+      "prove": [
+        "param-id"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "param id"
+      ]
+    },
+    {
+      "path": "/search",
+      "method": "GET",
+      "prove": [
+        "query-q"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "query q"
+      ]
+    },
+    {
+      "path": "/notify",
+      "method": "POST",
+      "prove": [
+        "json-ok"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "ok: true"
+      ]
+    },
+    {
+      "path": "/users/:userId",
+      "method": "GET",
+      "prove": [
+        "param-userId"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "param userId"
+      ]
+    }
+  ],
+  "signedInOriginCompare": {
+    "required": true,
+    "mode": "fixture-verify-gold",
+    "status": "passed",
+    "routes": [
+      "/health",
+      "/echo",
+      "/meta",
+      "/items",
+      "/items/:id",
+      "/search",
+      "/notify",
+      "/users/:userId"
+    ],
+    "comparedAt": "2026-07-24T00:00:00.000Z",
+    "reportRel": "fixtures/hub-flagship-symfony/reports/verify/summary.json",
+    "notes": "Symfony attribute #[Route] flagship: origin compare = fixture pages + hole-free PHP→CWL emit (final-class __invoke body lift) + verify gold 20/20 (no live product host; D6447 no invented UI). First Symfony cwl-api D6448-ST deepen beyond express + tiny-blog + plain-php."
+  }
+}

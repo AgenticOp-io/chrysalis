@@ -288,15 +288,26 @@ See **`docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`** for the full 575-pair map.
 module     ::= "module" IDENT ";"
 route      ::= "@route" METHOD STRING
 handler    ::= "handler" IDENT "{" stmt* "}"
-stmt       ::= effects | return | hole
+stmt       ::= effects | return | hole | if_guard | foreach_bind
 effects    ::= "effects:" effectList ";"
 effectList ::= "none" | IDENT ("," IDENT)*
+if_guard   ::= "if" cond_expr "{" (status | return)* "}"
+cond_expr  ::= or_expr | opaque_ident
+or_expr    ::= and_expr ("||" and_expr)*
+and_expr    ::= cmp_expr ("&&" cmp_expr)*
+cmp_expr   ::= IDENT ("==" | "!=") literal
+opaque_ident ::= IDENT
+  (* RFC-0021: projectable param==lit / || / &&; else opaque
+     g_<callee> / g_member_<path> / gN for calls/members —
+     no invented verify; see hub-webir-routes cwlCondOf *)
+foreach_bind ::= "foreach" IDENT "as" [IDENT "=>"] IDENT "{" (return)* "}"
+  (* collection binding; body chrome docs-only; parser skips *)
 return     ::= "return" literal ";"
 hole       ::= "hole" HOLE_ID STRING? ";"
 literal    ::= bool | number | string | object
 ```
 
----
+Early-exit guards for migration CWL (tiny-blog ST): **RFC-0021** projects simple conditions (`body == ""`, `username == "" || password == ""`, `post == null`); residual opaque `g_<callee>` (call dominates), `g_member_<path>` (stable member key chain, no call), or `gN` for session/empty/dynamic keys (no invented verify). Stmt-level `foreach` + collection binding when iterable is a param; loop body chrome is not unrolled into outer HTML. Remaining gap: dynamic leaves omitted; one chrome sample not N; non-param iterables still inline once.
 
 ## Design principles (aligned with DESIGN.md)
 

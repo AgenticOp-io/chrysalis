@@ -1,0 +1,128 @@
+{
+  "kind": "chrysalis.complete-conversion.checklist.v1",
+  "schemaVersion": 1,
+  "gate": "D6448-ST",
+  "projectId": "hub-flagship-go",
+  "proveProfile": "cwl-api",
+  "originPair": {
+    "originLanguage": "go",
+    "emitTarget": "cwl"
+  },
+  "routesCwl": "fixtures/hub-flagship-go/generated/cwl/routes.cwl",
+  "originAuthority": "fixtures/hub-flagship-go",
+  "convertedHost": "fixtures/hub-flagship-go/generated",
+  "proveReportRel": "reports/st/hub-flagship-go/complete-conversion-prove.json",
+  "conversionReportRel": null,
+  "minRoutes": 20,
+  "holeCensus": {
+    "total": 0,
+    "forceSettleUsed": false,
+    "stopReason": null,
+    "provedAt": "2026-07-24T12:59:57.739Z"
+  },
+  "islands": [],
+  "pages": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "prove": [
+        "content-type-text-plain"
+      ],
+      "contentType": "text/plain"
+    },
+    {
+      "path": "/echo",
+      "method": "POST",
+      "prove": [
+        "json-echo"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "echo: true"
+      ]
+    },
+    {
+      "path": "/meta",
+      "method": "GET",
+      "prove": [
+        "json-service"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "hub-flagship-go"
+      ]
+    },
+    {
+      "path": "/items",
+      "method": "POST",
+      "prove": [
+        "create-201"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "created: true"
+      ]
+    },
+    {
+      "path": "/items/:id",
+      "method": "GET",
+      "prove": [
+        "param-id"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "param id"
+      ]
+    },
+    {
+      "path": "/search",
+      "method": "GET",
+      "prove": [
+        "query-q"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "query q"
+      ]
+    },
+    {
+      "path": "/notify",
+      "method": "POST",
+      "prove": [
+        "accepted-202"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "status 202"
+      ]
+    },
+    {
+      "path": "/users/:userId",
+      "method": "GET",
+      "prove": [
+        "param-userId"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "param userId"
+      ]
+    }
+  ],
+  "signedInOriginCompare": {
+    "required": true,
+    "mode": "fixture-verify-gold",
+    "status": "passed",
+    "routes": [
+      "/health",
+      "/echo",
+      "/meta",
+      "/items",
+      "/items/:id",
+      "/search",
+      "/notify",
+      "/users/:userId"
+    ],
+    "reportRel": "fixtures/hub-flagship-go/reports/verify/summary.json",
+    "notes": "Go flagship: origin compare = fixture pages + hole-free Go→CWL emit + verify gold 20/20 (no live product host; D6447 no invented UI). First Go cwl-api D6448-ST."
+  }
+}

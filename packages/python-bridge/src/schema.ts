@@ -24,6 +24,7 @@ export interface PythonHubRoute {
   readonly returnKind?: string;
   readonly returnValue?: unknown;
   readonly returnTree?: PythonReturnNode;
+  readonly statusCode?: number;
   readonly sqlEffects?: ReadonlyArray<PythonSqlEffect>;
 }
 

@@ -53,7 +53,12 @@ export function stripTopLevelFunctionDecls(stmts: readonly PhpNode[]): PhpNode[]
  */
 export function selectRouteHandlerStatements(stmts: readonly PhpNode[]): PhpNode[] {
   const topLevel = stripTopLevelFunctionDecls(stmts);
-  const hasExecutable = topLevel.some((s) => s.kind !== "Noop");
+  // ClassDecl/EnumDecl are type-level only (convertStatement → null). A `final class`
+  // must not count as executable or Symfony/__invoke controllers keep empty handlers
+  // while the real body sits in helperBodies (D6442).
+  const hasExecutable = topLevel.some(
+    (s) => s.kind !== "Noop" && s.kind !== "ClassDecl" && s.kind !== "EnumDecl",
+  );
   if (hasExecutable) return topLevel;
 
   const invoke = stmts.find(

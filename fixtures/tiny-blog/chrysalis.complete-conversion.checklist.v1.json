@@ -1,0 +1,95 @@
+{
+  "kind": "chrysalis.complete-conversion.checklist.v1",
+  "schemaVersion": 1,
+  "gate": "D6448-ST",
+  "projectId": "tiny-blog",
+  "proveProfile": "cwl-api",
+  "originPair": {
+    "originLanguage": "php",
+    "emitTarget": "cwl"
+  },
+  "routesCwl": "fixtures/tiny-blog/generated/cwl/routes.cwl",
+  "originAuthority": "fixtures/tiny-blog",
+  "convertedHost": "fixtures/tiny-blog/generated",
+  "proveReportRel": "reports/st/tiny-blog/complete-conversion-prove.json",
+  "conversionReportRel": null,
+  "minRoutes": 5,
+  "holeCensus": {
+    "total": 0,
+    "forceSettleUsed": false,
+    "stopReason": null,
+    "provedAt": "2026-07-24T12:06:09.528Z"
+  },
+  "islands": [],
+  "pages": [
+    {
+      "path": "/posts",
+      "method": "GET",
+      "prove": [
+        "html-posts-list"
+      ],
+      "contentType": "text/html",
+      "cwlIncludes": [
+        "Posts"
+      ]
+    },
+    {
+      "path": "/posts/:id",
+      "method": "GET",
+      "prove": [
+        "html-posts-view"
+      ],
+      "contentType": "text/html",
+      "cwlIncludes": [
+        "Comments"
+      ]
+    },
+    {
+      "path": "/login",
+      "method": "POST",
+      "prove": [
+        "login-guards"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "Missing credentials"
+      ]
+    },
+    {
+      "path": "/posts",
+      "method": "POST",
+      "prove": [
+        "posts-create"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "Title and body required"
+      ]
+    },
+    {
+      "path": "/posts/:id/comments",
+      "method": "POST",
+      "prove": [
+        "comments-create"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "Comment body required"
+      ]
+    }
+  ],
+  "signedInOriginCompare": {
+    "required": true,
+    "mode": "fixture-verify-gold",
+    "status": "passed",
+    "routes": [
+      "/posts",
+      "/posts/:id",
+      "/login",
+      "/posts"
+    ],
+    "comparedAt": "2026-07-24T00:00:00.000Z",
+    "reportRel": "fixtures/tiny-blog/reports/verify/summary.json",
+    "notes": "tiny-blog: origin compare = fixture pages + hole-free CWL projection (RFC-0021 cond expr + g_<callee>/g_member_<path> opaque for calls/members; foreach collection binding; dynamic leaves omitted) + verify gold; Hono emit retains full behavior (D6442/D6447)"
+  }
+}

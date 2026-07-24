@@ -17,7 +17,14 @@ import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import { runGoldVerifySuite } from "./hub-gold-verify.mjs";
 import { resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { ingestLaneForOrigin } from "./hub-translation-paths.mjs";
-import { parseCobolRoutes, cobolBodyAfter, cobolUnresolvedOps } from "./cobol-pattern-lift.mjs";
+import {
+  parseCobolRoutes,
+  cobolBodyAfter,
+  cobolUnresolvedOps,
+  inventoryCobolSource,
+  resolveCobolCopybooks,
+} from "./cobol-pattern-lift.mjs";
+import { emitFromCobolPatterns } from "./cobol-pattern-emit.mjs";
 import { runTraceReplaySuite } from "./hub-gold-trace-replay.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -30,6 +37,9 @@ const CONTROL_TARGETS = ["hono"];
 
 const STRUCTURED = join(ROOT, "fixtures/hub-gold-cobol-structured");
 const HOLES = join(ROOT, "fixtures/hub-gold-cobol-holes");
+const CLBS_MINI = join(ROOT, "fixtures/hub-cobol-clbs-mini");
+const CLBS_BATCH = join(CLBS_MINI, "batch");
+const CLBS_ONLINE = join(CLBS_MINI, "online");
 
 /**
  * @param {string} emitTarget
@@ -72,14 +82,857 @@ export async function runCobolBestFitSmoke() {
   const hubCob = join(STRUCTURED, "hub.cob");
   const hubSrc = existsSync(hubCob) ? readFileSync(hubCob, "utf8") : "";
   const paraRoutes = parseCobolRoutes(hubSrc);
+  const structuredInv = hubSrc ? inventoryCobolSource(hubSrc, "hub.cob") : null;
   const paraOk =
     paraRoutes.some((r) => r.method === "GET" && r.path === "/health") &&
-    paraRoutes.some((r) => r.method === "GET" && r.path === "/meta");
+    paraRoutes.some((r) => r.method === "GET" && r.path === "/meta") &&
+    paraRoutes.some((r) => r.method === "GET" && r.path === "/main-logic") &&
+    !!structuredInv &&
+    structuredInv.sectionNames.includes("MAIN-LOGIC");
   results.push({
     id: "procedure-paragraph-routes",
     ok: paraOk,
-    reason: paraOk ? undefined : "missing /health+/meta paragraphs",
-    detail: paraRoutes,
+    reason: paraOk ? undefined : "missing /health+/meta+/main-logic SECTION routes",
+    detail: { routes: paraRoutes, sections: structuredInv?.sectionNames },
+  });
+
+  // CLBS mini + CKPRSTRN / DEPTPAY inventory (pattern-lift deepen; not behavioral)
+  for (const [id, file, assertFn] of [
+    [
+      "clbs-mini-clbsmath",
+      join(CLBS_BATCH, "CLBSMATH.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) => inv.programIds.includes("CLBSMATH") && inv.computes >= 1,
+    ],
+    [
+      "clbs-mini-ckprstrn",
+      join(CLBS_BATCH, "CKPRSTRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("CKPRSTRN") &&
+        inv.evaluateTrue >= 1 &&
+        inv.routeCount >= 2 &&
+        inv.performs.includes("PROC-TAKE-CHECKPOINT"),
+    ],
+    [
+      "clbs-mini-deptpay",
+      join(CLBS_BATCH, "DEPTPAY.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("DEPTPAY") &&
+        inv.computes >= 1 &&
+        inv.performs.includes("AVERAGE-SALARY"),
+    ],
+  ]) {
+    const src = existsSync(file) ? readFileSync(file, "utf8") : "";
+    const inv = src ? inventoryCobolSource(src, file) : null;
+    const ok = !!inv && assertFn(inv);
+    results.push({
+      id: /** @type {string} */ (id),
+      ok,
+      reason: ok
+        ? undefined
+        : inv
+          ? `ids=${inv.programIds.join(",")} evalTrue=${inv.evaluateTrue} computes=${inv.computes}`
+          : "missing-fixture",
+      detail: inv
+        ? {
+            programIds: inv.programIds,
+            evaluateTrue: inv.evaluateTrue,
+            computes: inv.computes,
+            routeCount: inv.routeCount,
+            performs: inv.performs,
+          }
+        : undefined,
+    });
+  }
+
+  for (const [id, file, assertFn] of [
+    [
+      "clbs-mini-srchtab",
+      join(CLBS_BATCH, "SRCHTAB.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) => inv.programIds.includes("SRCHTAB") && inv.occurs >= 1 && inv.search >= 1,
+    ],
+    [
+      "clbs-mini-evalmany",
+      join(CLBS_BATCH, "EVALMANY.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("EVALMANY") &&
+        inv.evaluateAny >= 1 &&
+        inv.evaluateTrue === 0 &&
+        (inv.evaluateNumericWhens || []).length >= 3,
+    ],
+    [
+      "clbs-mini-cardfeein",
+      join(CLBS_BATCH, "CARDFEEIN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) => inv.programIds.includes("CARDFEEIN") && inv.computes >= 3,
+    ],
+    [
+      "clbs-mini-ckprusrn",
+      join(CLBS_BATCH, "CKPRUSRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("CKPRUSRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-seqmax",
+      join(CLBS_BATCH, "SEQMAX.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) => inv.programIds.includes("SEQMAX") && inv.fileIo >= 1,
+    ],
+    [
+      "clbs-mini-entryrn",
+      join(CLBS_BATCH, "ENTRYRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("ENTRYRN") &&
+        inv.entryCount >= 1 &&
+        inv.entryNames.includes("ALTPHASE"),
+    ],
+    [
+      "clbs-mini-idxvsam-holes",
+      join(CLBS_BATCH, "IDXVSAM.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXVSAM") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.alternateRecordKeys || []).includes("IDX-ALT-KEY") &&
+        inv.unresolved.includes("indexed-file") &&
+        inv.unresolved.includes("record-key") &&
+        inv.unresolved.includes("alternate-record-key") &&
+        inv.unresolved.includes("invalid-key"),
+    ],
+    [
+      "clbs-mini-idxkeyrn",
+      join(CLBS_BATCH, "IDXKEYRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXKEYRN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-idxupdrn",
+      join(CLBS_BATCH, "IDXUPDRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXUPDRN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-cardbill",
+      join(CLBS_BATCH, "CARDBILL.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) => inv.programIds.includes("CARDBILL") && inv.computes >= 3,
+    ],
+    [
+      "clbs-mini-cardpay",
+      join(CLBS_BATCH, "CARDPAY.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("CARDPAY") &&
+        inv.evaluateWhens.includes("F") &&
+        inv.evaluateWhens.includes("P") &&
+        inv.evaluateWhens.includes("M"),
+    ],
+    [
+      "clbs-mini-idxrngrn",
+      join(CLBS_BATCH, "IDXRNGRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXRNGRN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-cardstat",
+      join(CLBS_BATCH, "CARDSTAT.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("CARDSTAT") &&
+        inv.evaluateWhens.includes("A") &&
+        inv.evaluateWhens.includes("D") &&
+        inv.evaluateWhens.includes("C"),
+    ],
+    [
+      "clbs-mini-histldrn",
+      join(CLBS_BATCH, "HISTLDRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("HISTLDRN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0 &&
+        (inv.execSql || 0) === 0,
+    ],
+    [
+      "clbs-mini-idxprobe",
+      join(CLBS_BATCH, "IDXPROBE.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXPROBE") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        !(inv.alternateRecordKeys || []).length &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-sqlinv",
+      join(CLBS_BATCH, "SQLINV00.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("SQLINV00") &&
+        inv.execSql >= 10 &&
+        (inv.execSqlOps || []).includes("INSERT") &&
+        (inv.execSqlOps || []).includes("DECLARE-CURSOR") &&
+        (inv.execSqlOps || []).includes("COMMIT") &&
+        inv.unresolved.includes("exec-sql"),
+    ],
+    [
+      "clbs-mini-cardaccf",
+      join(CLBS_BATCH, "CARDACCF.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("CARDACCF") &&
+        inv.occurs >= 1 &&
+        inv.evaluateWhens.includes("A") &&
+        inv.evaluateWhens.includes("D") &&
+        inv.evaluateWhens.includes("C"),
+    ],
+    [
+      "clbs-mini-rptposrn",
+      join(CLBS_BATCH, "RPTPOSRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("RPTPOSRN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-idxaltrn",
+      join(CLBS_BATCH, "IDXALTRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXALTRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.alternateRecordKeys || []).includes("IDX-ALT-KEY") &&
+        inv.unresolved.includes("alternate-record-key"),
+    ],
+    [
+      "clbs-mini-cardschd",
+      join(CLBS_BATCH, "CARDSCHD.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("CARDSCHD") &&
+        inv.occurs >= 2 &&
+        inv.search >= 1,
+    ],
+    [
+      "clbs-mini-rptaurn",
+      join(CLBS_BATCH, "RPTAUDRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("RPTAUDRN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-idxstrwr",
+      join(CLBS_BATCH, "IDXSTRWR.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXSTRWR") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file") &&
+        inv.unresolved.includes("invalid-key"),
+    ],
+    [
+      "clbs-mini-rptstarn",
+      join(CLBS_BATCH, "RPTSTARN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("RPTSTARN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-prcseqrn",
+      join(CLBS_BATCH, "PRCSEQRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PRCSEQRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-idxdelrn",
+      join(CLBS_BATCH, "IDXDELRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXDELRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-idxaltrw",
+      join(CLBS_BATCH, "IDXALTRW.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXALTRW") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.alternateRecordKeys || []).includes("IDX-ALT-KEY") &&
+        inv.unresolved.includes("alternate-record-key"),
+    ],
+    [
+      "clbs-mini-rtnanarn",
+      join(CLBS_BATCH, "RTNANARN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("RTNANARN") &&
+        inv.fileIo >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-bchctlrn",
+      join(CLBS_BATCH, "BCHCTLRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("BCHCTLRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-utlmntrn",
+      join(CLBS_BATCH, "UTLMNTRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("UTLMNTRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-utlvalrn",
+      join(CLBS_BATCH, "UTLVALRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("UTLVALRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-idxgtnrn",
+      join(CLBS_BATCH, "IDXGTNRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXGTNRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-utlmonrn",
+      join(CLBS_BATCH, "UTLMONRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("UTLMONRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-tstvalrn",
+      join(CLBS_BATCH, "TSTVALRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("TSTVALRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-portvalrn",
+      join(CLBS_BATCH, "PORTVALRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTVALRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-idxnlprn",
+      join(CLBS_BATCH, "IDXNLPRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXNLPRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-utlmntls",
+      join(CLBS_BATCH, "UTLMNTLS.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("UTLMNTLS") &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-tstgenrn",
+      join(CLBS_BATCH, "TSTGENRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("TSTGENRN") &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-portaddrn",
+      join(CLBS_BATCH, "PORTADDRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTADDRN") &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-portupdrn",
+      join(CLBS_BATCH, "PORTUPDRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTUPDRN") &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-idxltprn",
+      join(CLBS_BATCH, "IDXLTPRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXLTPRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-portdelrn",
+      join(CLBS_BATCH, "PORTDELRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTDELRN") &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-portreadrn",
+      join(CLBS_BATCH, "PORTREADRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTREADRN") &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-porttranrn",
+      join(CLBS_BATCH, "PORTTRANRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTTRANRN") &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-idxeqprn",
+      join(CLBS_BATCH, "IDXEQPRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXEQPRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-idxngtrn",
+      join(CLBS_BATCH, "IDXNGTRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXNGTRN") &&
+        inv.organizationIndexed >= 1 &&
+        (inv.recordKeys || []).includes("IDX-KEY") &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-portvaldn",
+      join(CLBS_BATCH, "PORTVALDN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTVALDN") &&
+        (inv.copybooks || []).map((c) => c.toUpperCase()).includes("PORTVAL") &&
+        inv.evaluateTrue >= 1,
+    ],
+    [
+      "clbs-mini-portmstrn",
+      join(CLBS_BATCH, "PORTMSTRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTMSTRN") &&
+        inv.procedureUsing >= 1 &&
+        inv.evaluateTrue >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-portcomrn",
+      join(CLBS_BATCH, "PORTCOMRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTCOMRN") &&
+        (inv.copybooks || []).map((c) => c.toUpperCase()).includes("PORTCOM") &&
+        inv.evaluateTrue >= 1 &&
+        (inv.organizationIndexed || 0) === 0,
+    ],
+    [
+      "clbs-mini-idxeqnrn",
+      join(CLBS_BATCH, "IDXEQNRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXEQNRN") &&
+        (inv.organizationIndexed || 0) >= 1 &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-idxnlnrn",
+      join(CLBS_BATCH, "IDXNLNRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXNLNRN") &&
+        (inv.organizationIndexed || 0) >= 1 &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-idxltnrn",
+      join(CLBS_BATCH, "IDXLTNRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXLTNRN") &&
+        (inv.organizationIndexed || 0) >= 1 &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-idxngprn",
+      join(CLBS_BATCH, "IDXNGPRN.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("IDXNGPRN") &&
+        (inv.organizationIndexed || 0) >= 1 &&
+        inv.unresolved.includes("indexed-file"),
+    ],
+    [
+      "clbs-mini-cobtupdt",
+      join(CLBS_BATCH, "COBTUPDT.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("COBTUPDT") &&
+        (inv.execSqlOps || []).includes("INSERT") &&
+        (inv.execSqlOps || []).includes("UPDATE") &&
+        (inv.execSqlOps || []).includes("DELETE") &&
+        inv.unresolved.includes("exec-sql"),
+    ],
+    [
+      "clbs-mini-porttest",
+      join(CLBS_BATCH, "PORTTEST.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTTEST") &&
+        (inv.copybooks || []).map((c) => c.toUpperCase()).includes("PORTFLIO") &&
+        (inv.copybooks || []).map((c) => c.toUpperCase()).includes("ERRHAND") &&
+        inv.unresolved.includes("function-random"),
+    ],
+    [
+      "clbs-mini-portvalcp",
+      join(CLBS_BATCH, "PORTVALCP.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("PORTVALCP") &&
+        (inv.copybooks || []).map((c) => c.toUpperCase()).includes("PORTVAL"),
+    ],
+    [
+      "clbs-mini-sqlcpy",
+      join(CLBS_BATCH, "SQLCPY00.cbl"),
+      /** @param {ReturnType<typeof inventoryCobolSource>} inv */
+      (inv) =>
+        inv.programIds.includes("SQLCPY00") &&
+        (inv.copybooks || []).map((c) => c.toUpperCase()).includes("SQLCA") &&
+        (inv.execSql || 0) === 0,
+    ],
+  ]) {
+    const src = existsSync(file) ? readFileSync(file, "utf8") : "";
+    const inv = src ? inventoryCobolSource(src, file) : null;
+    const ok = !!inv && assertFn(inv);
+    results.push({
+      id: /** @type {string} */ (id),
+      ok,
+      reason: ok
+        ? undefined
+        : inv
+          ? `ids=${inv.programIds.join(",")} occurs=${inv.occurs} search=${inv.search} numericWhens=${(inv.evaluateNumericWhens || []).join(",")}`
+          : "missing-fixture",
+      detail: inv
+        ? {
+            programIds: inv.programIds,
+            occurs: inv.occurs,
+            search: inv.search,
+            evaluateNumericWhens: inv.evaluateNumericWhens,
+            evaluateTrue: inv.evaluateTrue,
+          }
+        : undefined,
+    });
+  }
+
+  const upstreamCkpr = join(CLBS_MINI, "_upstream/CKPRST.cbl");
+  const upstreamSrc = existsSync(upstreamCkpr) ? readFileSync(upstreamCkpr, "utf8") : "";
+  const upstreamInv = upstreamSrc ? inventoryCobolSource(upstreamSrc, "_upstream/CKPRST.cbl") : null;
+  results.push({
+    id: "pattern-lift-procedure-using-upstream",
+    ok: !!upstreamInv && upstreamInv.procedureUsing >= 1 && upstreamInv.evaluateTrue >= 1,
+    reason: upstreamInv
+      ? `using=${upstreamInv.procedureUsing} args=${(upstreamInv.procedureUsingArgs || []).join(",")} evalTrue=${upstreamInv.evaluateTrue}`
+      : "missing-upstream-CKPRST",
+  });
+
+  const inqPath = join(CLBS_ONLINE, "INQONLN.cbl");
+  const inqSrc = existsSync(inqPath) ? readFileSync(inqPath, "utf8") : "";
+  const inqInv = inqSrc ? inventoryCobolSource(inqSrc, "online/INQONLN.cbl") : null;
+  const needOps = [
+    "HANDLE",
+    "RECEIVE",
+    "SEND",
+    "LINK",
+    "RETURN",
+    "READ",
+    "XCTL",
+    "STARTBR",
+    "WRITEQ",
+    "READQ",
+    "DELETEQ",
+    "ENQ",
+    "DEQ",
+  ];
+  const inqOps = new Set(inqInv?.execCicsOps || []);
+  const inqMissing = needOps.filter((o) => !inqOps.has(o));
+  results.push({
+    id: "online-cics-structural-deepen",
+    ok:
+      !!inqInv &&
+      inqMissing.length === 0 &&
+      inqInv.handleCondition >= 1 &&
+      inqInv.handleAid >= 1 &&
+      inqInv.sectionCount >= 4 &&
+      inqInv.unresolved.includes("exec-cics"),
+    reason: inqInv
+      ? inqMissing.length
+        ? `missing=${inqMissing.join(",")}`
+        : `ops=${[...inqOps].join(",")} sections=${inqInv.sectionCount}`
+      : "missing-INQONLN",
+    detail: inqInv
+      ? { execCicsOps: inqInv.execCicsOps, sections: inqInv.sectionNames, evaluateWhens: inqInv.evaluateWhens }
+      : undefined,
+  });
+
+  const cardPath = join(CLBS_ONLINE, "CARDONLN.cbl");
+  const cardSrc = existsSync(cardPath) ? readFileSync(cardPath, "utf8") : "";
+  const cardInv = cardSrc ? inventoryCobolSource(cardSrc, "online/CARDONLN.cbl") : null;
+  results.push({
+    id: "online-carddemo-structural",
+    ok:
+      !!cardInv &&
+      cardInv.programIds.includes("CARDONLN") &&
+      (cardInv.execCicsOps || []).includes("HANDLE") &&
+      (cardInv.execCicsOps || []).includes("XCTL") &&
+      (cardInv.execCicsOps || []).includes("GETMAIN") &&
+      (cardInv.execCicsOps || []).includes("INQUIRE") &&
+      cardInv.sectionCount >= 3 &&
+      cardInv.procedureUsing >= 1 &&
+      /\bDFHCOMMAREA\b/i.test(cardSrc) &&
+      /\bCOMMAREA\s*\(\s*DFHCOMMAREA\s*\)/i.test(cardSrc),
+    reason: cardInv
+      ? `ops=${(cardInv.execCicsOps || []).join(",")} sections=${cardInv.sectionCount} using=${cardInv.procedureUsing}`
+      : "missing-CARDONLN",
+  });
+
+  const cardCopy = resolveCobolCopybooks(cardInv?.copybooks || [], [join(CLBS_MINI, "copybook")]);
+  const cardResolved = cardCopy.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
+  const cardUnresolved = cardCopy.filter((r) => !r.resolved).map((r) => r.name.toUpperCase());
+  results.push({
+    id: "online-carddemo-cotrt-db2-map-resolve",
+    ok:
+      !!cardInv &&
+      cardResolved.includes("COTRTLI") &&
+      cardResolved.includes("COTRTUP") &&
+      cardResolved.includes("COADM02Y") &&
+      cardUnresolved.includes("DFHAID") &&
+      cardUnresolved.includes("DFHBMSCA") &&
+      cardInv.unresolved.includes("copy") &&
+      cardInv.unresolved.includes("exec-cics"),
+    reason: cardInv
+      ? `resolved=${cardResolved.filter((n) => /COTRT|COADM02Y/.test(n)).join(",")} unresolvedBms=${cardUnresolved.filter((n) => /^DFH/.test(n)).join(",")}`
+      : "missing-CARDONLN",
+  });
+
+  const cotrtlicPath = join(CLBS_ONLINE, "COTRTLIC.cbl");
+  const cotrtlicSrc = existsSync(cotrtlicPath) ? readFileSync(cotrtlicPath, "utf8") : "";
+  const cotrtlicInv = cotrtlicSrc
+    ? inventoryCobolSource(cotrtlicSrc, "online/COTRTLIC.cbl")
+    : null;
+  const cotrtlicSqlOps = new Set(cotrtlicInv?.execSqlOps || []);
+  const cotrtlicCicsOps = new Set(cotrtlicInv?.execCicsOps || []);
+  const cotrtlicInc = resolveCobolCopybooks(
+    (cotrtlicInv?.execSqlIncludes || []).map((n) => String(n).toUpperCase()),
+    [join(CLBS_MINI, "copybook")],
+  );
+  const cotrtlicIncResolved = cotrtlicInc.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
+  results.push({
+    id: "online-cotrtlic-structural",
+    ok:
+      !!cotrtlicInv &&
+      cotrtlicInv.programIds.includes("COTRTLIC") &&
+      cotrtlicSqlOps.has("DECLARE-CURSOR") &&
+      cotrtlicCicsOps.has("RECEIVE") &&
+      cotrtlicIncResolved.includes("CSDB2RWY") &&
+      cotrtlicIncResolved.includes("DCLTRTYP") &&
+      cotrtlicInv.unresolved.includes("exec-sql") &&
+      cotrtlicInv.unresolved.includes("exec-cics"),
+    reason: cotrtlicInv
+      ? `sql=${[...cotrtlicSqlOps].join(",")} cics=${[...cotrtlicCicsOps].join(",")} inc=${cotrtlicIncResolved.join(",")}`
+      : "missing-COTRTLIC",
+  });
+
+  const cotrtupcPath = join(CLBS_ONLINE, "COTRTUPC.cbl");
+  const cotrtupcSrc = existsSync(cotrtupcPath) ? readFileSync(cotrtupcPath, "utf8") : "";
+  const cotrtupcInv = cotrtupcSrc
+    ? inventoryCobolSource(cotrtupcSrc, "online/COTRTUPC.cbl")
+    : null;
+  const cotrtupcSqlOps = new Set(cotrtupcInv?.execSqlOps || []);
+  const cotrtupcCicsOps = new Set(cotrtupcInv?.execCicsOps || []);
+  const cotrtupcInc = resolveCobolCopybooks(
+    (cotrtupcInv?.execSqlIncludes || []).map((n) => String(n).toUpperCase()),
+    [join(CLBS_MINI, "copybook")],
+  );
+  const cotrtupcIncResolved = cotrtupcInc.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
+  results.push({
+    id: "online-cotrtupc-structural",
+    ok:
+      !!cotrtupcInv &&
+      cotrtupcInv.programIds.includes("COTRTUPC") &&
+      cotrtupcSqlOps.has("INSERT") &&
+      cotrtupcCicsOps.has("ABEND") &&
+      cotrtupcIncResolved.includes("DCLTRTYP") &&
+      cotrtupcIncResolved.includes("DCLTRCAT") &&
+      cotrtupcInv.unresolved.includes("exec-sql") &&
+      cotrtupcInv.unresolved.includes("exec-cics"),
+    reason: cotrtupcInv
+      ? `sql=${[...cotrtupcSqlOps].join(",")} cics=${[...cotrtupcCicsOps].join(",")} inc=${cotrtupcIncResolved.join(",")}`
+      : "missing-COTRTUPC",
+  });
+
+  const portPath = join(CLBS_ONLINE, "PORTONLN.cbl");
+  const portSrc = existsSync(portPath) ? readFileSync(portPath, "utf8") : "";
+  const portInv = portSrc ? inventoryCobolSource(portSrc, "online/PORTONLN.cbl") : null;
+  const portNeed = ["HANDLE", "VERIFY", "SUSPEND", "WRITEQ", "ENQ", "XCTL", "RETURN"];
+  const portOps = new Set(portInv?.execCicsOps || []);
+  const portMissing = portNeed.filter((o) => !portOps.has(o));
+  results.push({
+    id: "online-portonln-structural",
+    ok:
+      !!portInv &&
+      portInv.programIds.includes("PORTONLN") &&
+      portMissing.length === 0 &&
+      portInv.unresolved.includes("exec-cics"),
+    reason: portInv
+      ? portMissing.length
+        ? `missing=${portMissing.join(",")}`
+        : `ops=${[...portOps].join(",")} sections=${portInv.sectionCount}`
+      : "missing-PORTONLN",
+  });
+
+  const copyDir = join(CLBS_MINI, "copybook");
+  const inqCopy = resolveCobolCopybooks(inqInv?.copybooks || [], [copyDir]);
+  const inqResolved = inqCopy.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
+  const inqUnresolved = inqCopy.filter((r) => !r.resolved).map((r) => r.name.toUpperCase());
+  results.push({
+    id: "online-copy-resolve",
+    ok:
+      !!inqInv &&
+      inqResolved.includes("INQCOM") &&
+      inqResolved.includes("ERRHND") &&
+      inqResolved.includes("INQPORT") &&
+      inqUnresolved.includes("EXTFMAP") &&
+      inqInv.unresolved.includes("copy"),
+    reason: inqInv
+      ? `resolved=${inqResolved.join(",")} unresolved=${inqUnresolved.join(",")}`
+      : "missing-INQONLN",
+  });
+
+  const sqlcpyPath = join(CLBS_BATCH, "SQLCPY00.cbl");
+  const sqlcpySrc = existsSync(sqlcpyPath) ? readFileSync(sqlcpyPath, "utf8") : "";
+  const sqlcpyInv = sqlcpySrc ? inventoryCobolSource(sqlcpySrc, "batch/SQLCPY00.cbl") : null;
+  const sqlcpyCopy = resolveCobolCopybooks(sqlcpyInv?.copybooks || [], [copyDir]);
+  const sqlcpyResolved = sqlcpyCopy.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
+  results.push({
+    id: "batch-sqlca-copy-resolve",
+    ok:
+      !!sqlcpyInv &&
+      sqlcpyResolved.includes("SQLCA") &&
+      (sqlcpyInv.execSql || 0) === 0 &&
+      sqlcpyInv.unresolved.includes("copy"),
+    reason: sqlcpyInv
+      ? `resolved=${sqlcpyResolved.join(",")} books=${(sqlcpyInv.copybooks || []).join(",")}`
+      : "missing-SQLCPY00",
+  });
+
+  const sqlinvPath = join(CLBS_BATCH, "SQLINV00.cbl");
+  const sqlinvSrc = existsSync(sqlinvPath) ? readFileSync(sqlinvPath, "utf8") : "";
+  const sqlinvInv = sqlinvSrc ? inventoryCobolSource(sqlinvSrc, "batch/SQLINV00.cbl") : null;
+  const sqlIncNames = (sqlinvInv?.execSqlIncludes || []).map((n) => String(n).toUpperCase());
+  const sqlIncResolve = resolveCobolCopybooks(sqlIncNames, [copyDir]);
+  const sqlIncResolved = sqlIncResolve.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
+  const sqlIncPath = sqlIncResolve.find((r) => r.resolved && String(r.name).toUpperCase() === "SQLCA")
+    ?.resolved;
+  const sqlCpyPathResolved = sqlcpyCopy.find(
+    (r) => r.resolved && String(r.name).toUpperCase() === "SQLCA",
+  )?.resolved;
+  const upstreamHistldPath = join(CLBS_MINI, "_upstream/HISTLD00.cbl");
+  const upstreamHistldSrc = existsSync(upstreamHistldPath)
+    ? readFileSync(upstreamHistldPath, "utf8")
+    : "";
+  const upstreamHistldInv = upstreamHistldSrc
+    ? inventoryCobolSource(upstreamHistldSrc, "_upstream/HISTLD00.cbl")
+    : null;
+  results.push({
+    id: "batch-sqlca-dual-resolve",
+    ok:
+      sqlcpyResolved.includes("SQLCA") &&
+      sqlIncNames.includes("SQLCA") &&
+      sqlIncResolved.includes("SQLCA") &&
+      (sqlinvInv?.execSqlOps || []).includes("INCLUDE") &&
+      !!sqlinvInv &&
+      sqlinvInv.unresolved.includes("exec-sql") &&
+      !!sqlIncPath &&
+      !!sqlCpyPathResolved &&
+      sqlIncPath === sqlCpyPathResolved &&
+      !!upstreamHistldInv &&
+      (upstreamHistldInv.copybooks || []).map((c) => c.toUpperCase()).includes("SQLCA"),
+    reason: `include=${sqlIncNames.join(",")} resolved=${sqlIncResolved.join(",")} same=${sqlIncPath === sqlCpyPathResolved}`,
+  });
+
+  // Pattern emit for CLBSMATH must recognize rounded-product
+  const mathSrc = existsSync(join(CLBS_BATCH, "CLBSMATH.cbl"))
+    ? readFileSync(join(CLBS_BATCH, "CLBSMATH.cbl"), "utf8")
+    : "";
+  const mathEmit = mathSrc ? emitFromCobolPatterns(mathSrc, "python", { subjectId: "clbsmath" }) : null;
+  results.push({
+    id: "pattern-emit-clbsmath",
+    ok: !!mathEmit && mathEmit.ok === true && mathEmit.pattern === "rounded-product" && mathEmit.expected === "52.50",
+    reason: mathEmit
+      ? `pattern=${mathEmit.pattern} expected=${mathEmit.expected}`
+      : "missing-CLBSMATH",
   });
 
   const structuredLift = runLift(STRUCTURED, "cobol");

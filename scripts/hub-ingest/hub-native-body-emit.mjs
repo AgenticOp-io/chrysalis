@@ -899,7 +899,13 @@ export function swiftLiteral(value) {
 export function vaporRouteArgs(path) {
   const parts = path.split("/").filter(Boolean);
   if (parts.length === 0) return "";
-  return parts.map((p) => JSON.stringify(p)).join(", ");
+  return parts
+    .map((p) => {
+      const m = /^\{([A-Za-z_][A-Za-z0-9_]*)\}$/.exec(p);
+      if (m) return JSON.stringify(`:${m[1]}`);
+      return JSON.stringify(p);
+    })
+    .join(", ");
 }
 
 /**

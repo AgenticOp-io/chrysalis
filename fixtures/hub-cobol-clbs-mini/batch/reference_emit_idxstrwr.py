@@ -1,0 +1,6 @@
+"""Reference emit for IDXSTRWR — GnuCOBOL INDEXED START+REWRITE → 82.50."""
+# EXPECTED: 82.50
+ROWS = {10: 12.50, 42: 77.50}
+FIND = 42
+DELTA = 5.00
+print(f"{ROWS[FIND] + DELTA:.2f}")

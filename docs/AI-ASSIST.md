@@ -19,8 +19,10 @@ Human + AI is intentional:
 
 ## Install the AI addon (MCP)
 
+**Buyer path (recommended):** [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) — MCP + Cursor rule + `pnpm run pilot:laravel-min` on the laravel-min wedge.
+
 1. Build packages: `pnpm -r build` (or at least `@chrysalis/web-llm` + `@chrysalis/cli`).
-2. Copy [`fixtures/web-llm/cursor-mcp.example.json`](../fixtures/web-llm/cursor-mcp.example.json) into Cursor MCP settings; set `cwd` to the repo root.
+2. Copy [`fixtures/pilot-kit/cursor-mcp.json`](../fixtures/pilot-kit/cursor-mcp.json) (or legacy [`fixtures/web-llm/cursor-mcp.example.json`](../fixtures/web-llm/cursor-mcp.example.json)) into Cursor MCP settings; set `cwd` to the repo root.
 3. Start server: `pnpm run web-llm:mcp-server`
 4. Tools are governor-labeled GREEN / YELLOW / RED (`listGovernedAgentTools`). RED apply requires confirm + verify green.
 
@@ -50,5 +52,8 @@ Optional future SKU split (playbook only — see [`COMMERCIAL.md`](./COMMERCIAL.
 
 - **Core** — convert + verify  
 - **AI Assist** — MCP + Migration Chat + trajectories  
+- **Cursor Pilot Kit** — self-serve laravel-min wedge ([`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md)); closes “Start a Pilot” without AgenticOp in the room  
 
 License enforcement never unlocks a verify bypass.
+
+**Trust:** make the public Apache engine claim true — [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md).

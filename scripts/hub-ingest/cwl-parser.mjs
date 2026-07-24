@@ -29,6 +29,8 @@ const COOKIE_RE = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const BODY_RE = /^body\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const STATUS_RE = /^status\s+(\d{3})\s*;$/;
 const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
+const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
+const FOREACH_RE = /^foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as(?:\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=>)?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{$/;
 
 /** @param {string} raw */
 export function normalizeCwlContentType(raw) {
@@ -444,6 +446,32 @@ export function parseCwlModule(source, file) {
         });
         if (parsed.ok) loadBody = parsed.body;
         else loadBody = { kind: "hole", reason: `cwl:${parsed.error}` };
+        continue;
+      }
+      // Early-exit guards (RFC-0021): opaque residual or projectable cond expr.
+      // Bodies are origin status/return only; complex conds stay in WebIR.
+      const ifGuard = IF_GUARD_RE.exec(inner);
+      if (ifGuard) {
+        let depth = 1;
+        while (i < lines.length && depth > 0) {
+          const gline = lines[i].trim();
+          i += 1;
+          if (gline.endsWith("{")) depth += 1;
+          if (gline === "}") depth -= 1;
+        }
+        continue;
+      }
+      // Stmt-level foreach binding (collection + item). Body is chrome/docs
+      // surface only — parser skips; Hono/WebIR remain loop authority.
+      const foreachBind = FOREACH_RE.exec(inner);
+      if (foreachBind) {
+        let depth = 1;
+        while (i < lines.length && depth > 0) {
+          const gline = lines[i].trim();
+          i += 1;
+          if (gline.endsWith("{")) depth += 1;
+          if (gline === "}") depth -= 1;
+        }
         continue;
       }
       const ret = RETURN_RE.exec(inner);

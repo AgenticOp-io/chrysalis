@@ -1,5 +1,7 @@
 /**
  * Ruby hub ingest — Sinatra routes via pattern + semantic body lowering.
+ * Deepened for D6448-ST cwl-api flagship: string scalars, status+json depth,
+ * path/query refs (hub-flagship-ruby).
  */
 import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
 import {
@@ -8,7 +10,6 @@ import {
   hubOrigin,
   HUB_T,
   lowerHubLiteral,
-  lowerHubObjectLiteral,
 } from "./hub-lift-webir-route.mjs";
 import { lowerHubReturnTree } from "./hub-native-return-tree.mjs";
 import { lowerHubDbQuery } from "./hub-native-sql-effects.mjs";
@@ -17,6 +18,11 @@ export { parseRubyRoutes };
 
 const RUBY_JSON_HASH_RE = /json\s+(?:\{([\s\S]*?)\}|(.+?))\s*$/m;
 const RUBY_SQL_CALL_RE = /\w+\.(?:execute|query|exec)\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/gi;
+const RUBY_STATUS_RE = /\bstatus\s+(\d+)\b/;
+const RUBY_SCALAR_LIT_RE =
+  /(?:^|\n)\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')\s*(?:\n|$)/;
+const RUBY_PARAMS_REF_RE =
+  /(?:^|\n)\s*params\[\s*(?:['"]|:)([^'"]+)['"]?\s*\]\s*(?:\n|$)/;
 
 /**
  * @param {string} language
@@ -24,6 +30,20 @@ const RUBY_SQL_CALL_RE = /\w+\.(?:execute|query|exec)\(\s*"([^"]+)"(?:\s*,\s*([^
  */
 export function canRubyAstIngest(language, ext) {
   return language === "ruby" && ext.toLowerCase() === ".rb";
+}
+
+/**
+ * @param {string} raw
+ */
+function parseLiteralToken(raw) {
+  if (raw === "true") return true;
+  if (raw === "false") return false;
+  if (/^-?\d+$/.test(raw)) return Number.parseInt(raw, 10);
+  if (/^-?\d+\.\d+$/.test(raw)) return Number.parseFloat(raw);
+  if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+    return raw.slice(1, -1);
+  }
+  return null;
 }
 
 /**
@@ -137,33 +157,91 @@ function parseRubySqlEffects(bodySlice, refs) {
 }
 
 /**
+ * Extract Sinatra `do ... end` body after the route verb line.
  * @param {string} source
  * @param {number} fromIndex
- * @param {string} [routePath]
  */
-function parseRubyHandlerBody(source, fromIndex, routePath = "") {
+export function extractRubyHandlerBody(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 3500);
-  const blockM = slice.match(/\bdo\s*\n?([\s\S]*?)\nend\b/);
+  const blockM = slice.match(/\bdo\b([\s\S]*?)\bend\b/);
   if (!blockM) return null;
   const bodySlice = blockM[1];
   const line = source.slice(0, fromIndex).split("\n").length;
+  return { bodySlice, line };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {string} routePath
+ */
+function parseRubyBodyReturn(bodySlice, routePath) {
   const refs = parseRubyParamRefs(bodySlice, routePath);
   const sqlEffects = parseRubySqlEffects(bodySlice, refs);
+  const statusM = bodySlice.match(RUBY_STATUS_RE);
+  const status = statusM ? Number.parseInt(statusM[1], 10) : undefined;
   const returnTree = parseRubyJsonReturnTree(bodySlice, refs);
-  if (sqlEffects.length === 0 && !returnTree) return null;
-  return { sqlEffects, returnTree, line };
+  if (returnTree || sqlEffects.length > 0 || status !== undefined) {
+    /** @type {"json" | "scalar-lit" | "scalar-ref" | null} */
+    let kind = returnTree ? "json" : null;
+    if (!returnTree && status !== undefined && sqlEffects.length === 0) kind = null;
+    return { sqlEffects, returnTree, status, kind, refs };
+  }
+
+  const litM = bodySlice.match(RUBY_SCALAR_LIT_RE);
+  if (litM) {
+    const v = parseLiteralToken(litM[1]);
+    if (v !== null) {
+      return {
+        sqlEffects: [],
+        returnTree: { t: "lit", v },
+        status,
+        kind: "scalar-lit",
+        refs,
+      };
+    }
+  }
+
+  const refM = bodySlice.match(RUBY_PARAMS_REF_RE);
+  if (refM) {
+    const name = refM[1];
+    const pathNames = new Set([...routePath.matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1]));
+    const ref = refs[name] ?? {
+      source: pathNames.has(name) ? "path" : "query",
+      name,
+    };
+    return {
+      sqlEffects: [],
+      returnTree: { t: "ref", ...ref },
+      status,
+      kind: "scalar-ref",
+      refs,
+    };
+  }
+
+  return null;
 }
 
 /**
  * @param {object} ctx
- * @param {{ sqlEffects: object[], returnTree: object | null, line: number }} parsed
+ * @param {{ sqlEffects: object[], returnTree: object | null, status?: number, line: number }} parsed
  * @param {{ file: string, line?: number }} loc
  */
-function lowerRubyHandlerBody(ctx, parsed, loc) {
-  const { data, webir } = ctx;
+function lowerRubyHandlerBodyFull(ctx, parsed, loc) {
+  const { data, effect, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);
   /** @type {import('@chrysalis/webir').NodeId[]} */
   const statements = [];
+  const status = parsed.status;
+  if (typeof status === "number" && Number.isFinite(status) && status !== 200) {
+    statements.push(
+      effect.httpError({
+        status,
+        message: null,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "ruby-ast:json-status")],
+      }),
+    );
+  }
   for (const eff of parsed.sqlEffects) {
     statements.push(lowerHubDbQuery(ctx, eff, loc));
   }
@@ -190,14 +268,60 @@ function lowerRubyHandlerBody(ctx, parsed, loc) {
   });
 }
 
+/**
+ * @param {object} ctx
+ * @param {number | undefined} status
+ * @param {unknown} value
+ * @param {{ file: string, line?: number }} loc
+ */
+function lowerRubyScalarLit(ctx, status, value, loc) {
+  if (typeof status !== "number" || !Number.isFinite(status) || status === 200) {
+    return lowerHubLiteral(ctx, value, loc);
+  }
+  const { data, effect, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const type =
+    typeof value === "string"
+      ? HUB_T.string
+      : typeof value === "boolean"
+        ? HUB_T.bool
+        : typeof value === "number"
+          ? HUB_T.int
+          : HUB_T.unknown;
+  const statusId = effect.httpError({
+    status,
+    message: null,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "ruby-ast:json-status")],
+  });
+  const litId = data.literal({
+    value,
+    type,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "literal-return")],
+  });
+  return data.block({
+    statements: [statusId, litId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "ruby-scalar-lit-status")],
+  });
+}
+
+/**
+ * Only match an inline `do <lit> end` for *this* route — do not scan into later routes
+ * (a forward scan would steal the next handler's scalar, e.g. stats `3` into users).
+ * @param {string} source
+ * @param {number} fromIndex
+ */
 function rubyBlockLiteralAfter(source, fromIndex) {
-  const slice = source.slice(fromIndex, fromIndex + 200);
-  const m = slice.match(/\bdo\s+(true|false|-?\d+)\s+end\b/);
+  const extracted = extractRubyHandlerBody(source, fromIndex);
+  if (!extracted) return null;
+  const m = extracted.bodySlice.match(/^\s*(true|false|-?\d+|"[^"]*"|'[^']*')\s*$/);
   if (!m) return null;
-  const v = m[1] === "true" ? true : m[1] === "false" ? false : Number.parseInt(m[1], 10);
-  const baseLine = source.slice(0, fromIndex).split("\n").length;
-  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
-  return { value: v, line };
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  return { value: v, line: extracted.line };
 }
 
 /**
@@ -215,12 +339,25 @@ export function liftRubyFileToWebir(opts) {
 
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
-    const parsed = parseRubyHandlerBody(source, idx, r.path);
+    const extracted = extractRubyHandlerBody(source, idx);
     let bodyId;
-    if (parsed) {
+    const parsed = extracted ? parseRubyBodyReturn(extracted.bodySlice, r.path) : null;
+    const loc = { file, line: extracted?.line ?? r.line };
+
+    if (parsed?.kind === "scalar-lit" && parsed.returnTree?.t === "lit") {
+      bodyId = lowerRubyScalarLit(ctx, parsed.status, parsed.returnTree.v, loc);
+    } else if (parsed && (parsed.sqlEffects.length > 0 || parsed.returnTree || parsed.status)) {
       bodyId =
-        lowerRubyHandlerBody(ctx, parsed, { file, line: parsed.line }) ??
-        hubHandlerBodyHole(ctx, "hub-ruby:handler-body", { file, line: r.line });
+        lowerRubyHandlerBodyFull(
+          ctx,
+          {
+            sqlEffects: parsed.sqlEffects,
+            returnTree: parsed.returnTree,
+            status: parsed.status,
+            line: loc.line,
+          },
+          loc,
+        ) ?? hubHandlerBodyHole(ctx, "hub-ruby:handler-body", { file, line: r.line });
     } else {
       const lit = rubyBlockLiteralAfter(source, idx);
       bodyId =

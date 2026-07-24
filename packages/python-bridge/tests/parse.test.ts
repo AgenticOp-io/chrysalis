@@ -46,6 +46,24 @@ describe("@chrysalis/python-bridge", () => {
     expect(sources.has("body")).toBe(true);
   });
 
+  it.skipIf(!pythonAvailable())("parses status tuple return as statusCode + tree", async () => {
+    const src = `from flask import Flask
+app = Flask(__name__)
+
+@app.post("/items")
+def create_item():
+    return {"created": True}, 201
+`;
+    const result = await parseSource(src);
+    expect(result.routes).toHaveLength(1);
+    expect(result.routes[0]?.statusCode).toBe(201);
+    expect(result.routes[0]?.returnKind).toBe("tree");
+    expect(result.routes[0]?.returnTree).toEqual({
+      t: "obj",
+      entries: [{ key: "created", value: { t: "lit", v: true } }],
+    });
+  });
+
   it("parse script file exists", () => {
     const script = join(dirname(fileURLToPath(import.meta.url)), "..", "python", "parse_routes.py");
     expect(readFileSync(script, "utf8")).toContain("route_from_decorator");

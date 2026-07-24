@@ -1,0 +1,6 @@
+"""Reference emit for IDXALTRW — GnuCOBOL INDEXED alt START+REWRITE → 92.25."""
+# EXPECTED: 92.25
+ROWS = {"ALT00010": 12.50, "ALT00088": 88.25}
+FIND = "ALT00088"
+DELTA = 4.00
+print(f"{ROWS[FIND] + DELTA:.2f}")

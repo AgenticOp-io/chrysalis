@@ -1,0 +1,6 @@
+"""Reference emit for TSTGENRN — TSTGEN00 LINE SEQ PORTFOLIO+TRANSACTN+VOLUME → 76."""
+# EXPECTED: 76
+FUNCS = ["PORTFOLIO", "TRANSACTN", "VOLUME"]
+CODES = {"PORTFOLIO": 12, "TRANSACTN": 22, "ERROR": 32, "VOLUME": 42}
+total = sum(CODES[f] for f in FUNCS)
+print(f"{total:02d}")

@@ -1,0 +1,89 @@
+{
+  "kind": "chrysalis.complete-conversion.checklist.v1",
+  "schemaVersion": 1,
+  "gate": "D6448-ST",
+  "projectId": "hub-flagship-plain-php",
+  "proveProfile": "cwl-api",
+  "originPair": {
+    "originLanguage": "php",
+    "emitTarget": "cwl"
+  },
+  "routesCwl": "fixtures/hub-flagship-plain-php/generated/cwl/routes.cwl",
+  "originAuthority": "fixtures/hub-flagship-plain-php",
+  "convertedHost": "fixtures/hub-flagship-plain-php/generated",
+  "proveReportRel": "reports/st/hub-flagship-plain-php/complete-conversion-prove.json",
+  "conversionReportRel": null,
+  "minRoutes": 20,
+  "holeCensus": {
+    "total": 0,
+    "forceSettleUsed": false,
+    "stopReason": null,
+    "provedAt": "2026-07-24T12:06:08.593Z"
+  },
+  "islands": [],
+  "pages": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "prove": [
+        "content-type-text-plain"
+      ],
+      "contentType": "text/plain"
+    },
+    {
+      "path": "/echo",
+      "method": "POST",
+      "prove": [
+        "json-echo"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "echo: true"
+      ]
+    },
+    {
+      "path": "/meta",
+      "method": "GET",
+      "prove": [
+        "json-service"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "path": "/items",
+      "method": "GET",
+      "prove": [
+        "json-items"
+      ],
+      "contentType": "application/json"
+    },
+    {
+      "path": "/items",
+      "method": "POST",
+      "prove": [
+        "create-201"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "created: true"
+      ]
+    }
+  ],
+  "signedInOriginCompare": {
+    "required": true,
+    "mode": "fixture-verify-gold",
+    "status": "passed",
+    "routes": [
+      "/health",
+      "/echo",
+      "/meta",
+      "/items"
+    ],
+    "comparedAt": "2026-07-24T00:00:00.000Z",
+    "reportRel": "fixtures/hub-flagship-plain-php/reports/verify/summary.json",
+    "notes": "API flagship: origin compare = fixture pages + hole-free CWL emit + verify gold (no live product host; D6447 no invented UI)"
+  }
+}

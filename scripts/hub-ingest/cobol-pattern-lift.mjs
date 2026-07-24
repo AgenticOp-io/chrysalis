@@ -7,6 +7,9 @@
  *   chrysalis-return: <json-or-literal>
  */
 
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+
 /**
  * @typedef {{ method: string, path: string, line: number, name?: string }} HubRoute
  */
@@ -19,7 +22,10 @@ function lineAt(source, index) {
   return source.slice(0, index).split("\n").length;
 }
 
-const PROGRAM_ID_RE = /\bPROGRAM-ID\s*\.\s*([A-Za-z0-9][A-Za-z0-9-]*)\s*\./gi;
+/** Fixed-form (`PROGRAM-ID. NAME.`) and free-form / missing final period.
+ * Also `PROGRAM-ID. NAME IS RECURSIVE.` / `IS INITIAL` / `IS COMMON`. */
+const PROGRAM_ID_RE =
+  /\bPROGRAM-ID\s*\.\s*([A-Za-z0-9][A-Za-z0-9-]*)(?:\s+IS\s+(?:RECURSIVE|INITIAL|COMMON(?:\s+INITIAL)?))*\s*(?:\.|(?:\r?\n)|$)/gi;
 const ROUTE_ANN_RE =
   /(?:\*>|\*)\s*chrysalis-route\s*:\s*(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\/[^\s*]*)/gi;
 const RETURN_ANN_RE = /(?:\*>|\*)\s*chrysalis-return\s*:\s*(.+?)\s*$/gim;
@@ -32,14 +38,42 @@ const DISPLAY_RE = /\bDISPLAY\s+/i;
 const COPY_RE = /\bCOPY\s+([A-Za-z][A-Za-z0-9-]*)\s*\./gi;
 const EXEC_CICS_RE = /\bEXEC\s+CICS\b/gi;
 const EXEC_SQL_RE = /\bEXEC\s+SQL\b/gi;
+/** EXEC SQL … END-EXEC bodies (multi-line DML / cursors / txn). */
+const EXEC_SQL_BLOCK_RE = /\bEXEC\s+SQL\b([\s\S]*?)\bEND-EXEC\b/gi;
+/** First verb after EXEC CICS (HANDLE CONDITION → HANDLE). */
+const EXEC_CICS_OP_RE = /\bEXEC\s+CICS\s+([A-Z][A-Z0-9-]*)/gi;
+const HANDLE_CONDITION_RE = /\bEXEC\s+CICS\s+HANDLE\s+CONDITION\b/gi;
+const HANDLE_AID_RE = /\bEXEC\s+CICS\s+HANDLE\s+AID\b/gi;
+const RESP_CLAUSE_RE = /\bRESP\s*\(/gi;
 const PERFORM_RE = /\bPERFORM\s+([A-Za-z0-9][A-Za-z0-9-]*)/gi;
 const EVALUATE_WHEN_RE = /\bWHEN\s+'([^']+)'/gi;
+const EVALUATE_TRUE_RE = /\bEVALUATE\s+TRUE\b/gi;
+const EVALUATE_ANY_RE = /\bEVALUATE\s+/gi;
+const PROCEDURE_USING_RE = /\bPROCEDURE\s+DIVISION\s+USING\b/gi;
+/** PROCEDURE DIVISION USING arg1 arg2. / ENTRY 'name' USING … */
+const PROCEDURE_USING_ARGS_RE =
+  /\bPROCEDURE\s+DIVISION\s+USING\s+([A-Za-z0-9-]+(?:\s+[A-Za-z0-9-]+)*)\s*\./gi;
+/** ENTRY 'name' [USING …] — quoted name only (avoid WS-ENTRY false positives). */
+const ENTRY_STMT_RE =
+  /\bENTRY\s+(?:'([^']+)'|"([^"]+)")(?:\s+USING\b)?/gi;
 const READ_WRITE_RE = /\b(READ|WRITE|REWRITE|DELETE|START)\s+/gi;
+/** Indexed / VSAM-shaped FILE-CONTROL (structural hole until real VSAM adapter). */
+const ORGANIZATION_INDEXED_RE = /\bORGANIZATION\s+IS\s+INDEXED\b/gi;
+const ACCESS_MODE_RE = /\bACCESS\s+MODE\s+IS\s+(DYNAMIC|RANDOM|SEQUENTIAL)\b/gi;
+const RECORD_KEY_RE = /\bRECORD\s+KEY\s+IS\s+([A-Za-z0-9-]+)/gi;
+const ALTERNATE_RECORD_KEY_RE = /\bALTERNATE\s+RECORD\s+KEY\s+IS\s+([A-Za-z0-9-]+)/gi;
 const COMPUTE_RE = /\bCOMPUTE\s+/gi;
+const OCCURS_RE = /\bOCCURS\s+\d+/gi;
+/** SEARCH table — not END-SEARCH. */
+const SEARCH_RE = /(?<!END-)\bSEARCH\s+[A-Z0-9-]+/gi;
+const EVALUATE_NUMERIC_WHEN_RE = /\bWHEN\s+(\d+)\b/gi;
 const PROCEDURE_DIV_RE = /\bPROCEDURE\s+DIVISION\b/i;
 /** Paragraph / SECTION headers inside PROCEDURE DIVISION (fixed or free form). */
 const PARAGRAPH_RE =
   /(?:^|\n)[ \t]{0,16}([A-Za-z][A-Za-z0-9-]{0,29})(?:\s+SECTION)?\s*\.\s*(?:\r?\n|$)/gm;
+/** Same shape but only when the header is an explicit SECTION. */
+const SECTION_HEADER_RE =
+  /(?:^|\n)[ \t]{0,16}([A-Za-z][A-Za-z0-9-]{0,29})\s+SECTION\s*\.\s*(?:\r?\n|$)/gm;
 const RESERVED_PARAGRAPH = new Set([
   "IDENTIFICATION",
   "ENVIRONMENT",
@@ -113,6 +147,17 @@ function pushRoute(routes, source, method, path, index, seen, name) {
 }
 
 /**
+ * @param {string} source
+ * @returns {{ body: string, base: number } | null}
+ */
+function procedureBody(source) {
+  PROCEDURE_DIV_RE.lastIndex = 0;
+  const proc = PROCEDURE_DIV_RE.exec(source);
+  if (!proc || proc.index === undefined) return null;
+  return { body: source.slice(proc.index), base: proc.index };
+}
+
+/**
  * PROCEDURE DIVISION paragraph / SECTION names → GET /name routes.
  * Skips reserved words and single-letter noise.
  *
@@ -121,10 +166,9 @@ function pushRoute(routes, source, method, path, index, seen, name) {
  * @param {Set<string>} seen
  */
 function pushProcedureParagraphRoutes(source, routes, seen) {
-  const proc = PROCEDURE_DIV_RE.exec(source);
-  if (!proc || proc.index === undefined) return;
-  const body = source.slice(proc.index);
-  const base = proc.index;
+  const sliced = procedureBody(source);
+  if (!sliced) return;
+  const { body, base } = sliced;
   PARAGRAPH_RE.lastIndex = 0;
   let m;
   while ((m = PARAGRAPH_RE.exec(body)) !== null) {
@@ -135,6 +179,65 @@ function pushProcedureParagraphRoutes(source, routes, seen) {
     const absIndex = base + (m.index ?? 0) + (m[0].startsWith("\n") ? 1 : 0);
     pushRoute(routes, source, "GET", cobolProgramIdToPath(name), absIndex, seen, name);
   }
+}
+
+/**
+ * Collect PROCEDURE DIVISION SECTION header names (for inventory / prove).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolSectionNames(source) {
+  const sliced = procedureBody(source);
+  if (!sliced) return [];
+  /** @type {string[]} */
+  const names = [];
+  SECTION_HEADER_RE.lastIndex = 0;
+  let m;
+  while ((m = SECTION_HEADER_RE.exec(sliced.body)) !== null) {
+    const name = m[1];
+    if (!name || RESERVED_PARAGRAPH.has(name.toUpperCase())) continue;
+    if (name.length < 2) continue;
+    names.push(name);
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Collect ENTRY statement names (alternate entry points).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolEntryNames(source) {
+  /** @type {string[]} */
+  const names = [];
+  ENTRY_STMT_RE.lastIndex = 0;
+  let m;
+  while ((m = ENTRY_STMT_RE.exec(source)) !== null) {
+    const name = m[1] || m[2];
+    if (name) names.push(name);
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Collect PROCEDURE DIVISION USING linkage / parameter names.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolProcedureUsingArgs(source) {
+  /** @type {string[]} */
+  const args = [];
+  PROCEDURE_USING_ARGS_RE.lastIndex = 0;
+  let m;
+  while ((m = PROCEDURE_USING_ARGS_RE.exec(source)) !== null) {
+    for (const tok of String(m[1] || "").split(/\s+/)) {
+      if (tok && !RESERVED_PARAGRAPH.has(tok.toUpperCase())) args.push(tok);
+    }
+  }
+  return [...new Set(args)];
 }
 
 /**
@@ -265,38 +368,95 @@ export function cobolBodyAfter(source, fromIndex) {
 }
 
 /**
+ * Drop `*` / `*>` comment lines so inventory keywords are not false-positive.
+ * @param {string} source
+ */
+function stripCobolCommentLines(source) {
+  return source
+    .split(/\r?\n/)
+    .filter((line) => {
+      const t = line.trimStart();
+      return !(t.startsWith("*>") || t.startsWith("*"));
+    })
+    .join("\n");
+}
+
+/**
  * Inventory CLBS-shaped COBOL idioms (structural completeness / hole planning).
  *
  * @param {string} source
  * @param {string} [file]
  */
 export function inventoryCobolSource(source, file = "") {
+  const code = stripCobolCommentLines(source);
   const programIds = [];
   PROGRAM_ID_RE.lastIndex = 0;
   let m;
-  while ((m = PROGRAM_ID_RE.exec(source)) !== null) programIds.push(m[1]);
+  while ((m = PROGRAM_ID_RE.exec(code)) !== null) programIds.push(m[1]);
 
   const copybooks = [];
   COPY_RE.lastIndex = 0;
-  while ((m = COPY_RE.exec(source)) !== null) copybooks.push(m[1]);
+  while ((m = COPY_RE.exec(code)) !== null) copybooks.push(m[1]);
 
   const performs = [];
   PERFORM_RE.lastIndex = 0;
-  while ((m = PERFORM_RE.exec(source)) !== null) {
+  while ((m = PERFORM_RE.exec(code)) !== null) {
     const name = m[1];
     if (name && !RESERVED_PARAGRAPH.has(name.toUpperCase())) performs.push(name);
   }
 
   const evaluateWhens = [];
   EVALUATE_WHEN_RE.lastIndex = 0;
-  while ((m = EVALUATE_WHEN_RE.exec(source)) !== null) evaluateWhens.push(m[1]);
+  while ((m = EVALUATE_WHEN_RE.exec(code)) !== null) evaluateWhens.push(m[1]);
 
-  const execCics = (source.match(EXEC_CICS_RE) || []).length;
-  const execSql = (source.match(EXEC_SQL_RE) || []).length;
-  const fileIo = (source.match(READ_WRITE_RE) || []).length;
-  const computes = (source.match(COMPUTE_RE) || []).length;
+  const evaluateNumericWhens = [];
+  EVALUATE_NUMERIC_WHEN_RE.lastIndex = 0;
+  while ((m = EVALUATE_NUMERIC_WHEN_RE.exec(code)) !== null) {
+    evaluateNumericWhens.push(m[1]);
+  }
+
+  const evaluateTrue = (code.match(EVALUATE_TRUE_RE) || []).length;
+  const evaluateAny = (code.match(EVALUATE_ANY_RE) || []).length;
+  const occurs = (code.match(OCCURS_RE) || []).length;
+  const search = (code.match(SEARCH_RE) || []).length;
+  const procedureUsing = (code.match(PROCEDURE_USING_RE) || []).length;
+  const procedureUsingArgs = parseCobolProcedureUsingArgs(code);
+  const entryNames = parseCobolEntryNames(code);
+  const sectionNames = parseCobolSectionNames(code);
+
+  const execCics = (code.match(EXEC_CICS_RE) || []).length;
+  const execSql = (code.match(EXEC_SQL_RE) || []).length;
+  const execSqlOps = parseExecSqlOps(code);
+  const execSqlIncludes = parseExecSqlIncludeNames(code);
+  /** @type {string[]} */
+  const execCicsOps = [];
+  EXEC_CICS_OP_RE.lastIndex = 0;
+  while ((m = EXEC_CICS_OP_RE.exec(code)) !== null) {
+    if (m[1]) execCicsOps.push(m[1].toUpperCase());
+  }
+  const handleCondition = (code.match(HANDLE_CONDITION_RE) || []).length;
+  const handleAid = (code.match(HANDLE_AID_RE) || []).length;
+  const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
+  const fileIo = (code.match(READ_WRITE_RE) || []).length;
+  const organizationIndexed = (code.match(ORGANIZATION_INDEXED_RE) || []).length;
+  const accessModes = [];
+  ACCESS_MODE_RE.lastIndex = 0;
+  while ((m = ACCESS_MODE_RE.exec(code)) !== null) {
+    if (m[1]) accessModes.push(m[1].toUpperCase());
+  }
+  const recordKeys = [];
+  RECORD_KEY_RE.lastIndex = 0;
+  while ((m = RECORD_KEY_RE.exec(code)) !== null) {
+    if (m[1]) recordKeys.push(m[1]);
+  }
+  const alternateRecordKeys = [];
+  ALTERNATE_RECORD_KEY_RE.lastIndex = 0;
+  while ((m = ALTERNATE_RECORD_KEY_RE.exec(code)) !== null) {
+    if (m[1]) alternateRecordKeys.push(m[1]);
+  }
+  const computes = (code.match(COMPUTE_RE) || []).length;
   const routes = parseCobolRoutes(source, file);
-  const unresolved = cobolUnresolvedOps(source);
+  const unresolved = cobolUnresolvedOps(code);
 
   const commentLines = source.split(/\r?\n/).filter((l) => /^\s*\*/.test(l) || /^\s*\*>/.test(l)).length;
   const totalLines = Math.max(1, source.split(/\r?\n/).length);
@@ -310,17 +470,107 @@ export function inventoryCobolSource(source, file = "") {
     copybooks: [...new Set(copybooks)],
     performs: [...new Set(performs)],
     evaluateWhens: [...new Set(evaluateWhens)],
+    evaluateNumericWhens: [...new Set(evaluateNumericWhens)],
+    evaluateTrue,
+    evaluateAny,
+    occurs,
+    search,
+    procedureUsing,
+    procedureUsingArgs,
+    entryNames,
+    entryCount: entryNames.length,
+    sectionNames,
+    sectionCount: sectionNames.length,
     execCics,
+    execCicsOps: [...new Set(execCicsOps)],
+    handleCondition,
+    handleAid,
+    respClauses,
     execSql,
+    execSqlOps,
+    execSqlIncludes,
     fileIo,
+    organizationIndexed,
+    accessModes: [...new Set(accessModes)],
+    recordKeys: [...new Set(recordKeys)],
+    alternateRecordKeys: [...new Set(alternateRecordKeys)],
     computes,
     unresolved,
     commentLines,
     totalLines,
     commentRatio,
     hasIdentificationHeader: /\bIDENTIFICATION\s+DIVISION\b/i.test(source),
-    looksLikeCopybook: programIds.length === 0 && /\b01\s+/.test(source) && !PROCEDURE_DIV_RE.test(source),
+    looksLikeCopybook: programIds.length === 0 && /\b01\s+/.test(code) && !PROCEDURE_DIV_RE.test(code),
   };
+}
+
+/**
+ * Names from `EXEC SQL INCLUDE <book>` (DB2 precompiler dual of `COPY <book>`).
+ * Resolve with {@link resolveCobolCopybooks}; does not invent a DB2 runtime.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecSqlIncludeNames(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  EXEC_SQL_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_SQL_BLOCK_RE.exec(code)) !== null) {
+    const body = String(m[1] || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+    const inc = /^INCLUDE\s+([A-Z][A-Z0-9-]*)/.exec(body);
+    if (inc?.[1]) names.push(inc[1]);
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Catalog EXEC SQL verbs between EXEC SQL … END-EXEC (structural hole inventory).
+ * Does not invent a DB2 runtime — ops stay unresolved as `exec-sql`.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecSqlOps(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const ops = [];
+  EXEC_SQL_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_SQL_BLOCK_RE.exec(code)) !== null) {
+    const body = String(m[1] || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+    if (!body) {
+      ops.push("OTHER");
+      continue;
+    }
+    if (/^BEGIN\s+DECLARE\s+SECTION/.test(body)) ops.push("BEGIN-DECLARE");
+    else if (/^END\s+DECLARE\s+SECTION/.test(body)) ops.push("END-DECLARE");
+    else if (/^INCLUDE\b/.test(body)) ops.push("INCLUDE");
+    else if (/^DECLARE\b[\s\S]*\bCURSOR\b/.test(body)) ops.push("DECLARE-CURSOR");
+    else if (/^DECLARE\b/.test(body)) ops.push("DECLARE-TABLE");
+    else if (/^INSERT\b/.test(body)) ops.push("INSERT");
+    else if (/^UPDATE\b/.test(body)) ops.push("UPDATE");
+    else if (/^DELETE\b/.test(body)) ops.push("DELETE");
+    else if (/^SELECT\b/.test(body)) ops.push("SELECT");
+    else if (/^COMMIT\b/.test(body)) ops.push("COMMIT");
+    else if (/^ROLLBACK\b/.test(body)) ops.push("ROLLBACK");
+    else if (/^OPEN\b/.test(body)) ops.push("OPEN");
+    else if (/^FETCH\b/.test(body)) ops.push("FETCH");
+    else if (/^CLOSE\b/.test(body)) ops.push("CLOSE");
+    else if (/^WHENEVER\b/.test(body)) ops.push("WHENEVER");
+    else if (/^SET\b/.test(body)) ops.push("SET");
+    else if (/^CONNECT\b/.test(body)) ops.push("CONNECT");
+    else if (/^DISCONNECT\b/.test(body)) ops.push("DISCONNECT");
+    else ops.push("OTHER");
+  }
+  return [...new Set(ops)];
 }
 
 /**
@@ -341,5 +591,67 @@ export function cobolUnresolvedOps(source, fromIndex = 0) {
   if (/\bCOPY\s+[A-Za-z0-9]/i.test(slice)) ops.push("copy");
   if (/\bPERFORM\s+[A-Za-z0-9]/i.test(slice)) ops.push("perform");
   if (/\b(READ|WRITE|REWRITE|DELETE|START)\s+/i.test(slice)) ops.push("file-io");
+  if (/\bORGANIZATION\s+IS\s+INDEXED\b/i.test(slice)) ops.push("indexed-file");
+  if (/\bRECORD\s+KEY\s+IS\b/i.test(slice)) ops.push("record-key");
+  if (/\bALTERNATE\s+RECORD\s+KEY\s+IS\b/i.test(slice)) ops.push("alternate-record-key");
+  if (/\bINVALID\s+KEY\b/i.test(slice)) ops.push("invalid-key");
+  // Non-deterministic intrinsic — keep as honest hole (no invented façade).
+  if (/\bFUNCTION\s+RANDOM\b/i.test(slice)) ops.push("function-random");
   return [...new Set(ops)];
 }
+
+/**
+ * Resolve COPY book names against CLBS-style copybook directories.
+ *
+ * @param {string[]} copyNames
+ * @param {string[]} searchDirs
+ * @returns {{ name: string, resolved: string | null }[]}
+ */
+export function resolveCobolCopybooks(copyNames, searchDirs) {
+  /** @type {{ name: string, resolved: string | null }[]} */
+  const out = [];
+  for (const name of copyNames) {
+    const upper = String(name || "").toUpperCase();
+    let resolved = null;
+    for (const dir of searchDirs) {
+      if (!dir || !existsSync(dir)) continue;
+      for (const ext of [".cpy", ".CPY", ".cbl", ".CBL", ".cob", ".COB", ".dcl", ".DCL"]) {
+        const p = join(dir, `${upper}${ext}`);
+        if (existsSync(p)) {
+          resolved = p;
+          break;
+        }
+        const p2 = join(dir, `${name}${ext}`);
+        if (existsSync(p2)) {
+          resolved = p2;
+          break;
+        }
+      }
+      if (resolved) break;
+      try {
+        for (const sub of readdirSync(dir)) {
+          const subDir = join(dir, sub);
+          try {
+            if (!statSync(subDir).isDirectory()) continue;
+          } catch {
+            continue;
+          }
+          for (const ext of [".cpy", ".CPY", ".cbl", ".CBL", ".dcl", ".DCL"]) {
+            const p = join(subDir, `${upper}${ext}`);
+            if (existsSync(p)) {
+              resolved = p;
+              break;
+            }
+          }
+          if (resolved) break;
+        }
+      } catch {
+        /* ignore */
+      }
+      if (resolved) break;
+    }
+    out.push({ name, resolved });
+  }
+  return out;
+}
+

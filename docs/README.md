@@ -13,7 +13,9 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 
 | Doc | What |
 | --- | --- |
-| [**AI Assist + Migration Chat**](./AI-ASSIST.md) | **Closed (D6417)** — MCP + `chrysalis chat` + hub `/migration-chat`; LiteRT refused |
+| [AI Assist + Migration Chat](./AI-ASSIST.md) | MCP + chat; LiteRT refused |
+| [**Cursor Pilot Kit**](./CURSOR-PILOT-KIT.md) | **GTM #1** — MCP + laravel-min self-serve pilot |
+| [Public engine claim](./PUBLIC-ENGINE-CLAIM.md) | Apache trust-fix checklist before going public |
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |
 | [**Whole-site CWL conversion**](./WHOLE-SITE-CWL-CONVERSION.md) | **Closed (G9450)** — package pipeline close; regression `hub:whole-site-cwl-close-smoke` |
 | [**Svelte → CWL lessons**](./SVELTE-CWL-CONVERSION-LESSONS.md) | **Active (D6405)** — what failed (sidecar/demos) + actual-build rules |
@@ -59,6 +61,10 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [Hub nginx vhost](./nginx/chrysalis-hub.vhost.example) | Locked `chrysalis-hub` site (do not edit FDE vhosts) |
 | [Hub server install](./HUB-SERVER-INSTALL.md) | Multi-site SSH batch |
 | [Commercial offering](./COMMERCIAL.md) | License tiers, services |
+| [Trade secret + OSS boundary](./TRADE-SECRET-AND-OSS-BOUNDARY.md) | What stays private if Apache OSS (budget IP path) |
+| [COBOL modernization prove](./COBOL-MODERNIZATION-PROVE.md) | CLBS / LegacyCodeBench-shaped 3-track |
+| [External prove corpora](./EXTERNAL-PROVE-CORPORA.md) | Public CLBS / LCB inventory + in-tree scoreboard (`hub:external-prove-corpus-smoke`) |
+| [COBOL-primary + universal build](./COBOL-PRIMARY-UNIVERSAL-BUILD.md) | COBOL first; same template for all origins |
 | [GitHub Project](./GITHUB_PROJECT.md) | Project board bootstrap |
 | [Multi-repo workspace](./MULTI-REPO-WORKSPACE.md) | WPTP sibling repos |
 

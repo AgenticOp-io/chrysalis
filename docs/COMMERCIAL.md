@@ -6,7 +6,11 @@
 
 **WPTP enterprise lane (D6):** Program policy for private adapters, SSO, and data residency is in **[`WPTP-D6-ENTERPRISE-POLICY.md`](./WPTP-D6-ENTERPRISE-POLICY.md)** ([exit report](./WPTP-D6-EXIT-REPORT.md)). Sponsor-funded connector SKUs remain in **[`WPTP-FUNDING-TRACKER.md`](./WPTP-FUNDING-TRACKER.md)**.
 
-Chrysalis is **open source (MIT)** in this repository. Revenue scales with **services and contracts**, then **distribution / SLA**, then **optional technical enforcement** for vendor builds. This page lists offerings **largest gain first**; implement billing and contracts **outside** the repo (Stripe, order forms, MSAs).
+Chrysalis is intended **open source (Apache-2.0)** in this repository. Revenue scales with **services and contracts**, then **distribution / SLA**, then **optional technical enforcement** for vendor builds. This page lists offerings **largest gain first**; implement billing and contracts **outside** the repo (Stripe, order forms, MSAs).
+
+**Budget IP path:** no broad patents — **trade secret + trademark + services**. What stays private when the engine goes Apache: [`TRADE-SECRET-AND-OSS-BOUNDARY.md`](./TRADE-SECRET-AND-OSS-BOUNDARY.md). Filled engagement packs live **outside** this repo (`AgenticOps/commercial/chrysalis-private-pack/`).
+
+**GTM wedge (self-serve):** [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) — MCP + Cursor on `flagship/laravel-min` verify gates. Trust fix: [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md).
 
 ## 1. Professional services and migration programs (highest LTV)
 
@@ -60,7 +64,7 @@ Chrysalis is **open source (MIT)** in this repository. Revenue scales with **ser
 
 ## Legal and positioning
 
-- **MIT** allows broad use; **exclusivity** comes from **contracts**, **support**, **trademark**, and **distribution keys**, not from hiding the core source unless you pursue a **separate** dual-license strategy with counsel.
+- **Apache-2.0** allows broad use (includes a patent license grant from contributors); **exclusivity** comes from **contracts**, **support**, **trademark**, **trade secrets outside `main`**, and **distribution keys** — not from hiding the core engine unless you pursue a **separate** dual-license strategy with counsel.
 - For commercial terms, privacy, and liability, use your own **MSA** / **order form**; keep **`SECURITY.md`** as the vulnerability intake path.
 
 ## Next steps (operator checklist)

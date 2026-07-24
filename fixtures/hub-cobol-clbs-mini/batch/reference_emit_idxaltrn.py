@@ -1,0 +1,5 @@
+"""Reference emit for IDXALTRN — GnuCOBOL INDEXED ALTERNATE KEY read → 88.25."""
+# EXPECTED: 88.25
+ROWS = {"ALT00010": 12.50, "ALT00088": 88.25}
+FIND = "ALT00088"
+print(f"{ROWS[FIND]:.2f}")

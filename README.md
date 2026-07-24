@@ -7,8 +7,9 @@ Chrysalis turns legacy modernization from a **translation problem** into a
 code is verified against its real behavior — not trusted on faith.
 
 **Works best with an AI assistant** (Cursor, MCP, Migration Chat) — models
-propose; WebIR + oracle + verify dispose. See [`docs/AI-ASSIST.md`](./docs/AI-ASSIST.md).
-LiteRT.js is **not** part of the convert path.
+propose; WebIR + oracle + verify dispose. See [`docs/AI-ASSIST.md`](./docs/AI-ASSIST.md)
+and the buyer-facing [`docs/CURSOR-PILOT-KIT.md`](./docs/CURSOR-PILOT-KIT.md)
+(`pnpm run pilot:laravel-min`). LiteRT.js is **not** part of the convert path.
 
 It converts PHP to modern TypeScript, but that's only one of its three legs:
 

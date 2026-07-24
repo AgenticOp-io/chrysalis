@@ -45,7 +45,7 @@ See [COMMERCIAL.md](./COMMERCIAL.md) revenue order:
 4. Training  
 5. Reference dashboards (operator-owned)
 
-**WPTP program** does not change MIT license on OSS artifacts; exclusivity is **contractual**.
+**WPTP program** does not change Apache-2.0 on OSS artifacts; exclusivity is **contractual** + private adapters/corpora (see [`TRADE-SECRET-AND-OSS-BOUNDARY.md`](./TRADE-SECRET-AND-OSS-BOUNDARY.md)).
 
 ## 5. Policy pack checklist (operator)
 

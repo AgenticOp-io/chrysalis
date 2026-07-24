@@ -1,0 +1,428 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/billing"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/billing/add"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/management"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/system-management"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/system-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tenant-management"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tenant-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tenants/1/modules"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tenants/1/modules/add"
+    },
+    {
+      "method": "GET",
+      "path": "/api/me"
+    },
+    {
+      "method": "GET",
+      "path": "/auth/google/callback"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/debug-tenants"
+    },
+    {
+      "method": "GET",
+      "path": "/demo"
+    },
+    {
+      "method": "GET",
+      "path": "/docs"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/deployment"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/getting-started"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/reference"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/reference/project-status"
+    },
+    {
+      "method": "GET",
+      "path": "/help"
+    },
+    {
+      "method": "GET",
+      "path": "/login"
+    },
+    {
+      "method": "POST",
+      "path": "/login"
+    },
+    {
+      "method": "GET",
+      "path": "/modules"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/backend-management"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/backend-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/billing"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/billing/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/cbrs-management"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/cbrs-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/coverage-map"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal-setup"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal-setup/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/billing"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/billing/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/faq"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/knowledge"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/knowledge/1"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/live-chat"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/login"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/service"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/signup"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/tickets"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/tickets/1"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/tickets/new"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/deploy"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/hardware"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/hardware/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/help-desk"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/help-desk/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/help-desk/reports"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/help-desk/reports/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/hss-management"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/hss-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/1"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/1/edit"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/bundles"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/bundles/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/reports"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/reports/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/maintain"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/maintain/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/monitor"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/monitoring"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/monitoring/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/pci-resolution"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/pci-resolution/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/plan"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/sites"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/sites/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/cbrs-platform"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/cbrs-platform/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/users"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/users/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/permissions"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/permissions/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/roles"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/roles/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/voice-telephony"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/voice-telephony/add"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/work-orders"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/work-orders/1"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/work-orders/add"
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/google/callback"
+    },
+    {
+      "method": "GET",
+      "path": "/onboarding"
+    },
+    {
+      "method": "GET",
+      "path": "/portal/1"
+    },
+    {
+      "method": "GET",
+      "path": "/reset-password"
+    },
+    {
+      "method": "GET",
+      "path": "/settings/module-access"
+    },
+    {
+      "method": "GET",
+      "path": "/setup-admin"
+    },
+    {
+      "method": "GET",
+      "path": "/signup"
+    },
+    {
+      "method": "GET",
+      "path": "/support-dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/tenant-admin"
+    },
+    {
+      "method": "GET",
+      "path": "/tenant-selector"
+    },
+    {
+      "method": "GET",
+      "path": "/tenant-setup"
+    },
+    {
+      "method": "GET",
+      "path": "/wizards"
+    }
+  ]
+}

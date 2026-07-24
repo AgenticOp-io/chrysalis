@@ -7,6 +7,10 @@ import { canJavaAstIngest, liftJavaFileToWebir } from "./java-ast-ingest.mjs";
 import { canGoAstIngest, liftGoFileToWebir } from "./go-ast-ingest.mjs";
 import { canCsharpAstIngest, liftCsharpFileToWebir } from "./csharp-ast-ingest.mjs";
 import { canRubyAstIngest, liftRubyFileToWebir } from "./ruby-ast-ingest.mjs";
+import { canKotlinAstIngest, liftKotlinFileToWebir } from "./kotlin-ast-ingest.mjs";
+import { canScalaAstIngest, liftScalaFileToWebir } from "./scala-ast-ingest.mjs";
+import { canSwiftAstIngest, liftSwiftFileToWebir } from "./swift-ast-ingest.mjs";
+import { canRustAstIngest, liftRustFileToWebir } from "./rust-ast-ingest.mjs";
 import { canPatternRouteLift, liftPatternRoutesFile } from "./pattern-route-lift.mjs";
 import { extractVueScript } from "./pattern-route-parsers.mjs";
 import { canCwlIngest, liftCwlFileToWebir } from "./cwl-ingest.mjs";
@@ -45,6 +49,14 @@ export function trySpecializedHubLift(opts) {
     { can: canGoAstIngest, lift: liftGoFileToWebir },
     { can: canRubyAstIngest, lift: liftRubyFileToWebir },
     { can: canCsharpAstIngest, lift: liftCsharpFileToWebir },
+    // Prefer kotlin-ast (Spring fun / mapOf / ResponseEntity) over thin pattern lift.
+    { can: canKotlinAstIngest, lift: liftKotlinFileToWebir },
+    // Prefer scala-ast (Akka complete / Map / StatusCodes) over thin pattern lift.
+    { can: canScalaAstIngest, lift: liftScalaFileToWebir },
+    // Prefer swift-ast (Vapor dict / encodeResponse status) over thin pattern lift.
+    { can: canSwiftAstIngest, lift: liftSwiftFileToWebir },
+    // Prefer rust-ast (Actix macros / HttpResponse+json / path-query) over thin pattern lift.
+    { can: canRustAstIngest, lift: liftRustFileToWebir },
     {
       can: (lang) => canPatternRouteLift(lang),
       lift: (o) => liftPatternRoutesFile(o),

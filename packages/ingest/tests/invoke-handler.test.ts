@@ -40,6 +40,19 @@ describe("selectRouteHandlerStatements (__invoke body lift)", () => {
     expect(selectRouteHandlerStatements(stmts)).toEqual([inner]);
   });
 
+  it("ignores ClassDecl so final-class __invoke controllers lift their method body", () => {
+    const inner = headerCall();
+    const classDecl: PhpNode = {
+      kind: "ClassDecl",
+      name: "App\\Controller\\EchoController",
+      properties: [],
+      final: true,
+      pos: POS,
+    };
+    const stmts: PhpNode[] = [noop(), classDecl, invokeDecl([inner])];
+    expect(selectRouteHandlerStatements(stmts)).toEqual([inner]);
+  });
+
   it("returns the (Noop-only) top-level list when neither executable statements nor __invoke exist", () => {
     const only = noop();
     expect(selectRouteHandlerStatements([only])).toEqual([only]);

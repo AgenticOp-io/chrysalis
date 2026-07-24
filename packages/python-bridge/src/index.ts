@@ -37,6 +37,10 @@ function normalizeParseResult(raw: unknown): PythonHubParseResult {
       if (typeof row.method !== "string" || typeof row.path !== "string") continue;
       const returnTree = normalizeReturnTree(row.returnTree);
       const sqlEffects = normalizeSqlEffects(row.sqlEffects);
+      const statusCode =
+        typeof row.statusCode === "number" && Number.isFinite(row.statusCode)
+          ? row.statusCode
+          : undefined;
       routes.push({
         method: row.method,
         path: row.path,
@@ -46,6 +50,7 @@ function normalizeParseResult(raw: unknown): PythonHubParseResult {
         ...(typeof row.returnKind === "string" ? { returnKind: row.returnKind } : {}),
         ...(row.returnValue !== undefined ? { returnValue: row.returnValue } : {}),
         ...(returnTree ? { returnTree } : {}),
+        ...(statusCode !== undefined ? { statusCode } : {}),
         ...(sqlEffects ? { sqlEffects } : {}),
       });
     }

@@ -122,9 +122,9 @@ export const LANGUAGE_PROFILES = {
     role: "origin",
     family: "jvm",
     typing: "static",
-    typicalFrameworks: ["Play", "Akka HTTP"],
+    typicalFrameworks: ["Play", "Akka HTTP", "Http4s"],
     routeStyle: "DSL / directives",
-    notes: "Pattern route lift.",
+    notes: "Akka flagship ST; Http4s case→Ok/Created secondary hole-free dialect (hub-gold-scala-http4s).",
   },
   swift: {
     kind: "static",
@@ -133,7 +133,7 @@ export const LANGUAGE_PROFILES = {
     typing: "static",
     typicalFrameworks: ["Vapor"],
     routeStyle: "result builders",
-    notes: "Pattern route lift.",
+    notes: "Vapor multi-segment PathComponents (`app.get(\"items\", \":id\")`) + single-string templates.",
   },
   vue: {
     kind: "markup",

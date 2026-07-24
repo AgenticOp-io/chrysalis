@@ -48,8 +48,97 @@ const SCALA_PLAY_RE = /\(\s*"(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)"\s*,\s*"([
 const SCALA_SIRD_RE = /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s*\(\s*p"([^"]+)"\s*\)/gi;
 const SCALA_AKKA_ROUTE_RE =
   /\b(get|post|put|patch|delete|head|options)\s*\(\s*path\s*\(\s*"([^"]+)"\s*\)\s*\)/gi;
+/** Http4s: `case GET -> Root / "items" / id =>` (optional `req @`, `Method.`). */
+const SCALA_HTTP4S_CASE_RE =
+  /\bcase\s+(?:(?:[A-Za-z_][A-Za-z0-9_]*)\s*@\s*)?(?:Method\.)?(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*->\s*Root((?:\s*\/\s*(?:"[^"]+"|(?:IntVar|LongVar|UUIDVar)\(\s*[A-Za-z_][A-Za-z0-9_]*\s*\)|[A-Za-z_][A-Za-z0-9_]*))+)\s*=>/gi;
 const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
-const SWIFT_VERB_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(\s*"([^"]+)"/gi;
+const SWIFT_VERB_HEAD_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(/gi;
+
+/**
+ * @param {string} source
+ * @param {number} openIdx — index of `(`
+ * @returns {{ inner: string, end: number } | null}
+ */
+function extractBalancedParenInner(source, openIdx) {
+  if (source[openIdx] !== "(") return null;
+  let depth = 0;
+  for (let i = openIdx; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"' || ch === "'") {
+      const quote = ch;
+      i += 1;
+      while (i < source.length) {
+        if (source[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (source[i] === quote) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) return { inner: source.slice(openIdx + 1, i), end: i };
+    }
+  }
+  return null;
+}
+
+/**
+ * Join Http4s `Root / "a" / id` chain to CWL-ish `/a/{id}`.
+ * @param {string} chain
+ */
+export function http4sPathFromRootChain(chain) {
+  const segs = [];
+  const re =
+    /\/\s*(?:"([^"]+)"|(?:IntVar|LongVar|UUIDVar)\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)|([A-Za-z_][A-Za-z0-9_]*))/g;
+  let m;
+  while ((m = re.exec(chain)) !== null) {
+    if (m[1] !== undefined) segs.push(m[1]);
+    else if (m[2] !== undefined) segs.push(`{${m[2]}}`);
+    else segs.push(`{${m[3]}}`);
+  }
+  if (segs.length === 0) return "/";
+  return `/${segs.join("/")}`;
+}
+
+/**
+ * Join Vapor PathComponent string args: `"items", ":id"` → `/items/:id`.
+ * @param {string} parenInner
+ */
+export function vaporPathFromComponentArgs(parenInner) {
+  const segs = [];
+  let i = 0;
+  const inner = parenInner;
+  while (i < inner.length) {
+    while (i < inner.length && /[\s,]/.test(inner[i])) i += 1;
+    if (i >= inner.length) break;
+    if (inner[i] !== '"') break;
+    i += 1;
+    let s = "";
+    while (i < inner.length && inner[i] !== '"') {
+      if (inner[i] === "\\") {
+        s += inner[i + 1] ?? "";
+        i += 2;
+        continue;
+      }
+      s += inner[i];
+      i += 1;
+    }
+    if (inner[i] === '"') i += 1;
+    segs.push(s);
+  }
+  if (segs.length === 0) return null;
+  if (segs.length === 1) {
+    const only = segs[0];
+    if (only.startsWith("/")) return only;
+    if (only.includes("/")) return only.startsWith("/") ? only : `/${only}`;
+    return `/${only}`;
+  }
+  return `/${segs.map((s) => s.replace(/^\//, "")).join("/")}`;
+}
 
 export function parseKotlinRoutes(source, file) {
   const routes = parseJavaRoutes(source, file);
@@ -94,6 +183,10 @@ export function parseScalaRoutes(source) {
   while ((m = SCALA_AKKA_ROUTE_RE.exec(source)) !== null) {
     pushRoute(routes, source, m[1], m[2], m.index, seen);
   }
+  SCALA_HTTP4S_CASE_RE.lastIndex = 0;
+  while ((m = SCALA_HTTP4S_CASE_RE.exec(source)) !== null) {
+    pushRoute(routes, source, m[1], http4sPathFromRootChain(m[2]), m.index, seen);
+  }
   return routes;
 }
 
@@ -101,8 +194,14 @@ export function parseSwiftRoutes(source) {
   const routes = [];
   const seen = new Set();
   let m;
-  while ((m = SWIFT_VERB_RE.exec(source)) !== null) {
-    pushRoute(routes, source, m[1], m[2], m.index, seen);
+  SWIFT_VERB_HEAD_RE.lastIndex = 0;
+  while ((m = SWIFT_VERB_HEAD_RE.exec(source)) !== null) {
+    const openIdx = m.index + m[0].length - 1;
+    const bal = extractBalancedParenInner(source, openIdx);
+    if (!bal) continue;
+    const path = vaporPathFromComponentArgs(bal.inner);
+    if (!path) continue;
+    pushRoute(routes, source, m[1], path, m.index, seen);
   }
   return routes;
 }

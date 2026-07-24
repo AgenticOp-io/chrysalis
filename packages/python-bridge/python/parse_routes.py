@@ -36,7 +36,21 @@ def const_val(node):
 
 
 def path_param_names(path):
-    return re.findall(r"<([^>]+)>", path)
+    """Flask `<id>` / `<int:id>` → bare param names."""
+    names = []
+    for raw in re.findall(r"<([^>]+)>", path):
+        names.append(raw.split(":", 1)[-1].strip())
+    return names
+
+
+def peel_status_tuple(node):
+    """Flask `(body, status)` / `(jsonify(...), 201)` → (payload_node, status_int)."""
+    if not isinstance(node, ast.Tuple) or len(node.elts) != 2:
+        return None, None
+    status = const_val(node.elts[1])
+    if not isinstance(status, int):
+        return None, None
+    return node.elts[0], status
 
 
 def request_bucket_map(bucket):
@@ -298,6 +312,10 @@ for node in tree.body:
                     last = node.body[-1]
                     if isinstance(last, ast.Return) and last.value is not None:
                         ret = last.value
+                        payload, status_code = peel_status_tuple(ret)
+                        if payload is not None:
+                            ret = payload
+                            row["statusCode"] = status_code
                         tree_val = expr_tree(ret, func_args, path_params)
                         if tree_val is not None:
                             row["returnTree"] = tree_val

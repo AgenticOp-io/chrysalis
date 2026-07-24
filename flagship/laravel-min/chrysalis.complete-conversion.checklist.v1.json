@@ -1,0 +1,132 @@
+{
+  "kind": "chrysalis.complete-conversion.checklist.v1",
+  "schemaVersion": 1,
+  "gate": "D6448-ST",
+  "projectId": "laravel-min",
+  "proveProfile": "cwl-api",
+  "originPair": {
+    "originLanguage": "php",
+    "emitTarget": "cwl"
+  },
+  "routesCwl": "flagship/laravel-min/generated/cwl/routes.cwl",
+  "originAuthority": "flagship/laravel-min",
+  "convertedHost": "flagship/laravel-min/generated",
+  "proveReportRel": "reports/st/laravel-min/complete-conversion-prove.json",
+  "conversionReportRel": null,
+  "minRoutes": 20,
+  "holeCensus": {
+    "total": 0,
+    "forceSettleUsed": false,
+    "stopReason": null,
+    "provedAt": "2026-07-24T12:06:11.387Z"
+  },
+  "islands": [],
+  "pages": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "prove": [
+        "content-type-text-plain"
+      ],
+      "contentType": "text/plain"
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "prove": [
+        "json-health"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "laravel-min"
+      ]
+    },
+    {
+      "path": "/login",
+      "method": "GET",
+      "prove": [
+        "login-form"
+      ],
+      "contentType": "text/html",
+      "cwlIncludes": [
+        "Login",
+        "session.read"
+      ]
+    },
+    {
+      "path": "/login",
+      "method": "POST",
+      "prove": [
+        "login-guards"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "csrf rejected",
+        "g_password_verify"
+      ]
+    },
+    {
+      "path": "/gate-probe",
+      "method": "GET",
+      "prove": [
+        "gate-ternary"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "deny:1",
+        "allow:1"
+      ]
+    },
+    {
+      "path": "/session/me",
+      "method": "GET",
+      "prove": [
+        "session-me"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "user:anon",
+        "session.read"
+      ]
+    },
+    {
+      "path": "/session/visit",
+      "method": "GET",
+      "prove": [
+        "session-visit"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "session.write"
+      ]
+    },
+    {
+      "path": "/echo",
+      "method": "POST",
+      "prove": [
+        "echo-guard"
+      ],
+      "contentType": "text/plain",
+      "cwlIncludes": [
+        "msg required"
+      ]
+    }
+  ],
+  "signedInOriginCompare": {
+    "required": true,
+    "mode": "fixture-verify-gold",
+    "status": "passed",
+    "routes": [
+      "/health",
+      "/api/health",
+      "/login",
+      "/gate-probe",
+      "/session/me",
+      "/session/visit",
+      "/echo"
+    ],
+    "comparedAt": "2026-07-24T00:00:00.000Z",
+    "reportRel": "flagship/laravel-min/reports/verify/summary.json",
+    "notes": "laravel-min: origin compare = fixture pages + hole-free CWL (session_start elided → RFC-0007 effects; __ternary lit branches → RFC-0021 if-guards; dynamic session/csrf leaves omitted) + verify gold 20/20; Hono emit retains full behavior (D6442/D6447)"
+  }
+}

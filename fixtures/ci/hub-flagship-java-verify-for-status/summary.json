@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-07-24T00:00:00.000Z",
+  "aggregate": {
+    "framesTotal": 20,
+    "framesPassed": 20,
+    "correctness": 1
+  },
+  "endpoints": []
+}

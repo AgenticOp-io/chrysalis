@@ -270,6 +270,15 @@ describe("emit-hono: flagship laravel-min (Milestone 4 slice)", () => {
       expect(existsSync(resolve(out, "src/handlers/items_list.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/items_count.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/echo_post.ts"))).toBe(true);
+      // Fall-through after early `__exit` (empty msg) must still `__respond` —
+      // otherwise Hono app.fetch yields Context and verify coerce fails.
+      const echoPost = readFileSync(resolve(out, "src/handlers/echo_post.ts"), "utf8");
+      expect(echoPost).toContain('__html += String((String((String("echo:")');
+      // Early empty-msg path + fall-through success epilogue both respond.
+      expect(echoPost.match(/return __respond\(c, __html, __status\);/g)?.length).toBeGreaterThanOrEqual(2);
+      expect(echoPost).toMatch(
+        /__html \+= String\(\(String\(\(String\("echo:"\)[\s\S]*return __respond\(c, __html, __status\);/,
+      );
       expect(existsSync(resolve(out, "src/handlers/session_visit_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_me_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/gate_probe_show.ts"))).toBe(true);

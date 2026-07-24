@@ -1080,6 +1080,9 @@ function nodeEndsWithTerminalReturn(m: Module, id: NodeId): boolean {
   const n = m.nodes.get(id);
   if (!n) return false;
   if (n.dialect === "effect" && n.op === "redirect") return true;
+  // Explicit Response nodes always terminate (do not rely on hasTerminalResponse —
+  // that flag is set by *any* early return and would skip the fall-through epilogue).
+  if (n.dialect === "web.request" && n.op === "response") return true;
   if (n.dialect !== "data") return false;
   switch (n.op) {
     case "block": {
@@ -1146,8 +1149,11 @@ export function emitHandlerBody(
   }
   const main = emitStmt(ctx, body);
   const decls: string[] = [`let __html = "";`, `let __status = 200;`];
-  const epilogue: string[] =
-    ctx.hasTerminalResponse || nodeEndsWithTerminalReturn(m, body) ? [] : [profile.respondBuffered()];
+  // Epilogue must use path-sensitive termination only. `hasTerminalResponse` is set
+  // by any early `__exit`/`__return`/redirect inside a branch (e.g. echo_post empty-msg
+  // path) and must not suppress `__respond` for fall-through success paths — otherwise
+  // Hono `app.fetch` yields Context (object) instead of Response.
+  const epilogue: string[] = nodeEndsWithTerminalReturn(m, body) ? [] : [profile.respondBuffered()];
   const text = [...preamble, ...decls, main, ...epilogue]
     .filter((s): s is string => Boolean(s && s.trim()))
     .join("\n");

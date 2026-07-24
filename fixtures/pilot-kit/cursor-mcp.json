@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "chrysalis": {
+      "command": "node",
+      "args": ["scripts/web-llm-mcp-server.mjs"],
+      "cwd": "REPLACE_WITH_CHRYSALIS_REPO_ROOT"
+    }
+  },
+  "_chrysalisPilotKit": {
+    "schemaVersion": 1,
+    "docs": "docs/CURSOR-PILOT-KIT.md",
+    "aiAssist": "docs/AI-ASSIST.md",
+    "wedge": "flagship/laravel-min",
+    "prove": "pnpm run pilot:laravel-min",
+    "chat": "pnpm run chrysalis:chat",
+    "invariant": "Models propose; WebIR + oracle + verify dispose. LiteRT refused."
+  }
+}

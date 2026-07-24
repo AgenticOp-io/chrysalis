@@ -1,5 +1,6 @@
 /**
  * C# hub ingest — route parse via @chrysalis/hub-native-bridge; lift in-process.
+ * Deepened for D6448-ST cwl-api flagship: string scalars, statusCode JSON, path-ref returns.
  */
 import { parseCsharpRoutes } from "../../packages/hub-native-bridge/dist/csharp.js";
 import {
@@ -8,7 +9,6 @@ import {
   hubOrigin,
   HUB_T,
   lowerHubLiteral,
-  lowerHubObjectLiteral,
   lowerHubStatusOnly,
 } from "./hub-lift-webir-route.mjs";
 import { lowerHubReturnTree } from "./hub-native-return-tree.mjs";
@@ -16,12 +16,17 @@ import { lowerHubDbQuery } from "./hub-native-sql-effects.mjs";
 
 export { parseCsharpRoutes };
 
-const CSHARP_MAP_LAMBDA_RE = /\(\)\s*=>\s*(true|false|-?\d+(?:\.\d+)?)/;
+const CSHARP_MAP_LAMBDA_RE =
+  /\([^)]*\)\s*=>\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')/;
 const CSHARP_CREATED_RE = /Results\.Created\s*\(/;
 const CSHARP_JSON_ANON_RE =
-  /Results\.Json\s*\(\s*new\s*\{([\s\S]*?)\}\s*\)/;
+  /Results\.Json\s*\(\s*new\s*\{([\s\S]*?)\}\s*(?:,\s*statusCode\s*:\s*(\d+)\s*)?\)/;
 const CSHARP_JSON_DICT_RE =
-  /Results\.Json\s*\(\s*new\s+Dictionary<string,\s*object>\s*\{([\s\S]*?)\}\s*\)/;
+  /Results\.Json\s*\(\s*new\s+Dictionary<string,\s*object>\s*\{([\s\S]*?)\}\s*(?:,\s*statusCode\s*:\s*(\d+)\s*)?\)/;
+const CSHARP_CREATED_BODY_RE =
+  /Results\.Created\s*\(\s*[^,)]+\s*,\s*new\s*\{([\s\S]*?)\}\s*\)/;
+const CSHARP_ACCEPTED_BODY_RE =
+  /Results\.Accepted\s*\(\s*[^,)]*\s*,\s*new\s*\{([\s\S]*?)\}\s*\)/;
 const CSHARP_SQL_CALL_RE = /\w+\.(?:Execute|Query|ExecuteReader)\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/gi;
 
 /**
@@ -162,15 +167,92 @@ function parseCsharpSqlEffects(bodySlice, refs) {
 }
 
 /**
+ * Bound Map* lambda body so later routes' Results.Json cannot leak into earlier scalars.
+ * @param {string} bodySlice
+ */
+function boundCsharpMapBody(bodySlice) {
+  let rest = bodySlice;
+  const nextMap = rest.search(/\n\s*app\.Map(?:Get|Post|Put|Patch|Delete)\b/);
+  if (nextMap >= 0) rest = rest.slice(0, nextMap);
+  return rest.replace(/\)\s*;\s*$/s, "").trim();
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} refs
+ */
+function parseCsharpBodyReturn(bodySlice, refs) {
+  /** @type {number | undefined} */
+  let status;
+  /** @type {object | null} */
+  let returnTree = null;
+  /** @type {"json" | "scalar-lit" | "scalar-ref" | null} */
+  let kind = null;
+
+  const litM = bodySlice.match(/^(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')\s*/);
+  if (litM) {
+    const v = parseLiteralToken(litM[1]);
+    if (v !== null) {
+      return { status, returnTree: { t: "lit", v }, kind: "scalar-lit" };
+    }
+  }
+  const idM = bodySlice.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*/);
+  if (idM && refs[idM[1]] && !bodySlice.startsWith("Results.")) {
+    return { status, returnTree: { t: "ref", ...refs[idM[1]] }, kind: "scalar-ref" };
+  }
+
+  const anon = bodySlice.match(CSHARP_JSON_ANON_RE);
+  const dict = bodySlice.match(CSHARP_JSON_DICT_RE);
+  if (anon) {
+    returnTree = parseCsharpObjectEntries(anon[1], refs);
+    if (anon[2]) status = Number.parseInt(anon[2], 10);
+    kind = returnTree ? "json" : null;
+  } else if (dict) {
+    returnTree = parseCsharpObjectEntries(dict[1], refs);
+    if (dict[2]) status = Number.parseInt(dict[2], 10);
+    kind = returnTree ? "json" : null;
+  } else {
+    const createdBody = bodySlice.match(CSHARP_CREATED_BODY_RE);
+    const acceptedBody = bodySlice.match(CSHARP_ACCEPTED_BODY_RE);
+    if (createdBody) {
+      status = 201;
+      returnTree = parseCsharpObjectEntries(createdBody[1], refs);
+      kind = returnTree ? "json" : null;
+    } else if (acceptedBody) {
+      status = 202;
+      returnTree = parseCsharpObjectEntries(acceptedBody[1], refs);
+      kind = returnTree ? "json" : null;
+    } else if (CSHARP_CREATED_RE.test(bodySlice)) {
+      status = 201;
+      kind = "json";
+      returnTree = { t: "obj", entries: [] };
+    }
+  }
+
+  return { status, returnTree, kind };
+}
+
+/**
  * @param {object} ctx
- * @param {{ sqlEffects: object[], returnTree: object | null, line: number }} parsed
+ * @param {{ sqlEffects: object[], returnTree: object | null, status?: number, line: number }} parsed
  * @param {{ file: string, line?: number }} loc
  */
 function lowerCsharpHandlerBodyFull(ctx, parsed, loc) {
-  const { data, webir } = ctx;
+  const { data, effect, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);
   /** @type {import('@chrysalis/webir').NodeId[]} */
   const statements = [];
+  const status = parsed.status;
+  if (typeof status === "number" && Number.isFinite(status) && status !== 200) {
+    statements.push(
+      effect.httpError({
+        status,
+        message: null,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "csharp-ast:json-status")],
+      }),
+    );
+  }
   for (const eff of parsed.sqlEffects) {
     statements.push(lowerHubDbQuery(ctx, eff, loc));
   }
@@ -198,6 +280,47 @@ function lowerCsharpHandlerBodyFull(ctx, parsed, loc) {
 }
 
 /**
+ * Scalar lit + optional non-200 status; 200 → text/plain literal like go/python/express.
+ * @param {object} ctx
+ * @param {number | undefined} status
+ * @param {unknown} value
+ * @param {{ file: string, line?: number }} loc
+ */
+function lowerCsharpScalarLit(ctx, status, value, loc) {
+  if (typeof status !== "number" || !Number.isFinite(status) || status === 200) {
+    return lowerHubLiteral(ctx, value, loc);
+  }
+  const { data, effect, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const type =
+    typeof value === "string"
+      ? HUB_T.string
+      : typeof value === "boolean"
+        ? HUB_T.bool
+        : typeof value === "number"
+          ? HUB_T.int
+          : HUB_T.unknown;
+  const statusId = effect.httpError({
+    status,
+    message: null,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "csharp-ast:json-status")],
+  });
+  const litId = data.literal({
+    value,
+    type,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "literal-return")],
+  });
+  return data.block({
+    statements: [statusId, litId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "csharp-scalar-lit-status")],
+  });
+}
+
+/**
  * @param {string} source
  * @param {number} fromIndex
  * @param {string} routePath
@@ -205,61 +328,20 @@ function lowerCsharpHandlerBodyFull(ctx, parsed, loc) {
 function parseCsharpHandlerBody(source, fromIndex, routePath) {
   const slice = source.slice(fromIndex, fromIndex + 4000);
   const mapM = slice.match(/Map(?:Get|Post|Put|Patch|Delete)\s*\(\s*"[^"]+"\s*,\s*\(([^)]*)\)\s*=>\s*/i);
-  if (!mapM) {
-    const mapNoParam = slice.match(/Map(?:Get|Post|Put|Patch|Delete)\s*\(\s*"[^"]+"\s*,\s*\(\)\s*=>\s*/i);
-    if (!mapNoParam) return null;
-    const bodyStart = slice.indexOf("=>", mapNoParam.index ?? 0) + 2;
-    const bodySlice = slice.slice(bodyStart);
-    const line = source.slice(0, fromIndex).split("\n").length;
-    const sqlEffects = parseCsharpSqlEffects(bodySlice, {});
-    const anon = bodySlice.match(CSHARP_JSON_ANON_RE);
-    const inner = anon?.[1];
-    const returnTree = inner ? parseCsharpObjectEntries(inner, {}) : null;
-    if (sqlEffects.length === 0 && !returnTree) return null;
-    return { sqlEffects, returnTree, line };
-  }
+  if (!mapM) return null;
   const lambdaParams = mapM[1];
   const bodyStart = slice.indexOf("=>", mapM.index ?? 0) + 2;
-  const bodySlice = slice.slice(bodyStart);
+  const bodySlice = boundCsharpMapBody(slice.slice(bodyStart));
   const line = source.slice(0, fromIndex).split("\n").length;
   const refs = parseCsharpRequestRefs(bodySlice, parseCsharpParamRefs(lambdaParams, routePath));
   const sqlEffects = parseCsharpSqlEffects(bodySlice, refs);
-  const anon = bodySlice.match(CSHARP_JSON_ANON_RE);
-  const dict = bodySlice.match(CSHARP_JSON_DICT_RE);
-  const inner = anon?.[1] ?? dict?.[1];
-  const returnTree = inner ? parseCsharpObjectEntries(inner, refs) : null;
-  if (sqlEffects.length === 0 && !returnTree) return null;
-  return { sqlEffects, returnTree, line };
-}
-
-/**
- * @param {object} ctx
- * @param {{ returnTree: object, line: number }} parsed
- * @param {{ file: string, line?: number }} loc
- */
-function lowerCsharpHandlerBody(ctx, parsed, loc) {
-  const { data, webir } = ctx;
-  const origin = hubOrigin(loc.file, loc.line ?? 1);
-  const valId = lowerHubReturnTree(ctx, parsed.returnTree, loc);
-  if (valId === null) return null;
-  return data.block({
-    statements: [
-      data.call({
-        callee: "__return_json",
-        args: [valId],
-        type: HUB_T.unknown,
-        origin,
-        provenance: [webir.provenance("hub-ingest", "return-tree:json")],
-      }),
-    ],
-    type: HUB_T.unknown,
-    origin,
-    provenance: [webir.provenance("hub-ingest", "csharp-handler-body")],
-  });
+  const { status, returnTree, kind } = parseCsharpBodyReturn(bodySlice, refs);
+  if (sqlEffects.length === 0 && !returnTree && status === undefined) return null;
+  return { sqlEffects, returnTree, status, kind, line };
 }
 
 function csharpMapLiteralAfter(source, fromIndex) {
-  const slice = source.slice(fromIndex, fromIndex + 120);
+  const slice = source.slice(fromIndex, fromIndex + 200);
   const m = slice.match(CSHARP_MAP_LAMBDA_RE);
   if (!m) return null;
   const v = parseLiteralToken(m[1]);
@@ -270,9 +352,11 @@ function csharpMapLiteralAfter(source, fromIndex) {
 }
 
 function csharpCreatedAfter(source, fromIndex) {
-  const slice = source.slice(fromIndex, fromIndex + 120);
+  const slice = source.slice(fromIndex, fromIndex + 200);
   const m = slice.match(CSHARP_CREATED_RE);
   if (!m) return null;
+  // Prefer Created+body / Json+statusCode paths in parseCsharpHandlerBody.
+  if (CSHARP_CREATED_BODY_RE.test(slice) || CSHARP_JSON_ANON_RE.test(slice)) return null;
   const baseLine = source.slice(0, fromIndex).split("\n").length;
   const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
   return { status: 201, line };
@@ -295,9 +379,12 @@ export function liftCsharpFileToWebir(opts) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const parsed = parseCsharpHandlerBody(source, idx, r.path);
     let bodyId;
-    if (parsed && (parsed.sqlEffects.length > 0 || parsed.returnTree)) {
+    const loc = { file, line: parsed?.line ?? r.line };
+    if (parsed?.kind === "scalar-lit" && parsed.returnTree?.t === "lit") {
+      bodyId = lowerCsharpScalarLit(ctx, parsed.status, parsed.returnTree.v, loc);
+    } else if (parsed && (parsed.sqlEffects.length > 0 || parsed.returnTree || parsed.status)) {
       bodyId =
-        lowerCsharpHandlerBodyFull(ctx, parsed, { file, line: parsed.line }) ??
+        lowerCsharpHandlerBodyFull(ctx, parsed, loc) ??
         hubHandlerBodyHole(ctx, "hub-csharp:handler-body", { file, line: r.line });
     } else {
       const statusOnly = csharpCreatedAfter(source, idx);

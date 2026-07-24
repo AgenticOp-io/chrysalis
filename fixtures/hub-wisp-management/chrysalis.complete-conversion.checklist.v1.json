@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "gate": "D6448-ST",
   "projectId": "wisp-management",
+  "proveProfile": "wisp-ui",
   "originPair": {
     "originLanguage": "sveltekit",
     "emitTarget": "cwl-static"
@@ -14,7 +15,7 @@
     "total": 0,
     "forceSettleUsed": false,
     "stopReason": "complete-zero-holes",
-    "provedAt": "2026-07-22T03:17:22.372Z"
+    "provedAt": "2026-07-24T11:55:10.315Z"
   },
   "islands": [
     {
