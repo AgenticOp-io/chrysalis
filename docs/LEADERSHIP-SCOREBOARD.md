@@ -89,6 +89,8 @@ Middleware onion / plugin runtimes are **not** next — they require inventing r
 
 ## Related
 
+- **Do not invent index:** [`DO-NOT-INVENT.md`](./DO-NOT-INVENT.md)  
+- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `phoenix-controller-honest-skip.json`  
 - Claims checklist: [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)  
 - Lift expansion gates: [`MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md)  
 - Strategic queue: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12  

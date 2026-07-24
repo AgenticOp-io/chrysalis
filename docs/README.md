@@ -17,6 +17,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [**Cursor Pilot Kit**](./CURSOR-PILOT-KIT.md) | **GTM #1** — MCP + laravel-min self-serve pilot |
 | [Public engine claim](./PUBLIC-ENGINE-CLAIM.md) | Apache trust-fix checklist before going public |
 | [Leadership scoreboard](./LEADERSHIP-SCOREBOARD.md) | SSOT — closed D6448-ST + secondary dialects + honest skips |
+| [Do not invent](./DO-NOT-INVENT.md) | Index of refused façades / honest holes (D6442/D6447) + links to `fixtures/ci/*honest*` |
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |
 | [**Whole-site CWL conversion**](./WHOLE-SITE-CWL-CONVERSION.md) | **Closed (G9450)** — package pipeline close; regression `hub:whole-site-cwl-close-smoke` |
 | [**Svelte → CWL lessons**](./SVELTE-CWL-CONVERSION-LESSONS.md) | **Active (D6405)** — what failed (sidecar/demos) + actual-build rules |
