@@ -1,35 +1,34 @@
 #!/usr/bin/env node
 /**
- * Bootstrap hub-flagship-cpp: Crow 20-route origin → WebIR → CWL (D6448-ST cwl-api).
- * Mirror of hub-flagship-express / go / rust; no invented product UI (D6447).
+ * Smoke: hub-gold-cpp-httplib cpp-httplib dialect → WebIR hole-free (20 routes).
+ * Does not replace Crow hub-flagship-cpp D6448-ST.
  */
-import { mkdirSync, writeFileSync, existsSync, copyFileSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { exportProjectMigrationCwl } from "./hub-project-cwl-export.mjs";
 import { loadWebir } from "./shared.mjs";
-import { listCwlRoutes, renderCwlRoutes, summarizeCwlProjection } from "./hub-webir-routes.mjs";
+import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
-export const HUB_CPP_FLAGSHIP_KIND = "chrysalis.hub.cpp-flagship";
-export const HUB_CPP_FLAGSHIP_SCHEMA_VERSION = 1;
+export const HUB_CPP_HTTPLIB_SMOKE_KIND = "chrysalis.hub.cpp-httplib-smoke";
+export const HUB_CPP_HTTPLIB_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const fixture = join(scriptRoot, "fixtures/hub-flagship-cpp");
+const fixture = join(scriptRoot, "fixtures/hub-gold-cpp-httplib");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 /**
  * @param {string} [projectDir]
  */
-export async function runCppFlagshipSmoke(projectDir = fixture) {
+export async function runCppHttplibSmoke(projectDir = fixture) {
   const root = resolve(projectDir);
   const mainCpp = join(root, "src", "main.cpp");
   if (!existsSync(mainCpp)) {
     return {
-      kind: HUB_CPP_FLAGSHIP_KIND,
-      schemaVersion: HUB_CPP_FLAGSHIP_SCHEMA_VERSION,
+      kind: HUB_CPP_HTTPLIB_SMOKE_KIND,
+      schemaVersion: HUB_CPP_HTTPLIB_SMOKE_SCHEMA_VERSION,
       ok: false,
-      skip: "missing-main-cpp",
+      skip: "missing-httplib-main",
       routeCount: 0,
       holeCount: null,
       generatedAt: new Date().toISOString(),
@@ -43,8 +42,8 @@ export async function runCppFlagshipSmoke(projectDir = fixture) {
   });
   if (lift.status !== 0) {
     return {
-      kind: HUB_CPP_FLAGSHIP_KIND,
-      schemaVersion: HUB_CPP_FLAGSHIP_SCHEMA_VERSION,
+      kind: HUB_CPP_HTTPLIB_SMOKE_KIND,
+      schemaVersion: HUB_CPP_HTTPLIB_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "cpp-lift-failed",
       stderr: (lift.stderr || lift.stdout || "").slice(0, 400),
@@ -59,8 +58,8 @@ export async function runCppFlagshipSmoke(projectDir = fixture) {
     liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
   } catch {
     return {
-      kind: HUB_CPP_FLAGSHIP_KIND,
-      schemaVersion: HUB_CPP_FLAGSHIP_SCHEMA_VERSION,
+      kind: HUB_CPP_HTTPLIB_SMOKE_KIND,
+      schemaVersion: HUB_CPP_HTTPLIB_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "lift-json",
       routeCount: 0,
@@ -69,55 +68,32 @@ export async function runCppFlagshipSmoke(projectDir = fixture) {
     };
   }
 
-  const cwlMeta = await exportProjectMigrationCwl(root, { origin: "cpp" });
   const webirPath = join(root, ".chrysalis", "hub.cpp.webir.json");
   const webir = await loadWebir();
   const raw = JSON.parse(readFileSync(webirPath, "utf8"));
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const projection = summarizeCwlProjection(mod);
-  const routes = listCwlRoutes(mod);
-  const { text } = renderCwlRoutes(routes, {
-    header: "# Chrysalis Web Language — hub emit from cpp",
-    moduleName: "hub",
-  });
-  const genDir = join(root, "generated", "cwl");
-  mkdirSync(genDir, { recursive: true });
-  writeFileSync(join(genDir, "routes.cwl"), text, "utf8");
-
-  const verifySeed = join(scriptRoot, "fixtures/ci/hub-flagship-cpp-verify-for-status/summary.json");
-  if (existsSync(verifySeed)) {
-    const destDir = join(root, "reports", "verify");
-    mkdirSync(destDir, { recursive: true });
-    copyFileSync(verifySeed, join(destDir, "summary.json"));
-  }
-
   const routeCount = liftReport.routeCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
-  const astRouteCount = liftReport.astRouteCount ?? 0;
   const ok =
     routeCount === 20 &&
-    astRouteCount === 20 &&
     holeCount === 0 &&
     projection.holeFree === projection.total &&
-    projection.total >= 20 &&
-    cwlMeta.ok === true;
+    projection.total >= 20;
 
   return {
-    kind: HUB_CPP_FLAGSHIP_KIND,
-    schemaVersion: HUB_CPP_FLAGSHIP_SCHEMA_VERSION,
+    kind: HUB_CPP_HTTPLIB_SMOKE_KIND,
+    schemaVersion: HUB_CPP_HTTPLIB_SMOKE_SCHEMA_VERSION,
     ok,
     routeCount,
-    astRouteCount,
     holeCount,
     cwlProjection: projection,
-    cwlPath: join(genDir, "routes.cwl"),
-    migrationCwl: cwlMeta.cwlPath ?? null,
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runCppFlagshipSmoke();
+  const report = await runCppHttplibSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok && !report.skip) process.exit(1);
 }

@@ -18,7 +18,7 @@
     "total": 0,
     "forceSettleUsed": false,
     "stopReason": null,
-    "provedAt": "2026-07-24T13:29:42.634Z"
+    "provedAt": "2026-07-24T14:54:27.424Z"
   },
   "islands": [],
   "pages": [
@@ -31,60 +31,81 @@
       "contentType": "text/plain"
     },
     {
+      "path": "/echo",
+      "method": "POST",
+      "prove": [
+        "json-echo"
+      ],
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "echo: true"
+      ]
+    },
+    {
       "path": "/meta",
       "method": "GET",
       "prove": [
-        "content-type-text-plain"
+        "json-service"
       ],
-      "contentType": "text/plain"
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "hub-flagship-cpp"
+      ]
     },
     {
-      "path": "/echo",
-      "method": "GET",
+      "path": "/items",
+      "method": "POST",
       "prove": [
-        "content-type-text-plain"
+        "create-201"
       ],
-      "contentType": "text/plain"
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "created: true"
+      ]
     },
     {
-      "path": "/items/id",
+      "path": "/items/{id}",
       "method": "GET",
       "prove": [
-        "content-type-text-plain"
+        "param-id"
       ],
-      "contentType": "text/plain"
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "param id"
+      ]
     },
     {
       "path": "/search",
       "method": "GET",
       "prove": [
-        "content-type-text-plain"
+        "query-q"
       ],
-      "contentType": "text/plain"
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "query q"
+      ]
     },
     {
       "path": "/notify",
-      "method": "GET",
+      "method": "POST",
       "prove": [
-        "content-type-text-plain"
+        "accepted-202"
       ],
-      "contentType": "text/plain"
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "status 202"
+      ]
     },
     {
-      "path": "/users/userId",
+      "path": "/users/{userId}",
       "method": "GET",
       "prove": [
-        "content-type-text-plain"
+        "param-userId"
       ],
-      "contentType": "text/plain"
-    },
-    {
-      "path": "/metrics",
-      "method": "GET",
-      "prove": [
-        "content-type-text-plain"
-      ],
-      "contentType": "text/plain"
+      "contentType": "application/json",
+      "cwlIncludes": [
+        "param userId"
+      ]
     }
   ],
   "signedInOriginCompare": {
@@ -93,15 +114,15 @@
     "status": "passed",
     "routes": [
       "/health",
-      "/meta",
       "/echo",
-      "/items/id",
+      "/meta",
+      "/items",
+      "/items/{id}",
       "/search",
       "/notify",
-      "/users/userId",
-      "/metrics"
+      "/users/{userId}"
     ],
     "reportRel": "fixtures/hub-flagship-cpp/reports/verify/summary.json",
-    "notes": "C++ flagship: silver file-lift GET-literal 20/20 hole-free + verify gold (no live product host; D6447). Blocker: no C++ HTTP framework AST for verbs/JSON/params/status — not an express-depth claim."
+    "notes": "C++ flagship: Crow HTTP AST 20/20 hole-free express-depth (verbs/path/query/JSON/status) + verify gold (no live product host; D6447). First C++ cwl-api D6448-ST at express-depth."
   }
 }
