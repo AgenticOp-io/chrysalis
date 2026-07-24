@@ -4,8 +4,8 @@
       * — Db2 transaction-type add/edit + CICS map I/O.
       * Catalog EXEC SQL (INCLUDE/SELECT/INSERT/UPDATE/DELETE) + EXEC CICS
       * (HANDLE/RECEIVE/SEND/XCTL/RETURN/SYNCPOINT/ABEND). COPY COTRTUP +
-      * INCLUDE DCLTRTYP/DCLTRCAT + CVCRD01Y/CSMSG02Y/CSSTRPFY resolve;
-      * CSUTLDWY/CSSETATY stay unresolved holes; DFHAID+DFHBMSCA BMS holes.
+      * INCLUDE DCLTRTYP/DCLTRCAT + CVCRD01Y/CSMSG02Y/CSSTRPFY/
+      * CSUTLDWY/CSSETATY resolve; DFHAID+DFHBMSCA BMS holes.
       * No fake runtime (D6442/D6447).
       ******************************************************************
        IDENTIFICATION DIVISION.
@@ -77,8 +77,8 @@
            EXEC CICS XCTL PROGRAM('COTRTLIC') END-EXEC.
        P900-ABEND.
            EXEC CICS ABEND ABCODE('CTTU') END-EXEC.
-      * Upstream procedure COPYs — CSSTRPFY resolves; date/REPLACING
-      * CSUTLDWY/CSSETATY stay honest unresolved holes.
+      * Upstream procedure COPYs — CSSTRPFY/CSUTLDWY/CSSETATY resolve;
+      * DFHAID/DFHBMSCA remain BMS holes (no invented IBM maps).
            COPY CSSTRPFY.
            COPY CSUTLDWY.
            COPY CSSETATY.

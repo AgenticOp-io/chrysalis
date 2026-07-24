@@ -35,6 +35,17 @@
       },
       "post": {
         "operationId": "items_create",
+        "parameters": [
+          { "name": "authorization", "in": "header", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": { "name": "widget" }
+            }
+          }
+        },
         "responses": {
           "201": {
             "content": {

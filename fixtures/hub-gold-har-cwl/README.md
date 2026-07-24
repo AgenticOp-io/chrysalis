@@ -16,6 +16,8 @@ Gold fixture for **HAR → CWL import** (Stage-B "Sink" sibling to OpenAPI impor
 | --- | --- |
 | `request.method` + URL pathname | `@route METHOD "/path"` |
 | `request.queryString` / URL query | `query q;` |
+| IDENT-safe `request.headers` | `header authorization;` |
+| flat JSON `postData.text` keys | `body name = "widget";` |
 | `response.status` | `status 201;` / `status 204;` |
 | `response.content.mimeType` | `content-type "application/json";` |
 | flat JSON `content.text` | `return { ... };` |

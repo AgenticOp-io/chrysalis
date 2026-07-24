@@ -190,8 +190,10 @@ function lowerSqlEffect(
 }
 
 function flaskPathToCwl(path: string): string {
-  // Flask `<id>` / `<int:id>` → CWL/Express-style `:id` (translate-only normalize).
-  return path.replace(/<(?:[^:>]+:)?([^>]+)>/g, ":$1");
+  // Flask `<id>` / `<int:id>` and FastAPI `{id}` → CWL/Express-style `:id`.
+  return path
+    .replace(/<(?:[^:>]+:)?([^>]+)>/g, ":$1")
+    .replace(/\{([^{}:]+)(?::[^{}]+)?\}/g, ":$1");
 }
 
 function lowerRouteBody(

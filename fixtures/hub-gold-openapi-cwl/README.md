@@ -18,6 +18,8 @@ published spec, not only from lifted source.
 | --- | --- |
 | `/items/{id}` path template | `@route ... "/items/:id"` + `param id;` |
 | query param with `schema.default` | `query q = "";` |
+| `in: header` IDENT-safe name | `header authorization;` |
+| flat `requestBody` example keys | `body name = "widget";` |
 | `201` / `204` success responses | `status 201;` / `status 204;` |
 | response `content` media type | `content-type "application/json";` |
 | flat JSON response `example` | `return { ... };` (object body) |

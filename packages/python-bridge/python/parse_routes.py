@@ -36,9 +36,11 @@ def const_val(node):
 
 
 def path_param_names(path):
-    """Flask `<id>` / `<int:id>` → bare param names."""
+    """Flask `<id>` / `<int:id>` and FastAPI `{id}` → bare param names."""
     names = []
     for raw in re.findall(r"<([^>]+)>", path):
+        names.append(raw.split(":", 1)[-1].strip())
+    for raw in re.findall(r"\{([^{}]+)\}", path):
         names.append(raw.split(":", 1)[-1].strip())
     return names
 
@@ -53,10 +55,22 @@ def peel_status_tuple(node):
     return node.elts[0], status
 
 
+def status_from_keywords(kw):
+    """FastAPI `@app.post(..., status_code=201)` → status int."""
+    for k in kw:
+        if k.arg == "status_code":
+            status = const_val(k.value)
+            if isinstance(status, int):
+                return status
+    return None
+
+
 def request_bucket_map(bucket):
     return {
         "args": "query",
+        "query_params": "query",
         "view_args": "path",
+        "path_params": "path",
         "headers": "header",
         "cookies": "cookie",
     }.get(bucket)
@@ -240,7 +254,12 @@ def route_from_decorator(dec):
     else:
         methods = [func.attr.upper()]
     line = dec.lineno if hasattr(dec, "lineno") else 1
-    return [{"method": m, "path": path, "line": line} for m in methods]
+    status_code = status_from_keywords(dec.keywords)
+    rows = [{"method": m, "path": path, "line": line} for m in methods]
+    if status_code is not None:
+        for row in rows:
+            row["statusCode"] = status_code
+    return rows
 
 
 def peel_sql_execute(node, func_args, path_params):
@@ -305,6 +324,8 @@ for node in tree.body:
                     "returns": type(node.body[-1]).__name__ if node.body else None,
                     "returnKind": None,
                 }
+                if "statusCode" in r:
+                    row["statusCode"] = r["statusCode"]
                 sql_effects = collect_sql_effects(node.body, func_args, path_params)
                 if sql_effects:
                     row["sqlEffects"] = sql_effects

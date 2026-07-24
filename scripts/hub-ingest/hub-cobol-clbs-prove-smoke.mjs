@@ -2365,6 +2365,31 @@ export async function runCobolClbsProveSmoke() {
       : "missing-PORTVALCP",
   });
 
+  const ckprstcpPath = join(MINI, "batch/CKPRSTCP.cbl");
+  const ckprstcpSrc = existsSync(ckprstcpPath) ? readFileSync(ckprstcpPath, "utf8") : "";
+  const ckprstcpInv = ckprstcpSrc
+    ? inventoryCobolSource(ckprstcpSrc, "batch/CKPRSTCP.cbl")
+    : null;
+  const ckprstcpResolve = resolveCobolCopybooks(ckprstcpInv?.copybooks || [], [
+    join(MINI, "copybook"),
+  ]);
+  const ckprstcpResolved = ckprstcpResolve
+    .filter((r) => r.resolved)
+    .map((r) => r.name.toUpperCase());
+  checks.push({
+    id: "batch-ckprst-copy-resolve",
+    ok:
+      !!ckprstcpInv &&
+      ckprstcpInv.programIds.includes("CKPRSTCP") &&
+      (ckprstcpInv.copybooks || []).map((c) => c.toUpperCase()).includes("CKPRST") &&
+      ckprstcpResolved.includes("CKPRST") &&
+      (ckprstcpInv.organizationIndexed || 0) === 0 &&
+      ckprstcpInv.unresolved.includes("copy"),
+    reason: ckprstcpInv
+      ? `books=${(ckprstcpInv.copybooks || []).join(",")} resolved=${ckprstcpResolved.join(",")}`
+      : "missing-CKPRSTCP",
+  });
+
   const sqlcpyPath = join(MINI, "batch/SQLCPY00.cbl");
   const sqlcpySrc = existsSync(sqlcpyPath) ? readFileSync(sqlcpyPath, "utf8") : "";
   const sqlcpyInv = sqlcpySrc ? inventoryCobolSource(sqlcpySrc, "batch/SQLCPY00.cbl") : null;
@@ -2573,13 +2598,15 @@ export async function runCobolClbsProveSmoke() {
       cotrtupcResolved.includes("CVCRD01Y") &&
       cotrtupcResolved.includes("CSMSG02Y") &&
       cotrtupcResolved.includes("CSSTRPFY") &&
+      cotrtupcResolved.includes("CSUTLDWY") &&
+      cotrtupcResolved.includes("CSSETATY") &&
       cotrtupcSqlIncResolved.includes("SQLCA") &&
       cotrtupcSqlIncResolved.includes("DCLTRTYP") &&
       cotrtupcSqlIncResolved.includes("DCLTRCAT") &&
       cotrtupcUnresolvedCopy.includes("DFHAID") &&
       cotrtupcUnresolvedCopy.includes("DFHBMSCA") &&
-      cotrtupcUnresolvedCopy.includes("CSUTLDWY") &&
-      cotrtupcUnresolvedCopy.includes("CSSETATY") &&
+      !cotrtupcUnresolvedCopy.includes("CSUTLDWY") &&
+      !cotrtupcUnresolvedCopy.includes("CSSETATY") &&
       cotrtupcInv.unresolved.includes("exec-sql") &&
       cotrtupcInv.unresolved.includes("exec-cics") &&
       cotrtupcInv.unresolved.includes("copy"),
@@ -2622,10 +2649,12 @@ export async function runCobolClbsProveSmoke() {
       coactupcResolved.includes("CVCUS01Y") &&
       coactupcResolved.includes("CSUTLDPY") &&
       coactupcResolved.includes("CSLKPCDY") &&
+      coactupcResolved.includes("CSUTLDWY") &&
+      coactupcResolved.includes("CSSETATY") &&
       coactupcUnresolvedCopy.includes("DFHAID") &&
       coactupcUnresolvedCopy.includes("DFHBMSCA") &&
-      coactupcUnresolvedCopy.includes("CSUTLDWY") &&
-      coactupcUnresolvedCopy.includes("CSSETATY") &&
+      !coactupcUnresolvedCopy.includes("CSUTLDWY") &&
+      !coactupcUnresolvedCopy.includes("CSSETATY") &&
       coactupcInv.unresolved.includes("exec-cics") &&
       coactupcInv.unresolved.includes("copy") &&
       coactupcInv.unresolved.includes("file-io") &&

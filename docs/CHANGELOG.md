@@ -2,6 +2,9 @@
 
 Newest first.
 
+2026-07-24 | Chrysalis | G10003 FastAPI secondary dialect: `{id}` paths + query_params + status_code= decorator peels (`hub:fastapi-smoke` 20/20); Flask remains Python ST; Depends/OAuth unwired; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | G10002: OpenAPI header+requestBody body peels + HAR header/postData body peels (`hub:contract-import-cwl-roundtrip-smoke`); CKPRST COPY resolve (`batch-ckprst-copy-resolve`); NestJS ST board/claim sync; CONTRIBUTING private-corpora clause; COBOL behavioral still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | G10001 CardDemo CSUTLDWY/CSSETATY COPY resolve: promote into `hub-cobol-clbs-mini/copybook/`; COACTUPC/COTRTUPC prove requires resolve; DFHAID/DFHBMSCA stay BMS holes; behavioral still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | G9959 thin-Node pass-through middleware: Koa/Polka `app.use` + Restify `pre`/`use` empty/next-only peels as presets (`hub:koa|restify|polka-smoke` v2 20/20 + mw floors); complex mw stays honest holes (no onion invent); leadership scoreboard SSOT; COBOL still 61/61; no Dependabot; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Restify+Polka thin JS secondary dialects G9957/G9958: `hub:restify-smoke`/`hub:polka-smoke` 20/20 (completes thin Node set); Phoenix controller peel skipped (not cheap; honest-skip catalog); COBOL still 61/61; no Dependabot; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Elixir+Dart route-surface D6448-ST: `hub:elixir-flagship`/`hub:complete-conversion-prove:elixir` + `hub:dart-flagship`/`hub:complete-conversion-prove:dart` → stGreen+stClosed (G9955/G9956); Phoenix/LiveView/Flutter stay honest holes (D6447); COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N

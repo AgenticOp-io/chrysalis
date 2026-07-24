@@ -4,9 +4,9 @@
       * with VSAM READ/REWRITE + CICS map I/O + procedure COPY holes.
       * Catalog EXEC CICS (HANDLE/RECEIVE/SEND/READ/REWRITE/XCTL/
       * RETURN/SYNCPOINT/ABEND). COPY COACTUP/COCOM01Y/CVCUS01Y/
-      * CSUTLDPY/CSLKPCDY resolve; CSUTLDWY/CSSETATY + DFHAID+DFHBMSCA
-      * stay unresolved holes. No fake CICS/VSAM/date/REPLACING runtime
-      * (D6442/D6447). Not a behavioral subject.
+      * CSUTLDPY/CSLKPCDY/CSUTLDWY/CSSETATY resolve; DFHAID+DFHBMSCA
+      * stay unresolved BMS holes. No fake CICS/VSAM/date/REPLACING
+      * runtime (D6442/D6447). Not a behavioral subject.
       ******************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID. COACTUPC.
@@ -66,6 +66,7 @@
            EXEC CICS XCTL PROGRAM('COMEN01C') END-EXEC.
        P900-ABEND.
            EXEC CICS ABEND ABCODE('CAUP') END-EXEC.
-      * Upstream procedure COPYs — CSUTLDWY/CSSETATY stay honest holes.
+      * Upstream procedure COPYs — CSUTLDWY/CSSETATY resolve under copybook/;
+      * DFHAID/DFHBMSCA remain BMS holes (no invented IBM maps).
            COPY CSUTLDWY.
            COPY CSSETATY.

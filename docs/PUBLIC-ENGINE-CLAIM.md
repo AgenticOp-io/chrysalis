@@ -20,6 +20,7 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run pilot:laravel-min` green on clean Linux/GCE (`chrysalis-test-vm`, 2026-07-24) with PHP `mysqli` + `pdo_sqlite` — still verify on buyer machines  
 - [x] `pnpm run hub:complete-conversion-prove:laravel-min` → `stGreen`+`stClosed` (2026-07-24) — hole-free CWL projection (session boot + ternary lit-branch guards); Hono verify gold 20/20  
 - [x] `pnpm run hub:complete-conversion-prove:python` → `stGreen`+`stClosed` (2026-07-24) — first Python cwl-api D6448-ST (`hub-flagship-python` Flask 20/20 hole-free; status tuples + path/query; no invented UI)  
+- [x] `pnpm run hub:fastapi-smoke` → FastAPI Python origin dialect hole-free (`hub-gold-fastapi` 20/20; secondary to Flask ST; `{id}` paths + `query_params` + `status_code=`; Depends/OAuth unwired)  
 - [x] `pnpm run hub:complete-conversion-prove:go` → `stGreen`+`stClosed` (2026-07-24) — first Go cwl-api D6448-ST (`hub-flagship-go` Gin 20/20 hole-free; brace-bounded gin.H + string/status/scalar; no invented UI)  
 - [x] `pnpm run hub:complete-conversion-prove:csharp` → `stGreen`+`stClosed` (2026-07-24) — first C# cwl-api D6448-ST (`hub-flagship-csharp` ASP.NET Minimal API 20/20 hole-free; bounded Map lambdas + Results.Json statusCode + string/scalar/path-ref; no invented UI)  
 - [x] `pnpm run hub:complete-conversion-prove:java` → `stGreen`+`stClosed` (2026-07-24) — first Java cwl-api D6448-ST (`hub-flagship-java` Spring `@RestController` 20/20 hole-free; brace-bounded methods + ResponseEntity status+body + Map.of/string/scalar/path-ref; no invented UI)  
@@ -33,6 +34,7 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run hub:fastify-smoke` → Fastify TypeScript origin dialect hole-free (`hub-gold-fastify` 20/20; secondary to Express/TS ST; distinct from emit-fastify)  
 - [x] `pnpm run hub:axum-smoke` → Axum Rust origin dialect hole-free (`hub-gold-axum` 20/20 named handlers + nest; secondary to Actix Rust ST)  
 - [x] `pnpm run hub:nestjs-smoke` → NestJS TypeScript origin dialect hole-free (`hub-gold-nestjs` 20/20 `@Controller`+HTTP decorators + path join + `@Param`/`@Query`/`@HttpCode`; secondary to Express/TS ST; DI/guards/pipes unwired)  
+- [x] `pnpm run hub:complete-conversion-prove:nestjs` → `stGreen`+`stClosed` (2026-07-24) — NestJS route-surface D6448-ST (`hub:nestjs-flagship` / `hub-gold-nestjs`; DI/guards/pipes stay honest holes; no invented Nest runtime)  
 - [x] `pnpm run hub:koa-smoke` → Koa TypeScript origin dialect hole-free (`hub-gold-koa` 20/20 + pass-through `app.use` preset; secondary to Express/TS ST)  
 - [x] `pnpm run hub:hapi-smoke` → Hapi TypeScript origin dialect hole-free (`hub-gold-hapi` 20/20 `server.route` + `request.params|query|payload` + `h.response().code`; secondary to Express/TS ST; plugins/lifecycle unwired)  
 - [x] `pnpm run hub:restify-smoke` → Restify TypeScript origin dialect hole-free (`hub-gold-restify` 20/20 + pass-through `server.pre`/`use` presets; secondary to Express/TS ST; plugins/complex mw unwired)  
@@ -43,8 +45,8 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run hub:dart-smoke` → Dart/Shelf foundation hole-free (`hub-gold-dart-shelf` 20/20 `router.get|post` + `Response.ok`/`Response(status)` + `jsonEncode` + query/body + `<id>`; Flutter/Dart Frog/Pipeline unwired)  
 - [x] `pnpm run hub:complete-conversion-prove:cpp` → `stGreen`+`stClosed` (2026-07-24) — first C++ cwl-api D6448-ST at **express-depth** (`hub-flagship-cpp` Crow 20/20 hole-free; verbs/path/query/JSON/status via `cpp-ast-ingest`); secondary cpp-httplib dialect hole-free (`pnpm run hub:cpp-httplib-smoke` / `hub-gold-cpp-httplib` 20/20); no invented UI  
 - [x] `pnpm run hub:complete-conversion-prove:wisp` → `stGreen`+`stClosed` (2026-07-24) — first filled `wisp-ui` D6448-ST (evidence-only hole zero + signed-in origin-compare; no deepen injectors / D6447)  
+- [x] CONTRIBUTING: private adapters/corpora not accepted into `main`  
 - [ ] Trademark notice for AgenticOp / Chrysalis  
-- [ ] CONTRIBUTING: private adapters/corpora not accepted into `main`  
 - [ ] Site copy: “Start a Pilot” → this kit’s 15-minute path  
 
 ## After public

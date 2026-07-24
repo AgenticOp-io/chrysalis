@@ -3,9 +3,11 @@
  * HTTP Archive (HAR) → CWL migration contract (Stage-B "Sink" sibling to OpenAPI import).
  *
  * Observed traffic becomes a reviewable CWL contract: each unique `(method, pathname)`
- * pair is one route with the recorded status, content-type, query params, and a flat
- * JSON/text response body when parseable. Non-flat or missing bodies become honest
- * holes — never invented values (DESIGN non-negotiable #6).
+ * pair is one route with the recorded status, content-type, query params, IDENT-safe
+ * request headers, flat JSON `postData` keys as `body` params, and a flat JSON/text
+ * response body when parseable. Non-flat or missing bodies become honest holes —
+ * never invented values (DESIGN non-negotiable #6). Paths stay concrete (no
+ * `/items/1` → `/items/:id` invent).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -48,6 +50,59 @@ export function parseHarRequestUrl(request) {
     }
   }
   return { pathname, query };
+}
+
+/**
+ * IDENT-safe request headers from a HAR request (hyphenated names skipped — no invent rename).
+ * @param {object} request
+ * @returns {Array<{ name: string, source: "header" }>}
+ */
+export function parseHarRequestHeaders(request) {
+  /** @type {Array<{ name: string, source: "header" }>} */
+  const out = [];
+  if (!Array.isArray(request?.headers)) return out;
+  const seen = new Set();
+  for (const h of request.headers) {
+    const name = String(h?.name ?? "");
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) continue;
+    const lower = name.toLowerCase();
+    if (lower === "host" || lower === "content-length" || lower === "connection") continue;
+    if (seen.has(lower)) continue;
+    seen.add(lower);
+    out.push({ name, source: "header" });
+  }
+  return out;
+}
+
+/**
+ * Flat JSON postData → body params with observed defaults.
+ * @param {object} request
+ * @returns {Array<{ name: string, source: "body", default?: unknown }>}
+ */
+export function parseHarPostDataBodyParams(request) {
+  /** @type {Array<{ name: string, source: "body", default?: unknown }>} */
+  const out = [];
+  const post = request?.postData;
+  if (!post || typeof post !== "object") return out;
+  const mime = String(post.mimeType ?? "");
+  const text = post.text;
+  if (text === undefined || text === null || text === "") return out;
+  if (!mime.includes("json")) return out;
+  try {
+    const parsed = JSON.parse(text);
+    if (!isFlatRenderable(parsed) || typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return out;
+    }
+    for (const [k, v] of Object.entries(parsed)) {
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(k)) continue;
+      const entry = { name: k, source: "body" };
+      if (v === null || ["string", "number", "boolean"].includes(typeof v)) entry.default = v;
+      out.push(entry);
+    }
+  } catch {
+    return out;
+  }
+  return out;
 }
 
 /**
@@ -108,13 +163,19 @@ export function harDocToCwlRoutes(doc) {
               ? mime
               : "text/plain; charset=utf-8";
 
+    const params = [
+      ...query.map((q) => ({ name: q.name, source: "query" })),
+      ...parseHarRequestHeaders(req),
+      ...parseHarPostDataBodyParams(req),
+    ];
+
     /** @type {object} */
     const route = {
       method,
       path: pathname,
       handlerName: sanitizeHandlerName(null, method, pathname),
       status,
-      params: query.map((q) => ({ name: q.name, source: "query" })),
+      params,
     };
 
     const parsed = parseHarResponseBody(content, status);

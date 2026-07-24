@@ -35,6 +35,10 @@ These paths are part of the product: **do not** leave them out of commits when y
 
 If you add a **new** fixture or flagship slice that should ship with the repo, include it in **`pnpm test`** or the documented smoke path in [`docs/INSTALLATION.md`](./docs/INSTALLATION.md) / package READMEs.
 
+## Private adapters and corpora
+
+Do **not** open PRs that add private customer adapters, filled ST packs, live rate cards, or customer corpora into **`main`**. Those stay under `AgenticOps/commercial/chrysalis-private-pack/` (or equivalent private engagement trees). Public `main` accepts only Apache-licensed engine, fixtures, and honest golds — see [`docs/PUBLIC-ENGINE-CLAIM.md`](./docs/PUBLIC-ENGINE-CLAIM.md) and [`docs/TRADE-SECRET-AND-OSS-BOUNDARY.md`](./docs/TRADE-SECRET-AND-OSS-BOUNDARY.md).
+
 ## AI-assisted editing
 
 For Cursor, the project rule [`.cursor/rules/chrysalis.mdc`](./.cursor/rules/chrysalis.mdc) loads automatically; it does not replace `AGENTS.md` / `DESIGN.md`.

@@ -5,9 +5,10 @@
  * The reverse of `hub-cwl-openapi-export.mjs`: it brings an *external* OpenAPI
  * contract INTO CWL/WebIR so a migration can start from a published API spec
  * rather than only from lifted source. The route SURFACE (method, path, path +
- * query params with defaults, success status, response content-type) is imported
- * faithfully; a concrete `return` body is emitted only when the contract supplies
- * a flat response **example** — otherwise the body is an honest hole
+ * query + header params with defaults, flat requestBody example keys as `body`
+ * params, success status, response content-type) is imported faithfully; a
+ * concrete `return` body is emitted only when the contract supplies a flat
+ * response **example** — otherwise the body is an honest hole
  * (`openapi:no-response-body`), never an invented value (DESIGN non-negotiable #6).
  *
  * The CWL is rendered through the shared `renderCwlRoutes` so the importer carries
@@ -80,13 +81,33 @@ export function operationToCwlRoute(method, openapiPath, op, sharedParams = []) 
     seen.add(key);
     if (prm.in === "path" && cwlPath.includes(`:${name}`)) {
       params.push({ name, source: "path" });
-    } else if (prm.in === "query") {
-      const entry = { name, source: "query" };
+    } else if (prm.in === "query" || prm.in === "header") {
+      const entry = { name, source: prm.in === "header" ? "header" : "query" };
       const def = prm.schema && typeof prm.schema === "object" ? prm.schema.default : undefined;
       if (def !== undefined && (def === null || ["string", "number", "boolean"].includes(typeof def))) {
         entry.default = def;
       }
       params.push(entry);
+    }
+  }
+
+  // Flat requestBody example → body params (IDENT keys only). Nested / missing = skip (no invent).
+  const rbContent = op?.requestBody?.content;
+  if (rbContent && typeof rbContent === "object") {
+    const rbType = Object.keys(rbContent)[0];
+    const rbExample = exampleFromMedia(rbContent[rbType]);
+    if (rbExample && typeof rbExample === "object" && !Array.isArray(rbExample) && isFlatRenderable(rbExample)) {
+      for (const [k, v] of Object.entries(rbExample)) {
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(k)) continue;
+        const key = `body:${k}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const entry = { name: k, source: "body" };
+        if (v === null || ["string", "number", "boolean"].includes(typeof v)) {
+          entry.default = v;
+        }
+        params.push(entry);
+      }
     }
   }
 

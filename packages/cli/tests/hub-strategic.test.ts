@@ -252,6 +252,10 @@ describe("strategic plan deliverables", () => {
     expect(converted.length).toBe(7);
     const post = converted.find((r: any) => r.method === "POST" && r.path === "/items");
     expect(post?.status).toBe(201);
+    expect(post?.params).toEqual([
+      { name: "authorization", source: "header" },
+      { name: "name", source: "body", default: "widget" },
+    ]);
     const del = converted.find((r: any) => r.method === "DELETE" && r.path === "/items/:id");
     expect(del?.status).toBe(204);
     expect(del?.params).toEqual([{ name: "id", source: "path" }]);
@@ -269,11 +273,13 @@ describe("strategic plan deliverables", () => {
     expect(report.routeCount).toBe(7);
     expect(report.holeFree).toBe(6);
     expect(report.withStatus).toBe(2);
-    expect(report.withParams).toBe(3);
+    expect(report.withParams).toBe(4);
     const cwlText = readFileSync(report.cwlPath, "utf8");
     expect(cwlText).toMatch(/@route DELETE "\/items\/:id"/);
     expect(cwlText).toMatch(/status 201;/);
     expect(cwlText).toMatch(/query q = "";/);
+    expect(cwlText).toMatch(/header authorization;/);
+    expect(cwlText).toMatch(/body name = "widget";/);
     // Hole route keeps its known surface (content-type) alongside the body hole.
     expect(cwlText).toMatch(/content-type "application\/json";\n {2}hole openapi:no-response-body;/);
 
@@ -310,6 +316,10 @@ describe("strategic plan deliverables", () => {
     const converted = harDocToCwlRoutes(doc);
     expect(converted.length).toBe(6);
     expect(converted.find((r: any) => r.method === "POST" && r.path === "/items")?.status).toBe(201);
+    expect(converted.find((r: any) => r.method === "POST" && r.path === "/items")?.params).toEqual([
+      { name: "authorization", source: "header" },
+      { name: "name", source: "body", default: "widget" },
+    ]);
     expect(converted.find((r: any) => r.method === "GET" && r.path === "/search")?.params).toEqual([
       { name: "q", source: "query" },
     ]);

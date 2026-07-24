@@ -20,6 +20,8 @@ handler items_create {
   effects: none;
   status 201;
   content-type "application/json";
+  header authorization;
+  body name = "widget";
   return { created: true };
 }
 
