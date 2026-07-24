@@ -1393,6 +1393,7 @@
     "hub:koa-smoke": "node scripts/hub-ingest/hub-koa-smoke.mjs",
     "hub:hapi-smoke": "node scripts/hub-ingest/hub-hapi-smoke.mjs",
     "hub:elixir-smoke": "node scripts/hub-ingest/hub-elixir-smoke.mjs",
+    "hub:dart-smoke": "node scripts/hub-ingest/hub-dart-smoke.mjs",
     "hub:nestjs-flagship": "node scripts/hub-ingest/hub-nestjs-flagship.mjs",
     "hub:complete-conversion-prove:nestjs": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-gold-nestjs",
     "hub:complete-conversion-prove:vue": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-vue",

@@ -104,6 +104,7 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G9950** | NestJS decorator route foundation | `@Controller` + `@Get`/`@Post`/… path join + `@Param`/`@Query`/`@HttpCode` via TS decorator AST (secondary; Express/TS remain ST; DI/guards/pipes = honest holes) | `hub:nestjs-smoke` ✅ |
 | **G9951** | Hapi JS secondary dialect | `server.route({ method, path, handler })` + `request.params|query|payload` + `h.response().code` (secondary; Express/TS remain ST; plugins/lifecycle = honest holes) | `hub:hapi-smoke` ✅ |
 | **G9953** | Elixir Plug.Router foundation | `get\|post\|… "/path" do…end` + `send_resp` + `Jason.encode!` + `conn.params\|query_params\|body_params` (new origin language; Phoenix LiveView/controllers = honest holes; not ST) | `hub:elixir-smoke` ✅ |
+| **G9954** | Dart/Shelf foundation | `router.get\|post\|…('/path', …)` + `Response.ok`/`Response(status)` + `jsonEncode` + query/body peels + `<id>` path params (new origin language; Flutter/Dart Frog/Pipeline = honest holes; not ST) | `hub:dart-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 

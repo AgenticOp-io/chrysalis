@@ -129,6 +129,16 @@ export const LANGUAGE_PROFILES = {
     notes:
       "Plug.Router get|post do…end + Jason.encode!/send_resp foundation (hub-gold-elixir-plug / hub:elixir-smoke). Phoenix LiveView / controller dispatch = honest holes (D6447).",
   },
+  dart: {
+    kind: "static",
+    role: "origin",
+    family: "dart",
+    typing: "static",
+    typicalFrameworks: ["shelf", "shelf_router"],
+    routeStyle: "Router verb methods",
+    notes:
+      "Shelf router.get|post + Response.ok/status + jsonEncode foundation (hub-gold-dart-shelf / hub:dart-smoke). Flutter / Dart Frog / Pipeline = honest holes (D6447).",
+  },
   scala: {
     kind: "static",
     role: "origin",

@@ -317,6 +317,35 @@ export function parseElixirRoutes(source) {
   return routes;
 }
 
+export function parseDartRoutes(source) {
+  const routes = [];
+  const seen = new Set();
+  const re =
+    /\brouter\.(get|post|put|patch|delete|head|options)\s*\(\s*(['"])([^'"]+)\2\s*,/gi;
+  const methodMap = {
+    get: "GET",
+    post: "POST",
+    put: "PUT",
+    patch: "PATCH",
+    delete: "DELETE",
+    head: "HEAD",
+    options: "OPTIONS",
+  };
+  let m;
+  while ((m = re.exec(source)) !== null) {
+    const method = methodMap[m[1].toLowerCase()];
+    if (!method) continue;
+    const path = m[3].replace(/<([A-Za-z_][A-Za-z0-9_]*)>/g, "{$1}");
+    const key = `${method} ${path}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const line = source.slice(0, m.index).split("\n").length;
+    const pathParams = [...path.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((x) => x[1]);
+    routes.push({ method, path, line, pathParams });
+  }
+  return routes;
+}
+
 export function parseSwiftRoutes(source) {
   const routes = [];
   const seen = new Set();
@@ -358,6 +387,7 @@ export const PATTERN_PARSERS = {
   scala: (s) => parseScalaRoutes(s),
   swift: (s) => parseSwiftRoutes(s),
   elixir: (s) => parseElixirRoutes(s),
+  dart: (s) => parseDartRoutes(s),
   vue: (s, f) => parseVueRoutes(s, f),
   cobol: (s, f) => parseCobolRoutes(s, f),
 };

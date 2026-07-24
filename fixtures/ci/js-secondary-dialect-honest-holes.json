@@ -59,10 +59,10 @@
       ]
     }
   },
-  "absentOrigins": ["dart"],
+  "absentOrigins": [],
   "nextTargets": [
     "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "JS secondary foundation: Express ST + Fastify/Koa/Nest/Hapi smokes closed; thinner Restify/Polka only if inventory shows demand; Elixir Plug foundation closed (hub:elixir-smoke); Dart ingest still absent"
+    "JS secondary foundation: Express ST + Fastify/Koa/Nest/Hapi smokes closed; thinner Restify/Polka only if inventory shows demand; Elixir Plug + Dart Shelf foundations closed (hub:elixir-smoke / hub:dart-smoke)"
   ]
 }

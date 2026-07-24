@@ -2,7 +2,8 @@
 
 Newest first.
 
-2026-07-24 | Chrysalis | Elixir Plug.Router foundation G9953: `get|post do…end` + Jason.encode!/send_resp + conn.params/query/body (`hub:elixir-smoke` 20/20); Phoenix LiveView unwired (D6447); Dart still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | Dart/Shelf foundation G9954: `router.get|post` + Response.ok/status + jsonEncode + query/body (`hub:dart-smoke` 20/20); Flutter/Frog unwired (D6447); Phoenix peel deferred; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
+2026-07-24 | Chrysalis | Elixir Plug.Router foundation G9953: `get|post do…end` + Jason.encode!/send_resp + conn.params/query/body (`hub:elixir-smoke` 20/20); Phoenix LiveView unwired (D6447); Dart closed above; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Hapi secondary dialect G9951: `server.route` + handler path/query/payload/status (`hub:hapi-smoke` 20/20); nestjs+typescript ST reconfirm; Elixir closed above; Dart still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | NestJS foundation G9950: `@Controller`+HTTP decorators path join + `@Param`/`@Query`/`@HttpCode` (`hub:nestjs-smoke` 20/20); typescript/express ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N
 2026-07-24 | Chrysalis | Axum deepen G9949b: named `get(handler)` + `.nest` path join (`hub:axum-smoke` 20/20); rust ST reconfirm; Elixir/Dart ingest still absent; COBOL still 61/61; no LCB claim | chrysalis.agenticop.io / GCE | N

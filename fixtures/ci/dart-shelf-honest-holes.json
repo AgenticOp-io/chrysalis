@@ -1,0 +1,30 @@
+{
+  "kind": "chrysalis.hub.dart-shelf-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T16:30:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Flutter, Dart Frog, Pipeline middleware, or shelf_static runtime. Lift Shelf Router shapes that appear, else leave honest holes.",
+  "fixture": "fixtures/hub-gold-dart-shelf",
+  "smoke": "pnpm run hub:dart-smoke",
+  "supported": [
+    "shelf_router Router get|post|put|patch|delete('/path', handler)",
+    "Response.ok(jsonEncode(lit|{…})) / Response(status, body: jsonEncode(…))",
+    "request.url.queryParameters['q'] field peels",
+    "jsonDecode(await request.readAsString()) as Map body peels",
+    "<id> path templates → {id} + String id handler params"
+  ],
+  "honestHoles": [
+    { "shape": "Pipeline() / middleware cascades", "reason": "hub-dart:pipeline" },
+    { "shape": "Named handler refs (router.get('/x', myHandler))", "reason": "hub-dart:named-handler" },
+    { "shape": "Router.mount / nested routers", "reason": "hub-dart:mount" },
+    { "shape": "Flutter widgets / Dart Frog Route", "reason": "hub-dart:flutter-frog" },
+    { "shape": "router.all / non-literal paths", "reason": "hub-dart:all-non-literal" },
+    { "shape": "Streaming / HijackCallback bodies", "reason": "hub-dart:stream-hijack" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Restify/Polka only if inventory shows demand (JS secondary thinner dialects)",
+    "Phoenix router+controller peel only when origin shapes exist (no invented LiveView)",
+    "Elixir/Dart D6448-ST flagship only after honest prove path (not claimed here)",
+    "COBOL 61/61 remains paused"
+  ]
+}

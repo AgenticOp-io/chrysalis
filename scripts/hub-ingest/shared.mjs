@@ -38,6 +38,7 @@ export const EXT_BY_LANG = {
   swift: [".swift"],
   scala: [".scala"],
   elixir: [".ex", ".exs"],
+  dart: [".dart"],
   sql: [".sql"],
   html: [".html"],
   css: [".css"],

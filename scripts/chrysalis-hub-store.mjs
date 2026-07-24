@@ -111,6 +111,7 @@ export const EXT_TO_LANGUAGE = {
   ".scala": "scala",
   ".ex": "elixir",
   ".exs": "elixir",
+  ".dart": "dart",
   ".sql": "sql",
   ".html": "html",
   ".css": "css",

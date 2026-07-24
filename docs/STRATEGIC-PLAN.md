@@ -472,9 +472,11 @@ When the user says "build" without specifying:
 4. **Origin gold only where a customer/chartered UT edge fails**
 5. **Optional POC** — WISP / management.wisptools.io only if explicitly requested → **G9992** `hub:wisp-poc-from-scratch` ([`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md)) — still **true conversion only** (**D6442**/**D6447**)
 
-**Closed program regression:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:ut-wave-a-close-smoke` (**G9965**) · `hub:ut-wave-b-close-smoke` (**G9975**) · `hub:ut-wave-c-close-smoke` (**G9985**) · `hub:ut-wave-d-close-smoke` (**G9989**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**) · `hub:elixir-smoke` (**G9953**, foundation)
+**Closed program regression:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:ut-wave-a-close-smoke` (**G9965**) · `hub:ut-wave-b-close-smoke` (**G9975**) · `hub:ut-wave-c-close-smoke` (**G9985**) · `hub:ut-wave-d-close-smoke` (**G9989**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**) · `hub:elixir-smoke` (**G9953**, foundation) · `hub:dart-smoke` (**G9954**, foundation)
 
-**Amended 2026-07-24 (D6457 / G9953) — Elixir Plug.Router foundation.** Chartered BEAM origin gold: `hub-gold-elixir-plug` + `hub:elixir-smoke` (20/20 hole-free). Phoenix LiveView/controllers = honest holes. Dart still absent.
+**Amended 2026-07-24 (D6458 / G9954) — Dart/Shelf foundation.** Chartered Dart origin gold: `hub-gold-dart-shelf` + `hub:dart-smoke` (20/20 hole-free). Flutter/Dart Frog/Pipeline = honest holes. Phoenix controller peel deferred (no LiveView invent).
+
+**Amended 2026-07-24 (D6457 / G9953) — Elixir Plug.Router foundation.** Chartered BEAM origin gold: `hub-gold-elixir-plug` + `hub:elixir-smoke` (20/20 hole-free). Phoenix LiveView/controllers = honest holes. Dart closed via D6458.
 
 **Index:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) · [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json) · [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`AI-ASSIST.md`](./AI-ASSIST.md) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md)
 

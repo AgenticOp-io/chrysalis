@@ -12,6 +12,7 @@ import { canScalaAstIngest, liftScalaFileToWebir } from "./scala-ast-ingest.mjs"
 import { canSwiftAstIngest, liftSwiftFileToWebir } from "./swift-ast-ingest.mjs";
 import { canRustAstIngest, liftRustFileToWebir } from "./rust-ast-ingest.mjs";
 import { canElixirAstIngest, liftElixirFileToWebir } from "./elixir-ast-ingest.mjs";
+import { canDartAstIngest, liftDartFileToWebir } from "./dart-ast-ingest.mjs";
 import { canCppAstIngest, liftCppFileToWebir } from "./cpp-ast-ingest.mjs";
 import { canPatternRouteLift, liftPatternRoutesFile } from "./pattern-route-lift.mjs";
 import { extractVueScript } from "./pattern-route-parsers.mjs";
@@ -61,6 +62,8 @@ export function trySpecializedHubLift(opts) {
     { can: canRustAstIngest, lift: liftRustFileToWebir },
     // Prefer elixir-ast (Plug.Router do…end / Jason.encode! / send_resp) over thin pattern lift.
     { can: canElixirAstIngest, lift: liftElixirFileToWebir },
+    // Prefer dart-ast (Shelf router.get|post / Response.ok|status / jsonEncode) over thin pattern lift.
+    { can: canDartAstIngest, lift: liftDartFileToWebir },
     // Prefer cpp-ast (Crow / cpp-httplib verbs + JSON/status/path-query) over silver file-lift.
     { can: canCppAstIngest, lift: liftCppFileToWebir },
     {
