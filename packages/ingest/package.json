@@ -19,6 +19,6 @@
     "@chrysalis/parser-bridge": "workspace:*",
     "@chrysalis/python-bridge": "workspace:*",
     "@chrysalis/webir": "workspace:*",
-    "postcss": "^8.5.16"
+    "postcss": "^8.5.18"
   }
 }
