@@ -360,21 +360,47 @@ function h3GetCookieFieldOf(expr) {
 }
 
 /**
- * Collect `const body = (await) readBody(event)` bindings in a Nitro handler block.
+ * @typedef {{ kind: "whole" } | { kind: "field", name: string }} H3BodyBinding
+ */
+
+/**
+ * Collect Nitro `readBody` bindings:
+ * - `const body = (await) readBody(event)` → whole (member `.x` peel)
+ * - `const { x, y: z } = (await) readBody(event)` → field locals
  * @param {import('estree').Function} fn
- * @returns {Map<string, "body">}
+ * @returns {Map<string, H3BodyBinding>}
  */
 function collectH3ReadBodyBindings(fn) {
-  /** @type {Map<string, "body">} */
+  /** @type {Map<string, H3BodyBinding>} */
   const bindings = new Map();
   const body = fn.body;
   if (body?.type !== "BlockStatement") return bindings;
   for (const s of body.body) {
     if (s.type !== "VariableDeclaration") continue;
     for (const d of s.declarations) {
-      if (d.id?.type !== "Identifier") continue;
       if (!h3ReadBodyCallOf(d.init)) continue;
-      bindings.set(d.id.name, "body");
+      if (d.id?.type === "Identifier") {
+        bindings.set(d.id.name, { kind: "whole" });
+        continue;
+      }
+      if (d.id?.type !== "ObjectPattern") continue;
+      for (const prop of d.id.properties) {
+        if (prop.type === "RestElement") continue;
+        if (prop.type !== "Property" || prop.computed) continue;
+        /** @type {string | null} */
+        let fieldName = null;
+        if (prop.key?.type === "Identifier") fieldName = prop.key.name;
+        else if (prop.key?.type === "Literal" && typeof prop.key.value === "string") {
+          fieldName = prop.key.value;
+        }
+        if (!fieldName) continue;
+        /** @type {import('estree').Pattern | null | undefined} */
+        let local = prop.value;
+        if (local?.type === "AssignmentPattern") local = local.left;
+        if (local?.type === "Identifier") {
+          bindings.set(local.name, { kind: "field", name: fieldName });
+        }
+      }
     }
   }
   return bindings;
@@ -383,16 +409,30 @@ function collectH3ReadBodyBindings(fn) {
 /**
  * Nitro/h3: `body.x` after `const body = await readBody(event)`.
  * @param {import('estree').MemberExpression} expr
- * @param {Map<string, "body"> | undefined} bindings
+ * @param {Map<string, H3BodyBinding> | undefined} bindings
  * @returns {{ name: string } | null}
  */
 function h3BoundBodyMemberFieldOf(expr, bindings) {
   if (!bindings || bindings.size === 0) return null;
   if (expr.type !== "MemberExpression") return null;
   if (expr.object?.type !== "Identifier") return null;
-  if (bindings.get(expr.object.name) !== "body") return null;
+  if (bindings.get(expr.object.name)?.kind !== "whole") return null;
   const name = memberPropName(expr);
   return name ? { name } : null;
+}
+
+/**
+ * Nitro/h3: identifier from `const { x } = await readBody(event)`.
+ * @param {import('estree').Identifier} expr
+ * @param {Map<string, H3BodyBinding> | undefined} bindings
+ * @returns {{ name: string } | null}
+ */
+function h3DestructuredBodyFieldOf(expr, bindings) {
+  if (!bindings || bindings.size === 0) return null;
+  if (expr.type !== "Identifier") return null;
+  const b = bindings.get(expr.name);
+  if (b?.kind !== "field") return null;
+  return { name: b.name };
 }
 
 /**
@@ -687,6 +727,18 @@ function lowerExpression(ctx, expr) {
       origin,
       provenance: [webir.provenance("hub-ingest", "javascript-ast:literal")],
     });
+  }
+  if (expr.type === "Identifier") {
+    const h3Field = h3DestructuredBodyFieldOf(expr, ctx.h3BodyBindings);
+    if (h3Field) {
+      return data.requestField({
+        source: "body",
+        name: h3Field.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:h3-read-body-destructure")],
+      });
+    }
   }
   if (expr.type === "ObjectExpression") {
     return lowerObjectExpression(ctx, expr, origin);

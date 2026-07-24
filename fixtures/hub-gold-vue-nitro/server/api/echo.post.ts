@@ -1,4 +1,4 @@
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  return { echo: true, name: body.name ?? "" };
+  const { name } = await readBody(event);
+  return { echo: true, name: name ?? "" };
 });

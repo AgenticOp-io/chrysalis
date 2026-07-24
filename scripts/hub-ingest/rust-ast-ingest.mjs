@@ -107,17 +107,21 @@ function extractBalancedParenInner(source, openIdx) {
 
 /**
  * Bound Actix `async fn … { … }` after a `#[get("/…")]` macro, or Axum
- * `.route("/…", get(|| async { … }))` / `get(async || { … })` closure.
+ * `.route("/…", get(|| async { … }))` / `get(|Path(id): Path<_>| async move { … })`.
+ * Prefer Axum closure when the match starts at `.route` so a later `fn main` is not stolen.
  * @param {string} source
  * @param {number} fromIndex
  */
 export function extractRustHandlerBody(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 8000);
-  // Actix: #[get("/x")] async fn name(...) -> … { … }
-  const fnM = slice.match(
-    /(?:pub\s+)?(?:async\s+)?fn\s+\w+\s*\(([\s\S]*?)\)\s*(?:->\s*[\w:<>,\s()]+)?\s*\{/,
-  );
-  if (fnM && fnM.index !== undefined) {
+  const looksLikeAxumRoute = /^\s*\.route\s*\(/i.test(slice);
+
+  /** Actix: #[get("/x")] async fn name(...) -> … { … } */
+  const tryFn = () => {
+    const fnM = slice.match(
+      /(?:pub\s+)?(?:async\s+)?fn\s+\w+\s*\(([\s\S]*?)\)\s*(?:->\s*[\w:<>,\s()]+)?\s*\{/,
+    );
+    if (!fnM || fnM.index === undefined) return null;
     const openInSlice = fnM.index + fnM[0].lastIndexOf("{");
     const absOpen = fromIndex + openInSlice;
     const bal = extractBalancedBraceInner(source, absOpen);
@@ -128,12 +132,18 @@ export function extractRustHandlerBody(source, fromIndex) {
       line: source.slice(0, absOpen).split("\n").length,
       kind: "fn",
     };
-  }
-  // Axum: .route("/x", get(|| async { … }))
-  const axumM = slice.match(
-    /\)\s*,\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*(?:\|\|?\s*(?:async\s+)?(?:move\s+)?|\|\s*[^|]*\|\s*(?:async\s+)?)\{/i,
-  );
-  if (axumM && axumM.index !== undefined) {
+  };
+
+  /**
+   * Axum: `.route("/x", get(|| async { … }))` /
+   * `get(|Path(id): Path<String>| async move { … })`.
+   * Named `get(handler)` without a closure body → null (honest hole).
+   */
+  const tryAxum = () => {
+    const axumM = slice.match(
+      /(?:,|\()\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*(?:\|\|\s*(?:async\s+)?(?:move\s+)?|\|\s*[^|]*\|\s*(?:async\s+)?(?:move\s+)?)\{/i,
+    );
+    if (!axumM || axumM.index === undefined) return null;
     const openInSlice = axumM.index + axumM[0].lastIndexOf("{");
     const absOpen = fromIndex + openInSlice;
     const bal = extractBalancedBraceInner(source, absOpen);
@@ -144,8 +154,10 @@ export function extractRustHandlerBody(source, fromIndex) {
       line: source.slice(0, absOpen).split("\n").length,
       kind: "axum",
     };
-  }
-  return null;
+  };
+
+  if (looksLikeAxumRoute) return tryAxum();
+  return tryFn() ?? tryAxum();
 }
 
 /**
@@ -307,6 +319,13 @@ function parseRustBodyReturn(bodySlice, paramRefs) {
   } else if (bareJson) {
     returnTree = jsonFromExpr(bodySlice.slice(bareJson.index ?? 0));
     kind = returnTree ? "json" : null;
+    // Axum: (StatusCode::CREATED, Json(serde_json::json!(…)))
+    if (kind === "json") {
+      const axumSt = /StatusCode::([A-Za-z_]+)/.exec(bodySlice);
+      if (axumSt && RUST_HTTP_STATUS[axumSt[1]] !== undefined) {
+        status = RUST_HTTP_STATUS[axumSt[1]];
+      }
+    }
   } else if (bodyStr) {
     returnTree = { t: "lit", v: bodyStr[1] };
     kind = "scalar-lit";

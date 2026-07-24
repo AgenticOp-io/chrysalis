@@ -8,6 +8,8 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** **Post–G9990 maintain** — **translate-only** (**D6442**) + **source-authoritative UI** (**D6443**) + **origin source corpus / piecemeal queue** (**D6444** / **G9993**); Migration OS (**G8550**); UT regression (**G7690**). WISP = POC only; GenieACS OOS; **LiteRT.js refused**. **Maps = ArcGIS when source is ArcGIS**.
+- **Closed (2026-07-24):** **Axum Rust secondary dialect** — `hub:axum-smoke` / `hub-gold-axum` 20/20 hole-free (`.route` + get|post|… closures + `Json(serde_json::json!)` + `StatusCode` tuples); Actix remains Rust D6448-ST. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen v4** — destructure `const { x } = await readBody(event)` (+ prior header/cookie/bind/`??`); `hub:vue-nitro-smoke` v4 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
 - **Closed (2026-07-24):** **Fastify TS origin dialect** — `hub:fastify-smoke` / `hub-gold-fastify` 20/20 hole-free (`fastify.*` + `reply.send`/`reply.code`); Express/TS remain D6448-ST; distinct from emit-fastify. Elixir/Dart ingest still absent.
 - **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen v3** — `getHeader`/`getRequestHeader`/`getCookie` + `readBody` bindings; `hub:vue-nitro-smoke` v3 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
 - **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen** — `readBody` field peel + `server/middleware` (nested) presets; `hub:vue-nitro-smoke` v2 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
