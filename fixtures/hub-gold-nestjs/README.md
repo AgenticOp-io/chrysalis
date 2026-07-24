@@ -7,11 +7,13 @@ cannot see Nest decorators).
 
 - Same 20-route express-depth API surface as `hub-flagship-express` /
   `hub-flagship-typescript` / `hub-gold-fastify`.
-- Express/TypeScript remain the JS/TS D6448-ST flagships; this is a secondary
-  dialect smoke (not ST unless separately proven hole-free with a checklist).
-- Prove hole-free lift: `pnpm run hub:nestjs-smoke`
+- Express/TypeScript remain the primary JS/TS D6448-ST flagships.
+- **Route-surface Nest ST (cwl-api):** `pnpm run hub:nestjs-flagship` then
+  `pnpm run hub:complete-conversion-prove:nestjs` → `stGreen`+`stClosed`.
+  DI / modules / guards / pipes stay honest unsupported shapes (**D6447** —
+  not present in this gold; do not invent Nest runtime).
+- Hole-free lift smoke: `pnpm run hub:nestjs-smoke`
 - Distinct from any future Nest emit target (matrix output id only today).
-- No invented Nest DI / modules / guards / pipes / interceptors (**D6447**).
 
 ## Controllers
 

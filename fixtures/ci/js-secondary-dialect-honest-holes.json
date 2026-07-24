@@ -1,0 +1,50 @@
+{
+  "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T16:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Koa onion middleware runtime or Nest DI/guards. Lift origin shapes that appear, else leave honest holes.",
+  "dialects": {
+    "koa": {
+      "fixture": "fixtures/hub-gold-koa",
+      "smoke": "pnpm run hub:koa-smoke",
+      "supported": [
+        "app|router.get|post|put|patch|delete literal paths",
+        "ctx.body = literal|object|param|query",
+        "ctx.status = number",
+        "ctx.params.* / ctx.query.*",
+        "ctx.request.body.* / headers.* / query.*"
+      ],
+      "honestHoles": [
+        { "shape": "app.use / onion middleware chains", "reason": "hub-js:koa-middleware" },
+        { "shape": "ctx.throw / ctx.assert / ctx.respond = false", "reason": "hub-js:koa-throw" },
+        { "shape": "ctx.cookies / ctx.set / streaming body", "reason": "hub-js:koa-cookies-set" },
+        { "shape": "destructure const { id } = ctx.params", "reason": "hub-js:koa-destructure" },
+        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+      ]
+    },
+    "nestjs": {
+      "fixture": "fixtures/hub-gold-nestjs",
+      "smoke": "pnpm run hub:nestjs-smoke",
+      "st": "pnpm run hub:nestjs-flagship && pnpm run hub:complete-conversion-prove:nestjs",
+      "stScope": "route-surface cwl-api only; DI/guards not in gold",
+      "supported": [
+        "@Controller prefix + @Get|Post|Put|Patch|Delete",
+        "@Param / @Query / @Body / @HttpCode",
+        "controller path join"
+      ],
+      "honestHoles": [
+        { "shape": "@Module / providers / constructor DI", "reason": "hub-js:nest-di" },
+        { "shape": "@UseGuards / interceptors / pipes / filters", "reason": "hub-js:nest-guards" },
+        { "shape": "@Res() / @Next() escape hatches", "reason": "hub-js:nest-res-escape" },
+        { "shape": "NestFactory bootstrap / dynamic modules", "reason": "hub-js:nest-bootstrap" },
+        { "shape": "versioning / non-literal paths", "reason": "hub-js:nest-versioning" }
+      ]
+    }
+  },
+  "absentOrigins": ["elixir", "dart"],
+  "nextTargets": [
+    "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
+    "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
+    "Other JS dialects with existing AST foundation (e.g. Hapi) — inventory first"
+  ]
+}

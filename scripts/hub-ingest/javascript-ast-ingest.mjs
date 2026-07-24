@@ -179,10 +179,12 @@ function memberPropName(expr) {
 }
 
 /**
- * Detect an Express request-field access: `<req>.params.<name>`,
- * `<req>.query.<name>`, `<req>.body.<name>`, `<req>.headers.<name>`,
- * `<req>.cookies.<name>`, or `params.<name>` shorthand. Returns the WebIR
- * request field source and field name, or null.
+ * Detect an Express/Fastify/Koa request-field access:
+ * - `<req|request>.params|query|body|headers|cookies.<name>`
+ * - `ctx.params|query.<name>` (Koa)
+ * - `ctx.request.body|headers|query.<name>` (Koa nested request)
+ * - `params.<name>` shorthand
+ * Returns the WebIR request field source and field name, or null.
  * @param {import('estree').MemberExpression} expr
  * @returns {{ source: "path" | "query" | "body" | "header" | "cookie", name: string } | null}
  */
@@ -207,24 +209,101 @@ function requestFieldOf(expr) {
     const bucketName =
       !expr.object.computed && expr.object.property?.type === "Identifier"
         ? expr.object.property.name
-        : expr.object.property?.type === "Identifier"
-          ? expr.object.property.name
-          : null;
-    const recvName =
-      expr.object.object?.type === "Identifier" ? expr.object.object.name : null;
+        : null;
+    const recv = expr.object.object;
+    const recvName = recv?.type === "Identifier" ? recv.name : null;
     // Express `req.*` and Fastify `request.*` (same request-field bags).
     if (bucketName && bucketMap[bucketName] && (recvName === "req" || recvName === "request")) {
       return { source: bucketMap[bucketName], name };
     }
+    // Koa `ctx.params.id` / `ctx.query.q` (params/query live on ctx).
+    if (bucketName && bucketMap[bucketName] && recvName === "ctx") {
+      return { source: bucketMap[bucketName], name };
+    }
+    // Koa `ctx.request.body.x` / `ctx.request.headers.x` / `ctx.request.query.x`.
     if (
-      expr.object.property?.type === "Identifier" &&
-      expr.object.property.name === "headers" &&
-      (recvName === "req" || recvName === "request")
+      bucketName &&
+      bucketMap[bucketName] &&
+      recv?.type === "MemberExpression" &&
+      !recv.computed &&
+      recv.property?.type === "Identifier" &&
+      recv.property.name === "request" &&
+      recv.object?.type === "Identifier" &&
+      recv.object.name === "ctx"
     ) {
-      return { source: "header", name };
+      return { source: bucketMap[bucketName], name };
     }
   }
   return null;
+}
+
+/**
+ * Koa `ctx.body = value` assignment → response payload expression.
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function peelCtxBodyAssignment(expr) {
+  if (expr?.type !== "AssignmentExpression" || expr.operator !== "=") return null;
+  const left = expr.left;
+  if (left?.type !== "MemberExpression" || left.computed) return null;
+  if (left.object?.type !== "Identifier" || left.object.name !== "ctx") return null;
+  if (left.property?.type !== "Identifier" || left.property.name !== "body") return null;
+  return expr.right ?? null;
+}
+
+/**
+ * Koa `ctx.status = N` → HTTP status code.
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {number | null}
+ */
+function peelCtxStatusAssignment(expr) {
+  if (expr?.type !== "AssignmentExpression" || expr.operator !== "=") return null;
+  const left = expr.left;
+  if (left?.type !== "MemberExpression" || left.computed) return null;
+  if (left.object?.type !== "Identifier" || left.object.name !== "ctx") return null;
+  if (left.property?.type !== "Identifier" || left.property.name !== "status") return null;
+  const right = expr.right;
+  if (right?.type === "Literal" && typeof right.value === "number") return right.value;
+  return null;
+}
+
+/**
+ * Scan a Koa handler for `ctx.status = N` (any statement).
+ * @param {import('estree').Function} fn
+ * @returns {number | null}
+ */
+function extractCtxStatus(fn) {
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") {
+    return peelCtxStatusAssignment(body?.type === "AssignmentExpression" ? body : null);
+  }
+  for (const s of body.body) {
+    if (s.type === "ExpressionStatement") {
+      const status = peelCtxStatusAssignment(s.expression);
+      if (status !== null) return status;
+    }
+  }
+  return null;
+}
+
+/**
+ * Scan a Koa handler for `ctx.body = value` payload.
+ * @param {import('estree').Function} fn
+ * @returns {import('estree').Expression | null}
+ */
+function ctxBodyPayloadExpression(fn) {
+  const body = fn.body;
+  if (body?.type === "AssignmentExpression") {
+    return peelCtxBodyAssignment(body);
+  }
+  if (body?.type !== "BlockStatement") return null;
+  /** @type {import('estree').Expression | null} */
+  let last = null;
+  for (const s of body.body) {
+    if (s.type !== "ExpressionStatement") continue;
+    const peeled = peelCtxBodyAssignment(s.expression);
+    if (peeled) last = peeled;
+  }
+  return last;
 }
 
 /**
@@ -990,7 +1069,8 @@ function lowerStatusEffect(ctx, status, loc) {
 function lowerHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
   const primaryExpr = extractHandlerExpression(fn);
-  const status = extractResStatus(primaryExpr) ?? ctx.nestHttpCode ?? null;
+  const status =
+    extractResStatus(primaryExpr) ?? extractCtxStatus(fn) ?? ctx.nestHttpCode ?? null;
   const statusId = lowerStatusEffect(ctx, status, primaryExpr?.loc?.start);
   if (isResEndCall(primaryExpr)) {
     return lowerHubStatusOnly(ctx, status ?? 204, {
@@ -1029,8 +1109,40 @@ function lowerHandlerBody(ctx, fn) {
       provenance: [webir.provenance("hub-ingest", "javascript-ast:res-send")],
     });
   }
+  // Koa: `ctx.body = …` (+ optional `ctx.status = N`) — assignment surface, not return/send.
+  const ctxBodyPayload = ctxBodyPayloadExpression(fn);
+  if (ctxBodyPayload) {
+    const valId = lowerExpression(ctx, ctxBodyPayload);
+    const isObj = ctxBodyPayload.type === "ObjectExpression";
+    if (isObj) {
+      const retId = data.call({
+        callee: "__return_json",
+        args: [valId],
+        type: T.unknown,
+        origin: ctxBodyPayload.loc?.start
+          ? originAt(ctxBodyPayload.loc.start, file)
+          : ctx.origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:ctx-body-json")],
+      });
+      return data.block({
+        statements: statusId ? [statusId, retId] : [retId],
+        type: T.unknown,
+        origin: ctx.origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:ctx-body")],
+      });
+    }
+    return data.block({
+      statements: statusId ? [statusId, valId] : [valId],
+      type: T.unknown,
+      origin: ctxBodyPayload.loc?.start ? originAt(ctxBodyPayload.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:ctx-body")],
+    });
+  }
   const expr = primaryExpr;
-  if (expr) {
+  // Skip bare `ctx.status = N` / other assignments that are not response payloads.
+  if (expr && expr.type === "AssignmentExpression") {
+    // fall through to handler-body hole unless already handled above
+  } else if (expr) {
     const valId = lowerExpression(ctx, expr);
     return data.block({
       statements: statusId ? [statusId, valId] : [valId],

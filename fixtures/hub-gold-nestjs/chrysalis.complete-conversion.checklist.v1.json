@@ -2,23 +2,24 @@
   "kind": "chrysalis.complete-conversion.checklist.v1",
   "schemaVersion": 1,
   "gate": "D6448-ST",
-  "projectId": "hub-flagship-typescript",
+  "projectId": "hub-gold-nestjs",
   "proveProfile": "cwl-api",
   "originPair": {
     "originLanguage": "typescript",
+    "originDialect": "nestjs",
     "emitTarget": "cwl"
   },
-  "routesCwl": "fixtures/hub-flagship-typescript/generated/cwl/routes.cwl",
-  "originAuthority": "fixtures/hub-flagship-typescript",
-  "convertedHost": "fixtures/hub-flagship-typescript/generated",
-  "proveReportRel": "reports/st/hub-flagship-typescript/complete-conversion-prove.json",
+  "routesCwl": "fixtures/hub-gold-nestjs/generated/cwl/routes.cwl",
+  "originAuthority": "fixtures/hub-gold-nestjs",
+  "convertedHost": "fixtures/hub-gold-nestjs/generated",
+  "proveReportRel": "reports/st/hub-gold-nestjs/complete-conversion-prove.json",
   "conversionReportRel": null,
   "minRoutes": 20,
   "holeCensus": {
     "total": 0,
     "forceSettleUsed": false,
     "stopReason": null,
-    "provedAt": "2026-07-24T15:50:34.887Z"
+    "provedAt": "2026-07-24T15:50:33.951Z"
   },
   "islands": [],
   "pages": [
@@ -49,7 +50,7 @@
       ],
       "contentType": "application/json",
       "cwlIncludes": [
-        "hub-flagship-typescript"
+        "hub-gold-nestjs"
       ]
     },
     {
@@ -102,7 +103,7 @@
       "prove": [
         "param-userId"
       ],
-      "contentType": "application/json",
+      "contentType": "text/plain",
       "cwlIncludes": [
         "param userId"
       ]
@@ -122,7 +123,7 @@
       "/notify",
       "/users/:userId"
     ],
-    "reportRel": "fixtures/hub-flagship-typescript/reports/verify/summary.json",
-    "notes": "TypeScript flagship: origin compare = fixture pages + hole-free TypeScript→CWL emit + verify gold 20/20 (no live product host; D6447 no invented UI). First TypeScript cwl-api D6448-ST; real .ts Express origin (not a JS rename)."
+    "reportRel": "fixtures/hub-gold-nestjs/reports/verify/summary.json",
+    "notes": "NestJS route-surface D6448-ST (cwl-api): hole-free Nest decorator → CWL + verify gold 20/20. DI/modules/guards/pipes remain honest unsupported shapes (not present in this gold; D6447 — do not invent Nest runtime)."
   }
 }
