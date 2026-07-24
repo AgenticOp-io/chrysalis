@@ -22,6 +22,10 @@
           "method": "POST",
           "url": "https://api.example/items",
           "headers": [{ "name": "authorization", "value": "Bearer demo" }],
+          "cookies": [
+            { "name": "session", "value": "s1" },
+            { "name": "x-trace", "value": "skip-hyphen" }
+          ],
           "postData": {
             "mimeType": "application/json",
             "text": "{\"name\":\"widget\"}"

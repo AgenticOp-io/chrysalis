@@ -6,8 +6,9 @@
  * anonymous lambdas (hub-go-routes). Chi (`chi.URLParam` + `json.NewEncoder`)
  * Echo (`c.Param` + `c.QueryParam` + `c.JSON`), Fiber (G10017:
  * `c.Params` + `c.Query` + `c.JSON` / `c.Status(n).JSON` / `c.SendString`),
- * and Gorilla mux (G10018: `HandleFunc`+`Methods` + `mux.Vars` + `json.NewEncoder`)
- * secondary peels share the same route scan via `detectGoWebDialect`.
+ * Gorilla mux (G10018: `HandleFunc`+`Methods` + `mux.Vars` + `json.NewEncoder`),
+ * and Go 1.22+ net/http ServeMux (G10030: `HandleFunc("METHOD /path")` + `r.PathValue`
+ * + `json.NewEncoder`) secondary peels share the same route scan via `detectGoWebDialect`.
  */
 import { parseGoRoutes } from "../../packages/hub-native-bridge/dist/go.js";
 import {
@@ -192,14 +193,23 @@ export function isGoGorillaSource(source) {
 }
 
 /**
+ * Go 1.22+ net/http ServeMux secondary dialect (G10030 / D6492).
  * @param {string} source
- * @returns {"chi" | "echo" | "fiber" | "gorilla" | "gin"}
+ */
+export function isGoServeMuxSource(source) {
+  return /\bhttp\.NewServeMux\s*\(/.test(source);
+}
+
+/**
+ * @param {string} source
+ * @returns {"chi" | "echo" | "fiber" | "gorilla" | "servemux" | "gin"}
  */
 export function detectGoWebDialect(source) {
   if (isGoChiSource(source)) return "chi";
   if (isGoEchoSource(source)) return "echo";
   if (isGoFiberSource(source)) return "fiber";
   if (isGoGorillaSource(source)) return "gorilla";
+  if (isGoServeMuxSource(source)) return "servemux";
   return "gin";
 }
 
@@ -353,6 +363,16 @@ export function extractGoGorillaHandlerBody(source, fromIndex) {
 }
 
 /**
+ * ServeMux Go 1.22+ handlers share stdlib signature with Chi/Gorilla (G10030).
+ * Resolve named handlers from `mux.HandleFunc("GET /path", name)`.
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+export function extractGoServeMuxHandlerBody(source, fromIndex) {
+  return extractGoGorillaHandlerBody(source, fromIndex);
+}
+
+/**
  * @param {string} bodySlice
  */
 function parseGoChiWriteHeaderStatus(bodySlice) {
@@ -390,6 +410,10 @@ function parseGoChiRefs(bodySlice) {
     for (const m2 of bodySlice.matchAll(idxRe)) {
       byVar[m2[1]] = { source: "path", name: m2[2] };
     }
+  }
+  // ServeMux Go 1.22+ (G10030): id := r.PathValue("id")
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*r\.PathValue\s*\(\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "path", name: m[2] };
   }
   for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*r\.URL\.Query\(\)\.Get\s*\(\s*"([^"]+)"\s*\)/g)) {
     byVar[m[1]] = { source: "query", name: m[2], default: "" };
@@ -941,9 +965,11 @@ export function liftGoFileToWebir(opts) {
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const extracted =
-      dialect === "chi" || dialect === "gorilla"
-        ? dialect === "gorilla"
-          ? extractGoGorillaHandlerBody(source, idx)
+      dialect === "chi" || dialect === "gorilla" || dialect === "servemux"
+        ? dialect === "gorilla" || dialect === "servemux"
+          ? dialect === "servemux"
+            ? extractGoServeMuxHandlerBody(source, idx)
+            : extractGoGorillaHandlerBody(source, idx)
           : extractGoChiHandlerBody(source, idx)
         : dialect === "echo"
           ? extractGoEchoHandlerBody(source, idx)
@@ -962,15 +988,23 @@ export function liftGoFileToWebir(opts) {
               ? "hub-fiber:handler-body"
               : dialect === "gorilla"
                 ? "hub-gorilla:handler-body"
-                : "hub-go:handler-body",
+                : dialect === "servemux"
+                  ? "hub-servemux:handler-body"
+                  : "hub-go:handler-body",
         {
           file,
           line: r.line,
         },
       );
-    } else if (dialect === "chi" || dialect === "gorilla") {
-      // Gorilla reuses Chi stdlib JSON/WriteHeader peels; mux.Vars peels live in parseGoChiRefs.
-      const holeTag = dialect === "gorilla" ? "hub-gorilla:handler-body" : "hub-chi:handler-body";
+    } else if (dialect === "chi" || dialect === "gorilla" || dialect === "servemux") {
+      // Gorilla/ServeMux reuse Chi stdlib JSON/WriteHeader peels;
+      // mux.Vars / r.PathValue peels live in parseGoChiRefs.
+      const holeTag =
+        dialect === "gorilla"
+          ? "hub-gorilla:handler-body"
+          : dialect === "servemux"
+            ? "hub-servemux:handler-body"
+            : "hub-chi:handler-body";
       const { bodySlice, line } = extracted;
       const loc = { file, line };
       const parsed = parseGoChiHandlerBody(bodySlice);

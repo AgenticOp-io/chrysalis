@@ -90,6 +90,29 @@ test("javascript AST peels Hapi method array to one route per method (G10014)", 
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
+test("typescript AST lifts Elysia dialect 20/20 hole-free (G10025)", async () => {
+  const { liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-elysia/src/app.ts"), "utf8");
+  expect(source).toContain("new Elysia");
+  expect(source).toContain("ctx.set.status");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-elysia" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.ts",
+    language: "typescript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("python AST finds Flask routes and lowers literal return", async () => {
   const py = process.env.CHRYSALIS_HUB_PYTHON ?? "python3";
   const check = spawnSync(py, ["-c", "import ast, json; print('ok')"], { encoding: "utf8" });
@@ -168,6 +191,33 @@ test("java AST lifts JAX-RS resource 20/20 hole-free (G10012)", async () => {
   expect(routes.length).toBe(20);
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-jaxrs" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubResource.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("java AST lifts Quarkus jakarta JAX-RS resource 20/20 via G10012 peels (G10034)", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-quarkus/src/HubResource.java"),
+    "utf8",
+  );
+  expect(source).toContain("jakarta.ws.rs");
+  const routes = parseJavaRoutes(source, "HubResource.java");
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-quarkus" });
   const wr = webir.webRequest.builders(builder);
   const r = liftJavaFileToWebir({
     webir,

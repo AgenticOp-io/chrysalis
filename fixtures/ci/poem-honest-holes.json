@@ -1,0 +1,26 @@
+{
+  "kind": "chrysalis.hub.poem-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:30:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Poem middleware/.with layers, poem-openapi, or chained multi-method .at endpoints. Lift cheap Route::new().at + named get|post(handler) + .nest shapes that appear, else leave honest holes. Actix remains Rust D6448-ST; Axum/Rocket remain first/second Rust secondaries. Poem secondary smoke G10029 closed when hub:poem-smoke ok.",
+  "fixture": "fixtures/hub-gold-poem",
+  "smoke": "pnpm run hub:poem-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:rust",
+  "supported": [
+    "Route::new().at(\"/path\", get|post|put|patch|delete(handler))",
+    "Same-file named handlers (#[handler] async fn name)",
+    ".nest(\"/prefix\", named_fn()) path join",
+    ":id path templates (normalize to {id})",
+    "Path / Query extractors used in peels",
+    "Json(serde_json::json!({…}))",
+    "(StatusCode::CREATED|ACCEPTED, Json(…))"
+  ],
+  "honestHoles": [
+    { "shape": "EndpointExt::with / middleware layers", "reason": "hub-poem:middleware" },
+    { "shape": "poem-openapi / OpenAPI invent", "reason": "hub-poem:openapi" },
+    { "shape": "Chained get(a).post(b) on one .at", "reason": "hub-poem:chained-method" },
+    { "shape": "Inline unnamed Route::new() nest target", "reason": "hub-poem:inline-nest" },
+    { "shape": "Extractors beyond Path/Query (Data, Cookie, Multipart, …)", "reason": "hub-poem:extractor" },
+    { "shape": "Non-literal path templates", "reason": "hub-rust:path-non-literal" }
+  ]
+}

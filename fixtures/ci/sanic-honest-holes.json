@@ -1,0 +1,29 @@
+{
+  "kind": "chrysalis.hub.sanic-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Sanic middleware, listeners, Blueprint registration, or websocket channels beyond same-file cheap peels. Lift @app.get|post|… / @app.route + <id>/<id:str> + request.args + json()/text()(+status=) that appear, else leave honest holes. Flask remains Python D6448-ST. Sanic secondary smoke G10033 closed when hub:sanic-smoke ok.",
+  "fixture": "fixtures/hub-gold-sanic",
+  "smoke": "pnpm run hub:sanic-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:python",
+  "supported": [
+    "@app.get|post|put|patch|delete(\"/path\")",
+    "@app.route(\"/path\", methods=[…])",
+    "<id> / <id:str> Sanic path templates",
+    "request.args.get(\"q\", \"\") query peels",
+    "json(body) / text(body) / json(body, status=N)"
+  ],
+  "honestHoles": [
+    { "shape": "Middleware / listeners / signals / ASGI onion", "reason": "hub-python:sanic-middleware" },
+    { "shape": "Blueprint register beyond same-file cheap", "reason": "hub-python:sanic-blueprint" },
+    { "shape": "WebSocket / streaming channels", "reason": "hub-python:sanic-websocket" },
+    { "shape": "Custom HTTPResponse / response= wrappers", "reason": "hub-python:sanic-response-wrapper" },
+    { "shape": "Cross-file Blueprint modules", "reason": "hub-python:sanic-blueprint-cross-file" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Flask Python ST + FastAPI/Starlette/Litestar/Falcon/Quart/Sanic secondaries closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

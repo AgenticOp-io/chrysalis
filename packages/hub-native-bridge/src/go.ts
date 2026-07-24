@@ -8,6 +8,9 @@ const GO_HANDLE_FUNC_RE = /\bhttp\.HandleFunc\s*\(\s*"([^"]+)"/g;
 // Gorilla mux (G10018): r.HandleFunc("/path", h).Methods("GET") or Methods(http.MethodGet)
 const GO_MUX_HANDLE_FUNC_RE =
   /\b([a-zA-Z_][\w]*)\.HandleFunc\s*\(\s*"([^"]+)"\s*,\s*[A-Za-z_][\w]*\s*\)(?:\s*\.\s*Methods\s*\(\s*([^)]*)\s*\))?/g;
+// Go 1.22+ net/http ServeMux (G10030): mux.HandleFunc("GET /path", h) or http.HandleFunc("GET /path", h)
+const GO_SERVEMUX_HANDLE_FUNC_RE =
+  /\b(?:http|[a-zA-Z_][\w]*)\.HandleFunc\s*\(\s*"(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\/[^"]*)"\s*,\s*[A-Za-z_][\w]*\s*\)/g;
 
 const GO_HTTP_METHOD_CONST: Record<string, string> = {
   MethodGet: "GET",
@@ -19,6 +22,9 @@ const GO_HTTP_METHOD_CONST: Record<string, string> = {
   MethodOptions: "OPTIONS",
 };
 
+const GO_SERVEMUX_METHOD_PATH =
+  /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\/.+)$/i;
+
 /** True when source imports gofiber (secondary dialect; Gin remains Go ST). */
 export function isGoFiberSource(source: string): boolean {
   return /github\.com\/gofiber\/fiber/.test(source);
@@ -27,6 +33,23 @@ export function isGoFiberSource(source: string): boolean {
 /** True when source imports gorilla/mux (secondary dialect; Gin remains Go ST). */
 export function isGoGorillaSource(source: string): boolean {
   return /github\.com\/gorilla\/mux/.test(source);
+}
+
+/**
+ * True when source uses Go 1.22+ `http.NewServeMux` (secondary dialect; Gin remains Go ST).
+ */
+export function isGoServeMuxSource(source: string): boolean {
+  return /\bhttp\.NewServeMux\s*\(/.test(source);
+}
+
+/**
+ * Peel `"METHOD /path"` ServeMux Go 1.22+ pattern strings.
+ * @returns `[method, path]` or null
+ */
+export function parseGoServeMuxPattern(raw: string): [string, string] | null {
+  const m = raw.match(GO_SERVEMUX_METHOD_PATH);
+  if (!m) return null;
+  return [m[1]!.toUpperCase(), m[2]!];
 }
 
 /**
@@ -77,9 +100,17 @@ export function parseGoRoutes(source: string): HubNativeRoute[] {
     push(m[2] ?? "Get", m[3] ?? "/", m.index);
   }
 
+  // ServeMux Go 1.22+ method-in-pattern before Gorilla HandleFunc+Methods (G10030).
+  GO_SERVEMUX_HANDLE_FUNC_RE.lastIndex = 0;
+  while ((m = GO_SERVEMUX_HANDLE_FUNC_RE.exec(source)) !== null) {
+    push(m[1] ?? "GET", m[2] ?? "/", m.index);
+  }
+
   GO_MUX_HANDLE_FUNC_RE.lastIndex = 0;
   while ((m = GO_MUX_HANDLE_FUNC_RE.exec(source)) !== null) {
     const path = m[2] ?? "/";
+    // Skip Go 1.22+ ServeMux patterns already peeled above.
+    if (parseGoServeMuxPattern(path)) continue;
     const methods = parseGoMuxMethods(m[3]);
     for (const method of methods) {
       push(method, path, m.index);
@@ -88,7 +119,13 @@ export function parseGoRoutes(source: string): HubNativeRoute[] {
 
   GO_HANDLE_FUNC_RE.lastIndex = 0;
   while ((m = GO_HANDLE_FUNC_RE.exec(source)) !== null) {
-    push("GET", m[1] ?? "/", m.index);
+    const raw = m[1] ?? "/";
+    const peeled = parseGoServeMuxPattern(raw);
+    if (peeled) {
+      push(peeled[0], peeled[1], m.index);
+      continue;
+    }
+    push("GET", raw, m.index);
   }
 
   return routes;

@@ -4,10 +4,11 @@
  *
  * Observed traffic becomes a reviewable CWL contract: each unique `(method, pathname)`
  * pair is one route with the recorded status, content-type, query params, IDENT-safe
- * request headers, flat JSON `postData` keys as `body` params, and a flat JSON/text
- * response body when parseable. Non-flat or missing bodies become honest holes —
- * never invented values (DESIGN non-negotiable #6). Paths stay concrete (no
- * `/items/1` → `/items/:id` invent).
+ * request headers, IDENT-safe `cookies[]` names (when present — never invented),
+ * flat JSON `postData` keys as `body` params, and a flat JSON/text response body
+ * when parseable. Non-flat or missing bodies become honest holes — never invented
+ * values (DESIGN non-negotiable #6). Paths stay concrete (no `/items/1` →
+ * `/items/:id` invent).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -70,6 +71,27 @@ export function parseHarRequestHeaders(request) {
     if (seen.has(lower)) continue;
     seen.add(lower);
     out.push({ name, source: "header" });
+  }
+  return out;
+}
+
+/**
+ * IDENT-safe request cookies from a HAR request (absent/empty → no invent).
+ * Hyphenated names skipped — no invent rename.
+ * @param {object} request
+ * @returns {Array<{ name: string, source: "cookie" }>}
+ */
+export function parseHarRequestCookies(request) {
+  /** @type {Array<{ name: string, source: "cookie" }>} */
+  const out = [];
+  if (!Array.isArray(request?.cookies)) return out;
+  const seen = new Set();
+  for (const c of request.cookies) {
+    const name = String(c?.name ?? "");
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) continue;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    out.push({ name, source: "cookie" });
   }
   return out;
 }
@@ -166,6 +188,7 @@ export function harDocToCwlRoutes(doc) {
     const params = [
       ...query.map((q) => ({ name: q.name, source: "query" })),
       ...parseHarRequestHeaders(req),
+      ...parseHarRequestCookies(req),
       ...parseHarPostDataBodyParams(req),
     ];
 

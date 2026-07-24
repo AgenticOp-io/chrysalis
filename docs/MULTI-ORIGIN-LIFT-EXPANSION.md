@@ -117,6 +117,9 @@ Flutter web and other non-HTML shell origins — **shared convert orchestration 
 | **G10017** | Go Fiber secondary dialect | `app.Get\|Post\|…` + `:id` paths + `c.Params` + `c.Query` + `c.JSON`/`c.Status(n).JSON`/`c.SendString` (secondary; Gin remains Go ST) | `hub:fiber-smoke` ✅ |
 | **G10018** | Go Gorilla mux secondary dialect | `HandleFunc`+`Methods` + `{id}` paths + `mux.Vars` + `json.NewEncoder`/`w.WriteHeader` (secondary; Gin remains Go ST) | `hub:gorilla-smoke` ✅ |
 | **G10019** | Hono TS ORIGIN secondary dialect | `new Hono()` + `app.get|post|…` + `c.req.param`/`c.req.query` + `c.json`/`c.text` (secondary; Express/TS remain ST; **≠ emit-hono**; middleware = honest holes) | `hub:hono-smoke` ✅ |
+| **G10012** | JAX-RS Java secondary dialect | class `@Path` + `@GET\|POST\|…` + `@PathParam`/`@QueryParam` + `Response.status().entity().build()` (secondary; Spring remains Java ST) | `hub:jaxrs-smoke` ✅ |
+| **G10020** | Micronaut Java secondary dialect | `@Controller` + `@Get\|Post\|…` + `@PathVariable`/`@QueryValue` + `HttpResponse.status().body()` (secondary; Spring remains Java ST) | `hub:micronaut-smoke` ✅ |
+| **G10034** | Quarkus JAX-RS Java secondary dialect | `jakarta.ws.rs` `@Path`+`@GET\|POST\|…` resource surface **via G10012 peels** (secondary; Spring remains Java ST; CDI/RESTEasy/Panache = honest holes) | `hub:quarkus-smoke` ✅ |
 
 **Refuse:** sidecar as close proof; GenieACS; LLM bypass of verify; inventing widgets to zero holes; silent `{…}` strip.
 **Phoenix controller peel:** skipped (not cheap — cross-file `Ctrl,:action` resolve + LiveView invent risk). Catalog: `fixtures/ci/phoenix-controller-honest-skip.json`.

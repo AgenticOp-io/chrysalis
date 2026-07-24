@@ -4,6 +4,7 @@
  * status+body, Map.of JSON, string/scalar/path-ref returns (hub-flagship-java).
  * Secondary: JAX-RS (G10012) + Micronaut @Controller/@Get|Post|… (G10020) peels —
  * HttpResponse.ok/status/created/accepted + @PathVariable/@QueryValue (no DI/filter invent).
+ * Quarkus (G10034) reuses JAX-RS peels (jakarta.ws.rs.*); no CDI/RESTEasy/Panache invent.
  */
 import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
 import {

@@ -1,0 +1,28 @@
+{
+  "kind": "chrysalis.hub.quart-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:30:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Quart middleware, websocket channels, or Blueprint registration beyond same-file cheap peels. Lift Flask-twin @app.get|post|… / @app.route + <id> + request.args + status tuples that appear, else leave honest holes. Flask remains Python D6448-ST. Quart secondary smoke G10026 closed when hub:quart-smoke ok.",
+  "fixture": "fixtures/hub-gold-quart",
+  "smoke": "pnpm run hub:quart-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:python",
+  "supported": [
+    "@app.get|post|put|patch|delete(\"/path\")",
+    "@app.route(\"/path\", methods=[…])",
+    "<id> / <int:id> Flask-style path templates",
+    "request.args.get(\"q\", \"\") query peels",
+    "(body, status) tuple returns"
+  ],
+  "honestHoles": [
+    { "shape": "Middleware / before_request / after_request / ASGI onion", "reason": "hub-python:quart-middleware" },
+    { "shape": "WebSocket / streaming channels", "reason": "hub-python:quart-websocket" },
+    { "shape": "Blueprint register beyond same-file cheap", "reason": "hub-python:quart-blueprint" },
+    { "shape": "Cross-file Blueprint modules", "reason": "hub-python:quart-blueprint-cross-file" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Flask Python ST + FastAPI/Starlette/Litestar/Falcon/Quart secondaries closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

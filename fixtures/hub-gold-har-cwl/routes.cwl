@@ -21,6 +21,7 @@ handler POST_items {
   status 201;
   content-type "application/json";
   header authorization;
+  cookie session;
   body name = "widget";
   return { created: true };
 }

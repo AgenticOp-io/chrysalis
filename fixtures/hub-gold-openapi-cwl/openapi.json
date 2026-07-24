@@ -36,7 +36,9 @@
       "post": {
         "operationId": "items_create",
         "parameters": [
-          { "name": "authorization", "in": "header", "schema": { "type": "string" } }
+          { "name": "authorization", "in": "header", "schema": { "type": "string" } },
+          { "name": "session", "in": "cookie", "schema": { "type": "string" } },
+          { "name": "x-trace", "in": "cookie", "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,

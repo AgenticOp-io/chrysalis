@@ -5,8 +5,8 @@
  * The reverse of `hub-cwl-openapi-export.mjs`: it brings an *external* OpenAPI
  * contract INTO CWL/WebIR so a migration can start from a published API spec
  * rather than only from lifted source. The route SURFACE (method, path, path +
- * query + header params with defaults, flat requestBody example keys as `body`
- * params, success status, response content-type) is imported faithfully; a
+ * query + header + cookie params with defaults, flat requestBody example keys as
+ * `body` params, success status, response content-type) is imported faithfully; a
  * concrete `return` body is emitted only when the contract supplies a flat
  * response **example** — otherwise the body is an honest hole
  * (`openapi:no-response-body`), never an invented value (DESIGN non-negotiable #6).
@@ -81,8 +81,11 @@ export function operationToCwlRoute(method, openapiPath, op, sharedParams = []) 
     seen.add(key);
     if (prm.in === "path" && cwlPath.includes(`:${name}`)) {
       params.push({ name, source: "path" });
-    } else if (prm.in === "query" || prm.in === "header") {
-      const entry = { name, source: prm.in === "header" ? "header" : "query" };
+    } else if (prm.in === "query" || prm.in === "header" || prm.in === "cookie") {
+      const entry = {
+        name,
+        source: prm.in === "header" ? "header" : prm.in === "cookie" ? "cookie" : "query",
+      };
       const def = prm.schema && typeof prm.schema === "object" ? prm.schema.default : undefined;
       if (def !== undefined && (def === null || ["string", "number", "boolean"].includes(typeof def))) {
         entry.default = def;

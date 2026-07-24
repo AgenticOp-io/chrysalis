@@ -254,6 +254,7 @@ describe("strategic plan deliverables", () => {
     expect(post?.status).toBe(201);
     expect(post?.params).toEqual([
       { name: "authorization", source: "header" },
+      { name: "session", source: "cookie" },
       { name: "name", source: "body", default: "widget" },
     ]);
     const del = converted.find((r: any) => r.method === "DELETE" && r.path === "/items/:id");
@@ -279,7 +280,10 @@ describe("strategic plan deliverables", () => {
     expect(cwlText).toMatch(/status 201;/);
     expect(cwlText).toMatch(/query q = "";/);
     expect(cwlText).toMatch(/header authorization;/);
+    expect(cwlText).toMatch(/cookie session;/);
     expect(cwlText).toMatch(/body name = "widget";/);
+    // Hyphenated cookie names stay unwired (IDENT-safe only — no invent rename).
+    expect(cwlText).not.toMatch(/cookie x-trace/);
     // Hole route keeps its known surface (content-type) alongside the body hole.
     expect(cwlText).toMatch(/content-type "application\/json";\n {2}hole openapi:no-response-body;/);
 
@@ -318,16 +322,22 @@ describe("strategic plan deliverables", () => {
     expect(converted.find((r: any) => r.method === "POST" && r.path === "/items")?.status).toBe(201);
     expect(converted.find((r: any) => r.method === "POST" && r.path === "/items")?.params).toEqual([
       { name: "authorization", source: "header" },
+      { name: "session", source: "cookie" },
       { name: "name", source: "body", default: "widget" },
     ]);
     expect(converted.find((r: any) => r.method === "GET" && r.path === "/search")?.params).toEqual([
       { name: "q", source: "query" },
     ]);
+    // No cookies[] on health → no invented cookie params.
+    expect(converted.find((r: any) => r.method === "GET" && r.path === "/health")?.params ?? []).toEqual([]);
 
     const report = await importHarFileToCwl(join(fixture, "mini.har.json"), { moduleName: "items_capture" });
     expect(report.ok).toBe(true);
     expect(report.holeFree).toBe(6);
     expect(report.withStatus).toBe(2);
+    const cwlText = readFileSync(report.cwlPath, "utf8");
+    expect(cwlText).toMatch(/cookie session;/);
+    expect(cwlText).not.toMatch(/cookie x-trace/);
 
     const lift = spawnSync(process.execPath, [resolve(ROOT, "scripts/hub-ingest/lift-to-webir.mjs"), fixture, "--language", "cwl"], {
       cwd: ROOT,
@@ -344,6 +354,36 @@ describe("strategic plan deliverables", () => {
     expect(proj.holeFree).toBe(6);
     expect(proj.withStatus).toBe(2);
     expect(proj.objectBodies).toBe(5);
+  });
+
+  test("OpenAPI/HAR cookie request-surface deepen (G10031)", async () => {
+    const { openApiDocToCwlRoutes } = await import(resolve(ROOT, "scripts/hub-ingest/hub-openapi-to-cwl.mjs"));
+    const { harDocToCwlRoutes, parseHarRequestCookies } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-har-to-cwl.mjs")
+    );
+
+    const openapiDoc = JSON.parse(
+      readFileSync(resolve(ROOT, "fixtures/hub-gold-openapi-cwl/openapi.json"), "utf8"),
+    );
+    const openapiRoutes = openApiDocToCwlRoutes(openapiDoc);
+    const post = openapiRoutes.find((r: any) => r.method === "POST" && r.path === "/items");
+    expect(post?.params?.filter((p: any) => p.source === "cookie")).toEqual([{ name: "session", source: "cookie" }]);
+    // Hyphenated OpenAPI cookie names skipped (IDENT-safe only).
+    expect(post?.params?.some((p: any) => p.name === "x-trace")).toBe(false);
+    // Routes without `in: cookie` never invent cookies.
+    const health = openapiRoutes.find((r: any) => r.path === "/health");
+    expect(health?.params?.some((p: any) => p.source === "cookie") ?? false).toBe(false);
+    const raw = openapiRoutes.find((r: any) => r.path === "/raw");
+    expect(raw?.holeReason).toBe("openapi:no-response-body");
+    expect(raw?.params?.some((p: any) => p.source === "cookie") ?? false).toBe(false);
+
+    const harDoc = JSON.parse(readFileSync(resolve(ROOT, "fixtures/hub-gold-har-cwl/mini.har.json"), "utf8"));
+    const harRoutes = harDocToCwlRoutes(harDoc);
+    const harPost = harRoutes.find((r: any) => r.method === "POST" && r.path === "/items");
+    expect(harPost?.params?.filter((p: any) => p.source === "cookie")).toEqual([{ name: "session", source: "cookie" }]);
+    expect(parseHarRequestCookies({ cookies: undefined })).toEqual([]);
+    expect(parseHarRequestCookies({ cookies: [] })).toEqual([]);
+    expect(parseHarRequestCookies({ cookies: [{ name: "x-trace", value: "1" }] })).toEqual([]);
   });
 
   test("hub-translate prefers OpenAPI import for migration.cwl (G140)", async () => {

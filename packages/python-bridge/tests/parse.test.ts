@@ -101,10 +101,34 @@ def create_item():
     expect(item?.returnKind).toBe("tree");
   });
 
+  it.skipIf(!pythonAvailable())("parses hub-gold-bottle @get|route + query.q + HTTPResponse", async () => {
+    const fixture = join(repoRoot, "fixtures/hub-gold-bottle/app.py");
+    const result = await parseFile(fixture);
+    expect(result.routes.length).toBe(20);
+    const search = result.routes.find((r) => r.path === "/search");
+    expect(search?.returnKind).toBe("tree");
+    expect(search?.returnTree?.t).toBe("obj");
+    const qEntry =
+      search?.returnTree?.t === "obj"
+        ? search.returnTree.entries.find((e) => e.key === "q")
+        : undefined;
+    expect(qEntry?.value).toEqual({ t: "ref", source: "query", name: "q" });
+    const create = result.routes.find((r) => r.method === "POST" && r.path === "/items");
+    expect(create?.statusCode).toBe(201);
+    expect(create?.returnKind).toBe("tree");
+    const notify = result.routes.find((r) => r.path === "/notify");
+    expect(notify?.method).toBe("POST");
+    expect(notify?.statusCode).toBe(202);
+    const item = result.routes.find((r) => r.method === "GET" && r.path === "/items/<id>");
+    expect(item?.returnKind).toBe("tree");
+  });
+
   it("parse script file exists", () => {
     const script = join(dirname(fileURLToPath(import.meta.url)), "..", "python", "parse_routes.py");
     const src = readFileSync(script, "utf8");
     expect(src).toContain("route_from_decorator");
     expect(src).toContain("add_route");
+    expect(src).toContain("peel_http_response");
+    expect(src).toContain("request_ref_from_attr");
   });
 });

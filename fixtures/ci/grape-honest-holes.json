@@ -1,0 +1,30 @@
+{
+  "kind": "chrysalis.hub.grape-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:30:00.000Z",
+  "gate": "G10032",
+  "note": "Catalog only (D6447 / D6494). Flat Grape get|post route surface is lifted via Sinatra peels (hub:grape-smoke 20/20). Do not invent route_param nests, present entities, params validation DSL, or middleware. Sinatra remains Ruby D6448-ST. Roda secondary remains closed (G10022). Rails secondary stays skipped (G10006).",
+  "fixture": "fixtures/hub-gold-grape",
+  "smoke": "pnpm run hub:grape-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:ruby",
+  "supported": [
+    "class API < Grape::API + format :json",
+    "get|post|put|patch|delete \"/path\" do … end (flat)",
+    "/:id path templates + params[\"id\"]",
+    "Bare Hash returns",
+    "Scalar lit / params[\"userId\"] returns",
+    "status N",
+    "params[\"q\"] || \"\" query peels"
+  ],
+  "honestHoles": [
+    { "shape": "Nested route_param :id do get do … end end", "reason": "hub-ruby:grape-route-param" },
+    { "shape": "present entity / with: serializers", "reason": "hub-ruby:grape-present" },
+    { "shape": "params do … end validation DSL", "reason": "hub-ruby:grape-params-block" },
+    { "shape": "namespace / prefix / versioning", "reason": "hub-ruby:grape-namespace" },
+    { "shape": "Middleware / auth helpers", "reason": "hub-ruby:grape-middleware" }
+  ],
+  "relatedSkips": [
+    { "gate": "G10006", "catalog": "fixtures/ci/rails-controller-honest-skip.json" },
+    { "gate": "G10022", "catalog": "fixtures/ci/roda-honest-holes.json" }
+  ]
+}

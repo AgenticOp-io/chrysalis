@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.java-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T23:00:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST.",
+  "generatedAt": "2026-07-24T23:30:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST. Quarkus route surface reuses JAX-RS peels (G10034 / D6496).",
   "dialects": {
     "jaxrs": {
       "fixture": "fixtures/hub-gold-jaxrs",
@@ -41,11 +41,30 @@
         { "shape": "Application.run / Micronaut bootstrap", "reason": "hub-micronaut:application" },
         { "shape": "Non-literal path templates", "reason": "hub-java:path-non-literal" }
       ]
+    },
+    "quarkus": {
+      "fixture": "fixtures/hub-gold-quarkus",
+      "smoke": "pnpm run hub:quarkus-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10034",
+      "peelReuse": "jaxrs / G10012",
+      "supported": [
+        "Standard JAX-RS @Path + @GET|POST|… (jakarta.ws.rs.*) via G10012 peels",
+        "@PathParam / @QueryParam + @DefaultValue",
+        "Map.of JSON returns",
+        "Response.status().entity().build()"
+      ],
+      "honestHoles": [
+        { "shape": "CDI / @Inject / Arc container", "reason": "hub-quarkus:cdi" },
+        { "shape": "RESTEasy ContainerRequestFilter / ContainerResponseFilter", "reason": "hub-quarkus:resteasy-filters" },
+        { "shape": "Panache / Hibernate ORM with Panache", "reason": "hub-quarkus:panache" },
+        { "shape": "Quarkus Application / @QuarkusMain bootstrap", "reason": "hub-quarkus:application" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) smokes closed",
+    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus via JAX-RS peels (G10034) smokes closed",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

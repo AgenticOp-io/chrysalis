@@ -41,8 +41,9 @@ function pushRoute(routes, source, method, path, index, seen) {
   });
 }
 
+/** Actix/Axum `.route` + Poem `.at` (G10029) — same `get|post|…(handler)` arg shape. */
 const RUST_ROUTE_RE =
-  /\.route\s*\(\s*"([^"]+)"\s*,\s*(?:web::)?(get|post|put|patch|delete|head|options)\s*\(/gi;
+  /\.(?:route|at)\s*\(\s*"([^"]+)"\s*,\s*(?:web::)?(get|post|put|patch|delete|head|options)\s*\(/gi;
 const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]/g;
 const RUST_MACRO_FN_RE =
   /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]\s*(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gi;
@@ -179,7 +180,8 @@ export function joinAxumNestPath(prefix, path) {
 
 /**
  * Map nested router fn names → nest path prefix (`.nest("/api", api())`).
- * Inline `Router::new()` nest targets are not lowered (honest hole / skip).
+ * Shared by Axum + Poem (G10029). Inline `Router::new()` / `Route::new()` nest
+ * targets are not lowered (honest hole / skip).
  * @param {string} source
  * @returns {Map<string, string>}
  */

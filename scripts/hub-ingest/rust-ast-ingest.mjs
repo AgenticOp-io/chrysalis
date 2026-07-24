@@ -1,8 +1,9 @@
 /**
- * Rust hub ingest — Actix Web macros (+ Axum `.route` + Rocket `#[get]`/`.mount`) deepened for D6448-ST
- * cwl-api flagship: brace-bounded handler bodies, serde_json::json! (+ path/query
- * refs), HttpResponse status+json, scalar returns (hub-flagship-rust). Prefer
- * this over thin pattern-route-lift for flagship depth.
+ * Rust hub ingest — Actix Web macros (+ Axum `.route` + Poem `.at` + Rocket
+ * `#[get]`/`.mount`) deepened for D6448-ST cwl-api flagship: brace-bounded
+ * handler bodies, serde_json::json! (+ path/query refs), HttpResponse
+ * status+json, scalar returns (hub-flagship-rust). Prefer this over thin
+ * pattern-route-lift for flagship depth.
  */
 import { parseRustRoutes } from "./pattern-route-parsers.mjs";
 import {
@@ -40,7 +41,8 @@ export function canRustAstIngest(language, ext) {
 }
 
 /**
- * Normalize Actix/Axum/Rocket path templates to CWL `{name}` form.
+ * Normalize Actix/Axum/Poem/Rocket path templates to CWL `{name}` form.
+ * Poem uses `:id` (same as Axum legacy); Rocket uses `<id>`.
  * @param {string} path
  */
 export function normalizeRustRoutePath(path) {
@@ -142,8 +144,8 @@ function extractBalancedParenInner(source, openIdx) {
 }
 
 /**
- * Resolve a named Axum handler `async fn name(...) { … }` referenced from
- * `.route("/path", get(name))` (Go Gin named-func parallel).
+ * Resolve a named Axum/Poem handler `async fn name(...) { … }` referenced from
+ * `.route`/`.at("/path", get(name))` (Go Gin named-func parallel).
  * @param {string} source
  * @param {string} handlerName
  */
@@ -185,16 +187,17 @@ export function extractRustNamedHandlerBody(source, handlerName) {
 }
 
 /**
- * Bound Actix `async fn … { … }` after a `#[get("/…")]` macro, or Axum
- * `.route("/…", get(|| async { … }))` / `get(|Path(id): Path<_>| async move { … })`
+ * Bound Actix `async fn … { … }` after a `#[get("/…")]` macro, or Axum/Poem
+ * `.route`/`.at("/…", get(|| async { … }))` / `get(|Path(id): Path<_>| async move { … })`
  * / named `get(handler)` (resolve `async fn handler`).
- * Prefer Axum closure when the match starts at `.route` so a later `fn main` is not stolen.
+ * Prefer Axum/Poem closure when the match starts at `.route`/`.at` so a later
+ * `fn main` is not stolen.
  * @param {string} source
  * @param {number} fromIndex
  */
 export function extractRustHandlerBody(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 8000);
-  const looksLikeAxumRoute = /^\s*\.route\s*\(/i.test(slice);
+  const looksLikeAxumRoute = /^\s*\.(?:route|at)\s*\(/i.test(slice);
 
   /** Actix: #[get("/x")] async fn name(...) -> … { … } */
   const tryFn = () => {
@@ -215,7 +218,7 @@ export function extractRustHandlerBody(source, fromIndex) {
   };
 
   /**
-   * Axum: `.route("/x", get(|| async { … }))` /
+   * Axum/Poem: `.route`/`.at("/x", get(|| async { … }))` /
    * `get(|Path(id): Path<String>| async move { … })`.
    */
   const tryAxumClosure = () => {
@@ -235,7 +238,7 @@ export function extractRustHandlerBody(source, fromIndex) {
     };
   };
 
-  /** Axum named: `.route("/x", get(handler))` → resolve `fn handler`. */
+  /** Axum/Poem named: `.route`/`.at("/x", get(handler))` → resolve `fn handler`. */
   const tryAxumNamed = () => {
     const namedM = slice.match(
       /(?:,|\()\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/i,

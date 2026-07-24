@@ -4,6 +4,9 @@
  * path/query refs (hub-flagship-ruby).
  * G10022 / D6484: shallow Roda `r.get|post` + Hash / response.status / block
  * captures / r.params (nested `r.on` stays honest hole).
+ * G10032 / D6494: flat Grape `class API < Grape::API` + `get "/path" do`
+ * reuses Sinatra peels (`/:id`, `params[]`, `status N`, bare Hash); nested
+ * `route_param` / `present` / `params do` stay honest holes.
  */
 import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
 import {

@@ -528,6 +528,61 @@ function isHonoNewExpression(expr) {
 }
 
 /**
+ * Elysia origin factory: `new Elysia()` / `new Elysia({…})` (G10025 — dialect marker only).
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isElysiaNewExpression(expr) {
+  if (expr?.type !== "NewExpression") return false;
+  const callee = expr.callee;
+  return callee?.type === "Identifier" && callee.name === "Elysia";
+}
+
+/**
+ * Elysia `ctx.set.status = N` → HTTP status (nested `set` bag on context).
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {number | null}
+ */
+function peelElysiaSetStatusAssignment(expr) {
+  if (expr?.type !== "AssignmentExpression" || expr.operator !== "=") return null;
+  const left = expr.left;
+  if (left?.type !== "MemberExpression" || left.computed) return null;
+  if (left.property?.type !== "Identifier" || left.property.name !== "status") return null;
+  const setBag = left.object;
+  if (
+    setBag?.type !== "MemberExpression" ||
+    setBag.computed ||
+    setBag.property?.type !== "Identifier" ||
+    setBag.property.name !== "set" ||
+    setBag.object?.type !== "Identifier" ||
+    setBag.object.name !== "ctx"
+  ) {
+    return null;
+  }
+  const right = expr.right;
+  if (right?.type === "Literal" && typeof right.value === "number") return right.value;
+  return null;
+}
+
+/**
+ * Scan handler for Elysia `ctx.set.status = N`.
+ * @param {import('estree').Function} fn
+ * @returns {number | null}
+ */
+function extractElysiaSetStatus(fn) {
+  const body = fn.body;
+  if (body?.type !== "BlockStatement") {
+    return peelElysiaSetStatusAssignment(body?.type === "AssignmentExpression" ? body : null);
+  }
+  for (const s of body.body) {
+    if (s.type === "ExpressionStatement") {
+      const status = peelElysiaSetStatusAssignment(s.expression);
+      if (status !== null) return status;
+    }
+  }
+  return null;
+}
+
+/**
  * Hono `c.text(value)` / `c.text(value, status)` → text payload argument.
  * @param {import('estree').Expression | null | undefined} expr
  * @returns {import('estree').Expression | null}
@@ -733,14 +788,78 @@ function requestBucketSourceOf(expr) {
 }
 
 /**
+ * Peel IDENT-safe fields from an ObjectPattern into request-field bindings.
+ * @param {import('estree').ObjectPattern} pattern
+ * @param {"path" | "query" | "body" | "header" | "cookie"} source
+ * @param {Map<string, RequestFieldBinding>} bindings
+ */
+function collectIdentFieldsFromObjectPattern(pattern, source, bindings) {
+  for (const prop of pattern.properties) {
+    if (prop.type === "RestElement") continue;
+    if (prop.type !== "Property" || prop.computed) continue;
+    /** @type {string | null} */
+    let fieldName = null;
+    if (prop.key?.type === "Identifier") fieldName = prop.key.name;
+    else if (prop.key?.type === "Literal" && typeof prop.key.value === "string") {
+      fieldName = prop.key.value;
+    }
+    if (!fieldName) continue;
+    /** @type {import('estree').Pattern | null | undefined} */
+    let local = prop.value;
+    if (local?.type === "AssignmentPattern") local = local.left;
+    if (local?.type === "Identifier") {
+      bindings.set(local.name, { source, name: fieldName });
+    }
+  }
+}
+
+/**
+ * Elysia / Bun-style handler param bags (G10025, reuses G10005 IDENT rules):
+ * `({ params: { id } })` / `({ query: { q = "" } })`.
+ * Nested ObjectPattern under params|query|body|payload|headers|cookies only.
+ * @param {import('estree').Function} fn
+ * @param {Map<string, RequestFieldBinding>} bindings
+ */
+function collectHandlerParamBagBindings(fn, bindings) {
+  const bucketMap = {
+    params: "path",
+    query: "query",
+    body: "body",
+    payload: "body",
+    headers: "header",
+    cookies: "cookie",
+  };
+  for (const param of fn.params ?? []) {
+    if (param?.type !== "ObjectPattern") continue;
+    for (const prop of param.properties) {
+      if (prop.type === "RestElement") continue;
+      if (prop.type !== "Property" || prop.computed) continue;
+      const bucketKey =
+        prop.key?.type === "Identifier"
+          ? prop.key.name
+          : prop.key?.type === "Literal" && typeof prop.key.value === "string"
+            ? prop.key.value
+            : null;
+      if (!bucketKey || !bucketMap[bucketKey]) continue;
+      let inner = prop.value;
+      if (inner?.type === "AssignmentPattern") inner = inner.left;
+      if (inner?.type !== "ObjectPattern") continue;
+      collectIdentFieldsFromObjectPattern(inner, bucketMap[bucketKey], bindings);
+    }
+  }
+}
+
+/**
  * Collect IDENT-safe destructure from params/query/payload/body at handler top:
  * `const { id } = ctx.params` / `request.query` / `req.params` / etc.
+ * Also Elysia handler param bags: `({ params: { id } })` (G10025).
  * @param {import('estree').Function} fn
  * @returns {Map<string, RequestFieldBinding>}
  */
 function collectRequestDestructuringBindings(fn) {
   /** @type {Map<string, RequestFieldBinding>} */
   const bindings = new Map();
+  collectHandlerParamBagBindings(fn, bindings);
   const body = fn.body;
   if (body?.type !== "BlockStatement") return bindings;
   for (const s of body.body) {
@@ -749,23 +868,7 @@ function collectRequestDestructuringBindings(fn) {
       const source = requestBucketSourceOf(d.init);
       if (!source) continue;
       if (d.id?.type !== "ObjectPattern") continue;
-      for (const prop of d.id.properties) {
-        if (prop.type === "RestElement") continue;
-        if (prop.type !== "Property" || prop.computed) continue;
-        /** @type {string | null} */
-        let fieldName = null;
-        if (prop.key?.type === "Identifier") fieldName = prop.key.name;
-        else if (prop.key?.type === "Literal" && typeof prop.key.value === "string") {
-          fieldName = prop.key.value;
-        }
-        if (!fieldName) continue;
-        /** @type {import('estree').Pattern | null | undefined} */
-        let local = prop.value;
-        if (local?.type === "AssignmentPattern") local = local.left;
-        if (local?.type === "Identifier") {
-          bindings.set(local.name, { source, name: fieldName });
-        }
-      }
+      collectIdentFieldsFromObjectPattern(d.id, source, bindings);
     }
   }
   return bindings;
@@ -1101,11 +1204,18 @@ function resSendPayloadExpression(fn) {
 function extractHandlerExpression(fn) {
   const body = fn.body;
   if (body.type === "BlockStatement") {
+    /** @type {import('estree').Expression | null} */
+    let firstExpr = null;
     for (const s of body.body) {
+      // Prefer explicit `return` over earlier side-effect assigns (Elysia
+      // `ctx.set.status = N; return {…}` — G10025; Restify send+next still
+      // peeled via resSendPayloadExpression before this falls through).
       if (s.type === "ReturnStatement") return s.argument ?? null;
-      if (s.type === "ExpressionStatement") return s.expression ?? null;
+      if (s.type === "ExpressionStatement" && firstExpr === null) {
+        firstExpr = s.expression ?? null;
+      }
     }
-    return null;
+    return firstExpr;
   }
   if (
     body.type === "CallExpression" ||
@@ -1590,6 +1700,7 @@ function lowerHandlerBody(ctx, fn) {
     extractWriteHeadStatus(fn) ??
     extractStatusCodeAssign(fn) ??
     extractCtxStatus(fn) ??
+    extractElysiaSetStatus(fn) ??
     ctx.nestHttpCode ??
     null;
   const statusId = lowerStatusEffect(workCtx, status, primaryExpr?.loc?.start);
@@ -1781,6 +1892,7 @@ export function liftJavaScriptFileToWebir(opts) {
   /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc?: { line: number, column: number }, httpCode?: number | null, paramBindings?: Map<string, { source: string, name: string }> }>} */
   const routes = [...nestRoutes];
   let honoOrigin = false;
+  let elysiaOrigin = false;
   if (ast) {
     walkSimple(ast, {
       CallExpression(node) {
@@ -1790,6 +1902,7 @@ export function liftJavaScriptFileToWebir(opts) {
       },
       NewExpression(node) {
         if (isHonoNewExpression(node)) honoOrigin = true;
+        if (isElysiaNewExpression(node)) elysiaOrigin = true;
       },
     });
   }
@@ -1817,9 +1930,11 @@ export function liftJavaScriptFileToWebir(opts) {
     const bodyId = lowerHandlerBody(ctx, r.fn);
     const dialectTag = r.paramBindings
       ? `nestjs`
-      : honoOrigin
-        ? `hono`
-        : null;
+      : elysiaOrigin
+        ? `elysia`
+        : honoOrigin
+          ? `hono`
+          : null;
     const handlerId = wr.handler({
       attrs: {
         name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,

@@ -1,0 +1,29 @@
+{
+  "kind": "chrysalis.hub.bottle-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:40:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Bottle plugins, middleware/hooks, templates, or multi-app mounts. Lift @get|post|route + <id> + request.query.q / request.params + HTTPResponse that appear, else leave honest holes. Flask remains Python D6448-ST. Bottle secondary smoke G10027 closed when hub:bottle-smoke ok.",
+  "fixture": "fixtures/hub-gold-bottle",
+  "smoke": "pnpm run hub:bottle-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:python",
+  "supported": [
+    "@get|post|put|patch|delete(\"/path\")",
+    "@route(\"/path\", method=\"POST\") / method=['GET','POST']",
+    "<id> / <name:int> Bottle/Flask-style path templates",
+    "request.query.q attribute + request.params / request.query.get peels",
+    "dict / string returns + HTTPResponse(body, status=N)"
+  ],
+  "honestHoles": [
+    { "shape": "Plugins / install()", "reason": "hub-python:bottle-plugins" },
+    { "shape": "Middleware / hooks / before_request onion", "reason": "hub-python:bottle-middleware" },
+    { "shape": "Templates / template() / views", "reason": "hub-python:bottle-templates" },
+    { "shape": "Multi-app Bottle() mount / merge", "reason": "hub-python:bottle-mount" },
+    { "shape": "Non-literal method= / dynamic paths", "reason": "hub-python:bottle-dynamic" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Flask Python ST + FastAPI/Starlette/Litestar/Falcon/Quart/Bottle secondaries closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

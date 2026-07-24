@@ -1,4 +1,14 @@
-"""Extract Flask/FastAPI/Starlette/Litestar/Falcon-style route metadata from Python source (hub ingest)."""
+"""Extract Flask/Quart/Sanic/FastAPI/Starlette/Litestar/Falcon/Bottle-style route metadata from Python source (hub ingest).
+
+Quart is the Flask-async twin: reuse Flask @app.get|post|route / <id> / request.args /
+status-tuple peels (AsyncFunctionDef already covered). No middleware/websocket/Blueprint invent.
+
+Sanic: @app.get|post|route, <id> / <id:str> paths, request.args.get, json()/text() (+ status=).
+No middleware/Blueprint/listener invent.
+
+Bottle: bare @get|post|route, method='POST', <id> paths, request.query.q / request.params,
+HTTPResponse(body, status=N). No plugin/middleware invent.
+"""
 import ast
 import json
 import re
@@ -13,6 +23,10 @@ except SyntaxError as e:
 
 RECEIVERS = {"app", "router", "api", "bp", "blueprint"}
 HTTP_NAMES = {"get", "post", "put", "patch", "delete", "head", "options", "route"}
+# Flask converters + Sanic typed params (<id:str>) share these tokens.
+PATH_TYPE_TOKENS = frozenset({
+    "int", "float", "path", "string", "str", "uuid", "any", "alpha", "slug",
+})
 FALCON_ON = {
     "on_get": "GET",
     "on_post": "POST",
@@ -51,10 +65,23 @@ def const_val(node):
 
 
 def path_param_names(path):
-    """Flask `<id>` / `<int:id>` and FastAPI `{id}` → bare param names."""
+    """Flask `<id>` / `<int:id>`, Sanic `<id>` / `<id:str>`, FastAPI `{id}` → bare names."""
     names = []
     for raw in re.findall(r"<([^>]+)>", path):
-        names.append(raw.split(":", 1)[-1].strip())
+        raw = raw.strip()
+        if ":" not in raw:
+            names.append(raw)
+            continue
+        left, right = raw.split(":", 1)
+        left, right = left.strip(), right.strip()
+        left_type = left.lower() in PATH_TYPE_TOKENS
+        right_type = right.lower() in PATH_TYPE_TOKENS
+        if left_type and not right_type:
+            names.append(right)  # Flask <int:id>
+        elif right_type and not left_type:
+            names.append(left)  # Sanic <id:str>
+        else:
+            names.append(right)  # historical Flask default
     for raw in re.findall(r"\{([^{}]+)\}", path):
         names.append(raw.split(":", 1)[-1].strip())
     return names
@@ -83,8 +110,9 @@ def status_from_keywords(kw):
 def request_bucket_map(bucket):
     return {
         "args": "query",
+        "query": "query",  # Bottle request.query / FormsDict
         "query_params": "query",
-        "params": "query",
+        "params": "query",  # Bottle request.params (query+forms)
         "view_args": "path",
         "path_params": "path",
         "headers": "header",
@@ -178,6 +206,62 @@ def request_ref_from_subscript(node):
     return {"t": "ref", "source": source, "name": key}
 
 
+def request_ref_from_attr(node):
+    """Bottle `request.query.q` / `request.params.q` → query ref."""
+    if not isinstance(node, ast.Attribute):
+        return None
+    if not isinstance(node.value, ast.Attribute):
+        return None
+    inner = node.value
+    if not isinstance(inner.value, ast.Name) or not request_receiver_ok(inner.value.id):
+        return None
+    source = request_bucket_map(inner.attr)
+    if not source:
+        return None
+    name = node.attr
+    if not name or name.startswith("_"):
+        return None
+    return {"t": "ref", "source": source, "name": name}
+
+
+def peel_http_response(node):
+    """Bottle `HTTPResponse(body, status=N)` / `HTTPResponse(status=N, body=…)` → (payload, status)."""
+    if not isinstance(node, ast.Call):
+        return None, None
+    if not isinstance(node.func, ast.Name) or node.func.id != "HTTPResponse":
+        return None, None
+    payload = None
+    status = None
+    if node.args:
+        payload = node.args[0]
+    for k in node.keywords:
+        if k.arg == "body":
+            payload = k.value
+        elif k.arg == "status":
+            s = const_val(k.value)
+            if isinstance(s, int):
+                status = s
+    return payload, status
+
+
+def peel_json_text_response(node):
+    """Sanic `json(body, status=N)` / `text(body, status=N)` → (payload, status)."""
+    if not isinstance(node, ast.Call):
+        return None, None
+    if not isinstance(node.func, ast.Name) or node.func.id not in ("json", "text"):
+        return None, None
+    payload = node.args[0] if node.args else None
+    status = None
+    for k in node.keywords:
+        if k.arg == "body":
+            payload = k.value
+        elif k.arg == "status":
+            s = const_val(k.value)
+            if isinstance(s, int):
+                status = s
+    return payload, status
+
+
 def expr_tree(node, func_args, path_params):
     if node is None:
         return None
@@ -215,18 +299,28 @@ def expr_tree(node, func_args, path_params):
         ref = request_ref_from_get_param(node)
         if ref:
             return ref
-        if isinstance(node.func, ast.Name) and node.func.id == "jsonify":
-            if node.args and len(node.args) == 1:
+        if isinstance(node.func, ast.Name) and node.func.id in ("jsonify", "json", "text"):
+            # jsonify kwargs → object; Sanic json/text unwrap body arg (status peeled elsewhere).
+            if node.args and len(node.args) >= 1:
                 return expr_tree(node.args[0], func_args, path_params)
-            out = {"t": "obj", "entries": []}
+            if node.func.id == "jsonify":
+                out = {"t": "obj", "entries": []}
+                for kw in node.keywords:
+                    if kw.arg is None:
+                        return None
+                    val = expr_tree(kw.value, func_args, path_params)
+                    if val is None:
+                        return None
+                    out["entries"].append({"key": kw.arg, "value": val})
+                return out if out["entries"] else None
             for kw in node.keywords:
-                if kw.arg is None:
-                    return None
-                val = expr_tree(kw.value, func_args, path_params)
-                if val is None:
-                    return None
-                out["entries"].append({"key": kw.arg, "value": val})
-            return out if out["entries"] else None
+                if kw.arg == "body":
+                    return expr_tree(kw.value, func_args, path_params)
+            return None
+    if isinstance(node, ast.Attribute):
+        ref = request_ref_from_attr(node)
+        if ref:
+            return ref
     if isinstance(node, ast.Subscript):
         ref = request_ref_from_subscript(node)
         if ref:
@@ -277,14 +371,20 @@ def const_dict(node):
 
 
 def methods_from_keywords(kw):
+    """Flask/Starlette `methods=[…]` and Bottle `method='POST'` / `method=['GET','POST']`."""
     for k in kw:
-        if k.arg == "methods" and isinstance(k.value, (ast.List, ast.Tuple)):
+        if k.arg not in ("methods", "method"):
+            continue
+        if isinstance(k.value, (ast.List, ast.Tuple)):
             out = []
             for elt in k.value.elts:
                 s = const_str(elt)
                 if s:
                     out.append(s.upper())
-            return out
+            return out if out else None
+        s = const_str(k.value)
+        if s:
+            return [s.upper()]
     return None
 
 
@@ -323,10 +423,10 @@ def route_from_decorator(dec):
     path = path_from_call(dec)
     if not path:
         return None
-    # Litestar: @get("/path") / @post(..., status_code=201) — bare HTTP Name.
+    # Litestar/Bottle: @get("/path") / @route(..., method='POST') / @post(..., status_code=201).
     if isinstance(func, ast.Name) and func.id in HTTP_NAMES:
         return route_rows(func.id, path, dec.keywords, line)
-    # Flask/FastAPI/Starlette: @app.get / @app.route / @router.post
+    # Flask/Quart/FastAPI/Starlette: @app.get / @app.route / @router.post
     if not isinstance(func, ast.Attribute):
         return None
     if func.attr not in HTTP_NAMES:
@@ -506,6 +606,18 @@ for node in tree.body:
                         if payload is not None:
                             ret = payload
                             row["statusCode"] = status_code
+                        hr_payload, hr_status = peel_http_response(ret)
+                        if hr_payload is not None or hr_status is not None:
+                            if hr_payload is not None:
+                                ret = hr_payload
+                            if hr_status is not None:
+                                row["statusCode"] = hr_status
+                        jt_payload, jt_status = peel_json_text_response(ret)
+                        if jt_payload is not None or jt_status is not None:
+                            if jt_payload is not None:
+                                ret = jt_payload
+                            if jt_status is not None:
+                                row["statusCode"] = jt_status
                         fill_return_fields(row, ret, func_args, path_params)
                 routes.append(row)
             break

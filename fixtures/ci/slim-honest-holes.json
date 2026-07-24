@@ -1,0 +1,29 @@
+{
+  "kind": "chrysalis.hub.slim-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:30:00.000Z",
+  "gate": "G10028",
+  "note": "Catalog only (D6447 / D6490). Slim $app->get|post route surface is lifted (hub:slim-smoke 20/20). Do not invent PSR-15 middleware onion, $app->group deep nesting, or named class handlers. Laravel min / Symfony / plain-php remain PHP D6448-ST flagships.",
+  "fixture": "fixtures/hub-gold-slim",
+  "smoke": "pnpm run hub:slim-smoke",
+  "st": [
+    "pnpm run hub:laravel-min-smoke",
+    "pnpm run hub:symfony-flagship",
+    "pnpm run hub:plain-php-flagship"
+  ],
+  "supported": [
+    "$app->get|post|put|patch|delete('/path', function (…) { … })",
+    "{id} / {userId} path templates + $args['id']",
+    "$request->getQueryParams()['q'] ?? ''",
+    "$response->withJson(scalar|array)",
+    "$response->withStatus(n)->withJson(...)",
+    "$response->getBody()->write(json_encode(...)) + withStatus"
+  ],
+  "honestHoles": [
+    { "shape": "$app->add / PSR-15 middleware chains", "reason": "hub-php:slim-middleware" },
+    { "shape": "$app->group nesting beyond cheap peel", "reason": "hub-php:slim-group" },
+    { "shape": "Named class / invokable / controller handlers", "reason": "hub-php:slim-named-handler" },
+    { "shape": "Non-literal path templates", "reason": "hub-php:slim-path-non-literal" },
+    { "shape": "Request body parsers / uploaded files", "reason": "hub-php:slim-body-parser" }
+  ]
+}
