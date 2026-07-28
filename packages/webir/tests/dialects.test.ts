@@ -332,6 +332,33 @@ describe("webir module builder", () => {
     expect(node.attrs.execCicsOps).toEqual(["SEND-MAP"]);
   });
 
+  test("modules expose dialect counts and holes", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const r = webRequest.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const h = d.hole({ reason: "tbd", input: T.unknown, output: T.string, origin });
+    const handler = r.handler({
+      attrs: { name: "h", input: T.record({}), output: T.string },
+      body: h,
+      effects: [],
+      origin,
+    });
+    const route = r.route({
+      attrs: { method: "GET", path: "/x", pathParams: [] },
+      handler,
+      origin,
+    });
+    b.addRoot(route);
+    const mod = b.finish();
+    expect(countByDialect(mod)).toEqual({ data: 1, "web.request": 2 });
+    expect(countHoles(mod)).toBe(1);
+    let count = 0;
+    walk(mod, () => {
+      count += 1;
+    });
+    expect(count).toBe(3);
+  });
 
   test("countAuthTaggedHoles only counts data.hole with auth-prefixed reason", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
