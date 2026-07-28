@@ -24,6 +24,8 @@ import {
   inventoryCobolSource,
   resolveCobolCopybooks,
   buildCobolWebIrHoleAttrs,
+  expandCobolCopybooks,
+  inferCobolCopybookDirs,
 } from "./cobol-pattern-lift.mjs";
 import { emitFromCobolPatterns, detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
 import { liftPatternRoutesFile } from "./pattern-route-lift.mjs";
@@ -1039,6 +1041,94 @@ export async function runCobolBestFitSmoke() {
       mathExpected === "52.50" &&
       mathLiterals.length >= 1,
     reason: `pattern=${mathPattern?.kind} expected=${mathExpected} literals=${mathLiterals.length}`,
+  });
+
+  // G10087 — COPY expand for resolved in-repo books; DFHAID/CMQ* stay skipped.
+  const copyDirs = inferCobolCopybookDirs(
+    join(CLBS_BATCH, "CKPRSTDN.cbl"),
+    CLBS_MINI,
+  );
+  const ckprstdnSrc = existsSync(join(CLBS_BATCH, "CKPRSTDN.cbl"))
+    ? readFileSync(join(CLBS_BATCH, "CKPRSTDN.cbl"), "utf8")
+    : "";
+  const ckprExpand = ckprstdnSrc
+    ? expandCobolCopybooks(ckprstdnSrc, copyDirs)
+    : null;
+  const cosgnPathForExpand = join(CLBS_MINI, "online/COSGN00C.cbl");
+  const cosgnSrcForExpand = existsSync(cosgnPathForExpand)
+    ? readFileSync(cosgnPathForExpand, "utf8")
+    : "";
+  const cosgnExpand = cosgnSrcForExpand
+    ? expandCobolCopybooks(cosgnSrcForExpand, [
+        join(CLBS_MINI, "copybook"),
+        join(CLBS_MINI, "_upstream"),
+      ])
+    : null;
+  results.push({
+    id: "cobol-copy-expand-resolved",
+    ok:
+      !!ckprExpand &&
+      ckprExpand.expanded.includes("CKPRST") &&
+      /\bCK-STATUS\b/.test(ckprExpand.source) &&
+      ckprExpand.missing.length === 0 &&
+      !!cosgnExpand &&
+      cosgnExpand.skipped.includes("DFHAID") &&
+      cosgnExpand.skipped.includes("DFHBMSCA") &&
+      !cosgnExpand.expanded.includes("DFHAID"),
+    reason: ckprExpand
+      ? `expanded=${ckprExpand.expanded.join(",")} skipped=${(cosgnExpand?.skipped || []).join(",")} missing=${ckprExpand.missing.join(",")}`
+      : "missing-CKPRSTDN",
+  });
+
+  // G10088 — widen emit→WebIR literals across proven pattern kinds (not CLBSMATH alone).
+  const emitWidenSubjects = [
+    { file: "CKPRSTRN.cbl", kind: "evaluate-phase", expected: "20" },
+    { file: "SEQSUM.cbl", kind: "seq-sum", expected: "35.75" },
+    { file: "EMPPAYRN.cbl", kind: "ot-weekly", expected: "446.50" },
+    { file: "CKPRSTDN.cbl", kind: "literal", expected: "150" },
+    { file: "PORTFLIODN.cbl", kind: "literal", expected: "66" },
+  ];
+  /** @type {string[]} */
+  const emitWidenOk = [];
+  /** @type {string[]} */
+  const emitWidenFail = [];
+  for (const sub of emitWidenSubjects) {
+    const p = join(CLBS_BATCH, sub.file);
+    const src = existsSync(p) ? readFileSync(p, "utf8") : "";
+    if (!src) {
+      emitWidenFail.push(`${sub.file}:missing`);
+      continue;
+    }
+    const pat = detectEmitPattern(src) || detectEmitPattern(expandCobolCopybooks(src, copyDirs).source);
+    const exp = pat ? expectedFromPattern(pat) : null;
+    const b = new webir.ModuleBuilder({ sourceApp: `hub-lift:cobol-g10088:${sub.file}` });
+    const wr = webir.webRequest.builders(b);
+    liftPatternRoutesFile({
+      webir,
+      builder: b,
+      wr,
+      source: src,
+      file: sub.file,
+      language: "cobol",
+      copybookDirs: copyDirs,
+      projectDir: CLBS_MINI,
+    });
+    const mod = b.finish();
+    const litHit = [...mod.nodes.values()].some(
+      (n) => n.dialect === "data" && n.op === "literal" && n.attrs?.value === sub.expected,
+    );
+    if (pat?.kind === sub.kind && exp === sub.expected && litHit) {
+      emitWidenOk.push(`${sub.file}:${sub.kind}`);
+    } else {
+      emitWidenFail.push(
+        `${sub.file}:kind=${pat?.kind}/exp=${exp}/lit=${litHit}`,
+      );
+    }
+  }
+  results.push({
+    id: "webir-emit-pattern-literal-widen",
+    ok: emitWidenFail.length === 0 && emitWidenOk.length === emitWidenSubjects.length,
+    reason: `ok=${emitWidenOk.join(",")} fail=${emitWidenFail.join(",")}`,
   });
 
   // Sanity: buildCobolWebIrHoleAttrs exports catalog keys for online-shaped inventory.

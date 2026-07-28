@@ -7,8 +7,8 @@
  *   chrysalis-return: <json-or-literal>
  */
 
-import { existsSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 
 /**
  * @typedef {{ method: string, path: string, line: number, name?: string }} HubRoute
@@ -426,6 +426,9 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (inv?.cicsAidSymbols?.length) attrs.cicsAidSymbols = [...inv.cicsAidSymbols];
   if (inv?.bmsAttrSymbols?.length) attrs.bmsAttrSymbols = [...inv.bmsAttrSymbols];
   if (opts.emitPatternKind) attrs.emitPatternKind = opts.emitPatternKind;
+  if (opts.copyExpanded?.length) attrs.copyExpanded = [...opts.copyExpanded];
+  if (opts.copySkipped?.length) attrs.copySkipped = [...opts.copySkipped];
+  if (opts.copyMissing?.length) attrs.copyMissing = [...opts.copyMissing];
   return attrs;
 }
 
@@ -955,6 +958,119 @@ export function resolveCobolCopybooks(copyNames, searchDirs) {
     out.push({ name, resolved });
   }
   return out;
+}
+
+/** IBM / MQ proprietary books — never invent or expand (D6442/D6447). */
+export const COBOL_COPY_EXPAND_SKIP = new Set([
+  "DFHAID",
+  "DFHBMSCA",
+  "EXTFMAP",
+  "DFHATTR",
+]);
+
+/**
+ * @param {string} name
+ */
+function shouldSkipCobolCopyExpand(name) {
+  const upper = String(name || "").toUpperCase();
+  if (!upper) return true;
+  if (COBOL_COPY_EXPAND_SKIP.has(upper)) return true;
+  if (upper.startsWith("CMQ")) return true; // IBM MQ CMQ* copybooks
+  return false;
+}
+
+/**
+ * Infer `copybook/` / `_upstream` dirs near a COBOL file or project root (G10087).
+ *
+ * @param {string} filePath
+ * @param {string} [projectDir]
+ * @returns {string[]}
+ */
+export function inferCobolCopybookDirs(filePath, projectDir) {
+  /** @type {string[]} */
+  const candidates = [];
+  if (projectDir) {
+    candidates.push(
+      join(projectDir, "copybook"),
+      join(projectDir, "cpy"),
+      join(projectDir, "_upstream"),
+    );
+  }
+  let dir = dirname(resolve(String(filePath || ".") || "."));
+  for (let i = 0; i < 5; i++) {
+    candidates.push(join(dir, "copybook"), join(dir, "cpy"), join(dir, "_upstream"));
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return [...new Set(candidates.filter((d) => d && existsSync(d)))];
+}
+
+/**
+ * Expand in-repo `COPY name.` text into the source for lift/inventory deepen (G10087).
+ * Skips IBM AID/BMSCA/EXTFMAP and CMQ* — those stay unresolved COPY holes.
+ *
+ * @param {string} source
+ * @param {string[]} searchDirs
+ * @param {{ maxDepth?: number }} [opts]
+ * @returns {{
+ *   source: string,
+ *   expanded: string[],
+ *   skipped: string[],
+ *   missing: string[],
+ * }}
+ */
+export function expandCobolCopybooks(source, searchDirs, opts = {}) {
+  const maxDepth = opts.maxDepth ?? 6;
+  /** @type {string[]} */
+  const expanded = [];
+  /** @type {string[]} */
+  const skipped = [];
+  /** @type {string[]} */
+  const missing = [];
+  const visited = new Set();
+
+  /**
+   * @param {string} text
+   * @param {number} depth
+   */
+  function expandOnce(text, depth) {
+    if (depth > maxDepth) return text;
+    return String(text || "").replace(
+      /\bCOPY\s+([A-Za-z][A-Za-z0-9-]*)\s*\./gi,
+      (full, rawName) => {
+        const name = String(rawName || "").toUpperCase();
+        if (shouldSkipCobolCopyExpand(name)) {
+          if (!skipped.includes(name)) skipped.push(name);
+          return full;
+        }
+        if (visited.has(name)) return full;
+        const hit = resolveCobolCopybooks([name], searchDirs)[0];
+        if (!hit?.resolved) {
+          if (!missing.includes(name)) missing.push(name);
+          return full;
+        }
+        visited.add(name);
+        if (!expanded.includes(name)) expanded.push(name);
+        let body = "";
+        try {
+          body = readFileSync(hit.resolved, "utf8");
+        } catch {
+          if (!missing.includes(name)) missing.push(name);
+          return full;
+        }
+        const nested = expandOnce(body, depth + 1);
+        return `\n*> BEGIN-COPY ${name}\n${nested}\n*> END-COPY ${name}\n`;
+      },
+    );
+  }
+
+  return {
+    source: expandOnce(String(source || ""), 0),
+    expanded,
+    skipped,
+    missing,
+  };
 }
 
 /**

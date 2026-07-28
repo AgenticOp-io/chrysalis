@@ -124,6 +124,7 @@ async function main() {
       entryPath: abs,
       language,
       ext,
+      projectDir,
     });
     if (specialized) {
       astRouteCount += specialized.astRouteCount;

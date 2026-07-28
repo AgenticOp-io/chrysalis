@@ -7,6 +7,8 @@ import {
   buildCobolWebIrHoleAttrs,
   cobolBodyAfter,
   cobolProgramIdToPath,
+  expandCobolCopybooks,
+  inferCobolCopybookDirs,
   inventoryCobolSource,
 } from "./cobol-pattern-lift.mjs";
 import { detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
@@ -276,7 +278,7 @@ export function canPatternRouteLift(language) {
  * @param {object} opts
  */
 export function liftPatternRoutesFile(opts) {
-  const { webir, builder, wr, source, file, language } = opts;
+  const { webir, builder, wr, source, file, language, copybookDirs, projectDir } = opts;
   const parse = PATTERN_PARSERS[language];
   if (!parse) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false };
@@ -290,9 +292,23 @@ export function liftPatternRoutesFile(opts) {
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };
 
-  /** COBOL deepen (G10085/G10086): inventory → shaped holes; proven emit patterns → WebIR literals. */
+  /** COBOL deepen (G10085–G10088): COPY expand + inventory → shaped holes; emit → literals. */
+  let cobolLiftSource = source;
+  /** @type {ReturnType<typeof expandCobolCopybooks> | null} */
+  let cobolCopyExpand = null;
+  if (language === "cobol") {
+    const dirs =
+      Array.isArray(copybookDirs) && copybookDirs.length
+        ? copybookDirs
+        : inferCobolCopybookDirs(file, projectDir);
+    cobolCopyExpand = expandCobolCopybooks(source, dirs);
+    cobolLiftSource = cobolCopyExpand.source;
+  }
   const cobolInv = language === "cobol" ? inventoryCobolSource(source, file) : null;
-  const cobolEmitPattern = language === "cobol" ? detectEmitPattern(source) : null;
+  const cobolEmitPattern =
+    language === "cobol"
+      ? detectEmitPattern(source) || detectEmitPattern(cobolLiftSource)
+      : null;
   const cobolEmitExpected =
     cobolEmitPattern != null ? expectedFromPattern(cobolEmitPattern) : null;
   /** @type {Set<string>} */
@@ -341,7 +357,7 @@ export function liftPatternRoutesFile(opts) {
                 ? swiftDictReturnAfter(source, idx)
                 : language === "cobol"
                   ? (() => {
-                      const b = cobolBodyAfter(source, idx);
+                      const b = cobolBodyAfter(cobolLiftSource, idx);
                       return b?.kind === "object" ? { object: b.value, line: b.line } : null;
                     })()
                   : null;
@@ -361,9 +377,9 @@ export function liftPatternRoutesFile(opts) {
                   ? swiftReturnLiteralAfter(source, idx)
                   : language === "cobol"
                     ? (() => {
-                        const b = cobolBodyAfter(source, idx);
-                        if (b?.kind === "literal") return { value: b.value, line: b.line };
-                        // G10086 — entry route: lower proven pattern-emit expected into WebIR.
+                        const b = cobolBodyAfter(cobolLiftSource, idx);
+                        // G10086/G10088 — when a whole-program emit pattern is proven, prefer
+                        // its expected on the entry route over incidental MOVE literals.
                         if (
                           cobolEmitTargetPaths.has(r.path) &&
                           cobolEmitExpected != null &&
@@ -375,6 +391,7 @@ export function liftPatternRoutesFile(opts) {
                             emitPatternKind: cobolEmitPattern?.kind,
                           };
                         }
+                        if (b?.kind === "literal") return { value: b.value, line: b.line };
                         return null;
                       })()
                     : null);
@@ -391,6 +408,9 @@ export function liftPatternRoutesFile(opts) {
               language === "cobol" && cobolInv
                 ? buildCobolWebIrHoleAttrs(cobolInv, {
                     emitPatternKind: cobolEmitPattern?.kind ?? null,
+                    copyExpanded: cobolCopyExpand?.expanded ?? [],
+                    copySkipped: cobolCopyExpand?.skipped ?? [],
+                    copyMissing: cobolCopyExpand?.missing ?? [],
                   })
                 : undefined,
             );
