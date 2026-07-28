@@ -61,7 +61,10 @@
         "request": {
           "method": "GET",
           "url": "https://api.example/search?q=widget",
-          "queryString": [{ "name": "q", "value": "widget" }]
+          "queryString": [
+            { "name": "q", "value": "widget" },
+            { "name": "x-sort", "value": "asc" }
+          ]
         },
         "response": {
           "status": 200,

@@ -3,7 +3,9 @@
  * Handler bodies are brace-bounded so later gin.H / JSON calls cannot bleed
  * into earlier routes (hub-flagship-go / D6448-ST cwl-api). Named Gin handlers
  * (`r.GET("/path", health)` → `func health(c *gin.Context)`) resolve beyond
- * anonymous lambdas (hub-go-routes). Chi (`chi.URLParam` + `json.NewEncoder`)
+ * anonymous lambdas (hub-go-routes). Gin literal `Group("/prefix")` path join
+ * (G10066 / D6528 — `hub-native-bridge` `parseGoRoutes`; no Group middleware invent).
+ * Chi (`chi.URLParam` + `json.NewEncoder`)
  * Echo (`c.Param` + `c.QueryParam` + `c.JSON`), Fiber (G10017:
  * `c.Params` + `c.Query` + `c.JSON` / `c.Status(n).JSON` / `c.SendString`),
  * Iris (G10038: `iris.New` + `app.Get|Post` + `ctx.Params().Get` /

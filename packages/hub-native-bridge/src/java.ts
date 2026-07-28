@@ -3,6 +3,17 @@ import { SCHEMA_VERSION, type HubNativeRoute } from "./schema.js";
 const SPRING_VERB_RE =
   /@(Get|Post|Put|Patch|Delete|Head|Options)Mapping\s*\(\s*(?:(?:value|path)\s*=\s*)?["']([^"']+)["']/gi;
 
+/**
+ * Spring MVC @RestController / @Controller class header (G10071 / D6533).
+ * Distinct from Micronaut @Controller (uses @Get not @GetMapping).
+ */
+const JAVA_SPRING_MVC_CLASS_RE =
+  /(\/(?:\*[\s\S]*?\*\/)?\s*)*(?:@\w+(?:\([^)]*\))?\s*)*@(?:RestController|Controller)(?:\([^)]*\))?\s*[\s\S]*?public\s+(?:abstract\s+)?class\s+\w+[^{]*\{/g;
+
+const SPRING_REQUEST_MAPPING_ANN_RE = /@RequestMapping\b\s*(?:\(([^)]*)\))?/gi;
+const SPRING_VERB_MAPPING_ANN_RE =
+  /@(Get|Post|Put|Patch|Delete|Head|Options)Mapping\b\s*(?:\(([^)]*)\))?/gi;
+
 /** Micronaut HTTP verb annotations (io.micronaut.http.annotation) — not Spring *Mapping. */
 const MICRONAUT_VERB_RE =
   /@(Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*(?:(?:value|uri)\s*=\s*)?["']([^"']+)["']/gi;
@@ -91,6 +102,75 @@ export function joinJavaJaxrsPath(prefix: string, methodPath: string): string {
 
 /** Join Micronaut @Controller prefix + @Get|Post|… path (same join rules as JAX-RS). */
 export const joinJavaMicronautPath = joinJavaJaxrsPath;
+
+/** Join Spring class @RequestMapping prefix + method @*Mapping / @RequestMapping path. */
+export const joinJavaSpringPath = joinJavaJaxrsPath;
+
+/**
+ * Extract string path literals from Spring mapping annotation args
+ * (`"/x"`, `value="/x"`, `path={"/a","/b"}`, bare `{ "/a", "/b" }`).
+ * Does not treat `{id}` inside a quoted path as a multi-path array.
+ */
+export function springMappingPathsFromArgs(args: string | undefined | null): string[] {
+  const a = String(args ?? "").trim();
+  if (!a) return [""];
+
+  // Multi-path only when the value itself opens with `{` (not `{id}` inside quotes).
+  if (/^(?:(?:value|path)\s*=\s*)?\{/.test(a)) {
+    const open = a.indexOf("{");
+    let depth = 0;
+    let end = -1;
+    for (let i = open; i < a.length; i++) {
+      if (a[i] === "{") depth += 1;
+      else if (a[i] === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          end = i;
+          break;
+        }
+      }
+    }
+    if (end > open) {
+      const inner = a.slice(open + 1, end);
+      const paths = [...inner.matchAll(/["']([^"']*)["']/g)].map((m) => m[1] ?? "");
+      if (paths.length > 0) return paths;
+    }
+  }
+
+  const named = a.match(/(?:value|path)\s*=\s*["']([^"']*)["']/);
+  if (named) return [named[1] ?? ""];
+  const positional = a.match(/^["']([^"']*)["']/);
+  if (positional) return [positional[1] ?? ""];
+  return [""];
+}
+
+/** Extract RequestMethod.GET|POST|… from @RequestMapping args (method-level). */
+export function springRequestMethodsFromArgs(args: string | undefined | null): string[] {
+  const methods: string[] = [];
+  const seen = new Set<string>();
+  for (const m of String(args ?? "").matchAll(
+    /RequestMethod\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/gi,
+  )) {
+    const verb = (m[1] ?? "GET").toUpperCase();
+    if (seen.has(verb)) continue;
+    seen.add(verb);
+    methods.push(verb);
+  }
+  return methods;
+}
+
+function stripJavaComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/[^\n]*/g, " ");
+}
+
+function springClassRequestMappingPaths(header: string): string[] {
+  const cleaned = stripJavaComments(header);
+  const withArgs = [...cleaned.matchAll(/@RequestMapping\s*\(([^)]*)\)/gi)];
+  if (withArgs.length === 0) return [""];
+  // Last parenthesized @RequestMapping in the class header is the real annotation.
+  const last = withArgs[withArgs.length - 1];
+  return springMappingPathsFromArgs(last?.[1]);
+}
 
 function classBodyEnd(source: string, openBraceIndex: number): number {
   let depth = 0;
@@ -340,6 +420,66 @@ function parseJavaWebFluxRoutes(
   return routes;
 }
 
+/**
+ * Spring MVC class @RequestMapping + method @*Mapping / @RequestMapping(method=…)
+ * (G10071 / D6533). Multi-path arrays emit one route per path×method.
+ * Method-level @RequestMapping without RequestMethod.* stays unwired (no invent).
+ */
+function parseJavaSpringMvcRoutes(
+  source: string,
+): Array<HubNativeRoute & { index: number }> {
+  const routes: Array<HubNativeRoute & { index: number }> = [];
+  JAVA_SPRING_MVC_CLASS_RE.lastIndex = 0;
+  let cls: RegExpExecArray | null;
+  while ((cls = JAVA_SPRING_MVC_CLASS_RE.exec(source)) !== null) {
+    const classPaths = springClassRequestMappingPaths(cls[0] ?? "");
+    const openBrace = cls.index + cls[0].length - 1;
+    const bodyEnd = classBodyEnd(source, openBrace);
+    const classBody = source.slice(openBrace + 1, bodyEnd);
+
+    function pushJoined(
+      methods: string[],
+      methodPaths: string[],
+      annIndexInBody: number,
+    ) {
+      const absIndex = openBrace + 1 + annIndexInBody;
+      for (const cp of classPaths) {
+        for (const mp of methodPaths) {
+          const path = joinJavaSpringPath(cp, mp);
+          for (const method of methods) {
+            routes.push({
+              method: method.toUpperCase(),
+              path,
+              line: lineAt(source, absIndex),
+              name: `spring_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+              index: absIndex,
+            });
+          }
+        }
+      }
+    }
+
+    SPRING_VERB_MAPPING_ANN_RE.lastIndex = 0;
+    let verbAnn: RegExpExecArray | null;
+    while ((verbAnn = SPRING_VERB_MAPPING_ANN_RE.exec(classBody)) !== null) {
+      const method = (verbAnn[1] ?? "Get").toUpperCase();
+      const methodPaths = springMappingPathsFromArgs(verbAnn[2]);
+      pushJoined([method], methodPaths, verbAnn.index);
+    }
+
+    SPRING_REQUEST_MAPPING_ANN_RE.lastIndex = 0;
+    let reqAnn: RegExpExecArray | null;
+    while ((reqAnn = SPRING_REQUEST_MAPPING_ANN_RE.exec(classBody)) !== null) {
+      const methods = springRequestMethodsFromArgs(reqAnn[1]);
+      // No RequestMethod.* → leave as honest hole (Spring defaults to all verbs).
+      if (methods.length === 0) continue;
+      const methodPaths = springMappingPathsFromArgs(reqAnn[1]);
+      pushJoined(methods, methodPaths, reqAnn.index);
+    }
+  }
+  return routes;
+}
+
 export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[] {
   const routes: HubNativeRoute[] = [];
   const seen = new Set<string>();
@@ -391,11 +531,20 @@ export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[
     push(r.method, r.path, r.index ?? 0, `handler_${routes.length}`);
   }
 
-  for (const re of [SPRING_VERB_RE]) {
-    re.lastIndex = 0;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(source)) !== null) {
-      push(m[1] ?? "GET", m[2] ?? "/", m.index, `handler_${routes.length}`);
+  const springMvcRoutes = parseJavaSpringMvcRoutes(source);
+  for (const r of springMvcRoutes) {
+    push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
+  }
+
+  // Flat @*Mapping fallback when no @RestController/@Controller class peel ran
+  // (avoids double-counting unprefixed paths when class @RequestMapping joined).
+  if (springMvcRoutes.length === 0) {
+    for (const re of [SPRING_VERB_RE]) {
+      re.lastIndex = 0;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(source)) !== null) {
+        push(m[1] ?? "GET", m[2] ?? "/", m.index, `handler_${routes.length}`);
+      }
     }
   }
 

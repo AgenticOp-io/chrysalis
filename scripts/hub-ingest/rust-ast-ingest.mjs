@@ -1,10 +1,10 @@
 /**
- * Rust hub ingest — Actix Web macros (+ Axum `.route` + Poem `.at` + Salvo
- * `Router::with_path`/`.path`+`.get(handler)` + Rocket `#[get]`/`.mount`)
- * deepened for D6448-ST cwl-api flagship: brace-bounded handler bodies,
- * serde_json::json! (+ path/query refs), HttpResponse status+json, scalar
- * returns (hub-flagship-rust). Prefer this over thin pattern-route-lift for
- * flagship depth.
+ * Rust hub ingest — Actix Web macros (+ `web::scope` nest join G10068) + Axum
+ * `.route` + Poem `.at` + Salvo `Router::with_path`/`.path`+`.get(handler)` +
+ * Rocket `#[get]`/`.mount`) deepened for D6448-ST cwl-api flagship:
+ * brace-bounded handler bodies, serde_json::json! (+ path/query refs),
+ * HttpResponse status+json, scalar returns (hub-flagship-rust). Prefer this
+ * over thin pattern-route-lift for flagship depth.
  */
 import { parseRustRoutes } from "./pattern-route-parsers.mjs";
 import {
@@ -253,8 +253,17 @@ export function extractRustHandlerBody(source, fromIndex) {
     return extractRustNamedHandlerBody(source, namedM[1]);
   };
 
-  if (looksLikeAxumRoute || looksLikeSalvoMethod) return tryAxumClosure() ?? tryAxumNamed();
-  return tryFn() ?? tryAxumClosure() ?? tryAxumNamed();
+  /** Actix: `.route("/x", web::get().to(handler))` (G10068). */
+  const tryActixToNamed = () => {
+    const namedM = slice.match(/\.\s*to\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/);
+    if (!namedM) return null;
+    return extractRustNamedHandlerBody(source, namedM[1]);
+  };
+
+  if (looksLikeAxumRoute || looksLikeSalvoMethod) {
+    return tryAxumClosure() ?? tryAxumNamed() ?? tryActixToNamed();
+  }
+  return tryFn() ?? tryAxumClosure() ?? tryAxumNamed() ?? tryActixToNamed();
 }
 
 /**

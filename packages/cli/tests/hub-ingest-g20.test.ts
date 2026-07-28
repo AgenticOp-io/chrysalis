@@ -438,6 +438,48 @@ test("java AST lifts Jooby routes 20/20 hole-free (G10046)", async () => {
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
+test("java AST lifts Spring class+method @RequestMapping peels 20/20 hole-free (G10071)", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const { joinJavaSpringPath, springMappingPathsFromArgs, springRequestMethodsFromArgs } =
+    await import(resolve(ROOT, "packages/hub-native-bridge/dist/java.js"));
+  expect(joinJavaSpringPath("/api", "/health")).toBe("/api/health");
+  expect(springMappingPathsFromArgs('{"/health", "/items"}')).toEqual(["/health", "/items"]);
+  expect(springRequestMethodsFromArgs("value = \"/ping\", method = RequestMethod.GET")).toEqual([
+    "GET",
+  ]);
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-spring-requestmapping/src/HubController.java"),
+    "utf8",
+  );
+  expect(source).toContain('@RequestMapping("/api")');
+  expect(source).toContain("RequestMethod.GET");
+  expect(source).toContain('{"/health", "/items"}');
+  const routes = parseJavaRoutes(source, "HubController.java");
+  expect(routes.length).toBe(20);
+  const keys = routes.map((r) => `${r.method} ${r.path}`);
+  expect(keys).toContain("GET /api/health");
+  expect(keys).toContain("GET /api/items");
+  expect(keys).toContain("GET /api/ping");
+  expect(keys).toContain("POST /api/echo");
+  expect(keys).toContain("GET /api/items/{id}");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-spring-rm" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubController.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("csharp AST lifts Carter ICarterModule Map* 20/20 via Minimal API peels (G10041)", async () => {
   const { parseCsharpRoutes, liftCsharpFileToWebir } = await import(
     resolve(ROOT, "scripts/hub-ingest/csharp-ast-ingest.mjs")
@@ -543,6 +585,34 @@ test("go AST finds gin routes", async () => {
   const wr = webir.webRequest.builders(builder);
   liftGoFileToWebir({ webir, builder, wr, source, file: "main.go", language: "go" });
   expect(builder.finish().roots.length).toBe(2);
+});
+
+test("go AST peels Gin Group prefixes 20/20 hole-free (G10066)", async () => {
+  const { parseGoRoutes, detectGoWebDialect, liftGoFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/go-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-gin-group/main.go"), "utf8");
+  expect(detectGoWebDialect(source)).toBe("gin");
+  const routes = parseGoRoutes(source);
+  expect(routes.length).toBe(20);
+  const keys = new Set(routes.map((r: { method: string; path: string }) => `${r.method} ${r.path}`));
+  expect(keys.has("GET /api/items/:id")).toBe(true);
+  expect(keys.has("GET /meta")).toBe(true);
+  expect(keys.has("GET /items/:id")).toBe(false);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-gin-group" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftGoFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.go",
+    language: "go",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
 test("go AST lifts Fiber dialect 20/20 hole-free (G10017)", async () => {
@@ -667,6 +737,42 @@ test("rust AST resolves Rocket mount + Json/Status peels (G10011)", async () => 
 
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-rocket" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftRustFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.rs",
+    language: "rust",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("rust AST resolves Actix web::scope nest + .route.to peels (G10068)", async () => {
+  const { parseRustRoutes, collectActixScopePrefixes, joinAxumNestPath } = await import(
+    resolve(ROOT, "scripts/hub-ingest/pattern-route-parsers.mjs")
+  );
+  const { liftRustFileToWebir } = await import(resolve(ROOT, "scripts/hub-ingest/rust-ast-ingest.mjs"));
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-actix-scope/src/main.rs"), "utf8");
+  const scopes = collectActixScopePrefixes(source);
+  expect(scopes.byHandler.get("get_item")).toBe("/items");
+  expect(scopes.byHandler.get("patch_item")).toBe("/items");
+  expect(joinAxumNestPath("/items", "")).toBe("/items");
+  expect(joinAxumNestPath("/items", "/{id}")).toBe("/items/{id}");
+  const routes = parseRustRoutes(source)
+    .map((r) => `${r.method} ${r.path}`)
+    .sort();
+  expect(routes).toContain("GET /items");
+  expect(routes).toContain("GET /items/{id}");
+  expect(routes).toContain("PATCH /items/{id}");
+  expect(routes).toContain("GET /health");
+  expect(routes.length).toBe(20);
+
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-actix-scope" });
   const wr = webir.webRequest.builders(builder);
   const r = liftRustFileToWebir({
     webir,

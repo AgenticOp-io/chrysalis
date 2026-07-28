@@ -6,6 +6,7 @@ Secondary TypeScript/JS dialect fixture: **Fastify** `fastify.get|post|…` +
 - Same 20-route express-depth API surface as `hub-flagship-express` / `hub-flagship-typescript`.
 - Express remains the JS/TS D6448-ST flagship; this is a secondary dialect smoke (not ST).
 - Prove hole-free lift: `pnpm run hub:fastify-smoke`
+- Encapsulated `register(…, { prefix })` path join: `hub-gold-fastify-prefix` / `hub:fastify-prefix-smoke` (G10072).
 - Distinct from `@chrysalis/emit-fastify` (WebIR → Fastify emit target).
 - No invented product UI (**D6447**).
 
@@ -13,7 +14,7 @@ Secondary TypeScript/JS dialect fixture: **Fastify** `fastify.get|post|…` +
 
 | Shape | Hole / status |
 | --- | --- |
-| `fastify.register` / plugins / encapsulate trees | not lowered |
+| `fastify.register` without literal `prefix` / opaque plugins / hooks | not lowered (literal prefix peel: G10072) |
 | `addHook` / `onRequest` / schema validators | not lowered |
 | Non-literal path templates | not lowered |
 | Destructure-only `request` alias without `req`/`request` bag peels beyond bags | `request.*` bags supported; other shapes hole |

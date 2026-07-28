@@ -1,0 +1,29 @@
+{
+  "kind": "chrysalis.hub.flask-blueprint-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-28T04:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent cross-file Blueprint modules, register_blueprint url_prefix overrides, nested Blueprint trees, or Blueprint middleware/before_request. Lift same-file Blueprint('name', …) + @bp.route/@bp.get|post|… with literal url_prefix join that appear, else leave honest holes. Flask @app.* remains Python D6448-ST. Flask Blueprint secondary peel G10070 closed when hub:flask-blueprint-smoke ok.",
+  "fixture": "fixtures/hub-gold-flask-blueprint",
+  "smoke": "pnpm run hub:flask-blueprint-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:python",
+  "supported": [
+    "same-file Blueprint('name', …, url_prefix='/lit')",
+    "@bp.get|post|put|patch|delete(\"/path\")",
+    "@bp.route(\"/path\", methods=[…])",
+    "literal url_prefix + path join",
+    "<id> / <int:id> Flask-style path templates",
+    "request.args.get + (body, status) tuple returns"
+  ],
+  "honestHoles": [
+    { "shape": "Cross-file Blueprint modules / imported bp", "reason": "hub-python:flask-blueprint-cross-file" },
+    { "shape": "register_blueprint(..., url_prefix=) override / non-literal prefix", "reason": "hub-python:flask-blueprint-register-prefix" },
+    { "shape": "Nested Blueprint / Blueprint.register_blueprint", "reason": "hub-python:flask-blueprint-nested" },
+    { "shape": "Blueprint before_request / after_request / middleware", "reason": "hub-python:flask-blueprint-middleware" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Flask Python ST + FastAPI/Starlette/Litestar/Falcon/Quart/Bottle/Sanic/aiohttp/Tornado + Flask Blueprint secondary peels closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

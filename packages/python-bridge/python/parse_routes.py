@@ -1,7 +1,8 @@
 """Extract Flask/Quart/Sanic/FastAPI/Starlette/Litestar/Falcon/Bottle/aiohttp/Tornado-style route metadata from Python source (hub ingest).
 
 Quart is the Flask-async twin: reuse Flask @app.get|post|route / <id> / request.args /
-status-tuple peels (AsyncFunctionDef already covered). No middleware/websocket/Blueprint invent.
+status-tuple peels (AsyncFunctionDef already covered). No middleware/websocket invent.
+Same-file Flask Blueprint + @bp.route/@bp.get + literal url_prefix join (G10070) — cross-file = hole.
 
 Sanic: @app.get|post|route, <id> / <id:str> paths, request.args.get, json()/text() (+ status=).
 No middleware/Blueprint/listener invent.
@@ -532,7 +533,55 @@ def route_rows(http_name, path, keywords, line):
     return rows
 
 
-def route_from_decorator(dec):
+def is_blueprint_call(node):
+    """Blueprint(...) / flask.Blueprint(...) constructor call."""
+    if not isinstance(node, ast.Call):
+        return False
+    f = node.func
+    if isinstance(f, ast.Name) and f.id == "Blueprint":
+        return True
+    if isinstance(f, ast.Attribute) and f.attr == "Blueprint":
+        return True
+    return False
+
+
+def blueprint_url_prefix(call):
+    """Literal url_prefix= from Blueprint(...) — None when non-literal (no invent)."""
+    for k in call.keywords:
+        if k.arg != "url_prefix":
+            continue
+        p = const_str(k.value)
+        return p  # None when non-literal
+    return ""
+
+
+def join_url_prefix(prefix, path):
+    """Join Blueprint url_prefix + route path (Flask-style slash normalize)."""
+    if not prefix:
+        return path
+    if not path:
+        return prefix
+    if prefix.endswith("/") and path.startswith("/"):
+        return prefix[:-1] + path
+    if not prefix.endswith("/") and not path.startswith("/"):
+        return prefix + "/" + path
+    return prefix + path
+
+
+def collect_blueprint_prefixes(tree):
+    """Same-file `bp = Blueprint('name', …, url_prefix='/x')` → {bp: '/x'|''|None}."""
+    out = {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name) or not is_blueprint_call(node.value):
+            continue
+        out[target.id] = blueprint_url_prefix(node.value)
+    return out
+
+
+def route_from_decorator(dec, blueprint_prefixes=None):
     if not isinstance(dec, ast.Call):
         return None
     func = dec.func
@@ -540,16 +589,23 @@ def route_from_decorator(dec):
     path = path_from_call(dec)
     if not path:
         return None
+    blueprint_prefixes = blueprint_prefixes or {}
     # Litestar/Bottle: @get("/path") / @route(..., method='POST') / @post(..., status_code=201).
     if isinstance(func, ast.Name) and func.id in HTTP_NAMES:
         return route_rows(func.id, path, dec.keywords, line)
-    # Flask/Quart/FastAPI/Starlette: @app.get / @app.route / @router.post
+    # Flask/Quart/FastAPI/Starlette: @app.get / @app.route / @router.post / @bp.get
     if not isinstance(func, ast.Attribute):
         return None
     if func.attr not in HTTP_NAMES:
         return None
     recv = func.value
-    if isinstance(recv, ast.Name) and recv.id not in RECEIVERS:
+    if not isinstance(recv, ast.Name):
+        return None
+    if recv.id in blueprint_prefixes:
+        prefix = blueprint_prefixes[recv.id]
+        if prefix:  # truthy literal; None/"" → path as written (no invent)
+            path = join_url_prefix(prefix, path)
+    elif recv.id not in RECEIVERS:
         return None
     return route_rows(func.attr, path, dec.keywords, line)
 
@@ -778,13 +834,15 @@ def fill_return_fields(row, ret, func_args, path_params):
         row["returnKind"] = type(ret).__name__
 
 
+blueprint_prefixes = collect_blueprint_prefixes(tree)
+
 routes = []
 for node in tree.body:
     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
         continue
     func_args = [a.arg for a in node.args.args]
     for dec in node.decorator_list:
-        found = route_from_decorator(dec)
+        found = route_from_decorator(dec, blueprint_prefixes)
         if found:
             for r in found:
                 path_params = set(path_param_names(r["path"]))

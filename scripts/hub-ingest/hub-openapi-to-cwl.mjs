@@ -7,10 +7,12 @@
  * rather than only from lifted source. The route SURFACE (method, path, path +
  * query + header + cookie params with defaults, flat requestBody example keys as
  * `body` params, success status, response content-type, IDENT-safe response
- * `headers` with example/schema.default) is imported faithfully; a concrete
- * `return` body is emitted only when the contract supplies a flat response
- * **example** — otherwise the body is an honest hole
- * (`openapi:no-response-body`), never an invented value (DESIGN non-negotiable #6).
+ * `headers` with example/schema.default) is imported faithfully. Query params
+ * take `schema.default` first, else parameter/`schema` `example` when present
+ * (G10074) — never invent when both are absent. A concrete `return` body is
+ * emitted only when the contract supplies a flat response **example** —
+ * otherwise the body is an honest hole (`openapi:no-response-body`), never an
+ * invented value (DESIGN non-negotiable #6).
  *
  * The CWL is rendered through the shared `renderCwlRoutes` so the importer carries
  * the same status/param/default/content-type/object-body fidelity as the export and
@@ -90,6 +92,31 @@ export function openApiHeaderConcreteValue(headerObj) {
 }
 
 /**
+ * Concrete scalar default for an OpenAPI Parameter Object (G10074).
+ * Prefer `schema.default`; if missing, use parameter/`schema` `example` /
+ * `examples` — never invent when all are absent.
+ * @param {object} prm
+ */
+export function openApiParamConcreteDefault(prm) {
+  if (!prm || typeof prm !== "object") return undefined;
+  const schema = prm.schema && typeof prm.schema === "object" ? prm.schema : null;
+  if (schema && schema.default !== undefined && isScalarHeaderValue(schema.default)) {
+    return schema.default;
+  }
+  if (prm.example !== undefined && isScalarHeaderValue(prm.example)) return prm.example;
+  if (prm.examples && typeof prm.examples === "object") {
+    const first = Object.values(prm.examples)[0];
+    if (first && typeof first === "object" && "value" in first && isScalarHeaderValue(first.value)) {
+      return first.value;
+    }
+  }
+  if (schema && schema.example !== undefined && isScalarHeaderValue(schema.example)) {
+    return schema.example;
+  }
+  return undefined;
+}
+
+/**
  * IDENT-safe OpenAPI response `headers` → CWL response-header fields when a
  * concrete example / schema.default is present (G10054). Hyphenated / bare
  * schema-only names stay unwired — no invent.
@@ -145,8 +172,15 @@ export function operationToCwlRoute(method, openapiPath, op, sharedParams = []) 
         name,
         source: prm.in === "header" ? "header" : prm.in === "cookie" ? "cookie" : "query",
       };
-      const def = prm.schema && typeof prm.schema === "object" ? prm.schema.default : undefined;
-      if (def !== undefined && (def === null || ["string", "number", "boolean"].includes(typeof def))) {
+      // Query: schema.default, else example (G10074). Header/cookie: schema.default only
+      // (G10002 / G10031) — do not invent when absent.
+      const def =
+        prm.in === "query"
+          ? openApiParamConcreteDefault(prm)
+          : prm.schema && typeof prm.schema === "object"
+            ? prm.schema.default
+            : undefined;
+      if (def !== undefined && isScalarHeaderValue(def)) {
         entry.default = def;
       }
       params.push(entry);

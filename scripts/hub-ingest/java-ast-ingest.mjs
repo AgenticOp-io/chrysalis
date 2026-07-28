@@ -2,6 +2,9 @@
  * Java hub ingest — route parse via @chrysalis/hub-native-bridge; lift in-process.
  * Deepened for D6448-ST cwl-api flagship: brace-bounded method bodies, ResponseEntity
  * status+body, Map.of JSON, string/scalar/path-ref returns (hub-flagship-java).
+ * Spring MVC deepen (G10071 / D6533): class @RequestMapping prefix join + method
+ * @GetMapping|… + method-level @RequestMapping(method=RequestMethod.*) + multi-path
+ * arrays (one route per path). DI/filters stay holes.
  * Secondary: JAX-RS (G10012) + Micronaut @Controller/@Get|Post|… (G10020) peels —
  * HttpResponse.ok/status/created/accepted + @PathVariable/@QueryValue (no DI/filter invent).
  * Quarkus (G10034) reuses JAX-RS peels (jakarta.ws.rs.*); no CDI/RESTEasy/Panache invent.
@@ -266,13 +269,35 @@ function parseJavaHttpStatus(statusRaw) {
  * @param {number} fromIndex — start of @*Mapping line
  */
 export function extractJavaMethodBody(source, fromIndex) {
-  const slice = source.slice(fromIndex, fromIndex + 8000);
-  const methodM = slice.match(
-    /(?:@\w+(?:\([^)]*\))?\s*)*public\s+[\w<>,.\s?]+\s+\w+\s*\(([\s\S]*?)\)\s*\{/,
-  );
+  const sliceEnd = Math.min(source.length, fromIndex + 8000);
+  let i = fromIndex;
+  // Skip whitespace + annotations including balanced @Name({…}) / @Name(a=b) args.
+  while (i < sliceEnd) {
+    while (i < sliceEnd && /\s/.test(source[i] ?? "")) i += 1;
+    if (source[i] !== "@") break;
+    i += 1;
+    while (i < sliceEnd && /[\w.]/.test(source[i] ?? "")) i += 1;
+    while (i < sliceEnd && /\s/.test(source[i] ?? "")) i += 1;
+    if (source[i] === "(") {
+      let depth = 0;
+      for (; i < sliceEnd; i += 1) {
+        const ch = source[i];
+        if (ch === "(") depth += 1;
+        else if (ch === ")") {
+          depth -= 1;
+          if (depth === 0) {
+            i += 1;
+            break;
+          }
+        }
+      }
+    }
+  }
+  const rest = source.slice(i, sliceEnd);
+  const methodM = rest.match(/^public\s+[\w<>,.\s?]+\s+\w+\s*\(([\s\S]*?)\)\s*\{/);
   if (!methodM) return null;
-  const openInSlice = (methodM.index ?? 0) + methodM[0].lastIndexOf("{");
-  const absOpen = fromIndex + openInSlice;
+  const openInRest = (methodM.index ?? 0) + methodM[0].lastIndexOf("{");
+  const absOpen = i + openInRest;
   const bal = extractBalancedBraceInner(source, absOpen);
   if (!bal) return null;
   return {

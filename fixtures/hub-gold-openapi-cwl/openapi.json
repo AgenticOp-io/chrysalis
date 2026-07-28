@@ -103,7 +103,10 @@
       "get": {
         "operationId": "search",
         "parameters": [
-          { "name": "q", "in": "query", "schema": { "type": "string", "default": "" } }
+          { "name": "q", "in": "query", "schema": { "type": "string", "default": "" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "example": 10 } },
+          { "name": "bare", "in": "query", "schema": { "type": "string" } },
+          { "name": "x-sort", "in": "query", "schema": { "type": "string", "example": "asc" } }
         ],
         "responses": {
           "200": {

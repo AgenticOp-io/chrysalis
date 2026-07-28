@@ -1,9 +1,10 @@
 /**
- * Swift hub ingest — Vapor `app.*` + Hummingbird `router.*` routes (G10016 secondary):
- * multi-segment PathComponents / single-string paths, brace-bounded closures,
- * dict returns (+ path/query refs), encodeResponse / Response(status:) status,
- * scalar returns (hub-flagship-swift / hub-gold-hummingbird). Prefer this over
- * thin pattern-route-lift.
+ * Swift hub ingest — Vapor `app.*` + literal `grouped("prefix")` path join (G10069) +
+ * Hummingbird `router.*` routes (G10016 secondary): multi-segment PathComponents /
+ * single-string paths, brace-bounded closures, dict returns (+ path/query refs),
+ * encodeResponse / Response(status:) status, scalar returns
+ * (hub-flagship-swift / hub-gold-vapor-group / hub-gold-hummingbird). Prefer this
+ * over thin pattern-route-lift. Fluent/Leaf/middleware-grouped stay honest holes.
  */
 import { parseSwiftRoutes, normalizeHummingbirdRoutePath } from "./pattern-route-parsers.mjs";
 import {

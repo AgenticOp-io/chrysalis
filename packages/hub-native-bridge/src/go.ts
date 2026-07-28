@@ -1,9 +1,9 @@
 import type { HubNativeRoute } from "./schema.js";
 
 // Gin / Echo / Buffalo (G10055): uppercase .GET|POST|…
-const GO_GIN_VERB_RE = /\b([a-zA-Z_][\w]*)\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]+)"/g;
+const GO_GIN_VERB_RE = /\b([a-zA-Z_][\w]*)\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]*)"/g;
 // Chi / Fiber (G10017) / Iris (G10038) / Beego (G10045) / Martini (G10056): PascalCase .Get|Post|… — dialect via detectGoWebDialect
-const GO_CHI_VERB_RE = /\b([a-zA-Z_][\w]*)\.(Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"([^"]+)"/g;
+const GO_CHI_VERB_RE = /\b([a-zA-Z_][\w]*)\.(Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"([^"]*)"/g;
 const GO_HANDLE_FUNC_RE = /\bhttp\.HandleFunc\s*\(\s*"([^"]+)"/g;
 // Gorilla mux (G10018): r.HandleFunc("/path", h).Methods("GET") or Methods(http.MethodGet)
 const GO_MUX_HANDLE_FUNC_RE =
@@ -11,6 +11,18 @@ const GO_MUX_HANDLE_FUNC_RE =
 // Go 1.22+ net/http ServeMux (G10030): mux.HandleFunc("GET /path", h) or http.HandleFunc("GET /path", h)
 const GO_SERVEMUX_HANDLE_FUNC_RE =
   /\b(?:http|[a-zA-Z_][\w]*)\.HandleFunc\s*\(\s*"(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\/[^"]*)"\s*,\s*[A-Za-z_][\w]*\s*\)/g;
+
+/**
+ * Gin literal Group assign (G10066 / D6528): `g := r.Group("/prefix")` or nested `g2 := g.Group("/sub")`.
+ * Captures middleware/extra args after the path so those bindings stay opaque (no invent).
+ * Non-literal first arg (`Group(p)`) also marks the lhs opaque.
+ */
+const GO_GIN_GROUP_ASSIGN_RE =
+  /\b([a-zA-Z_][\w]*)\s*:?=\s*([a-zA-Z_][\w]*)\.Group\s*\(\s*(?:"([^"]*)"|([^),\s"]+))\s*(?:,([\s\S]*?))?\)/g;
+
+/** Chained `r.Group("/prefix").GET("/path", …)` — literal path only, no middleware args. */
+const GO_GIN_GROUP_CHAIN_VERB_RE =
+  /\b([a-zA-Z_][\w]*)\.Group\s*\(\s*"([^"]*)"\s*\)\s*\.\s*(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]*)"/g;
 
 const GO_HTTP_METHOD_CONST: Record<string, string> = {
   MethodGet: "GET",
@@ -67,6 +79,76 @@ export function isGoServeMuxSource(source: string): boolean {
 }
 
 /**
+ * Join Gin `Group` prefix + verb path (G10066). Empty relative keeps the prefix.
+ */
+export function joinGoGroupPath(prefix: string, methodPath: string): string {
+  const p = String(prefix ?? "")
+    .trim()
+    .replace(/\/+$/, "");
+  const m = String(methodPath ?? "").trim();
+  if (!m || m === "/") {
+    if (!p) return "/";
+    return p.startsWith("/") ? p : `/${p}`;
+  }
+  const rel = m.replace(/^\/+/, "");
+  if (!p) return m.startsWith("/") ? m : `/${rel}`;
+  const base = p.startsWith("/") ? p : `/${p}`;
+  return `${base}/${rel}`.replace(/\/{2,}/g, "/");
+}
+
+/**
+ * Collect literal Gin `Group("/prefix")` bindings → receiver prefix map.
+ * Non-literal Group / Group with middleware args → opaque (skip verb peels on that var).
+ */
+export function collectGoGinGroupPrefixes(source: string): {
+  prefixes: Map<string, string>;
+  opaque: Set<string>;
+} {
+  const prefixes = new Map<string, string>();
+  const opaque = new Set<string>();
+  // Source order so nested `inner := outer.Group(...)` sees outer's prefix.
+  const matches: Array<{
+    index: number;
+    lhs: string;
+    recv: string;
+    litPath: string | undefined;
+    nonLit: string | undefined;
+    extra: string | undefined;
+  }> = [];
+  GO_GIN_GROUP_ASSIGN_RE.lastIndex = 0;
+  let gm: RegExpExecArray | null;
+  while ((gm = GO_GIN_GROUP_ASSIGN_RE.exec(source)) !== null) {
+    matches.push({
+      index: gm.index,
+      lhs: gm[1] ?? "",
+      recv: gm[2] ?? "",
+      litPath: gm[3],
+      nonLit: gm[4],
+      extra: gm[5],
+    });
+  }
+  matches.sort((a, b) => a.index - b.index);
+  for (const m of matches) {
+    if (!m.lhs) continue;
+    if (m.nonLit !== undefined || (m.extra !== undefined && m.extra.trim() !== "")) {
+      opaque.add(m.lhs);
+      prefixes.delete(m.lhs);
+      continue;
+    }
+    if (opaque.has(m.recv)) {
+      opaque.add(m.lhs);
+      prefixes.delete(m.lhs);
+      continue;
+    }
+    const parent = prefixes.get(m.recv) ?? "";
+    const joined = joinGoGroupPath(parent, m.litPath ?? "");
+    prefixes.set(m.lhs, joined);
+    opaque.delete(m.lhs);
+  }
+  return { prefixes, opaque };
+}
+
+/**
  * Peel `"METHOD /path"` ServeMux Go 1.22+ pattern strings.
  * @returns `[method, path]` or null
  */
@@ -100,6 +182,7 @@ export function parseGoMuxMethods(raw: string | undefined): string[] {
 export function parseGoRoutes(source: string): HubNativeRoute[] {
   const routes: HubNativeRoute[] = [];
   const seen = new Set<string>();
+  const { prefixes, opaque } = collectGoGinGroupPrefixes(source);
 
   function push(method: string, path: string, index: number) {
     const key = `${method.toUpperCase()}:${path}`;
@@ -113,15 +196,39 @@ export function parseGoRoutes(source: string): HubNativeRoute[] {
     });
   }
 
-  GO_GIN_VERB_RE.lastIndex = 0;
+  function resolvePath(recv: string, rawPath: string): string | null {
+    if (opaque.has(recv)) return null;
+    const prefix = prefixes.get(recv);
+    if (prefix !== undefined) return joinGoGroupPath(prefix, rawPath);
+    return rawPath === "" ? "/" : rawPath;
+  }
+
+  // Chained Group("/p").GET("/q") before plain verbs (G10066).
+  GO_GIN_GROUP_CHAIN_VERB_RE.lastIndex = 0;
   let m: RegExpExecArray | null;
+  while ((m = GO_GIN_GROUP_CHAIN_VERB_RE.exec(source)) !== null) {
+    const recv = m[1] ?? "";
+    if (opaque.has(recv)) continue;
+    const parent = prefixes.get(recv) ?? "";
+    const groupPath = joinGoGroupPath(parent, m[2] ?? "");
+    const path = joinGoGroupPath(groupPath, m[4] ?? "");
+    push(m[3] ?? "GET", path, m.index);
+  }
+
+  GO_GIN_VERB_RE.lastIndex = 0;
   while ((m = GO_GIN_VERB_RE.exec(source)) !== null) {
-    push(m[2] ?? "GET", m[3] ?? "/", m.index);
+    const recv = m[1] ?? "";
+    const path = resolvePath(recv, m[3] ?? "/");
+    if (path === null) continue;
+    push(m[2] ?? "GET", path, m.index);
   }
 
   GO_CHI_VERB_RE.lastIndex = 0;
   while ((m = GO_CHI_VERB_RE.exec(source)) !== null) {
-    push(m[2] ?? "Get", m[3] ?? "/", m.index);
+    const recv = m[1] ?? "";
+    const path = resolvePath(recv, m[3] ?? "/");
+    if (path === null) continue;
+    push(m[2] ?? "Get", path, m.index);
   }
 
   // ServeMux Go 1.22+ method-in-pattern before Gorilla HandleFunc+Methods (G10030).

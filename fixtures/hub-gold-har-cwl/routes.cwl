@@ -46,7 +46,7 @@ handler GET_items_1 {
 handler GET_search {
   effects: none;
   content-type "application/json";
-  query q;
+  query q = "widget";
   return { q: "widget" };
 }
 

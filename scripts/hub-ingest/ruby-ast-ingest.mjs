@@ -9,6 +9,8 @@
  * `route_param` / `present` / `params do` stay honest holes.
  * G10062 / D6524: flat Padrino `Padrino::Application` + `get "/path" do`
  * likewise reuses Sinatra peels; symbol controllers / mount stay honest holes.
+ * G10073 / D6535: Sinatra `namespace '/api' do` literal path join (deepens ST;
+ * Rack map / conditions / invented base.path stay honest holes).
  */
 import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
 import {

@@ -56,6 +56,8 @@ handler search {
   effects: none;
   content-type "application/json";
   query q = "";
+  query limit = 10;
+  query bare;
   return { q: "widget" };
 }
 

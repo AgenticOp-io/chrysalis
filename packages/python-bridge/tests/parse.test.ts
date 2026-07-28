@@ -123,6 +123,23 @@ def create_item():
     expect(item?.returnKind).toBe("tree");
   });
 
+  it.skipIf(!pythonAvailable())("parses hub-gold-flask-blueprint url_prefix join", async () => {
+    const fixture = join(repoRoot, "fixtures/hub-gold-flask-blueprint/app.py");
+    const result = await parseFile(fixture);
+    expect(result.routes.length).toBe(20);
+    const health = result.routes.find((r) => r.path === "/api/health");
+    expect(health?.method).toBe("GET");
+    expect(health?.returnKind).toBe("tree");
+    const search = result.routes.find((r) => r.path === "/api/search");
+    expect(search?.returnKind).toBe("tree");
+    const create = result.routes.find((r) => r.method === "POST" && r.path === "/api/items");
+    expect(create?.statusCode).toBe(201);
+    const item = result.routes.find((r) => r.method === "GET" && r.path === "/api/items/<id>");
+    expect(item?.returnKind).toBe("tree");
+    const stats = result.routes.find((r) => r.path === "/api/stats");
+    expect(stats?.method).toBe("GET");
+  });
+
   it("parse script file exists", () => {
     const script = join(dirname(fileURLToPath(import.meta.url)), "..", "python", "parse_routes.py");
     const src = readFileSync(script, "utf8");

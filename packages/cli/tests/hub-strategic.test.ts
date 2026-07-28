@@ -261,7 +261,13 @@ describe("strategic plan deliverables", () => {
     expect(del?.status).toBe(204);
     expect(del?.params).toEqual([{ name: "id", source: "path" }]);
     const search = converted.find((r: any) => r.method === "GET" && r.path === "/search");
-    expect(search?.params).toEqual([{ name: "q", source: "query", default: "" }]);
+    expect(search?.params).toEqual([
+      { name: "q", source: "query", default: "" },
+      { name: "limit", source: "query", default: 10 },
+      { name: "bare", source: "query" },
+    ]);
+    // Hyphenated OpenAPI query names skipped (IDENT-safe only).
+    expect(search?.params?.some((p: any) => p.name === "x-sort")).toBe(false);
     // No response example -> honest hole, never an invented body.
     const raw = converted.find((r: any) => r.path === "/raw");
     expect(raw?.holeReason).toBe("openapi:no-response-body");
@@ -279,6 +285,9 @@ describe("strategic plan deliverables", () => {
     expect(cwlText).toMatch(/@route DELETE "\/items\/:id"/);
     expect(cwlText).toMatch(/status 201;/);
     expect(cwlText).toMatch(/query q = "";/);
+    expect(cwlText).toMatch(/query limit = 10;/);
+    expect(cwlText).toMatch(/query bare;/);
+    expect(cwlText).not.toMatch(/query x-sort/);
     expect(cwlText).toMatch(/header authorization;/);
     expect(cwlText).toMatch(/cookie session;/);
     expect(cwlText).toMatch(/body name = "widget";/);
@@ -326,7 +335,7 @@ describe("strategic plan deliverables", () => {
       { name: "name", source: "body", default: "widget" },
     ]);
     expect(converted.find((r: any) => r.method === "GET" && r.path === "/search")?.params).toEqual([
-      { name: "q", source: "query" },
+      { name: "q", source: "query", default: "widget" },
     ]);
     // No cookies[] on health → no invented cookie params.
     expect(converted.find((r: any) => r.method === "GET" && r.path === "/health")?.params ?? []).toEqual([]);
@@ -336,6 +345,8 @@ describe("strategic plan deliverables", () => {
     expect(report.holeFree).toBe(6);
     expect(report.withStatus).toBe(2);
     const cwlText = readFileSync(report.cwlPath, "utf8");
+    expect(cwlText).toMatch(/query q = "widget";/);
+    expect(cwlText).not.toMatch(/query x-sort/);
     expect(cwlText).toMatch(/cookie session;/);
     expect(cwlText).not.toMatch(/cookie x-trace/);
 
@@ -444,6 +455,66 @@ describe("strategic plan deliverables", () => {
     expect(harCwl).toMatch(/response-header location = "\/items\/1";/);
     expect(harCwl).not.toMatch(/response-header content-length/);
     expect(harCwl).not.toMatch(/response-header x-trace/);
+  });
+
+  test("OpenAPI/HAR query-param peel deepen (G10074)", async () => {
+    const { openApiDocToCwlRoutes, openApiParamConcreteDefault } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-openapi-to-cwl.mjs")
+    );
+    const { harDocToCwlRoutes, parseHarQueryParams, parseHarRequestUrl } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-har-to-cwl.mjs")
+    );
+
+    const openapiDoc = JSON.parse(
+      readFileSync(resolve(ROOT, "fixtures/hub-gold-openapi-cwl/openapi.json"), "utf8"),
+    );
+    const openapiRoutes = openApiDocToCwlRoutes(openapiDoc);
+    const search = openapiRoutes.find((r: any) => r.method === "GET" && r.path === "/search");
+    expect(search?.params?.filter((p: any) => p.source === "query")).toEqual([
+      { name: "q", source: "query", default: "" },
+      { name: "limit", source: "query", default: 10 },
+      { name: "bare", source: "query" },
+    ]);
+    // Hyphenated query names skipped; schema-only stays name-only (no invent default).
+    expect(search?.params?.some((p: any) => p.name === "x-sort")).toBe(false);
+    expect(openApiParamConcreteDefault({ schema: { type: "string" } })).toBeUndefined();
+    expect(openApiParamConcreteDefault({ schema: { type: "string", example: "hi" } })).toBe("hi");
+    expect(openApiParamConcreteDefault({ example: "top", schema: { type: "string", default: "def" } })).toBe(
+      "def",
+    );
+    // Routes without `in: query` never invent query params.
+    const health = openapiRoutes.find((r: any) => r.path === "/health");
+    expect(health?.params?.some((p: any) => p.source === "query") ?? false).toBe(false);
+    const raw = openapiRoutes.find((r: any) => r.path === "/raw");
+    expect(raw?.holeReason).toBe("openapi:no-response-body");
+    expect(raw?.params?.some((p: any) => p.source === "query") ?? false).toBe(false);
+
+    const harDoc = JSON.parse(readFileSync(resolve(ROOT, "fixtures/hub-gold-har-cwl/mini.har.json"), "utf8"));
+    const harRoutes = harDocToCwlRoutes(harDoc);
+    const harSearch = harRoutes.find((r: any) => r.method === "GET" && r.path === "/search");
+    expect(harSearch?.params?.filter((p: any) => p.source === "query")).toEqual([
+      { name: "q", source: "query", default: "widget" },
+    ]);
+    expect(harSearch?.params?.some((p: any) => p.name === "x-sort")).toBe(false);
+    // Absent/empty queryString → no invent; hyphenated skipped; value-less → name only.
+    expect(parseHarQueryParams([])).toEqual([]);
+    expect(parseHarQueryParams(undefined as any)).toEqual([]);
+    expect(parseHarQueryParams([{ name: "x-sort", value: "asc" }])).toEqual([]);
+    expect(parseHarQueryParams([{ name: "q" }])).toEqual([{ name: "q", source: "query" }]);
+    const qsOnly = parseHarRequestUrl({
+      url: "https://api.example/search",
+      queryString: [{ name: "q", value: "from-qs" }],
+    });
+    expect(parseHarQueryParams(qsOnly.query)).toEqual([{ name: "q", source: "query", default: "from-qs" }]);
+
+    const openapiCwl = readFileSync(resolve(ROOT, "fixtures/hub-gold-openapi-cwl/routes.cwl"), "utf8");
+    expect(openapiCwl).toMatch(/query q = "";/);
+    expect(openapiCwl).toMatch(/query limit = 10;/);
+    expect(openapiCwl).toMatch(/query bare;/);
+    expect(openapiCwl).not.toMatch(/query x-sort/);
+    const harCwl = readFileSync(resolve(ROOT, "fixtures/hub-gold-har-cwl/routes.cwl"), "utf8");
+    expect(harCwl).toMatch(/query q = "widget";/);
+    expect(harCwl).not.toMatch(/query x-sort/);
   });
 
   test("hub-translate prefers OpenAPI import for migration.cwl (G140)", async () => {

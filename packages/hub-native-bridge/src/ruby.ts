@@ -5,6 +5,13 @@ const RUBY_SINATRA_VERB_RE =
   /\b(get|post|put|patch|delete|head|options)\s+['"]([^'"]+)['"]/gi;
 
 /**
+ * Sinatra-contrib / Padrino-compatible: `namespace '/api' do` / `namespace :api do`
+ * (G10073 / D6535). Optional parens. Conditions / helpers stay unwired.
+ */
+const RUBY_NAMESPACE_OPEN_RE =
+  /\bnamespace\s*\(?\s*(?:['"]([^'"]+)['"]|:([A-Za-z_]\w*))\s*\)?\s+do\b/gi;
+
+/**
  * Roda shallow: `r.get "path" do`, `r.get "items", String do |id|`,
  * `r.get "items", :id do |id|` (G10022). Nested `r.on` stays unwired.
  */
@@ -22,6 +29,24 @@ export function isRubyRodaSource(source: string): boolean {
     /\bclass\s+\w+\s*<\s*Roda\b/.test(source) ||
     /\broute\s+do\s*\|/.test(source)
   );
+}
+
+/**
+ * Join Sinatra `namespace '/api'` prefix + route path (same rules as JAX-RS / ASP.NET).
+ * G10073 / D6535.
+ */
+export function joinSinatraNamespacePath(prefix: string, methodPath: string): string {
+  const p = String(prefix ?? "")
+    .trim()
+    .replace(/\/+$/, "");
+  const m = String(methodPath ?? "")
+    .trim()
+    .replace(/^\/+/, "");
+  if (!p && !m) return "/";
+  if (!p) return m.startsWith("/") ? m : `/${m}`;
+  const base = p.startsWith("/") ? p : `/${p}`;
+  if (!m) return base || "/";
+  return `${base}/${m}`.replace(/\/{2,}/g, "/");
 }
 
 /**
@@ -57,6 +82,88 @@ export function buildRodaPath(matcherSrc: string, blockParams?: string): string 
   return `/${segments.join("/")}`;
 }
 
+/**
+ * Find the `end` that closes the `do` whose body starts at `bodyStart` (depth 1).
+ * Tracks nested `do`/`end` only (gold handlers are do/end shaped).
+ */
+function findMatchingRubyEnd(source: string, bodyStart: number): number {
+  let depth = 1;
+  const tokenRe = /\bdo\b|\bend\b/gi;
+  tokenRe.lastIndex = bodyStart;
+  let m: RegExpExecArray | null;
+  while ((m = tokenRe.exec(source)) !== null) {
+    if (/^do$/i.test(m[0])) depth += 1;
+    else {
+      depth -= 1;
+      if (depth === 0) return m.index;
+    }
+  }
+  return -1;
+}
+
+/**
+ * True when `at` is at do/end depth 0 relative to `from` (no open `do` in between).
+ */
+function isRubyDoDepthZero(source: string, from: number, at: number): boolean {
+  let depth = 0;
+  const tokenRe = /\bdo\b|\bend\b/gi;
+  tokenRe.lastIndex = from;
+  let m: RegExpExecArray | null;
+  while ((m = tokenRe.exec(source)) !== null) {
+    if (m.index >= at) break;
+    if (/^do$/i.test(m[0])) depth += 1;
+    else depth -= 1;
+  }
+  return depth === 0;
+}
+
+type NamespaceRegion = { start: number; end: number; prefix: string };
+
+/**
+ * Collect Sinatra `namespace … do … end` body ranges with joined prefixes (nested OK).
+ */
+function collectSinatraNamespaceRegions(source: string): NamespaceRegion[] {
+  const regions: NamespaceRegion[] = [];
+
+  function walk(from: number, to: number, outerPrefix: string) {
+    RUBY_NAMESPACE_OPEN_RE.lastIndex = from;
+    let m: RegExpExecArray | null;
+    while ((m = RUBY_NAMESPACE_OPEN_RE.exec(source)) !== null) {
+      if (m.index >= to) break;
+      if (!isRubyDoDepthZero(source, from, m.index)) continue;
+      const raw = (m[1] ?? m[2] ?? "").trim();
+      if (!raw) continue;
+      const bodyStart = m.index + m[0].length;
+      if (bodyStart > to) break;
+      const bodyEnd = findMatchingRubyEnd(source, bodyStart);
+      if (bodyEnd < 0 || bodyEnd > to) {
+        RUBY_NAMESPACE_OPEN_RE.lastIndex = bodyStart;
+        continue;
+      }
+      const nsPath = raw.startsWith("/") ? raw : `/${raw}`;
+      const prefix = joinSinatraNamespacePath(outerPrefix, nsPath);
+      regions.push({ start: bodyStart, end: bodyEnd, prefix });
+      walk(bodyStart, bodyEnd, prefix);
+      RUBY_NAMESPACE_OPEN_RE.lastIndex = bodyEnd;
+    }
+  }
+
+  walk(0, source.length, "");
+  return regions;
+}
+
+function namespacePrefixAt(regions: NamespaceRegion[], index: number): string {
+  let best = "";
+  let bestLen = -1;
+  for (const r of regions) {
+    if (index >= r.start && index < r.end && r.prefix.length >= bestLen) {
+      best = r.prefix;
+      bestLen = r.prefix.length;
+    }
+  }
+  return best;
+}
+
 export function parseRubyRoutes(source: string): HubNativeRoute[] {
   const routes: HubNativeRoute[] = [];
   const seen = new Set<string>();
@@ -85,10 +192,13 @@ export function parseRubyRoutes(source: string): HubNativeRoute[] {
     return routes;
   }
 
+  const nsRegions = collectSinatraNamespaceRegions(source);
   RUBY_SINATRA_VERB_RE.lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = RUBY_SINATRA_VERB_RE.exec(source)) !== null) {
-    push((m[1] ?? "get").toUpperCase(), m[2] ?? "/", m.index);
+    const prefix = namespacePrefixAt(nsRegions, m.index);
+    const path = joinSinatraNamespacePath(prefix, m[2] ?? "/");
+    push((m[1] ?? "get").toUpperCase(), path, m.index);
   }
   return routes;
 }

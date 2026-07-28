@@ -44,9 +44,9 @@ function pushRoute(routes, source, method, path, index, seen) {
 /** Actix/Axum `.route` + Poem `.at` (G10029) — same `get|post|…(handler)` arg shape. */
 const RUST_ROUTE_RE =
   /\.(?:route|at)\s*\(\s*"([^"]+)"\s*,\s*(?:web::)?(get|post|put|patch|delete|head|options)\s*\(/gi;
-const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]/g;
+const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]*)"\s*\)\]/g;
 const RUST_MACRO_FN_RE =
-  /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]\s*(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gi;
+  /#\[(\w+)\s*\(\s*"([^"]*)"\s*\)\]\s*(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gi;
 /**
  * Salvo secondary (G10037): `Router::with_path("…").get(handler)` / `.path("…").get(handler)`
  * with optional chained `.post|.put|…` on the same path. Nested `.push` path join = honest hole
@@ -72,7 +72,12 @@ const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+
 /** http4k secondary (G10024): `"path" bind Method.GET to` / `"path" bind GET to` / `bindMethod`. */
 const HTTP4K_ROUTE_RE =
   /"([^"]+)"\s+bind(?:Method)?\s+(?:Method\.)?(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+to\b/gi;
-const SWIFT_VAPOR_VERB_HEAD_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(/gi;
+/** Vapor `app.get|post|…` or group-receiver `api.get|post|…` (G10069). */
+const SWIFT_VAPOR_VERB_HEAD_RE =
+  /\b([A-Za-z_][A-Za-z0-9_]*)\.(get|post|put|patch|delete|head)\s*\(/gi;
+/** `app.grouped("prefix").get|post|…` chained form (literal PathComponents only). */
+const SWIFT_VAPOR_GROUPED_CHAIN_RE =
+  /\b([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*grouped\s*\(/gi;
 /** Hummingbird secondary dialect — single-string path: `router.get("/items/:id")`. */
 const HUMMINGBIRD_ROUTE_RE =
   /\brouter\.(get|post|put|patch|delete|head)\s*\(\s*(['"])([^'"]+)\2/gi;
@@ -316,6 +321,7 @@ function braceRelSafe(after) {
 
 /**
  * Join Vapor PathComponent string args: `"items", ":id"` → `/items/:id`.
+ * Returns null when any arg is non-literal (middleware / dynamic PathComponent).
  * @param {string} parenInner
  */
 export function vaporPathFromComponentArgs(parenInner) {
@@ -325,7 +331,7 @@ export function vaporPathFromComponentArgs(parenInner) {
   while (i < inner.length) {
     while (i < inner.length && /[\s,]/.test(inner[i])) i += 1;
     if (i >= inner.length) break;
-    if (inner[i] !== '"') break;
+    if (inner[i] !== '"') return null;
     i += 1;
     let s = "";
     while (i < inner.length && inner[i] !== '"') {
@@ -343,11 +349,66 @@ export function vaporPathFromComponentArgs(parenInner) {
   if (segs.length === 0) return null;
   if (segs.length === 1) {
     const only = segs[0];
+    if (only === "") return "/";
     if (only.startsWith("/")) return only;
     if (only.includes("/")) return only.startsWith("/") ? only : `/${only}`;
     return `/${only}`;
   }
   return `/${segs.map((s) => s.replace(/^\//, "")).join("/")}`;
+}
+
+/**
+ * Join Vapor `grouped("prefix")` with an inner route path (G10069 / D6531).
+ * @param {string} prefix
+ * @param {string} path
+ */
+export function joinVaporGroupPath(prefix, path) {
+  return joinAxumNestPath(prefix, path);
+}
+
+/**
+ * Collect `let name = receiver.grouped("a", "b")` bindings → name → joined prefix.
+ * Literal PathComponent string args only; middleware-only / non-literal grouped = skip.
+ * Nested `let items = api.grouped("items")` resolves once parent is known.
+ * @param {string} source
+ * @returns {Map<string, string>}
+ */
+export function collectVaporGroupPrefixes(source) {
+  /** @type {{ name: string, receiver: string, pathSeg: string }[]} */
+  const bindings = [];
+  const bindRe =
+    /\b(?:let|var)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*grouped\s*\(/gi;
+  let m;
+  while ((m = bindRe.exec(source)) !== null) {
+    const name = m[1];
+    const receiver = m[2];
+    const openIdx = m.index + m[0].length - 1;
+    const bal = extractBalancedParenInner(source, openIdx);
+    if (!bal) continue;
+    const pathSeg = vaporPathFromComponentArgs(bal.inner);
+    if (!pathSeg) continue;
+    bindings.push({ name, receiver, pathSeg });
+  }
+  /** @type {Map<string, string>} */
+  const byName = new Map();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const b of bindings) {
+      if (byName.has(b.name)) continue;
+      let parentPrefix = "";
+      if (b.receiver === "app") {
+        parentPrefix = "";
+      } else if (byName.has(b.receiver)) {
+        parentPrefix = byName.get(b.receiver) ?? "";
+      } else {
+        continue;
+      }
+      byName.set(b.name, joinVaporGroupPath(parentPrefix, b.pathSeg));
+      changed = true;
+    }
+  }
+  return byName;
 }
 
 export function parseKotlinRoutes(source, file) {
@@ -429,6 +490,63 @@ export function collectRocketMountPrefixes(source) {
 }
 
 /**
+ * End index of an Actix `web::scope("…")` method chain (`.service` / `.route` / …).
+ * Stops at the first non-chained token (comma, `;`, `)`, etc.).
+ * @param {string} source
+ * @param {number} start — index immediately after `web::scope("…")`
+ */
+function actixScopeChainEnd(source, start) {
+  let i = start;
+  while (i < source.length) {
+    while (i < source.length && /\s/.test(source[i])) i += 1;
+    if (source[i] !== ".") break;
+    const rest = source.slice(i);
+    const callM = /^\.\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(/.exec(rest);
+    if (!callM) break;
+    const parenOpen = i + callM[0].length - 1;
+    const bal = extractBalancedParenInner(source, parenOpen);
+    if (!bal) break;
+    i = bal.end + 1;
+  }
+  return i;
+}
+
+/**
+ * Actix `web::scope("/prefix").service(handler)` / `.route("…", web::get().to(…))`
+ * → handler fn → prefix + chain ranges for `.route` path join (G10068 / D6530).
+ * Nested scopes / `.guard` / `web::resource` remain honest holes when not cheap.
+ * @param {string} source
+ * @returns {{ byHandler: Map<string, string>, ranges: Array<{ prefix: string, start: number, end: number }> }}
+ */
+export function collectActixScopePrefixes(source) {
+  /** @type {Map<string, string>} */
+  const byHandler = new Map();
+  /** @type {{ prefix: string, start: number, end: number }[]} */
+  const ranges = [];
+  const scopeRe = /web::scope\s*\(\s*"([^"]+)"\s*\)/gi;
+  let m;
+  while ((m = scopeRe.exec(source)) !== null) {
+    const prefix = m[1];
+    const chainStart = m.index + m[0].length;
+    const chainEnd = actixScopeChainEnd(source, chainStart);
+    ranges.push({ prefix, start: m.index, end: chainEnd });
+    const slice = source.slice(chainStart, chainEnd);
+    const svcRe = /\.\s*service\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/g;
+    let sm;
+    while ((sm = svcRe.exec(slice)) !== null) {
+      byHandler.set(sm[1], prefix);
+    }
+    // `.route("…", web::get().to(handler))` — map handler for any leftover macro join.
+    const toRe = /\.\s*to\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/g;
+    let tm;
+    while ((tm = toRe.exec(slice)) !== null) {
+      byHandler.set(tm[1], prefix);
+    }
+  }
+  return { byHandler, ranges };
+}
+
+/**
  * Brace body range for `fn name(…) { … }` (first match).
  * @param {string} source
  * @param {string} fnName
@@ -497,6 +615,7 @@ export function parseRustRoutes(source) {
   };
   const nestByFn = collectAxumNestPrefixes(source);
   const mountByHandler = collectRocketMountPrefixes(source);
+  const actixScope = collectActixScopePrefixes(source);
   /** @type {{ name: string, prefix: string, start: number, end: number }[]} */
   const nestRanges = [];
   for (const [name, prefix] of nestByFn) {
@@ -513,6 +632,12 @@ export function parseRustRoutes(source) {
         break;
       }
     }
+    for (const sr of actixScope.ranges) {
+      if (m.index >= sr.start && m.index <= sr.end) {
+        path = joinAxumNestPath(sr.prefix, path);
+        break;
+      }
+    }
     pushRoute(routes, source, m[2], path, m.index, seen);
   }
   RUST_MACRO_FN_RE.lastIndex = 0;
@@ -520,7 +645,7 @@ export function parseRustRoutes(source) {
     const verb = methodMap[m[1].toLowerCase()];
     if (!verb) continue;
     let path = m[2];
-    const mountPrefix = mountByHandler.get(m[3]);
+    const mountPrefix = mountByHandler.get(m[3]) ?? actixScope.byHandler.get(m[3]);
     if (mountPrefix) path = joinAxumNestPath(mountPrefix, path);
     pushRoute(routes, source, verb, path, m.index, seen);
   }
@@ -649,15 +774,52 @@ export function normalizeHummingbirdRoutePath(path) {
 export function parseSwiftRoutes(source) {
   const routes = [];
   const seen = new Set();
+  const groupPrefixes = collectVaporGroupPrefixes(source);
   let m;
-  SWIFT_VAPOR_VERB_HEAD_RE.lastIndex = 0;
-  while ((m = SWIFT_VAPOR_VERB_HEAD_RE.exec(source)) !== null) {
+  // Chained `app.grouped("api").get("health")` / `api.grouped("v1").get(...)` first so
+  // the later verb-head scan does not also claim the trailing `.get(` under a bare receiver.
+  SWIFT_VAPOR_GROUPED_CHAIN_RE.lastIndex = 0;
+  while ((m = SWIFT_VAPOR_GROUPED_CHAIN_RE.exec(source)) !== null) {
+    const recv = m[1];
+    if (recv === "router") continue;
     const openIdx = m.index + m[0].length - 1;
     const bal = extractBalancedParenInner(source, openIdx);
     if (!bal) continue;
-    const path = vaporPathFromComponentArgs(bal.inner);
+    const groupSeg = vaporPathFromComponentArgs(bal.inner);
+    if (!groupSeg) continue;
+    let parentPrefix = "";
+    if (recv === "app") parentPrefix = "";
+    else if (groupPrefixes.has(recv)) parentPrefix = groupPrefixes.get(recv) ?? "";
+    else continue;
+    const prefix = joinVaporGroupPath(parentPrefix, groupSeg);
+    let i = bal.end + 1;
+    while (i < source.length && /\s/.test(source[i])) i += 1;
+    if (source[i] !== ".") continue;
+    i += 1;
+    while (i < source.length && /\s/.test(source[i])) i += 1;
+    const verbM = /^(get|post|put|patch|delete|head)\s*\(/i.exec(source.slice(i));
+    if (!verbM) continue;
+    const verbOpen = i + verbM[0].length - 1;
+    const verbBal = extractBalancedParenInner(source, verbOpen);
+    if (!verbBal) continue;
+    const innerPath = vaporPathFromComponentArgs(verbBal.inner);
+    if (!innerPath) continue;
+    pushRoute(routes, source, verbM[1], joinVaporGroupPath(prefix, innerPath), m.index, seen);
+  }
+  SWIFT_VAPOR_VERB_HEAD_RE.lastIndex = 0;
+  while ((m = SWIFT_VAPOR_VERB_HEAD_RE.exec(source)) !== null) {
+    const recv = m[1];
+    if (recv === "router") continue;
+    if (recv !== "app" && !groupPrefixes.has(recv)) continue;
+    const openIdx = m.index + m[0].length - 1;
+    const bal = extractBalancedParenInner(source, openIdx);
+    if (!bal) continue;
+    let path = vaporPathFromComponentArgs(bal.inner);
     if (!path) continue;
-    pushRoute(routes, source, m[1], path, m.index, seen);
+    if (groupPrefixes.has(recv)) {
+      path = joinVaporGroupPath(groupPrefixes.get(recv) ?? "", path);
+    }
+    pushRoute(routes, source, m[2], path, m.index, seen);
   }
   HUMMINGBIRD_ROUTE_RE.lastIndex = 0;
   while ((m = HUMMINGBIRD_ROUTE_RE.exec(source)) !== null) {

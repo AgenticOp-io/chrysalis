@@ -9,10 +9,14 @@
  * - Empty / next-only pass-through function middleware (Nitro-parallel; no onion runtime)
  * - Elysia empty lifecycle shells → `js.passthrough` (plugin `.use` is not pass-through-shaped)
  * - itty empty `router.all('*', () => {})` → `js.passthrough` (no-return continues; no invent `next`)
+ * - Express Router mounts (`app.use('/prefix', router)`) skipped — path-joined in JS ingest (G10067)
  * - Everything else keeps a middleware root with an honest hole body
  */
 import { simple as walkSimple } from "acorn-walk";
-import { parseJavaScriptSource } from "./javascript-ast-ingest.mjs";
+import {
+  isExpressRouterMountUseCall,
+  parseJavaScriptSource,
+} from "./javascript-ast-ingest.mjs";
 
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
 /** Restify `pre` + shared `use` (Express/Koa/Polka/Fastify/Hono). */
@@ -146,13 +150,15 @@ const PRESET_KINDS = new Set([
  * @param {import('@chrysalis/webir').ModuleBuilder} opts.builder
  * @param {ReturnType<import('@chrysalis/webir').webRequest.builders>} opts.wr
  * @param {typeof import('@chrysalis/webir')} opts.webir
+ * @param {Set<string>} [opts.skipRouterMounts] Express Router binding names — pure mounts skipped (G10067)
  */
 export function liftExpressMiddlewareToWebir(opts) {
-  const { ast, file, builder, wr, webir } = opts;
+  const { ast, file, builder, wr, webir, skipRouterMounts } = opts;
   const data = webir.dataDialect.builders(builder);
   const uses = [];
   walkSimple(ast, {
     CallExpression(node) {
+      if (skipRouterMounts && isExpressRouterMountUseCall(node, skipRouterMounts)) return;
       const u = extractUseFromCall(node);
       if (u) uses.push(u);
     },

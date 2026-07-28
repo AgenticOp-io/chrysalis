@@ -2,8 +2,29 @@
   "kind": "chrysalis.hub.go-secondary-dialect-honest-holes",
   "schemaVersion": 1,
   "generatedAt": "2026-07-28T04:00:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Buffalo Use/Group/Resource, Martini Use/Group/Map/binding, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
+  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Buffalo Use/Group/Resource, Martini Use/Group/Map/binding, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, Revel conf/routes+Controller.Action (G10065 skip), or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST (literal Group prefix peel closed G10066).",
   "dialects": {
+    "gin": {
+      "fixture": "fixtures/hub-flagship-go",
+      "groupFixture": "fixtures/hub-gold-gin-group",
+      "smoke": "pnpm run hub:go-flagship",
+      "groupSmoke": "pnpm run hub:gin-group-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "r.GET|POST|PUT|PATCH|DELETE literal paths (flat flagship)",
+        "Literal r.Group(\"/prefix\") + nested g.GET|POST path join (G10066)",
+        "Chained r.Group(\"/prefix\").GET(\"/path\", …) literal-only",
+        "Same-file named handlers (func name(c *gin.Context))",
+        "c.Param / c.DefaultQuery / c.Query peels",
+        "c.JSON / c.String / gin.H"
+      ],
+      "honestHoles": [
+        { "shape": "Non-literal Group(prefixVar)", "reason": "hub-gin:group-non-literal" },
+        { "shape": "Group(\"/p\", middleware…) args", "reason": "hub-gin:group-middleware" },
+        { "shape": "g.Use / middleware on Group", "reason": "hub-gin:group-use" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    },
     "chi": {
       "fixture": "fixtures/hub-gold-chi",
       "smoke": "pnpm run hub:chi-smoke",
@@ -183,9 +204,16 @@
       ]
     }
   },
-  "absentOrigins": [],
+  "absentOrigins": [
+    {
+      "dialect": "revel",
+      "gate": "G10065",
+      "catalog": "fixtures/ci/revel-honest-skip.json",
+      "note": "conf/routes + Controller.Action Rails-class — not cheap; no D6527; Gin ST + functional Go secondaries stay green"
+    }
+  ],
   "nextTargets": [
-    "Go secondary set: Gin ST + Chi + Echo + Fiber + Iris + Beego + Buffalo + Martini + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10045/G10055/G10056/G10018/G10030)",
+    "Go secondary set: Gin ST (+ Group peel G10066) + Chi + Echo + Fiber + Iris + Beego + Buffalo + Martini + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10045/G10055/G10056/G10018/G10030); Revel skipped (G10065)",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

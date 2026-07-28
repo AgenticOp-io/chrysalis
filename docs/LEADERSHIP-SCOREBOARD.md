@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-27 (G10058 Drogon C++ secondary skipped)
+**As of:** 2026-07-27 (G10067 Express Router mount peel)
 
 ---
 
@@ -40,6 +40,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | --- | --- | --- | --- |
 | G9947–d | Nuxt Nitro/h3 | `hub:vue-nitro-smoke` | 20 routes + nested `server/middleware` presets |
 | G9948 | Fastify TS | `hub:fastify-smoke` | 20/20; ≠ emit-fastify |
+| G10072 | Fastify register prefix | `hub:fastify-prefix-smoke` | `register(…, { prefix })` path join; no plugin invent |
 | G9949–b | Axum Rust | `hub:axum-smoke` | named handlers + nest |
 | G10011 | Rocket Rust | `hub:rocket-smoke` | `#[get]` + `.mount` + `<id>`/`?<q>` |
 | G10029 | Poem Rust | `hub:poem-smoke` | `.at` + named get|post + `.nest` + `:id` |
@@ -58,6 +59,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10064 | itty empty `router.all` | `hub:itty-smoke` v2 | empty/`next`-only `router.all` → `js.passthrough` (G10044 parallel); itty has no onion `next` |
 | G10063 | Cloudflare Workers fetch export | `hub:cf-workers-smoke` | secondary to Express/TS ST; itty remains Workers router; KV/D1/env = honest holes |
 | G10059 | AdonisJS TS ORIGIN | `hub:adonis-smoke` | secondary to Express/TS ST; Lucid/IoC/controller refs = honest holes |
+| G10067 | Express Router mount | `hub:express-router-smoke` | `app.use('/prefix', router)` + literal path join; complex use = honest hole (G9959 empty OK) |
 | — | Scala Http4s | `hub:scala-http4s-smoke` | secondary to Akka ST |
 | G10051 | Scala Finch | `hub:finch-smoke` | secondary to Akka ST; Http4s remains first Scala secondary; coproduct/lenses/bootstrap = honest holes |
 | — | cpp-httplib | `hub:cpp-httplib-smoke` | secondary to Crow ST |
@@ -70,6 +72,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10033 | Sanic | `hub:sanic-smoke` | secondary to Flask Python ST; middleware/Blueprint/listeners/WebSocket = honest holes |
 | G10039 | aiohttp | `hub:aiohttp-smoke` | secondary to Flask Python ST; middleware/subapp/View/WebSocket = honest holes |
 | G10040 | Tornado | `hub:tornado-smoke` | secondary to Flask Python ST; mixins/UIModule/async/url() = honest holes |
+| G10070 | Flask Blueprint | `hub:flask-blueprint-smoke` | secondary peel on Flask ST; same-file Blueprint + literal url_prefix join; cross-file/nested/middleware = honest holes |
 | G10012 | JAX-RS Java | `hub:jaxrs-smoke` | secondary to Spring Java ST; CDI/filters/providers/Application = honest holes |
 | G10020 | Micronaut Java | `hub:micronaut-smoke` | secondary to Spring Java ST; DI/filters/Application = honest holes |
 | G10034 | Quarkus JAX-RS Java | `hub:quarkus-smoke` | secondary to Spring Java ST; **reuses G10012 JAX-RS peels**; CDI/RESTEasy filters/Panache = honest holes |
@@ -82,6 +85,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10004 | Ktor Kotlin | `hub:ktor-smoke` | secondary to Spring Kotlin ST; auth/plugins/nested routing = honest holes |
 | G10024 | http4k Kotlin | `hub:http4k-smoke` | secondary to Spring Kotlin ST; filters/lenses/nested/server = honest holes |
 | G10009 | Go Chi | `hub:chi-smoke` | secondary to Gin Go ST; middleware/Mount = honest holes |
+| G10066 | Gin Group prefix peel | `hub:gin-group-smoke` | Gin ST deepen; literal `Group("/p")` path join; non-literal/mw/`Use` = honest holes |
 | G10010 | Go Echo | `hub:echo-smoke` | secondary to Gin Go ST; middleware/Group/binders = honest holes |
 | G10017 | Go Fiber | `hub:fiber-smoke` | secondary to Gin Go ST; middleware/Group/BodyParser = honest holes |
 | G10038 | Go Iris | `hub:iris-smoke` | secondary to Gin Go ST; middleware/Party/ReadJSON = honest holes |
@@ -114,12 +118,14 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Nancy FX C# secondary | skipped (G10050) | `fixtures/ci/nancy-honest-skip.json` — not Minimal API Map* peel-reuse |
 | Tapir Scala secondary | skipped (G10057) | `fixtures/ci/tapir-honest-skip.json` — fluent combinator/codec DSL not Ok peel-reuse; no D6519 |
 | Drogon C++ secondary | skipped (G10058) | `fixtures/ci/drogon-honest-skip.json` — registerHandler/callback not Crow/httplib peel-reuse; no D6520 |
+| Revel Go secondary | skipped (G10065) | `fixtures/ci/revel-honest-skip.json` — conf/routes + Controller.Action Rails-class; no Gin/Buffalo/Martini peel-reuse; no D6527 |
 | Roda nested `r.on` / plugins / auth | honest holes | G10022 route surface only (`roda-honest-holes.json`) |
 | Grape `route_param` / `present` / `params do` / namespace | honest holes | G10032 flat route surface only (`grape-honest-holes.json`) |
 | Padrino symbol controllers / mount / filters | honest holes | G10062 flat Sinatra-compatible surface only (`padrino-honest-holes.json`) |
 | Flutter / Dart Frog / Pipeline | honest holes | Dart ST is Shelf + same-file named handlers (G10007) |
 | FastAPI Depends / OAuth / middleware | honest holes | G10003 route surface only |
 | Go Chi middleware / Mount / non-literal paths | honest holes | G10009 route surface only |
+| Gin non-literal Group / Group middleware / `g.Use` | honest holes | G10066 literal Group path join only |
 | Go Echo middleware / Group / binders | honest holes | G10010 route surface only |
 | Go Fiber middleware / Group / BodyParser | honest holes | G10017 route surface only |
 | Go Iris middleware / Party / ReadJSON | honest holes | G10038 route surface only |
@@ -133,6 +139,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Sanic middleware / Blueprint / listeners / WebSocket | honest holes | G10033 `@app.get|route` + `<id>`/`<id:str>` + args + json/text surface only (`sanic-honest-holes.json`) |
 | aiohttp middleware / subapp / View / WebSocket | honest holes | G10039 `web.get|post` + match_info + query + json_response/Response surface only (`aiohttp-honest-holes.json`) |
 | Tornado mixins / UIModule / async / url() wrappers | honest holes | G10040 Application table + class get|post surface only (`tornado-honest-holes.json`) |
+| Flask Blueprint cross-file / nested / register override / middleware | honest holes | G10070 same-file Blueprint + literal url_prefix join only (`flask-blueprint-honest-holes.json`) |
 | Slim `$app->add` PSR-15 / `$app->group` / named class handlers | honest holes | G10028 route surface only (`slim-honest-holes.json`) |
 | Lumen `$router->group` / middleware / cross-file controllers / `Route::resource` | honest holes | G10049 route surface only (`lumen-honest-holes.json`) |
 | JAX-RS CDI / filters / providers / Application | honest holes | G10012 resource route surface only |
@@ -153,7 +160,9 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 ## Cheap deepen queue
 
-**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049–G10051, G10053, G10057–G10058 skip, G10059, G10063):**
+**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049–G10051, G10053, G10057–G10058 skip, G10059, G10063, G10065 skip, G10066):**
+- G10066 — Gin Group prefix peel (`hub:gin-group-smoke` 20/20); literal `r.Group("/prefix")` + nested/chained path join; non-literal/mw/`Use` = honest holes; flat Gin ST unchanged
+- G10065 — Revel Go secondary **skipped** (`fixtures/ci/revel-honest-skip.json`); `conf/routes` + `Controller.Action`/`revel.Result` Rails-class; not Gin/Buffalo/Martini peel-reuse; real routes lifted 0; no D6527; Gin ST + Go secondaries green
 - G10063 — Cloudflare Workers fetch-export ORIGIN secondary dialect (`hub:cf-workers-smoke` 20/20); `export default { async fetch }` + method/pathname switch + `Response.json`/`{ status }` + `url.searchParams`; itty remains Workers router; KV/D1/env = honest holes
 - G10059 — AdonisJS ORIGIN secondary dialect (`hub:adonis-smoke` 20/20); `Route.get|post` + `:id` + `request.param` / `request.qs()` + `response.json`/`response.status`; Lucid/IoC/controller refs = honest holes
 - G10058 — Drogon C++ secondary **skipped** (`fixtures/ci/drogon-honest-skip.json`); `registerHandler`+callback/Json::Value not Crow/httplib peel-reuse; probe 0 routes; no D6520; Crow ST + cpp-httplib green
@@ -166,6 +175,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 - G10064 — itty empty/`next`-only `router.all` → `js.passthrough` (`hub:itty-smoke` v2; parallel G10044/G9959); itty has no onion `next`
 - G10039 — aiohttp Python secondary dialect (`hub:aiohttp-smoke` 20/20); `web.Application` + `web.get|post|…` + `{id}`/`{id:\d+}` + `request.match_info` + `request.query.get` + `web.json_response`/`web.Response`
 - G10040 — Tornado Python secondary dialect (`hub:tornado-smoke` 20/20); `Application([(r"/path", Handler), …])` + class `get|post|…` + `(?P<id>[^/]+)`/`([^/]+)` + `self.get_argument` + `self.write`/`self.set_status`
+- G10070 — Flask Blueprint secondary peel (`hub:flask-blueprint-smoke` 20/20); same-file `Blueprint` + `@bp.get|post|route` + literal `url_prefix` join
 - G10042 — Helidon MP JAX-RS Java secondary dialect (`hub:helidon-smoke` 20/20); `jakarta.ws.rs` resource surface **via G10012 JAX-RS peels** (no Helidon CDI/MP invent)
 - G10041 — Carter C# secondary dialect (`hub:carter-smoke` 20/20); `ICarterModule` + `AddRoutes` + `app.Map*` **via Minimal API peels** (no MapCarter/DI invent)
 - G10035 — Javalin Java secondary dialect (`hub:javalin-smoke` 20/20); `Javalin.create` + `app.get|post|…` + `{id}` + `ctx.pathParam`/`ctx.queryParam` + `ctx.status(n).json`/`ctx.json`/`ctx.result`
@@ -175,6 +185,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 - G10002 — OpenAPI `in: header` + flat `requestBody` body params; HAR IDENT-safe headers + flat `postData` body params; `CKPRST.cpy` + `CKPRSTCP` structural COPY resolve; NestJS ST board/claim sync; CONTRIBUTING private-corpora clause
 - G10031 — OpenAPI `in: cookie` + HAR `cookies[]` IDENT-safe → CWL `cookie` (absent/hyphenated stay unwired; `/raw` + BMS holes)
 - G10054 — OpenAPI response `headers` + HAR response headers IDENT-safe → CWL `response-header` when example/default present (hop-by-hop skip; `/raw` stays hole)
+- G10074 — OpenAPI `in: query` `schema.default` else `example` + HAR IDENT-safe `queryString` → CWL `query` (observed value when present; absent/hyphenated/schema-only stay name-only or unwired)
 - G10003 — FastAPI secondary dialect (`hub:fastapi-smoke` 20/20); `{id}` paths + `query_params` + `status_code=` decorator peel
 - G10013 — Starlette secondary dialect (`hub:starlette-smoke` 20/20); `@app.route` + `{id}` paths + `query_params` + status tuple peel
 - G10021 — Litestar secondary dialect (`hub:litestar-smoke` 20/20); bare `@get|post` + `{id}` paths + `query_params` + `status_code=` decorator peel
@@ -229,7 +240,7 @@ Middleware onion / plugin runtimes are **not** next — they require inventing r
 ## Related
 
 - **Do not invent index:** [`DO-NOT-INVENT.md`](./DO-NOT-INVENT.md)  
-- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `java-secondary-dialect-honest-holes.json`, `csharp-secondary-dialect-honest-holes.json`, `phoenix-controller-honest-skip.json`, `rails-controller-honest-skip.json`, `roda-honest-holes.json`, `grape-honest-holes.json`, `padrino-honest-holes.json`, `quart-honest-holes.json`, `bottle-honest-holes.json`, `tornado-honest-holes.json`, `slim-honest-holes.json`, `lumen-honest-holes.json`, `nancy-honest-skip.json`, `tapir-honest-skip.json`, `drogon-honest-skip.json`
+- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `java-secondary-dialect-honest-holes.json`, `csharp-secondary-dialect-honest-holes.json`, `go-secondary-dialect-honest-holes.json`, `phoenix-controller-honest-skip.json`, `rails-controller-honest-skip.json`, `roda-honest-holes.json`, `grape-honest-holes.json`, `padrino-honest-holes.json`, `quart-honest-holes.json`, `bottle-honest-holes.json`, `tornado-honest-holes.json`, `slim-honest-holes.json`, `lumen-honest-holes.json`, `nancy-honest-skip.json`, `tapir-honest-skip.json`, `drogon-honest-skip.json`, `revel-honest-skip.json`
 - Claims checklist: [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)  
 - Lift expansion gates: [`MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md)  
 - Strategic queue: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12  

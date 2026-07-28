@@ -12,12 +12,14 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | Catalog | Covers |
 | --- | --- |
 | [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN / AdonisJS ORIGIN / CF Workers fetch-export |
-| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Gorilla mux / ServeMux secondaries; Gin ST |
+| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux secondaries; Gin ST (+ Group peel G10066); Revel skipped (G10065) |
+| [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **skipped** (G10065; conf/routes + Controller.Action; no D6527) |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
 | [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails secondary peel **skipped** (G10006; not cheap) |
 | [`fixtures/ci/roda-honest-holes.json`](../fixtures/ci/roda-honest-holes.json) | Roda secondary (G10022); nested `r.on`/plugins = holes |
 | [`fixtures/ci/quart-honest-holes.json`](../fixtures/ci/quart-honest-holes.json) | Quart secondary (G10026); middleware/WebSocket/Blueprint beyond cheap = holes |
+| [`fixtures/ci/flask-blueprint-honest-holes.json`](../fixtures/ci/flask-blueprint-honest-holes.json) | Flask Blueprint secondary peel (G10070); cross-file/nested/register override/middleware = holes |
 | [`fixtures/ci/bottle-honest-holes.json`](../fixtures/ci/bottle-honest-holes.json) | Bottle secondary (G10027); plugins/middleware/templates/mount = holes |
 | [`fixtures/ci/dart-shelf-honest-holes.json`](../fixtures/ci/dart-shelf-honest-holes.json) | Shelf ST; Flutter / Frog / Pipeline |
 | [`fixtures/ci/http4k-honest-holes.json`](../fixtures/ci/http4k-honest-holes.json) | http4k Kotlin secondary; Spring ST; Ktor secondary |
@@ -58,8 +60,10 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Starlette | `Mount`, middleware, ASGI onion, `Route()` table-only | Route surface secondary via `@app.route` (G10013) |
 | Falcon | Hooks, middleware, ASGI onion, sink responders, cross-file resources | Route surface secondary via `add_route` + `on_*` (G10023) |
 | Quart | Middleware/`before_request`, WebSocket/streaming, Blueprint beyond same-file cheap | Route surface secondary via Flask-twin `@app.get|route` (G10026) |
+| Flask Blueprint | Cross-file Blueprint modules, `register_blueprint` url_prefix override, nested Blueprint, Blueprint middleware | Same-file Blueprint + `@bp.get|route` + literal url_prefix join (G10070) |
 | Bottle | Plugins/`install()`, middleware/hooks, templates, multi-app mount, non-literal `method=`/paths | Route surface secondary via `@get|route` + query/params + HTTPResponse (G10027) |
 | Go Chi | Middleware, `Mount`, non-literal paths | Route surface secondary (G10009) |
+| Gin | Non-literal `Group`, `Group("/p", mw…)`, `g.Use` (no invent) | Literal Group path join (G10066); flat ST `hub-flagship-go` |
 | Go Echo | Middleware, `Group` deep nesting, `c.Bind` binders | Route surface secondary (G10010) |
 | Go Fiber | Middleware, `Group` deep nesting, `c.BodyParser` binders | Route surface secondary (G10017) |
 | Go Gorilla mux | Middleware, `PathPrefix`/`Subrouter`, non-literal paths | Route surface secondary (G10018) |
@@ -92,6 +96,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | IBM BMS maps | `DFHAID` / `DFHBMSCA` / `EXTFMAP` copybooks in-tree | COBOL prove — stay unresolved |
 | COBOL behavioral > **61/61** | Real Db2/CICS/VSAM/RANDOM behavior | Paused; no LCB claim |
 | Rails secondary | `routes.rb` + controller cross-file; inline rack lambda peel not cheap | `rails-controller-honest-skip` (G10006) |
+| Revel Go secondary | `conf/routes` + `Controller.Action` / `revel.Result` (Rails-class); no Gin/Buffalo/Martini peel-reuse | `revel-honest-skip` (G10065; no D6527) |
 | Blazor / ERB / Django | Inventory + markup adapters | MULTI-ORIGIN Tier C — plan amendment |
 | JAX-RS CDI / filters / providers / Application | Full CDI container, filter pipeline, `Application` bootstrap | Spring is Java ST; JAX-RS resource routes closed (G10012); CDI/filters/providers = holes |
 | Micronaut DI / filters / Application | `@Singleton`/`@Factory` DI, `HttpServerFilter`, `Application.run` | Spring is Java ST; Micronaut controller routes closed (G10020); DI/filters/Application = holes |

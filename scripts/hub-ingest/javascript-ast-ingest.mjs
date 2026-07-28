@@ -85,16 +85,199 @@ function handlerCallback(node) {
 }
 
 /**
- * @param {import('estree').CallExpression} node
+ * Join Express `app.use('/prefix', router)` mount + `router.get|post('/path')` literals (G10067).
+ * Same slash-normalize as Nest `@Controller` + method path join.
+ * @param {string} prefix
+ * @param {string} methodPath
  */
-function extractRouteFromCall(node) {
+export function joinExpressMountPath(prefix, methodPath) {
+  const p = String(prefix ?? "")
+    .trim()
+    .replace(/\/+$/, "");
+  const m = String(methodPath ?? "")
+    .trim()
+    .replace(/^\/+/, "");
+  if (!p && !m) return "/";
+  if (!p) return m.startsWith("/") ? m : `/${m}`;
+  const base = p.startsWith("/") ? p : `/${p}`;
+  if (!m) return base || "/";
+  return `${base}/${m}`.replace(/\/{2,}/g, "/");
+}
+
+/**
+ * `express.Router()` / `express.Router({…})` only — not bare `Router()` (itty) or Oak `new Router()`.
+ * @param {import('estree').Node | null | undefined} expr
+ */
+function isExpressRouterFactoryCall(expr) {
+  if (expr?.type !== "CallExpression") return false;
+  const callee = expr.callee;
+  if (callee?.type !== "MemberExpression" || callee.computed) return false;
+  return (
+    callee.object?.type === "Identifier" &&
+    callee.object.name === "express" &&
+    callee.property?.type === "Identifier" &&
+    callee.property.name === "Router"
+  );
+}
+
+/**
+ * Named `Router` imported from `express` (not itty-router).
+ * @param {import('estree').Program} ast
+ * @returns {Set<string>}
+ */
+function collectExpressNamedRouterFactories(ast) {
+  const names = new Set();
+  walkSimple(ast, {
+    ImportDeclaration(node) {
+      if (node.source?.type !== "Literal" || node.source.value !== "express") return;
+      for (const spec of node.specifiers ?? []) {
+        if (
+          spec.type === "ImportSpecifier" &&
+          spec.imported?.type === "Identifier" &&
+          spec.imported.name === "Router" &&
+          spec.local?.type === "Identifier"
+        ) {
+          names.add(spec.local.name);
+        }
+      }
+    },
+  });
+  return names;
+}
+
+/**
+ * @param {import('estree').Node | null | undefined} expr
+ * @param {Set<string>} namedFactories
+ */
+function isExpressRouterInit(expr, namedFactories) {
+  if (isExpressRouterFactoryCall(expr)) return true;
+  if (
+    expr?.type === "CallExpression" &&
+    expr.callee?.type === "Identifier" &&
+    namedFactories.has(expr.callee.name)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Bindings from `const r = express.Router()` / `const r = Router()` (express import).
+ * @param {import('estree').Program} ast
+ * @returns {Set<string>}
+ */
+export function collectExpressRouterNames(ast) {
+  const namedFactories = collectExpressNamedRouterFactories(ast);
+  const names = new Set();
+  walkSimple(ast, {
+    VariableDeclarator(node) {
+      if (node.id?.type === "Identifier" && isExpressRouterInit(node.init, namedFactories)) {
+        names.add(node.id.name);
+      }
+    },
+    AssignmentExpression(node) {
+      if (
+        node.operator === "=" &&
+        node.left?.type === "Identifier" &&
+        isExpressRouterInit(node.right, namedFactories)
+      ) {
+        names.add(node.left.name);
+      }
+    },
+  });
+  return names;
+}
+
+/**
+ * Literal-prefix mounts: `app.use('/api', router)` or bare `app.use(router)`.
+ * Complex `use(prefix, mw, router)` stays out of this map (honest middleware hole).
+ * @param {import('estree').Program} ast
+ * @returns {{ routerNames: Set<string>, mounts: Map<string, string[]> }}
+ */
+export function collectExpressRouterMounts(ast) {
+  const routerNames = collectExpressRouterNames(ast);
+  /** @type {Map<string, string[]>} */
+  const mounts = new Map();
+  for (const n of routerNames) mounts.set(n, []);
+
+  walkSimple(ast, {
+    CallExpression(node) {
+      if (node.callee?.type !== "MemberExpression" || node.callee.computed) return;
+      if (node.callee.property?.type !== "Identifier" || node.callee.property.name !== "use") return;
+      const recv = node.callee.object;
+      if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return;
+      const args = node.arguments ?? [];
+      if (args.length === 1 && args[0]?.type === "Identifier" && routerNames.has(args[0].name)) {
+        mounts.get(args[0].name)?.push("");
+        return;
+      }
+      if (
+        args.length === 2 &&
+        args[0]?.type === "Literal" &&
+        typeof args[0].value === "string" &&
+        args[1]?.type === "Identifier" &&
+        routerNames.has(args[1].name)
+      ) {
+        mounts.get(args[1].name)?.push(args[0].value);
+      }
+    },
+  });
+  return { routerNames, mounts };
+}
+
+/**
+ * True when `app.use('/prefix', router)` / `app.use(router)` is a pure Express Router mount
+ * (not function middleware). Used to skip middleware-hole emission (G10067).
+ * @param {import('estree').CallExpression} node
+ * @param {Set<string>} routerNames
+ */
+export function isExpressRouterMountUseCall(node, routerNames) {
+  if (!routerNames || routerNames.size === 0) return false;
+  if (node.callee?.type !== "MemberExpression" || node.callee.computed) return false;
+  if (node.callee.property?.type !== "Identifier" || node.callee.property.name !== "use") return false;
+  const recv = node.callee.object;
+  if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return false;
+  const args = node.arguments ?? [];
+  if (args.length === 1 && args[0]?.type === "Identifier" && routerNames.has(args[0].name)) {
+    return true;
+  }
+  if (
+    args.length === 2 &&
+    args[0]?.type === "Literal" &&
+    typeof args[0].value === "string" &&
+    args[1]?.type === "Identifier" &&
+    routerNames.has(args[1].name)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Join Fastify `register(…, { prefix: '/api' })` + encapsulated `app.get|post('/path')` (G10072).
+ * Same slash-normalize as Express mount / Nest `@Controller` path join.
+ * @param {string} prefix
+ * @param {string} methodPath
+ */
+export function joinFastifyPrefixPath(prefix, methodPath) {
+  return joinExpressMountPath(prefix, methodPath);
+}
+
+/**
+ * @param {import('estree').CallExpression} node
+ * @param {Set<string> | null} [receiverAllow] when set, allow that receiver set instead of RECEIVER_NAMES
+ * @returns {{ method: string, path: string, fn: import('estree').Function, loc?: { line: number, column: number }, receiver: string } | null}
+ */
+function extractRouteFromCall(node, receiverAllow = null) {
   if (node.callee?.type !== "MemberExpression" || node.callee.computed) return null;
   if (node.callee.property?.type !== "Identifier") return null;
   const rawMethod = node.callee.property.name;
   const method = HTTP_METHOD_ALIASES.get(rawMethod) ?? rawMethod;
   if (!HTTP_METHODS.has(method)) return null;
   const recv = node.callee.object;
-  if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return null;
+  if (recv?.type !== "Identifier") return null;
+  const allow = receiverAllow ?? RECEIVER_NAMES;
+  if (!allow.has(recv.name)) return null;
   const pathArg = node.arguments[0];
   if (pathArg?.type !== "Literal" || typeof pathArg.value !== "string") return null;
   let fn = null;
@@ -112,7 +295,139 @@ function extractRouteFromCall(node) {
     path: normalizeOakBracePathParams(pathArg.value),
     fn,
     loc: node.loc?.start ?? pathArg.loc?.start,
+    receiver: recv.name,
   };
+}
+
+/**
+ * Literal `prefix` from Fastify `register(plugin, { prefix: '/api' })` opts (G10072 / D6534).
+ * @param {import('estree').Node | null | undefined} opts
+ * @returns {{ kind: "literal", value: string } | { kind: "non-literal" } | null}
+ */
+function peelFastifyRegisterPrefix(opts) {
+  if (!opts || opts.type !== "ObjectExpression") return null;
+  for (const prop of opts.properties ?? []) {
+    if (prop.type !== "Property" || prop.computed) continue;
+    const key = objectPropKeyName(prop);
+    if (key !== "prefix") continue;
+    if (prop.value?.type === "Literal" && typeof prop.value.value === "string") {
+      return { kind: "literal", value: prop.value.value };
+    }
+    return { kind: "non-literal" };
+  }
+  return null;
+}
+
+/**
+ * Same-file plugin binding for `fastify.register(plugin, opts)` when `plugin` is an Identifier.
+ * Cross-file / dynamic plugins stay honest holes (no invent).
+ * @param {import('estree').Node | null | undefined} plugin
+ * @param {import('estree').Program | null | undefined} ast
+ * @returns {import('estree').Function | null}
+ */
+function resolveFastifyPluginFunction(plugin, ast) {
+  const inline = handlerCallback(plugin);
+  if (inline) return inline;
+  if (plugin?.type !== "Identifier" || !ast) return null;
+  const name = plugin.name;
+  /** @type {import('estree').Function | null} */
+  let found = null;
+  walkSimple(ast, {
+    FunctionDeclaration(node) {
+      if (node.id?.name === name) found = /** @type {import('estree').Function} */ (node);
+    },
+    VariableDeclarator(node) {
+      if (node.id?.type === "Identifier" && node.id.name === name) {
+        const fn = handlerCallback(node.init);
+        if (fn) found = fn;
+      }
+    },
+  });
+  return found;
+}
+
+/**
+ * Fastify encapsulated plugin prefix peel (G10072 / D6534).
+ * `instance.register(async function (app) { app.get… }, { prefix: '/api' })` → join literal paths.
+ * Nested `register` with literal prefixes joins recursively. Non-literal prefix suppresses
+ * unprefixed flat steal without inventing plugin runtime. Complex hooks/schema stay unwired.
+ *
+ * @param {import('estree').CallExpression} node
+ * @param {object} ctx
+ * @param {string} [ctx.outerPrefix]
+ * @param {Set<import('estree').CallExpression>} ctx.consumedRouteCalls
+ * @param {Set<import('estree').CallExpression>} ctx.processedRegisters
+ * @param {import('estree').Program | null} [ctx.ast]
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc?: { line: number, column: number } }>}
+ */
+function extractFastifyRegisterRoutes(node, ctx) {
+  const outerPrefix = ctx.outerPrefix ?? "";
+  const consumedRouteCalls = ctx.consumedRouteCalls;
+  const processedRegisters = ctx.processedRegisters;
+  if (node?.type !== "CallExpression") return [];
+  if (processedRegisters.has(node)) return [];
+  if (node.callee?.type !== "MemberExpression" || node.callee.computed) return [];
+  if (node.callee.property?.type !== "Identifier" || node.callee.property.name !== "register") {
+    return [];
+  }
+  if (node.callee.object?.type !== "Identifier") return [];
+
+  processedRegisters.add(node);
+
+  const pluginFn = resolveFastifyPluginFunction(node.arguments[0], ctx.ast ?? null);
+  const prefixInfo = peelFastifyRegisterPrefix(node.arguments[1]);
+  if (!pluginFn) return [];
+
+  const recvParam = pluginFn.params?.[0];
+  if (recvParam?.type !== "Identifier") return [];
+  const receiverName = recvParam.name;
+  const body = pluginFn.body;
+  if (!body || body.type !== "BlockStatement") return [];
+
+  /** Suppress flat unprefixed steal whenever a `prefix` key is present (literal or not). */
+  const suppressFlat = prefixInfo !== null;
+  const peelable = prefixInfo?.kind === "literal";
+  const joinedPrefix = peelable
+    ? joinFastifyPrefixPath(outerPrefix, prefixInfo.value)
+    : outerPrefix;
+
+  /** @type {ReturnType<typeof extractFastifyRegisterRoutes>} */
+  const out = [];
+  const allow = new Set([receiverName]);
+
+  walkSimple(body, {
+    CallExpression(inner) {
+      if (
+        inner.callee?.type === "MemberExpression" &&
+        !inner.callee.computed &&
+        inner.callee.property?.type === "Identifier" &&
+        inner.callee.property.name === "register" &&
+        inner.callee.object?.type === "Identifier" &&
+        inner.callee.object.name === receiverName
+      ) {
+        const nested = extractFastifyRegisterRoutes(inner, {
+          outerPrefix: peelable ? joinedPrefix : outerPrefix,
+          consumedRouteCalls,
+          processedRegisters,
+          ast: ctx.ast ?? null,
+        });
+        for (const r of nested) out.push(r);
+        return;
+      }
+      const r = extractRouteFromCall(inner, allow);
+      if (!r) return;
+      if (suppressFlat) consumedRouteCalls.add(inner);
+      if (!peelable) return;
+      out.push({
+        method: r.method,
+        path: joinFastifyPrefixPath(joinedPrefix, r.path),
+        fn: r.fn,
+        loc: r.loc,
+      });
+    },
+  });
+
+  return out;
 }
 
 /**
@@ -2617,11 +2932,57 @@ export function liftJavaScriptFileToWebir(opts) {
   let ittyOrigin = false;
   let cfWorkersOrigin = false;
   let adonisOrigin = false;
+  /** @type {Set<string>} */
+  let expressRouterNames = new Set();
+  /** @type {Map<string, string[]>} */
+  let expressRouterMounts = new Map();
+  /** @type {Set<import('estree').CallExpression>} */
+  const fastifyConsumedRouteCalls = new Set();
+  /** @type {Set<import('estree').CallExpression>} */
+  const fastifyProcessedRegisters = new Set();
   if (ast) {
+    const mountInfo = collectExpressRouterMounts(ast);
+    expressRouterNames = mountInfo.routerNames;
+    expressRouterMounts = mountInfo.mounts;
+    // Phase 1 (G10072): peel `register(…, { prefix })` first. acorn-walk `simple` visits
+    // children before parents, so a combined walk would flat-steal unprefixed routes first.
     walkSimple(ast, {
       CallExpression(node) {
+        for (const fr of extractFastifyRegisterRoutes(node, {
+          outerPrefix: "",
+          consumedRouteCalls: fastifyConsumedRouteCalls,
+          processedRegisters: fastifyProcessedRegisters,
+          ast,
+        })) {
+          routes.push(fr);
+        }
+      },
+    });
+    walkSimple(ast, {
+      CallExpression(node) {
+        if (fastifyConsumedRouteCalls.has(node)) return;
         const r = extractRouteFromCall(node);
-        if (r) routes.push(r);
+        if (r) {
+          // G10067: peel `app.use('/prefix', router)` + `router.get|post` → join literal paths.
+          const prefixes = expressRouterMounts.get(r.receiver);
+          if (prefixes && prefixes.length > 0) {
+            for (const prefix of prefixes) {
+              routes.push({
+                method: r.method,
+                path: joinExpressMountPath(prefix, r.path),
+                fn: r.fn,
+                loc: r.loc,
+              });
+            }
+          } else {
+            routes.push({
+              method: r.method,
+              path: r.path,
+              fn: r.fn,
+              loc: r.loc,
+            });
+          }
+        }
         for (const hr of extractHapiRoutesFromCall(node)) routes.push(hr);
         if (isBunServeCall(node)) bunServeOrigin = true;
         for (const br of extractBunServeRoutesFromCall(node)) routes.push(br);
@@ -2669,12 +3030,20 @@ export function liftJavaScriptFileToWebir(opts) {
 
   // Elysia `.use` is plugin-shaped (not `(ctx, next)`); peel empty lifecycle only (G10053).
   // itty has no onion `next` — peel empty/`next`-only `router.all` only (G10064); skip Express `.use`.
+  // Express Router mounts (`app.use('/prefix', router)`) are path joins (G10067) — skip mw hole.
   const mw = ast
     ? elysiaOrigin
       ? liftElysiaLifecycleMiddlewareToWebir({ ast, file, builder, wr, webir })
       : ittyOrigin
         ? liftIttyPassthroughMiddlewareToWebir({ ast, file, builder, wr, webir })
-        : liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir })
+        : liftExpressMiddlewareToWebir({
+            ast,
+            file,
+            builder,
+            wr,
+            webir,
+            skipRouterMounts: expressRouterNames,
+          })
     : { middlewareUseCount: 0, middlewareRootCount: 0 };
 
   if (routes.length === 0 && mw.middlewareRootCount === 0) {

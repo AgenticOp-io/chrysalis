@@ -2,7 +2,7 @@
   "kind": "chrysalis.hub.swift-hummingbird-honest-holes",
   "schemaVersion": 1,
   "generatedAt": "2026-07-24T22:55:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Fluent ORM, Leaf templates, auth/session middleware, or nested router.group runtime. Lift Hummingbird Router shapes that appear, else leave honest holes. Vapor ST closed via hub:swift-flagship + hub:complete-conversion-prove:swift. Hummingbird secondary smoke G10016 closed when hub:hummingbird-smoke ok.",
+  "note": "Catalog only (D6447). Do not invent Fluent ORM, Leaf templates, auth/session middleware, or nested router.group runtime. Lift Hummingbird Router shapes that appear, else leave honest holes. Vapor ST closed via hub:swift-flagship + hub:complete-conversion-prove:swift. Vapor literal grouped path join closed via G10069 / hub:vapor-group-smoke (Hummingbird router.group remains unwired). Hummingbird secondary smoke G10016 closed when hub:hummingbird-smoke ok.",
   "fixture": "fixtures/hub-gold-hummingbird",
   "smoke": "pnpm run hub:hummingbird-smoke",
   "st": "pnpm run hub:swift-flagship && pnpm run hub:complete-conversion-prove:swift",

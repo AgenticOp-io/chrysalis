@@ -3,13 +3,14 @@
  * HTTP Archive (HAR) → CWL migration contract (Stage-B "Sink" sibling to OpenAPI import).
  *
  * Observed traffic becomes a reviewable CWL contract: each unique `(method, pathname)`
- * pair is one route with the recorded status, content-type, query params, IDENT-safe
- * request headers, IDENT-safe `cookies[]` names (when present — never invented),
- * flat JSON `postData` keys as `body` params, IDENT-safe response headers (hop-by-hop
- * skipped — same policy as request headers), and a flat JSON/text response body
- * when parseable. Non-flat or missing bodies become honest holes — never invented
- * values (DESIGN non-negotiable #6). Paths stay concrete (no `/items/1` →
- * `/items/:id` invent).
+ * pair is one route with the recorded status, content-type, IDENT-safe queryString /
+ * URL query params with observed values as defaults when present (G10074 — never
+ * invent when absent), IDENT-safe request headers, IDENT-safe `cookies[]` names
+ * (when present — never invented), flat JSON `postData` keys as `body` params,
+ * IDENT-safe response headers (hop-by-hop skipped — same policy as request headers),
+ * and a flat JSON/text response body when parseable. Non-flat or missing bodies
+ * become honest holes — never invented values (DESIGN non-negotiable #6). Paths stay
+ * concrete (no `/items/1` → `/items/:id` invent).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -30,18 +31,18 @@ export const HUB_HAR_CWL_SCHEMA_VERSION = 1;
 /**
  * Parse a HAR request URL into pathname + query bindings.
  * @param {object} request
- * @returns {{ pathname: string, query: Array<{ name: string, value: string }> }}
+ * @returns {{ pathname: string, query: Array<{ name: string, value?: string }> }}
  */
 export function parseHarRequestUrl(request) {
   const url = String(request?.url ?? "");
-  /** @type {Array<{ name: string, value: string }>} */
+  /** @type {Array<{ name: string, value?: string }>} */
   const query = [];
   let pathname = "/";
   try {
     const u = new URL(url);
     pathname = u.pathname || "/";
     for (const [name, value] of u.searchParams.entries()) {
-      if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) query.push({ name, value });
+      if (isIdentSafeName(name)) query.push({ name, value });
     }
   } catch {
     const qIdx = url.indexOf("?");
@@ -51,13 +52,43 @@ export function parseHarRequestUrl(request) {
   if (Array.isArray(request?.queryString)) {
     for (const q of request.queryString) {
       const name = String(q?.name ?? "");
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) continue;
+      if (!isIdentSafeName(name)) continue;
       if (!query.some((x) => x.name === name)) {
-        query.push({ name, value: String(q?.value ?? "") });
+        // Absent/null value → name-only peel (no invent). Empty string is observed.
+        if (q?.value === undefined || q?.value === null) {
+          query.push({ name });
+        } else {
+          query.push({ name, value: String(q.value) });
+        }
       }
     }
   }
   return { pathname, query };
+}
+
+/**
+ * IDENT-safe HAR query params → CWL `query` (G10074).
+ * Observed values become defaults when present; absent/empty queryString → no invent.
+ * Hyphenated names skipped — no invent rename.
+ * @param {Array<{ name: string, value?: string }>} query
+ * @returns {Array<{ name: string, source: "query", default?: string }>}
+ */
+export function parseHarQueryParams(query) {
+  /** @type {Array<{ name: string, source: "query", default?: string }>} */
+  const out = [];
+  if (!Array.isArray(query)) return out;
+  const seen = new Set();
+  for (const q of query) {
+    const name = String(q?.name ?? "");
+    if (!isIdentSafeName(name)) continue;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    /** @type {{ name: string, source: "query", default?: string }} */
+    const entry = { name, source: "query" };
+    if (q?.value !== undefined && q?.value !== null) entry.default = String(q.value);
+    out.push(entry);
+  }
+  return out;
 }
 
 /**
@@ -220,7 +251,7 @@ export function harDocToCwlRoutes(doc) {
               : "text/plain; charset=utf-8";
 
     const params = [
-      ...query.map((q) => ({ name: q.name, source: "query" })),
+      ...parseHarQueryParams(query),
       ...parseHarRequestHeaders(req),
       ...parseHarRequestCookies(req),
       ...parseHarPostDataBodyParams(req),
