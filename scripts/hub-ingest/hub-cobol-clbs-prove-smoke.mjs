@@ -15,7 +15,12 @@ import { existsSync, readdirSync, readFileSync, statSync, mkdirSync, writeFileSy
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
-import { inventoryCobolSource, parseCobolRoutes, resolveCobolCopybooks } from "./cobol-pattern-lift.mjs";
+import {
+  inventoryBmsSource,
+  inventoryCobolSource,
+  parseCobolRoutes,
+  resolveCobolCopybooks,
+} from "./cobol-pattern-lift.mjs";
 import { emitFromCobolPatterns } from "./cobol-pattern-emit.mjs";
 import { resolveHubPython } from "./shared.mjs";
 
@@ -888,6 +893,13 @@ export async function runCobolClbsProveSmoke() {
     id: "online-cics-op-catalog",
     ok:
       missingOps.length === 0 &&
+      onlineOps.has("SEND-MAP") &&
+      onlineOps.has("RECEIVE-MAP") &&
+      (onlineInv.execCicsMaps || []).includes("INQMAP") &&
+      (onlineInv.execCicsMaps || []).includes("INQMNU") &&
+      (onlineInv.execCicsMapsets || []).includes("INQSET") &&
+      (onlineInv.execCicsLinkPrograms || []).includes("SECMGR") &&
+      (onlineInv.execCicsXctlPrograms || []).includes("INQMENU") &&
       onlineInv.handleCondition >= 1 &&
       onlineInv.handleAid >= 1 &&
       onlineInv.respClauses >= 5 &&
@@ -897,7 +909,7 @@ export async function runCobolClbsProveSmoke() {
       onlineInv.unresolved.includes("exec-cics"),
     reason:
       missingOps.length === 0
-        ? `ops=${[...onlineOps].join(",")} sections=${onlineInv.sectionCount} handle=${onlineInv.handleCondition}/${onlineInv.handleAid} resp=${onlineInv.respClauses}`
+        ? `ops=${[...onlineOps].join(",")} maps=${(onlineInv.execCicsMaps || []).join(",")} mapsets=${(onlineInv.execCicsMapsets || []).join(",")} link=${(onlineInv.execCicsLinkPrograms || []).join(",")} xctl=${(onlineInv.execCicsXctlPrograms || []).join(",")} sections=${onlineInv.sectionCount} handle=${onlineInv.handleCondition}/${onlineInv.handleAid} resp=${onlineInv.respClauses}`
         : `missingOps=${missingOps.join(",")} ops=${[...onlineOps].join(",")}`,
   });
 
@@ -966,10 +978,21 @@ export async function runCobolClbsProveSmoke() {
   const cardMissingOps = cardRequiredOps.filter((op) => !cardOps.has(op));
   checks.push({
     id: "online-carddemo-cics-op-catalog",
-    ok: !!cardInv && cardMissingOps.length === 0 && cardInv.unresolved.includes("exec-cics"),
+    ok:
+      !!cardInv &&
+      cardMissingOps.length === 0 &&
+      cardOps.has("SEND-MAP") &&
+      cardOps.has("SEND-TEXT") &&
+      cardOps.has("RECEIVE-MAP") &&
+      (cardInv.execCicsMaps || []).includes("COSGN00") &&
+      (cardInv.execCicsMaps || []).includes("COMEN01") &&
+      (cardInv.execCicsMapsets || []).includes("COSGN00") &&
+      (cardInv.execCicsLinkPrograms || []).includes("COSGN00C") &&
+      (cardInv.execCicsXctlPrograms || []).includes("COMEN01C") &&
+      cardInv.unresolved.includes("exec-cics"),
     reason:
       cardMissingOps.length === 0
-        ? `ops=${[...cardOps].join(",")}`
+        ? `ops=${[...cardOps].join(",")} maps=${(cardInv?.execCicsMaps || []).join(",")} mapsets=${(cardInv?.execCicsMapsets || []).join(",")} link=${(cardInv?.execCicsLinkPrograms || []).join(",")} xctl=${(cardInv?.execCicsXctlPrograms || []).join(",")}`
         : `missingOps=${cardMissingOps.join(",")} ops=${[...cardOps].join(",")}`,
   });
 
@@ -2314,6 +2337,8 @@ export async function runCobolClbsProveSmoke() {
     "COTRN00.bms",
     "COTRN01.bms",
     "COTRN02.bms",
+    "COTRTLI.bms",
+    "COTRTUP.bms",
     "COUSR00.bms",
     "COUSR01.bms",
     "COUSR02.bms",
@@ -2322,11 +2347,41 @@ export async function runCobolClbsProveSmoke() {
   const carddemoBmsPresent = carddemoBmsRequired.filter((n) => upstreamBmsFiles.includes(n));
   let carddemoBmsMacros = 0;
   let carddemoHasDfhmsd = false;
-  for (const name of carddemoBmsPresent) {
+  /** @type {ReturnType<typeof inventoryBmsSource>[]} */
+  const upstreamBmsInventories = [];
+  for (const name of upstreamBmsFiles) {
     const body = readFileSync(join(upstreamJclDir, name), "utf8");
-    carddemoBmsMacros += (body.match(/\bDFHMSD\b|\bDFHMDI\b|\bDFHMDF\b/gi) || []).length;
-    if (/\bDFHMSD\b/i.test(body)) carddemoHasDfhmsd = true;
+    if (carddemoBmsRequired.some((r) => r.toLowerCase() === name.toLowerCase())) {
+      carddemoBmsMacros += (body.match(/\bDFHMSD\b|\bDFHMDI\b|\bDFHMDF\b/gi) || []).length;
+      if (/\bDFHMSD\b/i.test(body)) carddemoHasDfhmsd = true;
+    }
+    upstreamBmsInventories.push(inventoryBmsSource(body, name));
   }
+  const bmsFieldTotals = upstreamBmsInventories.reduce(
+    (acc, inv) => {
+      acc.dfhmsd += inv.dfhmsd;
+      acc.dfhmdi += inv.dfhmdi;
+      acc.dfhmdf += inv.dfhmdf;
+      acc.namedFields += inv.namedFields;
+      acc.withPos += inv.withPos;
+      acc.withLength += inv.withLength;
+      acc.withAttrb += inv.withAttrb;
+      for (const m of inv.maps) acc.maps.add(m);
+      for (const m of inv.mapsets) acc.mapsets.add(m);
+      return acc;
+    },
+    {
+      dfhmsd: 0,
+      dfhmdi: 0,
+      dfhmdf: 0,
+      namedFields: 0,
+      withPos: 0,
+      withLength: 0,
+      withAttrb: 0,
+      maps: new Set(),
+      mapsets: new Set(),
+    },
+  );
   checks.push({
     id: "upstream-carddemo-bms-inventory",
     ok:
@@ -2336,8 +2391,76 @@ export async function runCobolClbsProveSmoke() {
       /\bCOSGN00\b/i.test(readFileSync(join(upstreamJclDir, "COSGN00.bms"), "utf8")) &&
       /\bCOMEN01\b/i.test(readFileSync(join(upstreamJclDir, "COMEN01.bms"), "utf8")) &&
       /\bCOACTUP\b/i.test(readFileSync(join(upstreamJclDir, "COACTUP.bms"), "utf8")) &&
-      /\bCOUSR00\b/i.test(readFileSync(join(upstreamJclDir, "COUSR00.bms"), "utf8")),
+      /\bCOUSR00\b/i.test(readFileSync(join(upstreamJclDir, "COUSR00.bms"), "utf8")) &&
+      /\bCOTRTLI\b/i.test(readFileSync(join(upstreamJclDir, "COTRTLI.bms"), "utf8")) &&
+      /\bCOTRTUP\b/i.test(readFileSync(join(upstreamJclDir, "COTRTUP.bms"), "utf8")),
     reason: `bms=${carddemoBmsPresent.join(",")} macros=${carddemoBmsMacros} dfhmsd=${carddemoHasDfhmsd}`,
+  });
+
+  // G10079 — DFHM* field/map inventory (labels + POS/LENGTH/ATTRB only; no BMS runtime).
+  checks.push({
+    id: "upstream-bms-dfhm-field-inventory",
+    ok:
+      upstreamBmsInventories.length >= 20 &&
+      bmsFieldTotals.dfhmsd >= 40 &&
+      bmsFieldTotals.dfhmdi >= 23 &&
+      bmsFieldTotals.dfhmdf >= 1000 &&
+      bmsFieldTotals.namedFields >= 500 &&
+      bmsFieldTotals.withPos >= 1000 &&
+      bmsFieldTotals.withLength >= 900 &&
+      bmsFieldTotals.maps.size >= 23 &&
+      bmsFieldTotals.mapsets.size >= 20 &&
+      bmsFieldTotals.maps.has("COSGN0A") &&
+      bmsFieldTotals.maps.has("CTRTLIA") &&
+      bmsFieldTotals.maps.has("MENMAP") &&
+      bmsFieldTotals.mapsets.has("COSGN00") &&
+      bmsFieldTotals.mapsets.has("COTRTLI") &&
+      bmsFieldTotals.mapsets.has("INQSET"),
+    reason: `files=${upstreamBmsInventories.length} dfhmsd=${bmsFieldTotals.dfhmsd} dfhmdi=${bmsFieldTotals.dfhmdi} dfhmdf=${bmsFieldTotals.dfhmdf} named=${bmsFieldTotals.namedFields} pos=${bmsFieldTotals.withPos} len=${bmsFieldTotals.withLength} maps=${bmsFieldTotals.maps.size} mapsets=${bmsFieldTotals.mapsets.size}`,
+  });
+
+  // G10080 — online MAP/MAPSET literals ↔ BMS labels; missing stay honest holes (no invent).
+  const onlineDir = join(MINI, "online");
+  /** @type {string[]} */
+  const onlineCblFiles = existsSync(onlineDir)
+    ? readdirSync(onlineDir).filter((n) => /\.cbl$/i.test(n))
+    : [];
+  const referencedMaps = new Set();
+  const referencedMapsets = new Set();
+  for (const name of onlineCblFiles) {
+    const body = readFileSync(join(onlineDir, name), "utf8");
+    const inv = inventoryCobolSource(body, `online/${name}`);
+    for (const m of inv.execCicsMaps || []) referencedMaps.add(m);
+    for (const m of inv.execCicsMapsets || []) referencedMapsets.add(m);
+  }
+  // CardDemo often uses mapset name as MAP('…'); accept map OR mapset label.
+  const mapMatched = [...referencedMaps]
+    .filter((m) => bmsFieldTotals.maps.has(m) || bmsFieldTotals.mapsets.has(m))
+    .sort();
+  const mapMissing = [...referencedMaps]
+    .filter((m) => !bmsFieldTotals.maps.has(m) && !bmsFieldTotals.mapsets.has(m))
+    .sort();
+  const mapsetMatched = [...referencedMapsets]
+    .filter((m) => bmsFieldTotals.mapsets.has(m))
+    .sort();
+  const mapsetMissing = [...referencedMapsets]
+    .filter((m) => !bmsFieldTotals.mapsets.has(m))
+    .sort();
+  const expectedMapHoles = ["INQMAP", "INQMNU", "PORTCRUD", "PORTMAP", "PORTPOS"];
+  const expectedMapsetHoles = ["PORTSET"];
+  checks.push({
+    id: "online-bms-map-crosswalk",
+    ok:
+      mapMatched.length >= 30 &&
+      mapsetMatched.length >= 18 &&
+      mapMissing.join(",") === expectedMapHoles.join(",") &&
+      mapsetMissing.join(",") === expectedMapsetHoles.join(",") &&
+      mapMatched.includes("COSGN0A") &&
+      mapMatched.includes("COSGN00") &&
+      mapMatched.includes("CTRTLIA") &&
+      mapsetMatched.includes("INQSET") &&
+      mapsetMatched.includes("COTRTLI"),
+    reason: `mapOk=${mapMatched.length} mapHole=${mapMissing.join(",")} setOk=${mapsetMatched.length} setHole=${mapsetMissing.join(",")}`,
   });
 
   // CardDemo JCL corpus samples (aws-carddemo app/jcl) — inventory-only; no JES runtime.
@@ -2892,7 +3015,7 @@ export async function runCobolClbsProveSmoke() {
   const cosgn00cInv = cosgn00cSrc
     ? inventoryCobolSource(cosgn00cSrc, "online/COSGN00C.cbl")
     : null;
-  const cosgn00cCicsNeed = ["RECEIVE", "SEND", "ASSIGN", "READ", "XCTL", "RETURN"];
+  const cosgn00cCicsNeed = ["RECEIVE", "SEND", "SEND-MAP", "SEND-TEXT", "RECEIVE-MAP", "ASSIGN", "READ", "XCTL", "RETURN"];
   const cosgn00cCicsOps = new Set(cosgn00cInv?.execCicsOps || []);
   const cosgn00cCicsMissing = cosgn00cCicsNeed.filter((o) => !cosgn00cCicsOps.has(o));
   const cosgn00cCopy = resolveCobolCopybooks(cosgn00cInv?.copybooks || [], [copyDir]);
@@ -2906,6 +3029,10 @@ export async function runCobolClbsProveSmoke() {
       !!cosgn00cInv &&
       cosgn00cInv.programIds.includes("COSGN00C") &&
       cosgn00cCicsMissing.length === 0 &&
+      (cosgn00cInv.execCicsMaps || []).includes("COSGN0A") &&
+      (cosgn00cInv.execCicsMapsets || []).includes("COSGN00") &&
+      (cosgn00cInv.execCicsXctlPrograms || []).includes("COMEN01C") &&
+      !(cosgn00cInv.execCicsLinkPrograms || []).length &&
       cosgn00cResolved.includes("COSGN00") &&
       cosgn00cResolved.includes("COCOM01Y") &&
       cosgn00cResolved.includes("COTTL01Y") &&
@@ -2919,7 +3046,7 @@ export async function runCobolClbsProveSmoke() {
       cosgn00cInv.unresolved.includes("file-io") &&
       !(cosgn00cInv.execSqlOps || []).length,
     reason: cosgn00cInv
-      ? `cicsMissing=${cosgn00cCicsMissing.join(",")} resolved=${cosgn00cResolved.join(",")} unresolvedCopy=${cosgn00cUnresolvedCopy.join(",")} unresolved=${cosgn00cInv.unresolved.join(",")}`
+      ? `cicsMissing=${cosgn00cCicsMissing.join(",")} maps=${(cosgn00cInv.execCicsMaps || []).join(",")} mapsets=${(cosgn00cInv.execCicsMapsets || []).join(",")} xctl=${(cosgn00cInv.execCicsXctlPrograms || []).join(",")} resolved=${cosgn00cResolved.join(",")} unresolvedCopy=${cosgn00cUnresolvedCopy.join(",")} unresolved=${cosgn00cInv.unresolved.join(",")}`
       : "missing-COSGN00C",
   });
 
@@ -4256,6 +4383,10 @@ export async function runCobolClbsProveSmoke() {
           programIds: cardInv.programIds,
           execCics: cardInv.execCics,
           execCicsOps: cardInv.execCicsOps,
+          execCicsMaps: cardInv.execCicsMaps,
+          execCicsMapsets: cardInv.execCicsMapsets,
+          execCicsLinkPrograms: cardInv.execCicsLinkPrograms,
+          execCicsXctlPrograms: cardInv.execCicsXctlPrograms,
           sectionCount: cardInv.sectionCount,
           evaluateWhens: cardInv.evaluateWhens,
           unresolved: cardInv.unresolved,

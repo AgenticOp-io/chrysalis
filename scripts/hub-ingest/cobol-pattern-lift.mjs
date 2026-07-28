@@ -40,8 +40,8 @@ const EXEC_CICS_RE = /\bEXEC\s+CICS\b/gi;
 const EXEC_SQL_RE = /\bEXEC\s+SQL\b/gi;
 /** EXEC SQL … END-EXEC bodies (multi-line DML / cursors / txn). */
 const EXEC_SQL_BLOCK_RE = /\bEXEC\s+SQL\b([\s\S]*?)\bEND-EXEC\b/gi;
-/** First verb after EXEC CICS (HANDLE CONDITION → HANDLE). */
-const EXEC_CICS_OP_RE = /\bEXEC\s+CICS\s+([A-Z][A-Z0-9-]*)/gi;
+/** EXEC CICS … END-EXEC bodies (multi-line SEND MAP / SEND TEXT / LINK / XCTL). */
+const EXEC_CICS_BLOCK_RE = /\bEXEC\s+CICS\b([\s\S]*?)\bEND-EXEC\b/gi;
 const HANDLE_CONDITION_RE = /\bEXEC\s+CICS\s+HANDLE\s+CONDITION\b/gi;
 const HANDLE_AID_RE = /\bEXEC\s+CICS\s+HANDLE\s+AID\b/gi;
 const RESP_CLAUSE_RE = /\bRESP\s*\(/gi;
@@ -428,12 +428,11 @@ export function inventoryCobolSource(source, file = "") {
   const execSql = (code.match(EXEC_SQL_RE) || []).length;
   const execSqlOps = parseExecSqlOps(code);
   const execSqlIncludes = parseExecSqlIncludeNames(code);
-  /** @type {string[]} */
-  const execCicsOps = [];
-  EXEC_CICS_OP_RE.lastIndex = 0;
-  while ((m = EXEC_CICS_OP_RE.exec(code)) !== null) {
-    if (m[1]) execCicsOps.push(m[1].toUpperCase());
-  }
+  const execCicsOps = parseExecCicsOps(code);
+  const execCicsMaps = parseExecCicsMaps(code);
+  const execCicsMapsets = parseExecCicsMapsets(code);
+  const execCicsLinkPrograms = parseExecCicsLinkPrograms(code);
+  const execCicsXctlPrograms = parseExecCicsXctlPrograms(code);
   const handleCondition = (code.match(HANDLE_CONDITION_RE) || []).length;
   const handleAid = (code.match(HANDLE_AID_RE) || []).length;
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
@@ -482,7 +481,11 @@ export function inventoryCobolSource(source, file = "") {
     sectionNames,
     sectionCount: sectionNames.length,
     execCics,
-    execCicsOps: [...new Set(execCicsOps)],
+    execCicsOps,
+    execCicsMaps,
+    execCicsMapsets,
+    execCicsLinkPrograms,
+    execCicsXctlPrograms,
     handleCondition,
     handleAid,
     respClauses,
@@ -502,6 +505,149 @@ export function inventoryCobolSource(source, file = "") {
     hasIdentificationHeader: /\bIDENTIFICATION\s+DIVISION\b/i.test(source),
     looksLikeCopybook: programIds.length === 0 && /\b01\s+/.test(code) && !PROCEDURE_DIV_RE.test(code),
   };
+}
+
+/**
+ * Normalize an EXEC CICS … END-EXEC body to a single-line uppercase string.
+ * @param {string} body
+ */
+function normalizeExecCicsBody(body) {
+  return String(body || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+/**
+ * Catalog EXEC CICS verbs between EXEC CICS … END-EXEC (structural hole inventory).
+ * Distinguishes **SEND-TEXT** from **SEND-MAP** (and **RECEIVE-MAP**) so first-token
+ * collapse does not hide BMS TEXT vs MAP. Family tokens SEND/RECEIVE are also kept
+ * for existing gates. Does not invent a CICS runtime — ops stay `exec-cics` holes.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsOps(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const ops = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!body) continue;
+    if (/^SEND\s+TEXT\b/.test(body)) {
+      ops.push("SEND-TEXT", "SEND");
+    } else if (/^SEND\s+MAP\b/.test(body)) {
+      ops.push("SEND-MAP", "SEND");
+    } else if (/^SEND\b/.test(body)) {
+      ops.push("SEND");
+    } else if (/^RECEIVE\s+MAP\b/.test(body)) {
+      ops.push("RECEIVE-MAP", "RECEIVE");
+    } else if (/^RECEIVE\b/.test(body)) {
+      ops.push("RECEIVE");
+    } else if (/^HANDLE\b/.test(body)) {
+      ops.push("HANDLE");
+    } else {
+      const verb = /^([A-Z][A-Z0-9-]*)/.exec(body);
+      if (verb?.[1]) ops.push(verb[1]);
+    }
+  }
+  return [...new Set(ops)];
+}
+
+/**
+ * Literal `MAP('…')` names from EXEC CICS SEND / RECEIVE blocks only.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsMaps(source) {
+  return parseExecCicsSendReceiveLiterals(source, "MAP");
+}
+
+/**
+ * Literal `MAPSET('…')` names from EXEC CICS SEND / RECEIVE blocks only.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsMapsets(source) {
+  return parseExecCicsSendReceiveLiterals(source, "MAPSET");
+}
+
+/**
+ * @param {string} source
+ * @param {"MAP"|"MAPSET"} kind
+ * @returns {string[]}
+ */
+function parseExecCicsSendReceiveLiterals(source, kind) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  const clauseRe =
+    kind === "MAPSET"
+      ? /\bMAPSET\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi
+      : /\bMAP\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi;
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!/^(SEND|RECEIVE)\b/.test(body)) continue;
+    clauseRe.lastIndex = 0;
+    let c;
+    while ((c = clauseRe.exec(body)) !== null) {
+      const name = c[1] || c[2];
+      if (name) names.push(name.toUpperCase());
+    }
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Literal `LINK PROGRAM('…')` targets from EXEC CICS blocks.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsLinkPrograms(source) {
+  return parseExecCicsProgramClause(source, "LINK");
+}
+
+/**
+ * Literal `XCTL PROGRAM('…')` targets from EXEC CICS blocks.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsXctlPrograms(source) {
+  return parseExecCicsProgramClause(source, "XCTL");
+}
+
+/**
+ * @param {string} source
+ * @param {"LINK"|"XCTL"} verb
+ * @returns {string[]}
+ */
+function parseExecCicsProgramClause(source, verb) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  const verbRe = new RegExp(`^${verb}\\b`);
+  const progRe = /\bPROGRAM\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi;
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!verbRe.test(body)) continue;
+    progRe.lastIndex = 0;
+    let p;
+    while ((p = progRe.exec(body)) !== null) {
+      const name = p[1] || p[2];
+      if (name) names.push(name.toUpperCase());
+    }
+  }
+  return [...new Set(names)];
 }
 
 /**
@@ -653,5 +799,101 @@ export function resolveCobolCopybooks(copyNames, searchDirs) {
     out.push({ name, resolved });
   }
   return out;
+}
+
+/**
+ * Structural inventory of BMS map source (DFHMSD / DFHMDI / DFHMDF).
+ * Does **not** invent BMS runtime or DFHAID/DFHBMSCA — labels and attribute
+ * literals only (G10079).
+ *
+ * @param {string} source
+ * @param {string} [file]
+ * @returns {{
+ *   file: string,
+ *   mapsets: string[],
+ *   maps: string[],
+ *   fields: string[],
+ *   dfhmsd: number,
+ *   dfhmdi: number,
+ *   dfhmdf: number,
+ *   namedFields: number,
+ *   withPos: number,
+ *   withLength: number,
+ *   withAttrb: number,
+ *   withInitial: number,
+ *   withColor: number,
+ * }}
+ */
+export function inventoryBmsSource(source, file = "") {
+  // Join BMS continuation lines ending with `-` (column-72 style).
+  const joined = String(source || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .reduce((acc, line) => {
+      const trimmedEnd = line.replace(/\s+$/, "");
+      if (acc.length && /-$/.test(acc[acc.length - 1])) {
+        acc[acc.length - 1] = acc[acc.length - 1].replace(/-\s*$/, "") + " " + line.trim();
+      } else {
+        acc.push(line);
+      }
+      return acc;
+    }, /** @type {string[]} */ ([]))
+    .join("\n");
+
+  /** @type {string[]} */
+  const mapsets = [];
+  /** @type {string[]} */
+  const maps = [];
+  /** @type {string[]} */
+  const fields = [];
+  let dfhmsd = 0;
+  let dfhmdi = 0;
+  let dfhmdf = 0;
+  let withPos = 0;
+  let withLength = 0;
+  let withAttrb = 0;
+  let withInitial = 0;
+  let withColor = 0;
+
+  // Per-macro scan (BMS often has blank label for DFHMDF).
+  const macroRe = /(?:^|\n)([A-Z0-9@#$]{0,8})\s+(DFHMSD|DFHMDI|DFHMDF)\b([^\n]*(?:\n(?![A-Z0-9@#$]{0,8}\s+DFHM(?:SD|DI|DF)\b)[^\n]*)*)/gi;
+  let m;
+  macroRe.lastIndex = 0;
+  while ((m = macroRe.exec(joined)) !== null) {
+    const label = String(m[1] || "").trim().toUpperCase();
+    const kind = String(m[2] || "").toUpperCase();
+    const body = String(m[3] || "");
+    if (kind === "DFHMSD") {
+      dfhmsd += 1;
+      if (label) mapsets.push(label);
+    } else if (kind === "DFHMDI") {
+      dfhmdi += 1;
+      if (label) maps.push(label);
+    } else if (kind === "DFHMDF") {
+      dfhmdf += 1;
+      if (label) fields.push(label);
+      if (/\bPOS\s*=/i.test(body)) withPos += 1;
+      if (/\bLENGTH\s*=/i.test(body)) withLength += 1;
+      if (/\bATTRB\s*=/i.test(body)) withAttrb += 1;
+      if (/\bINITIAL\s*=/i.test(body)) withInitial += 1;
+      if (/\bCOLOR\s*=/i.test(body)) withColor += 1;
+    }
+  }
+
+  return {
+    file,
+    mapsets: [...new Set(mapsets)],
+    maps: [...new Set(maps)],
+    fields: [...new Set(fields)],
+    dfhmsd,
+    dfhmdi,
+    dfhmdf,
+    namedFields: fields.length,
+    withPos,
+    withLength,
+    withAttrb,
+    withInitial,
+    withColor,
+  };
 }
 

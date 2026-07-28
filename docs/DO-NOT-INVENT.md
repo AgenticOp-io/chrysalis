@@ -113,11 +113,14 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | --- | --- |
 | COPY resolve for in-repo `.cpy` (e.g. CSUTLDWY, CKPRST) | DFHAID / DFHBMSCA / EXTFMAP stubs |
 | EXEC SQL / CICS **catalog** holes | Fake Db2 / CICS / VSAM runtimes |
+| BMS DFHM* **label inventory** + MAP/MAPSET crosswalk (G10079–G10082) | DFHAID / DFHBMSCA / EXTFMAP stubs or invented PORT/INQ maps |
 | GnuCOBOL behavioral subjects already green (65/65 after G10078) | New behavioral façades to claim “modernized CLBS” |
 
 **G10076–G10078 Tier B Small:** `ckprstdn`/`portfliodn`/`errhanddn`/`ckprstph` COPY-linked only — not Db2/CICS/VSAM/BMS.
 
 **G10075 Tier A closed:** mini COPY/INCLUDE surface exhausted (228 resolved; only BMS names unresolved). Do not invent BMS maps or missing `.cpy`.
+
+**G10079–G10082 structural BMS/CICS:** inventory + crosswalk only. Missing `INQMAP`/`INQMNU`/`PORT*`/`PORTSET` and AID copybooks stay holes — do not fabricate map bodies or IBM books.
 
 **G10077 Tier A+:** secondary-dialect / prefix bingo is **not** the default next queue — COBOL primary (chartered Tier B Medium+ / Tier C) unless the operator explicitly asks for another dialect peel.
 

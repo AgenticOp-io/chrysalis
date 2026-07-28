@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-27 (G10078 Tier B Small remainder — behavioral 65/65)
+**As of:** 2026-07-28 (G10079–G10082 COBOL structural BMS/CICS deepen)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **65/65** behavioral after Tier B Small complete (**G10076**–**G10078**); **Tier A/A+ closed** | no LCB claim; further Db2/CICS/VSAM/BMS need charter |
+| COBOL primary | **65/65** behavioral; Tier A/A+/B-Small closed; **structural BMS/CICS** G10079–G10082 | no LCB claim; Tier B Medium+/Tier C AID books still need charter |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -166,12 +166,17 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | --- | --- | --- |
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
+| **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
 | **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM) | **Charter + real corpus** — refuse façades |
-| **4** | COBOL Tier C IBM BMS maps | **Blocked** until `DFHAID`/`DFHBMSCA`/`EXTFMAP` in-tree |
+| **4** | COBOL Tier C IBM BMS AID books | **Blocked** until `DFHAID`/`DFHBMSCA`/`EXTFMAP` in-tree |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10082 — CICS SEND-TEXT / SEND-MAP / RECEIVE-MAP + MAP/MAPSET + LINK/XCTL PROGRAM literal catalog
+- G10081 — real COTRTLI/COTRTUP `.bms` fetched into `_upstream/`
+- G10080 — online MAP/MAPSET ↔ BMS label crosswalk; honest holes `INQMAP`/`INQMNU`/`PORT*`/`PORTSET`
+- G10079 — BMS DFHM* field/map inventory (`inventoryBmsSource`)
 - G10078 — Tier B Small remainder: `PORTFLIODN`/`ERRHANDDN`/`CKPRSTPH` → 66/40/100; behavioral **65/65**
 - G10077 — Tier A+ queue hygiene: scoreboard/ROADMAP/§12 point at COBOL; dialect bingo not default next
 - G10076 — Tier B Small: `CKPRSTDN` / `ckprstdn` → 150
