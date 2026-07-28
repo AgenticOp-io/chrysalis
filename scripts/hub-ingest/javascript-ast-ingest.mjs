@@ -103,7 +103,8 @@ function extractRouteFromCall(node) {
   if (!fn) return null;
   return {
     method: method.toUpperCase(),
-    path: pathArg.value,
+    // Oak accepts `{id}` URI templates — normalize to `:id` for JS CWL parity (G10043).
+    path: normalizeOakBracePathParams(pathArg.value),
     fn,
     loc: node.loc?.start ?? pathArg.loc?.start,
   };
@@ -393,20 +394,34 @@ function requestFieldOf(expr) {
 }
 
 /**
- * Koa `ctx.body = value` assignment → response payload expression.
+ * Koa `ctx.body = value` or Oak `ctx.response.body = value` → response payload.
  * @param {import('estree').Expression | null | undefined} expr
  */
 function peelCtxBodyAssignment(expr) {
   if (expr?.type !== "AssignmentExpression" || expr.operator !== "=") return null;
   const left = expr.left;
   if (left?.type !== "MemberExpression" || left.computed) return null;
-  if (left.object?.type !== "Identifier" || left.object.name !== "ctx") return null;
   if (left.property?.type !== "Identifier" || left.property.name !== "body") return null;
-  return expr.right ?? null;
+  // Koa: `ctx.body = …`
+  if (left.object?.type === "Identifier" && left.object.name === "ctx") {
+    return expr.right ?? null;
+  }
+  // Oak (G10043): `ctx.response.body = …`
+  if (
+    left.object?.type === "MemberExpression" &&
+    !left.object.computed &&
+    left.object.property?.type === "Identifier" &&
+    left.object.property.name === "response" &&
+    left.object.object?.type === "Identifier" &&
+    left.object.object.name === "ctx"
+  ) {
+    return expr.right ?? null;
+  }
+  return null;
 }
 
 /**
- * Koa `ctx.status = N` → HTTP status code.
+ * Koa `ctx.status = N` or Oak `ctx.response.status = N` → HTTP status code.
  * @param {import('estree').Expression | null | undefined} expr
  * @returns {number | null}
  */
@@ -414,8 +429,24 @@ function peelCtxStatusAssignment(expr) {
   if (expr?.type !== "AssignmentExpression" || expr.operator !== "=") return null;
   const left = expr.left;
   if (left?.type !== "MemberExpression" || left.computed) return null;
-  if (left.object?.type !== "Identifier" || left.object.name !== "ctx") return null;
   if (left.property?.type !== "Identifier" || left.property.name !== "status") return null;
+  let isCtxStatus = false;
+  // Koa: `ctx.status = N`
+  if (left.object?.type === "Identifier" && left.object.name === "ctx") {
+    isCtxStatus = true;
+  }
+  // Oak (G10043): `ctx.response.status = N`
+  if (
+    left.object?.type === "MemberExpression" &&
+    !left.object.computed &&
+    left.object.property?.type === "Identifier" &&
+    left.object.property.name === "response" &&
+    left.object.object?.type === "Identifier" &&
+    left.object.object.name === "ctx"
+  ) {
+    isCtxStatus = true;
+  }
+  if (!isCtxStatus) return null;
   const right = expr.right;
   if (right?.type === "Literal" && typeof right.value === "number") return right.value;
   return null;
@@ -538,6 +569,25 @@ function isElysiaNewExpression(expr) {
 }
 
 /**
+ * Oak (Deno) origin factory: `new Application()` (G10043 — dialect marker only).
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isOakApplicationNewExpression(expr) {
+  if (expr?.type !== "NewExpression") return false;
+  const callee = expr.callee;
+  return callee?.type === "Identifier" && callee.name === "Application";
+}
+
+/**
+ * Normalize Oak/URI `{id}` path templates to Express-style `:id` (G10043).
+ * Leaves existing `:id` paths unchanged.
+ * @param {string} path
+ */
+function normalizeOakBracePathParams(path) {
+  return String(path).replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g, ":$1");
+}
+
+/**
  * Elysia `ctx.set.status = N` → HTTP status (nested `set` bag on context).
  * @param {import('estree').Expression | null | undefined} expr
  * @returns {number | null}
@@ -630,7 +680,8 @@ function honoTextPayloadExpression(fn) {
 }
 
 /**
- * SvelteKit / Next load: `url.searchParams.get("q")`.
+ * SvelteKit / Next: `url.searchParams.get("q")`.
+ * Oak (G10043): `ctx.request.url.searchParams.get("q")`.
  * @param {import('estree').CallExpression} expr
  */
 function urlSearchParamsGetFieldOf(expr) {
@@ -649,10 +700,31 @@ function urlSearchParamsGetFieldOf(expr) {
   ) {
     return null;
   }
-  if (searchParams.object?.type !== "Identifier" || searchParams.object.name !== "url") return null;
-  const arg = expr.arguments[0];
-  if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
-  return { name: arg.value };
+  const urlNode = searchParams.object;
+  // SvelteKit / Next: bare `url.searchParams.get(…)`
+  if (urlNode?.type === "Identifier" && urlNode.name === "url") {
+    const arg = expr.arguments[0];
+    if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+    return { name: arg.value };
+  }
+  // Oak: `ctx.request.url.searchParams.get(…)`
+  if (
+    urlNode?.type === "MemberExpression" &&
+    !urlNode.computed &&
+    urlNode.property?.type === "Identifier" &&
+    urlNode.property.name === "url" &&
+    urlNode.object?.type === "MemberExpression" &&
+    !urlNode.object.computed &&
+    urlNode.object.property?.type === "Identifier" &&
+    urlNode.object.property.name === "request" &&
+    urlNode.object.object?.type === "Identifier" &&
+    urlNode.object.object.name === "ctx"
+  ) {
+    const arg = expr.arguments[0];
+    if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+    return { name: arg.value };
+  }
+  return null;
 }
 
 /**
@@ -1893,6 +1965,7 @@ export function liftJavaScriptFileToWebir(opts) {
   const routes = [...nestRoutes];
   let honoOrigin = false;
   let elysiaOrigin = false;
+  let oakOrigin = false;
   if (ast) {
     walkSimple(ast, {
       CallExpression(node) {
@@ -1903,6 +1976,7 @@ export function liftJavaScriptFileToWebir(opts) {
       NewExpression(node) {
         if (isHonoNewExpression(node)) honoOrigin = true;
         if (isElysiaNewExpression(node)) elysiaOrigin = true;
+        if (isOakApplicationNewExpression(node)) oakOrigin = true;
       },
     });
   }
@@ -1930,11 +2004,13 @@ export function liftJavaScriptFileToWebir(opts) {
     const bodyId = lowerHandlerBody(ctx, r.fn);
     const dialectTag = r.paramBindings
       ? `nestjs`
-      : elysiaOrigin
-        ? `elysia`
-        : honoOrigin
-          ? `hono`
-          : null;
+      : oakOrigin
+        ? `oak`
+        : elysiaOrigin
+          ? `elysia`
+          : honoOrigin
+            ? `hono`
+            : null;
     const handlerId = wr.handler({
       attrs: {
         name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,

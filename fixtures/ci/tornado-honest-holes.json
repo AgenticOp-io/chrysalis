@@ -1,0 +1,30 @@
+{
+  "kind": "chrysalis.hub.tornado-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:50:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Tornado RequestHandler mixins, UIModule, @tornado.gen.coroutine / async onion, or url() wrappers beyond same-file cheap peels. Lift Application([(r\"/path\", Handler), …]) + class get|post|… + (?P<id>[^/]+)/([^/]+) + self.get_argument + self.write/self.set_status that appear, else leave honest holes. Flask remains Python D6448-ST. Tornado secondary smoke G10040 closed when hub:tornado-smoke ok.",
+  "fixture": "fixtures/hub-gold-tornado",
+  "smoke": "pnpm run hub:tornado-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:python",
+  "supported": [
+    "tornado.web.Application([(r\"/path\", Handler), …])",
+    "class RequestHandler get|post|put|patch|delete",
+    "(?P<id>[^/]+) named groups + simple ([^/]+) → {id}",
+    "self.get_argument(\"q\", \"\") query peels",
+    "self.write(body) + self.set_status(N)"
+  ],
+  "honestHoles": [
+    { "shape": "RequestHandler mixins / prepare/on_finish onion", "reason": "hub-python:tornado-mixin" },
+    { "shape": "UIModule / template rendering", "reason": "hub-python:tornado-uimodule" },
+    { "shape": "@tornado.gen.coroutine / async gen / WebSocketHandler", "reason": "hub-python:tornado-async" },
+    { "shape": "tornado.web.url() wrappers / redirects", "reason": "hub-python:tornado-url-wrapper" },
+    { "shape": "Cross-file handler modules", "reason": "hub-python:tornado-handler-cross-file" },
+    { "shape": "Complex regex beyond (?P<name>[^/]+) / ([^/]+)", "reason": "hub-python:tornado-complex-regex" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Flask Python ST + FastAPI/Starlette/Litestar/Falcon/Quart/Bottle/Sanic/Tornado secondaries closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

@@ -115,9 +115,10 @@ export const LANGUAGE_PROFILES = {
     role: "origin",
     family: "rust-ecosystem",
     typing: "static",
-    typicalFrameworks: ["actix-web", "axum"],
+    typicalFrameworks: ["actix-web", "axum", "rocket", "poem", "salvo"],
     routeStyle: "macros / attributes",
-    notes: "Pattern route lift; Actix flagship ST; Axum secondary (hub-gold-axum / hub:axum-smoke).",
+    notes:
+      "Pattern route lift; Actix flagship ST; Axum/Rocket/Poem/Salvo secondaries (hub-gold-* / hub:*-smoke).",
   },
   elixir: {
     kind: "dynamic",

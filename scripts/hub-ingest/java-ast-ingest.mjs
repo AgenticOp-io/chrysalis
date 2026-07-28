@@ -5,6 +5,10 @@
  * Secondary: JAX-RS (G10012) + Micronaut @Controller/@Get|Post|… (G10020) peels —
  * HttpResponse.ok/status/created/accepted + @PathVariable/@QueryValue (no DI/filter invent).
  * Quarkus (G10034) reuses JAX-RS peels (jakarta.ws.rs.*); no CDI/RESTEasy/Panache invent.
+ * Javalin (G10035): Javalin.create + app.get|post|…("/path", ctx -> …) + pathParam/queryParam
+ * + status(n).json / json / result (no plugin/DI invent).
+ * Spark Java (G10036 / D6498): spark.Spark.get|post|…("/path", (req, res) -> …) + :id paths +
+ * req.params / req.queryParams + res.status / res.type + string/JSON returns (no filter invent).
  */
 import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
 import {
@@ -175,6 +179,26 @@ function parseJavaMapOfReturnTree(mapInner, paramRefs) {
     } else if (paramRefs[rawVal]) {
       entries.push({ key, value: { t: "ref", ...paramRefs[rawVal] } });
     } else {
+      const sparkPath = rawVal.match(/^\w+\.params\s*\(\s*"([^"]+)"\s*\)$/);
+      if (sparkPath) {
+        entries.push({ key, value: { t: "ref", source: "path", name: sparkPath[1] } });
+        continue;
+      }
+      const sparkQuery = rawVal.match(/^\w+\.queryParams\s*\(\s*"([^"]+)"\s*\)$/);
+      if (sparkQuery) {
+        entries.push({ key, value: { t: "ref", source: "query", name: sparkQuery[1], default: "" } });
+        continue;
+      }
+      const javalinPath = rawVal.match(/^\w+\.pathParam\s*\(\s*"([^"]+)"\s*\)$/);
+      if (javalinPath) {
+        entries.push({ key, value: { t: "ref", source: "path", name: javalinPath[1] } });
+        continue;
+      }
+      const javalinQuery = rawVal.match(/^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)$/);
+      if (javalinQuery) {
+        entries.push({ key, value: { t: "ref", source: "query", name: javalinQuery[1], default: "" } });
+        continue;
+      }
       return null;
     }
   }
@@ -217,6 +241,213 @@ export function extractJavaMethodBody(source, fromIndex) {
 }
 
 /**
+ * Spark Java handler after `spark.Spark.get|post|…("/path", (req, res) ->` —
+ * block `{…}` or expression until the Spark.* call `)`.
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+export function extractJavaSparkHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 12000);
+  const head = slice.match(
+    /spark\.Spark\.(?:get|post|put|patch|delete|head|options)\s*\(\s*["'][^"']+["']\s*,\s*\(\s*\w+\s*,\s*\w+\s*\)\s*->\s*/i,
+  );
+  if (!head || head.index === undefined) return null;
+  const absHead = fromIndex + head.index;
+  const openParen = absHead + head[0].indexOf("(");
+  const bodyStart = fromIndex + head.index + head[0].length;
+  const after = source.slice(bodyStart);
+  const braceLead = after.match(/^\s*\{/);
+  if (braceLead) {
+    const absOpen = bodyStart + (braceLead[0].length - 1);
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    return {
+      paramSource: "",
+      bodySlice: bal.inner,
+      line: source.slice(0, absOpen).split("\n").length,
+      dialect: "spark",
+    };
+  }
+  let depth = 0;
+  let end = openParen;
+  for (let i = openParen; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"' || ch === "'") {
+      const q = ch;
+      i += 1;
+      while (i < source.length) {
+        if (source[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (source[i] === q) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  if (end <= bodyStart) return null;
+  return {
+    paramSource: "",
+    bodySlice: source.slice(bodyStart, end).trim(),
+    line: source.slice(0, bodyStart).split("\n").length,
+    dialect: "spark",
+  };
+}
+
+/**
+ * Body-local Spark req.params / req.queryParams assignments.
+ * @param {string} bodySlice
+ */
+function parseJavaSparkRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.params\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.queryParams\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * Javalin handler after `.get|post|…("/path", ctx ->` — block `{…}` or expression until call `)`.
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+export function extractJavaJavalinHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 12000);
+  const head = slice.match(
+    /\.(?:get|post|put|patch|delete)\s*\(\s*["'][^"']+["']\s*,\s*\w+\s*->\s*/i,
+  );
+  if (!head || head.index === undefined) return null;
+  const absHead = fromIndex + head.index;
+  const openParen = absHead + head[0].indexOf("(");
+  const bodyStart = fromIndex + head.index + head[0].length;
+  const after = source.slice(bodyStart);
+  const braceLead = after.match(/^\s*\{/);
+  if (braceLead) {
+    const absOpen = bodyStart + (braceLead[0].length - 1);
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    return {
+      paramSource: "",
+      bodySlice: bal.inner,
+      line: source.slice(0, absOpen).split("\n").length,
+      dialect: "javalin",
+    };
+  }
+  let depth = 0;
+  let end = openParen;
+  for (let i = openParen; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"' || ch === "'") {
+      const q = ch;
+      i += 1;
+      while (i < source.length) {
+        if (source[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (source[i] === q) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  if (end <= bodyStart) return null;
+  return {
+    paramSource: "",
+    bodySlice: source.slice(bodyStart, end).trim(),
+    line: source.slice(0, bodyStart).split("\n").length,
+    dialect: "javalin",
+  };
+}
+
+/**
+ * Body-local Javalin ctx.pathParam / ctx.queryParam assignments.
+ * @param {string} bodySlice
+ */
+function parseJavaJavalinRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.pathParam\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * Extract argument text of the first `callee.method(` / `.method(` call in `slice`
+ * with balanced parentheses (so Map.of(…) inside json(…) is not truncated).
+ * @param {string} slice
+ * @param {RegExp} headRe — must match through the opening `(` of the call (last char `(`)
+ */
+function extractBalancedCallArg(slice, headRe) {
+  const head = slice.match(headRe);
+  if (!head || head.index === undefined) return null;
+  const openIdx = head.index + head[0].length - 1;
+  if (slice[openIdx] !== "(") return null;
+  let depth = 0;
+  for (let i = openIdx; i < slice.length; i++) {
+    const ch = slice[i];
+    if (ch === '"' || ch === "'") {
+      const q = ch;
+      i += 1;
+      while (i < slice.length) {
+        if (slice[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (slice[i] === q) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        return {
+          arg: slice.slice(openIdx + 1, i).trim(),
+          fullMatch: slice.slice(head.index, i + 1),
+          groups: head,
+        };
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * @param {string} bodySlice
  * @param {Record<string, { source: string, name: string, default?: unknown }>} paramRefs
  */
@@ -228,6 +459,10 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   /** @type {"json" | "scalar-lit" | "scalar-ref" | null} */
   let kind = null;
 
+  /** Spark `res.status(N);` (statement — not ResponseEntity/HttpResponse/ctx.status().json). */
+  const statusStmtM = bodySlice.match(/\b\w+\.status\s*\(\s*(\d+)\s*\)\s*;/);
+  const statusFromStmt = statusStmtM ? Number.parseInt(statusStmtM[1], 10) : undefined;
+
   const reStatusBody = bodySlice.match(
     /return\s+ResponseEntity\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/,
   );
@@ -237,6 +472,19 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   /** Micronaut io.micronaut.http.HttpResponse.status(…).body(…) */
   const reMicronautStatusBody = bodySlice.match(
     /return\s+HttpResponse\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/,
+  );
+  /** Javalin ctx.status(n).json(…) — balanced so Map.of is not truncated */
+  const javalinStatusJson = extractBalancedCallArg(
+    bodySlice,
+    /\w+\.status\s*\(\s*(\d+)\s*\)\s*\.\s*json\s*\(/,
+  );
+  /** Javalin ctx.json(…) — skipped when status(n).json already matched */
+  const javalinJson = javalinStatusJson
+    ? null
+    : extractBalancedCallArg(bodySlice, /\w+\.json\s*\(/);
+  /** Javalin ctx.result(…) — string / path-ref scalars */
+  const reJavalinResult = bodySlice.match(
+    /\w+\.result\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|([A-Za-z_][A-Za-z0-9_]*))\s*\)\s*;?/,
   );
   const reOkBody = bodySlice.match(/return\s+ResponseEntity\.ok\s*\(\s*([\s\S]*?)\s*\)\s*;/);
   const reJaxrsOk = bodySlice.match(
@@ -269,6 +517,47 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     return parseJavaMapOfReturnTree(m[1], paramRefs);
   }
 
+  /** @param {string} expr */
+  function scalarFromExpr(expr) {
+    const t = expr.trim();
+    const lit = parseLiteralToken(t);
+    if (lit !== null) {
+      return { returnTree: { t: "lit", v: lit }, kind: /** @type {const} */ ("scalar-lit") };
+    }
+    if (paramRefs[t]) {
+      return { returnTree: { t: "ref", ...paramRefs[t] }, kind: /** @type {const} */ ("scalar-ref") };
+    }
+    const sparkPath = t.match(/^\w+\.params\s*\(\s*"([^"]+)"\s*\)$/);
+    if (sparkPath) {
+      return {
+        returnTree: { t: "ref", source: "path", name: sparkPath[1] },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    const sparkQuery = t.match(/^\w+\.queryParams\s*\(\s*"([^"]+)"\s*\)$/);
+    if (sparkQuery) {
+      return {
+        returnTree: { t: "ref", source: "query", name: sparkQuery[1], default: "" },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    const javalinPath = t.match(/^\w+\.pathParam\s*\(\s*"([^"]+)"\s*\)$/);
+    if (javalinPath) {
+      return {
+        returnTree: { t: "ref", source: "path", name: javalinPath[1] },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    const javalinQuery = t.match(/^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)$/);
+    if (javalinQuery) {
+      return {
+        returnTree: { t: "ref", source: "query", name: javalinQuery[1], default: "" },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    return null;
+  }
+
   if (reStatusBody) {
     status = parseJavaHttpStatus(reStatusBody[1]);
     returnTree = mapFromExpr(reStatusBody[2]);
@@ -281,6 +570,18 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = parseJavaHttpStatus(reMicronautStatusBody[1]);
     returnTree = mapFromExpr(reMicronautStatusBody[2]);
     kind = returnTree ? "json" : null;
+  } else if (javalinStatusJson) {
+    status = Number.parseInt(javalinStatusJson.groups[1], 10);
+    const expr = javalinStatusJson.arg;
+    returnTree = mapFromExpr(expr);
+    if (returnTree) kind = "json";
+    else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
   } else if (reCreated) {
     status = 201;
     returnTree = mapFromExpr(reCreated[1]);
@@ -313,6 +614,30 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = 200;
     returnTree = mapFromExpr(reMicronautOk[1]);
     kind = returnTree ? "json" : null;
+  } else if (javalinJson) {
+    const expr = javalinJson.arg;
+    returnTree = mapFromExpr(expr);
+    if (returnTree) kind = "json";
+    else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
+  } else if (reJavalinResult) {
+    const litTok = reJavalinResult[1];
+    const refTok = reJavalinResult[2];
+    if (refTok && paramRefs[refTok]) {
+      returnTree = { t: "ref", ...paramRefs[refTok] };
+      kind = "scalar-ref";
+    } else {
+      const v = parseLiteralToken(litTok);
+      if (v !== null) {
+        returnTree = { t: "lit", v };
+        kind = "scalar-lit";
+      }
+    }
   } else if (rePlainMap) {
     returnTree = parseJavaMapOfReturnTree(rePlainMap[1], paramRefs);
     kind = returnTree ? "json" : null;
@@ -325,7 +650,23 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   } else if (reRef && paramRefs[reRef[1]]) {
     returnTree = { t: "ref", ...paramRefs[reRef[1]] };
     kind = "scalar-ref";
+  } else if (!/\breturn\b/.test(bodySlice) && !/\w+\.(?:json|result)\s*\(/.test(bodySlice)) {
+    // Expression-lambda body (Spark/Javalin) without `return` / ctx.json|result.
+    const expr = bodySlice.trim().replace(/;\s*$/, "");
+    const mapM = expr.match(/^(?:java\.util\.)?Map\.of\s*\(([\s\S]*)\)$/);
+    if (mapM) {
+      returnTree = parseJavaMapOfReturnTree(mapM[1], paramRefs);
+      kind = returnTree ? "json" : null;
+    } else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
   }
+
+  if (status === undefined && statusFromStmt !== undefined) status = statusFromStmt;
 
   return { status, returnTree, kind };
 }
@@ -432,19 +773,32 @@ export function liftJavaFileToWebir(opts) {
 
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
-    const extracted = extractJavaMethodBody(source, idx);
+    let extracted = extractJavaMethodBody(source, idx);
+    if (!extracted) extracted = extractJavaSparkHandlerBody(source, idx);
+    if (!extracted) extracted = extractJavaJavalinHandlerBody(source, idx);
     let bodyId;
     if (!extracted) {
       bodyId = hubHandlerBodyHole(ctx, "hub-java:handler-body", { file, line: r.line });
     } else {
       const { paramSource, bodySlice, line } = extracted;
       const loc = { file, line };
-      const paramRefs = parseJavaParamRefs(paramSource);
+      const paramRefs = {
+        ...parseJavaParamRefs(paramSource ?? ""),
+        ...parseJavaJavalinRefs(bodySlice),
+        ...parseJavaSparkRefs(bodySlice),
+      };
       const sqlEffects = parseJavaSqlEffects(bodySlice, paramRefs);
       const { status, returnTree, kind } = parseJavaBodyReturn(bodySlice, paramRefs);
 
       if (kind === "scalar-lit" && returnTree?.t === "lit") {
         bodyId = lowerJavaScalarLit(ctx, status, returnTree.v, loc);
+      } else if (kind === "scalar-ref" && returnTree?.t === "ref") {
+        bodyId =
+          lowerJavaHandlerBodyFull(
+            ctx,
+            { sqlEffects, returnTree, status, line },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-java:handler-body", loc);
       } else if (sqlEffects.length > 0 || returnTree || (typeof status === "number" && status !== 200)) {
         bodyId =
           lowerJavaHandlerBodyFull(

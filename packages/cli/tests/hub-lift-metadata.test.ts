@@ -65,7 +65,19 @@ test("isPassThroughMiddlewareFn accepts next-only shells", async () => {
   const decl = ast.body[0];
   const fn = decl.declarations[0].init;
   expect(isPassThroughMiddlewareFn(fn)).toBe(true);
+  const retNext = parseJavaScriptSource("const f = async (_c, next) => { return next(); };\n", "t.js");
+  expect(isPassThroughMiddlewareFn(retNext.body[0].declarations[0].init)).toBe(true);
   const busy = parseJavaScriptSource("const f = (ctx, next) => { ctx.status = 204; next(); };\n", "t.js");
   const busyFn = busy.body[0].declarations[0].init;
   expect(isPassThroughMiddlewareFn(busyFn)).toBe(false);
+});
+
+test("countExpressMiddlewareUses detects Hono app.use pass-through", async () => {
+  const { countExpressMiddlewareUses } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/javascript-ast-ingest.mjs", import.meta.url))
+  );
+  const n = countExpressMiddlewareUses(
+    'import { Hono } from "hono";\nconst app = new Hono();\napp.use(async (_c, next) => { await next(); });\napp.use(async (_c, next) => { return next(); });\n',
+  );
+  expect(n).toBe(2);
 });

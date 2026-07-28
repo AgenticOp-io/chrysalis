@@ -1,4 +1,4 @@
-"""Extract Flask/Quart/Sanic/FastAPI/Starlette/Litestar/Falcon/Bottle-style route metadata from Python source (hub ingest).
+"""Extract Flask/Quart/Sanic/FastAPI/Starlette/Litestar/Falcon/Bottle/aiohttp/Tornado-style route metadata from Python source (hub ingest).
 
 Quart is the Flask-async twin: reuse Flask @app.get|post|route / <id> / request.args /
 status-tuple peels (AsyncFunctionDef already covered). No middleware/websocket/Blueprint invent.
@@ -8,6 +8,14 @@ No middleware/Blueprint/listener invent.
 
 Bottle: bare @get|post|route, method='POST', <id> paths, request.query.q / request.params,
 HTTPResponse(body, status=N). No plugin/middleware invent.
+
+aiohttp: web.Application() + web.get|post|…('/path', handler), {id} / {id:\\d+} paths,
+request.match_info['id'], request.query.get, web.json_response / web.Response.
+No middleware/subapp/websocket invent.
+
+Tornado: tornado.web.Application([(r"/path", Handler), …]) + class get/post/…,
+(?P<id>[^/]+) / simple ([^/]+) groups, self.get_argument, self.write / self.set_status.
+No RequestHandler mixins / UIModule / async gen invent.
 """
 import ast
 import json
@@ -42,6 +50,15 @@ FALCON_STATUS_NAMES = {
     "HTTP_ACCEPTED": 202,
     "HTTP_NO_CONTENT": 204,
 }
+TORNADO_HTTP = {
+    "get": "GET",
+    "post": "POST",
+    "put": "PUT",
+    "patch": "PATCH",
+    "delete": "DELETE",
+    "head": "HEAD",
+    "options": "OPTIONS",
+}
 
 
 def const_str(node):
@@ -65,7 +82,7 @@ def const_val(node):
 
 
 def path_param_names(path):
-    """Flask `<id>` / `<int:id>`, Sanic `<id>` / `<id:str>`, FastAPI `{id}` → bare names."""
+    """Flask `<id>` / `<int:id>`, Sanic `<id>` / `<id:str>`, FastAPI/aiohttp `{id}` / `{id:\\d+}` → bare names."""
     names = []
     for raw in re.findall(r"<([^>]+)>", path):
         raw = raw.strip()
@@ -83,7 +100,8 @@ def path_param_names(path):
         else:
             names.append(right)  # historical Flask default
     for raw in re.findall(r"\{([^{}]+)\}", path):
-        names.append(raw.split(":", 1)[-1].strip())
+        # FastAPI/Starlette {id:int} / aiohttp {id:\d+} — name is always left of ':'.
+        names.append(raw.split(":", 1)[0].strip())
     return names
 
 
@@ -110,11 +128,12 @@ def status_from_keywords(kw):
 def request_bucket_map(bucket):
     return {
         "args": "query",
-        "query": "query",  # Bottle request.query / FormsDict
+        "query": "query",  # Bottle request.query / FormsDict / aiohttp request.query
         "query_params": "query",
         "params": "query",  # Bottle request.params (query+forms)
         "view_args": "path",
         "path_params": "path",
+        "match_info": "path",  # aiohttp request.match_info['id']
         "headers": "header",
         "cookies": "cookie",
     }.get(bucket)
@@ -172,6 +191,26 @@ def request_ref_from_get_param(node):
     if not isinstance(node.func, ast.Attribute) or node.func.attr != "get_param":
         return None
     if not isinstance(node.func.value, ast.Name) or not request_receiver_ok(node.func.value.id):
+        return None
+    if not node.args:
+        return None
+    name = const_str(node.args[0])
+    if not name:
+        return None
+    ref = {"t": "ref", "source": "query", "name": name}
+    default = request_ref_default(node)
+    if default is not None:
+        ref["default"] = default
+    return ref
+
+
+def request_ref_from_get_argument(node):
+    """Tornado `self.get_argument('q')` / `self.get_argument('q', '')` → query ref."""
+    if not isinstance(node, ast.Call):
+        return None
+    if not isinstance(node.func, ast.Attribute) or node.func.attr != "get_argument":
+        return None
+    if not isinstance(node.func.value, ast.Name) or node.func.value.id != "self":
         return None
     if not node.args:
         return None
@@ -262,6 +301,81 @@ def peel_json_text_response(node):
     return payload, status
 
 
+def peel_aiohttp_response(node):
+    """aiohttp `web.json_response(body, status=N)` / `web.Response(text=…, status=N)` → (payload, status)."""
+    if not isinstance(node, ast.Call):
+        return None, None
+    if not isinstance(node.func, ast.Attribute):
+        return None, None
+    if not isinstance(node.func.value, ast.Name) or node.func.value.id != "web":
+        return None, None
+    attr = node.func.attr
+    if attr not in ("json_response", "Response"):
+        return None, None
+    payload = None
+    status = None
+    if attr == "json_response":
+        if node.args:
+            payload = node.args[0]
+        for k in node.keywords:
+            if k.arg in ("data", "text", "body"):
+                payload = k.value
+            elif k.arg == "status":
+                s = const_val(k.value)
+                if isinstance(s, int):
+                    status = s
+    else:
+        for k in node.keywords:
+            if k.arg in ("text", "body"):
+                payload = k.value
+            elif k.arg == "status":
+                s = const_val(k.value)
+                if isinstance(s, int):
+                    status = s
+        if payload is None and node.args:
+            payload = node.args[0]
+    return payload, status
+
+
+AIOHTTP_HTTP = frozenset({"get", "post", "put", "patch", "delete", "head", "options"})
+
+
+def fill_handler_return(row, body, func_args, path_params):
+    """Shared return / status / SQL peels for decorator + named-handler dialects."""
+    sql_effects = collect_sql_effects(body, func_args, path_params)
+    if sql_effects:
+        row["sqlEffects"] = sql_effects
+    if not body:
+        return
+    last = body[-1]
+    if not isinstance(last, ast.Return) or last.value is None:
+        return
+    ret = last.value
+    payload, status_code = peel_status_tuple(ret)
+    if payload is not None:
+        ret = payload
+        row["statusCode"] = status_code
+    hr_payload, hr_status = peel_http_response(ret)
+    if hr_payload is not None or hr_status is not None:
+        if hr_payload is not None:
+            ret = hr_payload
+        if hr_status is not None:
+            row["statusCode"] = hr_status
+    jt_payload, jt_status = peel_json_text_response(ret)
+    if jt_payload is not None or jt_status is not None:
+        if jt_payload is not None:
+            ret = jt_payload
+        if jt_status is not None:
+            row["statusCode"] = jt_status
+    aio_payload, aio_status = peel_aiohttp_response(ret)
+    if aio_payload is not None or aio_status is not None:
+        if aio_payload is not None:
+            ret = aio_payload
+        if aio_status is not None:
+            row["statusCode"] = aio_status
+    fill_return_fields(row, ret, func_args, path_params)
+
+
 def expr_tree(node, func_args, path_params):
     if node is None:
         return None
@@ -297,6 +411,9 @@ def expr_tree(node, func_args, path_params):
         if ref:
             return ref
         ref = request_ref_from_get_param(node)
+        if ref:
+            return ref
+        ref = request_ref_from_get_argument(node)
         if ref:
             return ref
         if isinstance(node.func, ast.Name) and node.func.id in ("jsonify", "json", "text"):
@@ -547,6 +664,92 @@ def falcon_add_route_class(node):
     return None
 
 
+def is_tornado_application_call(node):
+    """tornado.web.Application([...]) / web.Application([...]) / Application([...])."""
+    if not isinstance(node, ast.Call):
+        return False
+    f = node.func
+    if isinstance(f, ast.Name) and f.id == "Application":
+        return True
+    if isinstance(f, ast.Attribute) and f.attr == "Application":
+        return True
+    return False
+
+
+def tornado_resource_handlers(class_node):
+    """Class get/post/… methods (RequestHandler verbs) → HTTP method map."""
+    handlers = {}
+    for item in class_node.body:
+        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name in TORNADO_HTTP:
+            handlers[TORNADO_HTTP[item.name]] = item
+    return handlers
+
+
+def tornado_handler_class_name(node):
+    """Bare Handler name (Application table entry) → class id."""
+    if isinstance(node, ast.Name):
+        return node.id
+    return None
+
+
+def tornado_path_to_template(path, positional_names):
+    """Tornado regex path → `{name}` template (named groups + simple ([^/]+))."""
+    if not isinstance(path, str):
+        return None
+    names = list(positional_names) if positional_names else []
+    idx = [0]
+
+    def repl_named(m):
+        return "{" + m.group(1) + "}"
+
+    def repl_simple(m):
+        if idx[0] >= len(names):
+            return m.group(0)
+        name = names[idx[0]]
+        idx[0] += 1
+        return "{" + name + "}"
+
+    out = re.sub(r"\(\?P<([A-Za-z_][\w]*)>[^)]*\)", repl_named, path)
+    # Cheap segment captures only — complex nested regex stays unconverted (honest hole).
+    out = re.sub(r"\(\[\^/\][+*]\)", repl_simple, out)
+    if "(" in out or ")" in out or "?" in out or "+" in out or "*" in out or "[" in out:
+        return None
+    return out
+
+
+def is_self_attr_call(node, attr):
+    return (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "self"
+        and node.func.attr == attr
+    )
+
+
+def peel_tornado_method_body(body):
+    """self.write(payload) + optional self.set_status(N)."""
+    payload = None
+    status = None
+    if not isinstance(body, list):
+        return None, None
+    for stmt in body:
+        call = None
+        if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call):
+            call = stmt.value
+        elif isinstance(stmt, ast.Assign) and isinstance(stmt.value, ast.Call):
+            call = stmt.value
+        if call is None:
+            continue
+        if is_self_attr_call(call, "write") and call.args:
+            payload = call.args[0]
+        elif is_self_attr_call(call, "set_status") and call.args:
+            s = const_val(call.args[0])
+            if isinstance(s, int):
+                status = s
+    return payload, status
+
+
 def fill_return_fields(row, ret, func_args, path_params):
     tree_val = expr_tree(ret, func_args, path_params)
     if tree_val is not None:
@@ -595,30 +798,7 @@ for node in tree.body:
                 }
                 if "statusCode" in r:
                     row["statusCode"] = r["statusCode"]
-                sql_effects = collect_sql_effects(node.body, func_args, path_params)
-                if sql_effects:
-                    row["sqlEffects"] = sql_effects
-                if node.body:
-                    last = node.body[-1]
-                    if isinstance(last, ast.Return) and last.value is not None:
-                        ret = last.value
-                        payload, status_code = peel_status_tuple(ret)
-                        if payload is not None:
-                            ret = payload
-                            row["statusCode"] = status_code
-                        hr_payload, hr_status = peel_http_response(ret)
-                        if hr_payload is not None or hr_status is not None:
-                            if hr_payload is not None:
-                                ret = hr_payload
-                            if hr_status is not None:
-                                row["statusCode"] = hr_status
-                        jt_payload, jt_status = peel_json_text_response(ret)
-                        if jt_payload is not None or jt_status is not None:
-                            if jt_payload is not None:
-                                ret = jt_payload
-                            if jt_status is not None:
-                                row["statusCode"] = jt_status
-                        fill_return_fields(row, ret, func_args, path_params)
+                fill_handler_return(row, node.body, func_args, path_params)
                 routes.append(row)
             break
 
@@ -665,5 +845,93 @@ for node in ast.walk(tree):
         else:
             row["returnKind"] = "falcon-empty"
         routes.append(row)
+
+# aiohttp: web.get|post|…('/path', handler) → same-file named handler (no middleware invent).
+named_handlers = {}
+for node in tree.body:
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        named_handlers[node.name] = node
+
+for node in ast.walk(tree):
+    if not isinstance(node, ast.Call):
+        continue
+    if not isinstance(node.func, ast.Attribute):
+        continue
+    if not isinstance(node.func.value, ast.Name) or node.func.value.id != "web":
+        continue
+    if node.func.attr not in AIOHTTP_HTTP:
+        continue
+    if len(node.args) < 2:
+        continue
+    path = const_str(node.args[0])
+    if not path or not isinstance(node.args[1], ast.Name):
+        continue
+    handler_name = node.args[1].id
+    fn = named_handlers.get(handler_name)
+    if fn is None:
+        continue
+    path_params = set(path_param_names(path))
+    func_args = [a.arg for a in fn.args.args]
+    line = node.lineno if hasattr(node, "lineno") else 1
+    row = {
+        "method": node.func.attr.upper(),
+        "path": path,
+        "line": line,
+        "name": handler_name,
+        "returns": type(fn.body[-1]).__name__ if fn.body else None,
+        "returnKind": None,
+    }
+    fill_handler_return(row, fn.body, func_args, path_params)
+    routes.append(row)
+
+# Tornado: Application([(r"/path", Handler), …]) + class get/post/… (same-file only).
+tornado_classes = {}
+for node in tree.body:
+    if not isinstance(node, ast.ClassDef):
+        continue
+    handlers = tornado_resource_handlers(node)
+    if handlers:
+        tornado_classes[node.name] = handlers
+
+for node in ast.walk(tree):
+    if not is_tornado_application_call(node):
+        continue
+    if not node.args or not isinstance(node.args[0], ast.List):
+        continue
+    line = node.lineno if hasattr(node, "lineno") else 1
+    for elt in node.args[0].elts:
+        if not isinstance(elt, ast.Tuple) or len(elt.elts) < 2:
+            continue
+        raw_path = const_str(elt.elts[0])
+        class_name = tornado_handler_class_name(elt.elts[1])
+        if not raw_path or not class_name or class_name not in tornado_classes:
+            continue
+        for method, fn in tornado_classes[class_name].items():
+            func_args = [a.arg for a in fn.args.args]
+            # Path captures after `self` map simple ([^/]+) groups.
+            positional = [a for a in func_args if a != "self"]
+            path = tornado_path_to_template(raw_path, positional)
+            if not path:
+                continue
+            path_params = set(path_param_names(path))
+            row = {
+                "method": method,
+                "path": path,
+                "line": line,
+                "name": "%s_%s" % (class_name, fn.name),
+                "returns": type(fn.body[-1]).__name__ if fn.body else None,
+                "returnKind": None,
+            }
+            payload, status = peel_tornado_method_body(fn.body)
+            if status is not None:
+                row["statusCode"] = status
+            sql_effects = collect_sql_effects(fn.body, func_args, path_params)
+            if sql_effects:
+                row["sqlEffects"] = sql_effects
+            if payload is not None:
+                fill_return_fields(row, payload, func_args, path_params)
+            else:
+                row["returnKind"] = "tornado-empty"
+            routes.append(row)
 
 print(json.dumps({"schemaVersion": "0.1.0", "routes": routes}))

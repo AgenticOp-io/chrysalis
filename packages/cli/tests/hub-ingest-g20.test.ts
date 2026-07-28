@@ -113,6 +113,31 @@ test("typescript AST lifts Elysia dialect 20/20 hole-free (G10025)", async () =>
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
+test("typescript AST lifts Oak dialect 20/20 hole-free (G10043)", async () => {
+  const { liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-oak/src/app.ts"), "utf8");
+  expect(source).toContain("new Application");
+  expect(source).toContain("ctx.response.body");
+  expect(source).toContain("searchParams");
+  expect(source).toContain("/items/{id}");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-oak" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.ts",
+    language: "typescript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("python AST finds Flask routes and lowers literal return", async () => {
   const py = process.env.CHRYSALIS_HUB_PYTHON ?? "python3";
   const check = spawnSync(py, ["-c", "import ast, json; print('ok')"], { encoding: "utf8" });
@@ -226,6 +251,66 @@ test("java AST lifts Quarkus jakarta JAX-RS resource 20/20 via G10012 peels (G10
     source,
     file: "HubResource.java",
     language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("java AST lifts Spark Java routes 20/20 hole-free (G10036)", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const { normalizeJavaSparkPath } = await import(
+    resolve(ROOT, "packages/hub-native-bridge/dist/java.js")
+  );
+  expect(normalizeJavaSparkPath("/items/:id")).toBe("/items/{id}");
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-sparkjava/src/HubApp.java"),
+    "utf8",
+  );
+  expect(source).toContain("spark.Spark.get");
+  const routes = parseJavaRoutes(source, "HubApp.java");
+  expect(routes.length).toBe(20);
+  expect(routes.map((r) => `${r.method} ${r.path}`)).toContain("GET /items/{id}");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-sparkjava" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubApp.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("csharp AST lifts Carter ICarterModule Map* 20/20 via Minimal API peels (G10041)", async () => {
+  const { parseCsharpRoutes, liftCsharpFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/csharp-ast-ingest.mjs")
+  );
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-carter/HubModule.cs"),
+    "utf8",
+  );
+  expect(source).toContain("ICarterModule");
+  expect(source).toContain("AddRoutes");
+  const routes = parseCsharpRoutes(source);
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-carter" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftCsharpFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubModule.cs",
+    language: "csharp",
   });
   expect(r.usedAst).toBe(true);
   expect(r.astRouteCount).toBe(20);
@@ -385,6 +470,39 @@ test("rust AST resolves Rocket mount + Json/Status peels (G10011)", async () => 
 
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-rocket" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftRustFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.rs",
+    language: "rust",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("rust AST lifts Salvo with_path + param/query peels (G10037)", async () => {
+  const { parseRustRoutes, normalizeSalvoRoutePath } = await import(
+    resolve(ROOT, "scripts/hub-ingest/pattern-route-parsers.mjs")
+  );
+  const { liftRustFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/rust-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-salvo/src/main.rs"), "utf8");
+  expect(normalizeSalvoRoutePath("health")).toBe("/health");
+  expect(normalizeSalvoRoutePath("/items/{id}")).toBe("/items/{id}");
+  const routes = parseRustRoutes(source)
+    .map((r) => `${r.method} ${r.path}`)
+    .sort();
+  expect(routes).toContain("GET /items/{id}");
+  expect(routes).toContain("GET /search");
+  expect(routes.length).toBe(20);
+
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-salvo" });
   const wr = webir.webRequest.builders(builder);
   const r = liftRustFileToWebir({
     webir,

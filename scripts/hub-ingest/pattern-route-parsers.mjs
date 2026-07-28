@@ -47,6 +47,15 @@ const RUST_ROUTE_RE =
 const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]/g;
 const RUST_MACRO_FN_RE =
   /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]\s*(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gi;
+/**
+ * Salvo secondary (G10037): `Router::with_path("…").get(handler)` / `.path("…").get(handler)`
+ * with optional chained `.post|.put|…` on the same path. Nested `.push` path join = honest hole
+ * (prefer flat full paths like `items/{id}`).
+ */
+const RUST_SALVO_PATH_METHODS_RE =
+  /(?:Router::with_path|\.path)\s*\(\s*"([^"]+)"\s*\)((?:\s*\.\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*[A-Za-z_][A-Za-z0-9_]*\s*\))+)/gi;
+const RUST_SALVO_METHOD_CALL_RE =
+  /\.\s*(get|post|put|patch|delete|head|options)\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/gi;
 const SCALA_PLAY_RE = /\(\s*"(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)"\s*,\s*"([^"]+)"\s*\)/g;
 const SCALA_SIRD_RE = /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s*\(\s*p"([^"]+)"\s*\)/gi;
 const SCALA_AKKA_ROUTE_RE =
@@ -179,6 +188,17 @@ export function joinAxumNestPath(prefix, path) {
 }
 
 /**
+ * Normalize Salvo `with_path` / `.path` string to a leading-slash route path.
+ * Salvo accepts `"health"` or `"/health"`; CWL peels prefer `/health`.
+ * @param {string} raw
+ */
+export function normalizeSalvoRoutePath(raw) {
+  const t = String(raw || "").trim();
+  if (!t || t === "/") return "/";
+  return t.startsWith("/") ? t : `/${t}`;
+}
+
+/**
  * Map nested router fn names → nest path prefix (`.nest("/api", api())`).
  * Shared by Axum + Poem (G10029). Inline `Router::new()` / `Route::new()` nest
  * targets are not lowered (honest hole / skip).
@@ -275,7 +295,15 @@ function rustFnBodyRange(source, fnName) {
 export function parseRustRoutes(source) {
   const routes = [];
   const seen = new Set();
-  const methodMap = { get: "GET", post: "POST", put: "PUT", delete: "DELETE", patch: "PATCH" };
+  const methodMap = {
+    get: "GET",
+    post: "POST",
+    put: "PUT",
+    delete: "DELETE",
+    patch: "PATCH",
+    head: "HEAD",
+    options: "OPTIONS",
+  };
   const nestByFn = collectAxumNestPrefixes(source);
   const mountByHandler = collectRocketMountPrefixes(source);
   /** @type {{ name: string, prefix: string, start: number, end: number }[]} */
@@ -304,6 +332,20 @@ export function parseRustRoutes(source) {
     const mountPrefix = mountByHandler.get(m[3]);
     if (mountPrefix) path = joinAxumNestPath(mountPrefix, path);
     pushRoute(routes, source, verb, path, m.index, seen);
+  }
+  // Salvo (G10037): Router::with_path("…").get(h) / .path("…").post(h) chains.
+  RUST_SALVO_PATH_METHODS_RE.lastIndex = 0;
+  while ((m = RUST_SALVO_PATH_METHODS_RE.exec(source)) !== null) {
+    const path = normalizeSalvoRoutePath(m[1]);
+    const chain = m[2] ?? "";
+    const chainBase = m.index + m[0].indexOf(chain);
+    RUST_SALVO_METHOD_CALL_RE.lastIndex = 0;
+    let cm;
+    while ((cm = RUST_SALVO_METHOD_CALL_RE.exec(chain)) !== null) {
+      const verb = methodMap[cm[1].toLowerCase()];
+      if (!verb) continue;
+      pushRoute(routes, source, verb, path, chainBase + cm.index, seen);
+    }
   }
   return routes;
 }

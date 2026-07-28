@@ -7,6 +7,18 @@ const SPRING_VERB_RE =
 const MICRONAUT_VERB_RE =
   /@(Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*(?:(?:value|uri)\s*=\s*)?["']([^"']+)["']/gi;
 
+/** Javalin fluent routes: app.get|post|…("/path", ctx -> …) — not Spring/Micronaut annotations. */
+const JAVALIN_VERB_RE =
+  /\.(get|post|put|patch|delete)\s*\(\s*["']([^"']+)["']\s*,/gi;
+
+const JAVALIN_CREATE_RE = /\bJavalin\s*\.\s*create\s*\(|\bio\.javalin\b|\bimport\s+io\.javalin\b/;
+
+/** Spark Java static routes: spark.Spark.get|post|…("/path", (req, res) -> …). */
+const SPARK_VERB_RE =
+  /spark\.Spark\.(get|post|put|patch|delete|head|options)\s*\(\s*["']([^"']+)["']/gi;
+
+const SPARK_MARKER_RE = /\bspark\.Spark\.(?:get|post|put|patch|delete|head|options)\b|\bimport\s+spark\.Spark\b|\bimport\s+static\s+spark\.Spark\b/;
+
 const JAXRS_VERB_PATH_RE =
   /@(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b\s*(?:@\w+(?:\([^)]*\))?\s*)*@Path(?!Param)\s*\(\s*["']([^"']+)["']\s*\)/gi;
 
@@ -143,6 +155,67 @@ function parseJavaMicronautControllerRoutes(
   return routes;
 }
 
+/** Normalize Javalin path literals (already `{id}` brace form). */
+export function normalizeJavaJavalinPath(path: string): string {
+  const p = String(path ?? "").trim();
+  if (!p) return "/";
+  return p.startsWith("/") ? p : `/${p}`;
+}
+
+/** Normalize Spark `:id` path templates → `{id}` (Echo/Fiber parallel). */
+export function normalizeJavaSparkPath(path: string): string {
+  const p = String(path ?? "").trim();
+  if (!p) return "/";
+  const withSlash = p.startsWith("/") ? p : `/${p}`;
+  return withSlash.replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, "{$1}");
+}
+
+function parseJavaJavalinRoutes(
+  source: string,
+): Array<HubNativeRoute & { index: number }> {
+  const routes: Array<HubNativeRoute & { index: number }> = [];
+  if (!JAVALIN_CREATE_RE.test(source)) return routes;
+  JAVALIN_VERB_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = JAVALIN_VERB_RE.exec(source)) !== null) {
+    // Do not steal spark.Spark.get|post|… when both markers appear (additive coexist).
+    const absIdx = m.index;
+    const lookBehind = source.slice(Math.max(0, absIdx - 12), absIdx);
+    if (/spark\.Spark$/.test(lookBehind)) continue;
+    const method = (m[1] ?? "get").toUpperCase();
+    const path = normalizeJavaJavalinPath(m[2] ?? "/");
+    routes.push({
+      method,
+      path,
+      line: lineAt(source, m.index),
+      name: `javalin_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+      index: m.index,
+    });
+  }
+  return routes;
+}
+
+function parseJavaSparkRoutes(
+  source: string,
+): Array<HubNativeRoute & { index: number }> {
+  const routes: Array<HubNativeRoute & { index: number }> = [];
+  if (!SPARK_MARKER_RE.test(source)) return routes;
+  SPARK_VERB_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = SPARK_VERB_RE.exec(source)) !== null) {
+    const method = (m[1] ?? "get").toUpperCase();
+    const path = normalizeJavaSparkPath(m[2] ?? "/");
+    routes.push({
+      method,
+      path,
+      line: lineAt(source, m.index),
+      name: `spark_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+      index: m.index,
+    });
+  }
+  return routes;
+}
+
 export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[] {
   const routes: HubNativeRoute[] = [];
   const seen = new Set<string>();
@@ -157,6 +230,16 @@ export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[
       line: lineAt(source, index),
       name,
     });
+  }
+
+  const sparkRoutes = parseJavaSparkRoutes(source);
+  for (const r of sparkRoutes) {
+    push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
+  }
+
+  const javalinRoutes = parseJavaJavalinRoutes(source);
+  for (const r of javalinRoutes) {
+    push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
   }
 
   const micronautClassRoutes = parseJavaMicronautControllerRoutes(source);

@@ -1,0 +1,31 @@
+{
+  "kind": "chrysalis.hub.aiohttp-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:50:00.000Z",
+  "note": "Catalog only (D6447). Do not invent aiohttp middleware, subapps, View classes, or websocket channels beyond same-file cheap peels. Lift web.Application + web.get|post|…('/path', handler) + {id}/{id:\\d+} + request.match_info + request.query.get + web.json_response/web.Response that appear, else leave honest holes. Flask remains Python D6448-ST. aiohttp secondary smoke G10039 closed when hub:aiohttp-smoke ok.",
+  "fixture": "fixtures/hub-gold-aiohttp",
+  "smoke": "pnpm run hub:aiohttp-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:python",
+  "supported": [
+    "web.Application()",
+    "web.get|post|put|patch|delete(\"/path\", handler)",
+    "{id} / {id:\\d+} aiohttp path templates",
+    "request.match_info[\"id\"] path peels",
+    "request.query.get(\"q\", \"\") query peels",
+    "web.json_response(body) / web.Response(text=…) / status="
+  ],
+  "honestHoles": [
+    { "shape": "Middleware / signals / ASGI onion", "reason": "hub-python:aiohttp-middleware" },
+    { "shape": "Subapp / nested Application mount", "reason": "hub-python:aiohttp-subapp" },
+    { "shape": "WebSocket / streaming channels", "reason": "hub-python:aiohttp-websocket" },
+    { "shape": "web.View class-based handlers", "reason": "hub-python:aiohttp-view" },
+    { "shape": "Cross-file named handlers", "reason": "hub-python:aiohttp-handler-cross-file" },
+    { "shape": "app.router.add_* without web.get|post", "reason": "hub-python:aiohttp-router-add" }
+  ],
+  "absentOrigins": [],
+  "nextTargets": [
+    "Flask Python ST + FastAPI/Starlette/Litestar/Falcon/Quart/Bottle/Sanic/aiohttp secondaries closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "kind": "chrysalis.hub.csharp-secondary-dialect-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent ASP.NET DI/filter/Razor, Carter MapCarter bootstrap/DI, or Minimal API middleware onions. Lift origin Map*/controller shapes that appear, else leave honest holes. Minimal API remains C# D6448-ST. Carter route surface reuses Minimal API Map* peels (G10041 / D6503).",
+  "dialects": {
+    "aspnet-controllers": {
+      "fixture": "fixtures/hub-gold-aspnet-controllers",
+      "smoke": "pnpm run hub:aspnet-controllers-smoke",
+      "st": "pnpm run hub:complete-conversion-prove:csharp",
+      "gate": "G10008",
+      "supported": [
+        "[ApiController] + [Route] prefix join + [HttpGet|Post|Put|Patch|Delete]",
+        "{id} path templates",
+        "Controller method scalars + Results.Json(+statusCode:)",
+        "string path/query params with defaults"
+      ],
+      "honestHoles": [
+        { "shape": "Constructor / [FromServices] DI", "reason": "hub-aspnet:di" },
+        { "shape": "IActionFilter / middleware pipeline", "reason": "hub-aspnet:filters" },
+        { "shape": "Razor / MVC views", "reason": "hub-aspnet:razor" },
+        { "shape": "Non-literal [Route]/[Http*] templates", "reason": "hub-csharp:path-non-literal" }
+      ]
+    },
+    "carter": {
+      "fixture": "fixtures/hub-gold-carter",
+      "smoke": "pnpm run hub:carter-smoke",
+      "st": "pnpm run hub:complete-conversion-prove:csharp",
+      "gate": "G10041",
+      "peelReuse": "minimal-api Map* / csharp-ast-ingest",
+      "supported": [
+        "ICarterModule + void AddRoutes(IEndpointRouteBuilder app)",
+        "app.MapGet|MapPost|MapPut|MapPatch|MapDelete(\"/path\", …) via Minimal API peels",
+        "{id} path templates",
+        "Results.Json(+statusCode:) + scalar/path-ref returns"
+      ],
+      "honestHoles": [
+        { "shape": "app.MapCarter() / AddCarter bootstrap", "reason": "hub-carter:mapcarter" },
+        { "shape": "Constructor / service DI in module", "reason": "hub-carter:di" },
+        { "shape": "IEndpointFilter / middleware onion", "reason": "hub-carter:filters" },
+        { "shape": "Non-app receiver Map* (endpoints.MapGet)", "reason": "hub-carter:receiver-non-app" },
+        { "shape": "Non-literal Map* paths", "reason": "hub-csharp:path-non-literal" }
+      ]
+    }
+  },
+  "absentOrigins": [],
+  "nextTargets": [
+    "C# secondary set: Minimal API ST + ASP.NET controllers (G10008) + Carter via Map* peels (G10041) smokes closed",
+    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
+    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+  ]
+}

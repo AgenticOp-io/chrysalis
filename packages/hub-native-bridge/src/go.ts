@@ -2,7 +2,7 @@ import type { HubNativeRoute } from "./schema.js";
 
 // Gin / Echo: uppercase .GET|POST|…
 const GO_GIN_VERB_RE = /\b([a-zA-Z_][\w]*)\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]+)"/g;
-// Chi / Fiber (G10017): PascalCase .Get|Post|… — Fiber detected via isGoFiberSource in go-ast-ingest
+// Chi / Fiber (G10017) / Iris (G10038): PascalCase .Get|Post|… — dialect via detectGoWebDialect
 const GO_CHI_VERB_RE = /\b([a-zA-Z_][\w]*)\.(Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"([^"]+)"/g;
 const GO_HANDLE_FUNC_RE = /\bhttp\.HandleFunc\s*\(\s*"([^"]+)"/g;
 // Gorilla mux (G10018): r.HandleFunc("/path", h).Methods("GET") or Methods(http.MethodGet)
@@ -28,6 +28,11 @@ const GO_SERVEMUX_METHOD_PATH =
 /** True when source imports gofiber (secondary dialect; Gin remains Go ST). */
 export function isGoFiberSource(source: string): boolean {
   return /github\.com\/gofiber\/fiber/.test(source);
+}
+
+/** True when source imports kataras/iris or calls iris.New (secondary dialect; Gin remains Go ST). */
+export function isGoIrisSource(source: string): boolean {
+  return /github\.com\/kataras\/iris/.test(source) || /\biris\.New\s*\(/.test(source);
 }
 
 /** True when source imports gorilla/mux (secondary dialect; Gin remains Go ST). */

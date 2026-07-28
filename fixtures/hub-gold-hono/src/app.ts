@@ -2,10 +2,18 @@ import { Hono } from "hono";
 
 // hub-gold-hono — 20-route Hono TypeScript dialect (secondary to Express flagship).
 // `new Hono()` + `app.get|post|…` + `c.req.param|query` + `c.json`/`c.text`.
-// Middleware (`app.use` / Hono middleware helpers) stays an honest hole (**D6447** —
-// no invented onion runtime; ≠ emit-hono outbound target).
+// Pass-through `app.use` peels as `js.passthrough` preset (**D6447** / G10044 —
+// no invented onion runtime; ≠ emit-hono outbound target; complex mw stays hole).
 
 const app = new Hono();
+
+// Pass-through onion shells — peel as `js.passthrough` (no invented middleware runtime).
+app.use(async (_c, next) => {
+  await next();
+});
+app.use(async (_c, next) => {
+  return next();
+});
 
 app.get("/health", (c) => c.json(true));
 app.get("/ping", (c) => c.json(42));

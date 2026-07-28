@@ -1,9 +1,10 @@
 /**
- * Rust hub ingest — Actix Web macros (+ Axum `.route` + Poem `.at` + Rocket
- * `#[get]`/`.mount`) deepened for D6448-ST cwl-api flagship: brace-bounded
- * handler bodies, serde_json::json! (+ path/query refs), HttpResponse
- * status+json, scalar returns (hub-flagship-rust). Prefer this over thin
- * pattern-route-lift for flagship depth.
+ * Rust hub ingest — Actix Web macros (+ Axum `.route` + Poem `.at` + Salvo
+ * `Router::with_path`/`.path`+`.get(handler)` + Rocket `#[get]`/`.mount`)
+ * deepened for D6448-ST cwl-api flagship: brace-bounded handler bodies,
+ * serde_json::json! (+ path/query refs), HttpResponse status+json, scalar
+ * returns (hub-flagship-rust). Prefer this over thin pattern-route-lift for
+ * flagship depth.
  */
 import { parseRustRoutes } from "./pattern-route-parsers.mjs";
 import {
@@ -144,8 +145,9 @@ function extractBalancedParenInner(source, openIdx) {
 }
 
 /**
- * Resolve a named Axum/Poem handler `async fn name(...) { … }` referenced from
- * `.route`/`.at("/path", get(name))` (Go Gin named-func parallel).
+ * Resolve a named Axum/Poem/Salvo handler `async fn name(...) { … }` referenced
+ * from `.route`/`.at("/path", get(name))` or Salvo `.get(name)` (Go Gin
+ * named-func parallel).
  * @param {string} source
  * @param {string} handlerName
  */
@@ -189,15 +191,16 @@ export function extractRustNamedHandlerBody(source, handlerName) {
 /**
  * Bound Actix `async fn … { … }` after a `#[get("/…")]` macro, or Axum/Poem
  * `.route`/`.at("/…", get(|| async { … }))` / `get(|Path(id): Path<_>| async move { … })`
- * / named `get(handler)` (resolve `async fn handler`).
- * Prefer Axum/Poem closure when the match starts at `.route`/`.at` so a later
- * `fn main` is not stolen.
+ * / named `get(handler)`, or Salvo `.get(handler)` after `with_path`/`.path`.
+ * Prefer Axum/Poem/Salvo named/closure when the match starts at a route site so
+ * a later `fn main` is not stolen.
  * @param {string} source
  * @param {number} fromIndex
  */
 export function extractRustHandlerBody(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 8000);
   const looksLikeAxumRoute = /^\s*\.(?:route|at)\s*\(/i.test(slice);
+  const looksLikeSalvoMethod = /^\s*\.(?:get|post|put|patch|delete|head|options)\s*\(/i.test(slice);
 
   /** Actix: #[get("/x")] async fn name(...) -> … { … } */
   const tryFn = () => {
@@ -238,16 +241,19 @@ export function extractRustHandlerBody(source, fromIndex) {
     };
   };
 
-  /** Axum/Poem named: `.route`/`.at("/x", get(handler))` → resolve `fn handler`. */
+  /**
+   * Axum/Poem named: `.route`/`.at("/x", get(handler))`.
+   * Salvo named: `.get(handler)` / `.post(handler)` after with_path/path.
+   */
   const tryAxumNamed = () => {
     const namedM = slice.match(
-      /(?:,|\()\s*(?:get|post|put|patch|delete|head|options)\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/i,
+      /(?:[.,(]\s*)(?:get|post|put|patch|delete|head|options)\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/i,
     );
     if (!namedM) return null;
     return extractRustNamedHandlerBody(source, namedM[1]);
   };
 
-  if (looksLikeAxumRoute) return tryAxumClosure() ?? tryAxumNamed();
+  if (looksLikeAxumRoute || looksLikeSalvoMethod) return tryAxumClosure() ?? tryAxumNamed();
   return tryFn() ?? tryAxumClosure() ?? tryAxumNamed();
 }
 
@@ -326,6 +332,20 @@ function collectRustParamLets(bodySlice, paramRefs) {
       name: m[2],
       default: m[3] !== undefined ? m[3] : "",
     };
+  }
+  // Salvo: let id = req.param::<String>("id").unwrap();
+  //        let id = req.param("id").unwrap();
+  for (const m of bodySlice.matchAll(
+    /(?:let|mut)\s+(\w+)\s*(?::[^=]+)?=\s*\w+\.param\s*(?:::<[^>]+>)?\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    paramRefs[m[1]] = { source: "path", name: m[2] };
+  }
+  // Salvo: let q = req.query::<String>("q").unwrap_or_default();
+  //        let q = req.query("q").unwrap_or_else(|| "".to_string());
+  for (const m of bodySlice.matchAll(
+    /(?:let|mut)\s+(\w+)\s*(?::[^=]+)?=\s*\w+\.query\s*(?:::<[^>]+>)?\s*\(\s*"([^"]+)"\s*\)[\s\S]{0,120}?unwrap_or(?:_else|_default)?/g,
+  )) {
+    paramRefs[m[1]] = { source: "query", name: m[2], default: "" };
   }
   // let q = req.query_string() … too opaque — skip
 }

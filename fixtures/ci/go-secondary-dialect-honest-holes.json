@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.go-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T23:30:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
+  "generatedAt": "2026-07-24T23:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
   "dialects": {
     "chi": {
       "fixture": "fixtures/hub-gold-chi",
@@ -61,6 +61,27 @@
         { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
       ]
     },
+    "iris": {
+      "fixture": "fixtures/hub-gold-iris",
+      "smoke": "pnpm run hub:iris-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "iris.New() + app.Get|Post|Put|Patch|Delete literal paths",
+        "Same-file named handlers (func name(ctx iris.Context))",
+        "{id} or :id path templates",
+        "ctx.Params().Get(\"id\") path peels",
+        "ctx.URLParam(\"q\") / ctx.URLParamDefault(\"q\", \"\") query peels",
+        "ctx.JSON(lit|map[string]interface{}{…}|iris.Map{…})",
+        "ctx.StatusCode(n) before JSON",
+        "ctx.WriteString(\"…\")"
+      ],
+      "honestHoles": [
+        { "shape": "app.Use / middleware chains", "reason": "hub-iris:middleware" },
+        { "shape": "app.Party deep nesting beyond cheap peel", "reason": "hub-iris:party" },
+        { "shape": "ctx.ReadJSON / struct binders", "reason": "hub-iris:bind" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    },
     "gorilla": {
       "fixture": "fixtures/hub-gold-gorilla",
       "smoke": "pnpm run hub:gorilla-smoke",
@@ -100,7 +121,7 @@
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Go secondary set: Gin ST + Chi + Echo + Fiber + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10018/G10030)",
+    "Go secondary set: Gin ST + Chi + Echo + Fiber + Iris + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10018/G10030)",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

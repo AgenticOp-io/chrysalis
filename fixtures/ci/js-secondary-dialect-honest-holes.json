@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T22:50:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, Polka middleware, Hono middleware, or Elysia plugins/lifecycle/macros. Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka; Hono ORIGIN secondary (G10019) ≠ emit-hono; Elysia ORIGIN secondary (G10025). G10005: IDENT destructure from params/query/payload peeled when origin uses const { x } = ctx|req|request.* or Elysia ({ params|query: { x } }) bags.",
+  "generatedAt": "2026-07-24T23:40:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, Polka middleware, Hono complex middleware, Elysia plugins/lifecycle/macros, or Oak app.use/router.routes onion. Empty/next-only app.use peels as js.passthrough (G9959 Koa/Restify/Polka; G10044 Hono). Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka; Hono ORIGIN secondary (G10019) ≠ emit-hono; Elysia ORIGIN secondary (G10025); Oak Deno ORIGIN secondary (G10043). G10005: IDENT destructure from params/query/payload peeled when origin uses const { x } = ctx|req|request.* or Elysia ({ params|query: { x } }) bags.",
   "dialects": {
     "koa": {
       "fixture": "fixtures/hub-gold-koa",
@@ -100,16 +100,17 @@
     "hono": {
       "fixture": "fixtures/hub-gold-hono",
       "smoke": "pnpm run hub:hono-smoke",
-      "note": "ORIGIN secondary dialect (G10019 / D6481). Distinct from @chrysalis/emit-hono outbound emit target.",
+      "note": "ORIGIN secondary dialect (G10019 / D6481 + G10044 / D6506 pass-through mw). Distinct from @chrysalis/emit-hono outbound emit target.",
       "supported": [
         "new Hono() factory (dialect marker)",
         "app.get|post|put|patch|delete literal paths",
         "c.req.param('id') / c.req.query('q')",
         "c.json(value) / c.json(value, status)",
-        "c.text(value) / c.text(value, status)"
+        "c.text(value) / c.text(value, status)",
+        "empty/next-only app.use → js.passthrough preset (G10044; parallel G9959)"
       ],
       "honestHoles": [
-        { "shape": "app.use / Hono middleware helpers (logger, cors, …)", "reason": "hub-js:hono-middleware" },
+        { "shape": "non-empty / complex app.use bodies + Hono middleware helpers (logger, cors, …)", "reason": "hub-js:hono-middleware" },
         { "shape": "c.req.header / parseBody / cookies / streaming body", "reason": "hub-js:hono-req-extra" },
         { "shape": "c.json(body, { status }) ResponseInit object form", "reason": "hub-js:hono-response-init" },
         { "shape": "named handlers / app.route nesting / basePath", "reason": "hub-js:hono-nested-route" },
@@ -137,15 +138,35 @@
         { "shape": "nested/computed/rest destructure beyond IDENT bag fields", "reason": "hub-js:elysia-destructure" },
         { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
       ]
+    },
+    "oak": {
+      "fixture": "fixtures/hub-gold-oak",
+      "smoke": "pnpm run hub:oak-smoke",
+      "note": "ORIGIN secondary dialect (G10043 / D6505). Deno Oak route surface — no middleware invent.",
+      "supported": [
+        "new Application() factory (dialect marker)",
+        "router.get|post|put|patch|delete literal paths",
+        ":id and {id} path templates ({id} → :id normalize)",
+        "ctx.params.*",
+        "ctx.request.url.searchParams.get('q')",
+        "ctx.response.body = literal|object|param",
+        "ctx.response.status = N"
+      ],
+      "honestHoles": [
+        { "shape": "app.use / router.routes() / allowedMethods onion", "reason": "hub-js:oak-middleware" },
+        { "shape": "ctx.request.body / headers / cookies / streaming", "reason": "hub-js:oak-req-extra" },
+        { "shape": "named handlers / nested Router prefix", "reason": "hub-js:oak-nested-route" },
+        { "shape": "nested/computed/rest destructure from params", "reason": "hub-js:oak-destructure" },
+        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Koa middleware peel only when origin shapes exist (no invented onion runtime)",
-    "Hono middleware peel only when origin shapes exist (no invented onion runtime; ≠ emit-hono)",
+    "Koa/Hono/Oak complex middleware peel only when origin shapes exist (no invented onion runtime; empty/next-only closed G9959/G10044)",
     "Elysia plugins/lifecycle/macros peel only when origin shapes exist (no invented plugin runtime)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); Hono ORIGIN secondary closed (G10019); Elysia ORIGIN secondary closed (G10025); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
+    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); Hono ORIGIN secondary closed (G10019) + pass-through mw (G10044); Elysia ORIGIN secondary closed (G10025); Oak Deno ORIGIN secondary closed (G10043); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
     "Phoenix router+controller peel skipped — not cheap without cross-file Ctrl,:action resolve + LiveView invent risk (D6447); stays honest hole",
     "Flutter / Dart Frog / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke: hub-gold-hono Hono TS dialect → WebIR hole-free (20 routes).
+ * Smoke: hub-gold-hono Hono TS dialect → WebIR hole-free (20 routes + pass-through middleware).
  * ORIGIN secondary — not emit-hono outbound. Does not replace Express
  * hub-flagship-express / hub-flagship-typescript D6448-ST.
  */
@@ -12,13 +12,15 @@ import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
 export const HUB_HONO_SMOKE_KIND = "chrysalis.hub.hono-smoke";
-export const HUB_HONO_SMOKE_SCHEMA_VERSION = 1;
+export const HUB_HONO_SMOKE_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const fixture = join(scriptRoot, "fixtures/hub-gold-hono");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 const EXPECT_ROUTES = 20;
+/** Pass-through `app.use` preset floor (G10044 / G9959 parallel). */
+const EXPECT_MIDDLEWARE = 2;
 
 /**
  * @param {string} [projectDir]
@@ -78,9 +80,13 @@ export async function runHonoSmoke(projectDir = fixture) {
   const projection = summarizeCwlProjection(mod);
   const routeCount = liftReport.astRouteCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
+  const middlewareUseCount = liftReport.middlewareUseCount ?? 0;
+  const middlewareLoweredCount = liftReport.middlewareLoweredCount ?? 0;
   const ok =
     routeCount === EXPECT_ROUTES &&
     holeCount === 0 &&
+    middlewareUseCount === EXPECT_MIDDLEWARE &&
+    middlewareLoweredCount === EXPECT_MIDDLEWARE &&
     projection.holeFree === projection.total &&
     projection.total >= EXPECT_ROUTES;
 
@@ -90,6 +96,8 @@ export async function runHonoSmoke(projectDir = fixture) {
     ok,
     routeCount,
     holeCount,
+    middlewareUseCount,
+    middlewareLoweredCount,
     cwlProjection: projection,
     generatedAt: new Date().toISOString(),
   };

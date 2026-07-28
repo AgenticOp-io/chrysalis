@@ -11,7 +11,7 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 
 | Catalog | Covers |
 | --- | --- |
-| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN |
+| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN |
 | [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Gorilla mux / ServeMux secondaries; Gin ST |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
@@ -21,7 +21,7 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | [`fixtures/ci/bottle-honest-holes.json`](../fixtures/ci/bottle-honest-holes.json) | Bottle secondary (G10027); plugins/middleware/templates/mount = holes |
 | [`fixtures/ci/dart-shelf-honest-holes.json`](../fixtures/ci/dart-shelf-honest-holes.json) | Shelf ST; Flutter / Frog / Pipeline |
 | [`fixtures/ci/http4k-honest-holes.json`](../fixtures/ci/http4k-honest-holes.json) | http4k Kotlin secondary; Spring ST; Ktor secondary |
-| [`fixtures/ci/java-secondary-dialect-honest-holes.json`](../fixtures/ci/java-secondary-dialect-honest-holes.json) | Java JAX-RS (G10012) / Micronaut (G10020) / Quarkus via JAX-RS peels (G10034); Spring ST |
+| [`fixtures/ci/java-secondary-dialect-honest-holes.json`](../fixtures/ci/java-secondary-dialect-honest-holes.json) | Java JAX-RS (G10012) / Micronaut (G10020) / Quarkus via JAX-RS peels (G10034) / Helidon MP via JAX-RS peels (G10042) / Javalin (G10035); Spring ST |
 
 Update those JSON files when a hole is closed by a real peel — not by inventing runtime.
 
@@ -48,7 +48,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Koa / Polka | Non-empty onion `app.use` | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Restify | Plugins, complex `pre`/`use` bodies | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Hapi | Plugins, `server.ext` lifecycle, auth options | Route + `h.response().code` smoke; G10005 IDENT destructure peel |
-| Hono | `app.use` / middleware helpers, nested `app.route`, ResponseInit status | ORIGIN route surface secondary (G10019); **≠ emit-hono** |
+| Hono | Complex `app.use` / middleware helpers, nested `app.route`, ResponseInit status | Empty/next-only pass-through (G10044); ORIGIN route surface (G10019); **≠ emit-hono** |
 | Elysia | plugins / `.use`, lifecycle hooks, macros / derived context, nested `group` | ORIGIN route surface secondary (G10025) |
 | FastAPI | `Depends`, OAuth, middleware onion | Route surface secondary (G10003) |
 | Starlette | `Mount`, middleware, ASGI onion, `Route()` table-only | Route surface secondary via `@app.route` (G10013) |
@@ -64,6 +64,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Java JAX-RS | CDI, filters, providers, `Application` subclass | Spring `@RestController` ST; resource routes secondary (G10012) |
 | Java Micronaut | DI (`@Singleton`/`@Factory`), filters, `Application.run` bootstrap | Spring `@RestController` ST; controller routes secondary (G10020) |
 | Java Quarkus | CDI/Arc, RESTEasy filters, Panache, `@QuarkusMain` bootstrap | Spring ST; JAX-RS route surface via G10012 peels (G10034) — no Quarkus invent |
+| Java Helidon MP | CDI, MicroProfile Config, Helidon SE reactive routing, MP filters | Spring ST; JAX-RS route surface via G10012 peels (G10042) - no Helidon invent |
 | ASP.NET MVC | DI container, filter pipeline, Razor UI | Minimal API ST; controller attributes secondary (G10008) |
 | Ktor | Auth, plugins, nested routing beyond cheap peel | Route surface secondary (G10004) |
 | http4k | Filter/then chains, Body/Header lenses beyond req.path/query, nested/contract routing, server backends | Route surface secondary (G10024) |
@@ -90,6 +91,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | JAX-RS CDI / filters / providers / Application | Full CDI container, filter pipeline, `Application` bootstrap | Spring is Java ST; JAX-RS resource routes closed (G10012); CDI/filters/providers = holes |
 | Micronaut DI / filters / Application | `@Singleton`/`@Factory` DI, `HttpServerFilter`, `Application.run` | Spring is Java ST; Micronaut controller routes closed (G10020); DI/filters/Application = holes |
 | Quarkus CDI / RESTEasy filters / Panache | Arc CDI, RESTEasy filter pipeline, Panache ORM, Quarkus bootstrap | Spring is Java ST; Quarkus JAX-RS route surface closed via G10012 peels (G10034); CDI/filters/Panache = holes |
+| Helidon CDI / MP Config / SE | CDI container, MicroProfile Config, Helidon SE WebServer, MP filters | Spring is Java ST; Helidon MP JAX-RS route surface closed via G10012 peels (G10042); CDI/MP Config/SE = holes |
 | ASP.NET MVC / Razor / DI / filters | Full MVC filter pipeline, DI container, Razor UI | Minimal API is ST; controller attribute routes closed (G10008); Razor/DI/filters = holes |
 | Middleware onion (any) | Real origin mw corpus + bounded peel | Never invent onion runtime |
 

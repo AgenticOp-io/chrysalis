@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.java-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T23:30:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST. Quarkus route surface reuses JAX-RS peels (G10034 / D6496).",
+  "generatedAt": "2026-07-24T23:55:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, Helidon CDI/MP Config/SE, Javalin plugins/before/after/DI, Spark filters/static/WebSocket, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST. Quarkus/Helidon route surfaces reuse JAX-RS peels (G10034 / G10042).",
   "dialects": {
     "jaxrs": {
       "fixture": "fixtures/hub-gold-jaxrs",
@@ -60,11 +60,67 @@
         { "shape": "Panache / Hibernate ORM with Panache", "reason": "hub-quarkus:panache" },
         { "shape": "Quarkus Application / @QuarkusMain bootstrap", "reason": "hub-quarkus:application" }
       ]
+    },
+    "helidon": {
+      "fixture": "fixtures/hub-gold-helidon",
+      "smoke": "pnpm run hub:helidon-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10042",
+      "peelReuse": "jaxrs / G10012",
+      "supported": [
+        "Standard JAX-RS @Path + @GET|POST|… (jakarta.ws.rs.*) via G10012 peels",
+        "@PathParam / @QueryParam + @DefaultValue",
+        "Map.of JSON returns",
+        "Response.status().entity().build()"
+      ],
+      "honestHoles": [
+        { "shape": "CDI / @Inject container", "reason": "hub-helidon:cdi" },
+        { "shape": "MicroProfile Config", "reason": "hub-helidon:mp-config" },
+        { "shape": "Helidon SE reactive routing", "reason": "hub-helidon:se" },
+        { "shape": "MP filters / interceptors", "reason": "hub-helidon:mp-filters" }
+      ]
+    },
+    "javalin": {
+      "fixture": "fixtures/hub-gold-javalin",
+      "smoke": "pnpm run hub:javalin-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10035",
+      "supported": [
+        "Javalin.create() + app.get|post|put|patch|delete(\"/path\", ctx -> …)",
+        "{id} path templates",
+        "ctx.pathParam / ctx.queryParam peels",
+        "Map.of JSON via ctx.json / ctx.status(n).json",
+        "ctx.result string / path-ref scalars"
+      ],
+      "honestHoles": [
+        { "shape": "app.before / app.after / Handler plugins", "reason": "hub-javalin:plugins" },
+        { "shape": "DI container / @Inject into handlers", "reason": "hub-javalin:di" },
+        { "shape": "WebSocket / SSE endpoints", "reason": "hub-javalin:websocket" },
+        { "shape": "Non-literal path templates", "reason": "hub-java:path-non-literal" }
+      ]
+    },
+    "sparkjava": {
+      "fixture": "fixtures/hub-gold-sparkjava",
+      "smoke": "pnpm run hub:sparkjava-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10036",
+      "supported": [
+        "spark.Spark.get|post|put|patch|delete(\"/path\", (req, res) -> …)",
+        ":id path templates normalized to {id}",
+        "req.params / req.queryParams peels",
+        "res.status(n) + res.type + Map.of / scalar returns"
+      ],
+      "honestHoles": [
+        { "shape": "before/after/afterAfter filters", "reason": "hub-sparkjava:filters" },
+        { "shape": "staticFiles / externalStatic", "reason": "hub-sparkjava:static" },
+        { "shape": "webSocket / server-sent events", "reason": "hub-sparkjava:websocket" },
+        { "shape": "import static spark.Spark bare get|post (non spark.Spark.* form)", "reason": "hub-sparkjava:static-import" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus via JAX-RS peels (G10034) smokes closed",
+    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus (G10034) + Helidon (G10042) + Javalin (G10035) + Spark (G10036) smokes closed",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

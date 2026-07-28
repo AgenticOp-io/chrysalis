@@ -1,6 +1,6 @@
 /**
- * Lower Express-style `app.use(...)` / Restify `server.pre|use(...)` registrations
- * to WebIR `web.request.middleware` nodes.
+ * Lower Express-style `app.use(...)` / Restify `server.pre|use(...)` /
+ * Hono/Koa/Polka `app.use(...)` registrations to WebIR `web.request.middleware` nodes.
  *
  * Honest peels only (D6442 / D6447):
  * - Known presets: `express.json` / `express.urlencoded`
@@ -11,7 +11,7 @@ import { simple as walkSimple } from "acorn-walk";
 import { parseJavaScriptSource } from "./javascript-ast-ingest.mjs";
 
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
-/** Restify `pre` + shared `use` (Express/Koa/Polka/Fastify). */
+/** Restify `pre` + shared `use` (Express/Koa/Polka/Fastify/Hono). */
 const MW_METHODS = new Set(["use", "pre"]);
 
 /**
@@ -35,7 +35,7 @@ function isAwaitNext(expr) {
 
 /**
  * Empty body or only `next()` / `return next()` / `await next()` / `return await next()`.
- * Does not invent Koa onion / Restify plugin runtime — only catalogs a no-op shell.
+ * Does not invent Koa/Hono onion / Restify plugin runtime — only catalogs a no-op shell.
  * @param {import('estree').Node | null | undefined} node
  */
 export function isPassThroughMiddlewareFn(node) {

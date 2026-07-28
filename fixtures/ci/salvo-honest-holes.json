@@ -1,0 +1,27 @@
+{
+  "kind": "chrysalis.hub.salvo-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T23:45:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Salvo hoop middleware, OpenAPI/oapi, or nested .push path-join. Lift cheap Router::with_path + named get|post(handler) + flat .push shapes that appear, else leave honest holes. Actix remains Rust D6448-ST; Axum/Rocket/Poem remain prior Rust secondaries. Salvo secondary smoke G10037 closed when hub:salvo-smoke ok.",
+  "fixture": "fixtures/hub-gold-salvo",
+  "smoke": "pnpm run hub:salvo-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:rust",
+  "supported": [
+    "Router::with_path(\"path\").get|post|put|patch|delete(handler)",
+    ".path(\"path\").get|post|…(handler) chains",
+    "Flat Router::new().push(Router::with_path(…))",
+    "Same-file named handlers (#[handler] async fn name)",
+    "{id} path templates",
+    "req.param(\"…\") / req.query(\"…\")",
+    "Json(serde_json::json!({…}))",
+    "res.status_code(StatusCode::CREATED|ACCEPTED) + Json"
+  ],
+  "honestHoles": [
+    { "shape": "Nested .push(Router::with_path) path join", "reason": "hub-salvo:nested-push" },
+    { "shape": "Router::hoop / with_hoop middleware", "reason": "hub-salvo:hoop" },
+    { "shape": "OpenAPI / oapi invent", "reason": "hub-salvo:openapi" },
+    { "shape": "Depot / extractors beyond param/query", "reason": "hub-salvo:extractor" },
+    { "shape": "get(\"/path\", handler) two-arg form (not Salvo API)", "reason": "hub-salvo:get-path-handler" },
+    { "shape": "Non-literal path templates", "reason": "hub-rust:path-non-literal" }
+  ]
+}
