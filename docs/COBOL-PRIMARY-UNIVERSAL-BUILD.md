@@ -1,6 +1,6 @@
 # COBOL-primary + universal build queue
 
-> **Status:** active (2026-07-23)  
+> **Status:** active (2026-07-27) — Tier A/A+/B-Small closed (G10075–G10077); dialect bingo paused as default  
 > **IP path:** trade secret + Apache OSS ? [`TRADE-SECRET-AND-OSS-BOUNDARY.md`](./TRADE-SECRET-AND-OSS-BOUNDARY.md)  
 > **COBOL prove:** [`COBOL-MODERNIZATION-PROVE.md`](./COBOL-MODERNIZATION-PROVE.md)  
 > **Private pack:** `AgenticOps/commercial/chrysalis-private-pack/` (never OSS)
@@ -91,6 +91,7 @@ pnpm run test:gce   # full suite on chrysalis-test-vm
 - [x] COBOL gnu-honest behavioral **62/62** after Tier B Small (**G10076** `ckprstdn`); further Db2/CICS/VSAM/BMS still paused
 - [x] **G10075 Tier A** — mini COPY/INCLUDE census closed (228 resolved; only BMS holes left; no cheap COPY peels remain)
 - [x] **G10076 Tier B Small** — `CKPRSTDN` COPY-linked status 88 RC sum (chartered; not modernized-CLBS claim)
+- [x] **G10077 Tier A+** — leadership queue hygiene: COBOL primary; secondary-dialect bingo paused unless asked
 - [x] Universal inventory-first: `chrysalis:site-inventory-adapters-smoke` green (local + GCE)
 - [x] Universal Express depth batch: `hub:express-depth-batch-smoke` green on GCE (path-advice gold + project-to-cwl hole-free)
 - [x] Universal Pilot Kit wedge: `pilot:laravel-min` **green on GCE** (`chrysalis-test-vm`) with PHP `mysqli` + `pdo_sqlite` (`php8.2-mysql` + `php8.2-sqlite3`); packaging smoke green. Emit fix: handler epilogue uses path-sensitive termination so early `__exit` does not suppress fall-through `__respond` (Hono Context coerce). Local Node 25 may still differ ? prefer GCE Node 22.

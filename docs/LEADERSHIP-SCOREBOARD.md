@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-27 (G10076 COBOL Tier B Small ckprstdn)
+**As of:** 2026-07-27 (G10077 Tier A+ queue hygiene — COBOL primary; dialect bingo paused)
 
 ---
 
@@ -160,84 +160,32 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 ## Cheap deepen queue
 
-**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049–G10051, G10053, G10057–G10058 skip, G10059, G10063, G10065 skip, G10066, G10075, G10076):**
-- G10076 — COBOL Tier B Small: `CKPRSTDN` COPY-linked CKPRST status 88 RC sum → 150 (`ckprstdn`); prove 62/62; no Db2/CICS/VSAM/BMS invent; no LCB claim
-- G10075 — COBOL Tier A structural COPY/INCLUDE census closed: 228/271 resolve vs `copybook/`; 0 hole-missing-cpy; remaining DFHAID/DFHBMSCA/EXTFMAP stay BMS holes; `hub:cobol-clbs-prove-smoke` green (behavioral still 61/61 paused); no invent
-- G10066 — Gin Group prefix peel (`hub:gin-group-smoke` 20/20); literal `r.Group("/prefix")` + nested/chained path join; non-literal/mw/`Use` = honest holes; flat Gin ST unchanged
-- G10065 — Revel Go secondary **skipped** (`fixtures/ci/revel-honest-skip.json`); `conf/routes` + `Controller.Action`/`revel.Result` Rails-class; not Gin/Buffalo/Martini peel-reuse; real routes lifted 0; no D6527; Gin ST + Go secondaries green
-- G10063 — Cloudflare Workers fetch-export ORIGIN secondary dialect (`hub:cf-workers-smoke` 20/20); `export default { async fetch }` + method/pathname switch + `Response.json`/`{ status }` + `url.searchParams`; itty remains Workers router; KV/D1/env = honest holes
-- G10059 — AdonisJS ORIGIN secondary dialect (`hub:adonis-smoke` 20/20); `Route.get|post` + `:id` + `request.param` / `request.qs()` + `response.json`/`response.status`; Lucid/IoC/controller refs = honest holes
-- G10058 — Drogon C++ secondary **skipped** (`fixtures/ci/drogon-honest-skip.json`); `registerHandler`+callback/Json::Value not Crow/httplib peel-reuse; probe 0 routes; no D6520; Crow ST + cpp-httplib green
-- G10057 — Tapir Scala secondary **skipped** (`fixtures/ci/tapir-honest-skip.json`); fluent `endpoint.get.in.out(codec)` not Finch/Http4s Ok peel-reuse; probe 0 routes; no D6519; Akka ST + Http4s/Finch green
-- G10051 — Finch Scala secondary dialect (`hub:finch-smoke` 20/20); `get("path")` / `path[String]` / `param[String]("q")` + Ok/Created/Accepted; Akka ST; Http4s first Scala secondary; coproduct/lenses = honest holes
-- G10049 — Lumen / Laravel-router PHP secondary dialect (`hub:lumen-smoke` 20/20); `$router->get|post` / `Route::get|post` + `{id}` + `$request->query` + `response()->json`; middleware/controllers = honest holes
-- G10046 — Jooby Java secondary dialect (`hub:jooby-smoke` 20/20); `new Jooby() {{ get|post|… }}` / `app.get|post|…` + `{id}` + `ctx.path`/`ctx.query` + `ctx.setResponseCode` + Map/string returns
-- G10043 — Oak Deno/JS ORIGIN secondary dialect (`hub:oak-smoke` 20/20); `new Application` + `router.get|post` + `:id`/`{id}` + `ctx.params` + `searchParams` + `ctx.response.body|status`; middleware = honest holes
-- G10047 — itty-router Workers ORIGIN secondary dialect (`hub:itty-smoke` 20/20); `Router()` + `router.get|post` + `:id` + `request.params` + URL `searchParams` + `json()`/`Response.json`/`new Response`; empty `all` via G10064; complex middleware = honest holes
-- G10064 — itty empty/`next`-only `router.all` → `js.passthrough` (`hub:itty-smoke` v2; parallel G10044/G9959); itty has no onion `next`
-- G10039 — aiohttp Python secondary dialect (`hub:aiohttp-smoke` 20/20); `web.Application` + `web.get|post|…` + `{id}`/`{id:\d+}` + `request.match_info` + `request.query.get` + `web.json_response`/`web.Response`
-- G10040 — Tornado Python secondary dialect (`hub:tornado-smoke` 20/20); `Application([(r"/path", Handler), …])` + class `get|post|…` + `(?P<id>[^/]+)`/`([^/]+)` + `self.get_argument` + `self.write`/`self.set_status`
-- G10070 — Flask Blueprint secondary peel (`hub:flask-blueprint-smoke` 20/20); same-file `Blueprint` + `@bp.get|post|route` + literal `url_prefix` join
-- G10042 — Helidon MP JAX-RS Java secondary dialect (`hub:helidon-smoke` 20/20); `jakarta.ws.rs` resource surface **via G10012 JAX-RS peels** (no Helidon CDI/MP invent)
-- G10041 — Carter C# secondary dialect (`hub:carter-smoke` 20/20); `ICarterModule` + `AddRoutes` + `app.Map*` **via Minimal API peels** (no MapCarter/DI invent)
-- G10035 — Javalin Java secondary dialect (`hub:javalin-smoke` 20/20); `Javalin.create` + `app.get|post|…` + `{id}` + `ctx.pathParam`/`ctx.queryParam` + `ctx.status(n).json`/`ctx.json`/`ctx.result`
-- G10036 — Spark Java secondary dialect (`hub:sparkjava-smoke` 20/20); `spark.Spark.get|post|…` + `:id` + `req.params`/`req.queryParams` + `res.status`/`res.type` + string/JSON
-- G10028 — Slim PHP secondary dialect (`hub:slim-smoke` 20/20); `$app->get|post` + `{id}` + `$args` + `getQueryParams` + `withJson`/`withStatus`/write+json_encode`
-- G10001 — `CSUTLDWY`/`CSSETATY` COPY resolve on COACTUPC/COTRTUPC
-- G10002 — OpenAPI `in: header` + flat `requestBody` body params; HAR IDENT-safe headers + flat `postData` body params; `CKPRST.cpy` + `CKPRSTCP` structural COPY resolve; NestJS ST board/claim sync; CONTRIBUTING private-corpora clause
-- G10031 — OpenAPI `in: cookie` + HAR `cookies[]` IDENT-safe → CWL `cookie` (absent/hyphenated stay unwired; `/raw` + BMS holes)
-- G10054 — OpenAPI response `headers` + HAR response headers IDENT-safe → CWL `response-header` when example/default present (hop-by-hop skip; `/raw` stays hole)
-- G10074 — OpenAPI `in: query` `schema.default` else `example` + HAR IDENT-safe `queryString` → CWL `query` (observed value when present; absent/hyphenated/schema-only stay name-only or unwired)
-- G10003 — FastAPI secondary dialect (`hub:fastapi-smoke` 20/20); `{id}` paths + `query_params` + `status_code=` decorator peel
-- G10013 — Starlette secondary dialect (`hub:starlette-smoke` 20/20); `@app.route` + `{id}` paths + `query_params` + status tuple peel
-- G10021 — Litestar secondary dialect (`hub:litestar-smoke` 20/20); bare `@get|post` + `{id}` paths + `query_params` + `status_code=` decorator peel
-- G10019 — Hono ORIGIN secondary dialect (`hub:hono-smoke` 20/20); `new Hono` + `c.req.param|query` + `c.json`/`c.text`; ≠ emit-hono
-- G10053 — Elysia empty `onRequest`/`onBeforeHandle` → `js.passthrough` (`hub:elysia-smoke` v2 20 + 2 mw); plugin `.use` = honest hole (G10044 parallel)
-- G10044 — Hono empty/next-only pass-through `app.use` (`hub:hono-smoke` v2 20 + 2 mw presets); complex mw = honest holes (G9959 parallel)
-- G10025 — Elysia ORIGIN secondary dialect (`hub:elysia-smoke` 20/20); `new Elysia` + `ctx.params|query` / IDENT bags + `ctx.set.status` + object/literal returns; plugins/lifecycle/macros = honest holes
-- G10023 — Falcon secondary dialect (`hub:falcon-smoke` 20/20); `app.add_route` + class `on_get|on_post|…` + `{id}` + `req.get_param` + `resp.media`/`resp.status` peel
-- G10026 — Quart secondary dialect (`hub:quart-smoke` 20/20); Flask-async twin `@app.get|post|…`/`@app.route` + `<id>` + `request.args` + status tuples (reuse Flask peels)
-- G10027 — Bottle secondary dialect (`hub:bottle-smoke` 20/20); bare `@get|post|…`/`@route(..., method=)` + `<id>` + `request.query.q`/`request.params` + `HTTPResponse`
-- G10004 — Ktor secondary dialect (`hub:ktor-smoke` 20/20); `{id}` paths + `call.parameters` + `queryParameters` + `HttpStatusCode` on `call.respond`
-- G10024 — http4k secondary dialect (`hub:http4k-smoke` 20/20); `"path" bind Method.* to` + `{id}` + `req.path`/`req.query` + `Response(Status).body`
-- G10005 — Thin-Node IDENT destructure peel (`const { id } = ctx|req|request.params|query|payload`) for Koa/Hapi/Restify/Polka smokes (20/20); nested/computed/rest patterns stay honest holes
-- G10007 — Dart Shelf same-file named handlers (`router.get('/x', myHandler)` peel; cross-file = honest hole)
-- G10012 — JAX-RS Java secondary dialect (`hub:jaxrs-smoke` 20/20); class `@Path` prefix join + `@GET|POST|…` + `@PathParam`/`@QueryParam` + `Response.status().entity().build()` peel
-- G10020 — Micronaut Java secondary dialect (`hub:micronaut-smoke` 20/20); `@Controller` + `@Get|Post|…` + `@PathVariable`/`@QueryValue` + `HttpResponse.status().body()` peel
-- G10034 — Quarkus JAX-RS Java secondary dialect (`hub:quarkus-smoke` 20/20); `jakarta.ws.rs` resource surface **via G10012 JAX-RS peels** (no Quarkus CDI invent)
-- G10042 — Helidon MP JAX-RS Java secondary dialect (`hub:helidon-smoke` 20/20); `jakarta.ws.rs` resource surface **via G10012 JAX-RS peels** (no Helidon CDI/MP invent)
-- G10008 — ASP.NET controller secondary dialect (`hub:aspnet-controllers-smoke` 20/20); `[Route]` prefix join + `[HttpGet|Post|…]` + controller method body peel
-- G10041 — Carter C# secondary dialect (`hub:carter-smoke` 20/20); `ICarterModule` + `AddRoutes` + `app.Map*` **via Minimal API peels**
-- G10009 — Go Chi secondary dialect (`hub:chi-smoke` 20/20); `r.Get|Post` + `{id}` paths + `chi.URLParam` + `r.URL.Query().Get` + `json.NewEncoder`/`w.WriteHeader` peel
-- G10010 — Go Echo secondary dialect (`hub:echo-smoke` 20/20); `:id` paths + `c.Param` + `c.QueryParam` + `c.JSON`/`c.String`; Gin remains Go ST
-- G10017 — Go Fiber secondary dialect (`hub:fiber-smoke` 20/20); `:id` paths + `c.Params` + `c.Query` + `c.JSON`/`c.Status(n).JSON`/`c.SendString`; Gin remains Go ST
-- G10038 — Go Iris secondary dialect (`hub:iris-smoke` 20/20); `{id}`/`:id` + `ctx.Params().Get` / `ctx.URLParam`/`URLParamDefault` + `ctx.JSON`/`ctx.WriteString`; Gin remains Go ST
-- G10018 — Go Gorilla mux secondary dialect (`hub:gorilla-smoke` 20/20); `HandleFunc`+`Methods` + `{id}` paths + `mux.Vars` + `json.NewEncoder`/`w.WriteHeader`; Gin remains Go ST
-- G10030 — Go net/http ServeMux (Go 1.22+) secondary dialect (`hub:servemux-smoke` 20/20); `HandleFunc("METHOD /path")` + `{id}` + `r.PathValue` + `json.NewEncoder`/`w.WriteHeader`; Gin remains Go ST
-- G10022 — Roda Ruby secondary dialect (`hub:roda-smoke` 20/20); shallow `r.get|post` + `String`/`|id|` + Hash/`response.status`/`r.params`; Sinatra remains Ruby ST
-- G10032 — Grape Ruby API secondary dialect (`hub:grape-smoke` 20/20); flat `get|post` + `/:id` + Hash/`status`/`params[]` (Sinatra peels); Sinatra remains Ruby ST
-- G10062 — Padrino Ruby secondary dialect (`hub:padrino-smoke` 20/20); flat `Padrino::Application` + `get|post` + `/:id` + Hash/`status`/`params[]` (Sinatra peels); Sinatra remains Ruby ST
+**Default next (G10077 Tier A+):** **COBOL primary** — not more secondary-dialect peels.
 
-**Skipped (G10006):** Rails secondary — cross-file `controller#action` + ActionController (Phoenix-class); inline rack lambda probe 6/6 handler holes on Sinatra-only peel. Sinatra ST unchanged (`hub-flagship-ruby`).
+| Priority | Work | Status |
+| --- | --- | --- |
+| **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
+| **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076** (`ckprstdn`; **62/62**) |
+| **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM) | **Charter + real corpus** — refuse façades |
+| **4** | COBOL Tier C IBM BMS maps | **Blocked** until `DFHAID`/`DFHBMSCA`/`EXTFMAP` in-tree |
+| — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
+| — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
-**Closed (G10022 / D6484):** Roda secondary dialect (`hub:roda-smoke` 20/20); shallow `r.get|post` + `String`/`|id|` + Hash/`response.status`/`r.params`; nested `r.on`/plugins = honest holes. Sinatra remains Ruby ST; Rails stays skipped.
+**Closed COBOL this finish pack:**
+- G10077 — Tier A+ queue hygiene: scoreboard/ROADMAP/§12 point at COBOL; dialect bingo not default next
+- G10076 — Tier B Small: `CKPRSTDN` / `ckprstdn` → 150; behavioral 62/62
+- G10075 — Tier A: COPY/INCLUDE census exhausted; BMS stay holes
+- G10001 — `CSUTLDWY`/`CSSETATY` COPY resolve (earlier CardDemo peel)
 
-**Closed (G10032 / D6494):** Grape secondary dialect (`hub:grape-smoke` 20/20); flat `class API < Grape::API` + `get|post "/path"` + `/:id` + Hash/`status`/`params[]` (reuses Sinatra peels); `route_param`/`present`/`params do` = honest holes. Sinatra remains Ruby ST; Roda remains first Ruby secondary; Rails stays skipped.
-
-**Closed (G10062 / D6524):** Padrino secondary dialect (`hub:padrino-smoke` 20/20); flat `Padrino.configure_apps` + `class HubApp < Padrino::Application` + `get|post "/path"` + `/:id` + Hash/`status`/`params[]` (reuses Sinatra peels); symbol controllers/`Padrino.mount`/filters = honest holes. Sinatra remains Ruby ST; Roda/Grape remain prior Ruby secondaries; Rails stays skipped.
-
-
-**Closed (G10041 / D6503):** Carter C# secondary dialect (`hub:carter-smoke` 20/20); `ICarterModule` + `AddRoutes` + `app.Map*` (reuses Minimal API Map\* peels); MapCarter/DI/filters = honest holes. Minimal API remains C# ST; ASP.NET controllers remain first C# secondary.
+**Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **Flutter** (or Dart Frog) UI/route surface  
-2. **Phoenix LiveView** (or controller peel with cross-file resolve)  
-3. **COBOL Tier B Medium+** — real Db2/CICS/VSAM corpus (refuse façades; Small closed G10076)  
-4. **COBOL Tier C / IBM BMS** maps (`DFHAID` / `DFHBMSCA` / `EXTFMAP`) — stay honest holes until a real map corpus ships
+1. **COBOL Tier B Medium+** — real Db2/CICS/VSAM corpus (refuse façades; Small closed G10076)
+2. **COBOL Tier C / IBM BMS** maps (`DFHAID` / `DFHBMSCA` / `EXTFMAP`) — stay honest holes until a real map corpus ships
+3. **Flutter** (or Dart Frog) UI/route surface — only if explicitly chartered
+4. **Phoenix LiveView** (or controller peel with cross-file resolve) — only if explicitly chartered
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
-
----
 
 ## Related
 

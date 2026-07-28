@@ -117,7 +117,9 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 
 **G10076 Tier B Small:** `ckprstdn` COPY-linked only — not Db2/CICS/VSAM/BMS.
 
-**G10075 Tier A closed:** mini COPY/INCLUDE surface exhausted (228 resolved; only BMS names unresolved). Do not invent BMS maps or missing `.cpy`. Do not pad with new behavioral subjects.
+**G10075 Tier A closed:** mini COPY/INCLUDE surface exhausted (228 resolved; only BMS names unresolved). Do not invent BMS maps or missing `.cpy`.
+
+**G10077 Tier A+:** secondary-dialect / prefix bingo is **not** the default next queue — COBOL primary (chartered Tier B Medium+ / Tier C) unless the operator explicitly asks for another dialect peel.
 
 Prove: `pnpm run hub:cobol-clbs-prove-smoke` · Docs: [`COBOL-MODERNIZATION-PROVE.md`](./COBOL-MODERNIZATION-PROVE.md)
 
