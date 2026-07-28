@@ -58,6 +58,7 @@ Index the origin tree with the matching **site-inventory adapter** (auto-detect 
 | `angular` | `angular.json` / `.component.html` | `*ngIf="showX"`, signals, MatDialog | `*.component.html`, `*.routes.ts` | `ng-content`, `ng-template` |
 | `php-blade` | `artisan` / `resources/views` | `@if($showX)`, `x-show`, Livewire | `*.blade.php`, `routes/*.php` | `@yield` / `@slot` / `@section` |
 | `php` | `composer.json` | `$showX=` | `index.php` / routers | includes |
+| `cobol` | `PROGRAM-ID` / `.cbl`+`copybook/` | unresolved ops (`exec-cics`, …) | `cobol:PROGRAM-ID`, chrysalis-route | BMS maps / COPY components |
 | `generic` | fallback | best-effort `show*` / `isOpen*` | path heuristics | `slot=` |
 
 **Markup lift** (convert Step 3) uses the parallel ingest adapters — same language families:

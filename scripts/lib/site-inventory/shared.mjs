@@ -21,6 +21,7 @@ export const SKIP_DIR = new Set([
   "target",
   "bin",
   "obj",
+  ".chrysalis-cobc",
 ]);
 
 export const CODE_EXT = new Set([
@@ -44,6 +45,10 @@ export const CODE_EXT = new Set([
   ".go",
   ".rb",
   ".cs",
+  ".cbl",
+  ".cob",
+  ".cpy",
+  ".bms",
 ]);
 
 export function uniq(arr) {

@@ -4,7 +4,7 @@
  *
  * Usage:
  *   node scripts/chrysalis-site-inventory.mjs --origin path/to/app [--live http://host:port]
- *   node scripts/chrysalis-site-inventory.mjs --origin ... --framework sveltekit|vite-vue|next-app|angular|php-blade|php
+ *   node scripts/chrysalis-site-inventory.mjs --origin ... --framework sveltekit|vite-vue|next-app|angular|php-blade|php|cobol
  *   node scripts/chrysalis-site-inventory.mjs --origin ... --live ... --live-pages /,/login,/dashboard
  *   node scripts/chrysalis-site-inventory.mjs --origin ... --wisp-poc-pages   # WISP Module_Manager page list
  *   node scripts/chrysalis-site-inventory.mjs --list-adapters

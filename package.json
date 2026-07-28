@@ -792,6 +792,7 @@
     "hub:wisp-multi-target-prove-smoke": "node scripts/hub-ingest/hub-wisp-multi-target-prove-smoke.mjs",
     "hub:wisp-deep-emit-prove-smoke": "node scripts/hub-ingest/hub-wisp-deep-emit-prove-smoke.mjs",
     "hub:cobol-best-fit-smoke": "node scripts/hub-ingest/hub-cobol-best-fit-smoke.mjs",
+    "hub:cobol-residual-ledger": "node scripts/hub-ingest/cobol-residual-ledger.mjs",
     "hub:cobol-clbs-prove-smoke": "node scripts/hub-ingest/hub-cobol-clbs-prove-smoke.mjs",
     "hub:cobol-gce-full-prove": "bash scripts/gce-cobol-full-prove-gates.sh",
     "hub:external-prove-corpus-smoke": "node scripts/hub-ingest/hub-external-prove-corpus-smoke.mjs",

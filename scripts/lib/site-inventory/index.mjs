@@ -13,6 +13,7 @@ import * as angular from "./angular.mjs";
 import * as next from "./next.mjs";
 import * as phpBlade from "./php-blade.mjs";
 import * as php from "./php.mjs";
+import * as cobol from "./cobol.mjs";
 import * as generic from "./generic.mjs";
 import {
   inventoryLivePages,
@@ -29,6 +30,7 @@ export const SITE_INVENTORY_ADAPTERS = [
   next,
   phpBlade,
   php,
+  cobol,
   generic,
 ];
 

@@ -27,10 +27,12 @@ import {
   expandCobolCopybooks,
   inferCobolCopybookDirs,
 } from "./cobol-pattern-lift.mjs";
+import { buildCobolResidualLedger } from "./cobol-residual-ledger.mjs";
 import { emitFromCobolPatterns, detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
 import { liftPatternRoutesFile } from "./pattern-route-lift.mjs";
 import { loadWebir } from "./shared.mjs";
 import { runTraceReplaySuite } from "./hub-gold-trace-replay.mjs";
+import { detectOriginAdapter } from "../lib/site-inventory/index.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const LIFT = join(ROOT, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -1147,6 +1149,28 @@ export async function runCobolBestFitSmoke() {
     reason: cosgnAttrs
       ? `unresolved=${(cosgnAttrs.unresolved || []).join(",")} ops=${(cosgnAttrs.execCicsOps || []).join(",")}`
       : "missing-COSGN00C",
+  });
+
+  // G10089–G10090: COBOL site-inventory adapter + residual ledger (inventory-first).
+  const clbsAdapter = detectOriginAdapter(CLBS_MINI);
+  const residual = buildCobolResidualLedger(CLBS_MINI);
+  const residualIds = new Set((residual.items || []).map((i) => i.id));
+  results.push({
+    id: "cobol-site-inventory-adapter",
+    ok: clbsAdapter?.name === "cobol",
+    reason: `adapter=${clbsAdapter?.name ?? "none"}`,
+  });
+  results.push({
+    id: "cobol-residual-ledger",
+    ok:
+      residual?.kind === "chrysalis.cobol.residual.v1" &&
+      residualIds.has("copy:DFHAID") &&
+      residualIds.has("op:exec-cics") &&
+      (residual.summary?.byPriority?.P0 ?? 0) >= 1 &&
+      (residual.summary?.byPriority?.P1 ?? 0) >= 1,
+    reason: residual
+      ? `items=${residual.summary?.itemCount} P0=${residual.summary?.byPriority?.P0} P1=${residual.summary?.byPriority?.P1} ids=${[...residualIds].slice(0, 12).join(",")}`
+      : "missing-ledger",
   });
 
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];

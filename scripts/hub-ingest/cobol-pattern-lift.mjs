@@ -969,14 +969,22 @@ export const COBOL_COPY_EXPAND_SKIP = new Set([
 ]);
 
 /**
+ * True when COPY name is IBM/MQ proprietary — never invent or expand (D6442/D6447).
  * @param {string} name
  */
-function shouldSkipCobolCopyExpand(name) {
+export function isProprietaryCobolCopybook(name) {
   const upper = String(name || "").toUpperCase();
   if (!upper) return true;
   if (COBOL_COPY_EXPAND_SKIP.has(upper)) return true;
   if (upper.startsWith("CMQ")) return true; // IBM MQ CMQ* copybooks
   return false;
+}
+
+/**
+ * @param {string} name
+ */
+function shouldSkipCobolCopyExpand(name) {
+  return isProprietaryCobolCopybook(name);
 }
 
 /**

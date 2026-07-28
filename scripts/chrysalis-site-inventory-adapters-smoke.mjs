@@ -19,6 +19,7 @@ const CASES = [
   { dir: "fixtures/ui-markup-next", expect: "next-app", minGates: 1 },
   { dir: "fixtures/ui-markup-angular", expect: "angular", minGates: 1, minSlots: 1 },
   { dir: "fixtures/ui-markup-blade", expect: "php-blade", minGates: 1, minSlots: 1 },
+  { dir: "fixtures/hub-cobol-clbs-mini", expect: "cobol", minGates: 1 },
 ];
 
 let failed = 0;
@@ -48,9 +49,16 @@ for (const c of CASES) {
 }
 
 const names = listAdapterNames();
-const hasCore = ["sveltekit", "vite-vue", "next-app", "angular", "php-blade", "php", "generic"].every(
-  (n) => names.includes(n),
-);
+const hasCore = [
+  "sveltekit",
+  "vite-vue",
+  "next-app",
+  "angular",
+  "php-blade",
+  "php",
+  "cobol",
+  "generic",
+].every((n) => names.includes(n));
 if (!hasCore) failed += 1;
 
 const report = {
