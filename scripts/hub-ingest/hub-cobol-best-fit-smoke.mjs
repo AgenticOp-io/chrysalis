@@ -1045,6 +1045,46 @@ export async function runCobolBestFitSmoke() {
     reason: `pattern=${mathPattern?.kind} expected=${mathExpected} literals=${mathLiterals.length}`,
   });
 
+  // G10091 — arithmetic emit patterns also lower typed data.binOp (keep expected literal).
+  const mathBinOps = [...mathMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "binop" && n.attrs?.operator === "*",
+  );
+  const empPath = join(CLBS_BATCH, "EMPPAYRN.cbl");
+  const empSrc = existsSync(empPath) ? readFileSync(empPath, "utf8") : "";
+  const empPat = empSrc ? detectEmitPattern(empSrc) : null;
+  const empExp = empPat ? expectedFromPattern(empPat) : null;
+  const empBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10091" });
+  const empWr = webir.webRequest.builders(empBuilder);
+  if (empSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: empBuilder,
+      wr: empWr,
+      source: empSrc,
+      file: "EMPPAYRN.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const empMod = empBuilder.finish();
+  const empBinOps = [...empMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "binop" && n.attrs?.operator === "*",
+  );
+  const empLit = [...empMod.nodes.values()].some(
+    (n) => n.dialect === "data" && n.op === "literal" && n.attrs?.value === empExp,
+  );
+  results.push({
+    id: "webir-emit-pattern-typed-binop",
+    ok:
+      mathBinOps.length >= 1 &&
+      empPat?.kind === "ot-weekly" &&
+      empExp === "446.50" &&
+      empBinOps.length >= 1 &&
+      empLit,
+    reason: `clbsmath*=${mathBinOps.length} emp*=${empBinOps.length} empKind=${empPat?.kind} empLit=${empLit}`,
+  });
+
   // G10087 — COPY expand for resolved in-repo books; DFHAID/CMQ* stay skipped.
   const copyDirs = inferCobolCopybookDirs(
     join(CLBS_BATCH, "CKPRSTDN.cbl"),

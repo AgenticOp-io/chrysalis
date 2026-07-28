@@ -45,6 +45,128 @@ export function lowerHubLiteral(ctx, value, loc) {
 }
 
 /**
+ * Lower a proven COBOL emit pattern to typed WebIR ops where meta is arithmetic
+ * (G10091). Always ends with the formatted expected literal so verify/emit parity
+ * stays identical to G10086/G10088. Non-arithmetic kinds fall back to literal-only.
+ *
+ * @param {object} ctx — { data, webir }
+ * @param {{ kind: string, meta: Record<string, unknown> }} pattern
+ * @param {string} expected
+ * @param {{ file: string, line?: number }} loc
+ */
+export function lowerCobolEmitPatternWebIr(ctx, pattern, expected, loc) {
+  const { data, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const prov = (note) => [
+    webir.provenance("hub-ingest", `cobol-emit:${pattern.kind}:${note}`),
+  ];
+  const numLit = (n) =>
+    data.literal({
+      value: n,
+      type: HUB_T.int,
+      origin,
+      provenance: prov("operand"),
+    });
+  /** @type {string[]} */
+  const stmts = [];
+  const m = pattern.meta || {};
+
+  if (pattern.kind === "rounded-product" && typeof m.a === "number" && typeof m.b === "number") {
+    const aId = numLit(m.a);
+    const bId = numLit(m.b);
+    stmts.push(
+      data.binOp({
+        operator: "*",
+        left: aId,
+        right: bId,
+        type: HUB_T.int,
+        origin,
+        provenance: prov("mul"),
+      }),
+    );
+  } else if (
+    pattern.kind === "truncate-div" &&
+    typeof m.a === "number" &&
+    typeof m.b === "number"
+  ) {
+    const aId = numLit(m.a);
+    const bId = numLit(m.b);
+    stmts.push(
+      data.binOp({
+        operator: "/",
+        left: aId,
+        right: bId,
+        type: HUB_T.int,
+        origin,
+        provenance: prov("div"),
+      }),
+    );
+  } else if (
+    pattern.kind === "ot-weekly" &&
+    typeof m.hours === "number" &&
+    typeof m.rate === "number"
+  ) {
+    const hoursId = numLit(m.hours);
+    const rateId = numLit(m.rate);
+    const baseId = data.binOp({
+      operator: "*",
+      left: hoursId,
+      right: rateId,
+      type: HUB_T.int,
+      origin,
+      provenance: prov("hours-rate"),
+    });
+    stmts.push(baseId);
+    const threshold = typeof m.threshold === "number" ? m.threshold : 40;
+    const otOn = typeof m.otOn === "number" ? m.otOn : 0;
+    if (m.hours >= threshold && otOn > 0) {
+      const factorId = numLit(1 + otOn);
+      stmts.push(
+        data.binOp({
+          operator: "*",
+          left: baseId,
+          right: factorId,
+          type: HUB_T.int,
+          origin,
+          provenance: prov("ot-factor"),
+        }),
+      );
+    }
+  } else if (pattern.kind === "seq-sum" && Array.isArray(m.amounts) && m.amounts.length > 0) {
+    let acc = numLit(Number(m.amounts[0]));
+    for (let i = 1; i < m.amounts.length; i++) {
+      const next = numLit(Number(m.amounts[i]));
+      acc = data.binOp({
+        operator: "+",
+        left: acc,
+        right: next,
+        type: HUB_T.int,
+        origin,
+        provenance: prov(`sum-${i}`),
+      });
+      stmts.push(acc);
+    }
+    if (stmts.length === 0) stmts.push(acc);
+  }
+
+  stmts.push(
+    data.literal({
+      value: expected,
+      type: HUB_T.string,
+      origin,
+      provenance: prov("expected"),
+    }),
+  );
+
+  return data.block({
+    statements: stmts,
+    type: HUB_T.unknown,
+    origin,
+    provenance: prov("block"),
+  });
+}
+
+/**
  * @param {object} ctx — { data, webir }
  * @param {Record<string, string | number | boolean>} obj
  * @param {{ file: string, line?: number }} loc

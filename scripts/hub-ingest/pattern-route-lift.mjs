@@ -2,7 +2,7 @@
  * Lift hub routes from {@link PATTERN_PARSERS} into WebIR.
  */
 import { PATTERN_PARSERS } from "./pattern-route-parsers.mjs";
-import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral, lowerHubObjectLiteral, lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, lowerCobolEmitPatternWebIr, lowerHubLiteral, lowerHubObjectLiteral, lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
 import {
   buildCobolWebIrHoleAttrs,
   cobolBodyAfter,
@@ -292,7 +292,7 @@ export function liftPatternRoutesFile(opts) {
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };
 
-  /** COBOL deepen (G10085–G10088): COPY expand + inventory → shaped holes; emit → literals. */
+  /** COBOL deepen (G10085–G10091): COPY expand + inventory → shaped holes; emit → typed binOp + expected literal. */
   let cobolLiftSource = source;
   /** @type {ReturnType<typeof expandCobolCopybooks> | null} */
   let cobolCopyExpand = null;
@@ -400,7 +400,16 @@ export function liftPatternRoutesFile(opts) {
       : objectLit?.object
         ? lowerHubObjectLiteral(ctx, objectLit.object, { file, line: objectLit.line })
         : lit?.value !== undefined
-          ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
+          ? language === "cobol" &&
+            lit.emitPatternKind &&
+            cobolEmitPattern &&
+            cobolEmitExpected != null &&
+            cobolEmitTargetPaths.has(r.path)
+            ? lowerCobolEmitPatternWebIr(ctx, cobolEmitPattern, String(cobolEmitExpected), {
+                file,
+                line: lit.line ?? r.line,
+              })
+            : lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
           : hubHandlerBodyHole(
               ctx,
               `hub-${language}:handler-body`,
