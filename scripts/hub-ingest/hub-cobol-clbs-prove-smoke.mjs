@@ -534,6 +534,33 @@ const BEHAVIORAL_SUBJECTS = [
     csharp: join(MINI, "batch/reference_emit_ckprstdn.cs"),
     copyInclude: join(MINI, "copybook"),
   },
+  {
+    id: "portfliodn",
+    cob: join(MINI, "batch/PORTFLIODN.cbl"),
+    expected: join(MINI, "batch/expected-portfliodn.txt"),
+    py: join(MINI, "batch/reference_emit_portfliodn.py"),
+    java: join(MINI, "batch/reference_emit_portfliodn.java"),
+    csharp: join(MINI, "batch/reference_emit_portfliodn.cs"),
+    copyInclude: join(MINI, "copybook"),
+  },
+  {
+    id: "errhanddn",
+    cob: join(MINI, "batch/ERRHANDDN.cbl"),
+    expected: join(MINI, "batch/expected-errhanddn.txt"),
+    py: join(MINI, "batch/reference_emit_errhanddn.py"),
+    java: join(MINI, "batch/reference_emit_errhanddn.java"),
+    csharp: join(MINI, "batch/reference_emit_errhanddn.cs"),
+    copyInclude: join(MINI, "copybook"),
+  },
+  {
+    id: "ckprstph",
+    cob: join(MINI, "batch/CKPRSTPH.cbl"),
+    expected: join(MINI, "batch/expected-ckprstph.txt"),
+    py: join(MINI, "batch/reference_emit_ckprstph.py"),
+    java: join(MINI, "batch/reference_emit_ckprstph.java"),
+    csharp: join(MINI, "batch/reference_emit_ckprstph.cs"),
+    copyInclude: join(MINI, "copybook"),
+  },
 ];
 
 
@@ -2425,6 +2452,90 @@ export async function runCobolClbsProveSmoke() {
     reason: ckprstdnInv
       ? `books=${(ckprstdnInv.copybooks || []).join(",")} resolved=${ckprstdnResolved.join(",")}`
       : "missing-CKPRSTDN",
+  });
+
+  const portfliodnPath = join(MINI, "batch/PORTFLIODN.cbl");
+  const portfliodnSrc = existsSync(portfliodnPath) ? readFileSync(portfliodnPath, "utf8") : "";
+  const portfliodnInv = portfliodnSrc
+    ? inventoryCobolSource(portfliodnSrc, "batch/PORTFLIODN.cbl")
+    : null;
+  const portfliodnResolve = resolveCobolCopybooks(portfliodnInv?.copybooks || [], [
+    join(MINI, "copybook"),
+  ]);
+  const portfliodnResolved = portfliodnResolve
+    .filter((r) => r.resolved)
+    .map((r) => r.name.toUpperCase());
+  checks.push({
+    id: "batch-portfliodn-copy-linked-behavioral",
+    ok:
+      !!portfliodnInv &&
+      portfliodnInv.programIds.includes("PORTFLIODN") &&
+      (portfliodnInv.copybooks || []).map((c) => c.toUpperCase()).includes("PORTFLIO") &&
+      portfliodnResolved.includes("PORTFLIO") &&
+      portfliodnInv.evaluateTrue >= 1 &&
+      /\bPORT-INDIVIDUAL\b/i.test(portfliodnSrc) &&
+      /\bPORT-SUSPENDED\b/i.test(portfliodnSrc) &&
+      (portfliodnInv.organizationIndexed || 0) === 0 &&
+      portfliodnInv.unresolved.includes("copy"),
+    reason: portfliodnInv
+      ? `books=${(portfliodnInv.copybooks || []).join(",")} resolved=${portfliodnResolved.join(",")}`
+      : "missing-PORTFLIODN",
+  });
+
+  const errhanddnPath = join(MINI, "batch/ERRHANDDN.cbl");
+  const errhanddnSrc = existsSync(errhanddnPath) ? readFileSync(errhanddnPath, "utf8") : "";
+  const errhanddnInv = errhanddnSrc
+    ? inventoryCobolSource(errhanddnSrc, "batch/ERRHANDDN.cbl")
+    : null;
+  const errhanddnResolve = resolveCobolCopybooks(errhanddnInv?.copybooks || [], [
+    join(MINI, "copybook"),
+  ]);
+  const errhanddnResolved = errhanddnResolve
+    .filter((r) => r.resolved)
+    .map((r) => r.name.toUpperCase());
+  checks.push({
+    id: "batch-errhanddn-copy-linked-behavioral",
+    ok:
+      !!errhanddnInv &&
+      errhanddnInv.programIds.includes("ERRHANDDN") &&
+      (errhanddnInv.copybooks || []).map((c) => c.toUpperCase()).includes("ERRHAND") &&
+      errhanddnResolved.includes("ERRHAND") &&
+      /\bERR-SUCCESS\b/i.test(errhanddnSrc) &&
+      /\bERR-TERMINAL\b/i.test(errhanddnSrc) &&
+      !/\bFUNCTION\s+RANDOM\b/i.test(errhanddnSrc) &&
+      (errhanddnInv.organizationIndexed || 0) === 0 &&
+      errhanddnInv.unresolved.includes("copy"),
+    reason: errhanddnInv
+      ? `books=${(errhanddnInv.copybooks || []).join(",")} resolved=${errhanddnResolved.join(",")}`
+      : "missing-ERRHANDDN",
+  });
+
+  const ckprstphPath = join(MINI, "batch/CKPRSTPH.cbl");
+  const ckprstphSrc = existsSync(ckprstphPath) ? readFileSync(ckprstphPath, "utf8") : "";
+  const ckprstphInv = ckprstphSrc
+    ? inventoryCobolSource(ckprstphSrc, "batch/CKPRSTPH.cbl")
+    : null;
+  const ckprstphResolve = resolveCobolCopybooks(ckprstphInv?.copybooks || [], [
+    join(MINI, "copybook"),
+  ]);
+  const ckprstphResolved = ckprstphResolve
+    .filter((r) => r.resolved)
+    .map((r) => r.name.toUpperCase());
+  checks.push({
+    id: "batch-ckprstph-copy-linked-behavioral",
+    ok:
+      !!ckprstphInv &&
+      ckprstphInv.programIds.includes("CKPRSTPH") &&
+      (ckprstphInv.copybooks || []).map((c) => c.toUpperCase()).includes("CKPRST") &&
+      ckprstphResolved.includes("CKPRST") &&
+      ckprstphInv.evaluateTrue >= 1 &&
+      /\bCK-PHASE-INIT\b/i.test(ckprstphSrc) &&
+      /\bCK-PHASE-TERM\b/i.test(ckprstphSrc) &&
+      (ckprstphInv.organizationIndexed || 0) === 0 &&
+      ckprstphInv.unresolved.includes("copy"),
+    reason: ckprstphInv
+      ? `books=${(ckprstphInv.copybooks || []).join(",")} resolved=${ckprstphResolved.join(",")}`
+      : "missing-CKPRSTPH",
   });
 
   const sqlcpyPath = join(MINI, "batch/SQLCPY00.cbl");

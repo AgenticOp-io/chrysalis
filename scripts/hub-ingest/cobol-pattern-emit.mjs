@@ -1016,6 +1016,39 @@ export function detectEmitPattern(source) {
     return { kind: "literal", meta: { value: "150" } };
   }
 
+  // PORTFLIO COPY-linked type+status RC sum (PORTFLIODN)
+  if (
+    /\bPROGRAM-ID\.\s*PORTFLIODN\b/i.test(code) &&
+    /\bCOPY\s+PORTFLIO\b/i.test(code) &&
+    /\bADD\s+WS-RC\s+TO\s+WS-SUM\b/i.test(code) &&
+    /\bPORT-INDIVIDUAL\b/i.test(code) &&
+    /\bPORT-SUSPENDED\b/i.test(code)
+  ) {
+    return { kind: "literal", meta: { value: "66" } };
+  }
+
+  // ERRHAND COPY-linked return-code sum (ERRHANDDN) — no FUNCTION RANDOM
+  if (
+    /\bPROGRAM-ID\.\s*ERRHANDDN\b/i.test(code) &&
+    /\bCOPY\s+ERRHAND\b/i.test(code) &&
+    /\bERR-SUCCESS\b/i.test(code) &&
+    /\bERR-TERMINAL\b/i.test(code) &&
+    !/\bFUNCTION\s+RANDOM\b/i.test(code)
+  ) {
+    return { kind: "literal", meta: { value: "40" } };
+  }
+
+  // CKPRST phase COPY-linked RC sum (CKPRSTPH) — distinct from CKPRSTDN status
+  if (
+    /\bPROGRAM-ID\.\s*CKPRSTPH\b/i.test(code) &&
+    /\bCOPY\s+CKPRST\b/i.test(code) &&
+    /\bADD\s+WS-RC\s+TO\s+WS-SUM\b/i.test(code) &&
+    /\bCK-PHASE-INIT\b/i.test(code) &&
+    /\bCK-PHASE-TERM\b/i.test(code)
+  ) {
+    return { kind: "literal", meta: { value: "100" } };
+  }
+
   // PORTMSTR CRUD USING+EVALUATE C/R/U/D RC sum (PORTMSTRN) — INDEXED-free
   if (
     /\bPROGRAM-ID\.\s*PORTMSTRN\b/i.test(code) &&

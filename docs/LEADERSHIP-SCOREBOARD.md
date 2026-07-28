@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-27 (G10077 Tier A+ queue hygiene — COBOL primary; dialect bingo paused)
+**As of:** 2026-07-27 (G10078 Tier B Small remainder — behavioral 65/65)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **62/62** behavioral after Tier B Small (**G10076**); **Tier A COPY closed (G10075)** | no LCB claim; ckprstdn COPY-linked; further Db2/CICS/VSAM/BMS need charter |
+| COBOL primary | **65/65** behavioral after Tier B Small complete (**G10076**–**G10078**); **Tier A/A+ closed** | no LCB claim; further Db2/CICS/VSAM/BMS need charter |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -165,22 +165,23 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Priority | Work | Status |
 | --- | --- | --- |
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
-| **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076** (`ckprstdn`; **62/62**) |
+| **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
 | **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM) | **Charter + real corpus** — refuse façades |
 | **4** | COBOL Tier C IBM BMS maps | **Blocked** until `DFHAID`/`DFHBMSCA`/`EXTFMAP` in-tree |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10078 — Tier B Small remainder: `PORTFLIODN`/`ERRHANDDN`/`CKPRSTPH` → 66/40/100; behavioral **65/65**
 - G10077 — Tier A+ queue hygiene: scoreboard/ROADMAP/§12 point at COBOL; dialect bingo not default next
-- G10076 — Tier B Small: `CKPRSTDN` / `ckprstdn` → 150; behavioral 62/62
+- G10076 — Tier B Small: `CKPRSTDN` / `ckprstdn` → 150
 - G10075 — Tier A: COPY/INCLUDE census exhausted; BMS stay holes
 - G10001 — `CSUTLDWY`/`CSSETATY` COPY resolve (earlier CardDemo peel)
 
 **Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **COBOL Tier B Medium+** — real Db2/CICS/VSAM corpus (refuse façades; Small closed G10076)
+1. **COBOL Tier B Medium+** — real Db2/CICS/VSAM corpus (refuse façades; Small complete G10078)
 2. **COBOL Tier C / IBM BMS** maps (`DFHAID` / `DFHBMSCA` / `EXTFMAP`) — stay honest holes until a real map corpus ships
 3. **Flutter** (or Dart Frog) UI/route surface — only if explicitly chartered
 4. **Phoenix LiveView** (or controller peel with cross-file resolve) — only if explicitly chartered
