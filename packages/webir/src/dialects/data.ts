@@ -107,6 +107,8 @@ export interface Builders {
     operands?: ReadonlyArray<NodeId>;
     origin: Locator;
     provenance?: ReadonlyArray<Provenance>;
+    /** Extra catalog attrs merged beside `reason` (e.g. COBOL unresolved ops). */
+    attrs?: Readonly<Record<string, unknown>>;
   }): NodeId;
 }
 
@@ -287,14 +289,17 @@ export function builders(m: ModuleBuilder): Builders {
         provenance: prov ?? [provenance("php-ast", origin, "foreach")],
       });
     },
-    hole({ reason, input, output, operands = [], origin, provenance: prov }) {
+    hole({ reason, input, output, operands = [], origin, provenance: prov, attrs: extra }) {
       return m.node({
         dialect: DIALECT,
         op: "hole",
         type: { kind: "hole", contract: { input, output } },
         effects: [],
         operands,
-        attrs: { reason },
+        attrs: {
+          reason,
+          ...(extra && typeof extra === "object" ? extra : {}),
+        },
         origin,
         provenance: prov ?? [provenance("php-ast", origin, `hole: ${reason}`)],
       });

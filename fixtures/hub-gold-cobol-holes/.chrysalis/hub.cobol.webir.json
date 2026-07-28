@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "chrysalisVersion": "0.0.0",
+    "createdAt": "1970-01-01T00:00:00.000Z",
+    "sourceApp": "hub-lift:cobol"
+  },
+  "roots": [
+    "n2"
+  ],
+  "nodes": [
+    {
+      "id": "n0",
+      "dialect": "data",
+      "op": "hole",
+      "type": {
+        "contract": {
+          "input": {
+            "kind": "unknown"
+          },
+          "output": {
+            "kind": "unknown"
+          }
+        },
+        "kind": "hole"
+      },
+      "effects": [],
+      "operands": [],
+      "attrs": {
+        "programIds": [
+          "LEGACY-CALL"
+        ],
+        "reason": "hub-cobol:handler-body",
+        "unresolved": [
+          "call",
+          "accept",
+          "display"
+        ]
+      },
+      "origin": {
+        "column": 1,
+        "file": "legacy-call.cob",
+        "line": 3
+      },
+      "provenance": [
+        {
+          "locator": "hub-cobol:handler-body",
+          "source": "hub-ingest"
+        }
+      ]
+    },
+    {
+      "id": "n1",
+      "dialect": "web.request",
+      "op": "handler",
+      "type": {
+        "kind": "unknown"
+      },
+      "effects": [],
+      "operands": [
+        "n0"
+      ],
+      "attrs": {
+        "input": {
+          "kind": "unknown"
+        },
+        "name": "LEGACY-CALL",
+        "output": {
+          "kind": "unknown"
+        }
+      },
+      "origin": {
+        "column": 1,
+        "file": "legacy-call.cob",
+        "line": 3
+      },
+      "provenance": [
+        {
+          "locator": "hub-lift:cobol",
+          "source": "hub-ingest"
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "dialect": "web.request",
+      "op": "route",
+      "type": {
+        "kind": "void"
+      },
+      "effects": [],
+      "operands": [
+        "n1"
+      ],
+      "attrs": {
+        "method": "GET",
+        "path": "/legacy-call",
+        "pathParams": []
+      },
+      "origin": {
+        "column": 1,
+        "file": "legacy-call.cob",
+        "line": 3
+      },
+      "provenance": [
+        {
+          "locator": "route:cobol",
+          "source": "hub-ingest"
+        }
+      ]
+    }
+  ]
+}
+

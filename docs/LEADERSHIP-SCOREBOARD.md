@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-28 (G10083–G10084 Tier B Medium+ corpus + Tier C AID catalog)
+**As of:** 2026-07-28 (G10085–G10086 COBOL→WebIR deepen)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **65/65** behavioral; structural through **G10084** (Medium+ corpus + AID catalog) | no LCB claim; DFHAID/DFHBMSCA/CMQ* COPY need licensed SDFHCOB/MQ libs; no Db2/IMS/MQ runtime |
+| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10086** (shaped holes + emit→literal) | no LCB claim; DFHAID/CMQ* COPY + Db2/IMS/MQ runtimes still holes |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -167,12 +167,15 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
 | **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
+| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Closed G10085–G10086** — shaped hole attrs + emit-pattern literals on entry routes |
 | **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM/MQ/IMS) | **Closed G10083 structural** — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `exec-dli`/`ibm-mq`/`exec-sql` holes; **no runtime** |
 | **4** | COBOL Tier C IBM BMS AID books | **G10084 symbol catalog closed**; `DFHAID`/`DFHBMSCA`/`EXTFMAP` COPY still holes until licensed SDFHCOB in-tree |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10086 — proven `detectEmitPattern` expected → WebIR literal on MAIN/sole-entry (CLBSMATH)
+- G10085 — inventory catalogs → shaped `data.hole` attrs (`unresolved`, `execCicsOps`, …)
 - G10084 — Tier C AID/BMSCA **symbol catalog** from CardDemo upstream; DFHAID/DFHBMSCA/EXTFMAP COPY stay proprietary holes
 - G10083 — Tier B Medium+ structural: VSAM-MQ (`COACCT01`/`CODATE01`) + IMS/Db2/MQ auth (`COPAU*`/`CBPAUP0C`) + EXEC DLI / IBM MQ CALL catalogs
 - G10082 — CICS SEND-TEXT / SEND-MAP / RECEIVE-MAP + MAP/MAPSET + LINK/XCTL PROGRAM literal catalog

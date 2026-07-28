@@ -202,7 +202,7 @@ export function lowerHubPageWithLoadAndUiBody(ctx, loadValueId, tree, loc, bindi
   });
 }
 
-export function hubHandlerBodyHole(ctx, reason, loc) {
+export function hubHandlerBodyHole(ctx, reason, loc, extraAttrs) {
   const { data, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);
   return data.hole({
@@ -211,6 +211,7 @@ export function hubHandlerBodyHole(ctx, reason, loc) {
     output: HUB_T.unknown,
     origin,
     provenance: [webir.provenance("hub-ingest", reason)],
+    attrs: extraAttrs && typeof extraAttrs === "object" ? extraAttrs : undefined,
   });
 }
 

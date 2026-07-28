@@ -3,7 +3,13 @@
  */
 import { PATTERN_PARSERS } from "./pattern-route-parsers.mjs";
 import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral, lowerHubObjectLiteral, lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
-import { cobolBodyAfter } from "./cobol-pattern-lift.mjs";
+import {
+  buildCobolWebIrHoleAttrs,
+  cobolBodyAfter,
+  cobolProgramIdToPath,
+  inventoryCobolSource,
+} from "./cobol-pattern-lift.mjs";
+import { detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
 
 const LITERAL_RETURN_RE =
   /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|"""[\s\S]*?"""|`[^`]*`)\s*;/;
@@ -283,6 +289,42 @@ export function liftPatternRoutesFile(opts) {
   const data = webir.dataDialect.builders(builder);
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };
+
+  /** COBOL deepen (G10085/G10086): inventory → shaped holes; proven emit patterns → WebIR literals. */
+  const cobolInv = language === "cobol" ? inventoryCobolSource(source, file) : null;
+  const cobolEmitPattern = language === "cobol" ? detectEmitPattern(source) : null;
+  const cobolEmitExpected =
+    cobolEmitPattern != null ? expectedFromPattern(cobolEmitPattern) : null;
+  /** @type {Set<string>} */
+  const cobolEmitTargetPaths = new Set();
+  if (language === "cobol" && cobolInv) {
+    const primaryPaths = (cobolInv.programIds || []).map((id) => cobolProgramIdToPath(id));
+    for (const r of routes) {
+      if (
+        primaryPaths.includes(r.path) ||
+        (cobolInv.programIds || []).some(
+          (id) => String(r.name || "").toUpperCase() === String(id).toUpperCase(),
+        )
+      ) {
+        cobolEmitTargetPaths.add(r.path);
+      }
+    }
+    // parseCobolRoutes prefers PROCEDURE paragraphs over PROGRAM-ID — still lower
+    // onto the sole entry / MAIN when the whole-program emit pattern is proven.
+    if (cobolEmitTargetPaths.size === 0 && cobolEmitExpected != null) {
+      if (routes.length === 1 && routes[0]?.path) {
+        cobolEmitTargetPaths.add(routes[0].path);
+      } else {
+        for (const r of routes) {
+          const name = String(r.name || "").toUpperCase();
+          if (name === "MAIN" || name === "MAIN-LOGIC" || /\/(main|main-logic)$/i.test(r.path)) {
+            cobolEmitTargetPaths.add(r.path);
+          }
+        }
+      }
+    }
+  }
+
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const statusOnly = language === "csharp" ? csharpCreatedAfter(source, idx) : null;
@@ -320,7 +362,20 @@ export function liftPatternRoutesFile(opts) {
                   : language === "cobol"
                     ? (() => {
                         const b = cobolBodyAfter(source, idx);
-                        return b?.kind === "literal" ? { value: b.value, line: b.line } : null;
+                        if (b?.kind === "literal") return { value: b.value, line: b.line };
+                        // G10086 — entry route: lower proven pattern-emit expected into WebIR.
+                        if (
+                          cobolEmitTargetPaths.has(r.path) &&
+                          cobolEmitExpected != null &&
+                          String(cobolEmitExpected).length > 0
+                        ) {
+                          return {
+                            value: cobolEmitExpected,
+                            line: r.line ?? 1,
+                            emitPatternKind: cobolEmitPattern?.kind,
+                          };
+                        }
+                        return null;
                       })()
                     : null);
     const bodyId = statusOnly
@@ -329,7 +384,16 @@ export function liftPatternRoutesFile(opts) {
         ? lowerHubObjectLiteral(ctx, objectLit.object, { file, line: objectLit.line })
         : lit?.value !== undefined
           ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
-          : hubHandlerBodyHole(ctx, `hub-${language}:handler-body`, { file, line: r.line });
+          : hubHandlerBodyHole(
+              ctx,
+              `hub-${language}:handler-body`,
+              { file, line: r.line },
+              language === "cobol" && cobolInv
+                ? buildCobolWebIrHoleAttrs(cobolInv, {
+                    emitPatternKind: cobolEmitPattern?.kind ?? null,
+                  })
+                : undefined,
+            );
     emitHubRoute({ webir, builder, wr, language, file, route: r, bodyId });
   }
 

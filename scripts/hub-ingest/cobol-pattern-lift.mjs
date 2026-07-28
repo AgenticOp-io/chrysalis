@@ -385,12 +385,48 @@ export function cobolBodyAfter(source, fromIndex) {
     ACCEPT_RE.test(slice) ||
     DISPLAY_RE.test(slice) ||
     /\bEXEC\s+CICS\b/i.test(slice) ||
-    /\bEXEC\s+SQL\b/i.test(slice)
+    /\bEXEC\s+SQL\b/i.test(slice) ||
+    /\bEXEC\s+DLI\b/i.test(slice)
   ) {
     return null;
   }
 
   return null;
+}
+
+/**
+ * Shape WebIR hole attrs from {@link inventoryCobolSource} (G10085).
+ * Catalogs already prove-gated — attach to holes instead of opaque `handler-body`.
+ * Does not invent runtimes; lists inventoried ops / COPY / MAP names only.
+ *
+ * @param {ReturnType<typeof inventoryCobolSource>} inv
+ * @param {{ emitPatternKind?: string | null }} [opts]
+ * @returns {Record<string, unknown>}
+ */
+export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
+  /** @type {Record<string, unknown>} */
+  const attrs = {
+    unresolved: [...(inv?.unresolved || [])],
+  };
+  if (inv?.programIds?.length) attrs.programIds = [...inv.programIds];
+  if (inv?.copybooks?.length) attrs.copybooks = [...inv.copybooks];
+  if (inv?.execCicsOps?.length) attrs.execCicsOps = [...inv.execCicsOps];
+  if (inv?.execCicsMaps?.length) attrs.execCicsMaps = [...inv.execCicsMaps];
+  if (inv?.execCicsMapsets?.length) attrs.execCicsMapsets = [...inv.execCicsMapsets];
+  if (inv?.execCicsLinkPrograms?.length) {
+    attrs.execCicsLinkPrograms = [...inv.execCicsLinkPrograms];
+  }
+  if (inv?.execCicsXctlPrograms?.length) {
+    attrs.execCicsXctlPrograms = [...inv.execCicsXctlPrograms];
+  }
+  if (inv?.execSqlOps?.length) attrs.execSqlOps = [...inv.execSqlOps];
+  if (inv?.execSqlIncludes?.length) attrs.execSqlIncludes = [...inv.execSqlIncludes];
+  if (inv?.execDliOps?.length) attrs.execDliOps = [...inv.execDliOps];
+  if (inv?.ibmMqCallOps?.length) attrs.ibmMqCallOps = [...inv.ibmMqCallOps];
+  if (inv?.cicsAidSymbols?.length) attrs.cicsAidSymbols = [...inv.cicsAidSymbols];
+  if (inv?.bmsAttrSymbols?.length) attrs.bmsAttrSymbols = [...inv.bmsAttrSymbols];
+  if (opts.emitPatternKind) attrs.emitPatternKind = opts.emitPatternKind;
+  return attrs;
 }
 
 /**

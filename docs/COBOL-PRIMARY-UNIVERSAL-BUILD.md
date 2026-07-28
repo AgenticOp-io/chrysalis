@@ -96,6 +96,7 @@ pnpm run test:gce   # full suite on chrysalis-test-vm
 - [x] **G10079–G10082 structural** — BMS DFHM inventory + MAP/MAPSET crosswalk + COTRT BMS + CICS SEND-MAP/TEXT catalog; AID books still holes
 - [x] **G10083 Tier B Medium+ structural** — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `ibm-mq`/`exec-dli`/`exec-sql` holes (no runtime)
 - [x] **G10084 Tier C AID catalog** — DFHENTER/DFHPF*/DFHBMPRF symbols from upstream; DFHAID/DFHBMSCA/EXTFMAP COPY stay proprietary holes
+- [x] **G10085–G10086 WebIR deepen** — shaped hole attrs from inventory; proven emit patterns → WebIR literals on entry routes
 - [x] Universal inventory-first: `chrysalis:site-inventory-adapters-smoke` green (local + GCE)
 - [x] Universal Express depth batch: `hub:express-depth-batch-smoke` green on GCE (path-advice gold + project-to-cwl hole-free)
 - [x] Universal Pilot Kit wedge: `pilot:laravel-min` **green on GCE** (`chrysalis-test-vm`) with PHP `mysqli` + `pdo_sqlite` (`php8.2-mysql` + `php8.2-sqlite3`); packaging smoke green. Emit fix: handler epilogue uses path-sensitive termination so early `__exit` does not suppress fall-through `__respond` (Hono Context coerce). Local Node 25 may still differ ? prefer GCE Node 22.

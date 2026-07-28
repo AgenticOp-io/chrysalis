@@ -315,33 +315,23 @@ describe("webir module builder", () => {
     expect(node.effects).toEqual([{ kind: "db.read", table: "users" }]);
   });
 
-  test("modules expose dialect counts and holes", () => {
+  test("data.hole merges optional catalog attrs with reason", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const d = dataDialect.builders(b);
-    const r = webRequest.builders(b);
     const origin = phpLocator("a.php", 1, 0);
-    const h = d.hole({ reason: "tbd", input: T.unknown, output: T.string, origin });
-    const handler = r.handler({
-      attrs: { name: "h", input: T.record({}), output: T.string },
-      body: h,
-      effects: [],
+    const h = d.hole({
+      reason: "hub-cobol:handler-body",
+      input: T.unknown,
+      output: T.string,
       origin,
+      attrs: { unresolved: ["call", "exec-cics"], execCicsOps: ["SEND-MAP"] },
     });
-    const route = r.route({
-      attrs: { method: "GET", path: "/x", pathParams: [] },
-      handler,
-      origin,
-    });
-    b.addRoot(route);
-    const mod = b.finish();
-    expect(countByDialect(mod)).toEqual({ data: 1, "web.request": 2 });
-    expect(countHoles(mod)).toBe(1);
-    let count = 0;
-    walk(mod, () => {
-      count += 1;
-    });
-    expect(count).toBe(3);
+    const node = b.get(h);
+    expect(node.attrs.reason).toBe("hub-cobol:handler-body");
+    expect(node.attrs.unresolved).toEqual(["call", "exec-cics"]);
+    expect(node.attrs.execCicsOps).toEqual(["SEND-MAP"]);
   });
+
 
   test("countAuthTaggedHoles only counts data.hole with auth-prefixed reason", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });

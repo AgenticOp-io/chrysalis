@@ -23,8 +23,11 @@ import {
   cobolUnresolvedOps,
   inventoryCobolSource,
   resolveCobolCopybooks,
+  buildCobolWebIrHoleAttrs,
 } from "./cobol-pattern-lift.mjs";
-import { emitFromCobolPatterns } from "./cobol-pattern-emit.mjs";
+import { emitFromCobolPatterns, detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
+import { liftPatternRoutesFile } from "./pattern-route-lift.mjs";
+import { loadWebir } from "./shared.mjs";
 import { runTraceReplaySuite } from "./hub-gold-trace-replay.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -975,6 +978,85 @@ export async function runCobolBestFitSmoke() {
       ? undefined
       : `holes=${hReport.holeCount} unresolved=${unresolved.join(",")} bodyNull=${bodyNull}`,
     detail: { holeCount: hReport.holeCount, unresolved },
+  });
+
+  // G10085 — shaped WebIR hole attrs from inventory (not opaque handler-body alone).
+  const webir = await loadWebir();
+  const holeBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10085" });
+  const holeWr = webir.webRequest.builders(holeBuilder);
+  liftPatternRoutesFile({
+    webir,
+    builder: holeBuilder,
+    wr: holeWr,
+    source: holeSrc,
+    file: "legacy-call.cob",
+    language: "cobol",
+  });
+  const holeMod = holeBuilder.finish();
+  const holeNodes = [...holeMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "hole",
+  );
+  const shapedHole = holeNodes.find(
+    (n) =>
+      n.attrs?.reason === "hub-cobol:handler-body" &&
+      Array.isArray(n.attrs?.unresolved) &&
+      n.attrs.unresolved.includes("call") &&
+      n.attrs.unresolved.includes("accept") &&
+      n.attrs.unresolved.includes("display"),
+  );
+  results.push({
+    id: "webir-shaped-cobol-hole-attrs",
+    ok: !!shapedHole,
+    reason: shapedHole
+      ? `unresolved=${(shapedHole.attrs.unresolved || []).join(",")}`
+      : `holes=${holeNodes.length} attrs=${JSON.stringify(holeNodes[0]?.attrs || null)}`,
+  });
+
+  // G10086 — proven emit pattern lowers onto MAIN / sole entry WebIR route as literal.
+  const mathPattern = mathSrc ? detectEmitPattern(mathSrc) : null;
+  const mathExpected = mathPattern ? expectedFromPattern(mathPattern) : null;
+  const mathBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10086" });
+  const mathWr = webir.webRequest.builders(mathBuilder);
+  if (mathSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: mathBuilder,
+      wr: mathWr,
+      source: mathSrc,
+      file: "CLBSMATH.cbl",
+      language: "cobol",
+    });
+  }
+  const mathMod = mathBuilder.finish();
+  const mathLiterals = [...mathMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === mathExpected,
+  );
+  results.push({
+    id: "webir-emit-pattern-literal-clbsmath",
+    ok:
+      !!mathSrc &&
+      mathPattern?.kind === "rounded-product" &&
+      mathExpected === "52.50" &&
+      mathLiterals.length >= 1,
+    reason: `pattern=${mathPattern?.kind} expected=${mathExpected} literals=${mathLiterals.length}`,
+  });
+
+  // Sanity: buildCobolWebIrHoleAttrs exports catalog keys for online-shaped inventory.
+  const cosgnPath = join(ROOT, "fixtures/hub-cobol-clbs-mini/online/COSGN00C.cbl");
+  const cosgnSrc = existsSync(cosgnPath) ? readFileSync(cosgnPath, "utf8") : "";
+  const cosgnInv = cosgnSrc ? inventoryCobolSource(cosgnSrc, "COSGN00C.cbl") : null;
+  const cosgnAttrs = cosgnInv ? buildCobolWebIrHoleAttrs(cosgnInv) : null;
+  results.push({
+    id: "webir-hole-attrs-online-catalog",
+    ok:
+      !!cosgnAttrs &&
+      Array.isArray(cosgnAttrs.unresolved) &&
+      cosgnAttrs.unresolved.includes("exec-cics") &&
+      Array.isArray(cosgnAttrs.execCicsOps) &&
+      cosgnAttrs.execCicsOps.includes("SEND-MAP"),
+    reason: cosgnAttrs
+      ? `unresolved=${(cosgnAttrs.unresolved || []).join(",")} ops=${(cosgnAttrs.execCicsOps || []).join(",")}`
+      : "missing-COSGN00C",
   });
 
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];
