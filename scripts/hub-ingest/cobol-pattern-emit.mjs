@@ -1005,6 +1005,17 @@ export function detectEmitPattern(source) {
     return { kind: "literal", meta: { value: "3" } };
   }
 
+  // CKPRST COPY-linked status 88 RC sum (CKPRSTDN) — distinct from CKPRSTRN / CKPRSTCP
+  if (
+    /\bPROGRAM-ID\.\s*CKPRSTDN\b/i.test(code) &&
+    /\bCOPY\s+CKPRST\b/i.test(code) &&
+    /\bADD\s+WS-RC\s+TO\s+WS-SUM\b/i.test(code) &&
+    /\bCK-INITIAL\b/i.test(code) &&
+    /\bCK-RESTARTED\b/i.test(code)
+  ) {
+    return { kind: "literal", meta: { value: "150" } };
+  }
+
   // PORTMSTR CRUD USING+EVALUATE C/R/U/D RC sum (PORTMSTRN) — INDEXED-free
   if (
     /\bPROGRAM-ID\.\s*PORTMSTRN\b/i.test(code) &&

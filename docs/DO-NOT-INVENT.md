@@ -94,7 +94,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Flutter / Dart Frog UI | Real Flutter/Frog app corpus | dart-shelf honest holes |
 | Phoenix LiveView / controllers | Cross-file `Ctrl,:action` + maps | phoenix-controller-honest-skip |
 | IBM BMS maps | `DFHAID` / `DFHBMSCA` / `EXTFMAP` copybooks in-tree | COBOL prove — stay unresolved |
-| COBOL behavioral > **61/61** | Real Db2/CICS/VSAM/RANDOM behavior | Paused; no LCB claim |
+| COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS behavior | **62/62** after G10076; further still paused; no LCB claim |
 | Rails secondary | `routes.rb` + controller cross-file; inline rack lambda peel not cheap | `rails-controller-honest-skip` (G10006) |
 | Revel Go secondary | `conf/routes` + `Controller.Action` / `revel.Result` (Rails-class); no Gin/Buffalo/Martini peel-reuse | `revel-honest-skip` (G10065; no D6527) |
 | Blazor / ERB / Django | Inventory + markup adapters | MULTI-ORIGIN Tier C — plan amendment |
@@ -113,7 +113,9 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | --- | --- |
 | COPY resolve for in-repo `.cpy` (e.g. CSUTLDWY, CKPRST) | DFHAID / DFHBMSCA / EXTFMAP stubs |
 | EXEC SQL / CICS **catalog** holes | Fake Db2 / CICS / VSAM runtimes |
-| GnuCOBOL behavioral subjects already green (61/61) | New behavioral façades to claim “modernized CLBS” |
+| GnuCOBOL behavioral subjects already green (62/62 after G10076) | New behavioral façades to claim “modernized CLBS” |
+
+**G10076 Tier B Small:** `ckprstdn` COPY-linked only — not Db2/CICS/VSAM/BMS.
 
 **G10075 Tier A closed:** mini COPY/INCLUDE surface exhausted (228 resolved; only BMS names unresolved). Do not invent BMS maps or missing `.cpy`. Do not pad with new behavioral subjects.
 

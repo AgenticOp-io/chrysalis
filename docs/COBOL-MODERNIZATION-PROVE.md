@@ -48,7 +48,7 @@ Implemented in `hub:cobol-clbs-prove-smoke` (weights sum to 100):
 | --- | --- | --- |
 | **Structural Completeness** | 30 | PROGRAM-ID / PROCEDURE paragraphs found; COPY + EXEC CICS/SQL + PERFORM inventoried; lift routeCount ≥ 1 |
 | **Documentation Quality** | 20 | Comment density / identification headers present on CLBS mini |
-| **Behavioral Fidelity** | 50 | GnuCOBOL vs emitted Python **per subject** (61 subjects incl. **histldrn**, **idxprobe**, **cardaccf**, **rptposrn**, **idxaltrn**, **cardschd**, **rptaurn**, **idxstrwr**, **rptstarn**, **prcseqrn**, **idxdelrn**, **idxaltrw**, **rtnanarn**, **bchctlrn**, **posupdrn**, **rcvprcrn**, **rtncdern**, **utlmntrn**, **utlvalrn**, **idxgtnrn**, **utlmonrn**, **tstvalrn**, **portvalrn**, **idxnlprn**, **utlmntls**, **tstgenrn**, **portaddrn**, **portupdrn**, **idxltprn**, **portdelrn**, **portreadrn**, **porttranrn**, **idxeqprn**, **portvaldn**, **idxngtrn**, **portmstrn**, **portcomrn**, **idxeqnrn**, **idxnlnrn**, **idxltnrn**, **idxngprn**); Java/C# `EXPECTED:` tags; **plus** `cobol-pattern-emit` generated contracts; or skip with `behavioralSkipped: true` when no compiler |
+| **Behavioral Fidelity** | 50 | GnuCOBOL vs emitted Python **per subject** (62 subjects incl. **histldrn**, **idxprobe**, **cardaccf**, **rptposrn**, **idxaltrn**, **cardschd**, **rptaurn**, **idxstrwr**, **rptstarn**, **prcseqrn**, **idxdelrn**, **idxaltrw**, **rtnanarn**, **bchctlrn**, **posupdrn**, **rcvprcrn**, **rtncdern**, **utlmntrn**, **utlvalrn**, **idxgtnrn**, **utlmonrn**, **tstvalrn**, **portvalrn**, **idxnlprn**, **utlmntls**, **tstgenrn**, **portaddrn**, **portupdrn**, **idxltprn**, **portdelrn**, **portreadrn**, **porttranrn**, **idxeqprn**, **portvaldn**, **idxngtrn**, **portmstrn**, **portcomrn**, **idxeqnrn**, **idxnlnrn**, **idxltnrn**, **idxngprn**, **ckprstdn**); Java/C# `EXPECTED:` tags; **plus** `cobol-pattern-emit` generated contracts; or skip with `behavioralSkipped: true` when no compiler |
 
 Overall score is reported; smoke **ok** requires structural+docs floors and either behavioral green **or** an honest toolchain skip (not a silent pass).
 
@@ -117,6 +117,7 @@ Overall score is reported; smoke **ok** requires structural+docs floors and eith
 | `idxnlnrn` | `batch/IDXNLNRN.cbl` | `78.00` | **GnuCOBOL INDEXED** `START KEY NOT LESS` + `READ NEXT` forward (BDB) — still ≠ VSAM; distinct from `idxnlprn` NOT LESS+PREV / `idxgtnrn` GREATER+NEXT / `idxngtrn` NOT GREATER+NEXT |
 | `idxltnrn` | `batch/IDXLTNRN.cbl` | `90.50` | **GnuCOBOL INDEXED** `START KEY LESS THAN` + `READ NEXT` forward (BDB) — still ≠ VSAM; distinct from `idxltprn` LESS+PREV / `idxnlnrn` NOT LESS+NEXT |
 | `idxngprn` | `batch/IDXNGPRN.cbl` | `75.50` | **GnuCOBOL INDEXED** `START KEY NOT GREATER` + `READ PREVIOUS` backward (BDB) — still ≠ VSAM; distinct from `idxngtrn` NOT GREATER+NEXT / `idxnlprn` NOT LESS+PREV |
+| `ckprstdn` | `batch/CKPRSTDN.cbl` | `150` | CKPRST **COPY-linked** status 88 RC sum (I/A/C/F/R) — distinct from `ckprstrn` / structural `CKPRSTCP` |
 
 ### Indexed / VSAM structural (hole, not behavioral)
 
@@ -247,8 +248,8 @@ Without a clone, the in-repo **CLBS mini** fixture still exercises the same idio
 - Matrix fixture gold (627 pairs) ≠ CLBS behavioral fidelity.
 - “100% equivalence” requires the behavioral track green on GnuCOBOL parallel runs for **all** `BEHAVIORAL_SUBJECTS` (not a single demo program).
 - Do **not** claim LegacyCodeBench public leaderboard rank unless actually submitted and scored there.
-- **Behavioral queue paused (honesty):** gnu-honest subjects are **61/61** (START relation×direction matrix complete). Further Db2/CICS/VSAM/RANDOM/full CSLKPCDY behavioral extracts would invent façades — **refuse** (D6442/D6447).
-- **Tier A structural COPY closed (G10075):** Census of `fixtures/hub-cobol-clbs-mini` — **228/271** COPY/INCLUDE refs resolve against `copybook/`; remaining **43** are only **DFHAID** / **DFHBMSCA** / **EXTFMAP** (already-expected BMS holes). **Zero** hole-missing-cpy; no further cheap COPY peels. CardDemo online/batch hole catalogs stay green via `hub:cobol-clbs-prove-smoke`. Next COBOL deepen needs charter (Tier B behavioral >61/61 or Tier C real BMS corpus) — not dialect agents.
+- **Behavioral queue paused (honesty):** gnu-honest subjects are **62/62** after Tier B Small (**G10076** / **ckprstdn** COPY-linked). Further Db2/CICS/VSAM/RANDOM/BMS behavioral extracts still invent façades — **refuse** without charter (D6442/D6447).
+- **Tier A structural COPY closed (G10075):** Census of `fixtures/hub-cobol-clbs-mini` — **228/271** COPY/INCLUDE refs resolve against `copybook/`; remaining **43** are only **DFHAID** / **DFHBMSCA** / **EXTFMAP** (already-expected BMS holes). **Zero** hole-missing-cpy; no further cheap COPY peels. CardDemo online/batch hole catalogs stay green via `hub:cobol-clbs-prove-smoke`. Tier B Small closed (G10076); further Tier B (Db2/CICS/VSAM) or Tier C BMS still need charter — not dialect agents.
 
 ## Build queue
 

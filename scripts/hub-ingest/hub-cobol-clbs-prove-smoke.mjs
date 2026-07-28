@@ -525,6 +525,15 @@ const BEHAVIORAL_SUBJECTS = [
     java: join(MINI, "batch/reference_emit_idxngprn.java"),
     csharp: join(MINI, "batch/reference_emit_idxngprn.cs"),
   },
+  {
+    id: "ckprstdn",
+    cob: join(MINI, "batch/CKPRSTDN.cbl"),
+    expected: join(MINI, "batch/expected-ckprstdn.txt"),
+    py: join(MINI, "batch/reference_emit_ckprstdn.py"),
+    java: join(MINI, "batch/reference_emit_ckprstdn.java"),
+    csharp: join(MINI, "batch/reference_emit_ckprstdn.cs"),
+    copyInclude: join(MINI, "copybook"),
+  },
 ];
 
 
@@ -2388,6 +2397,34 @@ export async function runCobolClbsProveSmoke() {
     reason: ckprstcpInv
       ? `books=${(ckprstcpInv.copybooks || []).join(",")} resolved=${ckprstcpResolved.join(",")}`
       : "missing-CKPRSTCP",
+  });
+
+  const ckprstdnPath = join(MINI, "batch/CKPRSTDN.cbl");
+  const ckprstdnSrc = existsSync(ckprstdnPath) ? readFileSync(ckprstdnPath, "utf8") : "";
+  const ckprstdnInv = ckprstdnSrc
+    ? inventoryCobolSource(ckprstdnSrc, "batch/CKPRSTDN.cbl")
+    : null;
+  const ckprstdnResolve = resolveCobolCopybooks(ckprstdnInv?.copybooks || [], [
+    join(MINI, "copybook"),
+  ]);
+  const ckprstdnResolved = ckprstdnResolve
+    .filter((r) => r.resolved)
+    .map((r) => r.name.toUpperCase());
+  checks.push({
+    id: "batch-ckprstdn-copy-linked-behavioral",
+    ok:
+      !!ckprstdnInv &&
+      ckprstdnInv.programIds.includes("CKPRSTDN") &&
+      (ckprstdnInv.copybooks || []).map((c) => c.toUpperCase()).includes("CKPRST") &&
+      ckprstdnResolved.includes("CKPRST") &&
+      ckprstdnInv.evaluateTrue >= 1 &&
+      /\bCK-INITIAL\b/i.test(ckprstdnSrc) &&
+      /\bCK-RESTARTED\b/i.test(ckprstdnSrc) &&
+      (ckprstdnInv.organizationIndexed || 0) === 0 &&
+      ckprstdnInv.unresolved.includes("copy"),
+    reason: ckprstdnInv
+      ? `books=${(ckprstdnInv.copybooks || []).join(",")} resolved=${ckprstdnResolved.join(",")}`
+      : "missing-CKPRSTDN",
   });
 
   const sqlcpyPath = join(MINI, "batch/SQLCPY00.cbl");
