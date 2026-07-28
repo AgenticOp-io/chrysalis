@@ -8,8 +8,8 @@
        WORKING-STORAGE SECTION.
            COPY PORTFLIO.
        01  WS-RC              PIC 99 VALUE 0.
-       01  WS-SUM             PIC 999 VALUE 0.
-       01  WS-OUT             PIC 999.
+       01  WS-SUM             PIC 99 VALUE 0.
+       01  WS-OUT             PIC 99.
        PROCEDURE DIVISION.
        MAIN.
            MOVE 'I' TO PORT-CLIENT-TYPE

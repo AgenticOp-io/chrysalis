@@ -1,13 +1,14 @@
-      *================================================================*
-      * Copybook Name: PORTFLIO
-      * Description: Portfolio Master Record Layout
-      * Author: [Author name]
-      * Date Written: 2024-03-20
-      * Maintenance Log:
-      * Date       Author        Description
-      * ---------- ------------- -------------------------------------
-      * 2024-03-20 [Author]     Initial Creation
-      *================================================================*
+      *>================================================================*
+*> Free-form comments so GnuCOBOL -free programs can COPY this book.
+      *> Copybook Name: PORTFLIO
+      *> Description: Portfolio Master Record Layout
+      *> Author: [Author name]
+      *> Date Written: 2024-03-20
+      *> Maintenance Log:
+      *> Date       Author        Description
+      *> ---------- ------------- -------------------------------------
+      *> 2024-03-20 [Author]     Initial Creation
+      *>================================================================*
        01  PORT-RECORD.
            05  PORT-KEY.
                10  PORT-ID             PIC X(8).

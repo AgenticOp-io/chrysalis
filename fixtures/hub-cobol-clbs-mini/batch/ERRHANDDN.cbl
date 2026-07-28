@@ -8,8 +8,8 @@
        WORKING-STORAGE SECTION.
            COPY ERRHAND.
        01  WS-RC              PIC S9(4) VALUE 0.
-       01  WS-SUM             PIC 999 VALUE 0.
-       01  WS-OUT             PIC 999.
+       01  WS-SUM             PIC 99 VALUE 0.
+       01  WS-OUT             PIC 99.
        PROCEDURE DIVISION.
        MAIN.
            MOVE ERR-SUCCESS TO WS-RC

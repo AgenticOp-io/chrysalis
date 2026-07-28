@@ -1,3 +1,4 @@
+2026-07-27 | Chrysalis | G10078 follow-up: free-form *> comments on CKPRST/ERRHAND/PORTFLIO for GnuCOBOL -free COPY; PIC 99 DISPLAY for portfliodn/errhanddn; GCE cobc 65/65 green; no LCB claim | GCE | N
 2026-07-27 | Chrysalis | G10078 COBOL Tier B Small remainder: PORTFLIODN/ERRHANDDN/CKPRSTPH COPY-linked behavioral (66/40/100); bar 62→65; hub:cobol-clbs-prove-smoke; PORTTEST RANDOM untouched; no Db2/CICS/VSAM/BMS invent; no LCB claim | local | N
 2026-07-27 | Chrysalis | G10077 Tier A+ queue hygiene (D6538): COBOL primary is default next; secondary-dialect/prefix bingo paused unless asked; scoreboard/ROADMAP/strategic §12 + DO-NOT-INVENT; no code peel; no LCB claim | local | N
 2026-07-27 | Chrysalis | G10076 COBOL Tier B Small (D6537): CKPRSTDN COPY-linked status 88 RC sum (ckprstdn expected 150); behavioral 62/62; hub:cobol-clbs-prove-smoke; no Db2/CICS/VSAM/BMS invent; no LCB claim | local | N

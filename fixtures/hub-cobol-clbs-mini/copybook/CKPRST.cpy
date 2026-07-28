@@ -1,8 +1,8 @@
-       *****************************************************************
-      * CHECKPOINT/RESTART CONTROL STRUCTURE
-      * VERSION: 1.0
-      * DATE: 2024
-      *****************************************************************
+       *>****************************************************************
+      *> CHECKPOINT/RESTART CONTROL STRUCTURE
+      *> VERSION: 1.0
+      *> DATE: 2024
+      *>****************************************************************
        01  CHECKPOINT-CONTROL.
            05  CK-HEADER.
                10  CK-PROGRAM-ID       PIC X(8).
@@ -46,31 +46,31 @@
                    88  CK-MODE-RESTART VALUE 'R'.
                    88  CK-MODE-RECOVER VALUE 'C'.
 
-      *****************************************************************
-      * CHECKPOINT VSAM FILE RECORD
-      *****************************************************************
+      *>****************************************************************
+      *> CHECKPOINT VSAM FILE RECORD
+      *>****************************************************************
        01  CHECKPOINT-RECORD.
            05  CKR-KEY.
                10  CKR-PROGRAM-ID      PIC X(8).
                10  CKR-RUN-DATE        PIC X(8).
            05  CKR-DATA                PIC X(400).
            
-      *****************************************************************
-      * STANDARD CHECKPOINT PROCESSING ROUTINES
-      *****************************************************************
-      * PROC-CHECKPOINT-INIT
-      *     CALL 'CKPINIT' USING CHECKPOINT-CONTROL
-      *                          RETURN-STATUS
-      *
-      * PROC-CHECKPOINT-TAKE
-      *     CALL 'CKPTAKE' USING CHECKPOINT-CONTROL
-      *                          RETURN-STATUS
-      *
-      * PROC-CHECKPOINT-COMMIT
-      *     CALL 'CKPCMIT' USING CHECKPOINT-CONTROL
-      *                          RETURN-STATUS
-      *
-      * PROC-CHECKPOINT-RESTART
-      *     CALL 'CKPRSTR' USING CHECKPOINT-CONTROL
-      *                          RETURN-STATUS
-      *****************************************************************
+      *>****************************************************************
+      *> STANDARD CHECKPOINT PROCESSING ROUTINES
+      *>****************************************************************
+      *> PROC-CHECKPOINT-INIT
+      *>     CALL 'CKPINIT' USING CHECKPOINT-CONTROL
+      *>                          RETURN-STATUS
+      *>
+      *> PROC-CHECKPOINT-TAKE
+      *>     CALL 'CKPTAKE' USING CHECKPOINT-CONTROL
+      *>                          RETURN-STATUS
+      *>
+      *> PROC-CHECKPOINT-COMMIT
+      *>     CALL 'CKPCMIT' USING CHECKPOINT-CONTROL
+      *>                          RETURN-STATUS
+      *>
+      *> PROC-CHECKPOINT-RESTART
+      *>     CALL 'CKPRSTR' USING CHECKPOINT-CONTROL
+      *>                          RETURN-STATUS
+      *>****************************************************************
