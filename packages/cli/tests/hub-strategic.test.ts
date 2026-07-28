@@ -386,6 +386,66 @@ describe("strategic plan deliverables", () => {
     expect(parseHarRequestCookies({ cookies: [{ name: "x-trace", value: "1" }] })).toEqual([]);
   });
 
+  test("OpenAPI/HAR response-header peel deepen (G10054)", async () => {
+    const { openApiDocToCwlRoutes, parseOpenApiResponseHeaders } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-openapi-to-cwl.mjs")
+    );
+    const { harDocToCwlRoutes, parseHarResponseHeaders } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-har-to-cwl.mjs")
+    );
+
+    const openapiDoc = JSON.parse(
+      readFileSync(resolve(ROOT, "fixtures/hub-gold-openapi-cwl/openapi.json"), "utf8"),
+    );
+    const openapiRoutes = openApiDocToCwlRoutes(openapiDoc);
+    const post = openapiRoutes.find((r: any) => r.method === "POST" && r.path === "/items");
+    expect(post?.responseHeaders).toEqual([{ name: "location", default: "/items/1" }]);
+    // Hyphenated + schema-only (no example/default) stay unwired.
+    expect(post?.responseHeaders?.some((h: any) => h.name === "x-request-id")).toBe(false);
+    expect(post?.responseHeaders?.some((h: any) => h.name === "etag")).toBe(false);
+    const health = openapiRoutes.find((r: any) => r.path === "/health");
+    expect(health?.responseHeaders).toEqual([{ name: "cache", default: "hit" }]);
+    const raw = openapiRoutes.find((r: any) => r.path === "/raw");
+    expect(raw?.holeReason).toBe("openapi:no-response-body");
+    expect(raw?.responseHeaders ?? []).toEqual([]);
+    expect(
+      parseOpenApiResponseHeaders({
+        headers: { bare: { schema: { type: "string" } } },
+      }),
+    ).toEqual([]);
+
+    const harDoc = JSON.parse(readFileSync(resolve(ROOT, "fixtures/hub-gold-har-cwl/mini.har.json"), "utf8"));
+    const harRoutes = harDocToCwlRoutes(harDoc);
+    const harPost = harRoutes.find((r: any) => r.method === "POST" && r.path === "/items");
+    expect(harPost?.responseHeaders).toEqual([{ name: "location", default: "/items/1" }]);
+    const harHealth = harRoutes.find((r: any) => r.method === "GET" && r.path === "/health");
+    expect(harHealth?.responseHeaders).toEqual([{ name: "cache", default: "hit" }]);
+    // Hop-by-hop + hyphenated + content-type skipped (match request HAR policy).
+    expect(
+      parseHarResponseHeaders({
+        headers: [
+          { name: "content-length", value: "9" },
+          { name: "connection", value: "keep-alive" },
+          { name: "host", value: "api.example" },
+          { name: "Content-Type", value: "application/json" },
+          { name: "x-trace", value: "skip" },
+        ],
+      }),
+    ).toEqual([]);
+    expect(parseHarResponseHeaders({ headers: undefined })).toEqual([]);
+    expect(parseHarResponseHeaders({ headers: [] })).toEqual([]);
+
+    const openapiCwl = readFileSync(resolve(ROOT, "fixtures/hub-gold-openapi-cwl/routes.cwl"), "utf8");
+    expect(openapiCwl).toMatch(/response-header location = "\/items\/1";/);
+    expect(openapiCwl).toMatch(/response-header cache = "hit";/);
+    expect(openapiCwl).not.toMatch(/response-header x-request-id/);
+    expect(openapiCwl).not.toMatch(/response-header etag/);
+    const harCwl = readFileSync(resolve(ROOT, "fixtures/hub-gold-har-cwl/routes.cwl"), "utf8");
+    expect(harCwl).toMatch(/response-header location = "\/items\/1";/);
+    expect(harCwl).not.toMatch(/response-header content-length/);
+    expect(harCwl).not.toMatch(/response-header x-trace/);
+  });
+
   test("hub-translate prefers OpenAPI import for migration.cwl (G140)", async () => {
     const { exportProjectMigrationCwlFromContractOrWebir } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-contract-cwl-import.mjs")

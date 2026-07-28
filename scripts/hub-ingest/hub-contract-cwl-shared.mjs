@@ -2,6 +2,22 @@
  * Shared helpers for contract → CWL importers (OpenAPI, HAR).
  */
 
+/** IDENT-safe names only (no invent rename for hyphenated headers). */
+export function isIdentSafeName(name) {
+  return typeof name === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name);
+}
+
+/**
+ * HAR hop-by-hop / transport noise skipped for both request and response headers.
+ * Match `parseHarRequestHeaders` policy — never invent substitutes.
+ */
+export const HAR_SKIP_HEADER_NAMES = new Set(["host", "content-length", "connection"]);
+
+/** Scalar value suitable as a CWL response-header default (no invent). */
+export function isScalarHeaderValue(v) {
+  return v === null || ["string", "number", "boolean"].includes(typeof v);
+}
+
 /** @param {unknown} v — true when a value renders + re-parses as a flat CWL literal. */
 export function isFlatRenderable(v) {
   if (v === null) return true;

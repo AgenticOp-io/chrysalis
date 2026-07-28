@@ -67,7 +67,8 @@ export function trySpecializedHubLift(opts) {
     { can: canDartAstIngest, lift: liftDartFileToWebir },
     // Prefer cpp-ast (Crow / cpp-httplib verbs + JSON/status/path-query) over silver file-lift.
     { can: canCppAstIngest, lift: liftCppFileToWebir },
-    // Slim secondary (G10028): $app->get|post closures — not packages/ingest Laravel/Symfony/plain.
+    // Slim (G10028) + Lumen (G10049) secondary: $app-> / $router-> / Route:: closures —
+    // not packages/ingest Laravel/Symfony/plain.
     { can: canPhpAstIngest, lift: liftPhpFileToWebir },
     {
       can: (lang) => canPatternRouteLift(lang),

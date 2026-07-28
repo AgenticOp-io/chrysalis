@@ -1,0 +1,9 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-bun-serve",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/bun": "latest"
+  }
+}

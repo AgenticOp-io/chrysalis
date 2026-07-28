@@ -9,6 +9,10 @@
  * + status(n).json / json / result (no plugin/DI invent).
  * Spark Java (G10036 / D6498): spark.Spark.get|post|…("/path", (req, res) -> …) + :id paths +
  * req.params / req.queryParams + res.status / res.type + string/JSON returns (no filter invent).
+ * Jooby (G10046 / D6508): new Jooby() {{ get("/path", ctx -> …); }} / app.get("/path", …) +
+ * {id} + ctx.path / ctx.query + ctx.setResponseCode + Map/string returns (no module/mvc invent).
+ * Vert.x Web (G10052 / D6514): Router.router(vertx) + router.get|post|…("/path").handler(ctx -> …)
+ * + :id + pathParam/queryParam(+optional .get(0)) + ctx.json / setStatusCode / end — no EventBus invent.
  */
 import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
 import {
@@ -194,9 +198,25 @@ function parseJavaMapOfReturnTree(mapInner, paramRefs) {
         entries.push({ key, value: { t: "ref", source: "path", name: javalinPath[1] } });
         continue;
       }
-      const javalinQuery = rawVal.match(/^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)$/);
+      const javalinQuery = rawVal.match(
+        /^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*get\s*\(\s*0\s*\))?$/,
+      );
       if (javalinQuery) {
         entries.push({ key, value: { t: "ref", source: "query", name: javalinQuery[1], default: "" } });
+        continue;
+      }
+      const joobyPath = rawVal.match(
+        /^\w+\.path\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*value\s*\(\s*\))?$/,
+      );
+      if (joobyPath) {
+        entries.push({ key, value: { t: "ref", source: "path", name: joobyPath[1] } });
+        continue;
+      }
+      const joobyQuery = rawVal.match(
+        /^\w+\.query\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*value\s*\(\s*\))?$/,
+      );
+      if (joobyQuery) {
+        entries.push({ key, value: { t: "ref", source: "query", name: joobyQuery[1], default: "" } });
         continue;
       }
       return null;
@@ -386,7 +406,8 @@ export function extractJavaJavalinHandlerBody(source, fromIndex) {
 }
 
 /**
- * Body-local Javalin ctx.pathParam / ctx.queryParam assignments.
+ * Body-local Javalin/Vert.x ctx.pathParam / ctx.queryParam assignments.
+ * Vert.x queryParam returns List — optional `.get(0)` for String bind (G10052).
  * @param {string} bodySlice
  */
 function parseJavaJavalinRefs(bodySlice) {
@@ -398,7 +419,151 @@ function parseJavaJavalinRefs(bodySlice) {
     byVar[m[1]] = { source: "path", name: m[2] };
   }
   for (const m of bodySlice.matchAll(
-    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)/g,
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*get\s*\(\s*0\s*\))?/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * Vert.x Web handler after `.get|post|…("/path").handler(ctx ->` — block `{…}` or expression until `)`.
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+export function extractJavaVertxHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 12000);
+  const head = slice.match(
+    /\.(?:get|post|put|patch|delete|head|options)\s*\(\s*["'][^"']+["']\s*\)\s*\.\s*handler\s*\(\s*\w+\s*->\s*/i,
+  );
+  if (!head || head.index === undefined) return null;
+  const absHead = fromIndex + head.index;
+  const openParen = absHead + head[0].lastIndexOf("(");
+  const bodyStart = fromIndex + head.index + head[0].length;
+  const after = source.slice(bodyStart);
+  const braceLead = after.match(/^\s*\{/);
+  if (braceLead) {
+    const absOpen = bodyStart + (braceLead[0].length - 1);
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    return {
+      paramSource: "",
+      bodySlice: bal.inner,
+      line: source.slice(0, absOpen).split("\n").length,
+      dialect: "vertx",
+    };
+  }
+  let depth = 0;
+  let end = openParen;
+  for (let i = openParen; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"' || ch === "'") {
+      const q = ch;
+      i += 1;
+      while (i < source.length) {
+        if (source[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (source[i] === q) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  if (end <= bodyStart) return null;
+  return {
+    paramSource: "",
+    bodySlice: source.slice(bodyStart, end).trim(),
+    line: source.slice(0, bodyStart).split("\n").length,
+    dialect: "vertx",
+  };
+}
+
+/**
+ * Jooby handler after bare `get|post|…("/path", ctx ->` or `.get|post|…("/path", ctx ->`.
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+export function extractJavaJoobyHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 12000);
+  const head = slice.match(
+    /(?:\.(?:get|post|put|patch|delete)|(?<![\w.])(?:get|post|put|patch|delete))\s*\(\s*["'][^"']+["']\s*,\s*\w+\s*->\s*/i,
+  );
+  if (!head || head.index === undefined) return null;
+  const absHead = fromIndex + head.index;
+  const openParen = absHead + head[0].indexOf("(");
+  const bodyStart = fromIndex + head.index + head[0].length;
+  const after = source.slice(bodyStart);
+  const braceLead = after.match(/^\s*\{/);
+  if (braceLead) {
+    const absOpen = bodyStart + (braceLead[0].length - 1);
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    return {
+      paramSource: "",
+      bodySlice: bal.inner,
+      line: source.slice(0, absOpen).split("\n").length,
+      dialect: "jooby",
+    };
+  }
+  let depth = 0;
+  let end = openParen;
+  for (let i = openParen; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"' || ch === "'") {
+      const q = ch;
+      i += 1;
+      while (i < source.length) {
+        if (source[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (source[i] === q) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  if (end <= bodyStart) return null;
+  return {
+    paramSource: "",
+    bodySlice: source.slice(bodyStart, end).trim(),
+    line: source.slice(0, bodyStart).split("\n").length,
+    dialect: "jooby",
+  };
+}
+
+/**
+ * Body-local Jooby ctx.path / ctx.query assignments (optional .value()).
+ * @param {string} bodySlice
+ */
+function parseJavaJoobyRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.path\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*value\s*\(\s*\))?/g,
+  )) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.query\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*value\s*\(\s*\))?/g,
   )) {
     byVar[m[1]] = { source: "query", name: m[2], default: "" };
   }
@@ -459,9 +624,16 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   /** @type {"json" | "scalar-lit" | "scalar-ref" | null} */
   let kind = null;
 
-  /** Spark `res.status(N);` (statement — not ResponseEntity/HttpResponse/ctx.status().json). */
-  const statusStmtM = bodySlice.match(/\b\w+\.status\s*\(\s*(\d+)\s*\)\s*;/);
-  const statusFromStmt = statusStmtM ? Number.parseInt(statusStmtM[1], 10) : undefined;
+  /** Spark `res.status(N);` / Jooby `ctx.setResponseCode(N);` / Vert.x `setStatusCode(N)`. */
+  const statusStmtM = bodySlice.match(
+    /\b\w+\.(?:status|setResponseCode)\s*\(\s*(\d+)\s*\)\s*;/,
+  );
+  const setStatusCodeM = bodySlice.match(/\.setStatusCode\s*\(\s*(\d+)\s*\)/);
+  const statusFromStmt = statusStmtM
+    ? Number.parseInt(statusStmtM[1], 10)
+    : setStatusCodeM
+      ? Number.parseInt(setStatusCodeM[1], 10)
+      : undefined;
 
   const reStatusBody = bodySlice.match(
     /return\s+ResponseEntity\.status\s*\(\s*([^)]+)\s*\)\s*\.\s*body\s*\(\s*([\s\S]*?)\s*\)\s*;/,
@@ -478,13 +650,20 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     bodySlice,
     /\w+\.status\s*\(\s*(\d+)\s*\)\s*\.\s*json\s*\(/,
   );
-  /** Javalin ctx.json(…) — skipped when status(n).json already matched */
+  /** Javalin/Vert.x ctx.json(…) — skipped when status(n).json already matched */
   const javalinJson = javalinStatusJson
     ? null
     : extractBalancedCallArg(bodySlice, /\w+\.json\s*\(/);
   /** Javalin ctx.result(…) — string / path-ref scalars */
   const reJavalinResult = bodySlice.match(
     /\w+\.result\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|([A-Za-z_][A-Za-z0-9_]*))\s*\)\s*;?/,
+  );
+  /**
+   * Vert.x `ctx.response().end(…)` / `ctx.response().setStatusCode(n).end(…)` / `ctx.end(…)`.
+   * Groups: [1]=optional status, [2]=lit-or-ident token, [3]=ident when not lit.
+   */
+  const reVertxEnd = bodySlice.match(
+    /(?:\w+\.response\s*\(\s*\)\s*\.\s*(?:setStatusCode\s*\(\s*(\d+)\s*\)\s*\.\s*)?|\b\w+\.)end\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|([A-Za-z_][A-Za-z0-9_]*))\s*\)\s*;?/,
   );
   const reOkBody = bodySlice.match(/return\s+ResponseEntity\.ok\s*\(\s*([\s\S]*?)\s*\)\s*;/);
   const reJaxrsOk = bodySlice.match(
@@ -548,10 +727,30 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
         kind: /** @type {const} */ ("scalar-ref"),
       };
     }
-    const javalinQuery = t.match(/^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)$/);
+    const javalinQuery = t.match(
+      /^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*get\s*\(\s*0\s*\))?$/,
+    );
     if (javalinQuery) {
       return {
         returnTree: { t: "ref", source: "query", name: javalinQuery[1], default: "" },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    const joobyPath = t.match(
+      /^\w+\.path\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*value\s*\(\s*\))?$/,
+    );
+    if (joobyPath) {
+      return {
+        returnTree: { t: "ref", source: "path", name: joobyPath[1] },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    const joobyQuery = t.match(
+      /^\w+\.query\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*value\s*\(\s*\))?$/,
+    );
+    if (joobyQuery) {
+      return {
+        returnTree: { t: "ref", source: "query", name: joobyQuery[1], default: "" },
         kind: /** @type {const} */ ("scalar-ref"),
       };
     }
@@ -638,6 +837,20 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
         kind = "scalar-lit";
       }
     }
+  } else if (reVertxEnd) {
+    if (reVertxEnd[1]) status = Number.parseInt(reVertxEnd[1], 10);
+    const litTok = reVertxEnd[2];
+    const refTok = reVertxEnd[3];
+    if (refTok && paramRefs[refTok]) {
+      returnTree = { t: "ref", ...paramRefs[refTok] };
+      kind = "scalar-ref";
+    } else {
+      const v = parseLiteralToken(litTok);
+      if (v !== null) {
+        returnTree = { t: "lit", v };
+        kind = "scalar-lit";
+      }
+    }
   } else if (rePlainMap) {
     returnTree = parseJavaMapOfReturnTree(rePlainMap[1], paramRefs);
     kind = returnTree ? "json" : null;
@@ -650,8 +863,12 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   } else if (reRef && paramRefs[reRef[1]]) {
     returnTree = { t: "ref", ...paramRefs[reRef[1]] };
     kind = "scalar-ref";
-  } else if (!/\breturn\b/.test(bodySlice) && !/\w+\.(?:json|result)\s*\(/.test(bodySlice)) {
-    // Expression-lambda body (Spark/Javalin) without `return` / ctx.json|result.
+  } else if (
+    !/\breturn\b/.test(bodySlice) &&
+    !/\w+\.(?:json|result)\s*\(/.test(bodySlice) &&
+    !/\.end\s*\(/.test(bodySlice)
+  ) {
+    // Expression-lambda body (Spark/Javalin) without `return` / ctx.json|result|end.
     const expr = bodySlice.trim().replace(/;\s*$/, "");
     const mapM = expr.match(/^(?:java\.util\.)?Map\.of\s*\(([\s\S]*)\)$/);
     if (mapM) {
@@ -775,6 +992,8 @@ export function liftJavaFileToWebir(opts) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     let extracted = extractJavaMethodBody(source, idx);
     if (!extracted) extracted = extractJavaSparkHandlerBody(source, idx);
+    if (!extracted) extracted = extractJavaVertxHandlerBody(source, idx);
+    if (!extracted) extracted = extractJavaJoobyHandlerBody(source, idx);
     if (!extracted) extracted = extractJavaJavalinHandlerBody(source, idx);
     let bodyId;
     if (!extracted) {
@@ -786,6 +1005,7 @@ export function liftJavaFileToWebir(opts) {
         ...parseJavaParamRefs(paramSource ?? ""),
         ...parseJavaJavalinRefs(bodySlice),
         ...parseJavaSparkRefs(bodySlice),
+        ...parseJavaJoobyRefs(bodySlice),
       };
       const sqlEffects = parseJavaSqlEffects(bodySlice, paramRefs);
       const { status, returnTree, kind } = parseJavaBodyReturn(bodySlice, paramRefs);

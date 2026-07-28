@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.js-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T23:40:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, Polka middleware, Hono complex middleware, Elysia plugins/lifecycle/macros, or Oak app.use/router.routes onion. Empty/next-only app.use peels as js.passthrough (G9959 Koa/Restify/Polka; G10044 Hono). Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka; Hono ORIGIN secondary (G10019) ≠ emit-hono; Elysia ORIGIN secondary (G10025); Oak Deno ORIGIN secondary (G10043). G10005: IDENT destructure from params/query/payload peeled when origin uses const { x } = ctx|req|request.* or Elysia ({ params|query: { x } }) bags.",
+  "generatedAt": "2026-07-28T03:52:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Koa onion middleware, Nest DI/guards, Hapi plugins/lifecycle, Restify plugins/pre, Polka middleware, Hono complex middleware, Elysia plugins / non-empty lifecycle / macros, Oak app.use/router.routes onion, or itty-router middleware/nested Router. Empty/next-only app.use peels as js.passthrough (G9959 Koa/Restify/Polka; G10044 Hono). Elysia empty onRequest/onBeforeHandle peels as js.passthrough (G10053); plugin .use is not pass-through-shaped. Lift origin shapes that appear, else leave honest holes. Thin Node set closed: Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka; Hono ORIGIN secondary (G10019) ≠ emit-hono; Elysia ORIGIN secondary (G10025) + empty lifecycle (G10053); Oak Deno ORIGIN secondary (G10043); itty-router Workers ORIGIN secondary (G10047). G10005: IDENT destructure from params/query/payload peeled when origin uses const { x } = ctx|req|request.* or Elysia ({ params|query: { x } }) bags.",
   "dialects": {
     "koa": {
       "fixture": "fixtures/hub-gold-koa",
@@ -16,11 +16,26 @@
         "const { id } = ctx.params|query|request.body (IDENT peel, G10005)"
       ],
       "honestHoles": [
-        { "shape": "app.use / onion middleware chains", "reason": "hub-js:koa-middleware" },
-        { "shape": "ctx.throw / ctx.assert / ctx.respond = false", "reason": "hub-js:koa-throw" },
-        { "shape": "ctx.cookies / ctx.set / streaming body", "reason": "hub-js:koa-cookies-set" },
-        { "shape": "nested/computed/rest destructure from params|query|body", "reason": "hub-js:koa-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "app.use / onion middleware chains",
+          "reason": "hub-js:koa-middleware"
+        },
+        {
+          "shape": "ctx.throw / ctx.assert / ctx.respond = false",
+          "reason": "hub-js:koa-throw"
+        },
+        {
+          "shape": "ctx.cookies / ctx.set / streaming body",
+          "reason": "hub-js:koa-cookies-set"
+        },
+        {
+          "shape": "nested/computed/rest destructure from params|query|body",
+          "reason": "hub-js:koa-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     },
     "nestjs": {
@@ -35,11 +50,26 @@
         "@Body('field') / @Headers('x') / @Cookies('y') → requestFields (G10015)"
       ],
       "honestHoles": [
-        { "shape": "@Module / providers / constructor DI", "reason": "hub-js:nest-di" },
-        { "shape": "@UseGuards / interceptors / pipes / filters", "reason": "hub-js:nest-guards" },
-        { "shape": "@Res() / @Next() escape hatches", "reason": "hub-js:nest-res-escape" },
-        { "shape": "NestFactory bootstrap / dynamic modules", "reason": "hub-js:nest-bootstrap" },
-        { "shape": "versioning / non-literal paths", "reason": "hub-js:nest-versioning" }
+        {
+          "shape": "@Module / providers / constructor DI",
+          "reason": "hub-js:nest-di"
+        },
+        {
+          "shape": "@UseGuards / interceptors / pipes / filters",
+          "reason": "hub-js:nest-guards"
+        },
+        {
+          "shape": "@Res() / @Next() escape hatches",
+          "reason": "hub-js:nest-res-escape"
+        },
+        {
+          "shape": "NestFactory bootstrap / dynamic modules",
+          "reason": "hub-js:nest-bootstrap"
+        },
+        {
+          "shape": "versioning / non-literal paths",
+          "reason": "hub-js:nest-versioning"
+        }
       ]
     },
     "hapi": {
@@ -54,11 +84,26 @@
         "const { id } = request.params|query|payload (IDENT peel, G10005)"
       ],
       "honestHoles": [
-        { "shape": "server.ext / onPreHandler lifecycle", "reason": "hub-js:hapi-lifecycle" },
-        { "shape": "server.register plugins / toolkits", "reason": "hub-js:hapi-plugins" },
-        { "shape": "auth / validate / pre route options", "reason": "hub-js:hapi-route-options" },
-        { "shape": "nested/computed/rest destructure from params|query|payload", "reason": "hub-js:hapi-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "server.ext / onPreHandler lifecycle",
+          "reason": "hub-js:hapi-lifecycle"
+        },
+        {
+          "shape": "server.register plugins / toolkits",
+          "reason": "hub-js:hapi-plugins"
+        },
+        {
+          "shape": "auth / validate / pre route options",
+          "reason": "hub-js:hapi-route-options"
+        },
+        {
+          "shape": "nested/computed/rest destructure from params|query|payload",
+          "reason": "hub-js:hapi-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     },
     "restify": {
@@ -72,11 +117,26 @@
         "const { id } = req.params|query (IDENT peel, G10005)"
       ],
       "honestHoles": [
-        { "shape": "server.pre / server.use middleware", "reason": "hub-js:restify-middleware" },
-        { "shape": "server.on lifecycle / plugins.*", "reason": "hub-js:restify-plugins" },
-        { "shape": "named handler refs / next.ifError", "reason": "hub-js:restify-named-handler" },
-        { "shape": "nested/computed/rest destructure from params|query", "reason": "hub-js:restify-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "server.pre / server.use middleware",
+          "reason": "hub-js:restify-middleware"
+        },
+        {
+          "shape": "server.on lifecycle / plugins.*",
+          "reason": "hub-js:restify-plugins"
+        },
+        {
+          "shape": "named handler refs / next.ifError",
+          "reason": "hub-js:restify-named-handler"
+        },
+        {
+          "shape": "nested/computed/rest destructure from params|query",
+          "reason": "hub-js:restify-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     },
     "polka": {
@@ -90,11 +150,26 @@
         "const { id } = req.params|query (IDENT peel, G10005)"
       ],
       "honestHoles": [
-        { "shape": "app.use middleware chains", "reason": "hub-js:polka-middleware" },
-        { "shape": "named handlers / chained polka().get without Identifier recv", "reason": "hub-js:polka-named-handler" },
-        { "shape": "streaming res.write chunk loops / hijack", "reason": "hub-js:polka-stream" },
-        { "shape": "nested/computed/rest destructure from params|query", "reason": "hub-js:polka-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "app.use middleware chains",
+          "reason": "hub-js:polka-middleware"
+        },
+        {
+          "shape": "named handlers / chained polka().get without Identifier recv",
+          "reason": "hub-js:polka-named-handler"
+        },
+        {
+          "shape": "streaming res.write chunk loops / hijack",
+          "reason": "hub-js:polka-stream"
+        },
+        {
+          "shape": "nested/computed/rest destructure from params|query",
+          "reason": "hub-js:polka-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     },
     "hono": {
@@ -110,33 +185,70 @@
         "empty/next-only app.use → js.passthrough preset (G10044; parallel G9959)"
       ],
       "honestHoles": [
-        { "shape": "non-empty / complex app.use bodies + Hono middleware helpers (logger, cors, …)", "reason": "hub-js:hono-middleware" },
-        { "shape": "c.req.header / parseBody / cookies / streaming body", "reason": "hub-js:hono-req-extra" },
-        { "shape": "c.json(body, { status }) ResponseInit object form", "reason": "hub-js:hono-response-init" },
-        { "shape": "named handlers / app.route nesting / basePath", "reason": "hub-js:hono-nested-route" },
-        { "shape": "nested/computed/rest destructure from param|query bags", "reason": "hub-js:hono-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "non-empty / complex app.use bodies + Hono middleware helpers (logger, cors, …)",
+          "reason": "hub-js:hono-middleware"
+        },
+        {
+          "shape": "c.req.header / parseBody / cookies / streaming body",
+          "reason": "hub-js:hono-req-extra"
+        },
+        {
+          "shape": "c.json(body, { status }) ResponseInit object form",
+          "reason": "hub-js:hono-response-init"
+        },
+        {
+          "shape": "named handlers / app.route nesting / basePath",
+          "reason": "hub-js:hono-nested-route"
+        },
+        {
+          "shape": "nested/computed/rest destructure from param|query bags",
+          "reason": "hub-js:hono-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     },
     "elysia": {
       "fixture": "fixtures/hub-gold-elysia",
       "smoke": "pnpm run hub:elysia-smoke",
-      "note": "ORIGIN secondary dialect (G10025 / D6487). Route surface only — no plugin/lifecycle/macro invent.",
+      "note": "ORIGIN secondary dialect (G10025 / D6487 + G10053 / D6515 empty lifecycle). Plugin `.use` is not `(ctx, next)` — leave honest hole.",
       "supported": [
         "new Elysia() factory (dialect marker)",
         "app.get|post|put|patch|delete literal paths",
         "ctx.params.* / ctx.query.*",
         "IDENT ({ params: { id } }) / ({ query: { q } }) handler bags (G10005 reuse)",
         "ctx.set.status = N",
-        "literal | object return (JSON body)"
+        "literal | object return (JSON body)",
+        "empty onRequest / onBeforeHandle → js.passthrough preset (G10053; parallel G10044/G9959)"
       ],
       "honestHoles": [
-        { "shape": "app.use / .use(plugin) / Elysia plugins", "reason": "hub-js:elysia-plugins" },
-        { "shape": "onBeforeHandle / onAfterHandle / lifecycle hooks", "reason": "hub-js:elysia-lifecycle" },
-        { "shape": ".macro / derived context / t.Object schema runtime", "reason": "hub-js:elysia-macros" },
-        { "shape": "named handlers / app.group nesting / prefix", "reason": "hub-js:elysia-nested-route" },
-        { "shape": "nested/computed/rest destructure beyond IDENT bag fields", "reason": "hub-js:elysia-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "app.use / .use(plugin) / Elysia plugins (not pass-through-shaped)",
+          "reason": "hub-js:elysia-plugins"
+        },
+        {
+          "shape": "non-empty onRequest / onBeforeHandle / other lifecycle + options/as scopes",
+          "reason": "hub-js:elysia-lifecycle"
+        },
+        {
+          "shape": ".macro / derived context / t.Object schema runtime",
+          "reason": "hub-js:elysia-macros"
+        },
+        {
+          "shape": "named handlers / app.group nesting / prefix",
+          "reason": "hub-js:elysia-nested-route"
+        },
+        {
+          "shape": "nested/computed/rest destructure beyond IDENT bag fields",
+          "reason": "hub-js:elysia-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     },
     "oak": {
@@ -153,20 +265,71 @@
         "ctx.response.status = N"
       ],
       "honestHoles": [
-        { "shape": "app.use / router.routes() / allowedMethods onion", "reason": "hub-js:oak-middleware" },
-        { "shape": "ctx.request.body / headers / cookies / streaming", "reason": "hub-js:oak-req-extra" },
-        { "shape": "named handlers / nested Router prefix", "reason": "hub-js:oak-nested-route" },
-        { "shape": "nested/computed/rest destructure from params", "reason": "hub-js:oak-destructure" },
-        { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" }
+        {
+          "shape": "app.use / router.routes() / allowedMethods onion",
+          "reason": "hub-js:oak-middleware"
+        },
+        {
+          "shape": "ctx.request.body / headers / cookies / streaming",
+          "reason": "hub-js:oak-req-extra"
+        },
+        {
+          "shape": "named handlers / nested Router prefix",
+          "reason": "hub-js:oak-nested-route"
+        },
+        {
+          "shape": "nested/computed/rest destructure from params",
+          "reason": "hub-js:oak-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
+      ]
+    },
+    "itty": {
+      "fixture": "fixtures/hub-gold-itty",
+      "smoke": "pnpm run hub:itty-smoke",
+      "note": "ORIGIN secondary dialect (G10047 / D6509). Workers-style itty-router — no middleware invent.",
+      "supported": [
+        "Router() factory (dialect marker; CallExpression ≠ Oak new Router)",
+        "router.get|post|put|patch|delete literal paths",
+        ":id path templates + request.params.*",
+        "url.searchParams.get / new URL(request.url).searchParams.get",
+        "json(value) / json(value, { status })",
+        "Response.json(value, { status })",
+        "new Response(literal|JSON.stringify, { status })"
+      ],
+      "honestHoles": [
+        {
+          "shape": "router.all middleware / upstream onion",
+          "reason": "hub-js:itty-middleware"
+        },
+        {
+          "shape": "request body / headers / cookies / streaming",
+          "reason": "hub-js:itty-req-extra"
+        },
+        {
+          "shape": "named handlers / nested Router prefix",
+          "reason": "hub-js:itty-nested-route"
+        },
+        {
+          "shape": "nested/computed/rest destructure from params",
+          "reason": "hub-js:itty-destructure"
+        },
+        {
+          "shape": "non-literal path templates",
+          "reason": "hub-js:path-non-literal"
+        }
       ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Koa/Hono/Oak complex middleware peel only when origin shapes exist (no invented onion runtime; empty/next-only closed G9959/G10044)",
-    "Elysia plugins/lifecycle/macros peel only when origin shapes exist (no invented plugin runtime)",
+    "Koa/Hono/Oak/itty complex middleware peel only when origin shapes exist (no invented onion runtime; empty/next-only closed G9959/G10044; Elysia empty lifecycle closed G10053)",
+    "Elysia plugins / non-empty lifecycle / macros peel only when origin shapes exist (no invented plugin runtime; `.use` ≠ pass-through)",
     "Nest @UseGuards catalog → hole when present in origin (no invented guard runtime)",
-    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); Hono ORIGIN secondary closed (G10019) + pass-through mw (G10044); Elysia ORIGIN secondary closed (G10025); Oak Deno ORIGIN secondary closed (G10043); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
+    "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); Hono ORIGIN secondary closed (G10019) + pass-through mw (G10044); Elysia ORIGIN secondary closed (G10025) + empty lifecycle (G10053); Oak Deno ORIGIN secondary closed (G10043); itty-router Workers ORIGIN secondary closed (G10047); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
     "Phoenix router+controller peel skipped — not cheap without cross-file Ctrl,:action resolve + LiveView invent risk (D6447); stays honest hole",
     "Flutter / Dart Frog / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

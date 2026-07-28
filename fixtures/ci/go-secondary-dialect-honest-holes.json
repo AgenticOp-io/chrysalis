@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.go-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T23:45:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
+  "generatedAt": "2026-07-27T21:50:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
   "dialects": {
     "chi": {
       "fixture": "fixtures/hub-gold-chi",
@@ -82,6 +82,28 @@
         { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
       ]
     },
+    "beego": {
+      "fixture": "fixtures/hub-gold-beego",
+      "smoke": "pnpm run hub:beego-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "web.Get|Post|Put|Patch|Delete literal paths (Beego v2 functional)",
+        "Same-file named handlers (func name(ctx *context.Context))",
+        ":id path templates",
+        "ctx.Input.Param(\":id\") path peels (leading colon stripped)",
+        "ctx.Input.Query(\"q\") query peels (empty default)",
+        "ctx.JSONResp(lit|map[string]interface{}{…})",
+        "ctx.Output.SetStatus(n) before JSONResp",
+        "ctx.WriteString(\"…\")"
+      ],
+      "honestHoles": [
+        { "shape": "web.InsertFilter / middleware chains", "reason": "hub-beego:middleware" },
+        { "shape": "web.NewNamespace / NS* nesting beyond cheap peel", "reason": "hub-beego:namespace" },
+        { "shape": "Controller style (web.Controller / web.Router + mapping)", "reason": "hub-beego:controller" },
+        { "shape": "ctx.Bind / struct binders", "reason": "hub-beego:bind" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    },
     "gorilla": {
       "fixture": "fixtures/hub-gold-gorilla",
       "smoke": "pnpm run hub:gorilla-smoke",
@@ -121,7 +143,7 @@
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Go secondary set: Gin ST + Chi + Echo + Fiber + Iris + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10018/G10030)",
+    "Go secondary set: Gin ST + Chi + Echo + Fiber + Iris + Beego + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10045/G10018/G10030)",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

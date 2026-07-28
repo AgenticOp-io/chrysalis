@@ -11,8 +11,8 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 
 | Catalog | Covers |
 | --- | --- |
-| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN |
-| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Gorilla mux / ServeMux secondaries; Gin ST |
+| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN |
+| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Gorilla mux / ServeMux secondaries; Gin ST |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
 | [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails secondary peel **skipped** (G10006; not cheap) |
@@ -22,6 +22,7 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | [`fixtures/ci/dart-shelf-honest-holes.json`](../fixtures/ci/dart-shelf-honest-holes.json) | Shelf ST; Flutter / Frog / Pipeline |
 | [`fixtures/ci/http4k-honest-holes.json`](../fixtures/ci/http4k-honest-holes.json) | http4k Kotlin secondary; Spring ST; Ktor secondary |
 | [`fixtures/ci/java-secondary-dialect-honest-holes.json`](../fixtures/ci/java-secondary-dialect-honest-holes.json) | Java JAX-RS (G10012) / Micronaut (G10020) / Quarkus via JAX-RS peels (G10034) / Helidon MP via JAX-RS peels (G10042) / Javalin (G10035); Spring ST |
+| [`fixtures/ci/finch-honest-holes.json`](../fixtures/ci/finch-honest-holes.json) | Finch Scala secondary (G10051); Akka ST; Http4s first Scala secondary; coproduct/lenses/TwitterServer = holes |
 
 Update those JSON files when a hole is closed by a real peel — not by inventing runtime.
 
@@ -49,7 +50,8 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Restify | Plugins, complex `pre`/`use` bodies | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Hapi | Plugins, `server.ext` lifecycle, auth options | Route + `h.response().code` smoke; G10005 IDENT destructure peel |
 | Hono | Complex `app.use` / middleware helpers, nested `app.route`, ResponseInit status | Empty/next-only pass-through (G10044); ORIGIN route surface (G10019); **≠ emit-hono** |
-| Elysia | plugins / `.use`, lifecycle hooks, macros / derived context, nested `group` | ORIGIN route surface secondary (G10025) |
+| Elysia | plugins / `.use` (not `(ctx, next)`), non-empty lifecycle / options/`as`, macros / derived context, nested `group` | ORIGIN route surface (G10025); empty `onRequest`/`onBeforeHandle` → `js.passthrough` (G10053) |
+| itty-router | middleware / nested Router / named handlers, body/headers/cookies | ORIGIN Workers route surface secondary (G10047) |
 | FastAPI | `Depends`, OAuth, middleware onion | Route surface secondary (G10003) |
 | Starlette | `Mount`, middleware, ASGI onion, `Route()` table-only | Route surface secondary via `@app.route` (G10013) |
 | Falcon | Hooks, middleware, ASGI onion, sink responders, cross-file resources | Route surface secondary via `add_route` + `on_*` (G10023) |
@@ -68,13 +70,14 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | ASP.NET MVC | DI container, filter pipeline, Razor UI | Minimal API ST; controller attributes secondary (G10008) |
 | Ktor | Auth, plugins, nested routing beyond cheap peel | Route surface secondary (G10004) |
 | http4k | Filter/then chains, Body/Header lenses beyond req.path/query, nested/contract routing, server backends | Route surface secondary (G10024) |
+| Finch (Scala) | Endpoint `:+:` coproduct, jsonBody/header/cookie lenses, TwitterServer bootstrap, non-flat `::` | Flat `get("path")` / `path[String]` / `param` secondary (G10051) |
 | Ruby Rails | ActionController, `render json:`, cross-file `ctrl#action`, route macros | Sinatra ST (`hub-flagship-ruby`) |
 | Ruby Roda | Nested `r.on`/`r.is`, multi-file plugins/auth, non-literal matchers | Shallow `r.get|post` secondary (G10022) |
 | Elixir | Phoenix controllers, LiveView, pipelines | Plug.Router ST |
 | Dart | Flutter, Dart Frog, Pipeline, mount/stream, cross-file named handlers | Shelf ST + same-file named handlers (G10007) |
 | PHP Blade | Alpine `x-show`, Livewire `wire:*` hydrate | Inventory + basic Blade structural |
 | Vue Nitro | Whole-body / unbound `readBody` invent | Field peels + nested middleware presets |
-| OpenAPI/HAR | Nested body invent; cookie invent when absent; `/raw` without example; `/items/1`→`:id` invent; hyphenated cookie rename | Flat example peels; IDENT-safe header/cookie/body (G10002/G10031); concrete HAR paths |
+| OpenAPI/HAR | Nested body invent; cookie invent when absent; response-header invent when absent/schema-only; `/raw` without example; `/items/1`→`:id` invent; hyphenated cookie/header rename | Flat example peels; IDENT-safe header/cookie/body/response-header (G10002/G10031/G10054); concrete HAR paths |
 
 ---
 

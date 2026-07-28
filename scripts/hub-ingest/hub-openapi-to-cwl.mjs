@@ -6,9 +6,10 @@
  * contract INTO CWL/WebIR so a migration can start from a published API spec
  * rather than only from lifted source. The route SURFACE (method, path, path +
  * query + header + cookie params with defaults, flat requestBody example keys as
- * `body` params, success status, response content-type) is imported faithfully; a
- * concrete `return` body is emitted only when the contract supplies a flat
- * response **example** — otherwise the body is an honest hole
+ * `body` params, success status, response content-type, IDENT-safe response
+ * `headers` with example/schema.default) is imported faithfully; a concrete
+ * `return` body is emitted only when the contract supplies a flat response
+ * **example** — otherwise the body is an honest hole
  * (`openapi:no-response-body`), never an invented value (DESIGN non-negotiable #6).
  *
  * The CWL is rendered through the shared `renderCwlRoutes` so the importer carries
@@ -20,7 +21,13 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderCwlRoutes } from "./hub-webir-routes.mjs";
-import { attachContractResponseBody, isFlatRenderable, sanitizeHandlerName } from "./hub-contract-cwl-shared.mjs";
+import {
+  attachContractResponseBody,
+  isFlatRenderable,
+  isIdentSafeName,
+  isScalarHeaderValue,
+  sanitizeHandlerName,
+} from "./hub-contract-cwl-shared.mjs";
 
 export const HUB_OPENAPI_CWL_KIND = "chrysalis.hub.openapi-to-cwl";
 export const HUB_OPENAPI_CWL_SCHEMA_VERSION = 1;
@@ -56,6 +63,58 @@ function exampleFromMedia(media) {
     if (first && typeof first === "object" && "value" in first) return first.value;
   }
   return undefined;
+}
+
+/**
+ * Concrete scalar from an OpenAPI Header Object (example / examples / schema.default).
+ * Absent → undefined (do not invent).
+ * @param {object} headerObj
+ */
+export function openApiHeaderConcreteValue(headerObj) {
+  if (!headerObj || typeof headerObj !== "object") return undefined;
+  if (headerObj.example !== undefined && isScalarHeaderValue(headerObj.example)) {
+    return headerObj.example;
+  }
+  if (headerObj.examples && typeof headerObj.examples === "object") {
+    const first = Object.values(headerObj.examples)[0];
+    if (first && typeof first === "object" && "value" in first && isScalarHeaderValue(first.value)) {
+      return first.value;
+    }
+  }
+  const schema = headerObj.schema && typeof headerObj.schema === "object" ? headerObj.schema : null;
+  if (schema) {
+    if (schema.example !== undefined && isScalarHeaderValue(schema.example)) return schema.example;
+    if (schema.default !== undefined && isScalarHeaderValue(schema.default)) return schema.default;
+  }
+  return undefined;
+}
+
+/**
+ * IDENT-safe OpenAPI response `headers` → CWL response-header fields when a
+ * concrete example / schema.default is present (G10054). Hyphenated / bare
+ * schema-only names stay unwired — no invent.
+ * @param {object | null | undefined} response
+ * @returns {Array<{ name: string, default: unknown }>}
+ */
+export function parseOpenApiResponseHeaders(response) {
+  /** @type {Array<{ name: string, default: unknown }>} */
+  const out = [];
+  const headers = response && typeof response === "object" ? response.headers : null;
+  if (!headers || typeof headers !== "object") return out;
+  const seen = new Set();
+  for (const [rawName, headerObj] of Object.entries(headers)) {
+    const name = String(rawName ?? "");
+    if (!isIdentSafeName(name)) continue;
+    const lower = name.toLowerCase();
+    // content-type is already a dedicated CWL statement — skip duplicate peel.
+    if (lower === "content-type") continue;
+    if (seen.has(lower)) continue;
+    const value = openApiHeaderConcreteValue(headerObj);
+    if (value === undefined) continue;
+    seen.add(lower);
+    out.push({ name, default: value });
+  }
+  return out;
 }
 
 /**
@@ -115,8 +174,10 @@ export function operationToCwlRoute(method, openapiPath, op, sharedParams = []) 
   }
 
   const { status, response } = pickSuccessResponse(op?.responses);
-  /** @type {{ method: string, path: string, handlerName: string, status: number, params: object[], contentType?: string, value?: object, holeReason?: string }} */
+  const responseHeaders = parseOpenApiResponseHeaders(response);
+  /** @type {{ method: string, path: string, handlerName: string, status: number, params: object[], responseHeaders?: object[], contentType?: string, value?: object, holeReason?: string }} */
   const route = { method: method.toUpperCase(), path: cwlPath, handlerName, status, params };
+  if (responseHeaders.length > 0) route.responseHeaders = responseHeaders;
 
   const content = response && typeof response === "object" ? response.content : null;
   if (content && typeof content === "object" && Object.keys(content).length > 0) {

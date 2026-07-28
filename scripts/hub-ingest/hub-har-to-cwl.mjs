@@ -5,7 +5,8 @@
  * Observed traffic becomes a reviewable CWL contract: each unique `(method, pathname)`
  * pair is one route with the recorded status, content-type, query params, IDENT-safe
  * request headers, IDENT-safe `cookies[]` names (when present — never invented),
- * flat JSON `postData` keys as `body` params, and a flat JSON/text response body
+ * flat JSON `postData` keys as `body` params, IDENT-safe response headers (hop-by-hop
+ * skipped — same policy as request headers), and a flat JSON/text response body
  * when parseable. Non-flat or missing bodies become honest holes — never invented
  * values (DESIGN non-negotiable #6). Paths stay concrete (no `/items/1` →
  * `/items/:id` invent).
@@ -15,7 +16,13 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderCwlRoutes } from "./hub-webir-routes.mjs";
-import { attachContractResponseBody, isFlatRenderable, sanitizeHandlerName } from "./hub-contract-cwl-shared.mjs";
+import {
+  attachContractResponseBody,
+  HAR_SKIP_HEADER_NAMES,
+  isFlatRenderable,
+  isIdentSafeName,
+  sanitizeHandlerName,
+} from "./hub-contract-cwl-shared.mjs";
 
 export const HUB_HAR_CWL_KIND = "chrysalis.hub.har-to-cwl";
 export const HUB_HAR_CWL_SCHEMA_VERSION = 1;
@@ -65,12 +72,39 @@ export function parseHarRequestHeaders(request) {
   const seen = new Set();
   for (const h of request.headers) {
     const name = String(h?.name ?? "");
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) continue;
+    if (!isIdentSafeName(name)) continue;
     const lower = name.toLowerCase();
-    if (lower === "host" || lower === "content-length" || lower === "connection") continue;
+    if (HAR_SKIP_HEADER_NAMES.has(lower)) continue;
     if (seen.has(lower)) continue;
     seen.add(lower);
     out.push({ name, source: "header" });
+  }
+  return out;
+}
+
+/**
+ * IDENT-safe response headers from a HAR response (G10054).
+ * Skips hop-by-hop noise (`host` / `content-length` / `connection`) and
+ * `content-type` (already a dedicated CWL statement). Hyphenated names skipped.
+ * Absent/empty → no invent.
+ * @param {object} response
+ * @returns {Array<{ name: string, default: string }>}
+ */
+export function parseHarResponseHeaders(response) {
+  /** @type {Array<{ name: string, default: string }>} */
+  const out = [];
+  if (!Array.isArray(response?.headers)) return out;
+  const seen = new Set();
+  for (const h of response.headers) {
+    const name = String(h?.name ?? "");
+    if (!isIdentSafeName(name)) continue;
+    const lower = name.toLowerCase();
+    if (HAR_SKIP_HEADER_NAMES.has(lower) || lower === "content-type") continue;
+    if (seen.has(lower)) continue;
+    const value = h?.value;
+    if (value === undefined || value === null) continue;
+    seen.add(lower);
+    out.push({ name, default: String(value) });
   }
   return out;
 }
@@ -191,6 +225,7 @@ export function harDocToCwlRoutes(doc) {
       ...parseHarRequestCookies(req),
       ...parseHarPostDataBodyParams(req),
     ];
+    const responseHeaders = parseHarResponseHeaders(res);
 
     /** @type {object} */
     const route = {
@@ -200,6 +235,7 @@ export function harDocToCwlRoutes(doc) {
       status,
       params,
     };
+    if (responseHeaders.length > 0) route.responseHeaders = responseHeaders;
 
     const parsed = parseHarResponseBody(content, status);
     if (parsed.holeReason) {

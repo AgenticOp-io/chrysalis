@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-itty",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "itty-router": "^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

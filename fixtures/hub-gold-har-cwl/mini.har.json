@@ -7,6 +7,7 @@
         "request": { "method": "GET", "url": "https://api.example/health" },
         "response": {
           "status": 200,
+          "headers": [{ "name": "cache", "value": "hit" }],
           "content": { "mimeType": "application/json", "text": "{\"ok\":true}" }
         }
       },
@@ -33,6 +34,12 @@
         },
         "response": {
           "status": 201,
+          "headers": [
+            { "name": "location", "value": "/items/1" },
+            { "name": "content-length", "value": "16" },
+            { "name": "x-trace", "value": "skip-hyphen" },
+            { "name": "Content-Type", "value": "application/json" }
+          ],
           "content": { "mimeType": "application/json", "text": "{\"created\":true}" }
         }
       },

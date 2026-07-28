@@ -63,6 +63,11 @@ const SCALA_AKKA_ROUTE_RE =
 /** Http4s: `case GET -> Root / "items" / id =>` (optional `req @`, `Method.`). */
 const SCALA_HTTP4S_CASE_RE =
   /\bcase\s+(?:(?:[A-Za-z_][A-Za-z0-9_]*)\s*@\s*)?(?:Method\.)?(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*->\s*Root((?:\s*\/\s*(?:"[^"]+"|(?:IntVar|LongVar|UUIDVar)\(\s*[A-Za-z_][A-Za-z0-9_]*\s*\)|[A-Za-z_][A-Za-z0-9_]*))+)\s*=>/gi;
+/**
+ * Finch secondary (G10051): verb head for `get("path")` / `get("items" :: path[String])`.
+ * Akka `get(path("…"))` is rejected by isFinchMatcherInner (must start with string lit).
+ */
+const SCALA_FINCH_VERB_HEAD_RE = /\b(get|post|put|patch|delete|head|options)\s*\(/gi;
 const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
 /** http4k secondary (G10024): `"path" bind Method.GET to` / `"path" bind GET to` / `bindMethod`. */
 const HTTP4K_ROUTE_RE =
@@ -121,6 +126,192 @@ export function http4sPathFromRootChain(chain) {
   }
   if (segs.length === 0) return "/";
   return `/${segs.join("/")}`;
+}
+
+/**
+ * Finch matcher must be string-led (`"health"` / `"items" :: path[String]`).
+ * Rejects Akka `path("…")` so ST stays untouched.
+ * @param {string} inner
+ */
+export function isFinchMatcherInner(inner) {
+  const t = String(inner ?? "").trim();
+  if (!t) return false;
+  if (/^path\s*\(/.test(t)) return false;
+  return t.startsWith('"');
+}
+
+/**
+ * Split Finch HList combinators on top-level `::`.
+ * @param {string} inner
+ * @returns {string[]}
+ */
+export function splitFinchCombinators(inner) {
+  const parts = [];
+  let depthParen = 0;
+  let depthBracket = 0;
+  let start = 0;
+  const s = String(inner ?? "");
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === '"' || ch === "'") {
+      const quote = ch;
+      i += 1;
+      while (i < s.length) {
+        if (s[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (s[i] === quote) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depthParen += 1;
+    else if (ch === ")") depthParen -= 1;
+    else if (ch === "[") depthBracket += 1;
+    else if (ch === "]") depthBracket -= 1;
+    else if (
+      ch === ":" &&
+      s[i + 1] === ":" &&
+      depthParen === 0 &&
+      depthBracket === 0
+    ) {
+      parts.push(s.slice(start, i).trim());
+      i += 1;
+      start = i + 1;
+    }
+  }
+  parts.push(s.slice(start).trim());
+  return parts.filter(Boolean);
+}
+
+/**
+ * Lambda binder names at the start of a Finch/Akka brace body (`id =>` / `(id: String) =>`).
+ * @param {string} bodySlice
+ * @returns {string[]}
+ */
+export function extractScalaEndpointLambdaNames(bodySlice) {
+  const m = String(bodySlice ?? "")
+    .trimStart()
+    .match(/^(?:\(([^)=>]+)\)|([A-Za-z_][A-Za-z0-9_]*))(?:\s*:\s*[^=]+)?\s*=>/);
+  if (!m) return [];
+  const raw = (m[1] ?? m[2]).trim();
+  return raw
+    .split(",")
+    .map((p) => p.trim().split(":")[0].trim())
+    .filter(Boolean);
+}
+
+/**
+ * Strip Finch/Akka `{ id => … }` binder prefix; leave Ok/complete body.
+ * @param {string} bodySlice
+ * @returns {{ body: string, params: string[] }}
+ */
+export function stripScalaEndpointLambda(bodySlice) {
+  const src = String(bodySlice ?? "");
+  const trimmed = src.trimStart();
+  const m = trimmed.match(
+    /^(?:\(([^)=>]+)\)|([A-Za-z_][A-Za-z0-9_]*))(?:\s*:\s*[^=]+)?\s*=>\s*/,
+  );
+  if (!m) return { body: src, params: [] };
+  return {
+    body: trimmed.slice(m[0].length),
+    params: extractScalaEndpointLambdaNames(trimmed),
+  };
+}
+
+/**
+ * True when index sits on a `//` or `*` / `/*` comment line (Finch docstring false positives).
+ * @param {string} source
+ * @param {number} index
+ */
+function isScalaCommentishAt(source, index) {
+  const lineStart = source.lastIndexOf("\n", Math.max(0, index - 1)) + 1;
+  const prefix = source.slice(lineStart, index).trimStart();
+  return prefix.startsWith("//") || prefix.startsWith("*") || prefix.startsWith("/*");
+}
+
+/**
+ * Peel flat Finch matcher → CWL path + query binds (G10051).
+ * Cheap shapes only: string lits, `path[T]`, `param[T]("q")` / `paramOption`.
+ * @param {string} matcherInner
+ * @param {string[]} [lambdaParamNames]
+ * @returns {{ path: string, queryBinds: Array<{ varName: string, queryName: string }> } | null}
+ */
+export function parseFinchEndpointMatcher(matcherInner, lambdaParamNames = []) {
+  if (!isFinchMatcherInner(matcherInner)) return null;
+  const parts = splitFinchCombinators(matcherInner.trim());
+  if (parts.length === 0) return null;
+  /** @type {string[]} */
+  const segs = [];
+  /** @type {Array<{ varName: string, queryName: string }>} */
+  const queryBinds = [];
+  let valueIdx = 0;
+  for (const part of parts) {
+    const p = part.trim();
+    const lit = /^"([^"]*)"$/.exec(p);
+    if (lit) {
+      const s = lit[1];
+      if (s.includes("/")) {
+        for (const piece of s.split("/").filter(Boolean)) segs.push(piece);
+      } else if (s.length > 0) {
+        segs.push(s);
+      }
+      continue;
+    }
+    if (/^path\s*(?:\[[^\]]*\])?\s*$/.test(p)) {
+      const name = lambdaParamNames[valueIdx++] ?? `p${segs.length}`;
+      segs.push(`{${name}}`);
+      continue;
+    }
+    const qm = /^param(?:Option)?\s*(?:\[[^\]]*\])?\s*\(\s*"([^"]+)"\s*\)$/.exec(p);
+    if (qm) {
+      const varName = lambdaParamNames[valueIdx++] ?? qm[1];
+      queryBinds.push({ varName, queryName: qm[1] });
+      continue;
+    }
+    return null;
+  }
+  const path = segs.length === 0 ? "/" : `/${segs.join("/")}`;
+  return { path, queryBinds };
+}
+
+/**
+ * Resolve Finch endpoint at a source offset (line start or verb index).
+ * @param {string} source
+ * @param {number} fromIndex
+ * @returns {{ method: string, path: string, queryBinds: Array<{ varName: string, queryName: string }>, index: number } | null}
+ */
+export function findFinchEndpointAt(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 800);
+  SCALA_FINCH_VERB_HEAD_RE.lastIndex = 0;
+  const m = SCALA_FINCH_VERB_HEAD_RE.exec(slice);
+  if (!m || m.index === undefined) return null;
+  const absIndex = fromIndex + m.index;
+  if (isScalaCommentishAt(source, absIndex)) return null;
+  const absOpen = absIndex + m[0].length - 1;
+  const bal = extractBalancedParenInner(source, absOpen);
+  if (!bal || !isFinchMatcherInner(bal.inner)) return null;
+  const after = source.slice(bal.end + 1, bal.end + 1 + 240);
+  /** @type {string[]} */
+  let lambdaNames = [];
+  if (braceRelSafe(after)) {
+    const braceRel = after.indexOf("{");
+    lambdaNames = extractScalaEndpointLambdaNames(source.slice(bal.end + 1 + braceRel + 1));
+  }
+  const parsed = parseFinchEndpointMatcher(bal.inner, lambdaNames);
+  if (!parsed) return null;
+  return {
+    method: m[1],
+    path: parsed.path,
+    queryBinds: parsed.queryBinds,
+    index: absIndex,
+  };
+}
+
+/** @param {string} after */
+function braceRelSafe(after) {
+  return /^\s*\{/.test(after);
 }
 
 /**
@@ -368,6 +559,24 @@ export function parseScalaRoutes(source) {
   SCALA_HTTP4S_CASE_RE.lastIndex = 0;
   while ((m = SCALA_HTTP4S_CASE_RE.exec(source)) !== null) {
     pushRoute(routes, source, m[1], http4sPathFromRootChain(m[2]), m.index, seen);
+  }
+  // Finch secondary (G10051 / D6513) — after Akka/Http4s so path("…") ST stays first.
+  SCALA_FINCH_VERB_HEAD_RE.lastIndex = 0;
+  while ((m = SCALA_FINCH_VERB_HEAD_RE.exec(source)) !== null) {
+    if (isScalaCommentishAt(source, m.index)) continue;
+    const openIdx = m.index + m[0].length - 1;
+    const bal = extractBalancedParenInner(source, openIdx);
+    if (!bal || !isFinchMatcherInner(bal.inner)) continue;
+    const after = source.slice(bal.end + 1, bal.end + 1 + 240);
+    /** @type {string[]} */
+    let lambdaNames = [];
+    if (/^\s*\{/.test(after)) {
+      const braceRel = after.indexOf("{");
+      lambdaNames = extractScalaEndpointLambdaNames(source.slice(bal.end + 1 + braceRel + 1));
+    }
+    const parsed = parseFinchEndpointMatcher(bal.inner, lambdaNames);
+    if (!parsed) continue;
+    pushRoute(routes, source, m[1], parsed.path, m.index, seen);
   }
   return routes;
 }

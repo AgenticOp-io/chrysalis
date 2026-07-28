@@ -1,0 +1,30 @@
+{
+  "kind": "chrysalis.hub.lumen-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-28T03:00:00.000Z",
+  "gate": "G10049",
+  "note": "Catalog only (D6447 / D6511). Lumen $router->get|post / Route::get|post closure route surface is lifted (hub:lumen-smoke 20/20). Do not invent middleware onion, $router->group deep nesting, or cross-file controller handlers (Rails-class skip). Laravel min / Symfony / plain-php remain PHP D6448-ST flagships. Slim secondary (G10028) unchanged.",
+  "fixture": "fixtures/hub-gold-lumen",
+  "smoke": "pnpm run hub:lumen-smoke",
+  "st": [
+    "pnpm run hub:laravel-min-smoke",
+    "pnpm run hub:symfony-flagship",
+    "pnpm run hub:plain-php-flagship"
+  ],
+  "siblingSecondary": "pnpm run hub:slim-smoke",
+  "supported": [
+    "$router->get|post|put|patch|delete('/path', function (…) { … })",
+    "Route::get|post|…('/path', function (…) { … }) when paired with response()->json",
+    "{id} / {userId} path templates + closure $id args",
+    "$request->query('q', '') / $request->input('q', '')",
+    "response()->json(scalar|array)",
+    "response()->json(..., status)"
+  ],
+  "honestHoles": [
+    { "shape": "$router->group / middleware chains", "reason": "hub-php:lumen-middleware" },
+    { "shape": "Cross-file controller / invokable / [Ctrl::class, 'action'] handlers", "reason": "hub-php:lumen-controller" },
+    { "shape": "Route::resource / apiResource macros", "reason": "hub-php:lumen-resource" },
+    { "shape": "Non-literal path templates", "reason": "hub-php:lumen-path-non-literal" },
+    { "shape": "Request body / FormRequest validation", "reason": "hub-php:lumen-body-parser" }
+  ]
+}

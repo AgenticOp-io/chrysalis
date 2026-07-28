@@ -72,6 +72,23 @@ test("isPassThroughMiddlewareFn accepts next-only shells", async () => {
   expect(isPassThroughMiddlewareFn(busyFn)).toBe(false);
 });
 
+test("isEmptyLifecycleFn accepts empty Elysia lifecycle shells only (G10053)", async () => {
+  const { parseJavaScriptSource } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/javascript-ast-ingest.mjs", import.meta.url))
+  );
+  const { isEmptyLifecycleFn } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/hub-express-middleware.mjs", import.meta.url))
+  );
+  const empty = parseJavaScriptSource("const f = () => {};\n", "t.js");
+  expect(isEmptyLifecycleFn(empty.body[0].declarations[0].init)).toBe(true);
+  const asyncEmpty = parseJavaScriptSource("const f = async () => {};\n", "t.js");
+  expect(isEmptyLifecycleFn(asyncEmpty.body[0].declarations[0].init)).toBe(true);
+  const nextOnly = parseJavaScriptSource("const f = async (_c, next) => { await next(); };\n", "t.js");
+  expect(isEmptyLifecycleFn(nextOnly.body[0].declarations[0].init)).toBe(false);
+  const busy = parseJavaScriptSource("const f = () => { console.log(1); };\n", "t.js");
+  expect(isEmptyLifecycleFn(busy.body[0].declarations[0].init)).toBe(false);
+});
+
 test("countExpressMiddlewareUses detects Hono app.use pass-through", async () => {
   const { countExpressMiddlewareUses } = await import(
     fileURLToPath(new URL("../../../scripts/hub-ingest/javascript-ast-ingest.mjs", import.meta.url))

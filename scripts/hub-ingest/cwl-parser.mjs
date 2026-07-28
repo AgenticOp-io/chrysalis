@@ -29,6 +29,7 @@ const COOKIE_RE = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const BODY_RE = /^body\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const STATUS_RE = /^status\s+(\d{3})\s*;$/;
 const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
+const RESPONSE_HEADER_RE = /^response-header\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*(.+?))?\s*;$/;
 const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const FOREACH_RE = /^foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as(?:\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=>)?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{$/;
 
@@ -349,6 +350,8 @@ export function parseCwlModule(source, file) {
     const handlerHeaders = [];
     const handlerCookies = [];
     const handlerBodyParams = [];
+    /** @type {Array<{ name: string, default?: unknown }>} */
+    const responseHeaders = [];
     let responseStatus = null;
     let responseContentType = null;
     /** @type {object | null} */
@@ -400,6 +403,20 @@ export function parseCwlModule(source, file) {
       const ctm = CONTENT_TYPE_RE.exec(inner);
       if (ctm) {
         responseContentType = normalizeCwlContentType(ctm[1] ?? "");
+        continue;
+      }
+      const rhm = RESPONSE_HEADER_RE.exec(inner);
+      if (rhm) {
+        const rhName = rhm[1];
+        if (!responseHeaders.some((h) => h.name === rhName)) {
+          /** @type {{ name: string, default?: unknown }} */
+          const entry = { name: rhName };
+          if (rhm[2] !== undefined) {
+            const lit = parseCwlLiteral(rhm[2]);
+            if (lit.ok) entry.default = lit.value;
+          }
+          responseHeaders.push(entry);
+        }
         continue;
       }
       const em = EFFECTS_RE.exec(inner);
@@ -520,6 +537,7 @@ export function parseCwlModule(source, file) {
       handlerBodyParams,
       responseStatus,
       responseContentType,
+      responseHeaders,
       loadBody,
       body,
     });

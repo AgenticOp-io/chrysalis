@@ -1,7 +1,7 @@
 # hub-gold-har-cwl
 
 Gold fixture for **HAR → CWL import** (Stage-B "Sink" sibling to OpenAPI import;
-`STRATEGIC-PLAN.md` Phase 3, **G140** / **G10002** / **G10031**).
+`STRATEGIC-PLAN.md` Phase 3, **G140** / **G10002** / **G10031** / **G10054**).
 
 ## Files
 
@@ -21,10 +21,12 @@ Gold fixture for **HAR → CWL import** (Stage-B "Sink" sibling to OpenAPI impor
 | flat JSON `postData.text` keys | `body name = "widget";` |
 | `response.status` | `status 201;` / `status 204;` |
 | `response.content.mimeType` | `content-type "application/json";` |
+| IDENT-safe `response.headers` | `response-header location = "/items/1";` |
 | flat JSON `content.text` | `return { ... };` |
 | duplicate `(method, pathname)` entries | deduped (first wins) |
-| hyphenated cookie name (`x-trace`) | skipped (IDENT-safe only) |
-| missing `cookies[]` | no cookie params invented |
+| hyphenated cookie / response-header names | skipped (IDENT-safe only) |
+| hop-by-hop (`content-length` / `connection` / `host`) | skipped (same HAR request policy) |
+| missing `cookies[]` / response headers | no params invented |
 
 Unlike OpenAPI import, HAR uses **concrete pathnames** (`/items/1`) rather than
 templates (`/items/:id`) — that is honest observed-traffic semantics.
@@ -33,7 +35,7 @@ templates (`/items/:id`) — that is honest observed-traffic semantics.
 
 `routes.cwl` re-ingests through `cwl-ingest` (`lift-to-webir --language cwl`).
 Projection: **6/6 hole-free**, `withStatus: 2`, `objectBodies: 5`. Asserted by
-**G140** / **G10031** in `packages/cli/tests/hub-strategic.test.ts`.
+**G140** / **G10031** / **G10054** in `packages/cli/tests/hub-strategic.test.ts`.
 
 ## Hub translate wiring
 

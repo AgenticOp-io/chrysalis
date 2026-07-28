@@ -1,10 +1,15 @@
 /**
- * Scala hub ingest — Akka HTTP / Play / Http4s path patterns deepened for D6448-ST
- * cwl-api: brace-bounded Akka bodies + Http4s `case … => Ok/Created/…`, Map/lit
- * (+ path/query refs). Flagship stays Akka (`hub-flagship-scala`); Http4s is a
- * secondary hole-free dialect path. Prefer this over thin pattern-route-lift.
+ * Scala hub ingest — Akka HTTP / Play / Http4s / Finch path patterns deepened for
+ * D6448-ST cwl-api: brace-bounded Akka bodies + Http4s `case … => Ok/Created/…` +
+ * Finch `get("path") { Ok(…) }` / `get("items" :: path[String])`, Map/lit
+ * (+ path/query refs). Flagship stays Akka (`hub-flagship-scala`); Http4s + Finch
+ * are secondary hole-free dialect paths. Prefer this over thin pattern-route-lift.
  */
-import { parseScalaRoutes } from "./pattern-route-parsers.mjs";
+import {
+  findFinchEndpointAt,
+  parseScalaRoutes,
+  stripScalaEndpointLambda,
+} from "./pattern-route-parsers.mjs";
 import {
   emitHubRoute,
   hubHandlerBodyHole,
@@ -378,10 +383,23 @@ export function liftScalaFileToWebir(opts) {
     if (!extracted) {
       bodyId = hubHandlerBodyHole(ctx, "hub-scala:handler-body", { file, line: r.line });
     } else {
-      const { bodySlice, line } = extracted;
+      const { line } = extracted;
       const loc = { file, line };
+      const stripped = stripScalaEndpointLambda(extracted.bodySlice);
+      const bodySlice = stripped.body;
       /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
       const paramRefs = { ...pathParamRefsFromPath(r.path) };
+      // Finch query binders: `get("search" :: param[String]("q")) { q => … }`
+      const finch = findFinchEndpointAt(source, idx);
+      if (finch) {
+        for (const q of finch.queryBinds) {
+          paramRefs[q.varName] = {
+            source: "query",
+            name: q.queryName,
+            default: "",
+          };
+        }
+      }
       const { status, returnTree, kind } = parseScalaBodyReturn(bodySlice, paramRefs);
 
       if (kind === "scalar-lit" && returnTree?.t === "lit") {

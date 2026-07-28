@@ -10,7 +10,11 @@
         "operationId": "health",
         "responses": {
           "200": {
-            "description": "service health",
+            "headers": {
+              "cache": {
+                "schema": { "type": "string", "default": "hit" }
+              }
+            },
             "content": {
               "application/json": {
                 "example": { "ok": true }
@@ -50,6 +54,19 @@
         },
         "responses": {
           "201": {
+            "headers": {
+              "location": {
+                "schema": { "type": "string" },
+                "example": "/items/1"
+              },
+              "x-request-id": {
+                "schema": { "type": "string" },
+                "example": "skip-hyphen"
+              },
+              "etag": {
+                "schema": { "type": "string" }
+              }
+            },
             "content": {
               "application/json": {
                 "example": { "created": true }

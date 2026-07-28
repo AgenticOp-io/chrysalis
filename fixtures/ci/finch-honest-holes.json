@@ -1,0 +1,23 @@
+{
+  "kind": "chrysalis.hub.finch-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-28T03:50:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Finch TwitterServer bootstrap, Endpoint.coproduct deep trees, jsonBody/header/cookie lenses, or non-flat :: combinators beyond string/path/param. Lift cheap get|post(\"path\") { Ok(…) } and get(\"items\" :: path[String]) / param[String](\"q\") shapes that appear, else leave honest holes. Akka remains Scala D6448-ST; Http4s remains first Scala secondary. Finch secondary smoke G10051 closed when hub:finch-smoke ok.",
+  "fixture": "fixtures/hub-gold-finch",
+  "smoke": "pnpm run hub:finch-smoke",
+  "st": "pnpm run hub:complete-conversion-prove:scala",
+  "supported": [
+    "get|post|put|patch|delete(\"path\") { Ok|Created|Accepted(…) }",
+    "get(\"items\" :: path[String]) { id => Ok(…) }",
+    "get(\"search\" :: param[String](\"q\")) { q => Ok(…) }",
+    "Map / scalar lit / path-ref Ok bodies (reuse Http4s Output peels)"
+  ],
+  "honestHoles": [
+    { "shape": "Endpoint :+: / .:+: coproduct trees / compile", "reason": "hub-finch:coproduct" },
+    { "shape": "jsonBody / header / cookie / fileUpload lenses", "reason": "hub-finch:lens" },
+    { "shape": "TwitterServer / Http.server bootstrap", "reason": "hub-finch:bootstrap" },
+    { "shape": "Non-flat :: combinators beyond string/path/param", "reason": "hub-finch:combinator" },
+    { "shape": "Named handlers across files", "reason": "hub-finch:cross-file" },
+    { "shape": "Non-literal path segments", "reason": "hub-scala:path-non-literal" }
+  ]
+}

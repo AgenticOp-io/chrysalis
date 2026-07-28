@@ -2,7 +2,7 @@
   "kind": "chrysalis.hub.csharp-secondary-dialect-honest-holes",
   "schemaVersion": 1,
   "generatedAt": "2026-07-24T23:45:00.000Z",
-  "note": "Catalog only (D6447). Do not invent ASP.NET DI/filter/Razor, Carter MapCarter bootstrap/DI, or Minimal API middleware onions. Lift origin Map*/controller shapes that appear, else leave honest holes. Minimal API remains C# D6448-ST. Carter route surface reuses Minimal API Map* peels (G10041 / D6503).",
+  "note": "Catalog only (D6447). Do not invent ASP.NET DI/filter/Razor, Carter MapCarter bootstrap/DI, NancyHost, or Minimal API middleware onions. Lift origin Map*/controller shapes that appear, else leave honest holes. Minimal API remains C# D6448-ST. Carter route surface reuses Minimal API Map* peels (G10041 / D6503). Nancy FX deferred — not Map* peel-reuse (G10050; fixtures/ci/nancy-honest-skip.json).",
   "dialects": {
     "aspnet-controllers": {
       "fixture": "fixtures/hub-gold-aspnet-controllers",
@@ -41,11 +41,25 @@
         { "shape": "Non-app receiver Map* (endpoints.MapGet)", "reason": "hub-carter:receiver-non-app" },
         { "shape": "Non-literal Map* paths", "reason": "hub-csharp:path-non-literal" }
       ]
+    },
+    "nancy": {
+      "decision": "skip",
+      "gate": "G10050",
+      "catalog": "fixtures/ci/nancy-honest-skip.json",
+      "st": "pnpm run hub:complete-conversion-prove:csharp",
+      "supported": [],
+      "honestHoles": [
+        { "shape": "NancyModule constructor Get|Post|Put|Patch|Delete(\"/path\", …)", "reason": "hub-nancy:module-route" },
+        { "shape": "Response.AsJson / Negotiate / HttpStatusCode", "reason": "hub-nancy:response-json" },
+        { "shape": "dynamic parameters.id", "reason": "hub-nancy:dynamic-params" },
+        { "shape": "NancyHost / pipelines / DI", "reason": "hub-nancy:bootstrap" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "C# secondary set: Minimal API ST + ASP.NET controllers (G10008) + Carter via Map* peels (G10041) smokes closed",
+    "C# secondary set: Minimal API ST + ASP.NET controllers (G10008) + Carter via Map* peels (G10041) smokes closed; Nancy skipped (G10050)",
+    "Nancy FX peel skipped — not cheap (see fixtures/ci/nancy-honest-skip.json)",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

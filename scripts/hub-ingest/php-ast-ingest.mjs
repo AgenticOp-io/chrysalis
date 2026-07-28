@@ -1,10 +1,12 @@
 /**
- * PHP hub ingest — Slim 4-ish secondary dialect (G10028 / D6490).
- * Route surface only: `$app->get|post|…('/path', function (…) { … })`,
- * `{id}` path templates, `$args['id']`, `$request->getQueryParams()['q']`,
- * `$response->withJson(...)` / `withStatus(n)->withJson` / write+json_encode.
- * No PSR-15 middleware onion invent (D6442 / D6447). Laravel / Symfony /
- * plain-php remain packages/ingest flagships — this path is lift-to-webir only.
+ * PHP hub ingest — Slim 4-ish (G10028 / D6490) + Lumen / Laravel-router
+ * secondary (G10049 / D6511). Route surface only:
+ * - Slim: `$app->get|post|…('/path', function (…) { … })`, `{id}`, `$args`,
+ *   `getQueryParams`, `withJson` / `withStatus` / write+json_encode
+ * - Lumen: `$router->get|post|…` / `Route::get|post|…` closures,
+ *   `{id}` path args, `$request->query|input`, `response()->json(...)`
+ * No middleware / cross-file controller invent (D6442 / D6447). Laravel min /
+ * Symfony / plain-php remain packages/ingest flagships — lift-to-webir only.
  */
 import {
   emitHubRoute,
@@ -17,6 +19,10 @@ import { lowerHubReturnTree } from "./hub-native-return-tree.mjs";
 
 const SLIM_ROUTE_RE =
   /\$app->(get|post|put|patch|delete)\s*\(\s*(['"])([^'"]+)\2\s*,/gi;
+const LUMEN_ROUTER_RE =
+  /\$router->(get|post|put|patch|delete)\s*\(\s*(['"])([^'"]+)\2\s*,/gi;
+const LUMEN_ROUTE_FACADE_RE =
+  /Route::(get|post|put|patch|delete)\s*\(\s*(['"])([^'"]+)\2\s*,/gi;
 
 const SLIM_WITH_JSON_MAP_RE =
   /(?:return\s+)?\$response->(?:withStatus\s*\(\s*(\d+)\s*\)\s*->\s*)?withJson\s*\(\s*\[([\s\S]*?)\]\s*\)/;
@@ -27,6 +33,10 @@ const SLIM_WRITE_JSON_MAP_RE =
 const SLIM_WRITE_JSON_SCALAR_RE =
   /\$response->getBody\(\)->write\s*\(\s*json_encode\s*\(\s*(?:(true|false)|(-?\d+)|(['"])([^'"]*)\3|(\$\w+))\s*\)\s*\)/;
 const SLIM_WITH_STATUS_RE = /\$response->withStatus\s*\(\s*(\d+)\s*\)/;
+const LUMEN_JSON_MAP_RE =
+  /(?:return\s+)?response\s*\(\s*\)\s*->\s*json\s*\(\s*\[([\s\S]*?)\]\s*(?:,\s*(\d+)\s*)?\)/;
+const LUMEN_JSON_SCALAR_RE =
+  /(?:return\s+)?response\s*\(\s*\)\s*->\s*json\s*\(\s*(?:(true|false)|(-?\d+)|(['"])([^'"]*)\3|(\$\w+))\s*(?:,\s*(\d+)\s*)?\)/;
 const PHP_ARRAY_PAIR_RE =
   /(['"])([^'"]+)\1\s*=>\s*(?:(['"])([^'"]*)\3|(true|false|-?\d+)|(\$\w+))/g;
 
@@ -50,11 +60,32 @@ export function isPhpSlimSource(source) {
 }
 
 /**
- * Slim `{id}` → keep origin brace form (Gorilla parallel).
+ * Lumen / Laravel-router secondary (inline closures only — no controller invent).
+ * @param {string} source
+ */
+export function isPhpLumenSource(source) {
+  if (/\bLaravel\\Lumen\b/.test(source)) return true;
+  if (/\$router->(?:get|post|put|patch|delete)\s*\(/.test(source)) return true;
+  // Route:: facade + response()->json closures (Lumen routes/web.php style).
+  return (
+    /\bRoute::(?:get|post|put|patch|delete)\s*\(/.test(source) &&
+    /response\s*\(\s*\)\s*->\s*json\s*\(/.test(source)
+  );
+}
+
+/**
+ * Slim / Lumen `{id}` → keep origin brace form (Gorilla parallel).
  * @param {string} path
  */
 export function normalizeSlimPath(path) {
   return path.startsWith("/") ? path : `/${path}`;
+}
+
+/**
+ * @param {string} path
+ */
+export function extractPhpBracePathParams(path) {
+  return [...path.matchAll(/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g)].map((m) => m[1]);
 }
 
 /**
@@ -118,6 +149,38 @@ export function parseSlimRoutes(source) {
 }
 
 /**
+ * Lumen `$router->` + `Route::` facade verbs (inline closures).
+ * @param {string} source
+ * @returns {Array<{ method: string, path: string, line: number, name: string, index: number, pathParams: string[] }>}
+ */
+export function parseLumenRoutes(source) {
+  /** @type {Array<{ method: string, path: string, line: number, name: string, index: number, pathParams: string[] }>} */
+  const routes = [];
+  const seen = new Set();
+  for (const re of [LUMEN_ROUTER_RE, LUMEN_ROUTE_FACADE_RE]) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(source)) !== null) {
+      const method = (m[1] ?? "get").toUpperCase();
+      const path = normalizeSlimPath(m[3] ?? "/");
+      const key = `${method}:${path}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      routes.push({
+        method,
+        path,
+        pathParams: extractPhpBracePathParams(path),
+        line: source.slice(0, m.index).split("\n").length,
+        name: `lumen_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+        index: m.index,
+      });
+    }
+  }
+  routes.sort((a, b) => a.index - b.index);
+  return routes;
+}
+
+/**
  * @param {string} source
  * @param {number} fromIndex
  */
@@ -156,6 +219,29 @@ function parseSlimRefs(bodySlice) {
   }
   for (const m of bodySlice.matchAll(
     /\$(\w+)\s*=\s*\$request->getQueryParams\s*\(\s*\)\s*\[\s*(['"])([^'"]+)\2\s*\](?:\s*\?\?\s*(['"])([^'"]*)\4)?/g,
+  )) {
+    byVar[m[1]] = {
+      source: "query",
+      name: m[3],
+      default: m[5] !== undefined ? m[5] : "",
+    };
+  }
+  return byVar;
+}
+
+/**
+ * Lumen path args from `{id}` + `$request->query|input('q', …)`.
+ * @param {string} bodySlice
+ * @param {string} path
+ */
+function parseLumenRefs(bodySlice, path) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const name of extractPhpBracePathParams(path)) {
+    byVar[name] = { source: "path", name };
+  }
+  for (const m of bodySlice.matchAll(
+    /\$(\w+)\s*=\s*\$request->(?:query|input)\s*\(\s*(['"])([^'"]+)\2(?:\s*,\s*(['"])([^'"]*)\4)?\s*\)/g,
   )) {
     byVar[m[1]] = {
       source: "query",
@@ -301,11 +387,79 @@ export function parseSlimHandlerBody(bodySlice) {
 }
 
 /**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseLumenJsonMap(bodySlice, byVar) {
+  const m = bodySlice.match(LUMEN_JSON_MAP_RE);
+  if (!m) return null;
+  const status = m[2] !== undefined ? Number.parseInt(m[2], 10) : 200;
+  const entries = parsePhpArrayEntries(m[1], byVar);
+  if (!entries) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseLumenJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(LUMEN_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = m[6] !== undefined ? Number.parseInt(m[6], 10) : 200;
+  if (m[1] !== undefined) {
+    return { status, kind: "lit", value: m[1] === "true" };
+  }
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[2], 10) };
+  }
+  if (m[4] !== undefined) {
+    return { status, kind: "lit", value: m[4] };
+  }
+  const varName = m[5]?.replace(/^\$/, "");
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {string} path
+ */
+export function parseLumenHandlerBody(bodySlice, path) {
+  const byVar = parseLumenRefs(bodySlice, path);
+  const jsonMap = parseLumenJsonMap(bodySlice, byVar);
+  if (jsonMap) {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonMap.returnTree,
+      status: jsonMap.status,
+    };
+  }
+  const jsonScalar = parseLumenJsonScalar(bodySlice, byVar);
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  return null;
+}
+
+/**
  * @param {object} ctx
  * @param {{ returnTree: object | null, status?: number }} parsed
  * @param {{ file: string, line?: number }} loc
+ * @param {string} [dialectTag]
  */
-function lowerSlimHandlerBody(ctx, parsed, loc) {
+function lowerPhpJsonHandlerBody(ctx, parsed, loc, dialectTag = "php-slim") {
   const { data, effect, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);
   /** @type {import('@chrysalis/webir').NodeId[]} */
@@ -317,7 +471,7 @@ function lowerSlimHandlerBody(ctx, parsed, loc) {
         status,
         message: null,
         origin,
-        provenance: [webir.provenance("hub-ingest", "php-slim:json-status")],
+        provenance: [webir.provenance("hub-ingest", `${dialectTag}:json-status`)],
       }),
     );
   }
@@ -340,7 +494,7 @@ function lowerSlimHandlerBody(ctx, parsed, loc) {
     statements,
     type: HUB_T.unknown,
     origin,
-    provenance: [webir.provenance("hub-ingest", "php-slim-handler-body")],
+    provenance: [webir.provenance("hub-ingest", `${dialectTag}-handler-body`)],
   });
 }
 
@@ -349,8 +503,9 @@ function lowerSlimHandlerBody(ctx, parsed, loc) {
  * @param {number} status
  * @param {unknown} value
  * @param {{ file: string, line?: number }} loc
+ * @param {string} [dialectTag]
  */
-function lowerSlimScalarLit(ctx, status, value, loc) {
+function lowerPhpScalarLit(ctx, status, value, loc, dialectTag = "php-slim") {
   if (typeof status !== "number" || !Number.isFinite(status) || status === 200) {
     return lowerHubLiteral(ctx, value, loc);
   }
@@ -368,7 +523,7 @@ function lowerSlimScalarLit(ctx, status, value, loc) {
     status,
     message: null,
     origin,
-    provenance: [webir.provenance("hub-ingest", "php-slim:json-status")],
+    provenance: [webir.provenance("hub-ingest", `${dialectTag}:json-status`)],
   });
   const litId = data.literal({
     value,
@@ -380,46 +535,49 @@ function lowerSlimScalarLit(ctx, status, value, loc) {
     statements: [statusId, litId],
     type: HUB_T.unknown,
     origin,
-    provenance: [webir.provenance("hub-ingest", "php-slim-scalar-lit-status")],
+    provenance: [webir.provenance("hub-ingest", `${dialectTag}-scalar-lit-status`)],
   });
 }
 
 /**
- * @param {object} opts — webir, builder, wr, source, file, language, ext
+ * @param {object} opts
+ * @param {Array<{ method: string, path: string, line: number, name: string, index: number, pathParams?: string[] }>} routes
+ * @param {(body: string, route: { path: string }) => object | null} parseBody
+ * @param {string} holeTag
+ * @param {string} dialectTag
  */
-export function liftPhpFileToWebir(opts) {
+function liftPhpDialectRoutes(opts, routes, parseBody, holeTag, dialectTag) {
   const { webir, builder, wr, source, file, language } = opts;
-  if (!isPhpSlimSource(source)) {
-    return { routeCount: 0, astRouteCount: 0, usedAst: false };
-  }
-
   const data = webir.dataDialect.builders(builder);
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };
-  const routes = parseSlimRoutes(source);
-  if (routes.length === 0) {
-    return { routeCount: 0, astRouteCount: 0, usedAst: false };
-  }
 
   for (const r of routes) {
     const extracted = extractSlimHandlerBody(source, r.index);
     const loc = { file, line: extracted?.line ?? r.line };
     let bodyId;
     if (!extracted) {
-      bodyId = hubHandlerBodyHole(ctx, "hub-slim:handler-body", loc);
+      bodyId = hubHandlerBodyHole(ctx, holeTag, loc);
     } else {
-      const parsed = parseSlimHandlerBody(extracted.bodySlice);
+      const parsed = parseBody(extracted.bodySlice, r);
       if (parsed?.kind === "handler") {
         bodyId =
-          lowerSlimHandlerBody(
+          lowerPhpJsonHandlerBody(
             ctx,
             { returnTree: parsed.returnTree, status: parsed.status },
             loc,
-          ) ?? hubHandlerBodyHole(ctx, "hub-slim:handler-body", loc);
+            dialectTag,
+          ) ?? hubHandlerBodyHole(ctx, holeTag, loc);
       } else if (parsed?.kind === "scalar") {
-        bodyId = lowerSlimScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+        bodyId = lowerPhpScalarLit(
+          ctx,
+          parsed.status ?? 200,
+          parsed.value,
+          loc,
+          dialectTag,
+        );
       } else {
-        bodyId = hubHandlerBodyHole(ctx, "hub-slim:handler-body", loc);
+        bodyId = hubHandlerBodyHole(ctx, holeTag, loc);
       }
     }
     emitHubRoute({
@@ -434,4 +592,44 @@ export function liftPhpFileToWebir(opts) {
   }
 
   return { routeCount: routes.length, astRouteCount: routes.length, usedAst: true };
+}
+
+/**
+ * @param {object} opts — webir, builder, wr, source, file, language, ext
+ */
+export function liftPhpFileToWebir(opts) {
+  const { source } = opts;
+  // Prefer Slim when `$app->` verbs present (do not steal Lumen `$router`).
+  if (
+    isPhpSlimSource(source) &&
+    /\$app->(?:get|post|put|patch|delete)\s*\(/.test(source)
+  ) {
+    const routes = parseSlimRoutes(source);
+    if (routes.length === 0) {
+      return { routeCount: 0, astRouteCount: 0, usedAst: false };
+    }
+    return liftPhpDialectRoutes(
+      opts,
+      routes,
+      (body) => parseSlimHandlerBody(body),
+      "hub-slim:handler-body",
+      "php-slim",
+    );
+  }
+
+  if (isPhpLumenSource(source)) {
+    const routes = parseLumenRoutes(source);
+    if (routes.length === 0) {
+      return { routeCount: 0, astRouteCount: 0, usedAst: false };
+    }
+    return liftPhpDialectRoutes(
+      opts,
+      routes,
+      (body, route) => parseLumenHandlerBody(body, route.path),
+      "hub-lumen:handler-body",
+      "php-lumen",
+    );
+  }
+
+  return { routeCount: 0, astRouteCount: 0, usedAst: false };
 }

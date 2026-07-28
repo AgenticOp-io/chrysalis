@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /**
- * Smoke: hub-gold-elysia Elysia TS dialect → WebIR hole-free (20 routes).
+ * Smoke: hub-gold-elysia Elysia TS dialect → WebIR hole-free
+ * (20 routes + empty lifecycle pass-through middleware).
  * ORIGIN secondary — does not replace Express hub-flagship-express /
- * hub-flagship-typescript D6448-ST. Plugins/lifecycle stay honest holes.
+ * hub-flagship-typescript D6448-ST. Plugin `.use` stays honest hole
+ * (not `(ctx, next)` — G10053 / D6515).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -12,13 +14,15 @@ import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
 export const HUB_ELYSIA_SMOKE_KIND = "chrysalis.hub.elysia-smoke";
-export const HUB_ELYSIA_SMOKE_SCHEMA_VERSION = 1;
+export const HUB_ELYSIA_SMOKE_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const fixture = join(scriptRoot, "fixtures/hub-gold-elysia");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 const EXPECT_ROUTES = 20;
+/** Empty `onRequest` / `onBeforeHandle` preset floor (G10053 / G10044 parallel). */
+const EXPECT_MIDDLEWARE = 2;
 
 /**
  * @param {string} [projectDir]
@@ -78,9 +82,13 @@ export async function runElysiaSmoke(projectDir = fixture) {
   const projection = summarizeCwlProjection(mod);
   const routeCount = liftReport.astRouteCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
+  const middlewareUseCount = liftReport.middlewareUseCount ?? 0;
+  const middlewareLoweredCount = liftReport.middlewareLoweredCount ?? 0;
   const ok =
     routeCount === EXPECT_ROUTES &&
     holeCount === 0 &&
+    middlewareUseCount === EXPECT_MIDDLEWARE &&
+    middlewareLoweredCount === EXPECT_MIDDLEWARE &&
     projection.holeFree === projection.total &&
     projection.total >= EXPECT_ROUTES;
 
@@ -90,6 +98,8 @@ export async function runElysiaSmoke(projectDir = fixture) {
     ok,
     routeCount,
     holeCount,
+    middlewareUseCount,
+    middlewareLoweredCount,
     cwlProjection: projection,
     generatedAt: new Date().toISOString(),
   };

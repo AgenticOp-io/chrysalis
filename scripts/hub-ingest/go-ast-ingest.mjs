@@ -8,6 +8,8 @@
  * `c.Params` + `c.Query` + `c.JSON` / `c.Status(n).JSON` / `c.SendString`),
  * Iris (G10038: `iris.New` + `app.Get|Post` + `ctx.Params().Get` /
  * `ctx.URLParam` / `ctx.URLParamDefault` + `ctx.JSON` / `ctx.WriteString`),
+ * Beego v2 functional (G10045: `web.Get|Post` + `:id` + `ctx.Input.Param` /
+ * `ctx.Input.Query` + `ctx.JSONResp` / `ctx.Output.SetStatus` / `ctx.WriteString`),
  * Gorilla mux (G10018: `HandleFunc`+`Methods` + `mux.Vars` + `json.NewEncoder`),
  * and Go 1.22+ net/http ServeMux (G10030: `HandleFunc("METHOD /path")` + `r.PathValue`
  * + `json.NewEncoder`) secondary peels share the same route scan via `detectGoWebDialect`.
@@ -68,6 +70,20 @@ const IRIS_JSON_SCALAR_RE = new RegExp(
 );
 const IRIS_WRITE_STRING_RE = new RegExp(String.raw`${IRIS_CTX}\.WriteString\s*\(\s*"([^"]*)"\s*\)`);
 const IRIS_STATUS_CODE_RE = new RegExp(String.raw`${IRIS_CTX}\.StatusCode\s*\(\s*(\d+)\s*\)`);
+// Beego v2 functional (G10045): ctx.JSONResp / ctx.WriteString / ctx.Output.SetStatus.
+const BEEGO_CTX = String.raw`(?:ctx|c)`;
+const BEEGO_JSON_MAP_RE = new RegExp(
+  String.raw`(?:_\s*=\s*)?${BEEGO_CTX}\.JSONResp\s*\(\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)`,
+);
+const BEEGO_JSON_SCALAR_RE = new RegExp(
+  String.raw`(?:_\s*=\s*)?${BEEGO_CTX}\.JSONResp\s*\(\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)`,
+);
+const BEEGO_WRITE_STRING_RE = new RegExp(
+  String.raw`${BEEGO_CTX}\.WriteString\s*\(\s*"([^"]*)"\s*\)`,
+);
+const BEEGO_SET_STATUS_RE = new RegExp(
+  String.raw`${BEEGO_CTX}\.Output\.(?:SetStatus\s*\(\s*(\d+)\s*\)|Status\s*=\s*(\d+))`,
+);
 const GO_HTTP_STATUS_CONST = {
   StatusOK: 200,
   StatusCreated: 201,
@@ -205,6 +221,17 @@ export function isGoIrisSource(source) {
 }
 
 /**
+ * Beego v2 functional secondary dialect (G10045 / D6507).
+ * @param {string} source
+ */
+export function isGoBeegoSource(source) {
+  return (
+    /github\.com\/beego\/beego/.test(source) ||
+    /github\.com\/astaxie\/beego/.test(source)
+  );
+}
+
+/**
  * Gorilla mux secondary dialect (G10018 / D6480).
  * @param {string} source
  */
@@ -222,12 +249,13 @@ export function isGoServeMuxSource(source) {
 
 /**
  * @param {string} source
- * @returns {"chi" | "echo" | "iris" | "fiber" | "gorilla" | "servemux" | "gin"}
+ * @returns {"chi" | "echo" | "iris" | "beego" | "fiber" | "gorilla" | "servemux" | "gin"}
  */
 export function detectGoWebDialect(source) {
   if (isGoChiSource(source)) return "chi";
   if (isGoEchoSource(source)) return "echo";
   if (isGoIrisSource(source)) return "iris";
+  if (isGoBeegoSource(source)) return "beego";
   if (isGoFiberSource(source)) return "fiber";
   if (isGoGorillaSource(source)) return "gorilla";
   if (isGoServeMuxSource(source)) return "servemux";
@@ -398,6 +426,48 @@ export function extractGoIrisHandlerBody(source, fromIndex) {
   );
   if (!namedM) return null;
   return extractGoNamedIrisHandlerBody(source, namedM[1]);
+}
+
+/**
+ * Resolve a named Beego functional handler `func name(ctx *context.Context)` (G10045).
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractGoNamedBeegoHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+(?:\([^)]*\)\s+)?${handlerName}\s*\(\s*(?:ctx|c)\s+\*\w+\.Context\s*\)\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, named: handlerName };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoBeegoHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\(\s*(?:ctx|c)\s+\*\w+\.Context\s*\)\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  // Beego functional uses package-level web.Get|Post (Chi-style verbs).
+  const namedM = slice.match(
+    /\.(?:Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedBeegoHandlerBody(source, namedM[1]);
 }
 
 /**
@@ -941,6 +1011,136 @@ function parseGoIrisHandlerBody(bodySlice) {
 }
 
 /**
+ * Beego refs: ctx.Input.Param(":id"), ctx.Input.Query("q") — G10045.
+ * Path keys strip a leading `:` so WebIR names match the route template.
+ * @param {string} bodySlice
+ */
+function parseGoBeegoRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*(?:ctx|c)\.Input\.Param\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    const raw = m[2];
+    const name = raw.startsWith(":") ? raw.slice(1) : raw;
+    byVar[m[1]] = { source: "path", name };
+  }
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*(?:ctx|c)\.Input\.Query\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoBeegoStatusCode(bodySlice) {
+  const m = bodySlice.match(BEEGO_SET_STATUS_RE);
+  if (!m) return undefined;
+  const raw = m[1] ?? m[2];
+  if (raw === undefined) return undefined;
+  return Number.parseInt(raw, 10);
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoBeegoMapReturn(bodySlice, byVar) {
+  const m = bodySlice.match(BEEGO_JSON_MAP_RE);
+  if (!m) return null;
+  const status = parseGoBeegoStatusCode(bodySlice) ?? 200;
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GIN_H_PAIR_RE.lastIndex = 0;
+  for (const pair of m[1].matchAll(GIN_H_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoBeegoJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(BEEGO_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = parseGoBeegoStatusCode(bodySlice) ?? 200;
+  if (m[1] !== undefined) {
+    return { status, kind: "lit", value: m[1] === "true" };
+  }
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[2], 10) };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: m[3] };
+  }
+  const varName = m[4];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoBeegoHandlerBody(bodySlice) {
+  const byVar = parseGoBeegoRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const jsonMap = parseGoBeegoMapReturn(bodySlice, byVar);
+  const jsonScalar = jsonMap ? null : parseGoBeegoJsonScalar(bodySlice, byVar);
+  const writeStr = !jsonMap && !jsonScalar ? bodySlice.match(BEEGO_WRITE_STRING_RE) : null;
+  const litRet = !jsonMap && !jsonScalar && !writeStr ? bodySlice.match(LITERAL_RETURN_RE) : null;
+
+  if (jsonMap || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: jsonMap?.returnTree ?? null,
+      status: jsonMap?.status,
+    };
+  }
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  if (writeStr) {
+    const status = parseGoBeegoStatusCode(bodySlice) ?? 200;
+    return { kind: "scalar", status, value: writeStr[1] };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
+}
+
+/**
  * @param {string} bodySlice
  */
 function parseGoGinRefs(bodySlice) {
@@ -1166,9 +1366,11 @@ export function liftGoFileToWebir(opts) {
           ? extractGoEchoHandlerBody(source, idx)
           : dialect === "iris"
             ? extractGoIrisHandlerBody(source, idx)
-            : dialect === "fiber"
-              ? extractGoFiberHandlerBody(source, idx)
-              : extractGoGinHandlerBody(source, idx);
+            : dialect === "beego"
+              ? extractGoBeegoHandlerBody(source, idx)
+              : dialect === "fiber"
+                ? extractGoFiberHandlerBody(source, idx)
+                : extractGoGinHandlerBody(source, idx);
     let bodyId;
     if (!extracted) {
       bodyId = hubHandlerBodyHole(
@@ -1179,13 +1381,15 @@ export function liftGoFileToWebir(opts) {
             ? "hub-echo:handler-body"
             : dialect === "iris"
               ? "hub-iris:handler-body"
-              : dialect === "fiber"
-                ? "hub-fiber:handler-body"
-                : dialect === "gorilla"
-                  ? "hub-gorilla:handler-body"
-                  : dialect === "servemux"
-                    ? "hub-servemux:handler-body"
-                    : "hub-go:handler-body",
+              : dialect === "beego"
+                ? "hub-beego:handler-body"
+                : dialect === "fiber"
+                  ? "hub-fiber:handler-body"
+                  : dialect === "gorilla"
+                    ? "hub-gorilla:handler-body"
+                    : dialect === "servemux"
+                      ? "hub-servemux:handler-body"
+                      : "hub-go:handler-body",
         {
           file,
           line: r.line,
@@ -1263,6 +1467,27 @@ export function liftGoFileToWebir(opts) {
         bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
       } else {
         bodyId = hubHandlerBodyHole(ctx, "hub-iris:handler-body", loc);
+      }
+    } else if (dialect === "beego") {
+      const { bodySlice, line } = extracted;
+      const loc = { file, line };
+      const parsed = parseGoBeegoHandlerBody(bodySlice);
+      if (parsed?.kind === "handler") {
+        bodyId =
+          lowerGoHandlerBody(
+            ctx,
+            {
+              sqlEffects: parsed.sqlEffects,
+              returnTree: parsed.returnTree,
+              status: parsed.status,
+              line,
+            },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-beego:handler-body", loc);
+      } else if (parsed?.kind === "scalar") {
+        bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-beego:handler-body", loc);
       }
     } else if (dialect === "fiber") {
       const { bodySlice, line } = extracted;

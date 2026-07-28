@@ -97,6 +97,8 @@ test("typescript AST lifts Elysia dialect 20/20 hole-free (G10025)", async () =>
   const source = await readFile(resolve(ROOT, "fixtures/hub-gold-elysia/src/app.ts"), "utf8");
   expect(source).toContain("new Elysia");
   expect(source).toContain("ctx.set.status");
+  expect(source).toContain("onRequest");
+  expect(source).toContain("onBeforeHandle");
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-elysia" });
   const wr = webir.webRequest.builders(builder);
@@ -110,6 +112,8 @@ test("typescript AST lifts Elysia dialect 20/20 hole-free (G10025)", async () =>
   });
   expect(r.usedAst).toBe(true);
   expect(r.astRouteCount).toBe(20);
+  expect(r.middlewareUseCount).toBe(2);
+  expect(r.middlewareRootCount).toBe(2);
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
@@ -124,6 +128,32 @@ test("typescript AST lifts Oak dialect 20/20 hole-free (G10043)", async () => {
   expect(source).toContain("/items/{id}");
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-oak" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.ts",
+    language: "typescript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("typescript AST lifts itty-router dialect 20/20 hole-free (G10047)", async () => {
+  const { liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-itty/src/app.ts"), "utf8");
+  expect(source).toContain("Router()");
+  expect(source).toContain("request.params");
+  expect(source).toContain("json(");
+  expect(source).toContain("Response.json");
+  expect(source).toContain("new Response");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-itty" });
   const wr = webir.webRequest.builders(builder);
   const r = liftJavaScriptFileToWebir({
     webir,
@@ -257,6 +287,39 @@ test("java AST lifts Quarkus jakarta JAX-RS resource 20/20 via G10012 peels (G10
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
+test("java AST lifts Vert.x Web routes 20/20 hole-free (G10052)", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const { normalizeJavaVertxPath } = await import(
+    resolve(ROOT, "packages/hub-native-bridge/dist/java.js")
+  );
+  expect(normalizeJavaVertxPath("/items/:id")).toBe("/items/{id}");
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-vertx/src/HubApp.java"),
+    "utf8",
+  );
+  expect(source).toContain("Router.router");
+  expect(source).toContain(".handler");
+  const routes = parseJavaRoutes(source, "HubApp.java");
+  expect(routes.length).toBe(20);
+  expect(routes.map((r) => `${r.method} ${r.path}`)).toContain("GET /items/{id}");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-vertx" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubApp.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("java AST lifts Spark Java routes 20/20 hole-free (G10036)", async () => {
   const { parseJavaRoutes, liftJavaFileToWebir } = await import(
     resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
@@ -275,6 +338,39 @@ test("java AST lifts Spark Java routes 20/20 hole-free (G10036)", async () => {
   expect(routes.map((r) => `${r.method} ${r.path}`)).toContain("GET /items/{id}");
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-sparkjava" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HubApp.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("java AST lifts Jooby routes 20/20 hole-free (G10046)", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const { normalizeJavaJoobyPath } = await import(
+    resolve(ROOT, "packages/hub-native-bridge/dist/java.js")
+  );
+  expect(normalizeJavaJoobyPath("items/{id}")).toBe("/items/{id}");
+  const source = await readFile(
+    resolve(ROOT, "fixtures/hub-gold-jooby/src/HubApp.java"),
+    "utf8",
+  );
+  expect(source).toContain("new Jooby()");
+  expect(source).toContain('ctx.path("id")');
+  const routes = parseJavaRoutes(source, "HubApp.java");
+  expect(routes.length).toBe(20);
+  expect(routes.map((r) => `${r.method} ${r.path}`)).toContain("GET /items/{id}");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-jooby" });
   const wr = webir.webRequest.builders(builder);
   const r = liftJavaFileToWebir({
     webir,
@@ -406,6 +502,30 @@ test("go AST lifts Fiber dialect 20/20 hole-free (G10017)", async () => {
   expect(routes.length).toBe(20);
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-fiber" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftGoFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.go",
+    language: "go",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("go AST lifts Beego functional dialect 20/20 hole-free (G10045)", async () => {
+  const { parseGoRoutes, detectGoWebDialect, liftGoFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/go-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-beego/main.go"), "utf8");
+  expect(detectGoWebDialect(source)).toBe("beego");
+  const routes = parseGoRoutes(source);
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-beego" });
   const wr = webir.webRequest.builders(builder);
   const r = liftGoFileToWebir({
     webir,

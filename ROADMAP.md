@@ -1,179 +1,186 @@
 # Chrysalis - Roadmap
 
 > Read `DESIGN.md` first. This file is the **active** execution plan.
-> **Operator stack:** [`docs/MIGRATION-OS.md`](./docs/MIGRATION-OS.md) · **Doc index:** [`docs/README.md`](./docs/README.md)
+> **Operator stack:** [`docs/MIGRATION-OS.md`](./docs/MIGRATION-OS.md) ? **Doc index:** [`docs/README.md`](./docs/README.md)
 > Completed history is archived in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Post–G9990 maintain** — **translate-only** (**D6442**) + **source-authoritative UI** (**D6443**) + **origin source corpus / piecemeal queue** (**D6444** / **G9993**); Migration OS (**G8550**); UT regression (**G7690**). WISP = POC only; GenieACS OOS; **LiteRT.js refused**. **Maps = ArcGIS when source is ArcGIS**.
-- **Closed (2026-07-24):** **Salvo Rust secondary dialect** � `hub:salvo-smoke` / `hub-gold-salvo` 20/20 hole-free (`Router::with_path` + `.get|post|�(handler)` + flat `.push` + `{id}` + `req.param`/`req.query` + `Json`/`StatusCode`); Actix remains Rust D6448-ST; Axum/Rocket/Poem stay green (G10037 / D6499). Nested push path-join / hoop / OpenAPI = honest holes. Catalog: `fixtures/ci/salvo-honest-holes.json`.
+- **Active lane:** **Post?G9990 maintain** ? **translate-only** (**D6442**) + **source-authoritative UI** (**D6443**) + **origin source corpus / piecemeal queue** (**D6444** / **G9993**); Migration OS (**G8550**); UT regression (**G7690**). WISP = POC only; GenieACS OOS; **LiteRT.js refused**. **Maps = ArcGIS when source is ArcGIS**.
+- **Closed (2026-07-27):** **Finch Scala secondary dialect** ? `hub:finch-smoke` / `hub-gold-finch` 20/20 hole-free (`get("path") { Ok(...) }` / `get("items" :: path[String])` / `param[String]("q")` + Ok/Created/Accepted Map/lit); Akka remains Scala D6448-ST; Http4s remains first Scala secondary (G10051 / D6513). Coproduct/lenses/TwitterServer = honest holes. Catalog: `fixtures/ci/finch-honest-holes.json`.
+- **Closed (2026-07-27):** **G10054 OpenAPI/HAR response-header peel** ? OpenAPI response `headers` IDENT-safe + example/default ? CWL `response-header`; HAR response headers IDENT-safe (hop-by-hop skip matches request policy); gold fixtures + `hub:contract-import-cwl-roundtrip-smoke` + Vitest G10054 (D6516). Absent / hyphenated / schema-only / `/raw` stay unwired (no invent).
+- **Closed (2026-07-27):** **Lumen / Laravel-router PHP secondary dialect** ? `hub:lumen-smoke` / `hub-gold-lumen` 20/20 hole-free (`$router->get|post|?` / `Route::get|post` + `{id}` + `$request->query` + `response()->json`; additive `php-ast-ingest.mjs`); Laravel min / Symfony / plain-php remain PHP D6448-ST; Slim remains first PHP secondary (G10049 / D6511). Middleware/`$router->group`/cross-file controllers = honest holes. Catalog: `fixtures/ci/lumen-honest-holes.json`.
+- **Closed (2026-07-27):** **itty-router JS/TS ORIGIN secondary dialect** — `hub:itty-smoke` / `hub-gold-itty` 20/20 hole-free (`Router()` + `router.get|post|…` + `:id` + `request.params` + URL `searchParams` + `json()`/`Response.json`/`new Response`); Express/TS remain D6448-ST; middleware/nested Router = honest holes (G10047 / D6509). Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-27):** **Bun.serve TypeScript ORIGIN secondary dialect** ? `hub:bun-serve-smoke` / `hub-gold-bun-serve` 20/20 hole-free (`Bun.serve({ routes: { "/path": { GET|POST|?: handler } } })` + `:id` + `req.params` + `new URL(req.url).searchParams` + `Response.json`/`{ status: N }`); Express/TS remain D6448-ST; fetch/websocket/plugins/static Response = honest holes (G10048 / D6510). Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Salvo Rust secondary dialect** ? `hub:salvo-smoke` / `hub-gold-salvo` 20/20 hole-free (`Router::with_path` + `.get|post|?(handler)` + flat `.push` + `{id}` + `req.param`/`req.query` + `Json`/`StatusCode`); Actix remains Rust D6448-ST; Axum/Rocket/Poem stay green (G10037 / D6499). Nested push path-join / hoop / OpenAPI = honest holes. Catalog: `fixtures/ci/salvo-honest-holes.json`.
 - **Closed (2026-07-24):** **Spark Java secondary dialect** - `hub:sparkjava-smoke` / `hub-gold-sparkjava` 20/20 hole-free (`spark.Spark.get|post|...` + `:id` paths + `req.params`/`req.queryParams` + `res.status`/`res.type` + string/JSON); Spring remains Java D6448-ST (G10036 / D6498). Filters/static/WebSocket = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **aiohttp Python secondary dialect** — `hub:aiohttp-smoke` / `hub-gold-aiohttp` 20/20 hole-free (`web.Application` + `web.get|post|…` + `{id}` / `{id:\d+}` + `request.match_info` + `request.query.get` + `web.json_response`/`web.Response`); Flask remains Python D6448-ST (G10039 / D6501). Middleware/subapp/View/WebSocket = honest holes. Catalog: `fixtures/ci/aiohttp-honest-holes.json`.
-- **Closed (2026-07-24):** **Javalin Java secondary dialect** — `hub:javalin-smoke` / `hub-gold-javalin` 20/20 hole-free (`Javalin.create()` + `app.get|post|…` + `{id}` + `ctx.pathParam`/`ctx.queryParam` + `ctx.status(n).json`/`ctx.json`/`ctx.result`); Spring remains Java D6448-ST (G10035 / D6497). Plugins/`before`/`after`/DI/WebSocket = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Tornado Python secondary dialect** — `hub:tornado-smoke` / `hub-gold-tornado` 20/20 hole-free (`tornado.web.Application([(r"/path", Handler), …])` + class `get|post|…` + `(?P<id>[^/]+)` / `([^/]+)` + `self.get_argument` + `self.write`/`self.set_status`); Flask remains Python D6448-ST (G10040 / D6502). Mixins/UIModule/async/url() = honest holes. Catalog: `fixtures/ci/tornado-honest-holes.json`.
-- **Closed (2026-07-24):** **Hono empty/next-only pass-through middleware peel** — `hub:hono-smoke` v2 / `hub-gold-hono` 20 routes + 2 `js.passthrough` `app.use` presets (`await next()` / `return next()`); complex Hono middleware stays honest holes; **≠ emit-hono** (G10044 / D6506; parallel G9959). Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Oak Deno/JS ORIGIN secondary dialect** — `hub:oak-smoke` / `hub-gold-oak` 20/20 hole-free (`new Application()` + `router.get|post|…` + `:id`/`{id}` + `ctx.params` + `ctx.request.url.searchParams` + `ctx.response.body`/`status`); Express/TS remain D6448-ST; middleware/`router.routes()` = honest holes (G10043 / D6505). Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Carter C# secondary dialect** — `hub:carter-smoke` / `hub-gold-carter` 20/20 hole-free (`ICarterModule` + `AddRoutes(IEndpointRouteBuilder app)` + `app.MapGet|MapPost|…`; **reuses Minimal API Map\* peels**; no MapCarter/DI invent); Minimal API remains C# D6448-ST; ASP.NET controllers remain first C# secondary (G10041 / D6503). MapCarter/DI/filters = honest holes. Catalog: `fixtures/ci/csharp-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Elysia TypeScript ORIGIN secondary dialect** — `hub:elysia-smoke` / `hub-gold-elysia` 20/20 hole-free (`new Elysia()` + `app.get|post|…` + `ctx.params`/`ctx.query` / IDENT `{ params|query }` bags + `ctx.set.status` + object/literal returns); Express/TS remain D6448-ST; plugins/lifecycle/macros = honest holes (G10025 / D6487). Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Slim PHP secondary dialect** — `hub:slim-smoke` / `hub-gold-slim` 20/20 hole-free (`$app->get|post|…` + `{id}` + `$args` + `getQueryParams` + `withJson`/`withStatus`/write+json_encode); Laravel min / Symfony / plain-php remain PHP D6448-ST (G10028 / D6490). PSR-15 middleware/`$app->group`/named handlers = honest holes. Catalog: `fixtures/ci/slim-honest-holes.json`.
-- **Closed (2026-07-24):** **Sanic Python secondary dialect** — `hub:sanic-smoke` / `hub-gold-sanic` 20/20 hole-free (`@app.get|post|…` / `@app.route` + `<id>` / `<id:str>` + `request.args.get` + `json()`/`text()`(+`status=`)); Flask remains Python D6448-ST (G10033 / D6495). Middleware/Blueprint/listeners/WebSocket = honest holes. Catalog: `fixtures/ci/sanic-honest-holes.json`.
-- **Closed (2026-07-24):** **Grape Ruby API secondary dialect** — `hub:grape-smoke` / `hub-gold-grape` 20/20 hole-free (`class API < Grape::API` + flat `get|post|… "/path"` + `/:id` + Hash/`status`/`params[]`; reuses Sinatra peels); Sinatra remains Ruby D6448-ST; Roda remains first Ruby secondary (G10032 / D6494). Nested `route_param`/`present`/`params do` = honest holes. Catalog: `fixtures/ci/grape-honest-holes.json`. Rails stays skipped (G10006).
-- **Closed (2026-07-24):** **Helidon MP JAX-RS Java secondary dialect** — `hub:helidon-smoke` / `hub-gold-helidon` 20/20 hole-free (`jakarta.ws.rs` `@Path`+`@GET|POST|…` resource surface; **reuses G10012 JAX-RS peels**; no Helidon CDI/MP Config invent); Spring remains Java D6448-ST (G10042 / D6504). CDI/MP Config/Helidon SE = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Quarkus JAX-RS Java secondary dialect** — `hub:quarkus-smoke` / `hub-gold-quarkus` 20/20 hole-free (`jakarta.ws.rs` `@Path`+`@GET|POST|…` resource surface; **reuses G10012 JAX-RS peels**; no Quarkus CDI invent); Spring remains Java D6448-ST (G10034 / D6496). CDI/RESTEasy filters/Panache = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Bottle Python secondary dialect** — `hub:bottle-smoke` / `hub-gold-bottle` 20/20 hole-free (bare `@get|post|…` / `@route(..., method=)` + `<id>` paths + `request.query.q` / `request.params` + `HTTPResponse`); Flask remains Python D6448-ST (G10027 / D6489). Plugins/middleware/templates/mount = honest holes. Catalog: `fixtures/ci/bottle-honest-holes.json`.
-- **Closed (2026-07-24):** **G10031 OpenAPI/HAR cookie request-surface** — OpenAPI `in: cookie` + HAR `cookies[]` IDENT-safe peels → CWL `cookie`; gold fixtures + `hub:contract-import-cwl-roundtrip-smoke` + Vitest G10031 (D6493). Absent cookies / hyphenated names / `/raw` / BMS stay holes (no invent).
-- **Closed (2026-07-24):** **Poem Rust secondary dialect** — `hub:poem-smoke` / `hub-gold-poem` 20/20 hole-free (`Route::new().at` + named `get|post|…(handler)` + `.nest` + `:id` paths + `Json(serde_json::json!)` + `(StatusCode::*, Json(…))`); Actix remains Rust D6448-ST; Axum/Rocket stay green (G10029 / D6491). Middleware/poem-openapi/chained multi-method `.at` = honest holes. Catalog: `fixtures/ci/poem-honest-holes.json`.
-- **Closed (2026-07-24):** **Go Iris secondary dialect** — `hub:iris-smoke` / `hub-gold-iris` 20/20 hole-free (`iris.New` + `app.Get|Post|…` + `{id}`/`:id` + `ctx.Params().Get` / `ctx.URLParam`/`URLParamDefault` + `ctx.JSON`/`ctx.WriteString`); Gin remains Go D6448-ST (G10038 / D6500). Middleware/Party/binders = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Go net/http ServeMux (Go 1.22+) secondary dialect** — `hub:servemux-smoke` / `hub-gold-servemux` 20/20 hole-free (`http.NewServeMux` + `HandleFunc("METHOD /path")` + `{id}` + `r.PathValue` + `json.NewEncoder`/`w.WriteHeader`); Gin remains Go D6448-ST (G10030 / D6492). Middleware none for stdlib; pattern conflicts = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Quart Python secondary dialect** — `hub:quart-smoke` / `hub-gold-quart` 20/20 hole-free (Flask-async twin: `@app.get|post|…` / `@app.route` + `<id>` paths + `request.args` + status tuples; reuses Flask peels); Flask remains Python D6448-ST (G10026 / D6488). Middleware/WebSocket/Blueprint beyond cheap = honest holes. Catalog: `fixtures/ci/quart-honest-holes.json`.
-- **Closed (2026-07-24):** **Go Gorilla mux secondary dialect** — `hub:gorilla-smoke` / `hub-gold-gorilla` 20/20 hole-free (`HandleFunc`+`Methods` + `{id}` paths + `mux.Vars` + `json.NewEncoder`/`w.WriteHeader`); Gin remains Go D6448-ST (G10018 / D6480). Middleware/Subrouter/non-literal paths = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **http4k Kotlin secondary dialect** — `hub:http4k-smoke` / `hub-gold-http4k` 20/20 hole-free (`"path" bind Method.GET|POST|… to` + `{id}` paths + `req.path`/`req.query` + `Response(OK|CREATED|ACCEPTED).body`); Spring remains Kotlin D6448-ST; Ktor remains first Kotlin secondary (G10024 / D6486). Filters/lenses/nested routes/server backends = honest holes. Catalog: `fixtures/ci/http4k-honest-holes.json`.
-- **Closed (2026-07-24):** **Hono TypeScript ORIGIN secondary dialect** — `hub:hono-smoke` / `hub-gold-hono` 20/20 hole-free (`new Hono()` + `app.get|post|…` + `c.req.param`/`c.req.query` + `c.json`/`c.text`); Express/TS remain D6448-ST; **≠ emit-hono** (G10019 / D6481). Pass-through `app.use` closed via G10044 / D6506; complex middleware = honest holes. Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Litestar Python secondary dialect** — `hub:litestar-smoke` / `hub-gold-litestar` 20/20 hole-free (bare `@get|post|…` + `{id}` paths + `query_params` + `status_code=`); Flask remains Python D6448-ST (G10021 / D6483). Provide/DI/middleware/Controller = honest holes.
-- **Closed (2026-07-24):** **Roda Ruby secondary dialect** — `hub:roda-smoke` / `hub-gold-roda` 20/20 hole-free (shallow `r.get|post|…` + `String`/`|id|` + Hash/`response.status`/`r.params`); Sinatra remains Ruby D6448-ST (G10022 / D6484). Nested `r.on`/plugins = honest holes. Catalog: `fixtures/ci/roda-honest-holes.json`. Rails stays skipped (G10006).
-- **Closed (2026-07-24):** **Falcon Python secondary dialect** — `hub:falcon-smoke` / `hub-gold-falcon` 20/20 hole-free (`app.add_route` + class `on_get|on_post|…` + `{id}` paths + `req.get_param` + `resp.media`/`resp.status`); Flask remains Python D6448-ST (G10023 / D6485). Hooks/middleware/ASGI onion = honest holes.
-- **Closed (2026-07-24):** **Hummingbird Swift secondary dialect** — `hub:hummingbird-smoke` / `hub-gold-hummingbird` 20/20 hole-free (`router.get|post|…` + `:id` paths + `context.parameters.get` + `request.uri.queryParameters` + `Response(status:, body: HTTPBody(json:))`); Vapor remains Swift D6448-ST (G10016). Fluent/Leaf/auth/group = honest holes. Catalog: `fixtures/ci/swift-hummingbird-honest-holes.json`.
-- **Closed (2026-07-24):** **Rocket Rust secondary dialect** — `hub:rocket-smoke` / `hub-gold-rocket` 20/20 hole-free (`#[get|post|…]` + `.mount("/items", routes![…])` + `<id>`/`?<q>` paths + `Json(serde_json::json!)` + `(Status::*, Json(…))`); Actix remains Rust D6448-ST (G10011 / D6473). Fairings/catchers/guards = honest holes.
-- **Closed (2026-07-24):** **Starlette secondary dialect** — `hub:starlette-smoke` / `hub-gold-starlette` 20/20 hole-free (`@app.route` + `{id}` paths + `query_params` + status tuple); Flask remains Python D6448-ST (G10013 / D6475). Mount/middleware/ASGI onion = honest holes.
-- **Closed (2026-07-24):** **Go Echo secondary dialect** — `hub:echo-smoke` / `hub-gold-echo` 20/20 hole-free (`e.GET|POST|…` + `:id` paths + `c.Param` + `c.QueryParam` + `c.JSON`/`c.String`); Gin remains Go D6448-ST (G10010 / D6472). Middleware/Group/binders = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Go Chi secondary dialect** — `hub:chi-smoke` / `hub-gold-chi` 20/20 hole-free (`r.Get|Post|…` + `{id}` paths + `chi.URLParam` + `r.URL.Query().Get` + `json.NewEncoder`/`w.WriteHeader`); Gin remains Go D6448-ST (G10009 / D6471). Middleware/Mount/non-literal paths = honest holes.
-- **Closed (2026-07-24):** **Dart Shelf same-file named handlers** — peel `router.get('/x', myHandler)` → same-file `Response|Future<Response> myHandler(Request …)` (G10007 / D6469; Axum/Go parallel); `hub:dart-smoke` + `hub:dart-flagship` remain 20/20. Cross-file named / Flutter/Frog/Pipeline = honest holes. Catalog: `fixtures/ci/dart-shelf-honest-holes.json`.
-- **Closed (2026-07-24):** **Ktor secondary dialect** — `hub:ktor-smoke` / `hub-gold-ktor` 20/20 hole-free (`routing { get|post|… }` + `{id}` paths + `call.parameters` + `queryParameters` + `HttpStatusCode` on `call.respond`); Spring remains Kotlin D6448-ST (G10004 / D6467). Auth/plugins/nested routing = honest holes.
-- **Closed (2026-07-24):** **FastAPI secondary dialect** — `hub:fastapi-smoke` / `hub-gold-fastapi` 20/20 hole-free (`{id}` paths + `query_params` + `status_code=` decorator); Flask remains Python D6448-ST (G10003 / D6466). Depends/OAuth/middleware = honest holes.
-- **Closed (2026-07-24):** **G10002 contract request-surface + CKPRST COPY** — OpenAPI header/requestBody + HAR header/postData peels; `batch-ckprst-copy-resolve`; NestJS ST board/claim sync; CONTRIBUTING private-corpora clause (D6465).
-- **Closed (2026-07-24):** **CardDemo CSUTLDWY/CSSETATY COPY resolve** — promote into `fixtures/hub-cobol-clbs-mini/copybook/`; `hub:cobol-clbs-prove-smoke` requires resolve on COACTUPC/COTRTUPC (G10001 / D6464). DFHAID/DFHBMSCA stay BMS holes; behavioral paused **61/61**.
-- **Closed (2026-07-24):** **Polka TS secondary dialect** — `hub:polka-smoke` / `hub-gold-polka` 20/20 hole-free (`app.get|post` + `res.writeHead` / `res.end(JSON.stringify)` + `req.params|query`); Express/TS remain D6448-ST; completes thin Node secondary set (G9958 / D6462). Honest-holes catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Restify TS secondary dialect** — `hub:restify-smoke` / `hub-gold-restify` 20/20 hole-free (`server.get|post|…|del` + `res.send` / Restify `res.send(code, body)` + `req.params|query`); Express/TS remain D6448-ST (G9957 / D6461). Phoenix controller peel skipped (not cheap; `fixtures/ci/phoenix-controller-honest-skip.json`).
-- **Closed (2026-07-24):** **Dart/Shelf route-surface D6448-ST** — `hub:dart-flagship` + `hub:complete-conversion-prove:dart` → `stGreen`+`stClosed` (`hub-gold-dart-shelf` 20/20; G9956 / D6460). Flutter/Dart Frog/Pipeline = honest holes (**D6447**). Catalog: `fixtures/ci/dart-shelf-honest-holes.json`. Phoenix peel deferred.
-- **Closed (2026-07-24):** **Elixir Plug.Router route-surface D6448-ST** — `hub:elixir-flagship` + `hub:complete-conversion-prove:elixir` → `stGreen`+`stClosed` (`hub-gold-elixir-plug` 20/20; G9955 / D6459). Phoenix LiveView/controllers = honest holes (**D6447**). Catalog: `fixtures/ci/elixir-plug-honest-holes.json`.
-- **Closed (2026-07-24):** **Dart/Shelf foundation** — `hub:dart-smoke` / `hub-gold-dart-shelf` 20/20 hole-free (`router.get|post|…` + `Response.ok`/`Response(status)` + `jsonEncode` + query/body peels + `<id>` path params); new origin language (G9954). Flutter/Dart Frog/Pipeline = honest holes (**D6447**). Honest-holes catalog: `fixtures/ci/dart-shelf-honest-holes.json`. Phoenix controller peel deferred (no LiveView invent).
-- **Closed (2026-07-24):** **Elixir Plug.Router foundation** — `hub:elixir-smoke` / `hub-gold-elixir-plug` 20/20 hole-free (`get|post|… do…end` + `send_resp` + `Jason.encode!` + `conn.params|query_params|body_params`); new origin language (G9953). Phoenix LiveView/controllers = honest holes (**D6447**). Honest-holes catalog: `fixtures/ci/elixir-plug-honest-holes.json`. Dart closed above.
-- **Closed (2026-07-24):** **Hapi multi-method array peel (G10014 / D6476)** — `method: ['GET','POST']` in `server.route` → one CWL route per method; `hub:hapi-smoke` / `hub-gold-hapi` remain 20/20 (multi-method `/echo` replaces `/ready` + scalar POST `/echo`). Plugins/lifecycle stay honest holes. Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
-- **Closed (2026-07-24):** **Hapi TS secondary dialect** — `hub:hapi-smoke` / `hub-gold-hapi` 20/20 hole-free (`server.route` + `handler` + `request.params|query|payload` + `h.response().code`); Express/TS remain D6448-ST. Honest-holes catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`. Elixir/Dart foundations closed above.
-- **Closed (2026-07-24):** **Koa TS secondary dialect** — `hub:koa-smoke` / `hub-gold-koa` 20/20 hole-free (`app.get|post` + `ctx.body`/`ctx.status`/`ctx.params`/`ctx.query`/`ctx.request.body`); Express/TS remain D6448-ST. Nest route-surface ST closed via `hub:nestjs-flagship` + `hub:complete-conversion-prove:nestjs` (DI/guards honest holes). Honest-holes catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **NestJS @Headers/@Cookies/@Body field peels (G10015 / D6477)** — `@Headers('x')` / `@Cookies('y')` / `@Body('field')` → header/cookie/body `requestFields` via existing `nestjs-ast-ingest` peel; `hub-gold-nestjs` ping/flag/echo routes; `hub:nestjs-smoke` + `hub:nestjs-flagship` 20/20 hole-free. DI/guards remain honest holes.
-- **Closed (2026-07-24):** **NestJS decorator route foundation** — `hub:nestjs-smoke` / `hub-gold-nestjs` 20/20 hole-free (`@Controller` + `@Get|Post|…` + path join + `@Param`/`@Query`/`@HttpCode`); Express/TS remain primary D6448-ST. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **Axum Rust secondary dialect** — `hub:axum-smoke` / `hub-gold-axum` 20/20 hole-free (`.route` + get|post|… closures + `Json(serde_json::json!)` + `StatusCode` tuples); Actix remains Rust D6448-ST. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen v4** — destructure `const { x } = await readBody(event)` (+ prior header/cookie/bind/`??`); `hub:vue-nitro-smoke` v4 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **Fastify TS origin dialect** — `hub:fastify-smoke` / `hub-gold-fastify` 20/20 hole-free (`fastify.*` + `reply.send`/`reply.code`); Express/TS remain D6448-ST; distinct from emit-fastify. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen v3** — `getHeader`/`getRequestHeader`/`getCookie` + `readBody` bindings; `hub:vue-nitro-smoke` v3 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen** — `readBody` field peel + `server/middleware` (nested) presets; `hub:vue-nitro-smoke` v2 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
-- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 server dialect** — `hub:vue-nitro-smoke` / `hub-gold-vue-nitro` 20/20 hole-free (`defineEventHandler`); Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
-- **Canon:** [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9960–G9990** + **§2A–2C**)
-- **Locked (2026-07-15):** **D6444** — ingest all origin files → SQLite/JSON code DB → convert one piece at a time (**G9993**).
-- **Locked (2026-07-15):** **D6443** — source-authoritative UI conversion method (origin CSS/classes/islands are look/behavior authority).
-- **Locked (2026-07-14):** **D6442** — translate-only fidelity law; reset invented map/loader decisions.
-- **Closed (2026-07-14):** **D6441** — preserve third-party vendor islands (Vite/`@arcgis/core` as source; no CDN rewrite).
-- **Closed (2026-07-14):** **G9992** — WISP POC from-scratch one-shot (`hub:wisp-poc-from-scratch`); ADC Firebase auth; docs [`WISP-POC-FROM-SCRATCH.md`](docs/WISP-POC-FROM-SCRATCH.md).
-- **Closed (2026-07-14):** **D6440 / G9991** — `chrysalis chat` CLI (license-ungated) + `convert-site --skip-http-path`; README → UT Canon; CWL IDENT at list/lift; `hub:ut-maintain-packaging-smoke`.
+- **Closed (2026-07-27):** **Jooby Java secondary dialect** ? `hub:jooby-smoke` / `hub-gold-jooby` 20/20 hole-free (`new Jooby() {{ get|post|? }}` / `app.get|post|?` + `{id}` + `ctx.path`/`ctx.query` + `ctx.setResponseCode` + Map/string returns); Spring remains Java D6448-ST (G10046 / D6508). Module/MVC/filters/WebSocket = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **aiohttp Python secondary dialect** ? `hub:aiohttp-smoke` / `hub-gold-aiohttp` 20/20 hole-free (`web.Application` + `web.get|post|?` + `{id}` / `{id:\d+}` + `request.match_info` + `request.query.get` + `web.json_response`/`web.Response`); Flask remains Python D6448-ST (G10039 / D6501). Middleware/subapp/View/WebSocket = honest holes. Catalog: `fixtures/ci/aiohttp-honest-holes.json`.
+- **Closed (2026-07-24):** **Javalin Java secondary dialect** ? `hub:javalin-smoke` / `hub-gold-javalin` 20/20 hole-free (`Javalin.create()` + `app.get|post|?` + `{id}` + `ctx.pathParam`/`ctx.queryParam` + `ctx.status(n).json`/`ctx.json`/`ctx.result`); Spring remains Java D6448-ST (G10035 / D6497). Plugins/`before`/`after`/DI/WebSocket = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Tornado Python secondary dialect** ? `hub:tornado-smoke` / `hub-gold-tornado` 20/20 hole-free (`tornado.web.Application([(r"/path", Handler), ?])` + class `get|post|?` + `(?P<id>[^/]+)` / `([^/]+)` + `self.get_argument` + `self.write`/`self.set_status`); Flask remains Python D6448-ST (G10040 / D6502). Mixins/UIModule/async/url() = honest holes. Catalog: `fixtures/ci/tornado-honest-holes.json`.
+- **Closed (2026-07-27):** **Elysia empty lifecycle pass-through middleware peel** ? `hub:elysia-smoke` v2 / `hub-gold-elysia` 20 routes + 2 `js.passthrough` empty `onRequest` / `onBeforeHandle` presets; plugin `.use` is **not** `(ctx, next)` ? stays honest hole (no invent); non-empty lifecycle = honest holes (G10053 / D6515; parallel G10044 / G9959). Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-27):** **Nancy FX C# secondary skipped** ? not cheap on csharp-ast-ingest (NancyModule ctor Get/Post/... + Response.AsJson/HttpStatusCode/parameters.id is not Minimal API Map* peel-reuse; probe 0 routes). Carter + controllers stay green. Catalog: fixtures/ci/nancy-honest-skip.json (G10050). No D6512.
+- **Closed (2026-07-24):** **Carter C# secondary dialect** ? `hub:carter-smoke` / `hub-gold-carter` 20/20 hole-free (`ICarterModule` + `AddRoutes(IEndpointRouteBuilder app)` + `app.MapGet|MapPost|?`; **reuses Minimal API Map\* peels**; no MapCarter/DI invent); Minimal API remains C# D6448-ST; ASP.NET controllers remain first C# secondary (G10041 / D6503). MapCarter/DI/filters = honest holes. Catalog: `fixtures/ci/csharp-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Elysia TypeScript ORIGIN secondary dialect** ? `hub:elysia-smoke` / `hub-gold-elysia` 20/20 hole-free (`new Elysia()` + `app.get|post|?` + `ctx.params`/`ctx.query` / IDENT `{ params|query }` bags + `ctx.set.status` + object/literal returns); Express/TS remain D6448-ST; plugins/macros = honest holes (G10025 / D6487). Empty lifecycle pass-through closed via G10053 / D6515; non-empty lifecycle stays honest hole. Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Slim PHP secondary dialect** ? `hub:slim-smoke` / `hub-gold-slim` 20/20 hole-free (`$app->get|post|?` + `{id}` + `$args` + `getQueryParams` + `withJson`/`withStatus`/write+json_encode); Laravel min / Symfony / plain-php remain PHP D6448-ST (G10028 / D6490). PSR-15 middleware/`$app->group`/named handlers = honest holes. Catalog: `fixtures/ci/slim-honest-holes.json`.
+- **Closed (2026-07-24):** **Sanic Python secondary dialect** ? `hub:sanic-smoke` / `hub-gold-sanic` 20/20 hole-free (`@app.get|post|?` / `@app.route` + `<id>` / `<id:str>` + `request.args.get` + `json()`/`text()`(+`status=`)); Flask remains Python D6448-ST (G10033 / D6495). Middleware/Blueprint/listeners/WebSocket = honest holes. Catalog: `fixtures/ci/sanic-honest-holes.json`.
+- **Closed (2026-07-24):** **Grape Ruby API secondary dialect** ? `hub:grape-smoke` / `hub-gold-grape` 20/20 hole-free (`class API < Grape::API` + flat `get|post|? "/path"` + `/:id` + Hash/`status`/`params[]`; reuses Sinatra peels); Sinatra remains Ruby D6448-ST; Roda remains first Ruby secondary (G10032 / D6494). Nested `route_param`/`present`/`params do` = honest holes. Catalog: `fixtures/ci/grape-honest-holes.json`. Rails stays skipped (G10006).
+- **Closed (2026-07-24):** **Helidon MP JAX-RS Java secondary dialect** ? `hub:helidon-smoke` / `hub-gold-helidon` 20/20 hole-free (`jakarta.ws.rs` `@Path`+`@GET|POST|?` resource surface; **reuses G10012 JAX-RS peels**; no Helidon CDI/MP Config invent); Spring remains Java D6448-ST (G10042 / D6504). CDI/MP Config/Helidon SE = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Quarkus JAX-RS Java secondary dialect** ? `hub:quarkus-smoke` / `hub-gold-quarkus` 20/20 hole-free (`jakarta.ws.rs` `@Path`+`@GET|POST|?` resource surface; **reuses G10012 JAX-RS peels**; no Quarkus CDI invent); Spring remains Java D6448-ST (G10034 / D6496). CDI/RESTEasy filters/Panache = honest holes. Catalog: `fixtures/ci/java-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Bottle Python secondary dialect** ? `hub:bottle-smoke` / `hub-gold-bottle` 20/20 hole-free (bare `@get|post|?` / `@route(..., method=)` + `<id>` paths + `request.query.q` / `request.params` + `HTTPResponse`); Flask remains Python D6448-ST (G10027 / D6489). Plugins/middleware/templates/mount = honest holes. Catalog: `fixtures/ci/bottle-honest-holes.json`.
+- **Closed (2026-07-24):** **G10031 OpenAPI/HAR cookie request-surface** ? OpenAPI `in: cookie` + HAR `cookies[]` IDENT-safe peels ? CWL `cookie`; gold fixtures + `hub:contract-import-cwl-roundtrip-smoke` + Vitest G10031 (D6493). Absent cookies / hyphenated names / `/raw` / BMS stay holes (no invent).
+- **Closed (2026-07-24):** **Poem Rust secondary dialect** ? `hub:poem-smoke` / `hub-gold-poem` 20/20 hole-free (`Route::new().at` + named `get|post|?(handler)` + `.nest` + `:id` paths + `Json(serde_json::json!)` + `(StatusCode::*, Json(?))`); Actix remains Rust D6448-ST; Axum/Rocket stay green (G10029 / D6491). Middleware/poem-openapi/chained multi-method `.at` = honest holes. Catalog: `fixtures/ci/poem-honest-holes.json`.
+- **Closed (2026-07-27):** **Go Beego v2 functional secondary dialect** ? `hub:beego-smoke` / `hub-gold-beego` 20/20 hole-free (`web.Get|Post|?` + `:id` + `ctx.Input.Param` / `ctx.Input.Query` + `ctx.JSONResp` / `ctx.Output.SetStatus` / `ctx.WriteString`); Gin remains Go D6448-ST (G10045 / D6507). Filter/NS/Controller/binders = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Go Iris secondary dialect** ? `hub:iris-smoke` / `hub-gold-iris` 20/20 hole-free (`iris.New` + `app.Get|Post|?` + `{id}`/`:id` + `ctx.Params().Get` / `ctx.URLParam`/`URLParamDefault` + `ctx.JSON`/`ctx.WriteString`); Gin remains Go D6448-ST (G10038 / D6500). Middleware/Party/binders = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Go net/http ServeMux (Go 1.22+) secondary dialect** ? `hub:servemux-smoke` / `hub-gold-servemux` 20/20 hole-free (`http.NewServeMux` + `HandleFunc("METHOD /path")` + `{id}` + `r.PathValue` + `json.NewEncoder`/`w.WriteHeader`); Gin remains Go D6448-ST (G10030 / D6492). Middleware none for stdlib; pattern conflicts = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Quart Python secondary dialect** ? `hub:quart-smoke` / `hub-gold-quart` 20/20 hole-free (Flask-async twin: `@app.get|post|?` / `@app.route` + `<id>` paths + `request.args` + status tuples; reuses Flask peels); Flask remains Python D6448-ST (G10026 / D6488). Middleware/WebSocket/Blueprint beyond cheap = honest holes. Catalog: `fixtures/ci/quart-honest-holes.json`.
+- **Closed (2026-07-24):** **Go Gorilla mux secondary dialect** ? `hub:gorilla-smoke` / `hub-gold-gorilla` 20/20 hole-free (`HandleFunc`+`Methods` + `{id}` paths + `mux.Vars` + `json.NewEncoder`/`w.WriteHeader`); Gin remains Go D6448-ST (G10018 / D6480). Middleware/Subrouter/non-literal paths = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **http4k Kotlin secondary dialect** ? `hub:http4k-smoke` / `hub-gold-http4k` 20/20 hole-free (`"path" bind Method.GET|POST|? to` + `{id}` paths + `req.path`/`req.query` + `Response(OK|CREATED|ACCEPTED).body`); Spring remains Kotlin D6448-ST; Ktor remains first Kotlin secondary (G10024 / D6486). Filters/lenses/nested routes/server backends = honest holes. Catalog: `fixtures/ci/http4k-honest-holes.json`.
+- **Closed (2026-07-24):** **Hono TypeScript ORIGIN secondary dialect** ? `hub:hono-smoke` / `hub-gold-hono` 20/20 hole-free (`new Hono()` + `app.get|post|?` + `c.req.param`/`c.req.query` + `c.json`/`c.text`); Express/TS remain D6448-ST; **? emit-hono** (G10019 / D6481). Pass-through `app.use` closed via G10044 / D6506; complex middleware = honest holes. Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Litestar Python secondary dialect** ? `hub:litestar-smoke` / `hub-gold-litestar` 20/20 hole-free (bare `@get|post|?` + `{id}` paths + `query_params` + `status_code=`); Flask remains Python D6448-ST (G10021 / D6483). Provide/DI/middleware/Controller = honest holes.
+- **Closed (2026-07-24):** **Roda Ruby secondary dialect** ? `hub:roda-smoke` / `hub-gold-roda` 20/20 hole-free (shallow `r.get|post|?` + `String`/`|id|` + Hash/`response.status`/`r.params`); Sinatra remains Ruby D6448-ST (G10022 / D6484). Nested `r.on`/plugins = honest holes. Catalog: `fixtures/ci/roda-honest-holes.json`. Rails stays skipped (G10006).
+- **Closed (2026-07-24):** **Falcon Python secondary dialect** ? `hub:falcon-smoke` / `hub-gold-falcon` 20/20 hole-free (`app.add_route` + class `on_get|on_post|?` + `{id}` paths + `req.get_param` + `resp.media`/`resp.status`); Flask remains Python D6448-ST (G10023 / D6485). Hooks/middleware/ASGI onion = honest holes.
+- **Closed (2026-07-24):** **Hummingbird Swift secondary dialect** ? `hub:hummingbird-smoke` / `hub-gold-hummingbird` 20/20 hole-free (`router.get|post|?` + `:id` paths + `context.parameters.get` + `request.uri.queryParameters` + `Response(status:, body: HTTPBody(json:))`); Vapor remains Swift D6448-ST (G10016). Fluent/Leaf/auth/group = honest holes. Catalog: `fixtures/ci/swift-hummingbird-honest-holes.json`.
+- **Closed (2026-07-24):** **Rocket Rust secondary dialect** ? `hub:rocket-smoke` / `hub-gold-rocket` 20/20 hole-free (`#[get|post|?]` + `.mount("/items", routes![?])` + `<id>`/`?<q>` paths + `Json(serde_json::json!)` + `(Status::*, Json(?))`); Actix remains Rust D6448-ST (G10011 / D6473). Fairings/catchers/guards = honest holes.
+- **Closed (2026-07-24):** **Starlette secondary dialect** ? `hub:starlette-smoke` / `hub-gold-starlette` 20/20 hole-free (`@app.route` + `{id}` paths + `query_params` + status tuple); Flask remains Python D6448-ST (G10013 / D6475). Mount/middleware/ASGI onion = honest holes.
+- **Closed (2026-07-24):** **Go Echo secondary dialect** ? `hub:echo-smoke` / `hub-gold-echo` 20/20 hole-free (`e.GET|POST|?` + `:id` paths + `c.Param` + `c.QueryParam` + `c.JSON`/`c.String`); Gin remains Go D6448-ST (G10010 / D6472). Middleware/Group/binders = honest holes. Catalog: `fixtures/ci/go-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Go Chi secondary dialect** ? `hub:chi-smoke` / `hub-gold-chi` 20/20 hole-free (`r.Get|Post|?` + `{id}` paths + `chi.URLParam` + `r.URL.Query().Get` + `json.NewEncoder`/`w.WriteHeader`); Gin remains Go D6448-ST (G10009 / D6471). Middleware/Mount/non-literal paths = honest holes.
+- **Closed (2026-07-24):** **Dart Shelf same-file named handlers** ? peel `router.get('/x', myHandler)` ? same-file `Response|Future<Response> myHandler(Request ?)` (G10007 / D6469; Axum/Go parallel); `hub:dart-smoke` + `hub:dart-flagship` remain 20/20. Cross-file named / Flutter/Frog/Pipeline = honest holes. Catalog: `fixtures/ci/dart-shelf-honest-holes.json`.
+- **Closed (2026-07-24):** **Ktor secondary dialect** ? `hub:ktor-smoke` / `hub-gold-ktor` 20/20 hole-free (`routing { get|post|? }` + `{id}` paths + `call.parameters` + `queryParameters` + `HttpStatusCode` on `call.respond`); Spring remains Kotlin D6448-ST (G10004 / D6467). Auth/plugins/nested routing = honest holes.
+- **Closed (2026-07-24):** **FastAPI secondary dialect** ? `hub:fastapi-smoke` / `hub-gold-fastapi` 20/20 hole-free (`{id}` paths + `query_params` + `status_code=` decorator); Flask remains Python D6448-ST (G10003 / D6466). Depends/OAuth/middleware = honest holes.
+- **Closed (2026-07-24):** **G10002 contract request-surface + CKPRST COPY** ? OpenAPI header/requestBody + HAR header/postData peels; `batch-ckprst-copy-resolve`; NestJS ST board/claim sync; CONTRIBUTING private-corpora clause (D6465).
+- **Closed (2026-07-24):** **CardDemo CSUTLDWY/CSSETATY COPY resolve** ? promote into `fixtures/hub-cobol-clbs-mini/copybook/`; `hub:cobol-clbs-prove-smoke` requires resolve on COACTUPC/COTRTUPC (G10001 / D6464). DFHAID/DFHBMSCA stay BMS holes; behavioral paused **61/61**.
+- **Closed (2026-07-24):** **Polka TS secondary dialect** ? `hub:polka-smoke` / `hub-gold-polka` 20/20 hole-free (`app.get|post` + `res.writeHead` / `res.end(JSON.stringify)` + `req.params|query`); Express/TS remain D6448-ST; completes thin Node secondary set (G9958 / D6462). Honest-holes catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Restify TS secondary dialect** ? `hub:restify-smoke` / `hub-gold-restify` 20/20 hole-free (`server.get|post|?|del` + `res.send` / Restify `res.send(code, body)` + `req.params|query`); Express/TS remain D6448-ST (G9957 / D6461). Phoenix controller peel skipped (not cheap; `fixtures/ci/phoenix-controller-honest-skip.json`).
+- **Closed (2026-07-24):** **Dart/Shelf route-surface D6448-ST** ? `hub:dart-flagship` + `hub:complete-conversion-prove:dart` ? `stGreen`+`stClosed` (`hub-gold-dart-shelf` 20/20; G9956 / D6460). Flutter/Dart Frog/Pipeline = honest holes (**D6447**). Catalog: `fixtures/ci/dart-shelf-honest-holes.json`. Phoenix peel deferred.
+- **Closed (2026-07-24):** **Elixir Plug.Router route-surface D6448-ST** ? `hub:elixir-flagship` + `hub:complete-conversion-prove:elixir` ? `stGreen`+`stClosed` (`hub-gold-elixir-plug` 20/20; G9955 / D6459). Phoenix LiveView/controllers = honest holes (**D6447**). Catalog: `fixtures/ci/elixir-plug-honest-holes.json`.
+- **Closed (2026-07-24):** **Dart/Shelf foundation** ? `hub:dart-smoke` / `hub-gold-dart-shelf` 20/20 hole-free (`router.get|post|?` + `Response.ok`/`Response(status)` + `jsonEncode` + query/body peels + `<id>` path params); new origin language (G9954). Flutter/Dart Frog/Pipeline = honest holes (**D6447**). Honest-holes catalog: `fixtures/ci/dart-shelf-honest-holes.json`. Phoenix controller peel deferred (no LiveView invent).
+- **Closed (2026-07-24):** **Elixir Plug.Router foundation** ? `hub:elixir-smoke` / `hub-gold-elixir-plug` 20/20 hole-free (`get|post|? do?end` + `send_resp` + `Jason.encode!` + `conn.params|query_params|body_params`); new origin language (G9953). Phoenix LiveView/controllers = honest holes (**D6447**). Honest-holes catalog: `fixtures/ci/elixir-plug-honest-holes.json`. Dart closed above.
+- **Closed (2026-07-24):** **Hapi multi-method array peel (G10014 / D6476)** ? `method: ['GET','POST']` in `server.route` ? one CWL route per method; `hub:hapi-smoke` / `hub-gold-hapi` remain 20/20 (multi-method `/echo` replaces `/ready` + scalar POST `/echo`). Plugins/lifecycle stay honest holes. Catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`.
+- **Closed (2026-07-24):** **Hapi TS secondary dialect** ? `hub:hapi-smoke` / `hub-gold-hapi` 20/20 hole-free (`server.route` + `handler` + `request.params|query|payload` + `h.response().code`); Express/TS remain D6448-ST. Honest-holes catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`. Elixir/Dart foundations closed above.
+- **Closed (2026-07-24):** **Koa TS secondary dialect** ? `hub:koa-smoke` / `hub-gold-koa` 20/20 hole-free (`app.get|post` + `ctx.body`/`ctx.status`/`ctx.params`/`ctx.query`/`ctx.request.body`); Express/TS remain D6448-ST. Nest route-surface ST closed via `hub:nestjs-flagship` + `hub:complete-conversion-prove:nestjs` (DI/guards honest holes). Honest-holes catalog: `fixtures/ci/js-secondary-dialect-honest-holes.json`. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **NestJS @Headers/@Cookies/@Body field peels (G10015 / D6477)** ? `@Headers('x')` / `@Cookies('y')` / `@Body('field')` ? header/cookie/body `requestFields` via existing `nestjs-ast-ingest` peel; `hub-gold-nestjs` ping/flag/echo routes; `hub:nestjs-smoke` + `hub:nestjs-flagship` 20/20 hole-free. DI/guards remain honest holes.
+- **Closed (2026-07-24):** **NestJS decorator route foundation** ? `hub:nestjs-smoke` / `hub-gold-nestjs` 20/20 hole-free (`@Controller` + `@Get|Post|?` + path join + `@Param`/`@Query`/`@HttpCode`); Express/TS remain primary D6448-ST. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Axum Rust secondary dialect** ? `hub:axum-smoke` / `hub-gold-axum` 20/20 hole-free (`.route` + get|post|? closures + `Json(serde_json::json!)` + `StatusCode` tuples); Actix remains Rust D6448-ST. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen v4** ? destructure `const { x } = await readBody(event)` (+ prior header/cookie/bind/`??`); `hub:vue-nitro-smoke` v4 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Fastify TS origin dialect** ? `hub:fastify-smoke` / `hub-gold-fastify` 20/20 hole-free (`fastify.*` + `reply.send`/`reply.code`); Express/TS remain D6448-ST; distinct from emit-fastify. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen v3** ? `getHeader`/`getRequestHeader`/`getCookie` + `readBody` bindings; `hub:vue-nitro-smoke` v3 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 deepen** ? `readBody` field peel + `server/middleware` (nested) presets; `hub:vue-nitro-smoke` v2 20 routes + 2 middleware hole-free; Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
+- **Closed (2026-07-24):** **Vue/Nuxt Nitro/h3 server dialect** ? `hub:vue-nitro-smoke` / `hub-gold-vue-nitro` 20/20 hole-free (`defineEventHandler`); Express-in-SFC remains Vue D6448-ST. Elixir/Dart ingest still absent.
+- **Canon:** [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9960?G9990** + **?2A?2C**)
+- **Locked (2026-07-15):** **D6444** ? ingest all origin files ? SQLite/JSON code DB ? convert one piece at a time (**G9993**).
+- **Locked (2026-07-15):** **D6443** ? source-authoritative UI conversion method (origin CSS/classes/islands are look/behavior authority).
+- **Locked (2026-07-14):** **D6442** ? translate-only fidelity law; reset invented map/loader decisions.
+- **Closed (2026-07-14):** **D6441** ? preserve third-party vendor islands (Vite/`@arcgis/core` as source; no CDN rewrite).
+- **Closed (2026-07-14):** **G9992** ? WISP POC from-scratch one-shot (`hub:wisp-poc-from-scratch`); ADC Firebase auth; docs [`WISP-POC-FROM-SCRATCH.md`](docs/WISP-POC-FROM-SCRATCH.md).
+- **Closed (2026-07-14):** **D6440 / G9991** ? `chrysalis chat` CLI (license-ungated) + `convert-site --skip-http-path`; README ? UT Canon; CWL IDENT at list/lift; `hub:ut-maintain-packaging-smoke`.
 - **Closed (2026-07-14):** **G9990** UT Canon program (`hub:ut-canon-program-close-smoke`).
-- **Closed (2026-07-14):** **Wave D** — engine depth (`hub:ut-wave-d-close-smoke` **G9989**); multi-origin llmIs reads `scripts/lib/cwl-svelte-native-convert.mjs`.
-- **Closed (2026-07-14):** **Wave C** — AI assist under verify (`hub:ut-wave-c-close-smoke` **G9985**): Migration Chat, LLM verify-apply, IS close, live hit-rate honesty, convert governor.
-- **Closed (2026-07-14):** **Wave B** — composer strength (`hub:ut-wave-b-close-smoke` **G9975**, **D6439**): G7690 green (nextjs honest WPTP skip + CWL `toCwlIdent` roundtrip); charter audit; php→python proof; adapter work-items; outbound G7602.
-- **Closed (2026-07-14):** **Wave A** — canon lock + `scripts/lib` extract (`hub:ut-wave-a-close-smoke` **G9965**, **D6438**).
+- **Closed (2026-07-14):** **Wave D** ? engine depth (`hub:ut-wave-d-close-smoke` **G9989**); multi-origin llmIs reads `scripts/lib/cwl-svelte-native-convert.mjs`.
+- **Closed (2026-07-14):** **Wave C** ? AI assist under verify (`hub:ut-wave-c-close-smoke` **G9985**): Migration Chat, LLM verify-apply, IS close, live hit-rate honesty, convert governor.
+- **Closed (2026-07-14):** **Wave B** ? composer strength (`hub:ut-wave-b-close-smoke` **G9975**, **D6439**): G7690 green (nextjs honest WPTP skip + CWL `toCwlIdent` roundtrip); charter audit; php?python proof; adapter work-items; outbound G7602.
+- **Closed (2026-07-14):** **Wave A** ? canon lock + `scripts/lib` extract (`hub:ut-wave-a-close-smoke` **G9965**, **D6438**).
 - **Closed (2026-07-14):** **D6438** canon document + STRATEGY/AGENTS lock (**G9960**).
 - **Closed (2026-07-14):** **D6437** UT reframing + initiative knowledge DB.
-- **Closed (2026-07-14):** **management.wisptools.io visual + multipage Firebase** (**G9952**, **D6436**) — POC deploy.
-- **Closed (2026-07-13):** **Module_Manager depth** (**G9951**, **D6435**) — POC; `hub:wisp-cwl-module-depth-smoke`.
-- **Maintained:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:wisp-poc-from-scratch` (**G9992**, operator) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**).
-- **Closed (2026-07-13):** **Module buttons convert** (**G9950**, **D6434**) — plan/deploy toolbars + structural search/export/scan; `hub:wisp-cwl-module-buttons-smoke`.
-- **Closed (2026-07-13):** **SharedMap↔ArcGIS interaction** (**G9949**, **D6433**) — plan/deploy postMessage drives map; `hub:wisp-cwl-map-interact-smoke`.
-- **Closed (2026-07-13):** **WISP ArcGIS + grind** (**G9947–G9948**, **D6432**) — MapView + API geometry; module-access/PCI host; `hub:wisp-cwl-arcgis-grind-smoke`.
-- **Closed (2026-07-13):** **Next loading.tsx + next/font honesty** (**G9944**, **D6429**) — `hub:next-loading-font-smoke`.
-- **Closed (2026-07-13):** **Angular NgModule providers** (**G9945**, **D6430**) — `hub:angular-ngmodule-providers-smoke`.
-- **Closed (2026-07-13):** **Vue App.vue shell CSS** (**G9946**, **D6431**) — `hub:vue-app-shell-css-smoke`; multi-origin close **v4**.
-- **Closed (2026-07-13):** **Angular providedIn / providers** (**G9941**, **D6426**) — `hub:angular-provided-in-smoke`.
-- **Closed (2026-07-13):** **Vue/Nuxt layout CSS** (**G9942**, **D6427**) — `hub:vue-nuxt-layout-css-smoke`.
-- **Closed (2026-07-13):** **Shared multi-origin convert orch** (**G9943**, **D6428**) — `hub:multi-origin-convert-orch-smoke`.
-- **Closed (2026-07-13):** **Next layout/globals CSS depth** (**G9940**, **D6425**) — ancestor `layout` CSS per route; nested portal isolation; `hub:next-layout-css-depth-smoke`.
-- **Closed (2026-07-13):** **Remaining WISP empty-page hydrate** (**G9932–G9939**, **D6424**) — voice/plan/bundles/permissions/roles/CBRS/support; empty-list honesty; `hub:wisp-cwl-remaining-surface-smoke`. Pause from **D6416** lifted.
-- **Closed (2026-07-13):** **Angular DI graph depth** (**G9931**, **D6423**) — `LoginComponent→AuthService→SessionStore` edges; `hub:angular-di-graph-smoke`.
-- **Closed (2026-07-13):** **Next App Router CSS depth** (**G9930**, **D6422**) — co-located `page.module.css` without `.next`; `hub:next-css-depth-smoke`.
-- **Closed (2026-07-12):** **Vue scoped-CSS depth** (**G9929**, **D6421**) — SFC `<style scoped>` lift without Vite dist; `:global`/`::v-deep` descope; `hub:vue-scoped-css-depth-smoke`.
-- **Closed (2026-07-12):** **Vue load-bind + Next RSC depth** (**G9927–G9928**, **D6420**) — shared hydrate for Vue/Next/Angular markers; `hub:vue-load-bind-smoke` · `hub:next-rsc-depth-smoke`.
-- **Closed (2026-07-12):** **Angular structural-shell depth** (**G9926**, **D6419**) — `*ngIf`/`*ngFor`/interp/event/bind/component/async + `inject()` DI holes; `hub:angular-structural-shell-depth-smoke`.
-- **Closed (2026-07-12):** **Vue/Next structural-shell depth** (**G9924–G9925**, **D6418**) — named holes (no silent `{…}` strip); `hub:vue-structural-shell-depth-smoke` · `hub:next-structural-shell-depth-smoke`; multi-origin close composite updated.
-- **Closed (2026-07-12):** **Migration Chat + AI Assist** (**G9921–G9923**, **D6417**) — `chrysalis chat`, hub `/migration-chat`, `docs/AI-ASSIST.md`; LiteRT refused; `hub:migration-chat-smoke`.
-- **Closed (2026-07-12):** **Admin/monitor/deploy surface** (**G9917–G9920**, **D6416**) — users/tenants; monitoring/HSS; deploy counts; catalog + orphan `}` scrub; `hub:wisp-cwl-admin-surface-smoke`. **Was paused** further WISP empty-page hydrate until non-WISP language POCs — **unpaused D6424**.
-- **Closed (2026-07-12):** **Ops/billing surface + residual scrub** (**G9913–G9916**, **D6415**) — help-desk/maintain `/api/maintain`; billing plans; svelte/`\r`/mojibake scrub; `hub:wisp-cwl-ops-surface-smoke`.
-- **Closed (2026-07-12):** **Dashboard + sites/work-orders + SVG scrub** (**G9910–G9912**, **D6414**) — catalog cards; `/api/network` + work-orders hydrate; `<//modules/>` scrub; `hub:wisp-cwl-route-depth-smoke`.
-- **Closed (2026-07-12):** **Convert all CWL shells at once** (**G9909**, **D6413**) — modal/map/chart/wizard/nav/widget; `hub:wisp-cwl-all-shells-smoke`.
-- **Closed (2026-07-12):** **WISP showcase depth** (**G9905–G9908**, **D6412**) — stats/list hydrate; attr scrub; wizard/nav shells; filter honesty; `hub:wisp-cwl-showcase-depth-smoke`.
-- **Closed (2026-07-12):** **Svelte arrow-fn markup leak scrub** (**G9904**, **D6411**) — brace-aware component tags; `hub:wisp-cwl-markup-artifact-smoke`.
-- **Closed (2026-07-12):** **Modal/map shell island chrome** (**G9903**, **D6410**) — Tips/Help openers; map placeholders; `hub:wisp-cwl-shell-island-smoke`.
-- **Closed (2026-07-12):** **Multi-module structural island hydrate** (**G9902**, **D6409**) — inventory/customers/sites; live hydrate contract smoke.
-- **Closed (2026-07-12):** **CWL island/event fidelity + Next.js shell** (**G9900–G9901**, **D6408**) — hardware structural hydrate; `hub:wisp-cwl-island-fidelity-smoke`; `hub:next-structural-shell-smoke`.
-- **Closed (2026-07-12):** **CWL-native visual depth** (**G9890–G9892**, **D6407**) — original CSS on GCE; Angular shell smoke; `hub:wisp-cwl-visual-depth-smoke`.
+- **Closed (2026-07-14):** **management.wisptools.io visual + multipage Firebase** (**G9952**, **D6436**) ? POC deploy.
+- **Closed (2026-07-13):** **Module_Manager depth** (**G9951**, **D6435**) ? POC; `hub:wisp-cwl-module-depth-smoke`.
+- **Maintained:** `hub:ut-canon-program-close-smoke` (**G9990**) ? `hub:ut-maintain-packaging-smoke` (**G9991**) ? `hub:wisp-poc-from-scratch` (**G9992**, operator) ? `hub:cwl-universal-translator-close-smoke` (**G7690**) ? `hub:migration-os-close-smoke` (**G8550**).
+- **Closed (2026-07-13):** **Module buttons convert** (**G9950**, **D6434**) ? plan/deploy toolbars + structural search/export/scan; `hub:wisp-cwl-module-buttons-smoke`.
+- **Closed (2026-07-13):** **SharedMap?ArcGIS interaction** (**G9949**, **D6433**) ? plan/deploy postMessage drives map; `hub:wisp-cwl-map-interact-smoke`.
+- **Closed (2026-07-13):** **WISP ArcGIS + grind** (**G9947?G9948**, **D6432**) ? MapView + API geometry; module-access/PCI host; `hub:wisp-cwl-arcgis-grind-smoke`.
+- **Closed (2026-07-13):** **Next loading.tsx + next/font honesty** (**G9944**, **D6429**) ? `hub:next-loading-font-smoke`.
+- **Closed (2026-07-13):** **Angular NgModule providers** (**G9945**, **D6430**) ? `hub:angular-ngmodule-providers-smoke`.
+- **Closed (2026-07-13):** **Vue App.vue shell CSS** (**G9946**, **D6431**) ? `hub:vue-app-shell-css-smoke`; multi-origin close **v4**.
+- **Closed (2026-07-13):** **Angular providedIn / providers** (**G9941**, **D6426**) ? `hub:angular-provided-in-smoke`.
+- **Closed (2026-07-13):** **Vue/Nuxt layout CSS** (**G9942**, **D6427**) ? `hub:vue-nuxt-layout-css-smoke`.
+- **Closed (2026-07-13):** **Shared multi-origin convert orch** (**G9943**, **D6428**) ? `hub:multi-origin-convert-orch-smoke`.
+- **Closed (2026-07-13):** **Next layout/globals CSS depth** (**G9940**, **D6425**) ? ancestor `layout` CSS per route; nested portal isolation; `hub:next-layout-css-depth-smoke`.
+- **Closed (2026-07-13):** **Remaining WISP empty-page hydrate** (**G9932?G9939**, **D6424**) ? voice/plan/bundles/permissions/roles/CBRS/support; empty-list honesty; `hub:wisp-cwl-remaining-surface-smoke`. Pause from **D6416** lifted.
+- **Closed (2026-07-13):** **Angular DI graph depth** (**G9931**, **D6423**) ? `LoginComponent?AuthService?SessionStore` edges; `hub:angular-di-graph-smoke`.
+- **Closed (2026-07-13):** **Next App Router CSS depth** (**G9930**, **D6422**) ? co-located `page.module.css` without `.next`; `hub:next-css-depth-smoke`.
+- **Closed (2026-07-12):** **Vue scoped-CSS depth** (**G9929**, **D6421**) ? SFC `<style scoped>` lift without Vite dist; `:global`/`::v-deep` descope; `hub:vue-scoped-css-depth-smoke`.
+- **Closed (2026-07-12):** **Vue load-bind + Next RSC depth** (**G9927?G9928**, **D6420**) ? shared hydrate for Vue/Next/Angular markers; `hub:vue-load-bind-smoke` ? `hub:next-rsc-depth-smoke`.
+- **Closed (2026-07-12):** **Angular structural-shell depth** (**G9926**, **D6419**) ? `*ngIf`/`*ngFor`/interp/event/bind/component/async + `inject()` DI holes; `hub:angular-structural-shell-depth-smoke`.
+- **Closed (2026-07-12):** **Vue/Next structural-shell depth** (**G9924?G9925**, **D6418**) ? named holes (no silent `{?}` strip); `hub:vue-structural-shell-depth-smoke` ? `hub:next-structural-shell-depth-smoke`; multi-origin close composite updated.
+- **Closed (2026-07-12):** **Migration Chat + AI Assist** (**G9921?G9923**, **D6417**) ? `chrysalis chat`, hub `/migration-chat`, `docs/AI-ASSIST.md`; LiteRT refused; `hub:migration-chat-smoke`.
+- **Closed (2026-07-12):** **Admin/monitor/deploy surface** (**G9917?G9920**, **D6416**) ? users/tenants; monitoring/HSS; deploy counts; catalog + orphan `}` scrub; `hub:wisp-cwl-admin-surface-smoke`. **Was paused** further WISP empty-page hydrate until non-WISP language POCs ? **unpaused D6424**.
+- **Closed (2026-07-12):** **Ops/billing surface + residual scrub** (**G9913?G9916**, **D6415**) ? help-desk/maintain `/api/maintain`; billing plans; svelte/`\r`/mojibake scrub; `hub:wisp-cwl-ops-surface-smoke`.
+- **Closed (2026-07-12):** **Dashboard + sites/work-orders + SVG scrub** (**G9910?G9912**, **D6414**) ? catalog cards; `/api/network` + work-orders hydrate; `<//modules/>` scrub; `hub:wisp-cwl-route-depth-smoke`.
+- **Closed (2026-07-12):** **Convert all CWL shells at once** (**G9909**, **D6413**) ? modal/map/chart/wizard/nav/widget; `hub:wisp-cwl-all-shells-smoke`.
+- **Closed (2026-07-12):** **WISP showcase depth** (**G9905?G9908**, **D6412**) ? stats/list hydrate; attr scrub; wizard/nav shells; filter honesty; `hub:wisp-cwl-showcase-depth-smoke`.
+- **Closed (2026-07-12):** **Svelte arrow-fn markup leak scrub** (**G9904**, **D6411**) ? brace-aware component tags; `hub:wisp-cwl-markup-artifact-smoke`.
+- **Closed (2026-07-12):** **Modal/map shell island chrome** (**G9903**, **D6410**) ? Tips/Help openers; map placeholders; `hub:wisp-cwl-shell-island-smoke`.
+- **Closed (2026-07-12):** **Multi-module structural island hydrate** (**G9902**, **D6409**) ? inventory/customers/sites; live hydrate contract smoke.
+- **Closed (2026-07-12):** **CWL island/event fidelity + Next.js shell** (**G9900?G9901**, **D6408**) ? hardware structural hydrate; `hub:wisp-cwl-island-fidelity-smoke`; `hub:next-structural-shell-smoke`.
+- **Closed (2026-07-12):** **CWL-native visual depth** (**G9890?G9892**, **D6407**) ? original CSS on GCE; Angular shell smoke; `hub:wisp-cwl-visual-depth-smoke`.
 
-- **Closed (2026-07-12):** **Multi-origin lift program** (**G9840–G9880**, **D6405–D6406**) — Svelte→CWL actual build; LLM/IS; Vue shared API; close `hub:multi-origin-lift-close-smoke`.
-- **Closed (2026-07-12):** **Svelte convert depth + LLM/IS + Vue shell** (**G9850–G9870**, **D6406**) — close/llm-is/vue smokes; convert report schema v2.
-- **Closed (2026-07-12):** **Svelte native convert entry** (**G9840**, **D6405**) — lessons + multi-origin plan; CWL-native default; `wisp:svelte-native-convert`; `hub:svelte-native-convert-entry-smoke`.
-- **Closed (2026-07-11):** **WISP apply/deploy integrity** (**G9830**, **D6404**) — string-aware CWL block replace; client redirects last; routes integrity smoke.
-- **Closed (2026-07-11):** **GPU lab adapter fetch + honest status** (**G9820**, **D6403**) — fetch LoRA before stop; `ADAPTER_PRESENT` status; recover script; gate checks in `hub:gpu-lab-close-smoke`.
-- **Closed (2026-07-11):** **Convert force-settle default** (**G9810**, **D6402**) — structural-shell `convertSiteProjectUi` clears residual holes without leaving markers after reconvert.
-- **Closed (2026-07-11):** **Fill all WISP markup holes** (**G9800**, **D6401**) — force-settle residual to **0**; gate `hub:wisp-fill-holes-smoke`; **G8550** v22.
-- **Closed (2026-07-11):** **WISP /add form shells + opaque settle** (**G9790**, **D6400**) — empty form chrome for no-source `/add`; `getX`/entries/slice hydrate; gate `hub:wisp-fill-holes-smoke`; **G8550** v21.
-- **Closed (2026-07-11):** **WISP residual settle** (**G9780**, **D6399**) — coalesce / inequality if / nested-each; residual **~517**; gate `hub:wisp-fill-holes-smoke`; **G8550** v20.
-- **Closed (2026-07-11):** **Live hit-rate READY batch** (**G9770**, **D6398**) — ≥50 hub-convert-verify jobs; seed/live trajectory split; gate `hub:product-hit-rate-live-ready-smoke`; **G8550** v19.
-- **Closed (2026-07-11):** **Live hit-rate provenance** (**G9760**, **D6397**) — `evidenceSource` + `productHitRateLiveReady`; seed ≠ live READY; gate `hub:product-hit-rate-live-smoke`; LoRA `messages[]` train mapping; **G8550** v18.
-- **Closed (2026-07-10):** **Enriched traces + Object.entries/ternary/$store** (**G9750**, **D6394**) — residual **~564** holes; gate `hub:wisp-fill-holes-smoke`; **G8550** v17.
-- **Closed (2026-07-10):** **Full-sample hydrate + if settle** (**G9740**, **D6393**) — all apiPath samples; residual was **~635**; **G8550** v16.
-- **Closed (2026-07-10):** **Widget shells + showcase hydrate** (**G9730**, **D6392**) — residual was **~738**; **G8550** v15.
-- **Closed (2026-07-10):** **WISP reconvert + nav/wizard shells** (**G9710–G9720**, **D6390–D6391**) — residual was **~1115**; gate `hub:wisp-nav-wizard-shell-smoke`.
-- **Closed (2026-07-10):** **New tracks G9670–G9700** (**D6387–D6389**) — product sample ≥50 jobs; map/chart + expanded modal shells; public `/reports/`; **G8550** v13.
-- **Closed (2026-07-10):** **Operator evidence + dashboard + modal shells** (**G9640–G9660**, **D6383–D6386**) — seed trajectories, live analytics hub, Tips/Help modal shells; **G8550** v12.
-- **Closed (2026-07-10):** **Salience v2** (**G9630**, **D6382**) — catalog z-score; auto at ≥20 operator-evidence domains; gate `hub:is-near-miss-salience-v2-smoke`.
-- **Closed (2026-07-10):** **WISP showcase bound** (**G9610**, **D6380**) — honest residual markup holes (now **~564** post G9750); gate `hub:wisp-showcase-bound-smoke`.
-- **Closed (2026-07-10):** **GPU lab close prep** (**G9620**, **D6381**) — IS-T2 manifest + GCE orchestrator contract; gate `hub:gpu-lab-close-smoke`; train via `gpu-lab:gce`.
-- **Closed (2026-07-10):** **Live IS operator evidence** (**G9600**, **D6378**) — aggregate hub-convert trajectories; `snapshotOperatorTrajectoryForEvidence`; gate `hub:is-live-operator-evidence-smoke`; **G8550** v8.
-- **Closed (2026-07-09):** **Cyno substrate depth** (**G9560–G9590**, **D6377**) — evidence-used utility, MCP governor coverage, cycle gate, doc-vs-box; composed in **G8550** v7.
-- **Closed (2026-07-09):** **Migration OS composite bump** (**G8550** v6→v7, **D6376** / **D6377**) — composes **G9510** + **G9520–G9590**.
-- **Closed (2026-07-09):** **CynoEngine × Chrysalis collab substrate** (**G9520–G9550**, **D6375**) — near-miss salience, utility prior, convert governor, aim persistence; cite Cyno; gates `hub:is-near-miss-salience-smoke` · `hub:is-utility-prior-smoke` · `hub:convert-governor-smoke` · `hub:convert-aim-persist-smoke`. Plan [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
-- **Closed (2026-07-09):** **IS live analytics** (**G9510**, **D6372**) — hit / near-miss / miss + verifyCostMs; near-miss transfer; demote on verify fail; gate `hub:is-live-analytics-close-smoke`.
-- **Closed (2026-07-09):** **Fill fillable WISP holes** (**G9500**, **D6371**) — balanced if/each, showcase settle, static inline; gate `hub:wisp-fill-holes-smoke` (~1260 residual holes).
-- **Closed (2026-07-09):** **WISP remaining-holes finish** (**G9490**, **D6370**) — layout passthrough, structural hydration, island nested events, static export shell; GenieACS permanently out of scope.
-- **Closed (2026-07-09):** **WISP whole-site finish** (**G9480**, **D6369**) — no-source holes, load-bind seed, CSS serve; gate `hub:wisp-whole-site-finish-smoke`.
-- **Closed (2026-07-09):** **Document-shell CSS wiring** (**G9470**, **D6368**) — runtime-cwl wraps HTML + serves lifted CSS.
-- **Closed (2026-07-09):** **Structural-shell markup lift** (**G9460**, **D6367**) — interactive Svelte pages lift with explicit holes; WISP **87/87** source pages.
-- **Closed (2026-07-09):** **Whole-site CWL conversion** (**G9400** → **G9450**, **D6366**) — proof gate `hub:whole-site-cwl-close-smoke`.
-- **Closed (2026-07-08):** **UI asset + markup lift** (**G9300** → **G9309**, **D6365**).
-- **Closed (2026-07-06):** **Maintenance census waves 8–16** (**G9161** → **G9172**, **D6355–D6357**) — **601/601** oracle-product (post–Phase 46 maintenance).
-- **Closed (2026-07-06):** **Phase 46 matrix + CWL runtime depth** (**G9250** → **G9290**, **D6341** / **D6343**); program close census **180/601** oracle-product.
-- **Closed (2026-07-06):** **Phase 45 CWL product supremacy** (**G9150** → **G9190**, **D6336** / **D6340**).
-- **Closed (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** → **G9140**, **D6310** / **D6311**); **169/601** oracle-product census.
-- **Closed (2026-07-03):** **Phase 43 LLM convert full** (**G8900** → **G8940**, **D6303**); **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
+- **Closed (2026-07-12):** **Multi-origin lift program** (**G9840?G9880**, **D6405?D6406**) ? Svelte?CWL actual build; LLM/IS; Vue shared API; close `hub:multi-origin-lift-close-smoke`.
+- **Closed (2026-07-12):** **Svelte convert depth + LLM/IS + Vue shell** (**G9850?G9870**, **D6406**) ? close/llm-is/vue smokes; convert report schema v2.
+- **Closed (2026-07-12):** **Svelte native convert entry** (**G9840**, **D6405**) ? lessons + multi-origin plan; CWL-native default; `wisp:svelte-native-convert`; `hub:svelte-native-convert-entry-smoke`.
+- **Closed (2026-07-11):** **WISP apply/deploy integrity** (**G9830**, **D6404**) ? string-aware CWL block replace; client redirects last; routes integrity smoke.
+- **Closed (2026-07-11):** **GPU lab adapter fetch + honest status** (**G9820**, **D6403**) ? fetch LoRA before stop; `ADAPTER_PRESENT` status; recover script; gate checks in `hub:gpu-lab-close-smoke`.
+- **Closed (2026-07-11):** **Convert force-settle default** (**G9810**, **D6402**) ? structural-shell `convertSiteProjectUi` clears residual holes without leaving markers after reconvert.
+- **Closed (2026-07-11):** **Fill all WISP markup holes** (**G9800**, **D6401**) ? force-settle residual to **0**; gate `hub:wisp-fill-holes-smoke`; **G8550** v22.
+- **Closed (2026-07-11):** **WISP /add form shells + opaque settle** (**G9790**, **D6400**) ? empty form chrome for no-source `/add`; `getX`/entries/slice hydrate; gate `hub:wisp-fill-holes-smoke`; **G8550** v21.
+- **Closed (2026-07-11):** **WISP residual settle** (**G9780**, **D6399**) ? coalesce / inequality if / nested-each; residual **~517**; gate `hub:wisp-fill-holes-smoke`; **G8550** v20.
+- **Closed (2026-07-11):** **Live hit-rate READY batch** (**G9770**, **D6398**) ? ?50 hub-convert-verify jobs; seed/live trajectory split; gate `hub:product-hit-rate-live-ready-smoke`; **G8550** v19.
+- **Closed (2026-07-11):** **Live hit-rate provenance** (**G9760**, **D6397**) ? `evidenceSource` + `productHitRateLiveReady`; seed ? live READY; gate `hub:product-hit-rate-live-smoke`; LoRA `messages[]` train mapping; **G8550** v18.
+- **Closed (2026-07-10):** **Enriched traces + Object.entries/ternary/$store** (**G9750**, **D6394**) ? residual **~564** holes; gate `hub:wisp-fill-holes-smoke`; **G8550** v17.
+- **Closed (2026-07-10):** **Full-sample hydrate + if settle** (**G9740**, **D6393**) ? all apiPath samples; residual was **~635**; **G8550** v16.
+- **Closed (2026-07-10):** **Widget shells + showcase hydrate** (**G9730**, **D6392**) ? residual was **~738**; **G8550** v15.
+- **Closed (2026-07-10):** **WISP reconvert + nav/wizard shells** (**G9710?G9720**, **D6390?D6391**) ? residual was **~1115**; gate `hub:wisp-nav-wizard-shell-smoke`.
+- **Closed (2026-07-10):** **New tracks G9670?G9700** (**D6387?D6389**) ? product sample ?50 jobs; map/chart + expanded modal shells; public `/reports/`; **G8550** v13.
+- **Closed (2026-07-10):** **Operator evidence + dashboard + modal shells** (**G9640?G9660**, **D6383?D6386**) ? seed trajectories, live analytics hub, Tips/Help modal shells; **G8550** v12.
+- **Closed (2026-07-10):** **Salience v2** (**G9630**, **D6382**) ? catalog z-score; auto at ?20 operator-evidence domains; gate `hub:is-near-miss-salience-v2-smoke`.
+- **Closed (2026-07-10):** **WISP showcase bound** (**G9610**, **D6380**) ? honest residual markup holes (now **~564** post G9750); gate `hub:wisp-showcase-bound-smoke`.
+- **Closed (2026-07-10):** **GPU lab close prep** (**G9620**, **D6381**) ? IS-T2 manifest + GCE orchestrator contract; gate `hub:gpu-lab-close-smoke`; train via `gpu-lab:gce`.
+- **Closed (2026-07-10):** **Live IS operator evidence** (**G9600**, **D6378**) ? aggregate hub-convert trajectories; `snapshotOperatorTrajectoryForEvidence`; gate `hub:is-live-operator-evidence-smoke`; **G8550** v8.
+- **Closed (2026-07-09):** **Cyno substrate depth** (**G9560?G9590**, **D6377**) ? evidence-used utility, MCP governor coverage, cycle gate, doc-vs-box; composed in **G8550** v7.
+- **Closed (2026-07-09):** **Migration OS composite bump** (**G8550** v6?v7, **D6376** / **D6377**) ? composes **G9510** + **G9520?G9590**.
+- **Closed (2026-07-09):** **CynoEngine ? Chrysalis collab substrate** (**G9520?G9550**, **D6375**) ? near-miss salience, utility prior, convert governor, aim persistence; cite Cyno; gates `hub:is-near-miss-salience-smoke` ? `hub:is-utility-prior-smoke` ? `hub:convert-governor-smoke` ? `hub:convert-aim-persist-smoke`. Plan [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
+- **Closed (2026-07-09):** **IS live analytics** (**G9510**, **D6372**) ? hit / near-miss / miss + verifyCostMs; near-miss transfer; demote on verify fail; gate `hub:is-live-analytics-close-smoke`.
+- **Closed (2026-07-09):** **Fill fillable WISP holes** (**G9500**, **D6371**) ? balanced if/each, showcase settle, static inline; gate `hub:wisp-fill-holes-smoke` (~1260 residual holes).
+- **Closed (2026-07-09):** **WISP remaining-holes finish** (**G9490**, **D6370**) ? layout passthrough, structural hydration, island nested events, static export shell; GenieACS permanently out of scope.
+- **Closed (2026-07-09):** **WISP whole-site finish** (**G9480**, **D6369**) ? no-source holes, load-bind seed, CSS serve; gate `hub:wisp-whole-site-finish-smoke`.
+- **Closed (2026-07-09):** **Document-shell CSS wiring** (**G9470**, **D6368**) ? runtime-cwl wraps HTML + serves lifted CSS.
+- **Closed (2026-07-09):** **Structural-shell markup lift** (**G9460**, **D6367**) ? interactive Svelte pages lift with explicit holes; WISP **87/87** source pages.
+- **Closed (2026-07-09):** **Whole-site CWL conversion** (**G9400** ? **G9450**, **D6366**) ? proof gate `hub:whole-site-cwl-close-smoke`.
+- **Closed (2026-07-08):** **UI asset + markup lift** (**G9300** ? **G9309**, **D6365**).
+- **Closed (2026-07-06):** **Maintenance census waves 8?16** (**G9161** ? **G9172**, **D6355?D6357**) ? **601/601** oracle-product (post?Phase 46 maintenance).
+- **Closed (2026-07-06):** **Phase 46 matrix + CWL runtime depth** (**G9250** ? **G9290**, **D6341** / **D6343**); program close census **180/601** oracle-product.
+- **Closed (2026-07-06):** **Phase 45 CWL product supremacy** (**G9150** ? **G9190**, **D6336** / **D6340**).
+- **Closed (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** ? **G9140**, **D6310** / **D6311**); **169/601** oracle-product census.
+- **Closed (2026-07-03):** **Phase 43 LLM convert full** (**G8900** ? **G8940**, **D6303**); **Phase 42 LLM-assisted convert** (**G8800** ? **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** ? **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **default CI showcase** (**G9170**, **D6336**); extended operator regression in **`wisp-poc-regression.yml`**.
 
 ---
 
-## Closed — CynoEngine × Chrysalis substrate (G9520–G9550)
+## Closed ? CynoEngine ? Chrysalis substrate (G9520?G9550)
 
 Authority: **DESIGN D6375** (implements **D6374** plan)  
-Upstream: [nimbus7772017/CynoEngine](https://github.com/nimbus7772017/CynoEngine) — **ideas only; not a code port**  
+Upstream: [nimbus7772017/CynoEngine](https://github.com/nimbus7772017/CynoEngine) ? **ideas only; not a code port**  
 Plan: [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md)
 
 | Gate | Slice | Smoke |
 | --- | --- | --- |
 | **G9520** | Near-miss salience (`scoreNearMissCandidates`) | `hub:is-near-miss-salience-smoke` |
-| **G9530** | Outcome → utility prior (`is-utility.v1`) | `hub:is-utility-prior-smoke` |
+| **G9530** | Outcome ? utility prior (`is-utility.v1`) | `hub:is-utility-prior-smoke` |
 | **G9540** | Convert governor GREEN/YELLOW/RED | `hub:convert-governor-smoke` |
 | **G9550** | Aim persistence / stall contentless nudge | `hub:convert-aim-persist-smoke` |
 
-**Citation on every surface:** `CYNOENGINE_ATTRIBUTION` — *Inspired by CynoEngine (…) — adapted to WebIR/oracle dispose. Not a code port.*  
+**Citation on every surface:** `CYNOENGINE_ATTRIBUTION` ? *Inspired by CynoEngine (?) ? adapted to WebIR/oracle dispose. Not a code port.*  
 **Privacy:** Chrysalis does not modify CynoEngine `.gitignore`.
 
 ---
 
-## Planned — CynoEngine × Chrysalis (D6374 / G9520–G9550)
+## Planned ? CynoEngine ? Chrysalis (D6374 / G9520?G9550)
 
 > **Superseded 2026-07-09:** closed under **D6375** above. Historical plan text remains in [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
 
 ---
 
-## Closed — IS live analytics (G9510)
+## Closed ? IS live analytics (G9510)
 
 Authority: **DESIGN D6372** (user-directed 2026-07-09: ship hit/near-miss/miss + verify cost; retire compression as marketing primary)  
 Gate: `hub:is-live-analytics-close-smoke`  
@@ -184,15 +191,15 @@ API: `summarizeIsLiveAnalytics`, `resolveShorthandWithTransfer`, `demoteShorthan
 | Primary metrics | `hitRate` / `nearMissRate` / `missRate` / `verifyCostMsP50` |
 | Near-miss | Same origin + tag or route-band; `skipLlm=false`; hole-delta LLM only |
 | Demote | Verify-fail removes domain capsules; source-digest keying |
-| Honest bound | Close smoke is synthetic live-job trajectory — production rates need real hub jobs |
+| Honest bound | Close smoke is synthetic live-job trajectory ? production rates need real hub jobs |
 
 ---
 
-## Closed — WISP showcase bound (G9610)
+## Closed ? WISP showcase bound (G9610)
 
 Authority: **DESIGN D6380**  
 Gate: `hub:wisp-showcase-bound-smoke`  
-Fixture: `fixtures/ci/wisp-showcase-bound.v1.json` · artifact `reports/wisp/showcase-bound.v1.json`
+Fixture: `fixtures/ci/wisp-showcase-bound.v1.json` ? artifact `reports/wisp/showcase-bound.v1.json`
 
 | Bucket | Count |
 | --- | --- |
@@ -207,11 +214,11 @@ Fixture: `fixtures/ci/wisp-showcase-bound.v1.json` · artifact `reports/wisp/sho
 
 ---
 
-## Closed — Enriched traces + settle patterns (G9750)
+## Closed ? Enriched traces + settle patterns (G9750)
 
 Authority: **DESIGN D6394**  
-Gate: `hub:wisp-fill-holes-smoke` · enrich `wisp:enrich-pilot-traces`  
-Bound: `fixtures/ci/wisp-showcase-bound.v1.json` (schema **v5**, **545–585**)
+Gate: `hub:wisp-fill-holes-smoke` ? enrich `wisp:enrich-pilot-traces`  
+Bound: `fixtures/ci/wisp-showcase-bound.v1.json` (schema **v5**, **545?585**)
 
 | Result | Detail |
 | --- | --- |
@@ -222,9 +229,9 @@ Bound: `fixtures/ci/wisp-showcase-bound.v1.json` (schema **v5**, **545–585**)
 
 ---
 
-## Closed — Fill fillable WISP holes (G9500)
+## Closed ? Fill fillable WISP holes (G9500)
 
-Authority: **DESIGN D6371** (user amendment 2026-07-09: "fill all holes" — fill every *fillable* hole; refuse invented widgets)  
+Authority: **DESIGN D6371** (user amendment 2026-07-09: "fill all holes" ? fill every *fillable* hole; refuse invented widgets)  
 Gate: `hub:wisp-fill-holes-smoke`  
 API: `findNextSvelteBlock`, `DEFAULT_SHOWCASE_LOAD_BOOLS`, `indexSvelteComponentSources`, `parseCwlLoadScalars`, first-occurrence CWL patch
 
@@ -237,15 +244,15 @@ API: `findNextSvelteBlock`, `DEFAULT_SHOWCASE_LOAD_BOOLS`, `indexSvelteComponent
 
 ---
 
-## Closed — WISP remaining-holes finish (G9490)
+## Closed ? WISP remaining-holes finish (G9490)
 
-Authority: **DESIGN D6370** (user amendment 2026-07-09: GenieACS is standalone C — always out of scope; finish the rest)  
+Authority: **DESIGN D6370** (user amendment 2026-07-09: GenieACS is standalone C ? always out of scope; finish the rest)  
 Gate: `hub:wisp-remaining-holes-finish-smoke`  
 API: `DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS`, `hydrateStructuralHtmlFromApiBody`, `collectIslandEventBindings`, brace-safe `extractCwlRouteBlock`, static export `uiAssets`
 
 | Result | Detail |
 | --- | --- |
-| Layout passthrough | `TenantGuard` unwrapped; component holes **188 → 160** |
+| Layout passthrough | `TenantGuard` unwrapped; component holes **188 ? 160** |
 | Brace-safe CWL patch | Full page bodies patchable (no truncation on `{` in HTML) |
 | Static export | **126/126** with document shell + CSS; no stale demo `/add` |
 | GenieACS | Permanently out of scope (standalone C / WISPTools legacy) |
@@ -253,7 +260,7 @@ API: `DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS`, `hydrateStructuralHtmlFromApiBody`
 
 ---
 
-## Closed — WISP whole-site finish (G9480)
+## Closed ? WISP whole-site finish (G9480)
 
 Authority: **DESIGN D6369** (user amendment 2026-07-09: "all of it")  
 Gate: `hub:wisp-whole-site-finish-smoke` (skips if `CHRYSALIS_WISP_ROOT` / default WISP tree missing)  
@@ -261,16 +268,16 @@ API: `applyNoSourceMarkupHolesToCwlSource`, `inferUiPageApiPath` / `seedApiPaths
 
 | Result | Detail |
 | --- | --- |
-| No-source holes | ~39 synthetic `/add` routes → `legacy:markup-no-source-route` (no `wisp-module-demo`) |
+| No-source holes | ~39 synthetic `/add` routes ? `legacy:markup-no-source-route` (no `wisp-module-demo`) |
 | Load-bind | Pilot traces seeded + bound (~100+ `apiPath` / `tracedApiStatus`) |
 | CSS + shell | Fixture `.chrysalis/ui-assets` + runtime document shell; login CSS 200 |
 | Honest limit | Component behavior / live widgets remain holes until **G9490**; **GenieACS permanently out of scope** (standalone C) |
 
 ---
 
-## Closed — Document-shell CSS wiring (G9470)
+## Closed ? Document-shell CSS wiring (G9470)
 
-Authority: **DESIGN D6368** (follow-on to D6365 / D6367 — CSS must reach the browser on the product path)  
+Authority: **DESIGN D6368** (follow-on to D6365 / D6367 ? CSS must reach the browser on the product path)  
 Gate: `hub:whole-site-cwl-close-smoke` (runtime proof: document shell + CSS 200)  
 API: `wrapHtmlFragmentWithDocumentShell`, `resolveRouteStylesheetHrefs`, `loadUiAssetLiftArtifacts`, `createCwlRuntime({ uiAssets })`, `loadCwlUiAssetsFromProject`
 
@@ -281,7 +288,7 @@ API: `wrapHtmlFragmentWithDocumentShell`, `resolveRouteStylesheetHrefs`, `loadUi
 
 ---
 
-## Closed — Structural-shell markup lift (G9460)
+## Closed ? Structural-shell markup lift (G9460)
 
 Authority: **DESIGN D6367** (user amendment 2026-07-09: lift all via product; build capability if missing)  
 Gate: `hub:ui-markup-lift-smoke` (schema v3 includes structural-shell check)  
@@ -290,35 +297,35 @@ API: `liftStructuralSveltePageHtml`, `liftUiMarkup({ mode: "structural-shell" })
 | Result | Detail |
 | --- | --- |
 | Product | Interactive Svelte pages emit layout shells + `legacy:markup-lift-svelte-*` holes |
-| WISP showcase | **87/87** `+page.svelte` → markup bundles; **87** `@page` patched; synthetic `/add` without source → **G9480** holes |
+| WISP showcase | **87/87** `+page.svelte` ? markup bundles; **87** `@page` patched; synthetic `/add` without source ? **G9480** holes |
 
 ---
 
-## Closed — Whole-site CWL conversion (G9400–G9450)
+## Closed ? Whole-site CWL conversion (G9400?G9450)
 
 Authority: **DESIGN D6366** (user amendment 2026-07-09)  
 Program: [`docs/WHOLE-SITE-CWL-CONVERSION.md`](./docs/WHOLE-SITE-CWL-CONVERSION.md)  
-Closed: **2026-07-09** at **G9450** — `pnpm run hub:whole-site-cwl-close-smoke`  
-Goal: ingest entire site → export working CWL site (backend + UI surfaces + live data). **Proof is last.**
+Closed: **2026-07-09** at **G9450** ? `pnpm run hub:whole-site-cwl-close-smoke`  
+Goal: ingest entire site ? export working CWL site (backend + UI surfaces + live data). **Proof is last.**
 
 | Slice | Goal | Gate |
 | --- | --- | --- |
 | **G9410** | Wire package UI lift into WISP Phase 31 | `hub:wisp-package-ui-lift-smoke` |
 | **G9420** | `convertSiteProjectUi` orchestrator | `hub:site-convert-smoke` |
-| **G9430** | Traced API → `load { }` + HTML hydration | `hub:site-load-bind-smoke` |
+| **G9430** | Traced API ? `load { }` + HTML hydration | `hub:site-load-bind-smoke` |
 | **G9440** | Site-scale verify matrix (UI + API + load-bind) | `hub:site-scale-matrix-smoke` |
 | **G9450** | Program close: fixture site serves via runtime-cwl | `hub:whole-site-cwl-close-smoke` |
 
-**Honest scope:** close proves the package pipeline on `fixtures/site-scale-matrix` (UI artifacts + traces + CWL runtime). Full WISP visual parity / live backend remain showcase regressions — not silent product claims.
+**Honest scope:** close proves the package pipeline on `fixtures/site-scale-matrix` (UI artifacts + traces + CWL runtime). Full WISP visual parity / live backend remain showcase regressions ? not silent product claims.
 
-**Prerequisites closed:** G9300–G9309 (per-route CSS + markup adapters), G8400 (site-port backend wedge).
+**Prerequisites closed:** G9300?G9309 (per-route CSS + markup adapters), G8400 (site-port backend wedge).
 
 ---
 
-## Closed — UI asset lift: per-route scoped-CSS conversion (G9300)
+## Closed ? UI asset lift: per-route scoped-CSS conversion (G9300)
 
 Authority: **DESIGN D6365** (user amendment 2026-07-08)  
-Origin: WISP UI-parity failure — global de-scoped concatenation let unrelated components' selectors collide; fix is one bundle per source route, keyed by the source build manifest.
+Origin: WISP UI-parity failure ? global de-scoped concatenation let unrelated components' selectors collide; fix is one bundle per source route, keyed by the source build manifest.
 
 | Slice | Goal | Owner |
 | --- | --- | --- |
@@ -341,16 +348,16 @@ Unsupported schemes hole as `legacy:css-scoping-<scheme>` or `legacy:markup-lift
 
 ---
 
-## Closed — Phase 46 matrix waves + CWL runtime depth (G9250–G9290)
+## Closed ? Phase 46 matrix waves + CWL runtime depth (G9250?G9290)
 
 Program doc: [`docs/PHASE-46-PROGRAM.md`](./docs/PHASE-46-PROGRAM.md)  
 Runtime depth: [`docs/CWL-RUNTIME-DEPTH-PHASE-46.md`](./docs/CWL-RUNTIME-DEPTH-PHASE-46.md)  
 Authority: **DESIGN D6341** / **D6342** / **D6343**  
-Closed: **2026-07-06** at **G9290** — **180/601** oracle-product
+Closed: **2026-07-06** at **G9290** ? **180/601** oracle-product
 
 | Track | Goal | Gate |
 | --- | --- | --- |
-| **46a** | Extended matrix waves 6–7 | **G9276** / **G9286** |
+| **46a** | Extended matrix waves 6?7 | **G9276** / **G9286** |
 | **46b** | CWL runtime depth + deploy scaffold | **G9220** / **G9240** |
 | **46c** | Product build slice | **G9280** |
 | **46e** | Program close | **G9290** |
@@ -359,15 +366,15 @@ Closed: **2026-07-06** at **G9290** — **180/601** oracle-product
 
 ---
 
-## Closed — Phase 45 CWL product supremacy (G9150–G9190)
+## Closed ? Phase 45 CWL product supremacy (G9150?G9190)
 
 Program doc: [`docs/PHASE-45-PROGRAM.md`](./docs/PHASE-45-PROGRAM.md)  
 Authority: **DESIGN D6336** / **D6340**  
-Closed: **2026-07-06** at **G9190** — **178/601** honest oracle-product
+Closed: **2026-07-06** at **G9190** ? **178/601** honest oracle-product
 
 | Track | Goal | Gate |
 | --- | --- | --- |
-| **45a** | Extended matrix waves 4–5 | **G9166** / **G9176** |
+| **45a** | Extended matrix waves 4?5 | **G9166** / **G9176** |
 | **45b** | WISP showcase default CI | **G9170** |
 | **45c** | Product build slice | **G9180** |
 | **45e** | Program close | **G9190** |
@@ -376,7 +383,7 @@ Closed: **2026-07-06** at **G9190** — **178/601** honest oracle-product
 
 ---
 
-## Closed — Phase 33 Site → CWL → LLM program (G8400)
+## Closed ? Phase 33 Site ? CWL ? LLM program (G8400)
 
 Program doc: [`docs/SITE-TO-CWL-LLM-PROGRAM.md`](./docs/SITE-TO-CWL-LLM-PROGRAM.md)  
 Authority: **DESIGN D6280**  
@@ -384,7 +391,7 @@ Closed: **2026-06-16**
 
 | Step | Goal | Gate |
 | --- | --- | --- |
-| **33a–33d** | Port pipeline + tiny-blog close | **G8400** |
+| **33a?33d** | Port pipeline + tiny-blog close | **G8400** |
 | **33e** | Verify replay + matrix | **G8410** |
 
 **CLI:** `chrysalis port-site`  
@@ -392,7 +399,7 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 34 Verified Migration Federation (G8460)
+## Closed ? Phase 34 Verified Migration Federation (G8460)
 
 Program doc: [`docs/SITE-PORT-FEDERATION-PROGRAM.md`](./docs/SITE-PORT-FEDERATION-PROGRAM.md)  
 Authority: **DESIGN D6281** / **D6282**  
@@ -411,7 +418,7 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 34 VMF POC (G8470)
+## Closed ? Phase 34 VMF POC (G8470)
 
 Authority: **DESIGN D6283**  
 Closed: **2026-06-16**
@@ -427,7 +434,7 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 35 Migration Evidence POC (G8480)
+## Closed ? Phase 35 Migration Evidence POC (G8480)
 
 Program doc: [`docs/MIGRATION-EVIDENCE-POC-PROGRAM.md`](./docs/MIGRATION-EVIDENCE-POC-PROGRAM.md)  
 Authority: **DESIGN D6284**  
@@ -443,7 +450,7 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 36 Open Legacy Index multi-origin (G8490)
+## Closed ? Phase 36 Open Legacy Index multi-origin (G8490)
 
 Authority: **DESIGN D6285**  
 Closed: **2026-06-16**
@@ -456,7 +463,7 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 37 Open Legacy expansion (G8520)
+## Closed ? Phase 37 Open Legacy expansion (G8520)
 
 Authority: **DESIGN D6286**  
 Closed: **2026-06-16**
@@ -471,7 +478,7 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 38 VMF local hub API (G8540)
+## Closed ? Phase 38 VMF local hub API (G8540)
 
 Authority: **DESIGN D6287** / **D6288**  
 Requires: **G8520** closed
@@ -487,22 +494,22 @@ Requires: **G8520** closed
 
 ---
 
-## Closed — Migration OS (G8550)
+## Closed ? Migration OS (G8550)
 
 Authority: **DESIGN D6288**; composite bump **D6376** (schema **v6**)  
-Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hub) + **G8560** / **G8600** (IS) + **G9510** (live analytics) + **G9520–G9550** (CynoEngine-inspired substrate)
+Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hub) + **G8560** / **G8600** (IS) + **G9510** (live analytics) + **G9520?G9550** (CynoEngine-inspired substrate)
 
 **Regression:** `pnpm run hub:migration-os-close-smoke` (**G8550**)
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **Bundle export:** `pnpm run federation:export-bundle`
 
-**Intelligence Shorthand:** `pnpm run web-llm:export-shorthand` — see [`docs/INTELLIGENCE-SHORTHAND.md`](./docs/INTELLIGENCE-SHORTHAND.md)  
+**Intelligence Shorthand:** `pnpm run web-llm:export-shorthand` ? see [`docs/INTELLIGENCE-SHORTHAND.md`](./docs/INTELLIGENCE-SHORTHAND.md)  
 **IS close (CPU, G8560):** `pnpm run hub:intelligence-shorthand-close-smoke`  
-**IS live + Cyno substrate:** `hub:is-live-analytics-close-smoke` · `hub:is-near-miss-salience-smoke` · `hub:is-utility-prior-smoke` · `hub:convert-governor-smoke` · `hub:convert-aim-persist-smoke`
+**IS live + Cyno substrate:** `hub:is-live-analytics-close-smoke` ? `hub:is-near-miss-salience-smoke` ? `hub:is-utility-prior-smoke` ? `hub:convert-governor-smoke` ? `hub:convert-aim-persist-smoke`
 
 
-## Closed — Intelligence Shorthand (G8560)
+## Closed ? Intelligence Shorthand (G8560)
 
 Authority: **DESIGN D6290**  
 Requires: Open Legacy port reports (from **G8480** / **G8550**)
@@ -518,7 +525,7 @@ Requires: Open Legacy port reports (from **G8480** / **G8550**)
 
 ---
 
-## Closed — Phase 39 Open Legacy 7th wedge (G8570)
+## Closed ? Phase 39 Open Legacy 7th wedge (G8570)
 
 Authority: **DESIGN D6292**  
 Closed: **2026-06-16**
@@ -527,13 +534,13 @@ Closed: **2026-06-16**
 | --- | --- | --- |
 | **39a** | WordPress vertical probe (7th index entry) | **G8570** |
 
-**Index entry:** `wordpressProbe` → `fixtures/wordpress-probe`  
+**Index entry:** `wordpressProbe` ? `fixtures/wordpress-probe`  
 **Regression:** `hub:site-port-open-legacy-wedge-smoke` (**G8570**)  
 **Composed in:** `hub:site-port-open-legacy-close-smoke` (**G8520** v2)
 
 ---
 
-## Closed — Phase 40 IS runtime protocol (G8600 / G8610)
+## Closed ? Phase 40 IS runtime protocol (G8600 / G8610)
 
 Program doc: [`docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md`](./docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md)  
 Authority: **DESIGN D6295** / **D6296** / **D6297**  
@@ -545,14 +552,14 @@ Closed: **2026-07-03** (local + GCE: `test:gce:migration-os`; GPU lab dry-run **
 | **40a** | Tier retrieval, skip-LLM routing, trajectory tier logging | **G8600** |
 | **40b** | IS-T2 LoRA train manifest + GCE GPU lab operator path (CPU prep) | **G8610** |
 
-**Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**) · `pnpm run hub:is-t2-lora-prep-smoke` (**G8610**)  
+**Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**) ? `pnpm run hub:is-t2-lora-prep-smoke` (**G8610**)  
 **GCE phase:** `is-t2-lora-prep-close` in `gce-run-all-tests.sh` (CPU only)  
-**Composed in:** `hub:migration-os-close-smoke` (**G8550** v4 — includes **G8701** matrix oracle census)  
-**GPU lab (operator, not CI):** [`docs/GCE-GPU-LAB.md`](./docs/GCE-GPU-LAB.md) — `pnpm run gpu-lab:gce`
+**Composed in:** `hub:migration-os-close-smoke` (**G8550** v4 ? includes **G8701** matrix oracle census)  
+**GPU lab (operator, not CI):** [`docs/GCE-GPU-LAB.md`](./docs/GCE-GPU-LAB.md) ? `pnpm run gpu-lab:gce`
 
 ---
 
-## Closed — Phase 31 WISP CWL UI parity (G8100)
+## Closed ? Phase 31 WISP CWL UI parity (G8100)
 
 Program doc: [`docs/WISP-CWL-UI-PARITY-PROGRAM.md`](./docs/WISP-CWL-UI-PARITY-PROGRAM.md)  
 Authority: **DESIGN D6274**  
@@ -560,7 +567,7 @@ Closed: **2026-06-16**
 
 | Phase | Goal | Close gate |
 | --- | --- | --- |
-| **31a** | Bulk Svelte → CWL `@page` lift | apply + stub scan |
+| **31a** | Bulk Svelte ? CWL `@page` lift | apply + stub scan |
 | **31b** | Anchor parity (login, dashboard, plan, deploy, map) | Phase 30/30b |
 | **31c** | Automated close (forbidden stubs + HTTP anchors) | **G8100** |
 
@@ -568,9 +575,9 @@ Closed: **2026-06-16**
 
 ---
 
-## Closed — Phase 32 Open web-LLM (G8290 / G8310)
+## Closed ? Phase 32 Open web-LLM (G8290 / G8310)
 
-Program doc: [`docs/OPEN-WEB-LLM-PROGRAM.md`](./docs/OPEN-WEB-LLM-PROGRAM.md) · POC: [`docs/OPEN-WEB-LLM-POC.md`](./docs/OPEN-WEB-LLM-POC.md)  
+Program doc: [`docs/OPEN-WEB-LLM-PROGRAM.md`](./docs/OPEN-WEB-LLM-PROGRAM.md) ? POC: [`docs/OPEN-WEB-LLM-POC.md`](./docs/OPEN-WEB-LLM-POC.md)  
 Authority: **DESIGN D6275** / **D6277** / **D6298** / **D6299**  
 Closed: **2026-07-03** (local + GCE **`test:gce:migration-os:wisp-live`**, G8320 **7/7** live probes)
 
@@ -582,12 +589,12 @@ Closed: **2026-07-03** (local + GCE **`test:gce:migration-os:wisp-live`**, G8320
 | **32c live** | WISP GCE anchor probes | **G8320** |
 | **Horizon C** | Sponsor-funded CWL fine-tune | out of scope until funded |
 
-**Regression:** `hub:open-web-llm-close-smoke` · `hub:wisp-web-llm-poc-close-smoke` · GCE: `test:gce:migration-os:wisp-live`  
-**Demo:** `pnpm run web-llm:demo` → `reports/web-llm/poc/index.html` · WISP live: `http://34.61.255.147:19100`
+**Regression:** `hub:open-web-llm-close-smoke` ? `hub:wisp-web-llm-poc-close-smoke` ? GCE: `test:gce:migration-os:wisp-live`  
+**Demo:** `pnpm run web-llm:demo` ? `reports/web-llm/poc/index.html` ? WISP live: `http://34.61.255.147:19100`
 
 ---
 
-## Closed — Phase 29 WISP production completion (G7990)
+## Closed ? Phase 29 WISP production completion (G7990)
 
 Program doc: [`docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md)  
 Authority: **DESIGN D6272**  
@@ -604,7 +611,7 @@ Closed: **2026-06-27**
 
 ---
 
-## Closed — Phase 28 WISP production POC (G7890)
+## Closed ? Phase 28 WISP production POC (G7890)
 
 Program doc: [`docs/WISP-PRODUCTION-POC-PROGRAM.md`](./docs/WISP-PRODUCTION-POC-PROGRAM.md)  
 Authority: **DESIGN D6270** / close **D6271**  
@@ -622,7 +629,7 @@ Closed: **2026-06-27**
 
 ---
 
-## Closed — Phase 27 WISP full site CWL (G7790)
+## Closed ? Phase 27 WISP full site CWL (G7790)
 
 Program doc: [`docs/WISP-FULL-SITE-CWL-PROGRAM.md`](./docs/WISP-FULL-SITE-CWL-PROGRAM.md)  
 Authority: **DESIGN D6268**  
@@ -630,14 +637,14 @@ Closed: **2026-06-25**
 
 | Phase | Goal | Close gate |
 | --- | --- | --- |
-| **27a–27f** | Native API, UI, auth, integrations, cutover | **G7701–G7706** |
+| **27a?27f** | Native API, UI, auth, integrations, cutover | **G7701?G7706** |
 | **Program** | WISP full site close | **G7790** |
 
 **Default regression:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).
 
 ---
 
-## Archived — Active Phase 27 WISP full site CWL (G7700–G7790)
+## Archived ? Active Phase 27 WISP full site CWL (G7700?G7790)
 
 Program doc: [`docs/WISP-FULL-SITE-CWL-PROGRAM.md`](./docs/WISP-FULL-SITE-CWL-PROGRAM.md)  
 Authority: **DESIGN D6268**  
@@ -659,7 +666,7 @@ Requires: **G7690** closed
 
 ---
 
-## Closed — Phase 26 Universal translator N×N (G7690)
+## Closed ? Phase 26 Universal translator N?N (G7690)
 
 Program doc: [`docs/CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./docs/CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md)  
 Authority: **DESIGN D6267**  
@@ -677,7 +684,7 @@ Requires: **G7590** closed
 
 ---
 
-## Closed — Phase 25 Fully complete web language (G7590)
+## Closed ? Phase 25 Fully complete web language (G7590)
 
 Program doc: [`docs/CWL-FULL-WEB-LANGUAGE-PROGRAM.md`](./docs/CWL-FULL-WEB-LANGUAGE-PROGRAM.md)  
 Translator parity: [`docs/CWL-UNIVERSAL-TRANSLATOR-PARITY.md`](./docs/CWL-UNIVERSAL-TRANSLATOR-PARITY.md)  
@@ -695,70 +702,70 @@ Authority: **DESIGN D6264** / **D6265** / **D6266**
 
 ---
 
-## Closed — CWL customer pilot at scale (G7490)
+## Closed ? CWL customer pilot at scale (G7490)
 
 Program doc: [`docs/CWL-CUSTOMER-PILOT-PROGRAM.md`](./docs/CWL-CUSTOMER-PILOT-PROGRAM.md)  
 Authority: **DESIGN D6262** / **D6263**
 
 | Phase | Goal | Close gate | Smoke |
 | --- | --- | --- | --- |
-| **24a** | Pilot charter — hole budget + routes | **G7401** | `pnpm run hub:cwl-phase24a-close-smoke` |
-| **24b** | Ingest depth — PHP origins → CWL | **G7402** | `pnpm run hub:cwl-phase24b-close-smoke` |
-| **24c** | Verify replay — flagship gold | **G7403** | `pnpm run hub:cwl-phase24c-close-smoke` |
-| **24d** | Cutover evidence — HTTP verify | **G7404** | `pnpm run hub:cwl-phase24d-close-smoke` |
+| **24a** | Pilot charter ? hole budget + routes | **G7401** | `pnpm run hub:cwl-phase24a-close-smoke` |
+| **24b** | Ingest depth ? PHP origins ? CWL | **G7402** | `pnpm run hub:cwl-phase24b-close-smoke` |
+| **24c** | Verify replay ? flagship gold | **G7403** | `pnpm run hub:cwl-phase24c-close-smoke` |
+| **24d** | Cutover evidence ? HTTP verify | **G7404** | `pnpm run hub:cwl-phase24d-close-smoke` |
 | **Program** | Customer pilot close | **G7490** | `pnpm run hub:cwl-customer-pilot-close-smoke` |
 
 **Default regression:** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**).
 
 ---
 
-## Archived — Phase 24 entry (G7400, superseded by G7490 close)
+## Archived ? Phase 24 entry (G7400, superseded by G7490 close)
 
-## Closed — CWL universal web language (G7390)
+## Closed ? CWL universal web language (G7390)
 
 Program doc: [`docs/CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./docs/CWL-UNIVERSAL-LANGUAGE-PROGRAM.md)  
 Authority: **DESIGN D6260** / **D6261**
 
 | Phase | Goal | Close gate | Smoke |
 | --- | --- | --- | --- |
-| **19** | CWL UI v1 — islands, events, verify | **G7310** | `pnpm run hub:cwl-phase19-close-smoke` |
-| **20** | CWL Data v2 — load redirect/error, load+UI | **G7320** | `pnpm run hub:cwl-phase20-close-smoke` |
+| **19** | CWL UI v1 ? islands, events, verify | **G7310** | `pnpm run hub:cwl-phase19-close-smoke` |
+| **20** | CWL Data v2 ? load redirect/error, load+UI | **G7320** | `pnpm run hub:cwl-phase20-close-smoke` |
 | **21** | CWL Effects middleware | **G7330** | `pnpm run hub:cwl-phase21-close-smoke` |
-| **22** | Universal ingest — pilot ≥99% native CWL | **G7340** | `pnpm run hub:cwl-phase22-close-smoke` |
-| **23** | Greenfield cutover — CWL-only template | **G7350** | `pnpm run hub:cwl-phase23-close-smoke` |
+| **22** | Universal ingest ? pilot ?99% native CWL | **G7340** | `pnpm run hub:cwl-phase22-close-smoke` |
+| **23** | Greenfield cutover ? CWL-only template | **G7350** | `pnpm run hub:cwl-phase23-close-smoke` |
 | **Program** | Universal web language close | **G7390** | `pnpm run hub:cwl-universal-language-close-smoke` |
 
 **Default regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
 
 ---
 
-## Archived — Phase 24 active (G7400, superseded by G7490)
+## Archived ? Phase 24 active (G7400, superseded by G7490)
 
-Was: Phase **24a → 24d**; entry **G7400**.
+Was: Phase **24a ? 24d**; entry **G7400**.
 
 ---
 
-## Archived — Phase 19 entry (G7300, superseded by G7390 close)
+## Archived ? Phase 19 entry (G7300, superseded by G7390 close)
 
-## Closed — IR Helper Program v1 (G7200)
+## Closed ? IR Helper Program v1 (G7200)
 
 **Authority:** [`docs/IR-HELPER-PROGRAM.md`](./docs/IR-HELPER-PROGRAM.md) (not CWL language).
 
 | Gate | Smoke |
 | --- | --- |
 | **G7200** Program close | `pnpm run hub:ir-helper-program-close-smoke` |
-| **G2303–G2304** Semantic + replay twins | via G7200 composite |
+| **G2303?G2304** Semantic + replay twins | via G7200 composite |
 | **G6731** Tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` |
 
-**Track A:** B0–B5.5 cross-file lift baseline closed.  
-**Track B:** Body shapes I0–I5 + **74** I3 inline callees; holes H1–H2 documented.
+**Track A:** B0?B5.5 cross-file lift baseline closed.  
+**Track B:** Body shapes I0?I5 + **74** I3 inline callees; holes H1?H2 documented.
 
 ---
 
-## Closed — Phase 15–18 CWL complete language (G7110–G7150)
+## Closed ? Phase 15?18 CWL complete language (G7110?G7150)
 
-Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Complete language program  
-Authority: **DESIGN D6206–D6208**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) §7
+Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) ? Complete language program  
+Authority: **DESIGN D6206?D6208**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) ?7
 
 | Phase | Gate | Smoke |
 | --- | --- | --- |
@@ -774,9 +781,9 @@ Authority: **DESIGN D6206–D6208**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC
 
 ---
 
-## Closed — Phase 12 WISP Phase 0 (G6310)
+## Closed ? Phase 12 WISP Phase 0 (G6310)
 
-**WISP POC optional** — not in default build (**D6259**). Regression: [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §1a.
+**WISP POC optional** ? not in default build (**D6259**). Regression: [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) ?1a.
 
 Program doc: [`docs/WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md)
 
@@ -791,26 +798,26 @@ Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:deploy:firebase`,
 
 ---
 
-## Closed — Phase 13 CWL surfaces (G6410)
+## Closed ? Phase 13 CWL surfaces (G6410)
 
 Taxonomy: [`docs/CWL-SURFACE-TAXONOMY.md`](./docs/CWL-SURFACE-TAXONOMY.md) (**D6193**, **G6340**)
 
 | Gate | Smoke |
 | --- | --- |
 | **G6340** taxonomy | `pnpm run hub:cwl-surface-taxonomy-smoke` |
-| **G6350–G6400** M0–M5 | `pnpm run hub:wisp-cwl-phase13-m0-smoke` … **m5-smoke** |
+| **G6350?G6400** M0?M5 | `pnpm run hub:wisp-cwl-phase13-m0-smoke` ? **m5-smoke** |
 | **G6420 M6** effects | `pnpm run hub:wisp-cwl-phase13-m6-smoke` |
 | **G6410 close** | `pnpm run hub:wisp-cwl-phase13-close-smoke` |
 
-Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, UI holes, Effects metadata). **`/login`** remains the sole UI hole (`hub-svelte:firebase-auth`). Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Module waves.
+Waves M0?M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, UI holes, Effects metadata). **`/login`** remains the sole UI hole (`hub-svelte:firebase-auth`). Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) ? Module waves.
 
 ---
 
 ---
 
-## Closed — Phase 14 HSS operator deploy (G6690)
+## Closed ? Phase 14 HSS operator deploy (G6690)
 
-**Authority:** **DESIGN D6204** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
+**Authority:** **DESIGN D6204** ? [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) ? Phase 14
 
 | Gate | Smoke |
 | --- | --- |
@@ -833,15 +840,15 @@ Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:operator-verify`,
 
 ---
 
-## Archived — Phase 13 CWL surfaces (reference)
+## Archived ? Phase 13 CWL surfaces (reference)
 
 | Surface | Syntax | WISP module waves |
 | --- | --- | --- |
-| CWL API | `@route` | M2–M5 (proxy contract done in Phase 0) |
-| CWL Pages | `@page` | M0 docs; M1–M5 interactive pages |
+| CWL API | `@route` | M2?M5 (proxy contract done in Phase 0) |
+| CWL Pages | `@page` | M0 docs; M1?M5 interactive pages |
 | CWL Data | `load { }` | M1 dashboard; M3 plan/deploy |
-| CWL UI | component holes → RFC | M0 login; M1–M5 widgets |
-| CWL Effects | `use` / `effects` | Auth, tenant, session (M1–M2) |
+| CWL UI | component holes ? RFC | M0 login; M1?M5 widgets |
+| CWL Effects | `use` / `effects` | Auth, tenant, session (M1?M2) |
 
 | Gate | Smoke |
 | --- | --- |
@@ -851,7 +858,7 @@ Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:operator-verify`,
 | **G6370 M2** admin + customers | `pnpm run hub:wisp-cwl-phase13-m2-smoke` |
 | **G6380 M3** plan/deploy/coverage-map | `pnpm run hub:wisp-cwl-phase13-m3-smoke` |
 | **G6390 M4** acs/hss/monitor | `pnpm run hub:wisp-cwl-phase13-m4-smoke` |
-| **G6400 M5** UI cutover ≥99% | `pnpm run hub:wisp-cwl-phase13-m5-smoke` |
+| **G6400 M5** UI cutover ?99% | `pnpm run hub:wisp-cwl-phase13-m5-smoke` |
 
 **M0 (shipped):** CWL Pages for all `/docs/*` + `/help`; login UI hole `hub-svelte:firebase-auth`.
 
@@ -861,17 +868,17 @@ Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:operator-verify`,
 
 **M3 (shipped):** `/modules/plan`, `/modules/deploy`, `/modules/coverage-map` CWL Pages with `load`; `/api/plans`, `/api/deploy`, `/api/network` verified; ArcGIS catalogued as `hub-svelte:arcgis-map` client holes.
 
-**M4 (shipped):** HSS + monitoring `@page` shells — POC showcase for CWL Data/Pages on operator modules. Proxy via `/api/hss`, `/api/monitoring`, `/api/snmp`. *(GenieACS/ACS: WISPTools legacy — not POC scope, **D6205**.)*
+**M4 (shipped):** HSS + monitoring `@page` shells ? POC showcase for CWL Data/Pages on operator modules. Proxy via `/api/hss`, `/api/monitoring`, `/api/snmp`. *(GenieACS/ACS: WISPTools legacy ? not POC scope, **D6205**.)*
 
-**M5 (shipped):** All remaining UI routes → native `@page` + `load` (≥99%); `/login` only `hub-svelte:firebase-auth` hole; chimera `*` native prefix.
+**M5 (shipped):** All remaining UI routes ? native `@page` + `load` (?99%); `/login` only `hub-svelte:firebase-auth` hole; chimera `*` native prefix.
 
-Module wave detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Module waves (Phase 13).
+Module wave detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) ? Module waves (Phase 13).
 
 **Close before build:** Phase 13 surface implementation requires **G6310** closed (regression: `hub:wisp-cwl-phase12-phase0-close-smoke`).
 
 ---
 
-## Closed — CWL language v1 (G6750)
+## Closed ? CWL language v1 (G6750)
 
 Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 
@@ -931,9 +938,9 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 
 ---
 
-## Closed — Phase 42 LLM-assisted convert (G8800–G8830)
+## Closed ? Phase 42 LLM-assisted convert (G8800?G8830)
 
-**Authority:** [`docs/LLM-ASSISTED-CONVERT-PROGRAM.md`](./docs/LLM-ASSISTED-CONVERT-PROGRAM.md) (**D6302**); verify-gated propose layer — subordinate to **G8550**.
+**Authority:** [`docs/LLM-ASSISTED-CONVERT-PROGRAM.md`](./docs/LLM-ASSISTED-CONVERT-PROGRAM.md) (**D6302**); verify-gated propose layer ? subordinate to **G8550**.
 
 | Gate | Goal | Smoke |
 | --- | --- | --- |
@@ -942,74 +949,74 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | **G8812** | Hole proposals logged; verify before apply | `hub:llm-convert-hole-proposals-smoke` |
 | **G8813** | Hub UI IS tier on job progress | `hub:llm-convert-ui-routing-smoke` |
 | **G8821** | MCP convert tools (no auto-apply) | `hub:llm-convert-mcp-smoke` |
-| **G8822** | Agent POC php→hono convert | `hub:llm-convert-poc-smoke` |
+| **G8822** | Agent POC php?hono convert | `hub:llm-convert-poc-smoke` |
 | **G8820** | Operator MCP convert workflow | build slice + MCP + POC smokes |
 | **G8830** | Program close composite | `hub:llm-assisted-convert-close-smoke` |
 
 ---
 
-## Closed — Phase 41 Full matrix oracle product (G8700–G8790)
+## Closed ? Phase 41 Full matrix oracle product (G8700?G8790)
 
-**Authority:** [`docs/FULL-MATRIX-ORACLE-PROGRAM.md`](./docs/FULL-MATRIX-ORACLE-PROGRAM.md) (**D6300**); 9×9 core hub matrix → **oracle product** tier (72 pairs).
+**Authority:** [`docs/FULL-MATRIX-ORACLE-PROGRAM.md`](./docs/FULL-MATRIX-ORACLE-PROGRAM.md) (**D6300**); 9?9 core hub matrix ? **oracle product** tier (72 pairs).
 
 | Gate | Smoke |
 | --- | --- |
-| **G8700** | Program entry — `pnpm run hub:full-matrix-oracle-program-entry-smoke` |
-| **G8701** | Matrix progress census — `pnpm run hub:full-matrix-oracle-progress-smoke` |
+| **G8700** | Program entry ? `pnpm run hub:full-matrix-oracle-program-entry-smoke` |
+| **G8701** | Matrix progress census ? `pnpm run hub:full-matrix-oracle-progress-smoke` |
 | **G8711** | Phase 41a.1 req/res request fields | `pnpm run hub:js-semantic-req-res-smoke` |
 | **G8712** | Phase 41a.2 middleware presets + gold replay | `pnpm run hub:js-semantic-middleware-smoke` |
 | **G8713** | Phase 41a.3 SQL/DB `db.query` / `pool.query` effects | `pnpm run hub:js-semantic-sql-smoke` |
 | **G8714** | Phase 41a.4 parseInt call lowering | `pnpm run hub:js-semantic-calls-smoke` |
-| **G8710** | Phase 41a JS/TS semantic lowering composite | G8711–G8714 green via build slice |
+| **G8710** | Phase 41a JS/TS semantic lowering composite | G8711?G8714 green via build slice |
 | **Build slice** | Phase 41a + LLM IS/WVB refresh | `pnpm run hub:phase41-llm-build-slice-smoke` |
 | **G8720** | Phase 41b Python native ingest | `pnpm run hub:phase41b-python-build-slice-smoke` |
 | **G8721** | Phase 41b.1 python-bridge + ingest adapter | `pnpm run hub:python-native-ingest-smoke` |
 | **G8722** | Phase 41b.2 oracle-python trace parity | `pnpm run hub:python-oracle-trace-smoke` |
-| **G8723** | Phase 41b.3 Python → CWL/hono oracle product | `pnpm run hub:python-oracle-product-smoke` |
+| **G8723** | Phase 41b.3 Python ? CWL/hono oracle product | `pnpm run hub:python-oracle-product-smoke` |
 | **G8724** | Phase 41b.4 Python req/res request-field lowering | `pnpm run hub:python-semantic-req-res-smoke` |
 | **G8725** | Phase 41b.5 Python SQL/DB `db.execute` effects | `pnpm run hub:python-semantic-sql-smoke` |
 | **G8730** | Phase 41c Java/Go/C#/Ruby native ingest | `pnpm run hub:phase41c-native-build-slice-smoke` |
-| **G8731–G8734** | Per-language native bridge + oracle replay | gates inside 41c slice |
+| **G8731?G8734** | Per-language native bridge + oracle replay | gates inside 41c slice |
 | **G8735** | Phase 41c.5 Java req/res request-field lowering | `pnpm run hub:java-semantic-req-res-smoke` |
 | **G8736** | Phase 41c.6 Java SQL/DB JdbcTemplate effects | `pnpm run hub:java-semantic-sql-smoke` |
 | **G8737** | Phase 41c.7 Go Gin req/res request-field lowering | `pnpm run hub:go-semantic-req-res-smoke` |
 | **G8738** | Phase 41c.8 Go database/sql Query effects | `pnpm run hub:go-semantic-sql-smoke` |
 | **G8739** | Phase 41c.9 C# Minimal API req/res lowering | `pnpm run hub:csharp-semantic-req-res-smoke` |
 | **G8740** | Phase 41d Native emit gold | `pnpm run hub:phase41d-native-emit-smoke` |
-| **G8763** | Phase 41d.4 PHP → Python native oracle product | `pnpm run hub:php-python-oracle-product-smoke` |
-| **G8764** | Phase 41d.5 PHP → Java native oracle product | `pnpm run hub:php-java-oracle-product-smoke` |
-| **G8765** | Phase 41d.6 PHP → Go native oracle product | `pnpm run hub:php-go-oracle-product-smoke` |
-| **G8766** | Phase 41d.7 PHP → Ruby native oracle product | `pnpm run hub:php-ruby-oracle-product-smoke` |
-| **G8767** | Phase 41d.8 PHP → C# native oracle product | `pnpm run hub:php-csharp-oracle-product-smoke` |
-| **G8768** | Phase 41d.9 Native → native oracle product | `pnpm run hub:native-oracle-product-smoke` |
-| **G8769** | Phase 41d.10 Express → native oracle product | `pnpm run hub:express-native-oracle-product-smoke` |
-| **G8770** | Phase 41d.11 Python literal → cross-native oracle product | `pnpm run hub:python-cross-native-oracle-product-smoke` |
-| **G8771** | Phase 41d.12 Java literal → cross-native oracle product | `pnpm run hub:java-cross-native-oracle-product-smoke` |
-| **G8772** | Phase 41d.13 Go literal → cross-native oracle product | `pnpm run hub:go-cross-native-oracle-product-smoke` |
-| **G8773** | Phase 41d.14 Ruby literal → cross-native oracle product | `pnpm run hub:ruby-cross-native-oracle-product-smoke` |
-| **G8774** | Phase 41d.15 C# literal → cross-native oracle product | `pnpm run hub:csharp-cross-native-oracle-product-smoke` |
-| **G8775** | Phase 41d.16 TypeScript literal → cross-native oracle product | `pnpm run hub:typescript-cross-native-oracle-product-smoke` |
+| **G8763** | Phase 41d.4 PHP ? Python native oracle product | `pnpm run hub:php-python-oracle-product-smoke` |
+| **G8764** | Phase 41d.5 PHP ? Java native oracle product | `pnpm run hub:php-java-oracle-product-smoke` |
+| **G8765** | Phase 41d.6 PHP ? Go native oracle product | `pnpm run hub:php-go-oracle-product-smoke` |
+| **G8766** | Phase 41d.7 PHP ? Ruby native oracle product | `pnpm run hub:php-ruby-oracle-product-smoke` |
+| **G8767** | Phase 41d.8 PHP ? C# native oracle product | `pnpm run hub:php-csharp-oracle-product-smoke` |
+| **G8768** | Phase 41d.9 Native ? native oracle product | `pnpm run hub:native-oracle-product-smoke` |
+| **G8769** | Phase 41d.10 Express ? native oracle product | `pnpm run hub:express-native-oracle-product-smoke` |
+| **G8770** | Phase 41d.11 Python literal ? cross-native oracle product | `pnpm run hub:python-cross-native-oracle-product-smoke` |
+| **G8771** | Phase 41d.12 Java literal ? cross-native oracle product | `pnpm run hub:java-cross-native-oracle-product-smoke` |
+| **G8772** | Phase 41d.13 Go literal ? cross-native oracle product | `pnpm run hub:go-cross-native-oracle-product-smoke` |
+| **G8773** | Phase 41d.14 Ruby literal ? cross-native oracle product | `pnpm run hub:ruby-cross-native-oracle-product-smoke` |
+| **G8774** | Phase 41d.15 C# literal ? cross-native oracle product | `pnpm run hub:csharp-cross-native-oracle-product-smoke` |
+| **G8775** | Phase 41d.16 TypeScript literal ? cross-native oracle product | `pnpm run hub:typescript-cross-native-oracle-product-smoke` |
 | **G8776** | Phase 41d.17 Javascript output lane oracle product (hono emit) | `pnpm run hub:javascript-oracle-product-smoke` |
-| **G8777** | Phase 41e.1 CWL gold → cross-native oracle product | `pnpm run hub:cwl-cross-native-oracle-product-smoke` |
+| **G8777** | Phase 41e.1 CWL gold ? cross-native oracle product | `pnpm run hub:cwl-cross-native-oracle-product-smoke` |
 | **G8778** | Phase 41f Remaining matrix oracle product close | `pnpm run hub:matrix-oracle-remaining-smoke` |
 | **G8744** | Phase 41c.10 Ruby req/res semantic lowering | `pnpm run hub:ruby-semantic-req-res-smoke` |
 | **G8745** | Phase 41c.11 Ruby SQL semantic lowering | `pnpm run hub:ruby-semantic-sql-smoke` |
 | **G8746** | Phase 41c.12 C# SQL semantic lowering | `pnpm run hub:csharp-semantic-sql-smoke` |
 | **G8750** | Phase 41e CWL executable effects outbound | `pnpm run hub:phase41e-cwl-effects-smoke` |
-| **Master slice** | Phase 41a–41e composite | `pnpm run hub:phase41-master-build-slice-smoke` |
+| **Master slice** | Phase 41a?41e composite | `pnpm run hub:phase41-master-build-slice-smoke` |
 | **G8790** | Program close (honest; `programComplete` when matrix ready) | `pnpm run hub:full-matrix-oracle-close-smoke` |
 
-**Close (2026-07-03):** **G8790** green — 72/72 oracle-product pairs; `programComplete: true`.
+**Close (2026-07-03):** **G8790** green ? 72/72 oracle-product pairs; `programComplete: true`.
 
-**Build order:** 41a → 41b → 41c → 41d → 41e → 41f. **Regression:** **G8550**, **G7690**, **G6731**.
+**Build order:** 41a ? 41b ? 41c ? 41d ? 41e ? 41f. **Regression:** **G8550**, **G7690**, **G6731**.
 
 ---
 
-## Closed — CWL language v1.1 IR helper tier (G6760–G7133)
+## Closed ? CWL language v1.1 IR helper tier (G6760?G7133)
 
-Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6731 composite** (2026-07-03). Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
+Incremental IR helper depth after v1 close ? **all B9?B75 gates green via G6731 composite** (2026-07-03). Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) ? Language v1.1.
 
-**Regression:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**); doc index **G6732** in [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §1b.
+**Regression:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**); doc index **G6732** in [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) ?1b.
 
 | Gate | Smoke |
 | --- | --- |
@@ -1113,7 +1120,7 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 
 ---
 
-## Closed — Phase 44 extended matrix + hole closure + Horizon C (G9000–G9140)
+## Closed ? Phase 44 extended matrix + hole closure + Horizon C (G9000?G9140)
 
 **Authority:** [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md) (**D6310** / **D6311**); subordinate to **G8550**.
 
@@ -1132,70 +1139,70 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G9121** | Operator hub UI | `hub:phase44-ui-smoke` |
 | **G9130** | Horizon C operator train close | `hub:horizon-c-train-close-smoke` |
 | **G9140** | Program close composite | `hub:phase44-program-close-smoke` |
-| **—** | Build slice regression | `hub:phase44-build-slice-smoke` |
+| **?** | Build slice regression | `hub:phase44-build-slice-smoke` |
 
 ---
 
-## Closed — Phase 43 LLM convert full (G8900–G8940)
+## Closed ? Phase 43 LLM convert full (G8900?G8940)
 
-**Authority:** [`docs/LLM-CONVERT-FULL-PROGRAM.md`](./docs/LLM-CONVERT-FULL-PROGRAM.md) (**D6303**); extends Phase 42 — subordinate to **G8550**.
+**Authority:** [`docs/LLM-CONVERT-FULL-PROGRAM.md`](./docs/LLM-CONVERT-FULL-PROGRAM.md) (**D6303**); extends Phase 42 ? subordinate to **G8550**.
 
 | Gate | Goal | Smoke |
 | --- | --- | --- |
 | **G8900** | Program entry | `hub:llm-convert-full-program-entry-smoke` |
 | **G8911** | LLM/stub hole enrichment | `hub:llm-convert-enrich-smoke` |
 | **G8912** | Verify-gated operator apply | `hub:llm-convert-verify-apply-smoke` |
-| **G8913** | Apply → repair hole-closure bridge | `hub:llm-convert-repair-bridge-smoke` |
+| **G8913** | Apply ? repair hole-closure bridge | `hub:llm-convert-repair-bridge-smoke` |
 | **G8920** | MCP enrich + verify + apply | build slice |
 | **G8940** | Program close composite | `hub:llm-convert-full-close-smoke` |
 
 ---
 
-## Default queue — WISP full site closed (G7790)
+## Default queue ? WISP full site closed (G7790)
 
 **Build queue:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).  
 **Subordinate:** **G7690** (included in G7790 composite).
 
 ---
 
-## Archived — Default queue universal translator closed (G7690)
+## Archived ? Default queue universal translator closed (G7690)
 
 **Maintenance queue:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**).  
 **Subordinate:** **G7590** (included in G7690 composite).
 
 ---
 
-## Archived — Default queue universal translator active (G7600–G7690)
+## Archived ? Default queue universal translator active (G7600?G7690)
 
 **Build queue:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**).  
 **Subordinate:** **G7590** (included in G7690 composite).
 
 ---
 
-## Archived — Default queue post G7590 (fully complete web language closed)
+## Archived ? Default queue post G7590 (fully complete web language closed)
 
 **Regression:** `pnpm run hub:cwl-full-web-language-close-smoke` (**G7590**).  
 **Subordinate:** **G7490** (included in G7590 composite).
 
 ---
 
-## Archived — Default queue full web language active (G7590)
+## Archived ? Default queue full web language active (G7590)
 
 **Regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
 **Subordinate:** **G7150** + **G7200** (included in G7390 composite).
-**Optional:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**); WISP POC — [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §1a.
+**Optional:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**); WISP POC ? [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) ?1a.
 
 **Governance:** `pnpm run hub:maintenance-mode-governance-smoke`
 
-Closed programs: Phase 10–18 (**G7150**), IR Helper v1 (**G7200**), WISP showcase POC (**G6690**, optional).
+Closed programs: Phase 10?18 (**G7150**), IR Helper v1 (**G7200**), WISP showcase POC (**G6690**, optional).
 
 ---
 
 ## Maintenance hygiene
 
-Reactive work (parser probes, hole economics, docs, redaction) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+Reactive work (parser probes, hole economics, docs, redaction) ? see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) ?2.
 
-**Full CI-scale tests:** `pnpm run test:gce` — [`docs/GCE-LOCAL-VERIFY.md`](./docs/GCE-LOCAL-VERIFY.md).
+**Full CI-scale tests:** `pnpm run test:gce` ? [`docs/GCE-LOCAL-VERIFY.md`](./docs/GCE-LOCAL-VERIFY.md).
 
 ---
 
@@ -1203,7 +1210,7 @@ Reactive work (parser probes, hole economics, docs, redaction) — see [`PAUSED-
 
 | Program | Closed at | Archive |
 | --- | --- | --- |
-| Strategic plan phases 0–9 | **G6153** | [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) §7 |
+| Strategic plan phases 0?9 | **G6153** | [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) ?7 |
 | Phase 10 production parity | **G6257** | [`docs/PRODUCTION-PARITY-PHASE-10.md`](./docs/PRODUCTION-PARITY-PHASE-10.md) |
 | Ship log | **G6257** | [`docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md) |
 

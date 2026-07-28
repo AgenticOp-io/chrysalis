@@ -1,10 +1,12 @@
 /**
  * Lower Express-style `app.use(...)` / Restify `server.pre|use(...)` /
  * Hono/Koa/Polka `app.use(...)` registrations to WebIR `web.request.middleware` nodes.
+ * Also peels Elysia empty `onRequest` / `onBeforeHandle` (G10053) — not plugin `.use`.
  *
  * Honest peels only (D6442 / D6447):
  * - Known presets: `express.json` / `express.urlencoded`
  * - Empty / next-only pass-through function middleware (Nitro-parallel; no onion runtime)
+ * - Elysia empty lifecycle shells → `js.passthrough` (plugin `.use` is not pass-through-shaped)
  * - Everything else keeps a middleware root with an honest hole body
  */
 import { simple as walkSimple } from "acorn-walk";
@@ -13,6 +15,11 @@ import { parseJavaScriptSource } from "./javascript-ast-ingest.mjs";
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
 /** Restify `pre` + shared `use` (Express/Koa/Polka/Fastify/Hono). */
 const MW_METHODS = new Set(["use", "pre"]);
+/**
+ * Elysia origin-real empty lifecycle shells (no `(ctx, next)` — `.use` is plugin-shaped).
+ * @see https://elysiajs.com/essential/life-cycle
+ */
+const ELYSIA_LIFECYCLE_METHODS = new Set(["onRequest", "onBeforeHandle"]);
 
 /**
  * @param {import('estree').Node | null | undefined} expr
@@ -56,6 +63,18 @@ export function isPassThroughMiddlewareFn(node) {
     return isNextCall(stmt.argument) || isAwaitNext(stmt.argument);
   }
   return false;
+}
+
+/**
+ * Empty block-only lifecycle handler (Elysia has no `next()` — do not invent onion).
+ * @param {import('estree').Node | null | undefined} node
+ */
+export function isEmptyLifecycleFn(node) {
+  if (!node) return false;
+  if (node.type !== "ArrowFunctionExpression" && node.type !== "FunctionExpression") return false;
+  const body = node.body;
+  if (!body) return true;
+  return body.type === "BlockStatement" && body.body.length === 0;
 }
 
 /**
@@ -176,4 +195,88 @@ export function liftExpressMiddlewareFromSource(source, file, webir, builder, wr
   } catch {
     return { middlewareUseCount: 0, middlewareRootCount: 0 };
   }
+}
+
+/**
+ * @param {import('estree').CallExpression} node
+ */
+function extractElysiaLifecycleFromCall(node) {
+  if (node.callee?.type !== "MemberExpression" || node.callee.computed) return null;
+  if (node.callee.property?.type !== "Identifier") return null;
+  const method = node.callee.property.name;
+  if (!ELYSIA_LIFECYCLE_METHODS.has(method)) return null;
+  const recv = node.callee.object;
+  if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return null;
+  // Single-arg empty handler only — options/`as` scopes and non-empty bodies stay holes.
+  if ((node.arguments?.length ?? 0) !== 1) {
+    return {
+      mount: "*",
+      method,
+      kind: "legacy:elysia-lifecycle",
+      loc: node.loc?.start ?? { line: 1, column: 0 },
+    };
+  }
+  const handler = node.arguments[0];
+  const kind = isEmptyLifecycleFn(handler) ? "js.passthrough" : "legacy:elysia-lifecycle";
+  return {
+    mount: "*",
+    method,
+    kind,
+    loc: node.loc?.start ?? { line: 1, column: 0 },
+  };
+}
+
+/**
+ * Peel Elysia empty `app.onRequest` / `app.onBeforeHandle` as `js.passthrough`.
+ * Does **not** peel `.use(plugin)` — Elysia plugins are not `(ctx, next)` pass-through (G10053 / D6515).
+ *
+ * @param {object} opts
+ * @param {ReturnType<import('./javascript-ast-ingest.mjs')['parseJavaScriptSource']>} opts.ast
+ * @param {string} opts.file
+ * @param {import('@chrysalis/webir').ModuleBuilder} opts.builder
+ * @param {ReturnType<import('@chrysalis/webir').webRequest.builders>} opts.wr
+ * @param {typeof import('@chrysalis/webir')} opts.webir
+ */
+export function liftElysiaLifecycleMiddlewareToWebir(opts) {
+  const { ast, file, builder, wr, webir } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const uses = [];
+  walkSimple(ast, {
+    CallExpression(node) {
+      const u = extractElysiaLifecycleFromCall(node);
+      if (u) uses.push(u);
+    },
+  });
+  uses.sort((a, b) => (a.loc.line ?? 0) - (b.loc.line ?? 0) || (a.loc.column ?? 0) - (b.loc.column ?? 0));
+
+  let order = 0;
+  for (const u of uses) {
+    order += 1;
+    const origin = { file, line: u.loc.line ?? 1, column: (u.loc.column ?? 0) + 1 };
+    let bodyId;
+    if (PRESET_KINDS.has(u.kind)) {
+      bodyId = data.literal({
+        value: { preset: u.kind },
+        type: { kind: "unknown" },
+        origin,
+        provenance: [webir.provenance("hub-ingest", `middleware-preset:${u.kind}`)],
+      });
+    } else {
+      bodyId = data.hole({
+        reason: `legacy:hub-middleware:${u.kind}`,
+        input: { kind: "unknown" },
+        output: { kind: "unknown" },
+        origin,
+        provenance: [webir.provenance("hub-ingest", "middleware-shell")],
+      });
+    }
+    const middlewareId = wr.middleware({
+      attrs: { kind: u.kind, mount: u.mount, order, method: u.method },
+      body: bodyId,
+      origin,
+      provenance: [webir.provenance("hub-ingest", `middleware:${u.kind}`)],
+    });
+    builder.addRoot(middlewareId);
+  }
+  return { middlewareUseCount: uses.length, middlewareRootCount: uses.length };
 }

@@ -19,6 +19,8 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run hub:cursor-pilot-kit-smoke` green  
 - [x] `pnpm run pilot:laravel-min` green on clean Linux/GCE (`chrysalis-test-vm`, 2026-07-24) with PHP `mysqli` + `pdo_sqlite` — still verify on buyer machines  
 - [x] `pnpm run hub:complete-conversion-prove:laravel-min` → `stGreen`+`stClosed` (2026-07-24) — hole-free CWL projection (session boot + ternary lit-branch guards); Hono verify gold 20/20  
+- [x] `pnpm run hub:slim-smoke` → Slim PHP origin dialect hole-free (`hub-gold-slim` 20/20; secondary to Laravel/Symfony/plain-php ST; `$app->get|post` + `{id}` + `$args` + `getQueryParams` + `withJson`/`withStatus`; PSR-15/`$app->group` unwired)  
+- [x] `pnpm run hub:lumen-smoke` → Lumen / Laravel-router PHP origin dialect hole-free (`hub-gold-lumen` 20/20; secondary to Laravel/Symfony/plain-php ST; `$router->get|post` / `Route::get|post` + `{id}` + `$request->query` + `response()->json`; middleware/controllers unwired)  
 - [x] `pnpm run hub:complete-conversion-prove:python` → `stGreen`+`stClosed` (2026-07-24) — first Python cwl-api D6448-ST (`hub-flagship-python` Flask 20/20 hole-free; status tuples + path/query; no invented UI)  
 - [x] `pnpm run hub:fastapi-smoke` → FastAPI Python origin dialect hole-free (`hub-gold-fastapi` 20/20; secondary to Flask ST; `{id}` paths + `query_params` + `status_code=`; Depends/OAuth unwired)  
 - [x] `pnpm run hub:starlette-smoke` → Starlette Python origin dialect hole-free (`hub-gold-starlette` 20/20; secondary to Flask ST; `@app.route` + `{id}` paths + `query_params` + status tuple; Mount/middleware unwired)  
@@ -57,6 +59,7 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run hub:hono-smoke` → Hono TypeScript ORIGIN dialect hole-free (`hub-gold-hono` 20/20 + pass-through `app.use` presets; secondary to Express/TS ST; **≠ emit-hono**; complex mw unwired)
 - [x] `pnpm run hub:elysia-smoke` → Elysia TypeScript ORIGIN dialect hole-free (`hub-gold-elysia` 20/20; secondary to Express/TS ST; plugins/lifecycle/macros unwired)  
 - [x] `pnpm run hub:oak-smoke` → Oak Deno/JS ORIGIN dialect hole-free (`hub-gold-oak` 20/20; secondary to Express/TS ST; middleware/`router.routes()` unwired)  
+- [x] `pnpm run hub:itty-smoke` → itty-router TypeScript ORIGIN dialect hole-free (`hub-gold-itty` 20/20; secondary to Express/TS ST; middleware/nested Router unwired)
 - [x] `pnpm run hub:polka-smoke` → Polka TypeScript origin dialect hole-free (`hub-gold-polka` 20/20 + pass-through `app.use` preset; secondary to Express/TS ST; completes thin Node set)  
 - [x] `pnpm run hub:complete-conversion-prove:elixir` → `stGreen`+`stClosed` (2026-07-24) — first Elixir cwl-api D6448-ST (`hub-gold-elixir-plug` Plug.Router 20/20 hole-free; `hub:elixir-flagship`; Phoenix LiveView/controllers honest holes; no invented UI)  
 - [x] `pnpm run hub:complete-conversion-prove:dart` → `stGreen`+`stClosed` (2026-07-24) — first Dart cwl-api D6448-ST (`hub-gold-dart-shelf` Shelf 20/20 hole-free; `hub:dart-flagship`; Flutter/Dart Frog/Pipeline honest holes; no invented UI)  

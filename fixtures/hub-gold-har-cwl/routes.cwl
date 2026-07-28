@@ -5,6 +5,7 @@ module items_capture;
 handler GET_health {
   effects: none;
   content-type "application/json";
+  response-header cache = "hit";
   return { ok: true };
 }
 
@@ -23,6 +24,7 @@ handler POST_items {
   header authorization;
   cookie session;
   body name = "widget";
+  response-header location = "/items/1";
   return { created: true };
 }
 

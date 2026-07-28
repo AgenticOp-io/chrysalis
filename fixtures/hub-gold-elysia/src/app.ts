@@ -3,9 +3,14 @@ import { Elysia } from "elysia";
 // hub-gold-elysia — 20-route Elysia TypeScript dialect (secondary to Express flagship).
 // `new Elysia()` + `app.get|post|…` + `ctx.params|query` / IDENT `{ params|query }` bags
 // + `ctx.set.status` + object/literal returns.
-// Plugins / `.use` / lifecycle / macros stay honest holes (**D6447** — no invented runtime).
+// Empty `onRequest` / `onBeforeHandle` peels as `js.passthrough` (**D6447** / G10053 —
+// Elysia `.use` is plugin-shaped, not `(ctx, next)`; plugins + non-empty lifecycle stay holes).
 
 const app = new Elysia();
+
+// Empty lifecycle shells — peel as `js.passthrough` (no invented plugin/onion runtime).
+app.onRequest(() => {});
+app.onBeforeHandle(() => {});
 
 app.get("/health", () => true);
 app.get("/ping", () => 42);

@@ -2,7 +2,7 @@
   "kind": "chrysalis.hub.java-secondary-dialect-honest-holes",
   "schemaVersion": 1,
   "generatedAt": "2026-07-24T23:55:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, Helidon CDI/MP Config/SE, Javalin plugins/before/after/DI, Spark filters/static/WebSocket, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST. Quarkus/Helidon route surfaces reuse JAX-RS peels (G10034 / G10042).",
+  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, Helidon CDI/MP Config/SE, Javalin plugins/before/after/DI, Spark filters/static/WebSocket, Jooby modules/MVC/filters/WebSocket, Vert.x EventBus/BodyHandler/SockJS, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST. Quarkus/Helidon route surfaces reuse JAX-RS peels (G10034 / G10042).",
   "dialects": {
     "jaxrs": {
       "fixture": "fixtures/hub-gold-jaxrs",
@@ -116,11 +116,47 @@
         { "shape": "webSocket / server-sent events", "reason": "hub-sparkjava:websocket" },
         { "shape": "import static spark.Spark bare get|post (non spark.Spark.* form)", "reason": "hub-sparkjava:static-import" }
       ]
+    },
+    "jooby": {
+      "fixture": "fixtures/hub-gold-jooby",
+      "smoke": "pnpm run hub:jooby-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10046",
+      "supported": [
+        "new Jooby() {{ get|post|put|patch|delete(\"/path\", ctx -> …); }} / app.get|post|…",
+        "{id} path templates",
+        "ctx.path / ctx.query peels (optional .value())",
+        "ctx.setResponseCode(n) + Map.of / scalar returns"
+      ],
+      "honestHoles": [
+        { "shape": "JoobyModule / MVC / @Path controllers", "reason": "hub-jooby:module-mvc" },
+        { "shape": "decorator / before / after filters", "reason": "hub-jooby:filters" },
+        { "shape": "WebSocket / ServerSent emitter", "reason": "hub-jooby:websocket" },
+        { "shape": "Non-literal path templates", "reason": "hub-java:path-non-literal" }
+      ]
+    },
+    "vertx": {
+      "fixture": "fixtures/hub-gold-vertx",
+      "smoke": "pnpm run hub:vertx-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10052",
+      "supported": [
+        "Router.router(vertx) + router.get|post|put|patch|delete(\"/path\").handler(ctx -> …)",
+        ":id path templates normalized to {id}",
+        "ctx.pathParam / ctx.queryParam(+optional .get(0)) peels",
+        "ctx.json / ctx.response().setStatusCode(n) / ctx.response().end"
+      ],
+      "honestHoles": [
+        { "shape": "EventBus / verticle message consumers", "reason": "hub-vertx:eventbus" },
+        { "shape": "BodyHandler / multi-handler route chains", "reason": "hub-vertx:body-handler" },
+        { "shape": "SockJS / WebSocket / Server-Sent Events", "reason": "hub-vertx:websocket" },
+        { "shape": "Sub-router mount / Route.failureHandler", "reason": "hub-vertx:subrouter" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus (G10034) + Helidon (G10042) + Javalin (G10035) + Spark (G10036) smokes closed",
+    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus (G10034) + Helidon (G10042) + Javalin (G10035) + Spark (G10036) + Jooby (G10046) + Vert.x Web (G10052) smokes closed",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

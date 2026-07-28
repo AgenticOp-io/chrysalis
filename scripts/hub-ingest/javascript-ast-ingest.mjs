@@ -6,7 +6,10 @@ import * as acorn from "acorn";
 import { simple as walkSimple } from "acorn-walk";
 import ts from "typescript";
 import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
-import { liftExpressMiddlewareToWebir } from "./hub-express-middleware.mjs";
+import {
+  liftElysiaLifecycleMiddlewareToWebir,
+  liftExpressMiddlewareToWebir,
+} from "./hub-express-middleware.mjs";
 import { lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
 import {
   extractNestRoutesFromTsSource,
@@ -204,6 +207,120 @@ function extractHapiRoutesFromCall(node) {
     return out;
   }
   return [];
+}
+
+/**
+ * Bun.serve dialect marker: `Bun.serve({…})` (G10048 — routes peel only).
+ * @param {import('estree').CallExpression} node
+ */
+function isBunServeCall(node) {
+  if (node?.type !== "CallExpression") return false;
+  const callee = node.callee;
+  if (callee?.type !== "MemberExpression" || callee.computed) return false;
+  if (callee.object?.type !== "Identifier" || callee.object.name !== "Bun") return false;
+  return callee.property?.type === "Identifier" && callee.property.name === "serve";
+}
+
+/**
+ * Peel one Bun routes-object entry value:
+ * `{ GET: handler, POST: handler }` (preferred) or a bare handler (defaults to GET).
+ * Static `Response` / `Bun.file` / named refs stay unpeeled (honest holes).
+ * @param {string} path
+ * @param {import('estree').Expression} value
+ * @param {{ line: number, column: number }} loc
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>}
+ */
+function peelBunRouteValue(path, value, loc) {
+  /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} */
+  const out = [];
+  const fnDirect = handlerCallback(value);
+  if (fnDirect) {
+    out.push({ method: "GET", path, fn: fnDirect, loc });
+    return out;
+  }
+  if (value?.type !== "ObjectExpression") return out;
+  for (const p of value.properties ?? []) {
+    if (p.type !== "Property" || p.computed) continue;
+    const key = objectPropKeyName(p);
+    if (!key) continue;
+    const method = key.toUpperCase();
+    if (!HTTP_METHODS.has(method.toLowerCase())) continue;
+    const fn = handlerCallback(p.value);
+    if (!fn) continue;
+    out.push({ method, path, fn, loc: p.loc?.start ?? loc });
+  }
+  return out;
+}
+
+/**
+ * Bun.serve({ routes: { "/path": { GET: handler }, … } }) — literal path keys only (G10048).
+ * fetch fallback / websocket / plugins are not peeled.
+ * @param {import('estree').CallExpression} node
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>}
+ */
+function extractBunServeRoutesFromCall(node) {
+  if (!isBunServeCall(node)) return [];
+  const opts = node.arguments[0];
+  if (opts?.type !== "ObjectExpression") return [];
+  /** @type {import('estree').ObjectExpression | null} */
+  let routesObj = null;
+  for (const p of opts.properties ?? []) {
+    if (p.type !== "Property" || p.computed) continue;
+    const key = objectPropKeyName(p);
+    if (key !== "routes") continue;
+    if (p.value?.type === "ObjectExpression") routesObj = p.value;
+    break;
+  }
+  if (!routesObj) return [];
+  /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} */
+  const out = [];
+  for (const p of routesObj.properties ?? []) {
+    if (p.type !== "Property" || p.computed) continue;
+    /** @type {string | null} */
+    let path = null;
+    if (p.key?.type === "Literal" && typeof p.key.value === "string") path = p.key.value;
+    else if (p.key?.type === "Identifier") path = p.key.name.startsWith("/") ? p.key.name : null;
+    if (!path || typeof path !== "string" || !path.startsWith("/")) continue;
+    const loc = p.loc?.start ?? node.loc?.start ?? { line: 1, column: 0 };
+    out.push(...peelBunRouteValue(path, p.value, loc));
+  }
+  return out;
+}
+
+/**
+ * `Response.json(body, { status: N })` → status N (Bun / Fetch ResponseInit — G10048).
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {number | null}
+ */
+function extractResponseJsonInitStatus(expr) {
+  let cur = expr;
+  while (cur && cur.type === "CallExpression") {
+    const callee = cur.callee;
+    if (
+      callee?.type === "MemberExpression" &&
+      !callee.computed &&
+      callee.property?.type === "Identifier" &&
+      callee.property.name === "json" &&
+      callee.object?.type === "Identifier" &&
+      callee.object.name === "Response"
+    ) {
+      const init = cur.arguments[1];
+      if (init?.type === "ObjectExpression") {
+        for (const p of init.properties ?? []) {
+          if (p.type !== "Property" || p.computed) continue;
+          const key = objectPropKeyName(p);
+          if (key !== "status") continue;
+          if (p.value?.type === "Literal" && typeof p.value.value === "number") {
+            return p.value.value;
+          }
+        }
+      }
+      break;
+    }
+    if (callee?.type !== "MemberExpression" || callee.computed) break;
+    cur = callee.object;
+  }
+  return null;
 }
 
 /**
@@ -579,6 +696,55 @@ function isOakApplicationNewExpression(expr) {
 }
 
 /**
+ * itty-router origin factory: `Router()` / `Router({…})` (G10047 — dialect marker only).
+ * CallExpression only — do not confuse with Oak `new Router()` (NewExpression).
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isIttyRouterCallExpression(expr) {
+  if (expr?.type !== "CallExpression") return false;
+  const callee = expr.callee;
+  return callee?.type === "Identifier" && callee.name === "Router";
+}
+
+/**
+ * Workers / itty `ResponseInit`: `{ status: N }` → HTTP status (G10047).
+ * Does not peel Hono `c.json(body, { status })` — that stays an honest hole (G10019).
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {number | null}
+ */
+function peelResponseInitStatus(expr) {
+  if (expr?.type !== "ObjectExpression") return null;
+  for (const p of expr.properties ?? []) {
+    if (p.type !== "Property" || p.computed) continue;
+    const key =
+      p.key?.type === "Identifier"
+        ? p.key.name
+        : p.key?.type === "Literal" && typeof p.key.value === "string"
+          ? p.key.value
+          : null;
+    if (key !== "status") continue;
+    if (p.value?.type === "Literal" && typeof p.value.value === "number") return p.value.value;
+  }
+  return null;
+}
+
+/**
+ * Workers `new Response(body, init?)` — literal / JSON.stringify body + optional status (G10047).
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {{ payload: import('estree').Expression | null, status: number | null, usedStringify: boolean } | null}
+ */
+function peelNewResponseExpression(expr) {
+  if (expr?.type !== "NewExpression") return null;
+  if (expr.callee?.type !== "Identifier" || expr.callee.name !== "Response") return null;
+  const bodyArg = expr.arguments[0] ?? null;
+  const status = peelResponseInitStatus(expr.arguments[1] ?? null);
+  if (!bodyArg) return { payload: null, status, usedStringify: false };
+  const stringified = peelJsonStringifyArgument(bodyArg);
+  if (stringified) return { payload: stringified, status, usedStringify: true };
+  return { payload: bodyArg, status, usedStringify: false };
+}
+
+/**
  * Normalize Oak/URI `{id}` path templates to Express-style `:id` (G10043).
  * Leaves existing `:id` paths unchanged.
  * @param {string} path
@@ -682,6 +848,7 @@ function honoTextPayloadExpression(fn) {
 /**
  * SvelteKit / Next: `url.searchParams.get("q")`.
  * Oak (G10043): `ctx.request.url.searchParams.get("q")`.
+ * Bun (G10048) / itty (G10047): `new URL(req|request.url).searchParams.get("q")`.
  * @param {import('estree').CallExpression} expr
  */
 function urlSearchParamsGetFieldOf(expr) {
@@ -719,6 +886,24 @@ function urlSearchParamsGetFieldOf(expr) {
     urlNode.object.property.name === "request" &&
     urlNode.object.object?.type === "Identifier" &&
     urlNode.object.object.name === "ctx"
+  ) {
+    const arg = expr.arguments[0];
+    if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+    return { name: arg.value };
+  }
+  // Bun (G10048): `new URL(req.url).searchParams.get(…)`
+  // itty / Workers (G10047): `new URL(request.url).searchParams.get(…)`
+  if (
+    urlNode?.type === "NewExpression" &&
+    urlNode.callee?.type === "Identifier" &&
+    urlNode.callee.name === "URL" &&
+    urlNode.arguments?.[0]?.type === "MemberExpression" &&
+    !urlNode.arguments[0].computed &&
+    urlNode.arguments[0].object?.type === "Identifier" &&
+    (urlNode.arguments[0].object.name === "req" ||
+      urlNode.arguments[0].object.name === "request") &&
+    urlNode.arguments[0].property?.type === "Identifier" &&
+    urlNode.arguments[0].property.name === "url"
   ) {
     const arg = expr.arguments[0];
     if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
@@ -1295,6 +1480,7 @@ function extractHandlerExpression(fn) {
     body.type === "Literal" ||
     body.type === "MemberExpression" ||
     body.type === "LogicalExpression" ||
+    body.type === "NewExpression" ||
     body.type === "ArrowFunctionExpression" ||
     body.type === "FunctionExpression"
   ) {
@@ -1579,6 +1765,18 @@ function resJsonPayloadExpression(fn) {
  */
 function extractResStatus(expr) {
   let cur = expr;
+  // itty: `json(body, { status: N })` / numeric 2nd arg (G10047). Not Hono `c.json`.
+  if (cur?.type === "CallExpression" && cur.callee?.type === "Identifier" && cur.callee.name === "json") {
+    const initStatus = peelResponseInitStatus(cur.arguments[1] ?? null);
+    if (initStatus !== null) return initStatus;
+    const a1 = cur.arguments[1];
+    if (a1?.type === "Literal" && typeof a1.value === "number") return a1.value;
+  }
+  // Workers: `new Response(…, { status: N })` (G10047).
+  if (cur?.type === "NewExpression") {
+    const peeled = peelNewResponseExpression(cur);
+    if (peeled && peeled.status !== null) return peeled.status;
+  }
   while (cur && cur.type === "CallExpression") {
     const callee = cur.callee;
     if (callee?.type !== "MemberExpression" || callee.computed || callee.property?.type !== "Identifier") {
@@ -1592,12 +1790,24 @@ function extractResStatus(expr) {
         return a0.value;
       }
     }
-    // Hono: `c.json(body, status)` / `c.text(body, status)` — numeric second arg.
+    // Hono: `c.json(body, status)` / `c.text(body, status)` — numeric second arg only
+    // (ResponseInit object form stays honest hole — G10019).
     if (
       (callee.property.name === "json" || callee.property.name === "text") &&
       callee.object?.type === "Identifier" &&
       callee.object.name === "c"
     ) {
+      const a1 = cur.arguments[1];
+      if (a1?.type === "Literal" && typeof a1.value === "number") return a1.value;
+    }
+    // Workers: `Response.json(body, { status: N })` (G10047) — not Hono `c.json`.
+    if (
+      callee.property.name === "json" &&
+      callee.object?.type === "Identifier" &&
+      callee.object.name === "Response"
+    ) {
+      const initStatus = peelResponseInitStatus(cur.arguments[1] ?? null);
+      if (initStatus !== null) return initStatus;
       const a1 = cur.arguments[1];
       if (a1?.type === "Literal" && typeof a1.value === "number") return a1.value;
     }
@@ -1769,6 +1979,7 @@ function lowerHandlerBody(ctx, fn) {
   const primaryExpr = extractHandlerExpression(fn);
   const status =
     extractResStatus(primaryExpr) ??
+    extractResponseJsonInitStatus(primaryExpr) ??
     extractWriteHeadStatus(fn) ??
     extractStatusCodeAssign(fn) ??
     extractCtxStatus(fn) ??
@@ -1850,6 +2061,37 @@ function lowerHandlerBody(ctx, fn) {
         ? originAt(honoTextPayload.loc.start, file)
         : ctx.origin,
       provenance: [webir.provenance("hub-ingest", "javascript-ast:hono-text")],
+    });
+  }
+  // Workers / itty: `new Response(body, init?)` (G10047).
+  const newResponse = peelNewResponseExpression(primaryExpr);
+  if (newResponse && newResponse.payload) {
+    const valId = lowerExpression(workCtx, newResponse.payload);
+    const isObj = newResponse.payload.type === "ObjectExpression";
+    if (isObj || newResponse.usedStringify) {
+      const retId = data.call({
+        callee: "__return_json",
+        args: [valId],
+        type: T.unknown,
+        origin: newResponse.payload.loc?.start
+          ? originAt(newResponse.payload.loc.start, file)
+          : ctx.origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:new-response-json")],
+      });
+      return data.block({
+        statements: statusId ? [statusId, retId] : [retId],
+        type: T.unknown,
+        origin: ctx.origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:new-response")],
+      });
+    }
+    return data.block({
+      statements: statusId ? [statusId, valId] : [valId],
+      type: T.unknown,
+      origin: newResponse.payload.loc?.start
+        ? originAt(newResponse.payload.loc.start, file)
+        : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:new-response")],
     });
   }
   const sendPayload = resSendPayloadExpression(fn);
@@ -1966,12 +2208,17 @@ export function liftJavaScriptFileToWebir(opts) {
   let honoOrigin = false;
   let elysiaOrigin = false;
   let oakOrigin = false;
+  let bunServeOrigin = false;
+  let ittyOrigin = false;
   if (ast) {
     walkSimple(ast, {
       CallExpression(node) {
         const r = extractRouteFromCall(node);
         if (r) routes.push(r);
         for (const hr of extractHapiRoutesFromCall(node)) routes.push(hr);
+        if (isBunServeCall(node)) bunServeOrigin = true;
+        for (const br of extractBunServeRoutesFromCall(node)) routes.push(br);
+        if (isIttyRouterCallExpression(node)) ittyOrigin = true;
       },
       NewExpression(node) {
         if (isHonoNewExpression(node)) honoOrigin = true;
@@ -1981,8 +2228,11 @@ export function liftJavaScriptFileToWebir(opts) {
     });
   }
 
+  // Elysia `.use` is plugin-shaped (not `(ctx, next)`); peel empty lifecycle only (G10053).
   const mw = ast
-    ? liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir })
+    ? elysiaOrigin
+      ? liftElysiaLifecycleMiddlewareToWebir({ ast, file, builder, wr, webir })
+      : liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir })
     : { middlewareUseCount: 0, middlewareRootCount: 0 };
 
   if (routes.length === 0 && mw.middlewareRootCount === 0) {
@@ -2004,13 +2254,17 @@ export function liftJavaScriptFileToWebir(opts) {
     const bodyId = lowerHandlerBody(ctx, r.fn);
     const dialectTag = r.paramBindings
       ? `nestjs`
-      : oakOrigin
-        ? `oak`
-        : elysiaOrigin
-          ? `elysia`
-          : honoOrigin
-            ? `hono`
-            : null;
+      : ittyOrigin
+        ? `itty`
+        : bunServeOrigin
+          ? `bun-serve`
+          : oakOrigin
+            ? `oak`
+            : elysiaOrigin
+              ? `elysia`
+              : honoOrigin
+                ? `hono`
+                : null;
     const handlerId = wr.handler({
       attrs: {
         name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,

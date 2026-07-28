@@ -19,6 +19,30 @@ const SPARK_VERB_RE =
 
 const SPARK_MARKER_RE = /\bspark\.Spark\.(?:get|post|put|patch|delete|head|options)\b|\bimport\s+spark\.Spark\b|\bimport\s+static\s+spark\.Spark\b/;
 
+/**
+ * Jooby (G10046): `new Jooby() {{ get("/path", ctx -> …); }}` or `app.get("/path", …)`.
+ * Bare get|post (no leading `.`) inside instance initializers + dotted app.get form.
+ */
+const JOOBY_MARKER_RE =
+  /\bnew\s+Jooby\s*\(|\bextends\s+Jooby\b|\bio\.jooby\b|\bimport\s+io\.jooby\b/;
+
+const JOOBY_DOT_VERB_RE =
+  /\.(get|post|put|patch|delete)\s*\(\s*["']([^"']+)["']/gi;
+
+/** Bare Jooby router verbs — not `.get` / not identifier-qualified. */
+const JOOBY_BARE_VERB_RE =
+  /(?<![\w.])(get|post|put|patch|delete)\s*\(\s*["']([^"']+)["']/gi;
+
+/**
+ * Vert.x Web (G10052): Router.router(vertx) + router.get|post|…("/path").handler(ctx -> …).
+ * Distinct from Javalin (comma handler arg) and Jooby (no `.handler`).
+ */
+const VERTX_MARKER_RE =
+  /\bRouter\s*\.\s*router\s*\(|\bio\.vertx\.ext\.web\b|\bimport\s+io\.vertx\.ext\.web(?:\.Router)?\b/;
+
+const VERTX_VERB_RE =
+  /\.(get|post|put|patch|delete|head|options)\s*\(\s*["']([^"']+)["']\s*\)\s*\.\s*handler\s*\(/gi;
+
 const JAXRS_VERB_PATH_RE =
   /@(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b\s*(?:@\w+(?:\([^)]*\))?\s*)*@Path(?!Param)\s*\(\s*["']([^"']+)["']\s*\)/gi;
 
@@ -162,6 +186,9 @@ export function normalizeJavaJavalinPath(path: string): string {
   return p.startsWith("/") ? p : `/${p}`;
 }
 
+/** Normalize Jooby path literals (already `{id}` brace form — same as Javalin). */
+export const normalizeJavaJoobyPath = normalizeJavaJavalinPath;
+
 /** Normalize Spark `:id` path templates → `{id}` (Echo/Fiber parallel). */
 export function normalizeJavaSparkPath(path: string): string {
   const p = String(path ?? "").trim();
@@ -169,6 +196,9 @@ export function normalizeJavaSparkPath(path: string): string {
   const withSlash = p.startsWith("/") ? p : `/${p}`;
   return withSlash.replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, "{$1}");
 }
+
+/** Normalize Vert.x `:id` path templates → `{id}` (same as Spark). */
+export const normalizeJavaVertxPath = normalizeJavaSparkPath;
 
 function parseJavaJavalinRoutes(
   source: string,
@@ -216,6 +246,65 @@ function parseJavaSparkRoutes(
   return routes;
 }
 
+function parseJavaJoobyRoutes(
+  source: string,
+): Array<HubNativeRoute & { index: number }> {
+  const routes: Array<HubNativeRoute & { index: number }> = [];
+  if (!JOOBY_MARKER_RE.test(source)) return routes;
+
+  function pushMatch(m: RegExpExecArray, absIdx: number) {
+    const lookBehind = source.slice(Math.max(0, absIdx - 12), absIdx);
+    // Do not steal spark.Spark.get|post|… when both markers appear.
+    if (/spark\.Spark$/.test(lookBehind)) return;
+    // Do not steal Vert.x router.get("/path").handler(…) (no Jooby comma handler).
+    const after = source.slice(absIdx, absIdx + 120);
+    if (/^\.(?:get|post|put|patch|delete)\s*\(\s*["'][^"']+["']\s*\)\s*\.\s*handler\s*\(/i.test(after)) {
+      return;
+    }
+    const method = (m[1] ?? "get").toUpperCase();
+    const path = normalizeJavaJoobyPath(m[2] ?? "/");
+    routes.push({
+      method,
+      path,
+      line: lineAt(source, absIdx),
+      name: `jooby_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+      index: absIdx,
+    });
+  }
+
+  JOOBY_DOT_VERB_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = JOOBY_DOT_VERB_RE.exec(source)) !== null) {
+    pushMatch(m, m.index);
+  }
+  JOOBY_BARE_VERB_RE.lastIndex = 0;
+  while ((m = JOOBY_BARE_VERB_RE.exec(source)) !== null) {
+    pushMatch(m, m.index);
+  }
+  return routes;
+}
+
+function parseJavaVertxRoutes(
+  source: string,
+): Array<HubNativeRoute & { index: number }> {
+  const routes: Array<HubNativeRoute & { index: number }> = [];
+  if (!VERTX_MARKER_RE.test(source)) return routes;
+  VERTX_VERB_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = VERTX_VERB_RE.exec(source)) !== null) {
+    const method = (m[1] ?? "get").toUpperCase();
+    const path = normalizeJavaVertxPath(m[2] ?? "/");
+    routes.push({
+      method,
+      path,
+      line: lineAt(source, m.index),
+      name: `vertx_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+      index: m.index,
+    });
+  }
+  return routes;
+}
+
 export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[] {
   const routes: HubNativeRoute[] = [];
   const seen = new Set<string>();
@@ -234,6 +323,16 @@ export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[
 
   const sparkRoutes = parseJavaSparkRoutes(source);
   for (const r of sparkRoutes) {
+    push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
+  }
+
+  const vertxRoutes = parseJavaVertxRoutes(source);
+  for (const r of vertxRoutes) {
+    push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
+  }
+
+  const joobyRoutes = parseJavaJoobyRoutes(source);
+  for (const r of joobyRoutes) {
     push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
   }
 

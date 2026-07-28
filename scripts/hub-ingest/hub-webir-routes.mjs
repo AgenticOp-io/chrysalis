@@ -966,6 +966,15 @@ export function renderCwlRoutes(routes, opts = {}) {
         const hasDefault = Object.prototype.hasOwnProperty.call(p, "default");
         lines.push(hasDefault ? `  ${kw} ${p.name} = ${cwlRenderLiteral(p.default)};` : `  ${kw} ${p.name};`);
       }
+      for (const h of r.responseHeaders ?? []) {
+        const name = String(h?.name ?? "");
+        if (!name) continue;
+        if (Object.prototype.hasOwnProperty.call(h, "default")) {
+          lines.push(`  response-header ${name} = ${cwlRenderLiteral(h.default)};`);
+        } else {
+          lines.push(`  response-header ${name};`);
+        }
+      }
     };
     if (r.holeReason) {
       holeCount += 1;
