@@ -18,7 +18,7 @@ Then re-run `hub:cobol-clbs-prove-smoke` / residual ledger — P0 proprietary-co
 
 ---
 
-## Have (local Downloads, 2026-07-28)
+## Have (local Downloads + GCE staging, 2026-07-28)
 
 | Artifact | Notes |
 | --- | --- |
@@ -27,9 +27,12 @@ Then re-run `hub:cobol-clbs-prove-smoke` / residual ledger — P0 proprietary-co
 | `Beta Installation.txt` + readmes + Program Directory PDFs | Install JCL / docs |
 | `CICS.6.4.Beta.09.Developer.Components.zip` | **JCICS JARs only** — no COBOL copybooks |
 | Unpacked under `Downloads/_cics-beta-unpack/` | Outer pax + `SMPRELF` RELFILEs; EBCDIC `DFHAID` / `DFHBMSCA` / `SDFHCOB` markers found inside HCI7700 RELFILEs |
+| **GCE staging** on `chrysalis-test-vm` | `/home/sa_114956744844145855892/chrysalis-staging/cics-ts-64-beta/` — product + license + docs only (no CTG). SHA256 `cicsts64.pax.Z` = `82487d98…028e` |
 
 **Proven:** books are inside the beta package.  
 **Not proven yet:** clean COBOL `.cpy` carve on Windows/WSL/GCE Linux without z/OS GIMUNZIP + SMP/E.
+
+**IBM ZD&T trial:** operator has trial workspace (id **4929** / `ibmztrialmachines.com`). Next: upload the staged `.pax.Z` pair from GCE or local Downloads into that trial’s USS and install.
 
 ---
 
@@ -52,7 +55,11 @@ Then re-run `hub:cobol-clbs-prove-smoke` / residual ledger — P0 proprietary-co
 3. Follow `Beta Installation.txt` (GIMUNZIP / SMP/E + activation)  
 4. Export `SDFHCOB(DFHAID)` and `SDFHCOB(DFHBMSCA)` into the fixture `copybook/` tree (license: beta/non-production only; do not publish IBM source as Chrysalis product code)
 
-GCE `chrysalis-test-vm` alone cannot finish the install (Linux ≠ z/OS). Upload there only as a **staging drop** of the `.pax.Z` files if useful for later transfer to the trial LPAR.
+GCE `chrysalis-test-vm` alone cannot finish the install (Linux ≠ z/OS). Staging drop is at:
+
+`chrysalis-test-vm:/home/sa_114956744844145855892/chrysalis-staging/cics-ts-64-beta/`
+
+Use it only as a transfer cache toward the ZD&T trial LPAR.
 
 ---
 
