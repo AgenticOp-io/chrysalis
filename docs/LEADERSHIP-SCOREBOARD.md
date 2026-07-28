@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-28 (G10079–G10082 COBOL structural BMS/CICS deepen)
+**As of:** 2026-07-28 (G10083–G10084 Tier B Medium+ corpus + Tier C AID catalog)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **65/65** behavioral; Tier A/A+/B-Small closed; **structural BMS/CICS** G10079–G10082 | no LCB claim; Tier B Medium+/Tier C AID books still need charter |
+| COBOL primary | **65/65** behavioral; structural through **G10084** (Medium+ corpus + AID catalog) | no LCB claim; DFHAID/DFHBMSCA/CMQ* COPY need licensed SDFHCOB/MQ libs; no Db2/IMS/MQ runtime |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -167,12 +167,14 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
 | **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
-| **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM) | **Charter + real corpus** — refuse façades |
-| **4** | COBOL Tier C IBM BMS AID books | **Blocked** until `DFHAID`/`DFHBMSCA`/`EXTFMAP` in-tree |
+| **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM/MQ/IMS) | **Closed G10083 structural** — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `exec-dli`/`ibm-mq`/`exec-sql` holes; **no runtime** |
+| **4** | COBOL Tier C IBM BMS AID books | **G10084 symbol catalog closed**; `DFHAID`/`DFHBMSCA`/`EXTFMAP` COPY still holes until licensed SDFHCOB in-tree |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10084 — Tier C AID/BMSCA **symbol catalog** from CardDemo upstream; DFHAID/DFHBMSCA/EXTFMAP COPY stay proprietary holes
+- G10083 — Tier B Medium+ structural: VSAM-MQ (`COACCT01`/`CODATE01`) + IMS/Db2/MQ auth (`COPAU*`/`CBPAUP0C`) + EXEC DLI / IBM MQ CALL catalogs
 - G10082 — CICS SEND-TEXT / SEND-MAP / RECEIVE-MAP + MAP/MAPSET + LINK/XCTL PROGRAM literal catalog
 - G10081 — real COTRTLI/COTRTUP `.bms` fetched into `_upstream/`
 - G10080 — online MAP/MAPSET ↔ BMS label crosswalk; honest holes `INQMAP`/`INQMNU`/`PORT*`/`PORTSET`
@@ -186,8 +188,8 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **COBOL Tier B Medium+** — real Db2/CICS/VSAM corpus (refuse façades; Small complete G10078)
-2. **COBOL Tier C / IBM BMS** maps (`DFHAID` / `DFHBMSCA` / `EXTFMAP`) — stay honest holes until a real map corpus ships
+1. **Licensed IBM SDFHCOB** drop of `DFHAID`/`DFHBMSCA` (and optional MQ `CMQ*`) into `copybook/` — only path to close those COPY holes
+2. **Db2/IMS/MQ/CICS behavioral** — only with real runtime + expected oracles (refuse façades; structural Medium+ closed G10083)
 3. **Flutter** (or Dart Frog) UI/route surface — only if explicitly chartered
 4. **Phoenix LiveView** (or controller peel with cross-file resolve) — only if explicitly chartered
 

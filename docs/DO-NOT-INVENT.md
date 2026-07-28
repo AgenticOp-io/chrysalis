@@ -93,8 +93,8 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | --- | --- | --- |
 | Flutter / Dart Frog UI | Real Flutter/Frog app corpus | dart-shelf honest holes |
 | Phoenix LiveView / controllers | Cross-file `Ctrl,:action` + maps | phoenix-controller-honest-skip |
-| IBM BMS maps | `DFHAID` / `DFHBMSCA` / `EXTFMAP` copybooks in-tree | COBOL prove — stay unresolved |
-| COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS behavior | **65/65** after G10078; further still paused; no LCB claim |
+| IBM BMS maps | Licensed `DFHAID` / `DFHBMSCA` / `EXTFMAP` in SDFHCOB | **G10084** symbol catalog only; COPY stay unresolved |
+| COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS/MQ/IMS behavior | **65/65** after G10078; Medium+ is **structural** (G10083); no LCB claim |
 | Rails secondary | `routes.rb` + controller cross-file; inline rack lambda peel not cheap | `rails-controller-honest-skip` (G10006) |
 | Revel Go secondary | `conf/routes` + `Controller.Action` / `revel.Result` (Rails-class); no Gin/Buffalo/Martini peel-reuse | `revel-honest-skip` (G10065; no D6527) |
 | Blazor / ERB / Django | Inventory + markup adapters | MULTI-ORIGIN Tier C — plan amendment |
@@ -114,6 +114,8 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | COPY resolve for in-repo `.cpy` (e.g. CSUTLDWY, CKPRST) | DFHAID / DFHBMSCA / EXTFMAP stubs |
 | EXEC SQL / CICS **catalog** holes | Fake Db2 / CICS / VSAM runtimes |
 | BMS DFHM* **label inventory** + MAP/MAPSET crosswalk (G10079–G10082) | DFHAID / DFHBMSCA / EXTFMAP stubs or invented PORT/INQ maps |
+| CardDemo Medium+ **structural** VSAM-MQ / IMS / Db2 catalogs (G10083) | Fake MQ / IMS / Db2 runtimes or invented CMQ* books |
+| AID/BMSCA **symbol catalog** from upstream (G10084) | Invented `DFHAID.cpy` / `DFHBMSCA.cpy` (IBM proprietary) |
 | GnuCOBOL behavioral subjects already green (65/65 after G10078) | New behavioral façades to claim “modernized CLBS” |
 
 **G10076–G10078 Tier B Small:** `ckprstdn`/`portfliodn`/`errhanddn`/`ckprstph` COPY-linked only — not Db2/CICS/VSAM/BMS.
@@ -121,6 +123,8 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 **G10075 Tier A closed:** mini COPY/INCLUDE surface exhausted (228 resolved; only BMS names unresolved). Do not invent BMS maps or missing `.cpy`.
 
 **G10079–G10082 structural BMS/CICS:** inventory + crosswalk only. Missing `INQMAP`/`INQMNU`/`PORT*`/`PORTSET` and AID copybooks stay holes — do not fabricate map bodies or IBM books.
+
+**G10083–G10084:** Medium+ corpus + AID symbol catalog closed structurally. Closing DFHAID/DFHBMSCA/CMQ* COPY requires operator-licensed libraries — never invent stubs.
 
 **G10077 Tier A+:** secondary-dialect / prefix bingo is **not** the default next queue — COBOL primary (chartered Tier B Medium+ / Tier C) unless the operator explicitly asks for another dialect peel.
 

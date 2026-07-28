@@ -2339,6 +2339,8 @@ export async function runCobolClbsProveSmoke() {
     "COTRN02.bms",
     "COTRTLI.bms",
     "COTRTUP.bms",
+    "COPAU00.bms",
+    "COPAU01.bms",
     "COUSR00.bms",
     "COUSR01.bms",
     "COUSR02.bms",
@@ -2393,7 +2395,9 @@ export async function runCobolClbsProveSmoke() {
       /\bCOACTUP\b/i.test(readFileSync(join(upstreamJclDir, "COACTUP.bms"), "utf8")) &&
       /\bCOUSR00\b/i.test(readFileSync(join(upstreamJclDir, "COUSR00.bms"), "utf8")) &&
       /\bCOTRTLI\b/i.test(readFileSync(join(upstreamJclDir, "COTRTLI.bms"), "utf8")) &&
-      /\bCOTRTUP\b/i.test(readFileSync(join(upstreamJclDir, "COTRTUP.bms"), "utf8")),
+      /\bCOTRTUP\b/i.test(readFileSync(join(upstreamJclDir, "COTRTUP.bms"), "utf8")) &&
+      /\bCOPAU00\b/i.test(readFileSync(join(upstreamJclDir, "COPAU00.bms"), "utf8")) &&
+      /\bCOPAU01\b/i.test(readFileSync(join(upstreamJclDir, "COPAU01.bms"), "utf8")),
     reason: `bms=${carddemoBmsPresent.join(",")} macros=${carddemoBmsMacros} dfhmsd=${carddemoHasDfhmsd}`,
   });
 
@@ -2401,20 +2405,23 @@ export async function runCobolClbsProveSmoke() {
   checks.push({
     id: "upstream-bms-dfhm-field-inventory",
     ok:
-      upstreamBmsInventories.length >= 20 &&
-      bmsFieldTotals.dfhmsd >= 40 &&
-      bmsFieldTotals.dfhmdi >= 23 &&
-      bmsFieldTotals.dfhmdf >= 1000 &&
-      bmsFieldTotals.namedFields >= 500 &&
-      bmsFieldTotals.withPos >= 1000 &&
-      bmsFieldTotals.withLength >= 900 &&
-      bmsFieldTotals.maps.size >= 23 &&
-      bmsFieldTotals.mapsets.size >= 20 &&
+      upstreamBmsInventories.length >= 22 &&
+      bmsFieldTotals.dfhmsd >= 44 &&
+      bmsFieldTotals.dfhmdi >= 25 &&
+      bmsFieldTotals.dfhmdf >= 1200 &&
+      bmsFieldTotals.namedFields >= 550 &&
+      bmsFieldTotals.withPos >= 1200 &&
+      bmsFieldTotals.withLength >= 1100 &&
+      bmsFieldTotals.maps.size >= 25 &&
+      bmsFieldTotals.mapsets.size >= 22 &&
       bmsFieldTotals.maps.has("COSGN0A") &&
       bmsFieldTotals.maps.has("CTRTLIA") &&
       bmsFieldTotals.maps.has("MENMAP") &&
+      bmsFieldTotals.maps.has("COPAU0A") &&
+      bmsFieldTotals.maps.has("COPAU1A") &&
       bmsFieldTotals.mapsets.has("COSGN00") &&
       bmsFieldTotals.mapsets.has("COTRTLI") &&
+      bmsFieldTotals.mapsets.has("COPAU00") &&
       bmsFieldTotals.mapsets.has("INQSET"),
     reason: `files=${upstreamBmsInventories.length} dfhmsd=${bmsFieldTotals.dfhmsd} dfhmdi=${bmsFieldTotals.dfhmdi} dfhmdf=${bmsFieldTotals.dfhmdf} named=${bmsFieldTotals.namedFields} pos=${bmsFieldTotals.withPos} len=${bmsFieldTotals.withLength} maps=${bmsFieldTotals.maps.size} mapsets=${bmsFieldTotals.mapsets.size}`,
   });
@@ -2461,6 +2468,156 @@ export async function runCobolClbsProveSmoke() {
       mapsetMatched.includes("INQSET") &&
       mapsetMatched.includes("COTRTLI"),
     reason: `mapOk=${mapMatched.length} mapHole=${mapMissing.join(",")} setOk=${mapsetMatched.length} setHole=${mapsetMissing.join(",")}`,
+  });
+
+  // G10083 — Tier B Medium+ structural: CardDemo VSAM+MQ + IMS/Db2/MQ authorization corpus.
+  // Catalog only — no IBM MQ / IMS / Db2 runtime invent (D6442/D6447).
+  const mediumPlusRequired = [
+    "COACCT01.cbl",
+    "CODATE01.cbl",
+    "COPAUA0C.cbl",
+    "COPAUS0C.cbl",
+    "COPAUS1C.cbl",
+    "COPAUS2C.cbl",
+    "CBPAUP0C.cbl",
+    "CRDDEMOM.csd",
+    "CRDDEMO2.csd",
+    "AUTHFRDS.dcl",
+  ];
+  const mediumPlusPresent = mediumPlusRequired.filter((n) =>
+    existsSync(join(upstreamJclDir, n)),
+  );
+  const coacct01Inv = existsSync(join(upstreamJclDir, "COACCT01.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COACCT01.cbl"), "utf8"),
+        "_upstream/COACCT01.cbl",
+      )
+    : null;
+  const codate01Inv = existsSync(join(upstreamJclDir, "CODATE01.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "CODATE01.cbl"), "utf8"),
+        "_upstream/CODATE01.cbl",
+      )
+    : null;
+  const copaua0cInv = existsSync(join(upstreamJclDir, "COPAUA0C.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COPAUA0C.cbl"), "utf8"),
+        "_upstream/COPAUA0C.cbl",
+      )
+    : null;
+  const copaus0cInv = existsSync(join(upstreamJclDir, "COPAUS0C.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COPAUS0C.cbl"), "utf8"),
+        "_upstream/COPAUS0C.cbl",
+      )
+    : null;
+  const copaus2cInv = existsSync(join(upstreamJclDir, "COPAUS2C.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COPAUS2C.cbl"), "utf8"),
+        "_upstream/COPAUS2C.cbl",
+      )
+    : null;
+  const cbpaup0cInv = existsSync(join(upstreamJclDir, "CBPAUP0C.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "CBPAUP0C.cbl"), "utf8"),
+        "_upstream/CBPAUP0C.cbl",
+      )
+    : null;
+  const mqNeed = ["MQOPEN", "MQGET", "MQPUT", "MQCLOSE"];
+  const mqMissing = mqNeed.filter(
+    (op) => !(coacct01Inv?.ibmMqCallOps || []).includes(op),
+  );
+  const dliNeed = ["GN", "GNP", "DLET", "CHKP"];
+  const dliMissing = dliNeed.filter(
+    (op) => !(cbpaup0cInv?.execDliOps || []).includes(op),
+  );
+  const authCopyResolve = resolveCobolCopybooks(
+    ["COPAU00", "COPAU01", "CCPAUERY", "CIPAUSMY", "CIPAUDTY", "IMSFUNCS", "PAUTBPCB", "AUTHFRDS"],
+    [join(MINI, "copybook"), upstreamJclDir],
+  );
+  const authCopyResolved = authCopyResolve
+    .filter((r) => r.resolved)
+    .map((r) => r.name.toUpperCase());
+  const authCopyMissing = authCopyResolve
+    .filter((r) => !r.resolved)
+    .map((r) => r.name.toUpperCase());
+  checks.push({
+    id: "upstream-carddemo-medium-plus-corpus",
+    ok:
+      mediumPlusPresent.length === mediumPlusRequired.length &&
+      !!coacct01Inv &&
+      coacct01Inv.programIds.includes("COACCT01") &&
+      mqMissing.length === 0 &&
+      coacct01Inv.unresolved.includes("ibm-mq") &&
+      coacct01Inv.unresolved.includes("exec-cics") &&
+      !!codate01Inv &&
+      (codate01Inv.ibmMqCallOps || []).includes("MQOPEN") &&
+      !!copaua0cInv &&
+      (copaua0cInv.ibmMqCallOps || []).includes("MQPUT1") &&
+      (copaua0cInv.execDliOps || []).includes("GU") &&
+      copaua0cInv.unresolved.includes("exec-dli") &&
+      !!cbpaup0cInv &&
+      dliMissing.length === 0 &&
+      cbpaup0cInv.unresolved.includes("exec-dli") &&
+      !!copaus2cInv &&
+      (copaus2cInv.execSqlOps || []).includes("INSERT") &&
+      (copaus2cInv.execSqlOps || []).includes("UPDATE") &&
+      copaus2cInv.unresolved.includes("exec-sql") &&
+      !!copaus0cInv &&
+      (copaus0cInv.execCicsMaps || []).includes("COPAU0A") &&
+      authCopyMissing.length === 0 &&
+      authCopyResolved.includes("AUTHFRDS") &&
+      authCopyResolved.includes("IMSFUNCS"),
+    reason: `present=${mediumPlusPresent.length}/${mediumPlusRequired.length} mqMissing=${mqMissing.join(",")} dliMissing=${dliMissing.join(",")} authCopyMissing=${authCopyMissing.join(",")} mq=${(coacct01Inv?.ibmMqCallOps || []).join(",")} dli=${(cbpaup0cInv?.execDliOps || []).join(",")} sql=${(copaus2cInv?.execSqlOps || []).join(",")}`,
+  });
+
+  // G10084 — Tier C AID/BMSCA symbol catalog from real CardDemo upstream.
+  // DFHAID/DFHBMSCA/EXTFMAP COPY stay unresolved (IBM SDFHCOB proprietary — no invent).
+  const cosgn00cUpstreamInv = existsSync(join(upstreamJclDir, "COSGN00C.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COSGN00C.cbl"), "utf8"),
+        "_upstream/COSGN00C.cbl",
+      )
+    : null;
+  const cotrtupcUpstreamInv = existsSync(join(upstreamJclDir, "COTRTUPC.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COTRTUPC.cbl"), "utf8"),
+        "_upstream/COTRTUPC.cbl",
+      )
+    : null;
+  const aidNeed = ["DFHENTER", "DFHPF3"];
+  const aidMissing = aidNeed.filter(
+    (s) => !(cosgn00cUpstreamInv?.cicsAidSymbols || []).includes(s),
+  );
+  const attrFromCopaus = copaus0cInv?.bmsAttrSymbols || [];
+  const attrFromCotrt = cotrtupcUpstreamInv?.bmsAttrSymbols || [];
+  const attrUnion = new Set([...attrFromCopaus, ...attrFromCotrt]);
+  const dfhaidStillHole =
+    (cosgn00cUpstreamInv?.copybooks || []).includes("DFHAID") &&
+    !resolveCobolCopybooks(["DFHAID"], [join(MINI, "copybook"), upstreamJclDir])[0]
+      ?.resolved;
+  const dfhbmscaStillHole =
+    (cosgn00cUpstreamInv?.copybooks || []).includes("DFHBMSCA") &&
+    !resolveCobolCopybooks(["DFHBMSCA"], [join(MINI, "copybook"), upstreamJclDir])[0]
+      ?.resolved;
+  const extfmapStillHole = !resolveCobolCopybooks(
+    ["EXTFMAP"],
+    [join(MINI, "copybook"), upstreamJclDir],
+  )[0]?.resolved;
+  checks.push({
+    id: "upstream-cics-aid-bmsattr-catalog",
+    ok:
+      !!cosgn00cUpstreamInv &&
+      aidMissing.length === 0 &&
+      (copaus0cInv?.cicsAidSymbols || []).includes("DFHPF7") &&
+      (copaus0cInv?.cicsAidSymbols || []).includes("DFHPF8") &&
+      attrUnion.has("DFHBMPRF") &&
+      attrFromCopaus.includes("DFHBMUNP") &&
+      dfhaidStillHole &&
+      dfhbmscaStillHole &&
+      extfmapStillHole &&
+      cosgn00cUpstreamInv.unresolved.includes("copy"),
+    reason: `aids=${(cosgn00cUpstreamInv?.cicsAidSymbols || []).join(",")} copausAids=${(copaus0cInv?.cicsAidSymbols || []).join(",")} attrs=${[...attrUnion].join(",")} dfhaidHole=${dfhaidStillHole} dfhbmscaHole=${dfhbmscaStillHole} extfmapHole=${extfmapStillHole}`,
   });
 
   // CardDemo JCL corpus samples (aws-carddemo app/jcl) — inventory-only; no JES runtime.

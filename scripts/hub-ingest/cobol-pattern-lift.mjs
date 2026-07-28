@@ -42,6 +42,32 @@ const EXEC_SQL_RE = /\bEXEC\s+SQL\b/gi;
 const EXEC_SQL_BLOCK_RE = /\bEXEC\s+SQL\b([\s\S]*?)\bEND-EXEC\b/gi;
 /** EXEC CICS … END-EXEC bodies (multi-line SEND MAP / SEND TEXT / LINK / XCTL). */
 const EXEC_CICS_BLOCK_RE = /\bEXEC\s+CICS\b([\s\S]*?)\bEND-EXEC\b/gi;
+/** EXEC DLI … END-EXEC bodies (IMS DL/I — structural hole inventory only). */
+const EXEC_DLI_RE = /\bEXEC\s+DLI\b/gi;
+const EXEC_DLI_BLOCK_RE = /\bEXEC\s+DLI\b([\s\S]*?)\bEND-EXEC\b/gi;
+/** IBM MQ MQI CALL targets (CMQ* copybooks stay unresolved — not in CardDemo). */
+const IBM_MQ_CALL_RE =
+  /\bCALL\s+(?:'([^']+)'|"([^"]+)")/gi;
+const IBM_MQ_API_NAMES = new Set([
+  "MQOPEN",
+  "MQCLOSE",
+  "MQGET",
+  "MQPUT",
+  "MQPUT1",
+  "MQINQ",
+  "MQSET",
+  "MQCMIT",
+  "MQBACK",
+  "MQCONN",
+  "MQCONNX",
+  "MQDISC",
+]);
+/** CICS DFHAID symbol names referenced in source (books stay IBM-proprietary holes). */
+const CICS_AID_SYMBOL_RE =
+  /\b(DFH(?:NULL|ENTER|CLEAR|CLRP|PEN|OPID|MSRE|STRF|TRIG|PA[1-3]|PF(?:[1-9]|1\d|2[0-4])))\b/gi;
+/** CICS DFHBMSCA attribute symbol names referenced in source. */
+const BMS_ATTR_SYMBOL_RE =
+  /\b(DFHBM[A-Z0-9]+|DFHDS[A-Z0-9]+|DFHPRO[A-Z0-9]+|DFH(?:BLUE|RED|PINK|GREEN|TURQ|YELLOW|NEUTR))\b/gi;
 const HANDLE_CONDITION_RE = /\bEXEC\s+CICS\s+HANDLE\s+CONDITION\b/gi;
 const HANDLE_AID_RE = /\bEXEC\s+CICS\s+HANDLE\s+AID\b/gi;
 const RESP_CLAUSE_RE = /\bRESP\s*\(/gi;
@@ -426,13 +452,18 @@ export function inventoryCobolSource(source, file = "") {
 
   const execCics = (code.match(EXEC_CICS_RE) || []).length;
   const execSql = (code.match(EXEC_SQL_RE) || []).length;
+  const execDli = (code.match(EXEC_DLI_RE) || []).length;
   const execSqlOps = parseExecSqlOps(code);
   const execSqlIncludes = parseExecSqlIncludeNames(code);
+  const execDliOps = parseExecDliOps(code);
   const execCicsOps = parseExecCicsOps(code);
   const execCicsMaps = parseExecCicsMaps(code);
   const execCicsMapsets = parseExecCicsMapsets(code);
   const execCicsLinkPrograms = parseExecCicsLinkPrograms(code);
   const execCicsXctlPrograms = parseExecCicsXctlPrograms(code);
+  const ibmMqCallOps = parseIbmMqCallOps(code);
+  const cicsAidSymbols = parseCicsAidSymbols(code);
+  const bmsAttrSymbols = parseBmsAttrSymbols(code);
   const handleCondition = (code.match(HANDLE_CONDITION_RE) || []).length;
   const handleAid = (code.match(HANDLE_AID_RE) || []).length;
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
@@ -486,12 +517,17 @@ export function inventoryCobolSource(source, file = "") {
     execCicsMapsets,
     execCicsLinkPrograms,
     execCicsXctlPrograms,
+    ibmMqCallOps,
+    cicsAidSymbols,
+    bmsAttrSymbols,
     handleCondition,
     handleAid,
     respClauses,
     execSql,
     execSqlOps,
     execSqlIncludes,
+    execDli,
+    execDliOps,
     fileIo,
     organizationIndexed,
     accessModes: [...new Set(accessModes)],
@@ -734,6 +770,8 @@ export function cobolUnresolvedOps(source, fromIndex = 0) {
   if (/\bDISPLAY\s+/i.test(slice) && !DISPLAY_LITERAL_RE.test(slice)) ops.push("display");
   if (/\bEXEC\s+CICS\b/i.test(slice)) ops.push("exec-cics");
   if (/\bEXEC\s+SQL\b/i.test(slice)) ops.push("exec-sql");
+  if (/\bEXEC\s+DLI\b/i.test(slice)) ops.push("exec-dli");
+  if (parseIbmMqCallOps(slice).length) ops.push("ibm-mq");
   if (/\bCOPY\s+[A-Za-z0-9]/i.test(slice)) ops.push("copy");
   if (/\bPERFORM\s+[A-Za-z0-9]/i.test(slice)) ops.push("perform");
   if (/\b(READ|WRITE|REWRITE|DELETE|START)\s+/i.test(slice)) ops.push("file-io");
@@ -744,6 +782,88 @@ export function cobolUnresolvedOps(source, fromIndex = 0) {
   // Non-deterministic intrinsic — keep as honest hole (no invented façade).
   if (/\bFUNCTION\s+RANDOM\b/i.test(slice)) ops.push("function-random");
   return [...new Set(ops)];
+}
+
+/**
+ * Catalog EXEC DLI verbs (IMS DL/I). Does not invent an IMS runtime — ops stay `exec-dli`.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecDliOps(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const ops = [];
+  EXEC_DLI_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_DLI_BLOCK_RE.exec(code)) !== null) {
+    const body = String(m[1] || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+    const verb = /^([A-Z][A-Z0-9-]*)/.exec(body);
+    if (verb?.[1]) ops.push(verb[1]);
+  }
+  return [...new Set(ops)];
+}
+
+/**
+ * Literal IBM MQ MQI CALL targets (`CALL 'MQOPEN'` …). CMQ* copybooks stay holes.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseIbmMqCallOps(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const ops = [];
+  IBM_MQ_CALL_RE.lastIndex = 0;
+  let m;
+  while ((m = IBM_MQ_CALL_RE.exec(code)) !== null) {
+    const name = String(m[1] || m[2] || "").toUpperCase();
+    if (IBM_MQ_API_NAMES.has(name)) ops.push(name);
+  }
+  return [...new Set(ops)];
+}
+
+/**
+ * DFHAID symbol names referenced in source (DFHENTER / DFHPF3 / …).
+ * Does **not** ship or invent `DFHAID.cpy` — IBM SDFHCOB proprietary (G10084).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCicsAidSymbols(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  CICS_AID_SYMBOL_RE.lastIndex = 0;
+  let m;
+  while ((m = CICS_AID_SYMBOL_RE.exec(code)) !== null) {
+    if (m[1]) names.push(m[1].toUpperCase());
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * DFHBMSCA attribute symbol names referenced in source (DFHBMPRF / DFHBMUNP / …).
+ * Does **not** ship or invent `DFHBMSCA.cpy` — IBM SDFHCOB proprietary (G10084).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseBmsAttrSymbols(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  BMS_ATTR_SYMBOL_RE.lastIndex = 0;
+  let m;
+  while ((m = BMS_ATTR_SYMBOL_RE.exec(code)) !== null) {
+    const n = String(m[1] || "").toUpperCase();
+    if (n === "DFHBMSCA") continue;
+    names.push(n);
+  }
+  return [...new Set(names)];
 }
 
 /**
