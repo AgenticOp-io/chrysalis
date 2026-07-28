@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-27 (G10067 Express Router mount peel)
+**As of:** 2026-07-27 (G10075 COBOL Tier A COPY census closed)
 
 ---
 
@@ -153,14 +153,15 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | paused **61/61** behavioral; structural CardDemo deepen continues | no LCB claim; G10001 closed CSUTLDWY/CSSETATY COPY resolve; DFHAID/DFHBMSCA stay holes |
+| COBOL primary | paused **61/61** behavioral; **Tier A COPY closed (G10075)** | no LCB claim; 228/271 COPY/INCLUDE resolve; only DFHAID/DFHBMSCA/EXTFMAP BMS holes; Tier B/C need charter |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
 
 ## Cheap deepen queue
 
-**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049–G10051, G10053, G10057–G10058 skip, G10059, G10063, G10065 skip, G10066):**
+**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049–G10051, G10053, G10057–G10058 skip, G10059, G10063, G10065 skip, G10066, G10075):**
+- G10075 — COBOL Tier A structural COPY/INCLUDE census closed: 228/271 resolve vs `copybook/`; 0 hole-missing-cpy; remaining DFHAID/DFHBMSCA/EXTFMAP stay BMS holes; `hub:cobol-clbs-prove-smoke` green (behavioral still 61/61 paused); no invent
 - G10066 — Gin Group prefix peel (`hub:gin-group-smoke` 20/20); literal `r.Group("/prefix")` + nested/chained path join; non-literal/mw/`Use` = honest holes; flat Gin ST unchanged
 - G10065 — Revel Go secondary **skipped** (`fixtures/ci/revel-honest-skip.json`); `conf/routes` + `Controller.Action`/`revel.Result` Rails-class; not Gin/Buffalo/Martini peel-reuse; real routes lifted 0; no D6527; Gin ST + Go secondaries green
 - G10063 — Cloudflare Workers fetch-export ORIGIN secondary dialect (`hub:cf-workers-smoke` 20/20); `export default { async fetch }` + method/pathname switch + `Response.json`/`{ status }` + `url.searchParams`; itty remains Workers router; KV/D1/env = honest holes
@@ -230,8 +231,8 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Next (charter required — do not invent):**
 1. **Flutter** (or Dart Frog) UI/route surface  
 2. **Phoenix LiveView** (or controller peel with cross-file resolve)  
-3. **COBOL** behavioral beyond 61/61 (refuse façades)  
-4. **IBM BMS** maps (`DFHAID` / `DFHBMSCA` / `EXTFMAP`) — stay honest holes until a real map corpus ships
+3. **COBOL Tier B** — behavioral beyond 61/61 (refuse façades; needs real Db2/CICS/VSAM corpus)  
+4. **COBOL Tier C / IBM BMS** maps (`DFHAID` / `DFHBMSCA` / `EXTFMAP`) — stay honest holes until a real map corpus ships
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
 

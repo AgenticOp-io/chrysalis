@@ -88,7 +88,8 @@ pnpm run test:gce   # full suite on chrysalis-test-vm
 - [x] External prove scoreboard + cobc bar + emit-ref contracts
 - [x] At least one **non-extract** CLBS batch with real file I/O parallel-green (`histldrn` from HISTLD00; VSAM/DB2 stay holes)
 - [x] Private pack engagement folder filled for the pilot (secret)
-- [x] COBOL gnu-honest behavioral **paused** at 61/61 (no near-duplicate extracts; structural-only CardDemo deepen OK)
+- [x] COBOL gnu-honest behavioral **paused** at 61/61 (no near-duplicate extracts)
+- [x] **G10075 Tier A** — mini COPY/INCLUDE census closed (228 resolved; only BMS holes left; no cheap COPY peels remain)
 - [x] Universal inventory-first: `chrysalis:site-inventory-adapters-smoke` green (local + GCE)
 - [x] Universal Express depth batch: `hub:express-depth-batch-smoke` green on GCE (path-advice gold + project-to-cwl hole-free)
 - [x] Universal Pilot Kit wedge: `pilot:laravel-min` **green on GCE** (`chrysalis-test-vm`) with PHP `mysqli` + `pdo_sqlite` (`php8.2-mysql` + `php8.2-sqlite3`); packaging smoke green. Emit fix: handler epilogue uses path-sensitive termination so early `__exit` does not suppress fall-through `__respond` (Hono Context coerce). Local Node 25 may still differ ? prefer GCE Node 22.

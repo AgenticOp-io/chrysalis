@@ -115,6 +115,8 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | EXEC SQL / CICS **catalog** holes | Fake Db2 / CICS / VSAM runtimes |
 | GnuCOBOL behavioral subjects already green (61/61) | New behavioral façades to claim “modernized CLBS” |
 
+**G10075 Tier A closed:** mini COPY/INCLUDE surface exhausted (228 resolved; only BMS names unresolved). Do not invent BMS maps or missing `.cpy`. Do not pad with new behavioral subjects.
+
 Prove: `pnpm run hub:cobol-clbs-prove-smoke` · Docs: [`COBOL-MODERNIZATION-PROVE.md`](./COBOL-MODERNIZATION-PROVE.md)
 
 ---
