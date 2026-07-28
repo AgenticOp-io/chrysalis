@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 /**
- * Smoke: hub-gold-itty itty-router TS dialect → WebIR hole-free
- * (20 routes + empty `router.all` pass-through middleware).
- * ORIGIN secondary — does not replace Express hub-flagship-express /
- * hub-flagship-typescript D6448-ST. Complex `all` / nested Router stay honest holes
- * (itty has no onion `next` — G10064 / D6526; parallel G10044 / G9959).
+ * Smoke: hub-gold-cf-workers Cloudflare Workers fetch-export dialect → WebIR
+ * hole-free (20 routes). ORIGIN secondary — does not replace Express
+ * hub-flagship-express / hub-flagship-typescript D6448-ST. itty-router remains
+ * the Workers router dialect (G10047). KV/D1/env stay honest holes.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -13,27 +12,25 @@ import { spawnSync } from "node:child_process";
 import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
-export const HUB_ITTY_SMOKE_KIND = "chrysalis.hub.itty-smoke";
-export const HUB_ITTY_SMOKE_SCHEMA_VERSION = 2;
+export const HUB_CF_WORKERS_SMOKE_KIND = "chrysalis.hub.cf-workers-smoke";
+export const HUB_CF_WORKERS_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const fixture = join(scriptRoot, "fixtures/hub-gold-itty");
+const fixture = join(scriptRoot, "fixtures/hub-gold-cf-workers");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 const EXPECT_ROUTES = 20;
-/** Empty `router.all('*', () => {})` preset floor (G10064 / G10044 parallel). */
-const EXPECT_MIDDLEWARE = 2;
 
 /**
  * @param {string} [projectDir]
  */
-export async function runIttySmoke(projectDir = fixture) {
+export async function runCfWorkersSmoke(projectDir = fixture) {
   const root = resolve(projectDir);
   const appFile = join(root, "src", "app.ts");
   if (!existsSync(appFile)) {
     return {
-      kind: HUB_ITTY_SMOKE_KIND,
-      schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+      kind: HUB_CF_WORKERS_SMOKE_KIND,
+      schemaVersion: HUB_CF_WORKERS_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "missing-app-ts",
       routeCount: 0,
@@ -49,8 +46,8 @@ export async function runIttySmoke(projectDir = fixture) {
   });
   if (lift.status !== 0) {
     return {
-      kind: HUB_ITTY_SMOKE_KIND,
-      schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+      kind: HUB_CF_WORKERS_SMOKE_KIND,
+      schemaVersion: HUB_CF_WORKERS_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "typescript-lift-failed",
       stderr: (lift.stderr || lift.stdout || "").slice(0, 400),
@@ -65,8 +62,8 @@ export async function runIttySmoke(projectDir = fixture) {
     liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
   } catch {
     return {
-      kind: HUB_ITTY_SMOKE_KIND,
-      schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+      kind: HUB_CF_WORKERS_SMOKE_KIND,
+      schemaVersion: HUB_CF_WORKERS_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "lift-json",
       routeCount: 0,
@@ -82,31 +79,25 @@ export async function runIttySmoke(projectDir = fixture) {
   const projection = summarizeCwlProjection(mod);
   const routeCount = liftReport.astRouteCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
-  const middlewareUseCount = liftReport.middlewareUseCount ?? 0;
-  const middlewareLoweredCount = liftReport.middlewareLoweredCount ?? 0;
   const ok =
     routeCount === EXPECT_ROUTES &&
     holeCount === 0 &&
-    middlewareUseCount === EXPECT_MIDDLEWARE &&
-    middlewareLoweredCount === EXPECT_MIDDLEWARE &&
     projection.holeFree === projection.total &&
     projection.total >= EXPECT_ROUTES;
 
   return {
-    kind: HUB_ITTY_SMOKE_KIND,
-    schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+    kind: HUB_CF_WORKERS_SMOKE_KIND,
+    schemaVersion: HUB_CF_WORKERS_SMOKE_SCHEMA_VERSION,
     ok,
     routeCount,
     holeCount,
-    middlewareUseCount,
-    middlewareLoweredCount,
     cwlProjection: projection,
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runIttySmoke();
+  const report = await runCfWorkersSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok && !report.skip) process.exit(1);
 }

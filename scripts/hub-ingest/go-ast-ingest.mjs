@@ -10,6 +10,10 @@
  * `ctx.URLParam` / `ctx.URLParamDefault` + `ctx.JSON` / `ctx.WriteString`),
  * Beego v2 functional (G10045: `web.Get|Post` + `:id` + `ctx.Input.Param` /
  * `ctx.Input.Query` + `ctx.JSONResp` / `ctx.Output.SetStatus` / `ctx.WriteString`),
+ * Buffalo (G10055: `app.GET|POST` + `{id}`/`:id` + `c.Param` + `c.Render` /
+ * `r.JSON` / `r.String`),
+ * Martini (G10056: `martini.Classic` + `m.Get|Post` + `:id` + `params["id"]` +
+ * `r.JSON` / `json.NewEncoder(w)`),
  * Gorilla mux (G10018: `HandleFunc`+`Methods` + `mux.Vars` + `json.NewEncoder`),
  * and Go 1.22+ net/http ServeMux (G10030: `HandleFunc("METHOD /path")` + `r.PathValue`
  * + `json.NewEncoder`) secondary peels share the same route scan via `detectGoWebDialect`.
@@ -84,6 +88,18 @@ const BEEGO_WRITE_STRING_RE = new RegExp(
 const BEEGO_SET_STATUS_RE = new RegExp(
   String.raw`${BEEGO_CTX}\.Output\.(?:SetStatus\s*\(\s*(\d+)\s*\)|Status\s*=\s*(\d+))`,
 );
+// Buffalo (G10055): c.Render(status, r.JSON(...)) / c.Render(status, r.String("…")).
+const BUFFALO_JSON_MAP_RE =
+  /(?:return\s+)?c\.Render\s*\(\s*(\d+)\s*,\s*\w+\.JSON\s*\(\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)\s*\)/;
+const BUFFALO_JSON_SCALAR_RE =
+  /(?:return\s+)?c\.Render\s*\(\s*(\d+)\s*,\s*\w+\.JSON\s*\(\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)\s*\)/;
+const BUFFALO_STRING_RE =
+  /(?:return\s+)?c\.Render\s*\(\s*(\d+)\s*,\s*\w+\.String\s*\(\s*"([^"]*)"\s*\)\s*\)/;
+// Martini (G10056): render.Render r.JSON(status, …) — Echo-shaped status+body.
+const MARTINI_JSON_MAP_RE =
+  /\w+\.JSON\s*\(\s*(\d+)\s*,\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)/;
+const MARTINI_JSON_SCALAR_RE =
+  /\w+\.JSON\s*\(\s*(\d+)\s*,\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)/;
 const GO_HTTP_STATUS_CONST = {
   StatusOK: 200,
   StatusCreated: 201,
@@ -232,6 +248,26 @@ export function isGoBeegoSource(source) {
 }
 
 /**
+ * Buffalo secondary dialect (G10055 / D6517).
+ * @param {string} source
+ */
+export function isGoBuffaloSource(source) {
+  return /github\.com\/gobuffalo\/buffalo/.test(source) || /\bbuffalo\.New\s*\(/.test(source);
+}
+
+/**
+ * Martini secondary dialect (G10056 / D6518).
+ * @param {string} source
+ */
+export function isGoMartiniSource(source) {
+  return (
+    /github\.com\/go-martini\/martini/.test(source) ||
+    /github\.com\/codegangsta\/martini/.test(source) ||
+    /\bmartini\.Classic\s*\(/.test(source)
+  );
+}
+
+/**
  * Gorilla mux secondary dialect (G10018 / D6480).
  * @param {string} source
  */
@@ -249,13 +285,15 @@ export function isGoServeMuxSource(source) {
 
 /**
  * @param {string} source
- * @returns {"chi" | "echo" | "iris" | "beego" | "fiber" | "gorilla" | "servemux" | "gin"}
+ * @returns {"chi" | "echo" | "iris" | "beego" | "buffalo" | "martini" | "fiber" | "gorilla" | "servemux" | "gin"}
  */
 export function detectGoWebDialect(source) {
   if (isGoChiSource(source)) return "chi";
   if (isGoEchoSource(source)) return "echo";
   if (isGoIrisSource(source)) return "iris";
   if (isGoBeegoSource(source)) return "beego";
+  if (isGoBuffaloSource(source)) return "buffalo";
+  if (isGoMartiniSource(source)) return "martini";
   if (isGoFiberSource(source)) return "fiber";
   if (isGoGorillaSource(source)) return "gorilla";
   if (isGoServeMuxSource(source)) return "servemux";
@@ -468,6 +506,90 @@ export function extractGoBeegoHandlerBody(source, fromIndex) {
   );
   if (!namedM) return null;
   return extractGoNamedBeegoHandlerBody(source, namedM[1]);
+}
+
+/**
+ * Resolve a named Buffalo handler `func name(c buffalo.Context) error { ... }` (G10055).
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractGoNamedBuffaloHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+(?:\([^)]*\)\s+)?${handlerName}\s*\(\s*c\s+buffalo\.Context\s*\)\s*error\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, named: handlerName };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoBuffaloHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\(\s*c\s+buffalo\.Context\s*\)\s*error\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  // Buffalo uses Gin/Echo-style uppercase GET|POST verbs.
+  const namedM = slice.match(
+    /\.(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedBuffaloHandlerBody(source, namedM[1]);
+}
+
+/**
+ * Resolve a named Martini DI handler `func name(…)` (G10056).
+ * Signatures vary (render.Render, martini.Params, *http.Request, ResponseWriter).
+ * @param {string} source
+ * @param {string} handlerName
+ */
+export function extractGoNamedMartiniHandlerBody(source, handlerName) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(handlerName)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+(?:\([^)]*\)\s+)?${handlerName}\s*\([^)]*\)(?:\s+[^{\n]+)?\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, named: handlerName };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex — start of route registration line
+ */
+export function extractGoMartiniHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 8000);
+  const fnM = slice.match(/func\s*\([^)]*\)(?:\s+[^{\n]+)?\s*\{/);
+  if (fnM) {
+    const openInSlice = (fnM.index ?? 0) + fnM[0].lastIndexOf("{");
+    const absOpen = fromIndex + openInSlice;
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    const line = source.slice(0, absOpen).split("\n").length;
+    return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end };
+  }
+  const namedM = slice.match(
+    /\.(?:Get|Post|Put|Patch|Delete|Head|Options)\s*\(\s*"[^"]*"\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (!namedM) return null;
+  return extractGoNamedMartiniHandlerBody(source, namedM[1]);
 }
 
 /**
@@ -1141,6 +1263,247 @@ function parseGoBeegoHandlerBody(bodySlice) {
 }
 
 /**
+ * Buffalo refs: c.Param("id") — path (+ query via same API; peel as path) — G10055.
+ * @param {string} bodySlice
+ */
+function parseGoBuffaloRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*c\.Param\s*\(\s*"([^"]+)"\s*\)/g)) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoBuffaloMapReturn(bodySlice, byVar) {
+  const m = bodySlice.match(BUFFALO_JSON_MAP_RE);
+  if (!m) return null;
+  const status = Number.parseInt(m[1], 10);
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GIN_H_PAIR_RE.lastIndex = 0;
+  for (const pair of m[2].matchAll(GIN_H_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoBuffaloJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(BUFFALO_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = Number.parseInt(m[1], 10);
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: m[2] === "true" };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[3], 10) };
+  }
+  if (m[4] !== undefined) {
+    return { status, kind: "lit", value: m[4] };
+  }
+  const varName = m[5];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoBuffaloHandlerBody(bodySlice) {
+  const byVar = parseGoBuffaloRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const jsonMap = parseGoBuffaloMapReturn(bodySlice, byVar);
+  const jsonScalar = jsonMap ? null : parseGoBuffaloJsonScalar(bodySlice, byVar);
+  const buffStr = !jsonMap && !jsonScalar ? bodySlice.match(BUFFALO_STRING_RE) : null;
+  const litRet = !jsonMap && !jsonScalar && !buffStr ? bodySlice.match(LITERAL_RETURN_RE) : null;
+
+  if (jsonMap || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: jsonMap?.returnTree ?? null,
+      status: jsonMap?.status,
+    };
+  }
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  if (buffStr) {
+    return { kind: "scalar", status: Number.parseInt(buffStr[1], 10), value: buffStr[2] };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
+}
+
+/**
+ * Martini refs: params["id"], req.URL.Query().Get("q") — G10056.
+ * @param {string} bodySlice
+ */
+function parseGoMartiniRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*params\s*\[\s*"([^"]+)"\s*\]/g)) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*(?:req|request)\.URL\.Query\(\)\.Get\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  for (const m of bodySlice.matchAll(/(\w+)\s*:=\s*r\.URL\.Query\(\)\.Get\s*\(\s*"([^"]+)"\s*\)/g)) {
+    if (!byVar[m[1]]) byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoMartiniMapReturn(bodySlice, byVar) {
+  const m = bodySlice.match(MARTINI_JSON_MAP_RE);
+  if (!m) return null;
+  const status = Number.parseInt(m[1], 10);
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GIN_H_PAIR_RE.lastIndex = 0;
+  for (const pair of m[2].matchAll(GIN_H_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoMartiniJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(MARTINI_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = Number.parseInt(m[1], 10);
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: m[2] === "true" };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[3], 10) };
+  }
+  if (m[4] !== undefined) {
+    return { status, kind: "lit", value: m[4] };
+  }
+  const varName = m[5];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoMartiniHandlerBody(bodySlice) {
+  const byVar = parseGoMartiniRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const jsonMap = parseGoMartiniMapReturn(bodySlice, byVar);
+  const jsonScalar = jsonMap ? null : parseGoMartiniJsonScalar(bodySlice, byVar);
+  const mapEnc = jsonMap || jsonScalar ? null : parseGoChiMapEncode(bodySlice, byVar);
+  const encScalar = jsonMap || jsonScalar || mapEnc ? null : parseGoChiJsonScalar(bodySlice, byVar);
+  const writeStr =
+    !jsonMap && !jsonScalar && !mapEnc && !encScalar ? bodySlice.match(GO_CHI_WRITE_STRING_RE) : null;
+  // Martini DI often returns plain strings (`return "ok"`); LITERAL_RETURN_RE's trailing \b fails after quotes.
+  const strRet =
+    !jsonMap && !jsonScalar && !mapEnc && !encScalar && !writeStr
+      ? bodySlice.match(/return\s+"([^"]*)"/)
+      : null;
+  const litRet =
+    !jsonMap && !jsonScalar && !mapEnc && !encScalar && !writeStr && !strRet
+      ? bodySlice.match(LITERAL_RETURN_RE)
+      : null;
+
+  const effectiveMap = jsonMap ?? mapEnc;
+  const effectiveScalar = jsonScalar ?? encScalar;
+
+  if (effectiveMap || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: effectiveMap?.returnTree ?? null,
+      status: effectiveMap?.status,
+    };
+  }
+  if (effectiveScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: effectiveScalar.returnTree,
+      status: effectiveScalar.status,
+    };
+  }
+  if (effectiveScalar?.kind === "lit") {
+    return { kind: "scalar", status: effectiveScalar.status, value: effectiveScalar.value };
+  }
+  if (writeStr) {
+    return { kind: "scalar", status: 200, value: writeStr[1] };
+  }
+  if (strRet) {
+    return { kind: "scalar", status: 200, value: strRet[1] };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
+}
+
+/**
  * @param {string} bodySlice
  */
 function parseGoGinRefs(bodySlice) {
@@ -1368,9 +1731,13 @@ export function liftGoFileToWebir(opts) {
             ? extractGoIrisHandlerBody(source, idx)
             : dialect === "beego"
               ? extractGoBeegoHandlerBody(source, idx)
-              : dialect === "fiber"
-                ? extractGoFiberHandlerBody(source, idx)
-                : extractGoGinHandlerBody(source, idx);
+              : dialect === "buffalo"
+                ? extractGoBuffaloHandlerBody(source, idx)
+                : dialect === "martini"
+                  ? extractGoMartiniHandlerBody(source, idx)
+                  : dialect === "fiber"
+                    ? extractGoFiberHandlerBody(source, idx)
+                    : extractGoGinHandlerBody(source, idx);
     let bodyId;
     if (!extracted) {
       bodyId = hubHandlerBodyHole(
@@ -1383,13 +1750,17 @@ export function liftGoFileToWebir(opts) {
               ? "hub-iris:handler-body"
               : dialect === "beego"
                 ? "hub-beego:handler-body"
-                : dialect === "fiber"
-                  ? "hub-fiber:handler-body"
-                  : dialect === "gorilla"
-                    ? "hub-gorilla:handler-body"
-                    : dialect === "servemux"
-                      ? "hub-servemux:handler-body"
-                      : "hub-go:handler-body",
+                : dialect === "buffalo"
+                  ? "hub-buffalo:handler-body"
+                  : dialect === "martini"
+                    ? "hub-martini:handler-body"
+                    : dialect === "fiber"
+                      ? "hub-fiber:handler-body"
+                    : dialect === "gorilla"
+                      ? "hub-gorilla:handler-body"
+                      : dialect === "servemux"
+                        ? "hub-servemux:handler-body"
+                        : "hub-go:handler-body",
         {
           file,
           line: r.line,
@@ -1488,6 +1859,48 @@ export function liftGoFileToWebir(opts) {
         bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
       } else {
         bodyId = hubHandlerBodyHole(ctx, "hub-beego:handler-body", loc);
+      }
+    } else if (dialect === "buffalo") {
+      const { bodySlice, line } = extracted;
+      const loc = { file, line };
+      const parsed = parseGoBuffaloHandlerBody(bodySlice);
+      if (parsed?.kind === "handler") {
+        bodyId =
+          lowerGoHandlerBody(
+            ctx,
+            {
+              sqlEffects: parsed.sqlEffects,
+              returnTree: parsed.returnTree,
+              status: parsed.status,
+              line,
+            },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-buffalo:handler-body", loc);
+      } else if (parsed?.kind === "scalar") {
+        bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-buffalo:handler-body", loc);
+      }
+    } else if (dialect === "martini") {
+      const { bodySlice, line } = extracted;
+      const loc = { file, line };
+      const parsed = parseGoMartiniHandlerBody(bodySlice);
+      if (parsed?.kind === "handler") {
+        bodyId =
+          lowerGoHandlerBody(
+            ctx,
+            {
+              sqlEffects: parsed.sqlEffects,
+              returnTree: parsed.returnTree,
+              status: parsed.status,
+              line,
+            },
+            loc,
+          ) ?? hubHandlerBodyHole(ctx, "hub-martini:handler-body", loc);
+      } else if (parsed?.kind === "scalar") {
+        bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-martini:handler-body", loc);
       }
     } else if (dialect === "fiber") {
       const { bodySlice, line } = extracted;

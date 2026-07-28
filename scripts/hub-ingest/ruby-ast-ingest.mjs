@@ -7,6 +7,8 @@
  * G10032 / D6494: flat Grape `class API < Grape::API` + `get "/path" do`
  * reuses Sinatra peels (`/:id`, `params[]`, `status N`, bare Hash); nested
  * `route_param` / `present` / `params do` stay honest holes.
+ * G10062 / D6524: flat Padrino `Padrino::Application` + `get "/path" do`
+ * likewise reuses Sinatra peels; symbol controllers / mount stay honest holes.
  */
 import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
 import {

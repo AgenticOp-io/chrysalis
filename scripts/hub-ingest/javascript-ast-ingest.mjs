@@ -9,6 +9,7 @@ import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
 import {
   liftElysiaLifecycleMiddlewareToWebir,
   liftExpressMiddlewareToWebir,
+  liftIttyPassthroughMiddlewareToWebir,
 } from "./hub-express-middleware.mjs";
 import { lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
 import {
@@ -19,7 +20,8 @@ import {
 const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 /** Restify aliases `del` for DELETE (origin shape — not invented). */
 const HTTP_METHOD_ALIASES = new Map([["del", "delete"]]);
-const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
+/** Includes Adonis `Route.get|post|…` (G10059) alongside Express/Fastify/itty `router`. */
+const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify", "Route"]);
 
 const T = {
   string: { kind: "string" },
@@ -283,6 +285,332 @@ function extractBunServeRoutesFromCall(node) {
     if (!path || typeof path !== "string" || !path.startsWith("/")) continue;
     const loc = p.loc?.start ?? node.loc?.start ?? { line: 1, column: 0 };
     out.push(...peelBunRouteValue(path, p.value, loc));
+  }
+  return out;
+}
+
+/**
+ * Cloudflare Workers `export default { async fetch(request, env, ctx) { … } }` (G10063).
+ * Peels literal pathname + method routing only — no KV/D1/env invent (**D6447**).
+ * @param {import('estree').Program} ast
+ * @returns {import('estree').Function | null}
+ */
+function findCfWorkersFetchHandler(ast) {
+  for (const stmt of ast.body ?? []) {
+    if (stmt?.type !== "ExportDefaultDeclaration") continue;
+    const decl = stmt.declaration;
+    if (decl?.type !== "ObjectExpression") continue;
+    for (const p of decl.properties ?? []) {
+      if (p.type !== "Property" || p.computed) continue;
+      const key = objectPropKeyName(p);
+      if (key !== "fetch") continue;
+      const fn = handlerCallback(p.value);
+      if (fn) return fn;
+      if (
+        p.value?.type === "FunctionExpression" ||
+        p.value?.type === "ArrowFunctionExpression"
+      ) {
+        return p.value;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Member/ident that yields HTTP method: `request.method` / `req.method` / `method`.
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isHttpMethodRef(expr) {
+  if (expr?.type === "Identifier" && expr.name === "method") return true;
+  if (expr?.type !== "MemberExpression" || expr.computed) return false;
+  if (expr.property?.type !== "Identifier" || expr.property.name !== "method") return false;
+  return (
+    expr.object?.type === "Identifier" &&
+    (expr.object.name === "request" || expr.object.name === "req")
+  );
+}
+
+/**
+ * Member/ident that yields URL pathname: `url.pathname` / `pathname` / `path`.
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isUrlPathnameRef(expr) {
+  if (expr?.type === "Identifier" && (expr.name === "pathname" || expr.name === "path")) {
+    return true;
+  }
+  if (expr?.type !== "MemberExpression" || expr.computed) return false;
+  if (expr.property?.type !== "Identifier" || expr.property.name !== "pathname") return false;
+  return expr.object?.type === "Identifier" && expr.object.name === "url";
+}
+
+/**
+ * `left === "GET"` / `"GET" === left` when left is method ref → method string.
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {string | null}
+ */
+function peelMethodEquality(expr) {
+  if (expr?.type !== "BinaryExpression" || expr.operator !== "===") return null;
+  const sides = [expr.left, expr.right];
+  for (let i = 0; i < 2; i++) {
+    const a = sides[i];
+    const b = sides[1 - i];
+    if (!isHttpMethodRef(a)) continue;
+    if (b?.type === "Literal" && typeof b.value === "string") {
+      const m = b.value.toUpperCase();
+      return HTTP_METHODS.has(m.toLowerCase()) ? m : null;
+    }
+  }
+  return null;
+}
+
+/**
+ * `left === "/path"` when left is pathname ref → path string.
+ * @param {import('estree').Expression | null | undefined} expr
+ * @returns {string | null}
+ */
+function peelPathnameEquality(expr) {
+  if (expr?.type !== "BinaryExpression" || expr.operator !== "===") return null;
+  const sides = [expr.left, expr.right];
+  for (let i = 0; i < 2; i++) {
+    const a = sides[i];
+    const b = sides[1 - i];
+    if (!isUrlPathnameRef(a)) continue;
+    if (b?.type === "Literal" && typeof b.value === "string" && b.value.startsWith("/")) {
+      return b.value;
+    }
+  }
+  return null;
+}
+
+/**
+ * `method === "GET" && pathname === "/health"` (either order) → { method, path }.
+ * @param {import('estree').Expression | null | undefined} test
+ * @returns {{ method: string, path: string } | null}
+ */
+function peelMethodAndPathTest(test) {
+  if (!test) return null;
+  if (test.type === "LogicalExpression" && test.operator === "&&") {
+    const method = peelMethodEquality(test.left) ?? peelMethodEquality(test.right);
+    const path = peelPathnameEquality(test.left) ?? peelPathnameEquality(test.right);
+    if (method && path) return { method, path };
+    // Nested && (method && path) && other — take first peelable pair only.
+    return peelMethodAndPathTest(test.left) ?? peelMethodAndPathTest(test.right);
+  }
+  return null;
+}
+
+/**
+ * `` `${request.method} ${url.pathname}` `` / `` `${method} ${path}` `` discriminant.
+ * @param {import('estree').Expression | null | undefined} disc
+ */
+function isMethodPathTemplateDiscriminant(disc) {
+  if (disc?.type !== "TemplateLiteral") return false;
+  if ((disc.quasis?.length ?? 0) !== 3 || (disc.expressions?.length ?? 0) !== 2) return false;
+  const q0 = disc.quasis[0]?.value?.cooked ?? disc.quasis[0]?.value?.raw ?? "";
+  const q1 = disc.quasis[1]?.value?.cooked ?? disc.quasis[1]?.value?.raw ?? "";
+  const q2 = disc.quasis[2]?.value?.cooked ?? disc.quasis[2]?.value?.raw ?? "";
+  if (q0 !== "" || q1 !== " " || q2 !== "") return false;
+  return isHttpMethodRef(disc.expressions[0]) && isUrlPathnameRef(disc.expressions[1]);
+}
+
+/**
+ * Case label `"GET /health"` → { method, path }.
+ * @param {string} label
+ * @returns {{ method: string, path: string } | null}
+ */
+function peelMethodPathCaseLabel(label) {
+  const m = /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (\/\S*)$/i.exec(String(label).trim());
+  if (!m) return null;
+  const method = m[1].toUpperCase();
+  if (!HTTP_METHODS.has(method.toLowerCase())) return null;
+  return { method, path: m[2] };
+}
+
+/**
+ * Wrap a return payload as a synthetic handler fn for lowerHandlerBody.
+ * @param {import('estree').Expression} payload
+ * @param {{ line: number, column: number }} loc
+ * @returns {import('estree').ArrowFunctionExpression}
+ */
+function syntheticReturnHandler(payload, loc) {
+  return {
+    type: "ArrowFunctionExpression",
+    id: null,
+    params: [],
+    body: payload,
+    expression: true,
+    generator: false,
+    async: false,
+    loc: { start: loc, end: loc },
+  };
+}
+
+/**
+ * First `return <expr>` inside a statement list / block (or expression return).
+ * @param {import('estree').Statement | import('estree').BlockStatement | null | undefined} node
+ * @returns {import('estree').Expression | null}
+ */
+function firstReturnArgument(node) {
+  if (!node) return null;
+  if (node.type === "ReturnStatement") return node.argument ?? null;
+  if (node.type === "BlockStatement") {
+    for (const s of node.body ?? []) {
+      const arg = firstReturnArgument(s);
+      if (arg) return arg;
+    }
+    return null;
+  }
+  if (node.type === "IfStatement") {
+    return firstReturnArgument(node.consequent) ?? firstReturnArgument(node.alternate);
+  }
+  return null;
+}
+
+/**
+ * Walk if/else-if chain for method+path tests → routes.
+ * @param {import('estree').IfStatement} node
+ * @param {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} out
+ */
+function peelCfWorkersIfRoutes(node, out) {
+  let cur = /** @type {import('estree').Statement | null | undefined} */ (node);
+  while (cur && cur.type === "IfStatement") {
+    const mp = peelMethodAndPathTest(cur.test);
+    if (mp) {
+      const payload = firstReturnArgument(cur.consequent);
+      if (payload) {
+        const loc = cur.loc?.start ?? { line: 1, column: 0 };
+        out.push({
+          method: mp.method,
+          path: mp.path,
+          fn: syntheticReturnHandler(payload, loc),
+          loc,
+        });
+      }
+    } else if (cur.test && peelPathnameEquality(cur.test)) {
+      // `if (pathname === "/x") { if (method === "GET") return … }`
+      const path = peelPathnameEquality(cur.test);
+      const inner = cur.consequent;
+      if (path && inner?.type === "BlockStatement") {
+        for (const s of inner.body ?? []) {
+          if (s.type !== "IfStatement") continue;
+          const method = peelMethodEquality(s.test);
+          if (!method) continue;
+          const payload = firstReturnArgument(s.consequent);
+          if (!payload) continue;
+          const loc = s.loc?.start ?? { line: 1, column: 0 };
+          out.push({
+            method,
+            path,
+            fn: syntheticReturnHandler(payload, loc),
+            loc,
+          });
+        }
+      } else if (path && inner?.type === "IfStatement") {
+        const method = peelMethodEquality(inner.test);
+        const payload = method ? firstReturnArgument(inner.consequent) : null;
+        if (method && payload) {
+          const loc = inner.loc?.start ?? { line: 1, column: 0 };
+          out.push({
+            method,
+            path,
+            fn: syntheticReturnHandler(payload, loc),
+            loc,
+          });
+        }
+      }
+    } else if (cur.test && peelMethodEquality(cur.test)) {
+      const method = peelMethodEquality(cur.test);
+      const inner = cur.consequent;
+      if (method && inner?.type === "BlockStatement") {
+        for (const s of inner.body ?? []) {
+          if (s.type !== "IfStatement") continue;
+          const path = peelPathnameEquality(s.test);
+          if (!path) continue;
+          const payload = firstReturnArgument(s.consequent);
+          if (!payload) continue;
+          const loc = s.loc?.start ?? { line: 1, column: 0 };
+          out.push({
+            method,
+            path,
+            fn: syntheticReturnHandler(payload, loc),
+            loc,
+          });
+        }
+      }
+    }
+    cur = cur.alternate;
+  }
+}
+
+/**
+ * `switch (\`${method} ${pathname}\`) { case "GET /health": return … }`
+ * @param {import('estree').SwitchStatement} node
+ * @param {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} out
+ */
+function peelCfWorkersSwitchRoutes(node, out) {
+  if (!isMethodPathTemplateDiscriminant(node.discriminant)) {
+    // switch (pathname) { case "/health": if (method === "GET") return … }
+    if (!isUrlPathnameRef(node.discriminant)) return;
+    for (const c of node.cases ?? []) {
+      if (!c.test || c.test.type !== "Literal" || typeof c.test.value !== "string") continue;
+      const path = c.test.value;
+      if (!path.startsWith("/")) continue;
+      for (const s of c.consequent ?? []) {
+        if (s.type === "IfStatement") {
+          const method = peelMethodEquality(s.test);
+          const payload = method ? firstReturnArgument(s.consequent) : null;
+          if (method && payload) {
+            const loc = s.loc?.start ?? c.loc?.start ?? { line: 1, column: 0 };
+            out.push({
+              method,
+              path,
+              fn: syntheticReturnHandler(payload, loc),
+              loc,
+            });
+          }
+          continue;
+        }
+        // Bare return under case — method unknown; skip (not peelable cheaply).
+      }
+    }
+    return;
+  }
+  for (const c of node.cases ?? []) {
+    if (!c.test || c.test.type !== "Literal" || typeof c.test.value !== "string") continue;
+    const mp = peelMethodPathCaseLabel(c.test.value);
+    if (!mp) continue;
+    const payload = firstReturnArgument({
+      type: "BlockStatement",
+      body: c.consequent ?? [],
+    });
+    if (!payload) continue;
+    const loc = c.loc?.start ?? { line: 1, column: 0 };
+    out.push({
+      method: mp.method,
+      path: mp.path,
+      fn: syntheticReturnHandler(payload, loc),
+      loc,
+    });
+  }
+}
+
+/**
+ * Peel Cloudflare Workers fetch-export routes (G10063).
+ * Only `export default { fetch }` — does not steal Bun.serve `fetch` fallback (Identifier export).
+ * @param {import('estree').Program} ast
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>}
+ */
+function extractCfWorkersFetchRoutes(ast) {
+  const fetchFn = findCfWorkersFetchHandler(ast);
+  if (!fetchFn) return [];
+  const body = fetchFn.body;
+  if (body?.type !== "BlockStatement") return [];
+  /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} */
+  const out = [];
+  for (const s of body.body ?? []) {
+    if (s.type === "IfStatement") peelCfWorkersIfRoutes(s, out);
+    else if (s.type === "SwitchStatement") peelCfWorkersSwitchRoutes(s, out);
   }
   return out;
 }
@@ -628,6 +956,63 @@ function reqGetHeaderFieldOf(expr) {
   const arg = expr.arguments[0];
   if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
   return { name: arg.value };
+}
+
+/**
+ * Adonis `request.param("id")` → path request field (G10059).
+ * Does not invent Lucid / IoC / controller string refs.
+ * @param {import('estree').CallExpression} expr
+ * @returns {{ source: "path", name: string } | null}
+ */
+function adonisRequestParamFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (
+    callee?.type !== "MemberExpression" ||
+    callee.computed ||
+    callee.property?.type !== "Identifier" ||
+    callee.property.name !== "param"
+  ) {
+    return null;
+  }
+  if (callee.object?.type !== "Identifier" || callee.object.name !== "request") return null;
+  const arg = expr.arguments[0];
+  if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+  return { source: "path", name: arg.value };
+}
+
+/**
+ * Adonis `request.qs().q` / `request.qs()['q']` → query request field (G10059).
+ * @param {import('estree').MemberExpression} expr
+ * @returns {{ source: "query", name: string } | null}
+ */
+function adonisQsMemberFieldOf(expr) {
+  if (expr.type !== "MemberExpression") return null;
+  const call = expr.object;
+  if (call?.type !== "CallExpression") return null;
+  const callee = call.callee;
+  if (
+    callee?.type !== "MemberExpression" ||
+    callee.computed ||
+    callee.property?.type !== "Identifier" ||
+    callee.property.name !== "qs"
+  ) {
+    return null;
+  }
+  if (callee.object?.type !== "Identifier" || callee.object.name !== "request") return null;
+  if (call.arguments?.length) return null;
+  const name = memberPropName(expr);
+  if (!name) return null;
+  return { source: "query", name };
+}
+
+/**
+ * Adonis import marker: `@adonisjs/…` (G10059 — dialect tag only).
+ * @param {import('estree').ImportDeclaration} node
+ */
+function isAdonisImportSource(node) {
+  const src = node?.source?.value;
+  return typeof src === "string" && src.includes("adonisjs");
 }
 
 /**
@@ -1574,6 +1959,16 @@ function lowerExpression(ctx, expr) {
         provenance: [webir.provenance("hub-ingest", `javascript-ast:req-${field.source}`)],
       });
     }
+    const adonisQs = adonisQsMemberFieldOf(expr);
+    if (adonisQs) {
+      return data.requestField({
+        source: adonisQs.source,
+        name: adonisQs.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:adonis-qs")],
+      });
+    }
     const h3Query = h3GetQueryMemberFieldOf(expr);
     if (h3Query) {
       return data.requestField({
@@ -1625,6 +2020,16 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "CallExpression") {
+    const adonisParam = adonisRequestParamFieldOf(expr);
+    if (adonisParam) {
+      return data.requestField({
+        source: adonisParam.source,
+        name: adonisParam.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:adonis-param")],
+      });
+    }
     const honoReq = honoReqFieldOf(expr);
     if (honoReq) {
       return data.requestField({
@@ -2210,6 +2615,8 @@ export function liftJavaScriptFileToWebir(opts) {
   let oakOrigin = false;
   let bunServeOrigin = false;
   let ittyOrigin = false;
+  let cfWorkersOrigin = false;
+  let adonisOrigin = false;
   if (ast) {
     walkSimple(ast, {
       CallExpression(node) {
@@ -2219,20 +2626,55 @@ export function liftJavaScriptFileToWebir(opts) {
         if (isBunServeCall(node)) bunServeOrigin = true;
         for (const br of extractBunServeRoutesFromCall(node)) routes.push(br);
         if (isIttyRouterCallExpression(node)) ittyOrigin = true;
+        // Adonis `Route.get|post|…` receiver (G10059).
+        if (
+          node.callee?.type === "MemberExpression" &&
+          !node.callee.computed &&
+          node.callee.object?.type === "Identifier" &&
+          node.callee.object.name === "Route" &&
+          node.callee.property?.type === "Identifier" &&
+          HTTP_METHODS.has(
+            (HTTP_METHOD_ALIASES.get(node.callee.property.name) ?? node.callee.property.name).toLowerCase(),
+          )
+        ) {
+          adonisOrigin = true;
+        }
       },
       NewExpression(node) {
         if (isHonoNewExpression(node)) honoOrigin = true;
         if (isElysiaNewExpression(node)) elysiaOrigin = true;
         if (isOakApplicationNewExpression(node)) oakOrigin = true;
       },
+      ImportDeclaration(node) {
+        if (isAdonisImportSource(node)) adonisOrigin = true;
+      },
     });
+    // Workers fetch export (G10063): only when no Bun.serve / itty / Hono / Elysia / Oak / Adonis
+    // router markers — do not steal Bun.serve `fetch` fallback or itty `export default router`.
+    if (
+      !bunServeOrigin &&
+      !ittyOrigin &&
+      !honoOrigin &&
+      !elysiaOrigin &&
+      !oakOrigin &&
+      !adonisOrigin
+    ) {
+      const cfRoutes = extractCfWorkersFetchRoutes(ast);
+      if (cfRoutes.length > 0) {
+        cfWorkersOrigin = true;
+        for (const cr of cfRoutes) routes.push(cr);
+      }
+    }
   }
 
   // Elysia `.use` is plugin-shaped (not `(ctx, next)`); peel empty lifecycle only (G10053).
+  // itty has no onion `next` — peel empty/`next`-only `router.all` only (G10064); skip Express `.use`.
   const mw = ast
     ? elysiaOrigin
       ? liftElysiaLifecycleMiddlewareToWebir({ ast, file, builder, wr, webir })
-      : liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir })
+      : ittyOrigin
+        ? liftIttyPassthroughMiddlewareToWebir({ ast, file, builder, wr, webir })
+        : liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir })
     : { middlewareUseCount: 0, middlewareRootCount: 0 };
 
   if (routes.length === 0 && mw.middlewareRootCount === 0) {
@@ -2254,17 +2696,21 @@ export function liftJavaScriptFileToWebir(opts) {
     const bodyId = lowerHandlerBody(ctx, r.fn);
     const dialectTag = r.paramBindings
       ? `nestjs`
-      : ittyOrigin
-        ? `itty`
-        : bunServeOrigin
-          ? `bun-serve`
-          : oakOrigin
-            ? `oak`
-            : elysiaOrigin
-              ? `elysia`
-              : honoOrigin
-                ? `hono`
-                : null;
+      : adonisOrigin
+        ? `adonis`
+        : cfWorkersOrigin
+          ? `cf-workers`
+          : ittyOrigin
+            ? `itty`
+            : bunServeOrigin
+              ? `bun-serve`
+              : oakOrigin
+                ? `oak`
+                : elysiaOrigin
+                  ? `elysia`
+                  : honoOrigin
+                    ? `hono`
+                    : null;
     const handlerId = wr.handler({
       attrs: {
         name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,

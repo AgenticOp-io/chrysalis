@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-27 (G10051 Finch Scala secondary dialect)
+**As of:** 2026-07-27 (G10058 Drogon C++ secondary skipped)
 
 ---
 
@@ -54,7 +54,10 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10025 | Elysia TS ORIGIN | `hub:elysia-smoke` | secondary to Express/TS ST; plugins/macros = honest holes; empty lifecycle via G10053 |
 | G10053 | Elysia empty lifecycle | `hub:elysia-smoke` v2 | empty `onRequest`/`onBeforeHandle` → `js.passthrough` (G10044 parallel); plugin `.use` = honest hole |
 | G10043 | Oak Deno/JS ORIGIN | `hub:oak-smoke` | secondary to Express/TS ST; middleware/`router.routes()` = honest holes |
-| G10047 | itty-router JS/TS ORIGIN | `hub:itty-smoke` | secondary to Express/TS ST; middleware/nested Router = honest holes |
+| G10047 | itty-router JS/TS ORIGIN | `hub:itty-smoke` | secondary to Express/TS ST; empty `all` via G10064; complex mw/nested Router = honest holes |
+| G10064 | itty empty `router.all` | `hub:itty-smoke` v2 | empty/`next`-only `router.all` → `js.passthrough` (G10044 parallel); itty has no onion `next` |
+| G10063 | Cloudflare Workers fetch export | `hub:cf-workers-smoke` | secondary to Express/TS ST; itty remains Workers router; KV/D1/env = honest holes |
+| G10059 | AdonisJS TS ORIGIN | `hub:adonis-smoke` | secondary to Express/TS ST; Lucid/IoC/controller refs = honest holes |
 | — | Scala Http4s | `hub:scala-http4s-smoke` | secondary to Akka ST |
 | G10051 | Scala Finch | `hub:finch-smoke` | secondary to Akka ST; Http4s remains first Scala secondary; coproduct/lenses/bootstrap = honest holes |
 | — | cpp-httplib | `hub:cpp-httplib-smoke` | secondary to Crow ST |
@@ -86,6 +89,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10030 | Go net/http ServeMux (1.22+) | `hub:servemux-smoke` | secondary to Gin Go ST; middleware none; pattern conflicts = honest holes |
 | G10022 | Ruby Roda | `hub:roda-smoke` | secondary to Sinatra Ruby ST; nested `r.on`/plugins = honest holes |
 | G10032 | Ruby Grape | `hub:grape-smoke` | secondary to Sinatra Ruby ST; reuses Sinatra peels; `route_param`/`present` = honest holes |
+| G10062 | Ruby Padrino | `hub:padrino-smoke` | secondary to Sinatra Ruby ST; reuses Sinatra peels (Grape-class); symbol controllers/mount/filters = honest holes |
 | G10028 | PHP Slim | `hub:slim-smoke` | secondary to Laravel/Symfony/plain-php ST; PSR-15/`$app->group` = honest holes |
 | G10049 | PHP Lumen / Laravel-router | `hub:lumen-smoke` | secondary to Laravel/Symfony/plain-php ST; Slim remains first PHP secondary; middleware/controllers = honest holes |
 
@@ -103,11 +107,16 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Hono complex `app.use` / middleware helpers | honest holes | empty/next-only closed (G10044); ≠ emit-hono |
 | Elysia plugins / non-empty lifecycle / macros | honest holes | empty lifecycle closed (G10053); G10025 route surface |
 | Oak `app.use` / `router.routes()` / request body|headers|cookies | honest holes | G10043 ORIGIN route surface only |
-| itty-router middleware / nested Router / body|headers|cookies | honest holes | G10047 ORIGIN route surface only |
+| itty-router non-empty `all` / nested Router / body|headers|cookies | honest holes | empty `all` closed (G10064); G10047 ORIGIN route surface |
+| Cloudflare Workers KV/D1/`env` / dynamic segments / opaque fetch | honest holes | G10063 fetch-export method+pathname surface only |
 | Phoenix controllers / LiveView | skipped | `fixtures/ci/phoenix-controller-honest-skip.json` |
 | Rails secondary (`routes.rb` → controller) | skipped (G10006) | `fixtures/ci/rails-controller-honest-skip.json` |
+| Nancy FX C# secondary | skipped (G10050) | `fixtures/ci/nancy-honest-skip.json` — not Minimal API Map* peel-reuse |
+| Tapir Scala secondary | skipped (G10057) | `fixtures/ci/tapir-honest-skip.json` — fluent combinator/codec DSL not Ok peel-reuse; no D6519 |
+| Drogon C++ secondary | skipped (G10058) | `fixtures/ci/drogon-honest-skip.json` — registerHandler/callback not Crow/httplib peel-reuse; no D6520 |
 | Roda nested `r.on` / plugins / auth | honest holes | G10022 route surface only (`roda-honest-holes.json`) |
 | Grape `route_param` / `present` / `params do` / namespace | honest holes | G10032 flat route surface only (`grape-honest-holes.json`) |
+| Padrino symbol controllers / mount / filters | honest holes | G10062 flat Sinatra-compatible surface only (`padrino-honest-holes.json`) |
 | Flutter / Dart Frog / Pipeline | honest holes | Dart ST is Shelf + same-file named handlers (G10007) |
 | FastAPI Depends / OAuth / middleware | honest holes | G10003 route surface only |
 | Go Chi middleware / Mount / non-literal paths | honest holes | G10009 route surface only |
@@ -144,12 +153,17 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 ## Cheap deepen queue
 
-**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049, G10051, G10053):**
+**Closed this wave (G10001–G10013, G10009–G10012, G10017–G10018, G10020–G10028, G10030–G10036, G10038–G10044, G10046, G10049–G10051, G10053, G10057–G10058 skip, G10059, G10063):**
+- G10063 — Cloudflare Workers fetch-export ORIGIN secondary dialect (`hub:cf-workers-smoke` 20/20); `export default { async fetch }` + method/pathname switch + `Response.json`/`{ status }` + `url.searchParams`; itty remains Workers router; KV/D1/env = honest holes
+- G10059 — AdonisJS ORIGIN secondary dialect (`hub:adonis-smoke` 20/20); `Route.get|post` + `:id` + `request.param` / `request.qs()` + `response.json`/`response.status`; Lucid/IoC/controller refs = honest holes
+- G10058 — Drogon C++ secondary **skipped** (`fixtures/ci/drogon-honest-skip.json`); `registerHandler`+callback/Json::Value not Crow/httplib peel-reuse; probe 0 routes; no D6520; Crow ST + cpp-httplib green
+- G10057 — Tapir Scala secondary **skipped** (`fixtures/ci/tapir-honest-skip.json`); fluent `endpoint.get.in.out(codec)` not Finch/Http4s Ok peel-reuse; probe 0 routes; no D6519; Akka ST + Http4s/Finch green
 - G10051 — Finch Scala secondary dialect (`hub:finch-smoke` 20/20); `get("path")` / `path[String]` / `param[String]("q")` + Ok/Created/Accepted; Akka ST; Http4s first Scala secondary; coproduct/lenses = honest holes
 - G10049 — Lumen / Laravel-router PHP secondary dialect (`hub:lumen-smoke` 20/20); `$router->get|post` / `Route::get|post` + `{id}` + `$request->query` + `response()->json`; middleware/controllers = honest holes
 - G10046 — Jooby Java secondary dialect (`hub:jooby-smoke` 20/20); `new Jooby() {{ get|post|… }}` / `app.get|post|…` + `{id}` + `ctx.path`/`ctx.query` + `ctx.setResponseCode` + Map/string returns
 - G10043 — Oak Deno/JS ORIGIN secondary dialect (`hub:oak-smoke` 20/20); `new Application` + `router.get|post` + `:id`/`{id}` + `ctx.params` + `searchParams` + `ctx.response.body|status`; middleware = honest holes
-- G10047 — itty-router Workers ORIGIN secondary dialect (`hub:itty-smoke` 20/20); `Router()` + `router.get|post` + `:id` + `request.params` + URL `searchParams` + `json()`/`Response.json`/`new Response`; middleware = honest holes
+- G10047 — itty-router Workers ORIGIN secondary dialect (`hub:itty-smoke` 20/20); `Router()` + `router.get|post` + `:id` + `request.params` + URL `searchParams` + `json()`/`Response.json`/`new Response`; empty `all` via G10064; complex middleware = honest holes
+- G10064 — itty empty/`next`-only `router.all` → `js.passthrough` (`hub:itty-smoke` v2; parallel G10044/G9959); itty has no onion `next`
 - G10039 — aiohttp Python secondary dialect (`hub:aiohttp-smoke` 20/20); `web.Application` + `web.get|post|…` + `{id}`/`{id:\d+}` + `request.match_info` + `request.query.get` + `web.json_response`/`web.Response`
 - G10040 — Tornado Python secondary dialect (`hub:tornado-smoke` 20/20); `Application([(r"/path", Handler), …])` + class `get|post|…` + `(?P<id>[^/]+)`/`([^/]+)` + `self.get_argument` + `self.write`/`self.set_status`
 - G10042 — Helidon MP JAX-RS Java secondary dialect (`hub:helidon-smoke` 20/20); `jakarta.ws.rs` resource surface **via G10012 JAX-RS peels** (no Helidon CDI/MP invent)
@@ -189,12 +203,16 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 - G10030 — Go net/http ServeMux (Go 1.22+) secondary dialect (`hub:servemux-smoke` 20/20); `HandleFunc("METHOD /path")` + `{id}` + `r.PathValue` + `json.NewEncoder`/`w.WriteHeader`; Gin remains Go ST
 - G10022 — Roda Ruby secondary dialect (`hub:roda-smoke` 20/20); shallow `r.get|post` + `String`/`|id|` + Hash/`response.status`/`r.params`; Sinatra remains Ruby ST
 - G10032 — Grape Ruby API secondary dialect (`hub:grape-smoke` 20/20); flat `get|post` + `/:id` + Hash/`status`/`params[]` (Sinatra peels); Sinatra remains Ruby ST
+- G10062 — Padrino Ruby secondary dialect (`hub:padrino-smoke` 20/20); flat `Padrino::Application` + `get|post` + `/:id` + Hash/`status`/`params[]` (Sinatra peels); Sinatra remains Ruby ST
 
 **Skipped (G10006):** Rails secondary — cross-file `controller#action` + ActionController (Phoenix-class); inline rack lambda probe 6/6 handler holes on Sinatra-only peel. Sinatra ST unchanged (`hub-flagship-ruby`).
 
 **Closed (G10022 / D6484):** Roda secondary dialect (`hub:roda-smoke` 20/20); shallow `r.get|post` + `String`/`|id|` + Hash/`response.status`/`r.params`; nested `r.on`/plugins = honest holes. Sinatra remains Ruby ST; Rails stays skipped.
 
 **Closed (G10032 / D6494):** Grape secondary dialect (`hub:grape-smoke` 20/20); flat `class API < Grape::API` + `get|post "/path"` + `/:id` + Hash/`status`/`params[]` (reuses Sinatra peels); `route_param`/`present`/`params do` = honest holes. Sinatra remains Ruby ST; Roda remains first Ruby secondary; Rails stays skipped.
+
+**Closed (G10062 / D6524):** Padrino secondary dialect (`hub:padrino-smoke` 20/20); flat `Padrino.configure_apps` + `class HubApp < Padrino::Application` + `get|post "/path"` + `/:id` + Hash/`status`/`params[]` (reuses Sinatra peels); symbol controllers/`Padrino.mount`/filters = honest holes. Sinatra remains Ruby ST; Roda/Grape remain prior Ruby secondaries; Rails stays skipped.
+
 
 **Closed (G10041 / D6503):** Carter C# secondary dialect (`hub:carter-smoke` 20/20); `ICarterModule` + `AddRoutes` + `app.Map*` (reuses Minimal API Map\* peels); MapCarter/DI/filters = honest holes. Minimal API remains C# ST; ASP.NET controllers remain first C# secondary.
 
@@ -211,7 +229,7 @@ Middleware onion / plugin runtimes are **not** next — they require inventing r
 ## Related
 
 - **Do not invent index:** [`DO-NOT-INVENT.md`](./DO-NOT-INVENT.md)  
-- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `java-secondary-dialect-honest-holes.json`, `csharp-secondary-dialect-honest-holes.json`, `phoenix-controller-honest-skip.json`, `rails-controller-honest-skip.json`, `roda-honest-holes.json`, `grape-honest-holes.json`, `quart-honest-holes.json`, `bottle-honest-holes.json`, `tornado-honest-holes.json`, `slim-honest-holes.json`, `lumen-honest-holes.json`
+- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `java-secondary-dialect-honest-holes.json`, `csharp-secondary-dialect-honest-holes.json`, `phoenix-controller-honest-skip.json`, `rails-controller-honest-skip.json`, `roda-honest-holes.json`, `grape-honest-holes.json`, `padrino-honest-holes.json`, `quart-honest-holes.json`, `bottle-honest-holes.json`, `tornado-honest-holes.json`, `slim-honest-holes.json`, `lumen-honest-holes.json`, `nancy-honest-skip.json`, `tapir-honest-skip.json`, `drogon-honest-skip.json`
 - Claims checklist: [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)  
 - Lift expansion gates: [`MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md)  
 - Strategic queue: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12  

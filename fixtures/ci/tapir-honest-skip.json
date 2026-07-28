@@ -1,0 +1,36 @@
+{
+  "kind": "chrysalis.hub.tapir-honest-skip",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-28T04:05:00.000Z",
+  "decision": "skip",
+  "gate": "G10057",
+  "note": "Tapir Scala secondary dialect deferred (D6442/D6447). Not cheap on scala-ast-ingest / parseScalaRoutes: unlike Finch (G10051) string-led get(\"path\") { Ok(…) } or Http4s case→Ok peels, Tapir origin is a fluent combinator chain endpoint.get.in(\"path\").in(path[T](\"id\")).in(query[T](\"q\")).out(jsonBody|plainBody|stringBody|statusCode…).serverLogic(Success). Path+method alone is not hole-free without body peels; body authority is codec .out(…) (forbidden to invent) or a new serverLogicSuccess/Right/IO.pure peel suite — not Ok/Created/Accepted reuse. Probe: 0 routes lifted from endpoint.get.in (current peels only see Play/SIRD/Akka path(\"…\")/Http4s case/Finch string-led). Akka remains Scala D6448-ST; Http4s + Finch stay green. Do not invent Tapir codecs, Http4sServerInterpreter/AkkaHttpServerInterpreter bootstrap, or Ok façades into Tapir gold.",
+  "probeEvidence": {
+    "fixture": "fixtures/_tapir-probe/src/main/scala/hub/TapirRoutes.scala (ephemeral probe, removed)",
+    "routesLifted": 0,
+    "handlerHoles": 0,
+    "patterns": [
+      "endpoint.get.in(\"health\").out(plainBody[String])",
+      "endpoint.get.in(\"items\").in(path[String](\"id\")).out(jsonBody[Map[String, String]])",
+      "endpoint.get.in(\"search\").in(query[String](\"q\")).out(jsonBody[…])",
+      "endpoint.post.in(\"items\").out(statusCode(StatusCode.Created)).out(jsonBody[…])",
+      "Http4sServerInterpreter / AkkaHttpServerInterpreter().toRoutes(endpoint…serverLogicSuccess)"
+    ]
+  },
+  "requiredOriginShapes": [
+    "import sttp.tapir._",
+    "endpoint.get|post|put|patch|delete.in(\"seg\").in(path[T](\"name\")).in(query[T](\"q\"))",
+    ".out(jsonBody|plainBody|stringBody|statusCode(…))",
+    ".serverLogicSuccess / .serverLogic returning Right|IO.pure|pure(Map|lit)",
+    "optional Http4sServerInterpreter / AkkaHttpServerInterpreter bootstrap"
+  ],
+  "honestHoles": [
+    { "shape": "endpoint.get|post|….in(\"path\") fluent chain", "reason": "hub-tapir:endpoint-chain" },
+    { "shape": "path[T](\"id\") / query[T](\"q\") input codecs", "reason": "hub-tapir:input-codec" },
+    { "shape": "jsonBody / plainBody / stringBody / statusCode outs", "reason": "hub-tapir:output-codec" },
+    { "shape": "serverLogic / serverLogicSuccess / IO.pure / Right bodies", "reason": "hub-tapir:server-logic" },
+    { "shape": "Http4sServerInterpreter / AkkaHttpServerInterpreter bootstrap", "reason": "hub-tapir:bootstrap" },
+    { "shape": "Non-literal .in path segments", "reason": "hub-scala:path-non-literal" }
+  ],
+  "revisitWhen": "Chartered Tapir corpus appears and peel cost is bounded to literal endpoint.VERB.in(\"seg\") + path/query name peels with body values that reuse existing Map/lit Ok peels — without inventing jsonBody/plainBody codecs or server interpreters."
+}

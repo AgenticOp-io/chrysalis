@@ -25,6 +25,7 @@
   ],
   "relatedSkips": [
     { "gate": "G10006", "catalog": "fixtures/ci/rails-controller-honest-skip.json" },
-    { "gate": "G10022", "catalog": "fixtures/ci/roda-honest-holes.json" }
+    { "gate": "G10022", "catalog": "fixtures/ci/roda-honest-holes.json" },
+    { "gate": "G10062", "catalog": "fixtures/ci/padrino-honest-holes.json" }
   ]
 }

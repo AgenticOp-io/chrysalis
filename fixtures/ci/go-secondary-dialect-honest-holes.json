@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.go-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-27T21:50:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
+  "generatedAt": "2026-07-28T04:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Buffalo Use/Group/Resource, Martini Use/Group/Map/binding, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST.",
   "dialects": {
     "chi": {
       "fixture": "fixtures/hub-gold-chi",
@@ -104,6 +104,48 @@
         { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
       ]
     },
+    "buffalo": {
+      "fixture": "fixtures/hub-gold-buffalo",
+      "smoke": "pnpm run hub:buffalo-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "app.GET|POST|PUT|PATCH|DELETE literal paths (buffalo.App)",
+        "Same-file named handlers (func name(c buffalo.Context) error)",
+        "{id} or :id path templates",
+        "c.Param(\"id\") path peels (Buffalo Param also reads query)",
+        "c.Render(status, r.JSON(lit|map[string]interface{}{…}))",
+        "c.Render(status, r.String(\"…\"))"
+      ],
+      "honestHoles": [
+        { "shape": "app.Use / middleware chains", "reason": "hub-buffalo:middleware" },
+        { "shape": "app.Group nesting beyond cheap peel", "reason": "hub-buffalo:group" },
+        { "shape": "app.Resource / controller-style resources", "reason": "hub-buffalo:resource" },
+        { "shape": "c.Bind / struct binders", "reason": "hub-buffalo:bind" },
+        { "shape": "r.HTML / template render", "reason": "hub-buffalo:html" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    },
+    "martini": {
+      "fixture": "fixtures/hub-gold-martini",
+      "smoke": "pnpm run hub:martini-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "martini.Classic() + m.Get|Post|Put|Patch|Delete literal paths",
+        "Same-file named DI handlers (render.Render / martini.Params / *http.Request / ResponseWriter)",
+        ":id path templates",
+        "params[\"id\"] path peels (martini.Params)",
+        "req.URL.Query().Get(\"q\") query peels",
+        "r.JSON(status, lit|map[string]interface{}{…}) (martini-contrib/render)",
+        "json.NewEncoder(w).Encode(lit|map) / io.WriteString / string returns"
+      ],
+      "honestHoles": [
+        { "shape": "m.Use / middleware chains beyond Renderer", "reason": "hub-martini:middleware" },
+        { "shape": "m.Group nesting beyond cheap peel", "reason": "hub-martini:group" },
+        { "shape": "m.Map / custom DI injectors", "reason": "hub-martini:map" },
+        { "shape": "binding package / struct binders", "reason": "hub-martini:bind" },
+        { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
+      ]
+    },
     "gorilla": {
       "fixture": "fixtures/hub-gold-gorilla",
       "smoke": "pnpm run hub:gorilla-smoke",
@@ -143,7 +185,7 @@
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Go secondary set: Gin ST + Chi + Echo + Fiber + Iris + Beego + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10045/G10018/G10030)",
+    "Go secondary set: Gin ST + Chi + Echo + Fiber + Iris + Beego + Buffalo + Martini + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10045/G10055/G10056/G10018/G10030)",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

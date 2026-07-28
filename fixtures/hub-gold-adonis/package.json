@@ -1,0 +1,11 @@
+{
+  "name": "@chrysalis/fixture-hub-gold-adonis",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@adonisjs/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

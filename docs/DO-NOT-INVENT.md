@@ -11,8 +11,8 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 
 | Catalog | Covers |
 | --- | --- |
-| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN |
-| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Gorilla mux / ServeMux secondaries; Gin ST |
+| [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN / AdonisJS ORIGIN / CF Workers fetch-export |
+| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Gorilla mux / ServeMux secondaries; Gin ST |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
 | [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails secondary peel **skipped** (G10006; not cheap) |
@@ -51,7 +51,9 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Hapi | Plugins, `server.ext` lifecycle, auth options | Route + `h.response().code` smoke; G10005 IDENT destructure peel |
 | Hono | Complex `app.use` / middleware helpers, nested `app.route`, ResponseInit status | Empty/next-only pass-through (G10044); ORIGIN route surface (G10019); **≠ emit-hono** |
 | Elysia | plugins / `.use` (not `(ctx, next)`), non-empty lifecycle / options/`as`, macros / derived context, nested `group` | ORIGIN route surface (G10025); empty `onRequest`/`onBeforeHandle` → `js.passthrough` (G10053) |
-| itty-router | middleware / nested Router / named handlers, body/headers/cookies | ORIGIN Workers route surface secondary (G10047) |
+| itty-router | middleware / nested Router / named handlers, body/headers/cookies | ORIGIN Workers route surface secondary (G10047); empty `all` via G10064 |
+| AdonisJS | Lucid ORM, IoC/`@inject`/providers, controller string refs, middleware/groups/auth | ORIGIN route surface secondary (G10059); no Lucid/IoC invent |
+| Cloudflare Workers fetch export | KV/D1/R2/`env`, dynamic segments/URLPattern, opaque fetch, scheduled | ORIGIN fetch-export secondary via method+pathname switch (G10063); itty remains router dialect |
 | FastAPI | `Depends`, OAuth, middleware onion | Route surface secondary (G10003) |
 | Starlette | `Mount`, middleware, ASGI onion, `Route()` table-only | Route surface secondary via `@app.route` (G10013) |
 | Falcon | Hooks, middleware, ASGI onion, sink responders, cross-file resources | Route surface secondary via `add_route` + `on_*` (G10023) |

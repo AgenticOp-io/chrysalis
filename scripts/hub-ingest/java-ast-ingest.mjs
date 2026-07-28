@@ -13,6 +13,8 @@
  * {id} + ctx.path / ctx.query + ctx.setResponseCode + Map/string returns (no module/mvc invent).
  * Vert.x Web (G10052 / D6514): Router.router(vertx) + router.get|post|…("/path").handler(ctx -> …)
  * + :id + pathParam/queryParam(+optional .get(0)) + ctx.json / setStatusCode / end — no EventBus invent.
+ * Spring WebFlux RouterFunctions (G10061 / D6523): route(GET("/path"), req -> …) / .andRoute +
+ * {id} + pathVariable / queryParam(+orElse) + ServerResponse.ok|status|accepted().bodyValue — no WebClient invent.
  */
 import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
 import {
@@ -217,6 +219,26 @@ function parseJavaMapOfReturnTree(mapInner, paramRefs) {
       );
       if (joobyQuery) {
         entries.push({ key, value: { t: "ref", source: "query", name: joobyQuery[1], default: "" } });
+        continue;
+      }
+      const webfluxPath = rawVal.match(/^\w+\.pathVariable\s*\(\s*"([^"]+)"\s*\)$/);
+      if (webfluxPath) {
+        entries.push({ key, value: { t: "ref", source: "path", name: webfluxPath[1] } });
+        continue;
+      }
+      const webfluxQuery = rawVal.match(
+        /^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*orElse\s*\(\s*(?:"([^"]*)"|null)\s*\))?$/,
+      );
+      if (webfluxQuery) {
+        entries.push({
+          key,
+          value: {
+            t: "ref",
+            source: "query",
+            name: webfluxQuery[1],
+            default: webfluxQuery[2] ?? "",
+          },
+        });
         continue;
       }
       return null;
@@ -571,6 +593,88 @@ function parseJavaJoobyRefs(bodySlice) {
 }
 
 /**
+ * Body-local WebFlux ServerRequest pathVariable / queryParam(+orElse) assignments.
+ * @param {string} bodySlice
+ */
+function parseJavaWebFluxRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.pathVariable\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(?:final\s+)?(?:String|var)\s+(\w+)\s*=\s*\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*orElse\s*\(\s*(?:"([^"]*)"|null)\s*\))?/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: m[3] ?? "" };
+  }
+  return byVar;
+}
+
+/**
+ * WebFlux handler after `route(GET("/path"), req ->` / `.andRoute(GET("/path"), req ->`.
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+export function extractJavaWebFluxHandlerBody(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 12000);
+  const head = slice.match(
+    /\b(?:route|andRoute)\s*\(\s*(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*["'][^"']+["']\s*\)\s*,\s*\w+\s*->\s*/i,
+  );
+  if (!head || head.index === undefined) return null;
+  const absHead = fromIndex + head.index;
+  const openParen = absHead + head[0].indexOf("(");
+  const bodyStart = fromIndex + head.index + head[0].length;
+  const after = source.slice(bodyStart);
+  const braceLead = after.match(/^\s*\{/);
+  if (braceLead) {
+    const absOpen = bodyStart + (braceLead[0].length - 1);
+    const bal = extractBalancedBraceInner(source, absOpen);
+    if (!bal) return null;
+    return {
+      paramSource: "",
+      bodySlice: bal.inner,
+      line: source.slice(0, absOpen).split("\n").length,
+      dialect: "webflux",
+    };
+  }
+  let depth = 0;
+  let end = openParen;
+  for (let i = openParen; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '"' || ch === "'") {
+      const q = ch;
+      i += 1;
+      while (i < source.length) {
+        if (source[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (source[i] === q) break;
+        i += 1;
+      }
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  if (end <= bodyStart) return null;
+  return {
+    paramSource: "",
+    bodySlice: source.slice(bodyStart, end).trim(),
+    line: source.slice(0, bodyStart).split("\n").length,
+    dialect: "webflux",
+  };
+}
+
+/**
  * Extract argument text of the first `callee.method(` / `.method(` call in `slice`
  * with balanced parentheses (so Map.of(…) inside json(…) is not truncated).
  * @param {string} slice
@@ -665,6 +769,34 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   const reVertxEnd = bodySlice.match(
     /(?:\w+\.response\s*\(\s*\)\s*\.\s*(?:setStatusCode\s*\(\s*(\d+)\s*\)\s*\.\s*)?|\b\w+\.)end\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|([A-Za-z_][A-Za-z0-9_]*))\s*\)\s*;?/,
   );
+  /** WebFlux ServerResponse.status(n).bodyValue(…) */
+  const webfluxStatusBody = extractBalancedCallArg(
+    bodySlice,
+    /(?:return\s+)?ServerResponse\.status\s*\(\s*(\d+)\s*\)\s*\.\s*bodyValue\s*\(/,
+  );
+  /** WebFlux ServerResponse.accepted().bodyValue(…) */
+  const webfluxAcceptedBody = webfluxStatusBody
+    ? null
+    : extractBalancedCallArg(
+        bodySlice,
+        /(?:return\s+)?ServerResponse\.accepted\s*\(\s*\)\s*\.\s*bodyValue\s*\(/,
+      );
+  /** WebFlux ServerResponse.created(…).bodyValue(…) */
+  const webfluxCreatedBody =
+    webfluxStatusBody || webfluxAcceptedBody
+      ? null
+      : extractBalancedCallArg(
+          bodySlice,
+          /(?:return\s+)?ServerResponse\.created\s*\(\s*[^)]*\s*\)\s*\.\s*bodyValue\s*\(/,
+        );
+  /** WebFlux ServerResponse.ok().bodyValue(…) */
+  const webfluxOkBody =
+    webfluxStatusBody || webfluxAcceptedBody || webfluxCreatedBody
+      ? null
+      : extractBalancedCallArg(
+          bodySlice,
+          /(?:return\s+)?ServerResponse\.ok\s*\(\s*\)\s*\.\s*bodyValue\s*\(/,
+        );
   const reOkBody = bodySlice.match(/return\s+ResponseEntity\.ok\s*\(\s*([\s\S]*?)\s*\)\s*;/);
   const reJaxrsOk = bodySlice.match(
     /return\s+Response\.ok\s*\(\s*([\s\S]*?)\s*\)\s*\.\s*build\s*\(\s*\)\s*;/,
@@ -754,6 +886,27 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
         kind: /** @type {const} */ ("scalar-ref"),
       };
     }
+    const webfluxPath = t.match(/^\w+\.pathVariable\s*\(\s*"([^"]+)"\s*\)$/);
+    if (webfluxPath) {
+      return {
+        returnTree: { t: "ref", source: "path", name: webfluxPath[1] },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
+    const webfluxQuery = t.match(
+      /^\w+\.queryParam\s*\(\s*"([^"]+)"\s*\)(?:\s*\.\s*orElse\s*\(\s*(?:"([^"]*)"|null)\s*\))?$/,
+    );
+    if (webfluxQuery) {
+      return {
+        returnTree: {
+          t: "ref",
+          source: "query",
+          name: webfluxQuery[1],
+          default: webfluxQuery[2] ?? "",
+        },
+        kind: /** @type {const} */ ("scalar-ref"),
+      };
+    }
     return null;
   }
 
@@ -769,6 +922,54 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
     status = parseJavaHttpStatus(reMicronautStatusBody[1]);
     returnTree = mapFromExpr(reMicronautStatusBody[2]);
     kind = returnTree ? "json" : null;
+  } else if (webfluxStatusBody) {
+    status = Number.parseInt(webfluxStatusBody.groups[1], 10);
+    const expr = webfluxStatusBody.arg;
+    returnTree = mapFromExpr(expr);
+    if (returnTree) kind = "json";
+    else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
+  } else if (webfluxCreatedBody) {
+    status = 201;
+    const expr = webfluxCreatedBody.arg;
+    returnTree = mapFromExpr(expr);
+    if (returnTree) kind = "json";
+    else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
+  } else if (webfluxAcceptedBody) {
+    status = 202;
+    const expr = webfluxAcceptedBody.arg;
+    returnTree = mapFromExpr(expr);
+    if (returnTree) kind = "json";
+    else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
+  } else if (webfluxOkBody) {
+    status = 200;
+    const expr = webfluxOkBody.arg;
+    returnTree = mapFromExpr(expr);
+    if (returnTree) kind = "json";
+    else {
+      const sc = scalarFromExpr(expr);
+      if (sc) {
+        returnTree = sc.returnTree;
+        kind = sc.kind;
+      }
+    }
   } else if (javalinStatusJson) {
     status = Number.parseInt(javalinStatusJson.groups[1], 10);
     const expr = javalinStatusJson.arg;
@@ -866,7 +1067,8 @@ function parseJavaBodyReturn(bodySlice, paramRefs) {
   } else if (
     !/\breturn\b/.test(bodySlice) &&
     !/\w+\.(?:json|result)\s*\(/.test(bodySlice) &&
-    !/\.end\s*\(/.test(bodySlice)
+    !/\.end\s*\(/.test(bodySlice) &&
+    !/ServerResponse\.(?:ok|status|accepted|created)\s*\(/.test(bodySlice)
   ) {
     // Expression-lambda body (Spark/Javalin) without `return` / ctx.json|result|end.
     const expr = bodySlice.trim().replace(/;\s*$/, "");
@@ -992,6 +1194,7 @@ export function liftJavaFileToWebir(opts) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     let extracted = extractJavaMethodBody(source, idx);
     if (!extracted) extracted = extractJavaSparkHandlerBody(source, idx);
+    if (!extracted) extracted = extractJavaWebFluxHandlerBody(source, idx);
     if (!extracted) extracted = extractJavaVertxHandlerBody(source, idx);
     if (!extracted) extracted = extractJavaJoobyHandlerBody(source, idx);
     if (!extracted) extracted = extractJavaJavalinHandlerBody(source, idx);
@@ -1006,6 +1209,7 @@ export function liftJavaFileToWebir(opts) {
         ...parseJavaJavalinRefs(bodySlice),
         ...parseJavaSparkRefs(bodySlice),
         ...parseJavaJoobyRefs(bodySlice),
+        ...parseJavaWebFluxRefs(bodySlice),
       };
       const sqlEffects = parseJavaSqlEffects(bodySlice, paramRefs);
       const { status, returnTree, kind } = parseJavaBodyReturn(bodySlice, paramRefs);

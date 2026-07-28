@@ -2,7 +2,7 @@
   "kind": "chrysalis.hub.java-secondary-dialect-honest-holes",
   "schemaVersion": 1,
   "generatedAt": "2026-07-24T23:55:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, Helidon CDI/MP Config/SE, Javalin plugins/before/after/DI, Spark filters/static/WebSocket, Jooby modules/MVC/filters/WebSocket, Vert.x EventBus/BodyHandler/SockJS, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring remains Java D6448-ST. Quarkus/Helidon route surfaces reuse JAX-RS peels (G10034 / G10042).",
+  "note": "Catalog only (D6447). Do not invent Micronaut DI/filters/Application, JAX-RS CDI/filters/providers/Application, Quarkus CDI/RESTEasy filters/Panache, Helidon CDI/MP Config/SE, Javalin plugins/before/after/DI, Spark filters/static/WebSocket, Jooby modules/MVC/filters/WebSocket, Vert.x EventBus/BodyHandler/SockJS, WebFlux WebClient/filters/nested path()/RouterFunctions.route() builder, or Spring filter/DI runtimes. Lift origin shapes that appear, else leave honest holes. Spring MVC @RestController remains Java D6448-ST. Quarkus/Helidon route surfaces reuse JAX-RS peels (G10034 / G10042).",
   "dialects": {
     "jaxrs": {
       "fixture": "fixtures/hub-gold-jaxrs",
@@ -152,11 +152,29 @@
         { "shape": "SockJS / WebSocket / Server-Sent Events", "reason": "hub-vertx:websocket" },
         { "shape": "Sub-router mount / Route.failureHandler", "reason": "hub-vertx:subrouter" }
       ]
+    },
+    "webflux": {
+      "fixture": "fixtures/hub-gold-webflux",
+      "smoke": "pnpm run hub:webflux-smoke",
+      "st": "pnpm run hub:java-flagship && pnpm run hub:complete-conversion-prove:java",
+      "gate": "G10061",
+      "supported": [
+        "route(GET|POST|PUT|PATCH|DELETE(\"/path\"), req -> …) / .andRoute",
+        "{id} path templates + req.pathVariable",
+        "req.queryParam(+optional .orElse)",
+        "ServerResponse.ok|status|accepted|created().bodyValue Map/scalar"
+      ],
+      "honestHoles": [
+        { "shape": "WebClient / WebTestClient outbound HTTP", "reason": "hub-webflux:webclient" },
+        { "shape": "RouterFunctions.route() builder .GET|POST|… / .build()", "reason": "hub-webflux:route-builder" },
+        { "shape": "RouterFunctions.path / nest nested routers", "reason": "hub-webflux:path-nest" },
+        { "shape": "HandlerFilterFunction / before/after filters", "reason": "hub-webflux:filters" }
+      ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "Java secondary set: Spring ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus (G10034) + Helidon (G10042) + Javalin (G10035) + Spark (G10036) + Jooby (G10046) + Vert.x Web (G10052) smokes closed",
+    "Java secondary set: Spring MVC ST + JAX-RS (G10012) + Micronaut (G10020) + Quarkus (G10034) + Helidon (G10042) + Javalin (G10035) + Spark (G10036) + Jooby (G10046) + Vert.x Web (G10052) + WebFlux RouterFunctions (G10061) smokes closed",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
     "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
   ]

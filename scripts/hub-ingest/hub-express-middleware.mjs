@@ -2,11 +2,13 @@
  * Lower Express-style `app.use(...)` / Restify `server.pre|use(...)` /
  * Hono/Koa/Polka `app.use(...)` registrations to WebIR `web.request.middleware` nodes.
  * Also peels Elysia empty `onRequest` / `onBeforeHandle` (G10053) — not plugin `.use`.
+ * Also peels itty-router empty/`next`-only `router.all` (G10064) — itty has no onion `next`.
  *
  * Honest peels only (D6442 / D6447):
  * - Known presets: `express.json` / `express.urlencoded`
  * - Empty / next-only pass-through function middleware (Nitro-parallel; no onion runtime)
  * - Elysia empty lifecycle shells → `js.passthrough` (plugin `.use` is not pass-through-shaped)
+ * - itty empty `router.all('*', () => {})` → `js.passthrough` (no-return continues; no invent `next`)
  * - Everything else keeps a middleware root with an honest hole body
  */
 import { simple as walkSimple } from "acorn-walk";
@@ -20,6 +22,11 @@ const MW_METHODS = new Set(["use", "pre"]);
  * @see https://elysiajs.com/essential/life-cycle
  */
 const ELYSIA_LIFECYCLE_METHODS = new Set(["onRequest", "onBeforeHandle"]);
+/**
+ * itty-router global middleware channel — handlers continue by not returning (no `next()`).
+ * @see https://itty.dev/itty-router/middleware/
+ */
+const ITTY_ALL_METHOD = "all";
 
 /**
  * @param {import('estree').Node | null | undefined} expr
@@ -244,6 +251,103 @@ export function liftElysiaLifecycleMiddlewareToWebir(opts) {
   walkSimple(ast, {
     CallExpression(node) {
       const u = extractElysiaLifecycleFromCall(node);
+      if (u) uses.push(u);
+    },
+  });
+  uses.sort((a, b) => (a.loc.line ?? 0) - (b.loc.line ?? 0) || (a.loc.column ?? 0) - (b.loc.column ?? 0));
+
+  let order = 0;
+  for (const u of uses) {
+    order += 1;
+    const origin = { file, line: u.loc.line ?? 1, column: (u.loc.column ?? 0) + 1 };
+    let bodyId;
+    if (PRESET_KINDS.has(u.kind)) {
+      bodyId = data.literal({
+        value: { preset: u.kind },
+        type: { kind: "unknown" },
+        origin,
+        provenance: [webir.provenance("hub-ingest", `middleware-preset:${u.kind}`)],
+      });
+    } else {
+      bodyId = data.hole({
+        reason: `legacy:hub-middleware:${u.kind}`,
+        input: { kind: "unknown" },
+        output: { kind: "unknown" },
+        origin,
+        provenance: [webir.provenance("hub-ingest", "middleware-shell")],
+      });
+    }
+    const middlewareId = wr.middleware({
+      attrs: { kind: u.kind, mount: u.mount, order, method: u.method },
+      body: bodyId,
+      origin,
+      provenance: [webir.provenance("hub-ingest", `middleware:${u.kind}`)],
+    });
+    builder.addRoot(middlewareId);
+  }
+  return { middlewareUseCount: uses.length, middlewareRootCount: uses.length };
+}
+
+/**
+ * @param {import('estree').CallExpression} node
+ */
+function extractIttyAllMiddlewareFromCall(node) {
+  if (node.callee?.type !== "MemberExpression" || node.callee.computed) return null;
+  if (node.callee.property?.type !== "Identifier") return null;
+  if (node.callee.property.name !== ITTY_ALL_METHOD) return null;
+  const recv = node.callee.object;
+  if (recv?.type !== "Identifier" || !RECEIVER_NAMES.has(recv.name)) return null;
+  const args = node.arguments ?? [];
+  // Cheap shape only: `router.all(pathLit, singleHandler)` — multi-handler / named refs stay holes.
+  if (args.length !== 2) {
+    return {
+      mount: "*",
+      method: ITTY_ALL_METHOD,
+      kind: "legacy:itty-middleware",
+      loc: node.loc?.start ?? { line: 1, column: 0 },
+    };
+  }
+  const pathArg = args[0];
+  const handler = args[1];
+  if (pathArg?.type !== "Literal" || typeof pathArg.value !== "string") {
+    return {
+      mount: "*",
+      method: ITTY_ALL_METHOD,
+      kind: "legacy:itty-middleware",
+      loc: node.loc?.start ?? { line: 1, column: 0 },
+    };
+  }
+  // Empty / next-only only — itty origin continues by omitting return (no onion invent).
+  // Shared detector also accepts next-only for G9959/G10044 parallel; complex bodies = hole.
+  const kind = isPassThroughMiddlewareFn(handler) ? "js.passthrough" : "legacy:itty-middleware";
+  return {
+    mount: pathArg.value,
+    method: ITTY_ALL_METHOD,
+    kind,
+    loc: node.loc?.start ?? pathArg.loc?.start ?? { line: 1, column: 0 },
+  };
+}
+
+/**
+ * Peel itty empty/`next`-only `router.all(path, fn)` as `js.passthrough`.
+ * itty has **no** Express-style `next()` — origin pass-through is empty / no-return
+ * (`router.all('*', () => {})`). Complex `all` bodies / multi-handler / named refs stay holes
+ * (G10064 / D6526; parallel G10044 / G9959 / G10053).
+ *
+ * @param {object} opts
+ * @param {ReturnType<import('./javascript-ast-ingest.mjs')['parseJavaScriptSource']>} opts.ast
+ * @param {string} opts.file
+ * @param {import('@chrysalis/webir').ModuleBuilder} opts.builder
+ * @param {ReturnType<import('@chrysalis/webir').webRequest.builders>} opts.wr
+ * @param {typeof import('@chrysalis/webir')} opts.webir
+ */
+export function liftIttyPassthroughMiddlewareToWebir(opts) {
+  const { ast, file, builder, wr, webir } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const uses = [];
+  walkSimple(ast, {
+    CallExpression(node) {
+      const u = extractIttyAllMiddlewareFromCall(node);
       if (u) uses.push(u);
     },
   });

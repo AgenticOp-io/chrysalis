@@ -168,6 +168,59 @@ test("typescript AST lifts itty-router dialect 20/20 hole-free (G10047)", async 
   expect(webir.countHoles(builder.finish())).toBe(0);
 });
 
+test("typescript AST lifts Cloudflare Workers fetch-export dialect 20/20 hole-free (G10063)", async () => {
+  const { liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-cf-workers/src/app.ts"), "utf8");
+  expect(source).toContain("export default");
+  expect(source).toContain("async fetch");
+  expect(source).toContain("url.pathname");
+  expect(source).toContain("request.method");
+  expect(source).toContain("Response.json");
+  expect(source).not.toContain("Router()");
+  expect(source).not.toContain("Bun.serve");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-cf-workers" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.ts",
+    language: "typescript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("typescript AST lifts Bun.serve dialect 20/20 hole-free (G10048)", async () => {
+  const { liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const bunPath = resolve(ROOT, "fixtures/hub-gold-bun-serve/src/app.ts");
+  const source = await readFile(bunPath, "utf8");
+  expect(source).toContain("Bun.serve");
+  expect(source).toContain("routes:");
+  expect(source).toContain("Response.json");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-bun-serve" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.ts",
+    language: "typescript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
 test("python AST finds Flask routes and lowers literal return", async () => {
   const py = process.env.CHRYSALIS_HUB_PYTHON ?? "python3";
   const check = spawnSync(py, ["-c", "import ast, json; print('ok')"], { encoding: "utf8" });
@@ -526,6 +579,30 @@ test("go AST lifts Beego functional dialect 20/20 hole-free (G10045)", async () 
   expect(routes.length).toBe(20);
   const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
   const builder = new webir.ModuleBuilder({ sourceApp: "test-beego" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftGoFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "main.go",
+    language: "go",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBe(20);
+  expect(webir.countHoles(builder.finish())).toBe(0);
+});
+
+test("go AST lifts Buffalo dialect 20/20 hole-free (G10055)", async () => {
+  const { parseGoRoutes, detectGoWebDialect, liftGoFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/go-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-gold-buffalo/main.go"), "utf8");
+  expect(detectGoWebDialect(source)).toBe("buffalo");
+  const routes = parseGoRoutes(source);
+  expect(routes.length).toBe(20);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-buffalo" });
   const wr = webir.webRequest.builders(builder);
   const r = liftGoFileToWebir({
     webir,

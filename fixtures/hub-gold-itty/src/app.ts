@@ -3,10 +3,14 @@ import { Router, json } from "itty-router";
 // hub-gold-itty — 20-route itty-router TypeScript dialect (secondary to Express flagship).
 // `Router()` + `router.get|post|…` + `:id` + `request.params` + URL searchParams
 // + `json()` / `Response.json` / `new Response` (Workers-style).
-// Middleware / nested Router / named handlers stay honest holes (**D6447** —
-// no invented middleware runtime).
+// Empty `router.all('*', () => {})` peels as `js.passthrough` (**D6447** / G10064 —
+// itty has no onion `next`; complex `all` / nested Router stay honest holes).
 
 const router = Router();
+
+// Empty pass-through shells — peel as `js.passthrough` (no-return continues; no invent next).
+router.all("*", () => {});
+router.all("*", () => {});
 
 router.get("/health", () => json(true));
 router.get("/ping", () => json(42));

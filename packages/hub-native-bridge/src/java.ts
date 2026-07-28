@@ -43,6 +43,17 @@ const VERTX_MARKER_RE =
 const VERTX_VERB_RE =
   /\.(get|post|put|patch|delete|head|options)\s*\(\s*["']([^"']+)["']\s*\)\s*\.\s*handler\s*\(/gi;
 
+/**
+ * Spring WebFlux RouterFunctions (G10061): route(GET("/path"), req -> …) / .andRoute(…).
+ * Distinct from Spring MVC @*Mapping (flagship ST) and Vert.x Router.router.
+ * No WebClient invent (D6447).
+ */
+const WEBFLUX_MARKER_RE =
+  /\bRouterFunctions\b|\bRouterFunction\s*<|\borg\.springframework\.web\.reactive\.function\.server\b|\bimport\s+static\s+org\.springframework\.web\.reactive\.function\.server\./;
+
+const WEBFLUX_ROUTE_RE =
+  /\b(?:route|andRoute)\s*\(\s*(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*["']([^"']+)["']\s*\)\s*,/gi;
+
 const JAXRS_VERB_PATH_RE =
   /@(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b\s*(?:@\w+(?:\([^)]*\))?\s*)*@Path(?!Param)\s*\(\s*["']([^"']+)["']\s*\)/gi;
 
@@ -200,6 +211,9 @@ export function normalizeJavaSparkPath(path: string): string {
 /** Normalize Vert.x `:id` path templates → `{id}` (same as Spark). */
 export const normalizeJavaVertxPath = normalizeJavaSparkPath;
 
+/** Normalize WebFlux path literals (already `{id}` brace form — same as Javalin). */
+export const normalizeJavaWebFluxPath = normalizeJavaJavalinPath;
+
 function parseJavaJavalinRoutes(
   source: string,
 ): Array<HubNativeRoute & { index: number }> {
@@ -305,6 +319,27 @@ function parseJavaVertxRoutes(
   return routes;
 }
 
+function parseJavaWebFluxRoutes(
+  source: string,
+): Array<HubNativeRoute & { index: number }> {
+  const routes: Array<HubNativeRoute & { index: number }> = [];
+  if (!WEBFLUX_MARKER_RE.test(source)) return routes;
+  WEBFLUX_ROUTE_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = WEBFLUX_ROUTE_RE.exec(source)) !== null) {
+    const method = (m[1] ?? "GET").toUpperCase();
+    const path = normalizeJavaWebFluxPath(m[2] ?? "/");
+    routes.push({
+      method,
+      path,
+      line: lineAt(source, m.index),
+      name: `webflux_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+      index: m.index,
+    });
+  }
+  return routes;
+}
+
 export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[] {
   const routes: HubNativeRoute[] = [];
   const seen = new Set<string>();
@@ -323,6 +358,11 @@ export function parseJavaRoutes(source: string, _file?: string): HubNativeRoute[
 
   const sparkRoutes = parseJavaSparkRoutes(source);
   for (const r of sparkRoutes) {
+    push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
+  }
+
+  const webfluxRoutes = parseJavaWebFluxRoutes(source);
+  for (const r of webfluxRoutes) {
     push(r.method, r.path, r.index ?? 0, r.name ?? `handler_${routes.length}`);
   }
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 /**
- * Smoke: hub-gold-itty itty-router TS dialect → WebIR hole-free
- * (20 routes + empty `router.all` pass-through middleware).
- * ORIGIN secondary — does not replace Express hub-flagship-express /
- * hub-flagship-typescript D6448-ST. Complex `all` / nested Router stay honest holes
- * (itty has no onion `next` — G10064 / D6526; parallel G10044 / G9959).
+ * Smoke: hub-gold-buffalo Buffalo dialect → WebIR hole-free (20 routes).
+ * Does not replace Gin hub-flagship-go D6448-ST. G10055 / D6517.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -13,46 +10,44 @@ import { spawnSync } from "node:child_process";
 import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
-export const HUB_ITTY_SMOKE_KIND = "chrysalis.hub.itty-smoke";
-export const HUB_ITTY_SMOKE_SCHEMA_VERSION = 2;
+export const HUB_BUFFALO_SMOKE_KIND = "chrysalis.hub.buffalo-smoke";
+export const HUB_BUFFALO_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const fixture = join(scriptRoot, "fixtures/hub-gold-itty");
+const fixture = join(scriptRoot, "fixtures/hub-gold-buffalo");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 const EXPECT_ROUTES = 20;
-/** Empty `router.all('*', () => {})` preset floor (G10064 / G10044 parallel). */
-const EXPECT_MIDDLEWARE = 2;
 
 /**
  * @param {string} [projectDir]
  */
-export async function runIttySmoke(projectDir = fixture) {
+export async function runBuffaloSmoke(projectDir = fixture) {
   const root = resolve(projectDir);
-  const appFile = join(root, "src", "app.ts");
+  const appFile = join(root, "main.go");
   if (!existsSync(appFile)) {
     return {
-      kind: HUB_ITTY_SMOKE_KIND,
-      schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+      kind: HUB_BUFFALO_SMOKE_KIND,
+      schemaVersion: HUB_BUFFALO_SMOKE_SCHEMA_VERSION,
       ok: false,
-      skip: "missing-app-ts",
+      skip: "missing-main-go",
       routeCount: 0,
       holeCount: null,
       generatedAt: new Date().toISOString(),
     };
   }
 
-  const lift = spawnSync(process.execPath, [liftScript, root, "--language", "typescript"], {
+  const lift = spawnSync(process.execPath, [liftScript, root, "--language", "go"], {
     cwd: scriptRoot,
     encoding: "utf8",
     maxBuffer: 8 * 1024 * 1024,
   });
   if (lift.status !== 0) {
     return {
-      kind: HUB_ITTY_SMOKE_KIND,
-      schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+      kind: HUB_BUFFALO_SMOKE_KIND,
+      schemaVersion: HUB_BUFFALO_SMOKE_SCHEMA_VERSION,
       ok: false,
-      skip: "typescript-lift-failed",
+      skip: "go-lift-failed",
       stderr: (lift.stderr || lift.stdout || "").slice(0, 400),
       routeCount: 0,
       holeCount: null,
@@ -65,8 +60,8 @@ export async function runIttySmoke(projectDir = fixture) {
     liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
   } catch {
     return {
-      kind: HUB_ITTY_SMOKE_KIND,
-      schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+      kind: HUB_BUFFALO_SMOKE_KIND,
+      schemaVersion: HUB_BUFFALO_SMOKE_SCHEMA_VERSION,
       ok: false,
       skip: "lift-json",
       routeCount: 0,
@@ -75,38 +70,32 @@ export async function runIttySmoke(projectDir = fixture) {
     };
   }
 
-  const webirPath = join(root, ".chrysalis", "hub.typescript.webir.json");
+  const webirPath = join(root, ".chrysalis", "hub.go.webir.json");
   const webir = await loadWebir();
   const raw = JSON.parse(readFileSync(webirPath, "utf8"));
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const projection = summarizeCwlProjection(mod);
-  const routeCount = liftReport.astRouteCount ?? 0;
+  const routeCount = liftReport.routeCount ?? liftReport.astRouteCount ?? 0;
   const holeCount = liftReport.holeCount ?? null;
-  const middlewareUseCount = liftReport.middlewareUseCount ?? 0;
-  const middlewareLoweredCount = liftReport.middlewareLoweredCount ?? 0;
   const ok =
     routeCount === EXPECT_ROUTES &&
     holeCount === 0 &&
-    middlewareUseCount === EXPECT_MIDDLEWARE &&
-    middlewareLoweredCount === EXPECT_MIDDLEWARE &&
     projection.holeFree === projection.total &&
     projection.total >= EXPECT_ROUTES;
 
   return {
-    kind: HUB_ITTY_SMOKE_KIND,
-    schemaVersion: HUB_ITTY_SMOKE_SCHEMA_VERSION,
+    kind: HUB_BUFFALO_SMOKE_KIND,
+    schemaVersion: HUB_BUFFALO_SMOKE_SCHEMA_VERSION,
     ok,
     routeCount,
     holeCount,
-    middlewareUseCount,
-    middlewareLoweredCount,
     cwlProjection: projection,
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runIttySmoke();
+  const report = await runBuffaloSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok && !report.skip) process.exit(1);
 }
