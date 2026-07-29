@@ -1016,7 +1016,9 @@ export function inferCobolCopybookDirs(filePath, projectDir) {
 
 /**
  * Expand in-repo `COPY name.` text into the source for lift/inventory deepen (G10087).
- * Skips IBM AID/BMSCA/EXTFMAP and CMQ* — those stay unresolved COPY holes.
+ * Proprietary IBM/MQ names expand **only** when a licensed file is already on disk
+ * under a search dir (operator SDFHCOB drop). Missing proprietary books stay as
+ * unresolved `COPY` holes — never invent stubs (**D6442** / **D6447**).
  *
  * @param {string} source
  * @param {string[]} searchDirs
@@ -1048,14 +1050,15 @@ export function expandCobolCopybooks(source, searchDirs, opts = {}) {
       /\bCOPY\s+([A-Za-z][A-Za-z0-9-]*)\s*\./gi,
       (full, rawName) => {
         const name = String(rawName || "").toUpperCase();
-        if (shouldSkipCobolCopyExpand(name)) {
-          if (!skipped.includes(name)) skipped.push(name);
-          return full;
-        }
         if (visited.has(name)) return full;
         const hit = resolveCobolCopybooks([name], searchDirs)[0];
         if (!hit?.resolved) {
-          if (!missing.includes(name)) missing.push(name);
+          // Proprietary + absent → honest skip (do not invent). Other names → missing.
+          if (shouldSkipCobolCopyExpand(name)) {
+            if (!skipped.includes(name)) skipped.push(name);
+          } else if (!missing.includes(name)) {
+            missing.push(name);
+          }
           return full;
         }
         visited.add(name);
@@ -1064,7 +1067,11 @@ export function expandCobolCopybooks(source, searchDirs, opts = {}) {
         try {
           body = readFileSync(hit.resolved, "utf8");
         } catch {
-          if (!missing.includes(name)) missing.push(name);
+          if (shouldSkipCobolCopyExpand(name)) {
+            if (!skipped.includes(name)) skipped.push(name);
+          } else if (!missing.includes(name)) {
+            missing.push(name);
+          }
           return full;
         }
         const nested = expandOnce(body, depth + 1);

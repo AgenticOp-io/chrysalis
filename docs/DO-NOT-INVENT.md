@@ -116,6 +116,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | BMS DFHM* **label inventory** + MAP/MAPSET crosswalk (G10079–G10082) | DFHAID / DFHBMSCA / EXTFMAP stubs or invented PORT/INQ maps |
 | CardDemo Medium+ **structural** VSAM-MQ / IMS / Db2 catalogs (G10083) | Fake MQ / IMS / Db2 runtimes or invented CMQ* books |
 | AID/BMSCA **symbol catalog** from upstream (G10084) | Invented `DFHAID.cpy` / `DFHBMSCA.cpy` (IBM proprietary) |
+| Operator-licensed SDFHCOB drop on disk (gitignored) | Committing / publishing IBM Restricted Materials as product code |
 | GnuCOBOL behavioral subjects already green (65/65 after G10078) | New behavioral façades to claim “modernized CLBS” |
 
 **G10076–G10078 Tier B Small:** `ckprstdn`/`portfliodn`/`errhanddn`/`ckprstph` COPY-linked only — not Db2/CICS/VSAM/BMS.
@@ -124,7 +125,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 
 **G10079–G10082 structural BMS/CICS:** inventory + crosswalk only. Missing `INQMAP`/`INQMNU`/`PORT*`/`PORTSET` and AID copybooks stay holes — do not fabricate map bodies or IBM books.
 
-**G10085–G10091:** WebIR deepen — shaped holes, COPY expand, emit-pattern literals + typed binOp, site-inventory, residual ledger. Still refuse inventing DFHAID/CMQ* stubs or Db2/IMS/MQ runtimes. Operator SDFHCOB path: [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md).
+**G10085–G10092:** WebIR deepen — shaped holes, COPY expand (licensed DFHAID/DFHBMSCA expand when on disk; else skip), emit-pattern literals + typed binOp / seq-max+varysum, site-inventory, residual ledger. Still refuse inventing DFHAID/CMQ* stubs or Db2/IMS/MQ runtimes. Operator SDFHCOB path: [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) (books **gitignored** — never publish).
 
 **G10077 Tier A+:** secondary-dialect / prefix bingo is **not** the default next queue — COBOL primary (chartered Tier B Medium+ / Tier C) unless the operator explicitly asks for another dialect peel.
 

@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-28 (G10091 typed emit→WebIR binOp; IBM SDFHCOB drop status documented)
+**As of:** 2026-07-28 (G10092 seq-max/varysum typed WebIR; licensed DFHAID/DFHBMSCA drop gitignored)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10091** (shaped holes, COPY expand, emit→literal+binOp, inventory + residual ledger) | no LCB claim; DFHAID/CMQ* COPY + Db2/IMS/MQ runtimes still holes — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) |
+| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10092** (shaped holes, COPY expand, emit→literal+binOp+seq-max/varysum, inventory + residual; licensed AID drop local-only) | no LCB claim; EXTFMAP/CMQ* + Db2/IMS/MQ runtimes still holes — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -167,18 +167,19 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
 | **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
-| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Closed G10085–G10091** — shaped holes + COPY expand + emit literals + typed binOp + site-inventory + residual ledger |
+| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Closed G10085–G10092** — shaped holes + COPY expand + emit literals + typed binOp + seq-max/varysum + site-inventory + residual ledger |
 | **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM/MQ/IMS) | **Closed G10083 structural** — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `exec-dli`/`ibm-mq`/`exec-sql` holes; **no runtime** |
-| **4** | COBOL Tier C IBM BMS AID books | **G10084 symbol catalog closed**; COPY still holes — operator path in [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) (beta pax on disk; need z/OS trial install) |
+| **4** | COBOL Tier C IBM BMS AID books | **G10084** symbol catalog; **DFHAID/DFHBMSCA** licensed local drop (gitignored, residual **closed** when present); **EXTFMAP**/CMQ* still open |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10092 — typed WebIR for `seq-max` (operands + int max) / `perform-varying-sum` (`+` fold); licensed DFHAID/DFHBMSCA expand-when-present; IBM books gitignored
 - G10091 — typed WebIR `data.binOp` for arithmetic emit patterns (rounded-product / truncate-div / ot-weekly / seq-sum); expected literal retained
 - G10090 — `chrysalis.cobol.residual.v1` shared residual ledger (P0 proprietary COPY / P1 runtime holes); `hub:cobol-residual-ledger`
 - G10089 — COBOL site-inventory adapter (`scripts/lib/site-inventory/cobol.mjs`); adapters smoke + inventory-first
 - G10088 — widen emit→WebIR literals (evaluate-phase / seq-sum / ot-weekly / COPY-linked literal)
-- G10087 — `expandCobolCopybooks` for in-repo COPY; DFHAID/DFHBMSCA/EXTFMAP/CMQ* skipped
+- G10087 — `expandCobolCopybooks` for in-repo COPY; DFHAID/DFHBMSCA/EXTFMAP/CMQ* skipped unless licensed file on disk
 - G10086 — proven `detectEmitPattern` expected → WebIR literal on MAIN/sole-entry (CLBSMATH)
 - G10085 — inventory catalogs → shaped `data.hole` attrs (`unresolved`, `execCicsOps`, …)
 - G10084 — Tier C AID/BMSCA **symbol catalog** from CardDemo upstream; DFHAID/DFHBMSCA/EXTFMAP COPY stay proprietary holes
@@ -196,10 +197,10 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **Licensed IBM SDFHCOB** — follow [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md): free **ZD&T / CICS** IBM Z trial (not Data Gatherer/SMF, not CTG); install beta pax already in Downloads; export DFHAID/DFHBMSCA
-2. **Db2/IMS/MQ/CICS behavioral** — only with real runtime + expected oracles (refuse façades; structural Medium+ closed G10083; P1 residuals cataloged)
-3. Widen typed WebIR emit kinds (indexed/evaluate lookups stay literal/expected)
-4. **Flutter** / **Phoenix LiveView** — only if explicitly chartered
+1. **EXTFMAP / CMQ*** — same licensed-drop discipline as DFHAID (or stay honest holes)
+2. **Real Db2 / CICS / VSAM / MQ / IMS runtime adapters** — charter only; no façades (structural Medium+ closed G10083; P1 residuals cataloged)
+3. Further WebIR deepen on evaluate/indexed **literal-only** subjects — no invented control-flow runtime
+4. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
 

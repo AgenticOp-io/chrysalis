@@ -46,8 +46,11 @@ export function lowerHubLiteral(ctx, value, loc) {
 
 /**
  * Lower a proven COBOL emit pattern to typed WebIR ops where meta is arithmetic
- * (G10091). Always ends with the formatted expected literal so verify/emit parity
- * stays identical to G10086/G10088. Non-arithmetic kinds fall back to literal-only.
+ * (G10091/G10092). Always ends with the formatted expected literal so verify/emit
+ * parity stays identical to G10086/G10088. Arithmetic kinds also lower typed
+ * data.binOp (mul/div/add) or typed int reduction operands (seq-max) when meta is
+ * complete; the expected string literal always remains. Non-arithmetic kinds fall
+ * back to literal-only.
  *
  * @param {object} ctx — { data, webir }
  * @param {{ kind: string, meta: Record<string, unknown> }} pattern
@@ -147,6 +150,42 @@ export function lowerCobolEmitPatternWebIr(ctx, pattern, expected, loc) {
       stmts.push(acc);
     }
     if (stmts.length === 0) stmts.push(acc);
+  } else if (pattern.kind === "seq-max" && Array.isArray(m.amounts) && m.amounts.length > 0) {
+    // G10092 — catalog amount operands + typed int max result (no invented max opcode).
+    const nums = m.amounts.map((n) => Number(n));
+    for (const n of nums) stmts.push(numLit(n));
+    const mx = nums.reduce((s, n) => (n > s ? n : s), nums[0]);
+    stmts.push(numLit(mx));
+  } else if (
+    pattern.kind === "perform-varying-sum" &&
+    typeof m.from === "number" &&
+    typeof m.step === "number" &&
+    typeof m.limit === "number" &&
+    m.step !== 0
+  ) {
+    // G10092 — same + fold as seq-sum over the PERFORM VARYING series.
+    /** @type {number[]} */
+    const series = [];
+    for (let i = m.from; m.step > 0 ? i <= m.limit : i >= m.limit; i += m.step) {
+      series.push(i);
+      if (series.length > 10_000) break; // defensive
+    }
+    if (series.length > 0) {
+      let acc = numLit(series[0]);
+      for (let i = 1; i < series.length; i++) {
+        const next = numLit(series[i]);
+        acc = data.binOp({
+          operator: "+",
+          left: acc,
+          right: next,
+          type: HUB_T.int,
+          origin,
+          provenance: prov(`vary-${i}`),
+        });
+        stmts.push(acc);
+      }
+      if (stmts.length === 0) stmts.push(acc);
+    }
   }
 
   stmts.push(

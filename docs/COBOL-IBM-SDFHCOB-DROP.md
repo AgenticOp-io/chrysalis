@@ -14,25 +14,37 @@ Drop licensed members into `fixtures/hub-cobol-clbs-mini/copybook/`:
 - `DFHBMSCA.cpy`
 - optionally `EXTFMAP` / IBM MQ `CMQ*` (separate MQ entitlement)
 
-Then re-run `hub:cobol-clbs-prove-smoke` / residual ledger — P0 proprietary-copy rows should shrink.
+Then re-run `hub:cobol-clbs-prove-smoke` / residual ledger — P0 proprietary-copy rows should **close** when the file is present (`status: closed`). Files are **gitignored** (IBM Restricted Materials — do not publish).
 
 ---
 
-## Have (local Downloads + GCE staging, 2026-07-28)
+## Located on ZD&T ADCD (2026-07-28)
+
+| Fact | Value |
+| --- | --- |
+| System | ADCD Z25B (z/OS 2.5), CICS TS **5.5** |
+| USS | `/usr/lpp/cicsts/cicsts55` present (JVM/Liberty only — **not** COBOL PDS) |
+| Catalog HLQ | `DFH550` under `USERCAT.Z25B.CICS550` (thin: SVSC/ZFS) |
+| **Target libs volume** | **`B5C551`** — list with ISPF **3.4** Volume serial (not catalog `LISTC` alone) |
+| COBOL AID book | **`DFH550.CICS.SDFHCOB`** (also `….ADFHCOB` DLIB) |
+
+### DFHAID / DFHBMSCA drop
+
+- [x] Browse `DFH550.CICS.SDFHCOB(DFHAID)` / `….ADFHCOB(DFHBMSCA)` on ZD&T (`B5C551`)  
+- [x] Reconstruct `copybook/DFHAID.cpy` + `copybook/DFHBMSCA.cpy` from 3270 screenshots (trial / non-production; **gitignored**)  
+- [x] Broken-bar literals confirmed as **`¦`** (`DFHCLRP`, `DFHOUTLN`, `DFHUNNON`, `DFHTRANS`)  
+- [ ] Optional: `EXTFMAP` / `CMQ*` (separate entitlement)  
+
+`expandCobolCopybooks` expands proprietary names **only when the licensed file exists**; otherwise they stay honest COPY holes.
+
+---
+
+## Have (local Downloads + GCE staging)
 
 | Artifact | Notes |
 | --- | --- |
-| `cicsts64.pax.Z` (~957 MB) | CICS TS **6.4 open beta** product (GIMZIP) |
-| `cics64.lic.pax.Z` (~32 KB) | Beta activation module |
-| `Beta Installation.txt` + readmes + Program Directory PDFs | Install JCL / docs |
-| `CICS.6.4.Beta.09.Developer.Components.zip` | **JCICS JARs only** — no COBOL copybooks |
-| Unpacked under `Downloads/_cics-beta-unpack/` | Outer pax + `SMPRELF` RELFILEs; EBCDIC `DFHAID` / `DFHBMSCA` / `SDFHCOB` markers found inside HCI7700 RELFILEs |
-| **GCE staging** on `chrysalis-test-vm` | `/home/sa_114956744844145855892/chrysalis-staging/cics-ts-64-beta/` — product + license + docs only (no CTG). SHA256 `cicsts64.pax.Z` = `82487d98…028e` |
-
-**Proven:** books are inside the beta package.  
-**Not proven yet:** clean COBOL `.cpy` carve on Windows/WSL/GCE Linux without z/OS GIMUNZIP + SMP/E.
-
-**IBM ZD&T trial:** operator has trial workspace (id **4929** / `ibmztrialmachines.com`). Next: upload the staged `.pax.Z` pair from GCE or local Downloads into that trial’s USS and install.
+| `cicsts64.pax.Z` (~957 MB) | CICS TS **6.4 open beta** (optional if ADCD 5.5 books suffice) |
+| GCE staging | `chrysalis-test-vm:…/chrysalis-staging/cics-ts-64-beta/` |
 
 ---
 
@@ -40,41 +52,19 @@ Then re-run `hub:cobol-clbs-prove-smoke` / residual ledger — P0 proprietary-co
 
 | What | Why skip |
 | --- | --- |
-| **CICS Transaction Gateway** trial (`ibm-cicstg-mp-trial.tar.gz` / container) | Client gateway — not SDFHCOB |
-| **Virtual Dev and Test for z/OS** purchase | Paid ZD&T; not required if a free Z trial host exists |
-| **IBM Z Trial: Data Gatherer + SMF Explorer** | Wrong product — no CICS / SDFHCOB |
-| Ansible / ZOAU “managed node” setup | Needs an existing z/OS; does not provision one |
+| **CICS Transaction Gateway** trial | Not SDFHCOB |
+| **Data Gatherer + SMF Explorer** trial | Wrong product |
 | Invented `DFHAID.cpy` stubs | Forbidden |
-
----
-
-## Still need
-
-1. **Free IBM Z Software Trial** with a real z/OS (prefer **ZD&T trial** or a trial that includes **CICS Transaction Server**) — https://www.ibm.com/products/z/trials  
-2. Upload `cicsts64.pax.Z` + `cics64.lic.pax.Z` to that system’s USS  
-3. Follow `Beta Installation.txt` (GIMUNZIP / SMP/E + activation)  
-4. Export `SDFHCOB(DFHAID)` and `SDFHCOB(DFHBMSCA)` into the fixture `copybook/` tree (license: beta/non-production only; do not publish IBM source as Chrysalis product code)
-
-GCE `chrysalis-test-vm` alone cannot finish the install (Linux ≠ z/OS). Staging drop is at:
-
-`chrysalis-test-vm:/home/sa_114956744844145855892/chrysalis-staging/cics-ts-64-beta/`
-
-Use it only as a transfer cache toward the ZD&T trial LPAR.
-
----
-
-## Chrysalis stance meanwhile
-
-- Residual ledger **P0** stays open (`pnpm run hub:cobol-residual-ledger`)
-- Engine deepen continues on inventory / WebIR / gnu-honest subjects — **not** on fake AID books
-- Behavioral bar remains **65/65**; no LCB claim
+| Catalog-only `LISTC LVL(DFH)` without volume `B5C551` | Misses uncataloged target libs |
 
 ---
 
 ## Operator checklist
 
-- [ ] Cancel/ignore Data Gatherer–SMF trial if still provisioning  
-- [ ] Request **ZD&T** or **CICS TS** IBM Z trial  
-- [ ] Confirm email names the right product before waiting  
-- [ ] Install beta → export DFHAID/DFHBMSCA → place under `copybook/`  
-- [ ] Re-prove clbs + residual ledger  
+- [x] ZD&T ADCD up; find `DFH550.CICS.SDFHCOB` / `ADFHCOB` on **B5C551**  
+- [x] Screenshot / extract **DFHAID** + **DFHBMSCA** → `copybook/` (gitignored)  
+- [x] `pnpm run hub:cobol-residual-ledger` — `copy:DFHAID` + `copy:DFHBMSCA` **closed** when drop present  
+- [x] Re-prove via `hub:cobol-best-fit-smoke` (licensed expand gate)  
+- [ ] Optional later: EXTFMAP / CMQ*  
+- [ ] Do **not** `git add` DFHAID/DFHBMSCA (gitignored)  
+

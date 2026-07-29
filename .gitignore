@@ -116,3 +116,10 @@ generated/wisp-svelte-sidecar/
 # Generated from hydrate-samples (G9750)
 fixtures/hub-wisp-management/wisp-api-pilot-traces/enriched/
 
+# IBM SDFHCOB proprietary copybooks (operator licensed drop only — never publish)
+fixtures/hub-cobol-clbs-mini/copybook/DFHAID.cpy
+fixtures/hub-cobol-clbs-mini/copybook/DFHBMSCA.cpy
+fixtures/hub-cobol-clbs-mini/copybook/EXTFMAP.cpy
+fixtures/hub-cobol-clbs-mini/copybook/DFHATTR.cpy
+fixtures/hub-cobol-clbs-mini/copybook/CMQ*.cpy
+

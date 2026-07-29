@@ -767,6 +767,14 @@ export async function runCobolBestFitSmoke() {
   const cardCopy = resolveCobolCopybooks(cardInv?.copybooks || [], [join(CLBS_MINI, "copybook")]);
   const cardResolved = cardCopy.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
   const cardUnresolved = cardCopy.filter((r) => !r.resolved).map((r) => r.name.toUpperCase());
+  const aidOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHAID.cpy"));
+  const bmsOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHBMSCA.cpy"));
+  const aidOk = aidOnDisk
+    ? cardResolved.includes("DFHAID")
+    : cardUnresolved.includes("DFHAID");
+  const bmsOk = bmsOnDisk
+    ? cardResolved.includes("DFHBMSCA")
+    : cardUnresolved.includes("DFHBMSCA");
   results.push({
     id: "online-carddemo-cotrt-db2-map-resolve",
     ok:
@@ -774,12 +782,12 @@ export async function runCobolBestFitSmoke() {
       cardResolved.includes("COTRTLI") &&
       cardResolved.includes("COTRTUP") &&
       cardResolved.includes("COADM02Y") &&
-      cardUnresolved.includes("DFHAID") &&
-      cardUnresolved.includes("DFHBMSCA") &&
+      aidOk &&
+      bmsOk &&
       cardInv.unresolved.includes("copy") &&
       cardInv.unresolved.includes("exec-cics"),
     reason: cardInv
-      ? `resolved=${cardResolved.filter((n) => /COTRT|COADM02Y/.test(n)).join(",")} unresolvedBms=${cardUnresolved.filter((n) => /^DFH/.test(n)).join(",")}`
+      ? `resolved=${cardResolved.filter((n) => /COTRT|COADM02Y|DFH/.test(n)).join(",")} unresolvedBms=${cardUnresolved.filter((n) => /^DFH/.test(n)).join(",")} aidDisk=${aidOnDisk} bmsDisk=${bmsOnDisk}`
       : "missing-CARDONLN",
   });
 
@@ -1085,7 +1093,90 @@ export async function runCobolBestFitSmoke() {
     reason: `clbsmath*=${mathBinOps.length} emp*=${empBinOps.length} empKind=${empPat?.kind} empLit=${empLit}`,
   });
 
-  // G10087 — COPY expand for resolved in-repo books; DFHAID/CMQ* stay skipped.
+  // G10092 — seq-max / perform-varying-sum typed WebIR (operands+max int / + fold).
+  const seqPath = join(CLBS_BATCH, "SEQMAX.cbl");
+  const seqSrc = existsSync(seqPath) ? readFileSync(seqPath, "utf8") : "";
+  const seqPat = seqSrc ? detectEmitPattern(seqSrc) : null;
+  const seqExp = seqPat ? expectedFromPattern(seqPat) : null;
+  const seqBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10092" });
+  const seqWr = webir.webRequest.builders(seqBuilder);
+  if (seqSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: seqBuilder,
+      wr: seqWr,
+      source: seqSrc,
+      file: "SEQMAX.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const seqMod = seqBuilder.finish();
+  const seqInt30 = [...seqMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 30,
+  );
+  const seqStrLit = [...seqMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === seqExp,
+  );
+
+  const varyPath = join(CLBS_BATCH, "VARYSUM.cbl");
+  const varySrc = existsSync(varyPath) ? readFileSync(varyPath, "utf8") : "";
+  const varyPat = varySrc ? detectEmitPattern(varySrc) : null;
+  const varyExp = varyPat ? expectedFromPattern(varyPat) : null;
+  const varyBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10092-vary" });
+  const varyWr = webir.webRequest.builders(varyBuilder);
+  if (varySrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: varyBuilder,
+      wr: varyWr,
+      source: varySrc,
+      file: "VARYSUM.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const varyMod = varyBuilder.finish();
+  const varyPlus = [...varyMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "binop" && n.attrs?.operator === "+",
+  );
+  const varyLit = [...varyMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === varyExp,
+  );
+  results.push({
+    id: "webir-emit-pattern-seq-max-varysum",
+    ok:
+      seqPat?.kind === "seq-max" &&
+      seqExp === "30.00" &&
+      seqInt30.length >= 1 &&
+      seqStrLit &&
+      varyPat?.kind === "perform-varying-sum" &&
+      varyExp === "55" &&
+      varyPlus.length >= 1 &&
+      varyLit,
+    reason: `seqKind=${seqPat?.kind} seqExp=${seqExp} seqInt30=${seqInt30.length} varyKind=${varyPat?.kind} vary+=${varyPlus.length} varyExp=${varyExp}`,
+  });
+
+  // G10092b — licensed DFHAID/DFHBMSCA expand when operator drop present (never invent).
+  const propDirs = [join(CLBS_MINI, "copybook")];
+  const propExpand = expandCobolCopybooks("COPY DFHAID. COPY DFHBMSCA. COPY EXTFMAP.", propDirs);
+  const dfhaidOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHAID.cpy"));
+  const dfhbmscaOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHBMSCA.cpy"));
+  results.push({
+    id: "cobol-licensed-aid-expand-or-skip",
+    ok:
+      (!dfhaidOnDisk ? propExpand.skipped.includes("DFHAID") : propExpand.expanded.includes("DFHAID")) &&
+      (!dfhbmscaOnDisk
+        ? propExpand.skipped.includes("DFHBMSCA")
+        : propExpand.expanded.includes("DFHBMSCA")) &&
+      propExpand.skipped.includes("EXTFMAP") &&
+      !propExpand.expanded.includes("EXTFMAP"),
+    reason: `aidDisk=${dfhaidOnDisk} bmsDisk=${dfhbmscaOnDisk} expanded=${propExpand.expanded.join(",")} skipped=${propExpand.skipped.join(",")}`,
+  });
+
+  // G10087 — COPY expand for resolved in-repo books; DFHAID/CMQ* stay skipped when absent.
   const copyDirs = inferCobolCopybookDirs(
     join(CLBS_BATCH, "CKPRSTDN.cbl"),
     CLBS_MINI,
@@ -1114,11 +1205,14 @@ export async function runCobolBestFitSmoke() {
       /\bCK-STATUS\b/.test(ckprExpand.source) &&
       ckprExpand.missing.length === 0 &&
       !!cosgnExpand &&
-      cosgnExpand.skipped.includes("DFHAID") &&
-      cosgnExpand.skipped.includes("DFHBMSCA") &&
-      !cosgnExpand.expanded.includes("DFHAID"),
+      (aidOnDisk
+        ? cosgnExpand.expanded.includes("DFHAID")
+        : cosgnExpand.skipped.includes("DFHAID") && !cosgnExpand.expanded.includes("DFHAID")) &&
+      (bmsOnDisk
+        ? cosgnExpand.expanded.includes("DFHBMSCA")
+        : cosgnExpand.skipped.includes("DFHBMSCA") && !cosgnExpand.expanded.includes("DFHBMSCA")),
     reason: ckprExpand
-      ? `expanded=${ckprExpand.expanded.join(",")} skipped=${(cosgnExpand?.skipped || []).join(",")} missing=${ckprExpand.missing.join(",")}`
+      ? `expanded=${ckprExpand.expanded.join(",")} cosgnExpanded=${(cosgnExpand?.expanded || []).join(",")} skipped=${(cosgnExpand?.skipped || []).join(",")} missing=${ckprExpand.missing.join(",")} aidDisk=${aidOnDisk}`
       : "missing-CKPRSTDN",
   });
 

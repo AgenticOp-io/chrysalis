@@ -76,6 +76,11 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     }
     if (row.file) hit.files.add(row.file);
     if (row.op) hit.ops.add(row.op);
+    // Licensed drop closes proprietary rows; never reopen once closed.
+    if (row.status === "closed") {
+      hit.status = "closed";
+      if (row.issue) hit.issue = row.issue;
+    }
   }
 
   const copyDirs = [
@@ -95,11 +100,16 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     for (const cpy of inv.copybooks || []) {
       allCopy.push(cpy);
       if (isProprietaryCobolCopybook(cpy)) {
-        add(`copy:${cpy.toUpperCase()}`, {
+        const upper = String(cpy).toUpperCase();
+        const hit = resolveCobolCopybooks([upper], copyDirs)[0];
+        const closed = Boolean(hit?.resolved);
+        add(`copy:${upper}`, {
           classification: "proprietary-copy",
-          issue: `IBM/MQ proprietary COPY ${cpy} — licensed SDFHCOB/CMQ* drop only; do not invent`,
+          issue: closed
+            ? `IBM/MQ proprietary COPY ${cpy} — licensed drop present at ${hit.resolved}`
+            : `IBM/MQ proprietary COPY ${cpy} — licensed SDFHCOB/CMQ* drop only; do not invent`,
           file: r,
-          status: "open",
+          status: closed ? "closed" : "open",
         });
       }
     }
@@ -135,10 +145,15 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
   }
 
   for (const name of origin.proprietaryCopy || []) {
-    add(`copy:${String(name).toUpperCase()}`, {
+    const upper = String(name).toUpperCase();
+    const hit = resolveCobolCopybooks([upper], copyDirs)[0];
+    const closed = Boolean(hit?.resolved);
+    add(`copy:${upper}`, {
       classification: "proprietary-copy",
-      issue: `IBM/MQ proprietary COPY ${name} — licensed drop only; do not invent`,
-      status: "open",
+      issue: closed
+        ? `IBM/MQ proprietary COPY ${name} — licensed drop present at ${hit.resolved}`
+        : `IBM/MQ proprietary COPY ${name} — licensed drop only; do not invent`,
+      status: closed ? "closed" : "open",
     });
   }
 
@@ -159,8 +174,11 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     });
 
   const byPriority = { P0: 0, P1: 0, P2: 0, P3: 0 };
+  const byStatus = { open: 0, closed: 0 };
   for (const it of items) {
     if (byPriority[it.priority] != null) byPriority[it.priority] += 1;
+    if (it.status === "closed") byStatus.closed += 1;
+    else byStatus.open += 1;
   }
 
   return {
@@ -172,13 +190,14 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     summary: {
       itemCount: items.length,
       byPriority,
+      byStatus,
       programCount: origin.programCount ?? origin.programs?.length ?? 0,
       proprietaryCopy: [...(origin.proprietaryCopy || [])].sort(),
       gates: [...(origin.gates || [])].slice(0, 50),
     },
     items,
     note:
-      "Honest residual ledger from COBOL site-inventory + inventoryCobolSource. P0 = proprietary COPY; P1 = runtime holes; no façades.",
+      "Honest residual ledger from COBOL site-inventory + inventoryCobolSource. P0 = proprietary COPY (closed when licensed drop present); P1 = runtime holes; no façades.",
   };
 }
 
