@@ -26,6 +26,17 @@ import { resolveHubPython } from "./shared.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const MINI = join(ROOT, "fixtures/hub-cobol-clbs-mini");
+
+const COPYBOOK_DIR = join(MINI, "copybook");
+const DFHAID_ON_DISK = existsSync(join(COPYBOOK_DIR, "DFHAID.cpy"));
+const DFHBMSCA_ON_DISK = existsSync(join(COPYBOOK_DIR, "DFHBMSCA.cpy"));
+/** Licensed drop: resolved when on disk; otherwise honest unresolved hole. */
+function aidCopyOk(name, resolvedNames, unresolvedNames) {
+  const upper = String(name || "").toUpperCase();
+  const onDisk = upper === "DFHAID" ? DFHAID_ON_DISK : upper === "DFHBMSCA" ? DFHBMSCA_ON_DISK : false;
+  if (onDisk) return (resolvedNames || []).includes(upper);
+  return (unresolvedNames || []).includes(upper);
+}
 const ONLINE = join(MINI, "online/INQONLN.cbl");
 const CARDONLN = join(MINI, "online/CARDONLN.cbl");
 const PORTONLN = join(MINI, "online/PORTONLN.cbl");
@@ -2572,7 +2583,8 @@ export async function runCobolClbsProveSmoke() {
   });
 
   // G10084 — Tier C AID/BMSCA symbol catalog from real CardDemo upstream.
-  // DFHAID/DFHBMSCA/EXTFMAP COPY stay unresolved (IBM SDFHCOB proprietary — no invent).
+  // DFHAID/DFHBMSCA COPY: honest hole unless licensed drop on disk (gitignored; no invent).
+  // EXTFMAP stays unresolved without entitlement.
   const cosgn00cUpstreamInv = existsSync(join(upstreamJclDir, "COSGN00C.cbl"))
     ? inventoryCobolSource(
         readFileSync(join(upstreamJclDir, "COSGN00C.cbl"), "utf8"),
@@ -2592,14 +2604,24 @@ export async function runCobolClbsProveSmoke() {
   const attrFromCopaus = copaus0cInv?.bmsAttrSymbols || [];
   const attrFromCotrt = cotrtupcUpstreamInv?.bmsAttrSymbols || [];
   const attrUnion = new Set([...attrFromCopaus, ...attrFromCotrt]);
-  const dfhaidStillHole =
-    (cosgn00cUpstreamInv?.copybooks || []).includes("DFHAID") &&
-    !resolveCobolCopybooks(["DFHAID"], [join(MINI, "copybook"), upstreamJclDir])[0]
-      ?.resolved;
-  const dfhbmscaStillHole =
-    (cosgn00cUpstreamInv?.copybooks || []).includes("DFHBMSCA") &&
-    !resolveCobolCopybooks(["DFHBMSCA"], [join(MINI, "copybook"), upstreamJclDir])[0]
-      ?.resolved;
+  const dfhaidResolve = resolveCobolCopybooks(
+    ["DFHAID"],
+    [COPYBOOK_DIR, upstreamJclDir],
+  )[0]?.resolved;
+  const dfhbmscaResolve = resolveCobolCopybooks(
+    ["DFHBMSCA"],
+    [COPYBOOK_DIR, upstreamJclDir],
+  )[0]?.resolved;
+  const dfhaidOk = (cosgn00cUpstreamInv?.copybooks || []).includes("DFHAID")
+    ? DFHAID_ON_DISK
+      ? Boolean(dfhaidResolve)
+      : !dfhaidResolve
+    : true;
+  const dfhbmscaOk = (cosgn00cUpstreamInv?.copybooks || []).includes("DFHBMSCA")
+    ? DFHBMSCA_ON_DISK
+      ? Boolean(dfhbmscaResolve)
+      : !dfhbmscaResolve
+    : true;
   const extfmapStillHole = !resolveCobolCopybooks(
     ["EXTFMAP"],
     [join(MINI, "copybook"), upstreamJclDir],
@@ -2613,11 +2635,11 @@ export async function runCobolClbsProveSmoke() {
       (copaus0cInv?.cicsAidSymbols || []).includes("DFHPF8") &&
       attrUnion.has("DFHBMPRF") &&
       attrFromCopaus.includes("DFHBMUNP") &&
-      dfhaidStillHole &&
-      dfhbmscaStillHole &&
+      dfhaidOk &&
+      dfhbmscaOk &&
       extfmapStillHole &&
       cosgn00cUpstreamInv.unresolved.includes("copy"),
-    reason: `aids=${(cosgn00cUpstreamInv?.cicsAidSymbols || []).join(",")} copausAids=${(copaus0cInv?.cicsAidSymbols || []).join(",")} attrs=${[...attrUnion].join(",")} dfhaidHole=${dfhaidStillHole} dfhbmscaHole=${dfhbmscaStillHole} extfmapHole=${extfmapStillHole}`,
+    reason: `aids=${(cosgn00cUpstreamInv?.cicsAidSymbols || []).join(",")} copausAids=${(copaus0cInv?.cicsAidSymbols || []).join(",")} attrs=${[...attrUnion].join(",")} dfhaidOk=${dfhaidOk} dfhbmscaOk=${dfhbmscaOk} extfmapHole=${extfmapStillHole} aidDisk=${DFHAID_ON_DISK}`,
   });
 
   // CardDemo JCL corpus samples (aws-carddemo app/jcl) — inventory-only; no JES runtime.
@@ -2926,19 +2948,18 @@ export async function runCobolClbsProveSmoke() {
     "CSLKPCDY",
   ];
   const cardMissingResolved = cardNeedResolved.filter((n) => !cardResolved.includes(n));
-  const cardNeedUnresolved = ["DFHAID", "DFHBMSCA"];
-  const cardMissingUnresolved = cardNeedUnresolved.filter(
-    (n) => !cardUnresolvedCopy.includes(n),
-  );
+  const cardAidOk =
+    aidCopyOk("DFHAID", cardResolved, cardUnresolvedCopy) &&
+    aidCopyOk("DFHBMSCA", cardResolved, cardUnresolvedCopy);
   checks.push({
     id: "online-carddemo-copy-resolve",
     ok:
       !!cardInv &&
       cardMissingResolved.length === 0 &&
-      cardMissingUnresolved.length === 0 &&
+      cardAidOk &&
       cardInv.unresolved.includes("copy"),
     reason: cardInv
-      ? `resolved=${cardResolved.join(",")} unresolvedCopy=${cardUnresolvedCopy.join(",")} missingResolved=${cardMissingResolved.join(",")} missingUnresolved=${cardMissingUnresolved.join(",")}`
+      ? `resolved=${cardResolved.join(",")} unresolvedCopy=${cardUnresolvedCopy.join(",")} missingResolved=${cardMissingResolved.join(",")} aidDisk=${DFHAID_ON_DISK}`
       : "missing-CARDONLN",
   });
 
@@ -2984,8 +3005,8 @@ export async function runCobolClbsProveSmoke() {
       cotrtlicSqlIncResolved.includes("CSDB2RWY") &&
       cotrtlicSqlIncResolved.includes("DCLTRTYP") &&
       cotrtlicSqlIncResolved.includes("CSDB2RPY") &&
-      cotrtlicUnresolvedCopy.includes("DFHAID") &&
-      cotrtlicUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cotrtlicResolved, cotrtlicUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cotrtlicResolved, cotrtlicUnresolvedCopy) &&
       cotrtlicInv.unresolved.includes("exec-sql") &&
       cotrtlicInv.unresolved.includes("exec-cics") &&
       cotrtlicInv.unresolved.includes("copy"),
@@ -3031,8 +3052,8 @@ export async function runCobolClbsProveSmoke() {
       cotrtupcSqlIncResolved.includes("SQLCA") &&
       cotrtupcSqlIncResolved.includes("DCLTRTYP") &&
       cotrtupcSqlIncResolved.includes("DCLTRCAT") &&
-      cotrtupcUnresolvedCopy.includes("DFHAID") &&
-      cotrtupcUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cotrtupcResolved, cotrtupcUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cotrtupcResolved, cotrtupcUnresolvedCopy) &&
       !cotrtupcUnresolvedCopy.includes("CSUTLDWY") &&
       !cotrtupcUnresolvedCopy.includes("CSSETATY") &&
       cotrtupcInv.unresolved.includes("exec-sql") &&
@@ -3079,8 +3100,8 @@ export async function runCobolClbsProveSmoke() {
       coactupcResolved.includes("CSLKPCDY") &&
       coactupcResolved.includes("CSUTLDWY") &&
       coactupcResolved.includes("CSSETATY") &&
-      coactupcUnresolvedCopy.includes("DFHAID") &&
-      coactupcUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", coactupcResolved, coactupcUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", coactupcResolved, coactupcUnresolvedCopy) &&
       !coactupcUnresolvedCopy.includes("CSUTLDWY") &&
       !coactupcUnresolvedCopy.includes("CSSETATY") &&
       coactupcInv.unresolved.includes("exec-cics") &&
@@ -3114,8 +3135,8 @@ export async function runCobolClbsProveSmoke() {
       comen01cResolved.includes("COMEN01") &&
       comen01cResolved.includes("COMEN02Y") &&
       comen01cResolved.includes("COCOM01Y") &&
-      comen01cUnresolvedCopy.includes("DFHAID") &&
-      comen01cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", comen01cResolved, comen01cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", comen01cResolved, comen01cUnresolvedCopy) &&
       comen01cInv.unresolved.includes("exec-cics") &&
       comen01cInv.unresolved.includes("copy") &&
       !(comen01cInv.execSqlOps || []).length,
@@ -3156,8 +3177,8 @@ export async function runCobolClbsProveSmoke() {
       coactvwcResolved.includes("CSMSG02Y") &&
       coactvwcResolved.includes("CSUSR01Y") &&
       coactvwcResolved.includes("CSSTRPFY") &&
-      coactvwcUnresolvedCopy.includes("DFHAID") &&
-      coactvwcUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", coactvwcResolved, coactvwcUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", coactvwcResolved, coactvwcUnresolvedCopy) &&
       coactvwcInv.unresolved.includes("exec-cics") &&
       coactvwcInv.unresolved.includes("copy") &&
       coactvwcInv.unresolved.includes("file-io") &&
@@ -3196,8 +3217,8 @@ export async function runCobolClbsProveSmoke() {
       cosgn00cResolved.includes("CSDAT01Y") &&
       cosgn00cResolved.includes("CSMSG01Y") &&
       cosgn00cResolved.includes("CSUSR01Y") &&
-      cosgn00cUnresolvedCopy.includes("DFHAID") &&
-      cosgn00cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cosgn00cResolved, cosgn00cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cosgn00cResolved, cosgn00cUnresolvedCopy) &&
       cosgn00cInv.unresolved.includes("exec-cics") &&
       cosgn00cInv.unresolved.includes("copy") &&
       cosgn00cInv.unresolved.includes("file-io") &&
@@ -3233,8 +3254,8 @@ export async function runCobolClbsProveSmoke() {
       coadm01cResolved.includes("CSDAT01Y") &&
       coadm01cResolved.includes("CSMSG01Y") &&
       coadm01cResolved.includes("CSUSR01Y") &&
-      coadm01cUnresolvedCopy.includes("DFHAID") &&
-      coadm01cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", coadm01cResolved, coadm01cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", coadm01cResolved, coadm01cUnresolvedCopy) &&
       coadm01cInv.unresolved.includes("exec-cics") &&
       coadm01cInv.unresolved.includes("copy") &&
       !(coadm01cInv.execSqlOps || []).length,
@@ -3268,8 +3289,8 @@ export async function runCobolClbsProveSmoke() {
       cousr00cResolved.includes("CSDAT01Y") &&
       cousr00cResolved.includes("CSMSG01Y") &&
       cousr00cResolved.includes("CSUSR01Y") &&
-      cousr00cUnresolvedCopy.includes("DFHAID") &&
-      cousr00cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cousr00cResolved, cousr00cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cousr00cResolved, cousr00cUnresolvedCopy) &&
       cousr00cInv.unresolved.includes("exec-cics") &&
       cousr00cInv.unresolved.includes("copy") &&
       cousr00cInv.unresolved.includes("file-io") &&
@@ -3304,8 +3325,8 @@ export async function runCobolClbsProveSmoke() {
       cousr01cResolved.includes("CSDAT01Y") &&
       cousr01cResolved.includes("CSMSG01Y") &&
       cousr01cResolved.includes("CSUSR01Y") &&
-      cousr01cUnresolvedCopy.includes("DFHAID") &&
-      cousr01cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cousr01cResolved, cousr01cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cousr01cResolved, cousr01cUnresolvedCopy) &&
       cousr01cInv.unresolved.includes("exec-cics") &&
       cousr01cInv.unresolved.includes("copy") &&
       cousr01cInv.unresolved.includes("file-io") &&
@@ -3340,8 +3361,8 @@ export async function runCobolClbsProveSmoke() {
       cousr02cResolved.includes("CSDAT01Y") &&
       cousr02cResolved.includes("CSMSG01Y") &&
       cousr02cResolved.includes("CSUSR01Y") &&
-      cousr02cUnresolvedCopy.includes("DFHAID") &&
-      cousr02cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cousr02cResolved, cousr02cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cousr02cResolved, cousr02cUnresolvedCopy) &&
       cousr02cInv.unresolved.includes("exec-cics") &&
       cousr02cInv.unresolved.includes("copy") &&
       cousr02cInv.unresolved.includes("file-io") &&
@@ -3376,8 +3397,8 @@ export async function runCobolClbsProveSmoke() {
       cousr03cResolved.includes("CSDAT01Y") &&
       cousr03cResolved.includes("CSMSG01Y") &&
       cousr03cResolved.includes("CSUSR01Y") &&
-      cousr03cUnresolvedCopy.includes("DFHAID") &&
-      cousr03cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cousr03cResolved, cousr03cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cousr03cResolved, cousr03cUnresolvedCopy) &&
       cousr03cInv.unresolved.includes("exec-cics") &&
       cousr03cInv.unresolved.includes("copy") &&
       cousr03cInv.unresolved.includes("file-io") &&
@@ -3425,8 +3446,8 @@ export async function runCobolClbsProveSmoke() {
       cocrdlicResolved.includes("CSMSG01Y") &&
       cocrdlicResolved.includes("CSUSR01Y") &&
       cocrdlicResolved.includes("CSSTRPFY") &&
-      cocrdlicUnresolvedCopy.includes("DFHAID") &&
-      cocrdlicUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cocrdlicResolved, cocrdlicUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cocrdlicResolved, cocrdlicUnresolvedCopy) &&
       cocrdlicInv.unresolved.includes("exec-cics") &&
       cocrdlicInv.unresolved.includes("copy") &&
       cocrdlicInv.unresolved.includes("file-io") &&
@@ -3466,8 +3487,8 @@ export async function runCobolClbsProveSmoke() {
       cocrdslcResolved.includes("CSMSG02Y") &&
       cocrdslcResolved.includes("CSUSR01Y") &&
       cocrdslcResolved.includes("CSSTRPFY") &&
-      cocrdslcUnresolvedCopy.includes("DFHAID") &&
-      cocrdslcUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cocrdslcResolved, cocrdslcUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cocrdslcResolved, cocrdslcUnresolvedCopy) &&
       cocrdslcInv.unresolved.includes("exec-cics") &&
       cocrdslcInv.unresolved.includes("copy") &&
       cocrdslcInv.unresolved.includes("file-io") &&
@@ -3516,8 +3537,8 @@ export async function runCobolClbsProveSmoke() {
       cocrdupcResolved.includes("CSMSG02Y") &&
       cocrdupcResolved.includes("CSUSR01Y") &&
       cocrdupcResolved.includes("CSSTRPFY") &&
-      cocrdupcUnresolvedCopy.includes("DFHAID") &&
-      cocrdupcUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cocrdupcResolved, cocrdupcUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cocrdupcResolved, cocrdupcUnresolvedCopy) &&
       cocrdupcInv.unresolved.includes("exec-cics") &&
       cocrdupcInv.unresolved.includes("copy") &&
       cocrdupcInv.unresolved.includes("file-io") &&
@@ -3567,8 +3588,8 @@ export async function runCobolClbsProveSmoke() {
       cobil00cResolved.includes("CVACT01Y") &&
       cobil00cResolved.includes("CVACT03Y") &&
       cobil00cResolved.includes("CVTRA05Y") &&
-      cobil00cUnresolvedCopy.includes("DFHAID") &&
-      cobil00cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cobil00cResolved, cobil00cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cobil00cResolved, cobil00cUnresolvedCopy) &&
       cobil00cInv.unresolved.includes("exec-cics") &&
       cobil00cInv.unresolved.includes("copy") &&
       cobil00cInv.unresolved.includes("file-io") &&
@@ -3612,8 +3633,8 @@ export async function runCobolClbsProveSmoke() {
       cotrn00cResolved.includes("CSDAT01Y") &&
       cotrn00cResolved.includes("CSMSG01Y") &&
       cotrn00cResolved.includes("CVTRA05Y") &&
-      cotrn00cUnresolvedCopy.includes("DFHAID") &&
-      cotrn00cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cotrn00cResolved, cotrn00cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cotrn00cResolved, cotrn00cUnresolvedCopy) &&
       cotrn00cInv.unresolved.includes("exec-cics") &&
       cotrn00cInv.unresolved.includes("copy") &&
       // Browse-only: STARTBR/READNEXT/READPREV — no COBOL READ/WRITE verb → no file-io hole.
@@ -3649,8 +3670,8 @@ export async function runCobolClbsProveSmoke() {
       cotrn01cResolved.includes("CSDAT01Y") &&
       cotrn01cResolved.includes("CSMSG01Y") &&
       cotrn01cResolved.includes("CVTRA05Y") &&
-      cotrn01cUnresolvedCopy.includes("DFHAID") &&
-      cotrn01cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cotrn01cResolved, cotrn01cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cotrn01cResolved, cotrn01cUnresolvedCopy) &&
       cotrn01cInv.unresolved.includes("exec-cics") &&
       cotrn01cInv.unresolved.includes("copy") &&
       cotrn01cInv.unresolved.includes("file-io") &&
@@ -3697,8 +3718,8 @@ export async function runCobolClbsProveSmoke() {
       cotrn02cResolved.includes("CVTRA05Y") &&
       cotrn02cResolved.includes("CVACT01Y") &&
       cotrn02cResolved.includes("CVACT03Y") &&
-      cotrn02cUnresolvedCopy.includes("DFHAID") &&
-      cotrn02cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", cotrn02cResolved, cotrn02cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", cotrn02cResolved, cotrn02cUnresolvedCopy) &&
       cotrn02cInv.unresolved.includes("exec-cics") &&
       cotrn02cInv.unresolved.includes("copy") &&
       cotrn02cInv.unresolved.includes("file-io") &&
@@ -3733,8 +3754,8 @@ export async function runCobolClbsProveSmoke() {
       corpt00cResolved.includes("CSDAT01Y") &&
       corpt00cResolved.includes("CSMSG01Y") &&
       corpt00cResolved.includes("CVTRA05Y") &&
-      corpt00cUnresolvedCopy.includes("DFHAID") &&
-      corpt00cUnresolvedCopy.includes("DFHBMSCA") &&
+      aidCopyOk("DFHAID", corpt00cResolved, corpt00cUnresolvedCopy) &&
+      aidCopyOk("DFHBMSCA", corpt00cResolved, corpt00cUnresolvedCopy) &&
       corpt00cInv.unresolved.includes("exec-cics") &&
       corpt00cInv.unresolved.includes("copy") &&
       // WRITEQ TD intrdr submit — CICS-only; no COBOL READ/WRITE verb → no file-io hole.
