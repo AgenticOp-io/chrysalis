@@ -47,8 +47,9 @@ export function lowerHubLiteral(ctx, value, loc) {
 /**
  * Lower a proven COBOL emit pattern to typed WebIR ops where meta is arithmetic
  * (G10091/G10092), evaluate/indexed catalogs (G10093), nested-if / SEARCH /
- * evaluate-subject / rounded-chain (G10095), or seq-ctl / seq-key / entry-alt /
- * bill-pipeline / indexed-row catalogs (G10096 literal-only). Always ends
+ * evaluate-subject / rounded-chain (G10095), seq-ctl / seq-key / entry-alt /
+ * bill-pipeline / indexed-row catalogs (G10096), or card-* fee/pay/status
+ * catalogs (G10097 literal-only). Always ends
  * with the formatted expected literal so verify/emit parity stays identical to
  * G10086/G10088. Arithmetic kinds also lower typed data.binOp (mul/div/add) or
  * typed int reduction operands (seq-max) when meta is complete. Catalog kinds
@@ -298,6 +299,94 @@ export function lowerCobolEmitPatternWebIr(ctx, pattern, expected, loc) {
       const v = m[key];
       if (typeof v === "number") stmts.push(numLit(v));
     }
+  } else if (pattern.kind === "card-pay-option") {
+    // G10097 — pay option + rates/fees + result (no EVALUATE invent).
+    if (m.option != null) {
+      stmts.push(
+        data.literal({
+          value: String(m.option),
+          type: HUB_T.string,
+          origin,
+          provenance: prov("option"),
+        }),
+      );
+    }
+    for (const key of ["bal", "pct", "minPay", "days", "thresh", "lateFee", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+  } else if (pattern.kind === "card-status-multi-rate") {
+    // G10097 — status + multi-rate table + late + result (no EVALUATE invent).
+    if (m.status != null) {
+      stmts.push(
+        data.literal({
+          value: String(m.status),
+          type: HUB_T.string,
+          origin,
+          provenance: prov("status"),
+        }),
+      );
+    }
+    for (const key of ["bal", "rateA", "rateD", "rateC", "days", "thresh", "lateFee", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+  } else if (pattern.kind === "card-account-fee-table" && Array.isArray(m.accounts)) {
+    // G10097 — per-account status/bal/days + rates + result (no table invent).
+    for (const acct of m.accounts) {
+      if (!acct || typeof acct !== "object") continue;
+      const a = /** @type {Record<string, unknown>} */ (acct);
+      if (a.status != null) {
+        stmts.push(
+          data.literal({
+            value: String(a.status),
+            type: HUB_T.string,
+            origin,
+            provenance: prov(`acct-${a.status}`),
+          }),
+        );
+      }
+      if (typeof a.bal === "number") stmts.push(numLit(a.bal));
+      if (typeof a.days === "number") stmts.push(numLit(a.days));
+    }
+    for (const key of ["rateA", "rateD", "lateFee", "thresh", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+  } else if (
+    pattern.kind === "card-fee-schedule" &&
+    m.schedule &&
+    typeof m.schedule === "object" &&
+    Array.isArray(m.txns)
+  ) {
+    // G10097 — schedule codes/rates + txn codes/amts + result (no SEARCH invent).
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.schedule))) {
+      stmts.push(
+        data.literal({
+          value: String(k),
+          type: HUB_T.string,
+          origin,
+          provenance: prov(`sched-${k}`),
+        }),
+      );
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    for (const txn of m.txns) {
+      if (!txn || typeof txn !== "object") continue;
+      const t = /** @type {Record<string, unknown>} */ (txn);
+      if (t.code != null) {
+        stmts.push(
+          data.literal({
+            value: String(t.code),
+            type: HUB_T.string,
+            origin,
+            provenance: prov(`txn-${t.code}`),
+          }),
+        );
+      }
+      if (typeof t.amt === "number") stmts.push(numLit(t.amt));
+    }
+    if (typeof m.result === "number") stmts.push(numLit(m.result));
   } else if (
     (pattern.kind === "indexed-key-read" ||
       pattern.kind === "indexed-alt-key-read" ||

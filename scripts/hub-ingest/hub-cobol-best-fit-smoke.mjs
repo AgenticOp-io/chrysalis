@@ -1510,6 +1510,42 @@ export async function runCobolBestFitSmoke() {
     reason: `port=${port.pat?.kind}/${port.exp} key=${key.pat?.kind}/${key.exp} upd=${upd.pat?.kind}/${upd.exp} rng=${rng.pat?.kind}/${rng.exp} ent=${ent.pat?.kind}/${ent.exp} bill=${bill.pat?.kind}/${bill.exp}`,
   });
 
+  // G10097 — card-pay / card-status / card-account / card-fee-schedule WebIR catalogs.
+  const pay = liftOne("CARDPAY.cbl", "hub-lift:cobol-g10097-pay");
+  const stat = liftOne("CARDSTAT.cbl", "hub-lift:cobol-g10097-stat");
+  const accf = liftOne("CARDACCF.cbl", "hub-lift:cobol-g10097-accf");
+  const schd = liftOne("CARDSCHD.cbl", "hub-lift:cobol-g10097-schd");
+  results.push({
+    id: "webir-emit-pattern-card-fee-catalogs",
+    ok:
+      pay.pat?.kind === "card-pay-option" &&
+      pay.exp === "125.00" &&
+      pay.has("P") &&
+      pay.has(1000) &&
+      pay.has(125) &&
+      pay.has(pay.exp) &&
+      stat.pat?.kind === "card-status-multi-rate" &&
+      stat.exp === "80.00" &&
+      stat.has("D") &&
+      stat.has(0.055) &&
+      stat.has(80) &&
+      stat.has(stat.exp) &&
+      accf.pat?.kind === "card-account-fee-table" &&
+      accf.exp === "100.00" &&
+      accf.has("A") &&
+      accf.has("D") &&
+      accf.has(100) &&
+      accf.has(accf.exp) &&
+      schd.pat?.kind === "card-fee-schedule" &&
+      schd.exp === "39.00" &&
+      schd.has("P") &&
+      schd.has("F") &&
+      schd.has(800) &&
+      schd.has(39) &&
+      schd.has(schd.exp),
+    reason: `pay=${pay.pat?.kind}/${pay.exp} stat=${stat.pat?.kind}/${stat.exp} accf=${accf.pat?.kind}/${accf.exp} schd=${schd.pat?.kind}/${schd.exp}`,
+  });
+
   // G10092b — licensed DFHAID/DFHBMSCA/EXTFMAP expand when operator drop present (never invent).
   const propDirs = [join(CLBS_MINI, "copybook")];
   const propExpand = expandCobolCopybooks(
