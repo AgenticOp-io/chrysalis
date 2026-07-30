@@ -1680,6 +1680,78 @@ export async function runCobolBestFitSmoke() {
       : "missing-COSGN00C",
   });
 
+  // G10098 — control/online inventory fields on WebIR hole attrs + indexed limit + SQL INCLUDE expand.
+  const cardOnlnPath = join(ROOT, "fixtures/hub-cobol-clbs-mini/online/CARDONLN.cbl");
+  const cardOnlnSrc = existsSync(cardOnlnPath) ? readFileSync(cardOnlnPath, "utf8") : "";
+  const cardOnlnInv = cardOnlnSrc ? inventoryCobolSource(cardOnlnSrc, "CARDONLN.cbl") : null;
+  const cardOnlnAttrs = cardOnlnInv ? buildCobolWebIrHoleAttrs(cardOnlnInv) : null;
+  const srchCtrlInv = inventoryCobolSource(
+    existsSync(join(CLBS_BATCH, "SRCHTAB.cbl"))
+      ? readFileSync(join(CLBS_BATCH, "SRCHTAB.cbl"), "utf8")
+      : "",
+    "SRCHTAB.cbl",
+  );
+  const srchCtrlAttrs = buildCobolWebIrHoleAttrs(srchCtrlInv);
+  const entCtrlInv = inventoryCobolSource(
+    existsSync(join(CLBS_BATCH, "ENTRYRN.cbl"))
+      ? readFileSync(join(CLBS_BATCH, "ENTRYRN.cbl"), "utf8")
+      : "",
+    "ENTRYRN.cbl",
+  );
+  const entCtrlAttrs = buildCobolWebIrHoleAttrs(entCtrlInv);
+  results.push({
+    id: "webir-hole-attrs-control-surface",
+    ok:
+      !!cardOnlnAttrs &&
+      Number(cardOnlnAttrs.handleCondition) >= 1 &&
+      Number(cardOnlnAttrs.handleAid) >= 1 &&
+      Number(cosgnAttrs?.respClauses) >= 1 &&
+      Array.isArray(cosgnAttrs?.procedureUsingArgs) &&
+      cosgnAttrs.procedureUsingArgs.includes("DFHCOMMAREA") &&
+      Number(srchCtrlAttrs.occurs) >= 1 &&
+      Number(srchCtrlAttrs.search) >= 1 &&
+      Array.isArray(entCtrlAttrs.entryNames) &&
+      entCtrlAttrs.entryNames.includes("ALTPHASE"),
+    reason: `handleC=${cardOnlnAttrs?.handleCondition} handleA=${cardOnlnAttrs?.handleAid} resp=${cosgnAttrs?.respClauses} using=${(cosgnAttrs?.procedureUsingArgs || []).join(",")} occurs=${srchCtrlAttrs?.occurs} search=${srchCtrlAttrs?.search} entry=${(entCtrlAttrs?.entryNames || []).join(",")}`,
+  });
+
+  const eqn = liftOne("IDXEQNRN.cbl", "hub-lift:cobol-g10098-eqn");
+  const eqp = liftOne("IDXEQPRN.cbl", "hub-lift:cobol-g10098-eqp");
+  results.push({
+    id: "webir-emit-pattern-indexed-limit",
+    ok:
+      eqn.pat?.kind === "indexed-start-equal-next" &&
+      eqn.pat?.meta?.limit === 3 &&
+      eqn.has(3) &&
+      eqn.has(eqn.exp) &&
+      eqp.pat?.kind === "indexed-start-equal-prev" &&
+      eqp.pat?.meta?.limit === 2 &&
+      eqp.has(2) &&
+      eqp.has(eqp.exp),
+    reason: `eqn=${eqn.pat?.kind}/limit=${eqn.pat?.meta?.limit}/has3=${eqn.has(3)} eqp=${eqp.pat?.kind}/limit=${eqp.pat?.meta?.limit}/has2=${eqp.has(2)}`,
+  });
+
+  const sqlinvExpandPath = join(CLBS_BATCH, "SQLINV00.cbl");
+  const sqlinvExpandSrc = existsSync(sqlinvExpandPath)
+    ? readFileSync(sqlinvExpandPath, "utf8")
+    : "";
+  const sqlinvExpand = sqlinvExpandSrc
+    ? expandCobolCopybooks(sqlinvExpandSrc, [join(CLBS_MINI, "copybook")])
+    : null;
+  results.push({
+    id: "cobol-sql-include-expand-resolved",
+    ok:
+      !!sqlinvExpand &&
+      sqlinvExpand.expanded.includes("SQLCA") &&
+      /\*>\s*BEGIN-COPY\s+SQLCA\b/i.test(sqlinvExpand.source) &&
+      /\b01\s+SQLCA\b/i.test(sqlinvExpand.source) &&
+      !/\bEXEC\s+SQL\s+INCLUDE\s+SQLCA\s+END-EXEC\b/i.test(sqlinvExpand.source) &&
+      sqlinvExpand.missing.length === 0,
+    reason: sqlinvExpand
+      ? `expanded=${sqlinvExpand.expanded.join(",")} missing=${sqlinvExpand.missing.join(",")}`
+      : "missing-SQLINV00",
+  });
+
   // G10089–G10090: COBOL site-inventory adapter + residual ledger (inventory-first).
   const clbsAdapter = detectOriginAdapter(CLBS_MINI);
   const residual = buildCobolResidualLedger(CLBS_MINI);

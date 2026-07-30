@@ -439,6 +439,31 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (typeof inv?.evaluateTrue === "number" && inv.evaluateTrue > 0) {
     attrs.evaluateTrue = inv.evaluateTrue;
   }
+  // G10098 — attach already-inventoried control/online surface (no runtime invent).
+  if (typeof inv?.handleCondition === "number" && inv.handleCondition > 0) {
+    attrs.handleCondition = inv.handleCondition;
+  }
+  if (typeof inv?.handleAid === "number" && inv.handleAid > 0) {
+    attrs.handleAid = inv.handleAid;
+  }
+  if (typeof inv?.respClauses === "number" && inv.respClauses > 0) {
+    attrs.respClauses = inv.respClauses;
+  }
+  if (typeof inv?.occurs === "number" && inv.occurs > 0) attrs.occurs = inv.occurs;
+  if (typeof inv?.search === "number" && inv.search > 0) attrs.search = inv.search;
+  if (inv?.evaluateNumericWhens?.length) {
+    attrs.evaluateNumericWhens = [...inv.evaluateNumericWhens];
+  }
+  if (typeof inv?.evaluateAny === "number" && inv.evaluateAny > 0) {
+    attrs.evaluateAny = inv.evaluateAny;
+  }
+  if (inv?.procedureUsingArgs?.length) {
+    attrs.procedureUsingArgs = [...inv.procedureUsingArgs];
+  }
+  if (inv?.entryNames?.length) attrs.entryNames = [...inv.entryNames];
+  if (inv?.sectionNames?.length) attrs.sectionNames = [...inv.sectionNames];
+  if (inv?.performs?.length) attrs.performs = [...inv.performs];
+  if (typeof inv?.computes === "number" && inv.computes > 0) attrs.computes = inv.computes;
   if (opts.emitPatternKind) attrs.emitPatternKind = opts.emitPatternKind;
   if (opts.copyExpanded?.length) attrs.copyExpanded = [...opts.copyExpanded];
   if (opts.copySkipped?.length) attrs.copySkipped = [...opts.copySkipped];
@@ -1029,10 +1054,12 @@ export function inferCobolCopybookDirs(filePath, projectDir) {
 }
 
 /**
- * Expand in-repo `COPY name.` text into the source for lift/inventory deepen (G10087).
- * Proprietary IBM/MQ names expand **only** when a licensed file is already on disk
- * under a search dir (operator SDFHCOB drop). Missing proprietary books stay as
- * unresolved `COPY` holes — never invent stubs (**D6442** / **D6447**).
+ * Inline resolved `COPY name.` and `EXEC SQL INCLUDE name` bodies from search
+ * dirs (G10087 / G10098). Proprietary IBM/MQ names expand **only** when a
+ * licensed file is already on disk under a search dir (operator SDFHCOB/MQ
+ * drop). Missing proprietary books stay honest skips — never invent stubs
+ * (**D6442** / **D6447**). `EXEC SQL INCLUDE` is the Db2 precompiler dual of
+ * `COPY`; expanding it does not invent a Db2 runtime.
  *
  * @param {string} source
  * @param {string[]} searchDirs
@@ -1055,43 +1082,55 @@ export function expandCobolCopybooks(source, searchDirs, opts = {}) {
   const visited = new Set();
 
   /**
+   * @param {string} name
+   * @param {string} full
+   * @param {number} depth
+   */
+  function tryExpandName(name, full, depth) {
+    const key = String(name || "").toUpperCase();
+    if (!key || visited.has(key)) return full;
+    const hit = resolveCobolCopybooks([key], searchDirs)[0];
+    if (!hit?.resolved) {
+      if (shouldSkipCobolCopyExpand(key)) {
+        if (!skipped.includes(key)) skipped.push(key);
+      } else if (!missing.includes(key)) {
+        missing.push(key);
+      }
+      return full;
+    }
+    visited.add(key);
+    if (!expanded.includes(key)) expanded.push(key);
+    let body = "";
+    try {
+      body = readFileSync(hit.resolved, "utf8");
+    } catch {
+      if (shouldSkipCobolCopyExpand(key)) {
+        if (!skipped.includes(key)) skipped.push(key);
+      } else if (!missing.includes(key)) {
+        missing.push(key);
+      }
+      return full;
+    }
+    const nested = expandOnce(body, depth + 1);
+    return `\n*> BEGIN-COPY ${key}\n${nested}\n*> END-COPY ${key}\n`;
+  }
+
+  /**
    * @param {string} text
    * @param {number} depth
    */
   function expandOnce(text, depth) {
     if (depth > maxDepth) return text;
-    return String(text || "").replace(
-      /\bCOPY\s+([A-Za-z][A-Za-z0-9-]*)\s*\./gi,
-      (full, rawName) => {
-        const name = String(rawName || "").toUpperCase();
-        if (visited.has(name)) return full;
-        const hit = resolveCobolCopybooks([name], searchDirs)[0];
-        if (!hit?.resolved) {
-          // Proprietary + absent → honest skip (do not invent). Other names → missing.
-          if (shouldSkipCobolCopyExpand(name)) {
-            if (!skipped.includes(name)) skipped.push(name);
-          } else if (!missing.includes(name)) {
-            missing.push(name);
-          }
-          return full;
-        }
-        visited.add(name);
-        if (!expanded.includes(name)) expanded.push(name);
-        let body = "";
-        try {
-          body = readFileSync(hit.resolved, "utf8");
-        } catch {
-          if (shouldSkipCobolCopyExpand(name)) {
-            if (!skipped.includes(name)) skipped.push(name);
-          } else if (!missing.includes(name)) {
-            missing.push(name);
-          }
-          return full;
-        }
-        const nested = expandOnce(body, depth + 1);
-        return `\n*> BEGIN-COPY ${name}\n${nested}\n*> END-COPY ${name}\n`;
-      },
+    let out = String(text || "");
+    out = out.replace(/\bCOPY\s+([A-Za-z][A-Za-z0-9-]*)\s*\./gi, (full, rawName) =>
+      tryExpandName(rawName, full, depth),
     );
+    // G10098 — EXEC SQL INCLUDE is the Db2 precompiler dual of COPY (no runtime).
+    out = out.replace(
+      /\bEXEC\s+SQL\s+INCLUDE\s+([A-Za-z][A-Za-z0-9-]*)\s+END-EXEC\s*\.?/gi,
+      (full, rawName) => tryExpandName(rawName, full, depth),
+    );
+    return out;
   }
 
   return {

@@ -432,6 +432,7 @@ export function lowerCobolEmitPatternWebIr(ctx, pattern, expected, loc) {
     if (m.start != null) pushKeyOrNum(m.start, "start");
     if (typeof m.delta === "number") stmts.push(numLit(m.delta));
     if (m.delKey != null) pushKeyOrNum(m.delKey, "delKey");
+    if (typeof m.limit === "number") stmts.push(numLit(m.limit));
   } else if (
     pattern.kind === "nested-if-grade" &&
     typeof m.score === "number" &&
