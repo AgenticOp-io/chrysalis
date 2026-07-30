@@ -419,6 +419,9 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (inv?.execCicsXctlPrograms?.length) {
     attrs.execCicsXctlPrograms = [...inv.execCicsXctlPrograms];
   }
+  // G10099 — CICS FILE / QUEUE literal catalogs on hole attrs (no VSAM/TDQ invent).
+  if (inv?.execCicsFiles?.length) attrs.execCicsFiles = [...inv.execCicsFiles];
+  if (inv?.execCicsQueues?.length) attrs.execCicsQueues = [...inv.execCicsQueues];
   if (inv?.execSqlOps?.length) attrs.execSqlOps = [...inv.execSqlOps];
   if (inv?.execSqlIncludes?.length) attrs.execSqlIncludes = [...inv.execSqlIncludes];
   if (inv?.execDliOps?.length) attrs.execDliOps = [...inv.execDliOps];
@@ -464,6 +467,11 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (inv?.sectionNames?.length) attrs.sectionNames = [...inv.sectionNames];
   if (inv?.performs?.length) attrs.performs = [...inv.performs];
   if (typeof inv?.computes === "number" && inv.computes > 0) attrs.computes = inv.computes;
+  // G10099 — optional BMS MAP/MAPSET crosswalk result (matched vs honest holes).
+  if (opts.bmsMapMatched?.length) attrs.bmsMapMatched = [...opts.bmsMapMatched];
+  if (opts.bmsMapHole?.length) attrs.bmsMapHole = [...opts.bmsMapHole];
+  if (opts.bmsMapsetMatched?.length) attrs.bmsMapsetMatched = [...opts.bmsMapsetMatched];
+  if (opts.bmsMapsetHole?.length) attrs.bmsMapsetHole = [...opts.bmsMapsetHole];
   if (opts.emitPatternKind) attrs.emitPatternKind = opts.emitPatternKind;
   if (opts.copyExpanded?.length) attrs.copyExpanded = [...opts.copyExpanded];
   if (opts.copySkipped?.length) attrs.copySkipped = [...opts.copySkipped];
@@ -539,6 +547,8 @@ export function inventoryCobolSource(source, file = "") {
   const execCicsMapsets = parseExecCicsMapsets(code);
   const execCicsLinkPrograms = parseExecCicsLinkPrograms(code);
   const execCicsXctlPrograms = parseExecCicsXctlPrograms(code);
+  const execCicsFiles = parseExecCicsFiles(code);
+  const execCicsQueues = parseExecCicsQueues(code);
   const ibmMqCallOps = parseIbmMqCallOps(code);
   const cicsAidSymbols = parseCicsAidSymbols(code);
   const bmsAttrSymbols = parseBmsAttrSymbols(code);
@@ -595,6 +605,8 @@ export function inventoryCobolSource(source, file = "") {
     execCicsMapsets,
     execCicsLinkPrograms,
     execCicsXctlPrograms,
+    execCicsFiles,
+    execCicsQueues,
     ibmMqCallOps,
     cicsAidSymbols,
     bmsAttrSymbols,
@@ -736,6 +748,88 @@ export function parseExecCicsLinkPrograms(source) {
  */
 export function parseExecCicsXctlPrograms(source) {
   return parseExecCicsProgramClause(source, "XCTL");
+}
+
+/**
+ * Literal `FILE('…')` names from any EXEC CICS block (READ/WRITE/STARTBR/…).
+ * Does not invent VSAM — catalog only (G10099).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsFiles(source) {
+  return parseExecCicsNamedClause(source, "FILE");
+}
+
+/**
+ * Literal `QUEUE('…')` / `TD QUEUE('…')` names from EXEC CICS blocks.
+ * Does not invent TDQ/TSQ runtime — catalog only (G10099).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsQueues(source) {
+  return parseExecCicsNamedClause(source, "QUEUE");
+}
+
+/**
+ * @param {string} source
+ * @param {"FILE"|"QUEUE"} kind
+ * @returns {string[]}
+ */
+function parseExecCicsNamedClause(source, kind) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  // QUEUE also matches "TD QUEUE('…')" after normalizeExecCicsBody collapses whitespace.
+  const clauseRe =
+    kind === "QUEUE"
+      ? /\b(?:TD\s+)?QUEUE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi
+      : /\bFILE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi;
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    clauseRe.lastIndex = 0;
+    let c;
+    while ((c = clauseRe.exec(body)) !== null) {
+      const name = c[1] || c[2];
+      if (name) names.push(name.toUpperCase());
+    }
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Crosswalk online MAP/MAPSET references against inventoried BMS labels (G10080/G10099).
+ * Does not invent missing maps — returns matched vs hole lists only.
+ *
+ * @param {{ maps?: string[], mapsets?: string[] }} referenced
+ * @param {{ maps?: Iterable<string>, mapsets?: Iterable<string> }} bmsLabels
+ * @returns {{
+ *   bmsMapMatched: string[],
+ *   bmsMapHole: string[],
+ *   bmsMapsetMatched: string[],
+ *   bmsMapsetHole: string[],
+ * }}
+ */
+export function crosswalkOnlineBmsMaps(referenced, bmsLabels) {
+  const mapSet = new Set(
+    [...(bmsLabels?.maps || [])].map((m) => String(m).toUpperCase()),
+  );
+  const mapsetSet = new Set(
+    [...(bmsLabels?.mapsets || [])].map((m) => String(m).toUpperCase()),
+  );
+  const maps = [...new Set((referenced?.maps || []).map((m) => String(m).toUpperCase()))];
+  const mapsets = [
+    ...new Set((referenced?.mapsets || []).map((m) => String(m).toUpperCase())),
+  ];
+  return {
+    bmsMapMatched: maps.filter((m) => mapSet.has(m) || mapsetSet.has(m)).sort(),
+    bmsMapHole: maps.filter((m) => !mapSet.has(m) && !mapsetSet.has(m)).sort(),
+    bmsMapsetMatched: mapsets.filter((m) => mapsetSet.has(m)).sort(),
+    bmsMapsetHole: mapsets.filter((m) => !mapsetSet.has(m)).sort(),
+  };
 }
 
 /**

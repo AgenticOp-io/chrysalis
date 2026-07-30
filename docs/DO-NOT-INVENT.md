@@ -125,7 +125,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 
 **G10079–G10082 structural BMS/CICS:** inventory + crosswalk only. Missing `INQMAP`/`INQMNU`/`PORT*`/`PORTSET` and AID copybooks stay holes — do not fabricate map bodies or IBM books.
 
-**G10085–G10098:** WebIR deepen — emit catalogs + hole-attr control surface + indexed limit + `EXEC SQL INCLUDE` expand-when-present. Still refuse inventing EXTFMAP/DFHATTR stubs or Db2/IMS/MQ runtimes. Operator SDFHCOB path: [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) (books **gitignored** — never publish).
+**G10085–G10099:** WebIR deepen — emit catalogs + hole-attr control surface + FILE/QUEUE + BMS crosswalk + SQL INCLUDE expand-when-present. Still refuse inventing EXTFMAP/DFHATTR stubs or Db2/IMS/MQ/VSAM runtimes. Operator SDFHCOB path: [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) (books **gitignored** — never publish).
 
 **G10077 Tier A+:** secondary-dialect / prefix bingo is **not** the default next queue — COBOL primary (chartered Tier B Medium+ / Tier C) unless the operator explicitly asks for another dialect peel.
 

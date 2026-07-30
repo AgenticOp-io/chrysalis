@@ -10,7 +10,7 @@
  * Gate: hub:cobol-best-fit-smoke
  */
 import { spawnSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -26,6 +26,8 @@ import {
   buildCobolWebIrHoleAttrs,
   expandCobolCopybooks,
   inferCobolCopybookDirs,
+  inventoryBmsSource,
+  crosswalkOnlineBmsMaps,
 } from "./cobol-pattern-lift.mjs";
 import { buildCobolResidualLedger } from "./cobol-residual-ledger.mjs";
 import { emitFromCobolPatterns, detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
@@ -1750,6 +1752,94 @@ export async function runCobolBestFitSmoke() {
     reason: sqlinvExpand
       ? `expanded=${sqlinvExpand.expanded.join(",")} missing=${sqlinvExpand.missing.join(",")}`
       : "missing-SQLINV00",
+  });
+
+  // G10099 — CICS FILE/QUEUE literal catalogs + BMS crosswalk on hole attrs.
+  const inqOnlnPath = join(CLBS_ONLINE, "INQONLN.cbl");
+  const inqSrcG99 = existsSync(inqOnlnPath) ? readFileSync(inqOnlnPath, "utf8") : "";
+  const inqInvG99 = inqSrcG99 ? inventoryCobolSource(inqSrcG99, "INQONLN.cbl") : null;
+  const cardFilesInv = cardOnlnInv;
+  const portOnlnPath = join(CLBS_ONLINE, "PORTONLN.cbl");
+  const portSrcG99 = existsSync(portOnlnPath) ? readFileSync(portOnlnPath, "utf8") : "";
+  const portInvG99 = portSrcG99 ? inventoryCobolSource(portSrcG99, "PORTONLN.cbl") : null;
+  const corptOnlnPath = join(CLBS_ONLINE, "CORPT00C.cbl");
+  const corptSrcG99 = existsSync(corptOnlnPath) ? readFileSync(corptOnlnPath, "utf8") : "";
+  const corptInvG99 = corptSrcG99 ? inventoryCobolSource(corptSrcG99, "CORPT00C.cbl") : null;
+  const cardFileAttrs = cardFilesInv ? buildCobolWebIrHoleAttrs(cardFilesInv) : null;
+  const inqFileAttrs = inqInvG99 ? buildCobolWebIrHoleAttrs(inqInvG99) : null;
+  const portQAttrs = portInvG99 ? buildCobolWebIrHoleAttrs(portInvG99) : null;
+  const corptQAttrs = corptInvG99 ? buildCobolWebIrHoleAttrs(corptInvG99) : null;
+  results.push({
+    id: "webir-hole-attrs-cics-file-queue",
+    ok:
+      !!cardFileAttrs &&
+      Array.isArray(cardFileAttrs.execCicsFiles) &&
+      cardFileAttrs.execCicsFiles.includes("ACCTDAT") &&
+      cardFileAttrs.execCicsFiles.includes("TRANSACT") &&
+      !!inqFileAttrs &&
+      Array.isArray(inqFileAttrs.execCicsFiles) &&
+      inqFileAttrs.execCicsFiles.includes("PORTFILE") &&
+      inqFileAttrs.execCicsFiles.includes("HISTFILE") &&
+      Array.isArray(inqFileAttrs.execCicsQueues) &&
+      inqFileAttrs.execCicsQueues.includes("INQTMP") &&
+      !!portQAttrs &&
+      Array.isArray(portQAttrs.execCicsQueues) &&
+      portQAttrs.execCicsQueues.includes("PORTTMP") &&
+      !!corptQAttrs &&
+      Array.isArray(corptQAttrs.execCicsQueues) &&
+      corptQAttrs.execCicsQueues.includes("JOBS"),
+    reason: `cardFiles=${(cardFileAttrs?.execCicsFiles || []).join(",")} inqFiles=${(inqFileAttrs?.execCicsFiles || []).join(",")} inqQ=${(inqFileAttrs?.execCicsQueues || []).join(",")} portQ=${(portQAttrs?.execCicsQueues || []).join(",")} corptQ=${(corptQAttrs?.execCicsQueues || []).join(",")}`,
+  });
+
+  const upstreamBmsDir = join(CLBS_MINI, "_upstream");
+  /** @type {string[]} */
+  const bmsMaps = [];
+  /** @type {string[]} */
+  const bmsMapsets = [];
+  if (existsSync(upstreamBmsDir)) {
+    for (const name of readdirSync(upstreamBmsDir).filter((n) => /\.bms$/i.test(n))) {
+      const invB = inventoryBmsSource(
+        readFileSync(join(upstreamBmsDir, name), "utf8"),
+        name,
+      );
+      bmsMaps.push(...(invB.maps || []));
+      bmsMapsets.push(...(invB.mapsets || []));
+    }
+  }
+  const inqXwalk = crosswalkOnlineBmsMaps(
+    {
+      maps: inqInvG99?.execCicsMaps || [],
+      mapsets: inqInvG99?.execCicsMapsets || [],
+    },
+    { maps: bmsMaps, mapsets: bmsMapsets },
+  );
+  const inqXwalkAttrs = inqInvG99
+    ? buildCobolWebIrHoleAttrs(inqInvG99, inqXwalk)
+    : null;
+  const cosgnXwalk = crosswalkOnlineBmsMaps(
+    {
+      maps: cosgnInv?.execCicsMaps || [],
+      mapsets: cosgnInv?.execCicsMapsets || [],
+    },
+    { maps: bmsMaps, mapsets: bmsMapsets },
+  );
+  const cosgnXwalkAttrs = cosgnInv
+    ? buildCobolWebIrHoleAttrs(cosgnInv, cosgnXwalk)
+    : null;
+  results.push({
+    id: "webir-hole-attrs-bms-crosswalk",
+    ok:
+      !!inqXwalkAttrs &&
+      Array.isArray(inqXwalkAttrs.bmsMapHole) &&
+      inqXwalkAttrs.bmsMapHole.includes("INQMAP") &&
+      inqXwalkAttrs.bmsMapHole.includes("INQMNU") &&
+      !!cosgnXwalkAttrs &&
+      Array.isArray(cosgnXwalkAttrs.bmsMapMatched) &&
+      (cosgnXwalkAttrs.bmsMapMatched.includes("COSGN0A") ||
+        cosgnXwalkAttrs.bmsMapMatched.includes("COSGN00")) &&
+      Array.isArray(cosgnXwalkAttrs.bmsMapsetMatched) &&
+      cosgnXwalkAttrs.bmsMapsetMatched.length >= 1,
+    reason: `inqHole=${(inqXwalkAttrs?.bmsMapHole || []).join(",")} cosgnMatch=${(cosgnXwalkAttrs?.bmsMapMatched || []).join(",")} cosgnSet=${(cosgnXwalkAttrs?.bmsMapsetMatched || []).join(",")}`,
   });
 
   // G10089–G10090: COBOL site-inventory adapter + residual ledger (inventory-first).
