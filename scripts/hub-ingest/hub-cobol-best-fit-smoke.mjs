@@ -769,6 +769,7 @@ export async function runCobolBestFitSmoke() {
   const cardUnresolved = cardCopy.filter((r) => !r.resolved).map((r) => r.name.toUpperCase());
   const aidOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHAID.cpy"));
   const bmsOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHBMSCA.cpy"));
+  const extfmapOnDisk = existsSync(join(CLBS_MINI, "copybook", "EXTFMAP.cpy"));
   const aidOk = aidOnDisk
     ? cardResolved.includes("DFHAID")
     : cardUnresolved.includes("DFHAID");
@@ -787,7 +788,7 @@ export async function runCobolBestFitSmoke() {
       cardInv.unresolved.includes("copy") &&
       cardInv.unresolved.includes("exec-cics"),
     reason: cardInv
-      ? `resolved=${cardResolved.filter((n) => /COTRT|COADM02Y|DFH/.test(n)).join(",")} unresolvedBms=${cardUnresolved.filter((n) => /^DFH/.test(n)).join(",")} aidDisk=${aidOnDisk} bmsDisk=${bmsOnDisk}`
+      ? `resolved=${cardResolved.filter((n) => /COTRT|COADM02Y|DFH/.test(n)).join(",")} unresolvedBms=${cardUnresolved.filter((n) => /^DFH/.test(n)).join(",")} aidDisk=${aidOnDisk} bmsDisk=${bmsOnDisk} extfmapDisk=${extfmapOnDisk}`
       : "missing-CARDONLN",
   });
 
@@ -871,6 +872,9 @@ export async function runCobolBestFitSmoke() {
   const inqCopy = resolveCobolCopybooks(inqInv?.copybooks || [], [copyDir]);
   const inqResolved = inqCopy.filter((r) => r.resolved).map((r) => r.name.toUpperCase());
   const inqUnresolved = inqCopy.filter((r) => !r.resolved).map((r) => r.name.toUpperCase());
+  const inqExtfmapOk = extfmapOnDisk
+    ? inqResolved.includes("EXTFMAP")
+    : inqUnresolved.includes("EXTFMAP");
   results.push({
     id: "online-copy-resolve",
     ok:
@@ -878,10 +882,10 @@ export async function runCobolBestFitSmoke() {
       inqResolved.includes("INQCOM") &&
       inqResolved.includes("ERRHND") &&
       inqResolved.includes("INQPORT") &&
-      inqUnresolved.includes("EXTFMAP") &&
+      inqExtfmapOk &&
       inqInv.unresolved.includes("copy"),
     reason: inqInv
-      ? `resolved=${inqResolved.join(",")} unresolved=${inqUnresolved.join(",")}`
+      ? `resolved=${inqResolved.join(",")} unresolved=${inqUnresolved.join(",")} extfmapDisk=${extfmapOnDisk}`
       : "missing-INQONLN",
   });
 
@@ -1159,11 +1163,362 @@ export async function runCobolBestFitSmoke() {
     reason: `seqKind=${seqPat?.kind} seqExp=${seqExp} seqInt30=${seqInt30.length} varyKind=${varyPat?.kind} vary+=${varyPlus.length} varyExp=${varyExp}`,
   });
 
-  // G10092b — licensed DFHAID/DFHBMSCA expand when operator drop present (never invent).
+  // G10093 — evaluate-phase / evaluate-func / indexed-key-read WebIR literal catalogs.
+  const ckprPath = join(CLBS_BATCH, "CKPRSTRN.cbl");
+  const ckprSrc = existsSync(ckprPath) ? readFileSync(ckprPath, "utf8") : "";
+  const ckprPat = ckprSrc ? detectEmitPattern(ckprSrc) : null;
+  const ckprExp = ckprPat ? expectedFromPattern(ckprPat) : null;
+  const ckprBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10093-ckpr" });
+  const ckprWr = webir.webRequest.builders(ckprBuilder);
+  if (ckprSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: ckprBuilder,
+      wr: ckprWr,
+      source: ckprSrc,
+      file: "CKPRSTRN.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const ckprMod = ckprBuilder.finish();
+  const ckprEntryLit = [...ckprMod.nodes.values()].some(
+    (n) =>
+      n &&
+      n.dialect === "data" &&
+      n.op === "literal" &&
+      n.attrs?.value === String(ckprPat?.meta?.entry ?? ""),
+  );
+  const ckprPhase20 = [...ckprMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 20,
+  );
+  const ckprStrLit = [...ckprMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === ckprExp,
+  );
+
+  const idxPath = join(CLBS_BATCH, "IDXPROBE.cbl");
+  const idxSrc = existsSync(idxPath) ? readFileSync(idxPath, "utf8") : "";
+  const idxPat = idxSrc ? detectEmitPattern(idxSrc) : null;
+  const idxExp = idxPat ? expectedFromPattern(idxPat) : null;
+  const idxBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10093-idx" });
+  const idxWr = webir.webRequest.builders(idxBuilder);
+  if (idxSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: idxBuilder,
+      wr: idxWr,
+      source: idxSrc,
+      file: "IDXPROBE.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const idxMod = idxBuilder.finish();
+  const idxFind = idxPat?.meta?.find;
+  const idxFindLit = [...idxMod.nodes.values()].some(
+    (n) =>
+      n &&
+      n.dialect === "data" &&
+      n.op === "literal" &&
+      n.attrs?.value === Number(idxFind),
+  );
+  const idxStrLit = [...idxMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === idxExp,
+  );
+
+  const prcPath = join(CLBS_BATCH, "PRCSEQRN.cbl");
+  const prcSrc = existsSync(prcPath) ? readFileSync(prcPath, "utf8") : "";
+  const prcPat = prcSrc ? detectEmitPattern(prcSrc) : null;
+  const prcExp = prcPat ? expectedFromPattern(prcPat) : null;
+  const prcBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10093-prc" });
+  const prcWr = webir.webRequest.builders(prcBuilder);
+  if (prcSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: prcBuilder,
+      wr: prcWr,
+      source: prcSrc,
+      file: "PRCSEQRN.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const prcMod = prcBuilder.finish();
+  const prcFuncLit = [...prcMod.nodes.values()].some(
+    (n) =>
+      n &&
+      n.dialect === "data" &&
+      n.op === "literal" &&
+      n.attrs?.value === String(prcPat?.meta?.func ?? ""),
+  );
+  const prcStrLit = [...prcMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === prcExp,
+  );
+
+  results.push({
+    id: "webir-emit-pattern-evaluate-indexed-literals",
+    ok:
+      ckprPat?.kind === "evaluate-phase" &&
+      ckprExp === "20" &&
+      ckprEntryLit &&
+      ckprPhase20.length >= 1 &&
+      ckprStrLit &&
+      idxPat?.kind === "indexed-key-read" &&
+      idxExp === "77.50" &&
+      idxFindLit &&
+      idxStrLit &&
+      prcPat?.kind === "evaluate-func" &&
+      prcFuncLit &&
+      prcStrLit,
+    reason: `ckpr=${ckprPat?.kind}/${ckprExp}/entry=${ckprEntryLit}/20=${ckprPhase20.length} idx=${idxPat?.kind}/${idxExp}/find=${idxFindLit} prc=${prcPat?.kind}/${prcExp}/func=${prcFuncLit}`,
+  });
+
+  // G10094 — indexed/file-io inventory fields on WebIR hole attrs (no runtime invent).
+  const idxInv = idxSrc ? inventoryCobolSource(idxSrc, "IDXPROBE.cbl") : null;
+  const idxHoleAttrs = idxInv ? buildCobolWebIrHoleAttrs(idxInv) : null;
+  results.push({
+    id: "webir-hole-attrs-indexed-fileio",
+    ok:
+      !!idxInv &&
+      idxInv.organizationIndexed > 0 &&
+      idxInv.recordKeys.length >= 1 &&
+      idxHoleAttrs?.organizationIndexed === idxInv.organizationIndexed &&
+      Array.isArray(idxHoleAttrs?.recordKeys) &&
+      idxHoleAttrs.recordKeys.length >= 1 &&
+      typeof idxHoleAttrs.fileIo === "number" &&
+      idxHoleAttrs.fileIo > 0,
+    reason: `orgIdx=${idxInv?.organizationIndexed} keys=${(idxInv?.recordKeys || []).join(",")} attrsOrg=${idxHoleAttrs?.organizationIndexed} attrsKeys=${(idxHoleAttrs?.recordKeys || []).join(",")} fileIo=${idxHoleAttrs?.fileIo}`,
+  });
+
+  // G10095 — nested-if-grade / search-table / evaluate-subject / rounded-chain WebIR catalogs.
+  const nestPath = join(CLBS_BATCH, "NESTBR.cbl");
+  const nestSrc = existsSync(nestPath) ? readFileSync(nestPath, "utf8") : "";
+  const nestPat = nestSrc ? detectEmitPattern(nestSrc) : null;
+  const nestExp = nestPat ? expectedFromPattern(nestPat) : null;
+  const nestBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10095-nest" });
+  const nestWr = webir.webRequest.builders(nestBuilder);
+  if (nestSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: nestBuilder,
+      wr: nestWr,
+      source: nestSrc,
+      file: "NESTBR.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const nestMod = nestBuilder.finish();
+  const nestScoreLit = [...nestMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 75,
+  );
+  const nestGrade2 = [...nestMod.nodes.values()].filter(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 2,
+  );
+  const nestStrLit = [...nestMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === nestExp,
+  );
+
+  const srchPath = join(CLBS_BATCH, "SRCHTAB.cbl");
+  const srchSrc = existsSync(srchPath) ? readFileSync(srchPath, "utf8") : "";
+  const srchPat = srchSrc ? detectEmitPattern(srchSrc) : null;
+  const srchExp = srchPat ? expectedFromPattern(srchPat) : null;
+  const srchBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10095-srch" });
+  const srchWr = webir.webRequest.builders(srchBuilder);
+  if (srchSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: srchBuilder,
+      wr: srchWr,
+      source: srchSrc,
+      file: "SRCHTAB.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const srchMod = srchBuilder.finish();
+  const srchFindLit = [...srchMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 30,
+  );
+  const srchHitLit = [...srchMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 350,
+  );
+  const srchStrLit = [...srchMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === srchExp,
+  );
+
+  const evalPath = join(CLBS_BATCH, "EVALMANY.cbl");
+  const evalSrc = existsSync(evalPath) ? readFileSync(evalPath, "utf8") : "";
+  const evalPat = evalSrc ? detectEmitPattern(evalSrc) : null;
+  const evalExp = evalPat ? expectedFromPattern(evalPat) : null;
+  const evalBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10095-eval" });
+  const evalWr = webir.webRequest.builders(evalBuilder);
+  if (evalSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: evalBuilder,
+      wr: evalWr,
+      source: evalSrc,
+      file: "EVALMANY.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const evalMod = evalBuilder.finish();
+  const evalSubjLit = [...evalMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 2,
+  );
+  const evalHitLit = [...evalMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 25,
+  );
+  const evalStrLit = [...evalMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === evalExp,
+  );
+
+  const feePath = join(CLBS_BATCH, "CARDFEEIN.cbl");
+  const feeSrc = existsSync(feePath) ? readFileSync(feePath, "utf8") : "";
+  const feePat = feeSrc ? detectEmitPattern(feeSrc) : null;
+  const feeExp = feePat ? expectedFromPattern(feePat) : null;
+  const feeBuilder = new webir.ModuleBuilder({ sourceApp: "hub-lift:cobol-g10095-fee" });
+  const feeWr = webir.webRequest.builders(feeBuilder);
+  if (feeSrc) {
+    liftPatternRoutesFile({
+      webir,
+      builder: feeBuilder,
+      wr: feeWr,
+      source: feeSrc,
+      file: "CARDFEEIN.cbl",
+      language: "cobol",
+      copybookDirs: [join(CLBS_MINI, "copybook")],
+      projectDir: CLBS_MINI,
+    });
+  }
+  const feeMod = feeBuilder.finish();
+  const feeBalLit = [...feeMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 1000,
+  );
+  const feeResultLit = [...feeMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === 44.44,
+  );
+  const feeStepLit = [...feeMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === "WS-TOTAL",
+  );
+  const feeStrLit = [...feeMod.nodes.values()].some(
+    (n) => n && n.dialect === "data" && n.op === "literal" && n.attrs?.value === feeExp,
+  );
+
+  results.push({
+    id: "webir-emit-pattern-control-catalog-literals",
+    ok:
+      nestPat?.kind === "nested-if-grade" &&
+      nestExp === "2" &&
+      nestScoreLit &&
+      nestGrade2.length >= 1 &&
+      nestStrLit &&
+      srchPat?.kind === "search-table" &&
+      srchExp === "350" &&
+      srchFindLit &&
+      srchHitLit &&
+      srchStrLit &&
+      evalPat?.kind === "evaluate-subject" &&
+      evalExp === "25" &&
+      evalSubjLit &&
+      evalHitLit &&
+      evalStrLit &&
+      feePat?.kind === "rounded-chain" &&
+      feeExp === "44.44" &&
+      feeBalLit &&
+      feeResultLit &&
+      feeStepLit &&
+      feeStrLit,
+    reason: `nest=${nestPat?.kind}/${nestExp}/score=${nestScoreLit}/g2=${nestGrade2.length} srch=${srchPat?.kind}/${srchExp}/find=${srchFindLit} eval=${evalPat?.kind}/${evalExp}/hit=${evalHitLit} fee=${feePat?.kind}/${feeExp}/bal=${feeBalLit}/res=${feeResultLit}`,
+  });
+
+  // G10096 — seq-ctl-func-sum / seq-key-* / entry-alt / bill-pipeline WebIR catalogs.
+  const liftOne = (file, sourceApp) => {
+    const path = join(CLBS_BATCH, file);
+    const src = existsSync(path) ? readFileSync(path, "utf8") : "";
+    const pat = src ? detectEmitPattern(src) : null;
+    const exp = pat ? expectedFromPattern(pat) : null;
+    const builder = new webir.ModuleBuilder({ sourceApp });
+    const wr = webir.webRequest.builders(builder);
+    if (src) {
+      liftPatternRoutesFile({
+        webir,
+        builder,
+        wr,
+        source: src,
+        file,
+        language: "cobol",
+        copybookDirs: [join(CLBS_MINI, "copybook")],
+        projectDir: CLBS_MINI,
+      });
+    }
+    const mod = builder.finish();
+    const lits = [...mod.nodes.values()].filter(
+      (n) => n && n.dialect === "data" && n.op === "literal",
+    );
+    const has = (v) => lits.some((n) => n.attrs?.value === v);
+    return { pat, exp, has };
+  };
+
+  const port = liftOne("PORTCOMRN.cbl", "hub-lift:cobol-g10096-port");
+  const key = liftOne("IDXKEYRN.cbl", "hub-lift:cobol-g10096-key");
+  const upd = liftOne("IDXUPDRN.cbl", "hub-lift:cobol-g10096-upd");
+  const rng = liftOne("IDXRNGRN.cbl", "hub-lift:cobol-g10096-rng");
+  const ent = liftOne("ENTRYRN.cbl", "hub-lift:cobol-g10096-ent");
+  const bill = liftOne("CARDBILL.cbl", "hub-lift:cobol-g10096-bill");
+
+  results.push({
+    id: "webir-emit-pattern-seq-key-ctl-bill",
+    ok:
+      port.pat?.kind === "seq-ctl-func-sum" &&
+      port.exp === "120" &&
+      port.has("CREA") &&
+      port.has(15) &&
+      port.has(120) &&
+      port.has(port.exp) &&
+      key.pat?.kind === "seq-key-scan" &&
+      key.exp === "77.50" &&
+      key.has(42) &&
+      key.has(77.5) &&
+      key.has(key.exp) &&
+      upd.pat?.kind === "seq-key-update" &&
+      upd.exp === "82.50" &&
+      upd.has(5) &&
+      upd.has(upd.exp) &&
+      rng.pat?.kind === "seq-key-range" &&
+      rng.exp === "70.00" &&
+      rng.has(42) &&
+      rng.has(rng.exp) &&
+      ent.pat?.kind === "entry-alt" &&
+      ent.exp === "55" &&
+      ent.has("ALTPHASE") &&
+      ent.has(55) &&
+      ent.has(ent.exp) &&
+      bill.pat?.kind === "bill-pipeline" &&
+      bill.exp === "69.44" &&
+      bill.has(1000) &&
+      bill.has(69.44) &&
+      bill.has(bill.exp),
+    reason: `port=${port.pat?.kind}/${port.exp} key=${key.pat?.kind}/${key.exp} upd=${upd.pat?.kind}/${upd.exp} rng=${rng.pat?.kind}/${rng.exp} ent=${ent.pat?.kind}/${ent.exp} bill=${bill.pat?.kind}/${bill.exp}`,
+  });
+
+  // G10092b — licensed DFHAID/DFHBMSCA/EXTFMAP expand when operator drop present (never invent).
   const propDirs = [join(CLBS_MINI, "copybook")];
-  const propExpand = expandCobolCopybooks("COPY DFHAID. COPY DFHBMSCA. COPY EXTFMAP.", propDirs);
+  const propExpand = expandCobolCopybooks(
+    "COPY DFHAID. COPY DFHBMSCA. COPY EXTFMAP. COPY DFHATTR.",
+    propDirs,
+  );
   const dfhaidOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHAID.cpy"));
   const dfhbmscaOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHBMSCA.cpy"));
+  const dfhattrOnDisk = existsSync(join(CLBS_MINI, "copybook", "DFHATTR.cpy"));
   results.push({
     id: "cobol-licensed-aid-expand-or-skip",
     ok:
@@ -1171,9 +1526,13 @@ export async function runCobolBestFitSmoke() {
       (!dfhbmscaOnDisk
         ? propExpand.skipped.includes("DFHBMSCA")
         : propExpand.expanded.includes("DFHBMSCA")) &&
-      propExpand.skipped.includes("EXTFMAP") &&
-      !propExpand.expanded.includes("EXTFMAP"),
-    reason: `aidDisk=${dfhaidOnDisk} bmsDisk=${dfhbmscaOnDisk} expanded=${propExpand.expanded.join(",")} skipped=${propExpand.skipped.join(",")}`,
+      (!extfmapOnDisk
+        ? propExpand.skipped.includes("EXTFMAP") && !propExpand.expanded.includes("EXTFMAP")
+        : propExpand.expanded.includes("EXTFMAP")) &&
+      (!dfhattrOnDisk
+        ? propExpand.skipped.includes("DFHATTR") && !propExpand.expanded.includes("DFHATTR")
+        : propExpand.expanded.includes("DFHATTR")),
+    reason: `aidDisk=${dfhaidOnDisk} bmsDisk=${dfhbmscaOnDisk} extfmapDisk=${extfmapOnDisk} dfhattrDisk=${dfhattrOnDisk} expanded=${propExpand.expanded.join(",")} skipped=${propExpand.skipped.join(",")}`,
   });
 
   // G10087 — COPY expand for resolved in-repo books; DFHAID/CMQ* stay skipped when absent.

@@ -46,11 +46,14 @@ export function lowerHubLiteral(ctx, value, loc) {
 
 /**
  * Lower a proven COBOL emit pattern to typed WebIR ops where meta is arithmetic
- * (G10091/G10092). Always ends with the formatted expected literal so verify/emit
- * parity stays identical to G10086/G10088. Arithmetic kinds also lower typed
- * data.binOp (mul/div/add) or typed int reduction operands (seq-max) when meta is
- * complete; the expected string literal always remains. Non-arithmetic kinds fall
- * back to literal-only.
+ * (G10091/G10092), evaluate/indexed catalogs (G10093), nested-if / SEARCH /
+ * evaluate-subject / rounded-chain (G10095), or seq-ctl / seq-key / entry-alt /
+ * bill-pipeline / indexed-row catalogs (G10096 literal-only). Always ends
+ * with the formatted expected literal so verify/emit parity stays identical to
+ * G10086/G10088. Arithmetic kinds also lower typed data.binOp (mul/div/add) or
+ * typed int reduction operands (seq-max) when meta is complete. Catalog kinds
+ * emit operands/tables as literals only — no IF/EVALUATE/SEARCH/ISAM invent.
+ * The expected string literal always remains.
  *
  * @param {object} ctx — { data, webir }
  * @param {{ kind: string, meta: Record<string, unknown> }} pattern
@@ -185,6 +188,239 @@ export function lowerCobolEmitPatternWebIr(ctx, pattern, expected, loc) {
         stmts.push(acc);
       }
       if (stmts.length === 0) stmts.push(acc);
+    }
+  } else if (
+    pattern.kind === "evaluate-phase" &&
+    m.entry != null &&
+    m.phases &&
+    typeof m.phases === "object"
+  ) {
+    // G10093 — entry key + phase table ints + selected phase int (no EVALUATE invent).
+    stmts.push(
+      data.literal({
+        value: String(m.entry),
+        type: HUB_T.string,
+        origin,
+        provenance: prov("entry"),
+      }),
+    );
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.phases))) {
+      stmts.push(
+        data.literal({
+          value: String(k),
+          type: HUB_T.string,
+          origin,
+          provenance: prov(`phase-key-${k}`),
+        }),
+      );
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    const selected = /** @type {Record<string, number>} */ (m.phases)[String(m.entry)];
+    if (typeof selected === "number") stmts.push(numLit(selected));
+  } else if (
+    pattern.kind === "evaluate-func" &&
+    m.func != null &&
+    m.codes &&
+    typeof m.codes === "object"
+  ) {
+    // G10093 — func key + code table ints + selected rc int (no EVALUATE invent).
+    stmts.push(
+      data.literal({
+        value: String(m.func),
+        type: HUB_T.string,
+        origin,
+        provenance: prov("func"),
+      }),
+    );
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.codes))) {
+      stmts.push(
+        data.literal({
+          value: String(k),
+          type: HUB_T.string,
+          origin,
+          provenance: prov(`code-key-${k}`),
+        }),
+      );
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    const selected = /** @type {Record<string, number>} */ (m.codes)[String(m.func).toUpperCase()];
+    if (typeof selected === "number") stmts.push(numLit(selected));
+  } else if (
+    pattern.kind === "seq-ctl-func-sum" &&
+    Array.isArray(m.funcs) &&
+    m.codes &&
+    typeof m.codes === "object"
+  ) {
+    // G10096 — func list + code table + selected sum (no EVALUATE invent).
+    let sum = 0;
+    for (const f of m.funcs) {
+      stmts.push(
+        data.literal({
+          value: String(f),
+          type: HUB_T.string,
+          origin,
+          provenance: prov(`func-${f}`),
+        }),
+      );
+      const code = /** @type {Record<string, number>} */ (m.codes)[String(f).toUpperCase()]
+        ?? /** @type {Record<string, number>} */ (m.codes)[String(f)];
+      if (typeof code === "number") {
+        stmts.push(numLit(code));
+        sum += code;
+      }
+    }
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.codes))) {
+      stmts.push(
+        data.literal({
+          value: String(k),
+          type: HUB_T.string,
+          origin,
+          provenance: prov(`code-key-${k}`),
+        }),
+      );
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    if (sum > 0) stmts.push(numLit(sum));
+  } else if (pattern.kind === "entry-alt" && m.entry != null && typeof m.phase === "number") {
+    // G10096 — ENTRY name + phase int (no ENTRY invent).
+    stmts.push(
+      data.literal({
+        value: String(m.entry),
+        type: HUB_T.string,
+        origin,
+        provenance: prov("entry"),
+      }),
+    );
+    stmts.push(numLit(m.phase));
+  } else if (pattern.kind === "bill-pipeline") {
+    // G10096 — bill fee/late/interest operands + result (no IF/COMPUTE invent).
+    for (const key of ["bal", "feeRate", "intRate", "days", "thresh", "lateFee", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+  } else if (
+    (pattern.kind === "indexed-key-read" ||
+      pattern.kind === "indexed-alt-key-read" ||
+      pattern.kind === "indexed-alt-start-rewrite" ||
+      pattern.kind === "indexed-delete" ||
+      pattern.kind === "indexed-start-rewrite" ||
+      pattern.kind === "indexed-start-equal-next" ||
+      pattern.kind === "indexed-start-equal-prev" ||
+      pattern.kind === "indexed-start-gt-next" ||
+      pattern.kind === "indexed-start-less-next" ||
+      pattern.kind === "indexed-start-less-prev" ||
+      pattern.kind === "indexed-start-ngt-next" ||
+      pattern.kind === "indexed-start-ngt-prev" ||
+      pattern.kind === "indexed-start-nless-next" ||
+      pattern.kind === "indexed-start-nless-prev" ||
+      pattern.kind === "seq-key-scan" ||
+      pattern.kind === "seq-key-update" ||
+      pattern.kind === "seq-key-range") &&
+    m.rows &&
+    typeof m.rows === "object"
+  ) {
+    // G10093/G10096 — row key/value catalog + find/start/delta/delKey (no ISAM invent).
+    const pushKeyOrNum = (raw, note) => {
+      const n = Number(raw);
+      if (typeof raw === "number" || (typeof raw === "string" && Number.isFinite(n) && String(n) === raw)) {
+        stmts.push(numLit(typeof raw === "number" ? raw : n));
+      } else if (raw != null) {
+        stmts.push(
+          data.literal({
+            value: String(raw),
+            type: HUB_T.string,
+            origin,
+            provenance: prov(note),
+          }),
+        );
+      }
+    };
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.rows))) {
+      pushKeyOrNum(k, `row-key-${k}`);
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    if (m.find != null) pushKeyOrNum(m.find, "find");
+    if (m.start != null) pushKeyOrNum(m.start, "start");
+    if (typeof m.delta === "number") stmts.push(numLit(m.delta));
+    if (m.delKey != null) pushKeyOrNum(m.delKey, "delKey");
+  } else if (
+    pattern.kind === "nested-if-grade" &&
+    typeof m.score === "number" &&
+    Array.isArray(m.bands) &&
+    m.bands.length > 0
+  ) {
+    // G10095 — score + band thresholds/grades + selected grade (no IF invent).
+    stmts.push(numLit(m.score));
+    let selected =
+      typeof m.elseGrade === "number" ? m.elseGrade : undefined;
+    for (const band of m.bands) {
+      if (!band || typeof band !== "object") continue;
+      const th = /** @type {{ threshold?: unknown, grade?: unknown }} */ (band).threshold;
+      const gr = /** @type {{ threshold?: unknown, grade?: unknown }} */ (band).grade;
+      if (typeof th === "number") stmts.push(numLit(th));
+      if (typeof gr === "number") stmts.push(numLit(gr));
+    }
+    // First matching band when sorted high→low (emit meta order).
+    for (const band of m.bands) {
+      if (!band || typeof band !== "object") continue;
+      const th = /** @type {{ threshold?: unknown, grade?: unknown }} */ (band).threshold;
+      const gr = /** @type {{ threshold?: unknown, grade?: unknown }} */ (band).grade;
+      if (typeof th === "number" && typeof gr === "number" && m.score >= th) {
+        selected = gr;
+        break;
+      }
+    }
+    if (typeof selected === "number") stmts.push(numLit(selected));
+  } else if (
+    pattern.kind === "search-table" &&
+    m.table &&
+    typeof m.table === "object" &&
+    m.find != null
+  ) {
+    // G10095 — table keys/values + find + hit value (no SEARCH invent).
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.table))) {
+      const kn = Number(k);
+      if (Number.isFinite(kn)) stmts.push(numLit(kn));
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    const findN = Number(m.find);
+    if (Number.isFinite(findN)) stmts.push(numLit(findN));
+    const hit = /** @type {Record<string, number>} */ (m.table)[String(m.find)];
+    if (typeof hit === "number") stmts.push(numLit(hit));
+    else if (typeof m.miss === "number") stmts.push(numLit(m.miss));
+  } else if (
+    pattern.kind === "evaluate-subject" &&
+    typeof m.subject === "number" &&
+    m.branches &&
+    typeof m.branches === "object"
+  ) {
+    // G10095 — subject + WHEN branches + selected/other (no EVALUATE invent).
+    stmts.push(numLit(m.subject));
+    for (const [k, v] of Object.entries(/** @type {Record<string, unknown>} */ (m.branches))) {
+      const kn = Number(k);
+      if (Number.isFinite(kn)) stmts.push(numLit(kn));
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    const selected = /** @type {Record<string, number>} */ (m.branches)[String(m.subject)];
+    if (typeof selected === "number") stmts.push(numLit(selected));
+    else if (typeof m.other === "number") stmts.push(numLit(m.other));
+  } else if (pattern.kind === "rounded-chain") {
+    // G10095 — fee/interest chain operands + result (no COMPUTE invent).
+    for (const key of ["bal", "feeRate", "intRate", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+    if (Array.isArray(m.steps)) {
+      for (const step of m.steps) {
+        stmts.push(
+          data.literal({
+            value: String(step),
+            type: HUB_T.string,
+            origin,
+            provenance: prov(`step-${step}`),
+          }),
+        );
+      }
     }
   }
 

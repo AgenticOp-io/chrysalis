@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-28 (G10092 seq-max/varysum typed WebIR; licensed DFHAID/DFHBMSCA drop gitignored)
+**As of:** 2026-07-29 (G10096 seq-ctl/seq-key/entry/bill WebIR; G10093–G10095; CMQ* closed; EXTFMAP sole P0; GCE prove green)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10092** (shaped holes, COPY expand, emit→literal+binOp+seq-max/varysum, inventory + residual; licensed AID drop local-only) | no LCB claim; EXTFMAP/CMQ* + Db2/IMS/MQ runtimes still holes — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) |
+| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10096** (shaped holes through seq-ctl/seq-key/entry/bill catalogs; licensed AID+CMQ drop local-only) | no LCB claim; **EXTFMAP** sole P0 COPY + Db2/IMS/MQ runtimes still holes — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -167,13 +167,17 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
 | **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
-| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Closed G10085–G10092** — shaped holes + COPY expand + emit literals + typed binOp + seq-max/varysum + site-inventory + residual ledger |
+| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Closed G10085–G10096** — emit literals + typed binOp + catalogs through seq-ctl/seq-key/entry/bill + indexed-row family + site-inventory + residual ledger |
 | **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM/MQ/IMS) | **Closed G10083 structural** — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `exec-dli`/`ibm-mq`/`exec-sql` holes; **no runtime** |
-| **4** | COBOL Tier C IBM BMS AID books | **G10084** symbol catalog; **DFHAID/DFHBMSCA** licensed local drop (gitignored, residual **closed** when present); **EXTFMAP**/CMQ* still open |
+| **4** | COBOL Tier C IBM BMS AID books | **G10084** symbol catalog; **DFHAID/DFHBMSCA** + **CMQ\*** licensed local drops (gitignored, residual **closed** when present); **EXTFMAP** sole open P0 (may be ABSENT from SDFHCOB) |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10096 — seq-ctl-func-sum / seq-key-scan|update|range / entry-alt / bill-pipeline + indexed-row family WebIR catalogs (no ISAM/EVALUATE invent)
+- G10095 — nested-if-grade / search-table / evaluate-subject / rounded-chain WebIR literal catalogs (no IF/SEARCH/EVALUATE/COMPUTE invent)
+- G10094 — indexed/file-io inventory fields on WebIR hole attrs (`recordKeys`, `accessModes`, `fileIo`, `evaluateWhens`, …); no runtime invent
+- G10093 — evaluate-phase / evaluate-func / indexed-key-read WebIR literal catalogs (no EVALUATE/ISAM invent)
 - G10092 — typed WebIR for `seq-max` (operands + int max) / `perform-varying-sum` (`+` fold); licensed DFHAID/DFHBMSCA expand-when-present; IBM books gitignored
 - G10091 — typed WebIR `data.binOp` for arithmetic emit patterns (rounded-product / truncate-div / ot-weekly / seq-sum); expected literal retained
 - G10090 — `chrysalis.cobol.residual.v1` shared residual ledger (P0 proprietary COPY / P1 runtime holes); `hub:cobol-residual-ledger`
@@ -197,9 +201,9 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **EXTFMAP / CMQ*** — same licensed-drop discipline as DFHAID (or stay honest holes)
+1. **EXTFMAP** (sole P0) — ZD&T hunt on `B5C551` / SDFHCOB or prove **ABSENT**; never invent. **CMQ*** closed via DHE MQ Advanced for Developers drop
 2. **Real Db2 / CICS / VSAM / MQ / IMS runtime adapters** — charter only; no façades (structural Medium+ closed G10083; P1 residuals cataloged)
-3. Further WebIR deepen on evaluate/indexed **literal-only** subjects — no invented control-flow runtime
+3. Further WebIR deepen on remaining **card-*** emit patterns (literal-only) — no invented control-flow runtime
 4. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.

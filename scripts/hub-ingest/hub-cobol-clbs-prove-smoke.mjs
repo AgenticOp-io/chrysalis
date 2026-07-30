@@ -30,10 +30,23 @@ const MINI = join(ROOT, "fixtures/hub-cobol-clbs-mini");
 const COPYBOOK_DIR = join(MINI, "copybook");
 const DFHAID_ON_DISK = existsSync(join(COPYBOOK_DIR, "DFHAID.cpy"));
 const DFHBMSCA_ON_DISK = existsSync(join(COPYBOOK_DIR, "DFHBMSCA.cpy"));
-/** Licensed drop: resolved when on disk; otherwise honest unresolved hole. */
+const EXTFMAP_ON_DISK = existsSync(join(COPYBOOK_DIR, "EXTFMAP.cpy"));
+const DFHATTR_ON_DISK = existsSync(join(COPYBOOK_DIR, "DFHATTR.cpy"));
+/** Licensed IBM/MQ drop: resolved when on disk; otherwise honest unresolved hole. */
 function aidCopyOk(name, resolvedNames, unresolvedNames) {
   const upper = String(name || "").toUpperCase();
-  const onDisk = upper === "DFHAID" ? DFHAID_ON_DISK : upper === "DFHBMSCA" ? DFHBMSCA_ON_DISK : false;
+  const onDisk =
+    upper === "DFHAID"
+      ? DFHAID_ON_DISK
+      : upper === "DFHBMSCA"
+        ? DFHBMSCA_ON_DISK
+        : upper === "EXTFMAP"
+          ? EXTFMAP_ON_DISK
+          : upper === "DFHATTR"
+            ? DFHATTR_ON_DISK
+            : upper.startsWith("CMQ")
+              ? existsSync(join(COPYBOOK_DIR, `${upper}.cpy`))
+              : false;
   if (onDisk) return (resolvedNames || []).includes(upper);
   return (unresolvedNames || []).includes(upper);
 }
@@ -2583,8 +2596,7 @@ export async function runCobolClbsProveSmoke() {
   });
 
   // G10084 — Tier C AID/BMSCA symbol catalog from real CardDemo upstream.
-  // DFHAID/DFHBMSCA COPY: honest hole unless licensed drop on disk (gitignored; no invent).
-  // EXTFMAP stays unresolved without entitlement.
+  // DFHAID/DFHBMSCA/EXTFMAP COPY: honest hole unless licensed drop on disk (gitignored; no invent).
   const cosgn00cUpstreamInv = existsSync(join(upstreamJclDir, "COSGN00C.cbl"))
     ? inventoryCobolSource(
         readFileSync(join(upstreamJclDir, "COSGN00C.cbl"), "utf8"),
@@ -2612,6 +2624,10 @@ export async function runCobolClbsProveSmoke() {
     ["DFHBMSCA"],
     [COPYBOOK_DIR, upstreamJclDir],
   )[0]?.resolved;
+  const extfmapResolve = resolveCobolCopybooks(
+    ["EXTFMAP"],
+    [COPYBOOK_DIR, upstreamJclDir],
+  )[0]?.resolved;
   const dfhaidOk = (cosgn00cUpstreamInv?.copybooks || []).includes("DFHAID")
     ? DFHAID_ON_DISK
       ? Boolean(dfhaidResolve)
@@ -2622,10 +2638,8 @@ export async function runCobolClbsProveSmoke() {
       ? Boolean(dfhbmscaResolve)
       : !dfhbmscaResolve
     : true;
-  const extfmapStillHole = !resolveCobolCopybooks(
-    ["EXTFMAP"],
-    [join(MINI, "copybook"), upstreamJclDir],
-  )[0]?.resolved;
+  // EXTFMAP may be ABSENT from SDFHCOB; when absent stay unresolved; when dropped, resolve.
+  const extfmapOk = EXTFMAP_ON_DISK ? Boolean(extfmapResolve) : !extfmapResolve;
   checks.push({
     id: "upstream-cics-aid-bmsattr-catalog",
     ok:
@@ -2637,9 +2651,9 @@ export async function runCobolClbsProveSmoke() {
       attrFromCopaus.includes("DFHBMUNP") &&
       dfhaidOk &&
       dfhbmscaOk &&
-      extfmapStillHole &&
+      extfmapOk &&
       cosgn00cUpstreamInv.unresolved.includes("copy"),
-    reason: `aids=${(cosgn00cUpstreamInv?.cicsAidSymbols || []).join(",")} copausAids=${(copaus0cInv?.cicsAidSymbols || []).join(",")} attrs=${[...attrUnion].join(",")} dfhaidOk=${dfhaidOk} dfhbmscaOk=${dfhbmscaOk} extfmapHole=${extfmapStillHole} aidDisk=${DFHAID_ON_DISK}`,
+    reason: `aids=${(cosgn00cUpstreamInv?.cicsAidSymbols || []).join(",")} copausAids=${(copaus0cInv?.cicsAidSymbols || []).join(",")} attrs=${[...attrUnion].join(",")} dfhaidOk=${dfhaidOk} dfhbmscaOk=${dfhbmscaOk} extfmapOk=${extfmapOk} aidDisk=${DFHAID_ON_DISK} extfmapDisk=${EXTFMAP_ON_DISK}`,
   });
 
   // CardDemo JCL corpus samples (aws-carddemo app/jcl) — inventory-only; no JES runtime.
@@ -2904,9 +2918,9 @@ export async function runCobolClbsProveSmoke() {
     id: "online-copy-resolve",
     ok:
       missingResolved.length === 0 &&
-      onlineUnresolvedCopy.includes("EXTFMAP") &&
+      aidCopyOk("EXTFMAP", onlineResolved, onlineUnresolvedCopy) &&
       onlineInv.unresolved.includes("copy"),
-    reason: `resolved=${onlineResolved.join(",")} unresolvedCopy=${onlineUnresolvedCopy.join(",")} missingResolved=${missingResolved.join(",")}`,
+    reason: `resolved=${onlineResolved.join(",")} unresolvedCopy=${onlineUnresolvedCopy.join(",")} missingResolved=${missingResolved.join(",")} extfmapDisk=${EXTFMAP_ON_DISK}`,
   });
 
   const cardCopyResolve = resolveCobolCopybooks(cardInv?.copybooks || [], [copyDir]);

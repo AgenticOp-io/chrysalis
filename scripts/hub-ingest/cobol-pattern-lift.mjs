@@ -45,7 +45,7 @@ const EXEC_CICS_BLOCK_RE = /\bEXEC\s+CICS\b([\s\S]*?)\bEND-EXEC\b/gi;
 /** EXEC DLI … END-EXEC bodies (IMS DL/I — structural hole inventory only). */
 const EXEC_DLI_RE = /\bEXEC\s+DLI\b/gi;
 const EXEC_DLI_BLOCK_RE = /\bEXEC\s+DLI\b([\s\S]*?)\bEND-EXEC\b/gi;
-/** IBM MQ MQI CALL targets (CMQ* copybooks stay unresolved — not in CardDemo). */
+/** IBM MQ MQI CALL targets (CMQ* copybooks expand only when licensed drop on disk). */
 const IBM_MQ_CALL_RE =
   /\bCALL\s+(?:'([^']+)'|"([^"]+)")/gi;
 const IBM_MQ_API_NAMES = new Set([
@@ -425,6 +425,20 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (inv?.ibmMqCallOps?.length) attrs.ibmMqCallOps = [...inv.ibmMqCallOps];
   if (inv?.cicsAidSymbols?.length) attrs.cicsAidSymbols = [...inv.cicsAidSymbols];
   if (inv?.bmsAttrSymbols?.length) attrs.bmsAttrSymbols = [...inv.bmsAttrSymbols];
+  // G10094 — catalog inventoried file-io / indexed / EVALUATE surface on hole attrs (no runtime).
+  if (inv?.recordKeys?.length) attrs.recordKeys = [...inv.recordKeys];
+  if (inv?.alternateRecordKeys?.length) {
+    attrs.alternateRecordKeys = [...inv.alternateRecordKeys];
+  }
+  if (inv?.accessModes?.length) attrs.accessModes = [...inv.accessModes];
+  if (typeof inv?.organizationIndexed === "number" && inv.organizationIndexed > 0) {
+    attrs.organizationIndexed = inv.organizationIndexed;
+  }
+  if (typeof inv?.fileIo === "number" && inv.fileIo > 0) attrs.fileIo = inv.fileIo;
+  if (inv?.evaluateWhens?.length) attrs.evaluateWhens = [...inv.evaluateWhens];
+  if (typeof inv?.evaluateTrue === "number" && inv.evaluateTrue > 0) {
+    attrs.evaluateTrue = inv.evaluateTrue;
+  }
   if (opts.emitPatternKind) attrs.emitPatternKind = opts.emitPatternKind;
   if (opts.copyExpanded?.length) attrs.copyExpanded = [...opts.copyExpanded];
   if (opts.copySkipped?.length) attrs.copySkipped = [...opts.copySkipped];
@@ -847,7 +861,7 @@ export function parseExecDliOps(source) {
 }
 
 /**
- * Literal IBM MQ MQI CALL targets (`CALL 'MQOPEN'` …). CMQ* copybooks stay holes.
+ * Literal IBM MQ MQI CALL targets (`CALL 'MQOPEN'` …). CMQ* copybooks expand only when licensed drop on disk.
  *
  * @param {string} source
  * @returns {string[]}
