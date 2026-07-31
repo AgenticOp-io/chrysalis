@@ -5,6 +5,7 @@
 - [ ] Node 20+ / pnpm / PHP 8.1+ on PATH  
 - [ ] `pnpm install && pnpm -r build`  
 - [ ] `pnpm run pilot:laravel-min` → `ok: true`  
+- [ ] Optional COBOL wedge: `pnpm run pilot:cobol-clbs` → `ok: true` (EXTFMAP may remain sole open P0)  
 
 ## Cursor
 
@@ -14,7 +15,7 @@
 
 ## Session
 
-- [ ] Read `reports/pilot-kit/laravel-min-pilot.json`  
+- [ ] Read `reports/pilot-kit/laravel-min-pilot.json` (and/or `cobol-clbs-pilot.json`)  
 - [ ] Propose only; apply RED only after confirm + verify green  
 - [ ] Residual holes written to ledger (not force-settled)  
 

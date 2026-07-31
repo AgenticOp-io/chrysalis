@@ -146,6 +146,7 @@
     "hub:laravel-verify-export": "node scripts/hub-ingest/hub-laravel-verify-export.mjs --json-out reports/ci/hub-laravel-verify-live.json",
     "hub:laravel-min-smoke": "node scripts/hub-ingest/hub-laravel-min-smoke.mjs --json-out reports/ci/hub-laravel-min-smoke.json",
     "pilot:laravel-min": "node scripts/pilot-kit-laravel-min.mjs",
+    "pilot:cobol-clbs": "node scripts/pilot-kit-cobol-clbs.mjs",
     "hub:cursor-pilot-kit-smoke": "node scripts/hub-ingest/hub-cursor-pilot-kit-smoke.mjs",
     "hub:php-nextjs-verify": "node scripts/hub-ingest/hub-php-nextjs-verify.mjs",
     "hub:php-nextjs-flagship-verify": "node scripts/hub-ingest/hub-php-nextjs-verify.mjs --flagship",

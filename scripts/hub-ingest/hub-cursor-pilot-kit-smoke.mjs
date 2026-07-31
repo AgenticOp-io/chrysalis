@@ -23,13 +23,14 @@ export async function runCursorPilotKitSmoke() {
   const checks = [];
 
   const files = [
-    ["docs", join(ROOT, "docs/CURSOR-PILOT-KIT.md"), ["laravel-min", "MCP", "propose"]],
+    ["docs", join(ROOT, "docs/CURSOR-PILOT-KIT.md"), ["laravel-min", "cobol-clbs", "MCP", "propose"]],
     ["public-claim", join(ROOT, "docs/PUBLIC-ENGINE-CLAIM.md"), ["Apache", "Pilot Kit"]],
     ["mcp-json", join(KIT, "cursor-mcp.json"), ["web-llm-mcp-server", "pilot:laravel-min"]],
     ["rule", join(KIT, "chrysalis-pilot.mdc"), ["verify dispose", "D6447"]],
     ["agents", join(KIT, "AGENTS-PILOT.md"), ["Propose ≠ dispose", "pilot:laravel-min"]],
-    ["checklist", join(KIT, "PILOT-CHECKLIST.md"), ["pilot:laravel-min", "MCP"]],
-    ["runner", join(ROOT, "scripts/pilot-kit-laravel-min.mjs"), ["verify-flagship-laravel-min"]],
+    ["checklist", join(KIT, "PILOT-CHECKLIST.md"), ["pilot:laravel-min", "pilot:cobol-clbs", "MCP"]],
+    ["runner-laravel", join(ROOT, "scripts/pilot-kit-laravel-min.mjs"), ["verify-flagship-laravel-min"]],
+    ["runner-cobol", join(ROOT, "scripts/pilot-kit-cobol-clbs.mjs"), ["cobol-best-fit-smoke", "EXTFMAP"]],
     ["mcp-server", join(ROOT, "scripts/web-llm-mcp-server.mjs"), ["tools/list", "tools/call"]],
     ["ai-assist", join(ROOT, "docs/AI-ASSIST.md"), ["CURSOR-PILOT-KIT", "MCP"]],
     ["legacy-mcp-example", join(ROOT, "fixtures/web-llm/cursor-mcp.example.json"), ["web-llm-mcp-server"]],
@@ -47,18 +48,23 @@ export async function runCursorPilotKitSmoke() {
   const pkg = readFileSync(join(ROOT, "package.json"), "utf8");
   checks.push({
     id: "package-scripts",
-    ok: pkg.includes("pilot:laravel-min") && pkg.includes("hub:cursor-pilot-kit-smoke"),
-    reason: pkg.includes("pilot:laravel-min") ? undefined : "package.json scripts missing",
+    ok:
+      pkg.includes("pilot:laravel-min") &&
+      pkg.includes("pilot:cobol-clbs") &&
+      pkg.includes("hub:cursor-pilot-kit-smoke"),
+    reason: pkg.includes("pilot:cobol-clbs")
+      ? undefined
+      : "package.json scripts missing pilot:cobol-clbs",
   });
 
   const ok = checks.every((c) => c.ok);
   const report = {
     kind: "chrysalis.hub.cursor-pilot-kit-smoke",
-    schemaVersion: 1,
+    schemaVersion: 2,
     ok,
     checks,
     failed: checks.filter((c) => !c.ok),
-    note: "Pilot Kit packaging; run pnpm run pilot:laravel-min for full laravel-min verify",
+    note: "Pilot Kit packaging; run pilot:laravel-min and/or pilot:cobol-clbs for wedge proves",
     generatedAt: new Date().toISOString(),
   };
 

@@ -19,6 +19,7 @@ Buyers work in **Cursor / MCP agents**. Speedscale already owns “AI needs traf
 | Cursor rule (router) | `fixtures/pilot-kit/chrysalis-pilot.mdc` |
 | Agent brief | `fixtures/pilot-kit/AGENTS-PILOT.md` |
 | One-shot laravel-min prove | `pnpm run pilot:laravel-min` |
+| One-shot COBOL CLBS prove | `pnpm run pilot:cobol-clbs` (inventory + best-fit + residual; no runtime invent) |
 | Checklist | `fixtures/pilot-kit/PILOT-CHECKLIST.md` |
 | Smoke | `pnpm run hub:cursor-pilot-kit-smoke` |
 
@@ -75,6 +76,7 @@ Sold as **AgenticOp practice** on the **Chrysalis engine** — not a second prod
 | --- | --- |
 | Pilot kit packaging | `pnpm run hub:cursor-pilot-kit-smoke` |
 | Laravel-min verify | `pnpm run verify:flagship` / `pnpm run pilot:laravel-min` — **GCE green** with PHP `mysqli` + `pdo_sqlite` (`php8.2-mysql`, `php8.2-sqlite3`). Without them oracle-php / PDO fatals stay honest red |
+| COBOL CLBS pilot | `pnpm run pilot:cobol-clbs` — best-fit + residual ledger; inventory peels exhausted; **EXTFMAP** sole open P0 (never invent) |
 | Non-flagship ST (plain-php API) | `pnpm run hub:complete-conversion-prove:plain-php` — D6448-ST `cwl-api` profile; hole-free CWL + fixture verify gold (no invented UI) |
 | Non-flagship ST (tiny-blog) | `pnpm run hub:complete-conversion-prove:tiny-blog` — second `cwl-api` ST; RFC-0021 cond exprs + `g_<callee>` / `g_member_<path>` opaque for calls/members; stmt `foreach` collection bind; verify gold |
 | Non-PHP ST (express) | `pnpm run hub:complete-conversion-prove:express` — JS→CWL hole-free 20/20 |

@@ -10,7 +10,8 @@
 2. No demo-only façades.  
 3. Propose ≠ dispose — verify / oracle dispose.  
 4. Prefer honest holes over silent substitutes.  
-5. Laravel-min wedge must stay green: `pnpm run pilot:laravel-min`.
+5. Laravel-min wedge must stay green: `pnpm run pilot:laravel-min`.  
+6. Optional COBOL wedge: `pnpm run pilot:cobol-clbs` — inventory + residual; never invent EXTFMAP/Db2/CICS/VSAM.
 
 ## Install
 

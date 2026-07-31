@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-31 (G10105–G10106 inventory peels **exhausted**; EXTFMAP sole P0)
+**As of:** 2026-07-31 (COBOL inventory peels **exhausted** G10106; Pilot Kit COBOL wedge G10107; EXTFMAP sole P0)
 
 ---
 
@@ -214,7 +214,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 1. **EXTFMAP** (sole P0) — ZD&T hunt on `B5C551` / SDFHCOB or prove **ABSENT**; never invent. **CMQ*** closed via DHE MQ Advanced for Developers drop
 2. **Real Db2 / CICS / VSAM / MQ / IMS runtime adapters** — charter only; no façades (structural Medium+ closed G10083; P1 residuals cataloged)
 3. **CLBS mini inventory peels exhausted (G10106)** — reopen only with new origin corpus
-4. **Parallel GTM:** Cursor Pilot Kit + public engine claim — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) (does not invent COBOL runtimes)
+4. **Parallel GTM:** Cursor Pilot Kit — laravel-min + **COBOL CLBS** wedges (`pilot:laravel-min` / `pilot:cobol-clbs`) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md)
 5. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
