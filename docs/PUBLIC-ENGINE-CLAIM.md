@@ -13,11 +13,13 @@ The Cursor Pilot Kit only works for buyers if they can **clone and run** without
 
 Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md) (AgenticOps layout) plus:
 
-- [ ] `LICENSE` is Apache-2.0; `package.json` / `COMMERCIAL.md` / README agree  
+- [x] `LICENSE` is Apache-2.0; `package.json` / `COMMERCIAL.md` / README agree (**G10108**)  
 - [ ] No SA keys, `.env`, customer corpora, filled private pack in history  
-- [ ] Pilot Kit docs link from README (`docs/CURSOR-PILOT-KIT.md`)  
+- [x] Pilot Kit docs link from README (`docs/CURSOR-PILOT-KIT.md`) — laravel-min + `pilot:cobol-clbs` (**G10108**)  
 - [x] `pnpm run hub:cursor-pilot-kit-smoke` green  
+- [x] `pnpm run hub:public-engine-claim-smoke` green (**G10108**)  
 - [x] `pnpm run pilot:laravel-min` green on clean Linux/GCE (`chrysalis-test-vm`, 2026-07-24) with PHP `mysqli` + `pdo_sqlite` — still verify on buyer machines  
+- [x] `pnpm run pilot:cobol-clbs` green locally (inventory + best-fit + residual; EXTFMAP sole P0) (**G10107**)  
 - [x] `pnpm run hub:complete-conversion-prove:laravel-min` → `stGreen`+`stClosed` (2026-07-24) — hole-free CWL projection (session boot + ternary lit-branch guards); Hono verify gold 20/20  
 - [x] `pnpm run hub:slim-smoke` → Slim PHP origin dialect hole-free (`hub-gold-slim` 20/20; secondary to Laravel/Symfony/plain-php ST; `$app->get|post` + `{id}` + `$args` + `getQueryParams` + `withJson`/`withStatus`; PSR-15/`$app->group` unwired)  
 - [x] `pnpm run hub:lumen-smoke` → Lumen / Laravel-router PHP origin dialect hole-free (`hub-gold-lumen` 20/20; secondary to Laravel/Symfony/plain-php ST; `$router->get|post` / `Route::get|post` + `{id}` + `$request->query` + `response()->json`; middleware/controllers unwired)  
@@ -71,8 +73,8 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `pnpm run hub:complete-conversion-prove:cpp` → `stGreen`+`stClosed` (2026-07-24) — first C++ cwl-api D6448-ST at **express-depth** (`hub-flagship-cpp` Crow 20/20 hole-free; verbs/path/query/JSON/status via `cpp-ast-ingest`); secondary cpp-httplib dialect hole-free (`pnpm run hub:cpp-httplib-smoke` / `hub-gold-cpp-httplib` 20/20); no invented UI  
 - [x] `pnpm run hub:complete-conversion-prove:wisp` → `stGreen`+`stClosed` (2026-07-24) — first filled `wisp-ui` D6448-ST (evidence-only hole zero + signed-in origin-compare; no deepen injectors / D6447)  
 - [x] CONTRIBUTING: private adapters/corpora not accepted into `main`  
-- [ ] Trademark notice for AgenticOp / Chrysalis  
-- [ ] Site copy: “Start a Pilot” → this kit’s 15-minute path  
+- [x] Trademark notice for AgenticOp / Chrysalis (README **Trademarks** — **G10108**)  
+- [ ] Site copy: “Start a Pilot” → this kit’s 15-minute path (**Requested:** brand lane `brand/agenticops-web` — do not silent-edit)  
 
 ## After public
 

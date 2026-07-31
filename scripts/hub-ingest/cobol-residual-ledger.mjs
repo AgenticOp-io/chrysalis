@@ -9,7 +9,7 @@
  *   node scripts/hub-ingest/cobol-residual-ledger.mjs --origin fixtures/hub-cobol-clbs-mini
  *   node scripts/hub-ingest/cobol-residual-ledger.mjs --origin ... --out reports/cobol/residual-ledger.json
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inventoryOriginRoot } from "../lib/site-inventory/index.mjs";
@@ -39,6 +39,33 @@ export function residualPriority(classification) {
     default:
       return "P3";
   }
+}
+
+/**
+ * Honor operator EXTFMAP ABSENT attestation (G10108). Never invent EXTFMAP.cpy.
+ * @param {Map<string, { id: string, priority: string, classification: string, status: string, issue: string, files: Set<string>, ops?: Set<string> }>} byId
+ * @param {string} repoRoot
+ */
+function applyExtfmapAbsentAttestation(byId, repoRoot) {
+  const row = byId.get("copy:EXTFMAP");
+  if (!row || row.status === "closed") return;
+  const envAbsent =
+    process.env.CHRYSALIS_EXTFMAP_ABSENT === "1" ||
+    process.env.CHRYSALIS_EXTFMAP_ABSENT === "true";
+  const attestPath = join(repoRoot, "reports/cobol/extfmap-absent.json");
+  let fileAbsent = false;
+  if (existsSync(attestPath)) {
+    try {
+      const j = JSON.parse(readFileSync(attestPath, "utf8"));
+      fileAbsent = j?.status === "absent-attested";
+    } catch {
+      fileAbsent = false;
+    }
+  }
+  if (!envAbsent && !fileAbsent) return;
+  row.status = "absent";
+  row.issue =
+    "IBM proprietary COPY EXTFMAP — operator attested ABSENT from SDFHCOB/ZD&T hunt (CHRYSALIS_EXTFMAP_ABSENT); do not invent";
 }
 
 /**
@@ -190,6 +217,9 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     });
   }
 
+  // G10108 — operator ABSENT attestation for EXTFMAP (never invent the book).
+  applyExtfmapAbsentAttestation(byId, ROOT);
+
   const items = [...byId.values()]
     .map((row) => ({
       priority: row.priority,
@@ -207,10 +237,11 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     });
 
   const byPriority = { P0: 0, P1: 0, P2: 0, P3: 0 };
-  const byStatus = { open: 0, closed: 0 };
+  const byStatus = { open: 0, closed: 0, absent: 0 };
   for (const it of items) {
     if (byPriority[it.priority] != null) byPriority[it.priority] += 1;
     if (it.status === "closed") byStatus.closed += 1;
+    else if (it.status === "absent") byStatus.absent += 1;
     else byStatus.open += 1;
   }
 

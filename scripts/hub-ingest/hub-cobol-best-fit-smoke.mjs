@@ -1966,21 +1966,29 @@ export async function runCobolBestFitSmoke() {
   const residualP0Open = (residual.items || []).filter(
     (i) => i.priority === "P0" && i.status === "open",
   );
+  const residualP0Absent = (residual.items || []).filter(
+    (i) => i.priority === "P0" && i.status === "absent",
+  );
   const residualMissingWithFiles = (residual.items || []).filter(
     (i) =>
       String(i.id).startsWith("missing-copy:") &&
       Array.isArray(i.files) &&
       i.files.length >= 1,
   );
+  const extfmapSole =
+    (residualP0Open.length === 1 &&
+      residualP0Open[0]?.id === "copy:EXTFMAP") ||
+    (residualP0Open.length === 0 &&
+      residualP0Absent.length === 1 &&
+      residualP0Absent[0]?.id === "copy:EXTFMAP");
   results.push({
     id: "cobol-residual-p0-extfmap-only",
     ok:
-      residualP0Open.length === 1 &&
-      residualP0Open[0]?.id === "copy:EXTFMAP" &&
+      extfmapSole &&
       residualIds.has("copy:DFHAID") &&
       (residual.items || []).find((i) => i.id === "copy:DFHAID")?.status === "closed" &&
       residualMissingWithFiles.length >= 1,
-    reason: `p0Open=${residualP0Open.map((i) => i.id).join(",")} missingWithFiles=${residualMissingWithFiles.length}`,
+    reason: `p0Open=${residualP0Open.map((i) => i.id).join(",")} p0Absent=${residualP0Absent.map((i) => i.id).join(",")} missingWithFiles=${residualMissingWithFiles.length}`,
   });
 
   // G10101 — HANDLE CONDITION names + STRING/OPEN catalogs + JCL PGM↔PROGRAM-ID crosswalk.
@@ -2265,10 +2273,10 @@ export async function runCobolBestFitSmoke() {
   });
   results.push({
     id: "cobol-inventory-peels-exhausted",
-    ok: missingExhaust.length === 0 && residualP0Open[0]?.id === "copy:EXTFMAP",
+    ok: missingExhaust.length === 0 && extfmapSole,
     reason:
       missingExhaust.length === 0
-        ? `exhausted keys=${exhaustKeys.length} p0=${residualP0Open.map((i) => i.id).join(",")}`
+        ? `exhausted keys=${exhaustKeys.length} p0Open=${residualP0Open.map((i) => i.id).join(",")} p0Absent=${residualP0Absent.map((i) => i.id).join(",")}`
         : `missing=${missingExhaust.join(",")}`,
   });
 

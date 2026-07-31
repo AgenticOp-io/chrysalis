@@ -106,14 +106,20 @@ function main() {
     const openP0 = (residualJson?.items || []).filter(
       (i) => i.priority === "P0" && i.status === "open",
     );
+    const absentP0 = (residualJson?.items || []).filter(
+      (i) => i.priority === "P0" && i.status === "absent",
+    );
     p0Open = openP0.map((i) => i.id).join(",") || undefined;
     const soleExtfmap =
-      openP0.length === 1 && openP0[0]?.id === "copy:EXTFMAP";
+      (openP0.length === 1 && openP0[0]?.id === "copy:EXTFMAP") ||
+      (openP0.length === 0 &&
+        absentP0.length === 1 &&
+        absentP0[0]?.id === "copy:EXTFMAP");
     steps.push({
       id: "cobol-residual-ledger",
       ok: residualOk && soleExtfmap,
       detail: residualOk
-        ? `p0Open=${p0Open || "none"} items=${residualJson?.summary?.itemCount}`
+        ? `p0Open=${p0Open || "none"} p0Absent=${absentP0.map((i) => i.id).join(",") || "none"} items=${residualJson?.summary?.itemCount}`
         : (residual.stderr || residual.stdout).slice(-500) || `exit=${residual.status}`,
     });
   }

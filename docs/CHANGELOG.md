@@ -1,3 +1,4 @@
+2026-07-31 | Chrysalis | G10108 public engine claim packaging: README Apache-2.0+trademarks; Pilot MCP dual-wedge; hub:public-engine-claim-smoke; cobol:extfmap-absent operator attestation (no invent); residual status=absent when attested | local | N
 2026-07-31 | Chrysalis | G10107 Cursor Pilot Kit COBOL wedge: pilot:cobol-clbs (best-fit 118 + residual P0=EXTFMAP) + kit smoke v2; no runtime invent | local | N
 2026-07-31 | Chrysalis | G10105–G10106 COBOL inventory peels exhausted: procedure/USAGE catalogs + CICS INTO/FROM + cobol-inventory-peels-exhausted gate; best-fit 118/118; EXTFMAP sole P0; no LCB claim | local/GCE | N
 2026-07-31 | Chrysalis | G10104 COBOL deepen: CICS ASSIGN options + EIB/DFHCOMMAREA symbol catalog; best-fit 115/115; no runtime invent; EXTFMAP sole P0; no LCB claim | local/GCE | N

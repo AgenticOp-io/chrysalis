@@ -7,12 +7,27 @@
     }
   },
   "_chrysalisPilotKit": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "docs": "docs/CURSOR-PILOT-KIT.md",
     "aiAssist": "docs/AI-ASSIST.md",
+    "publicClaim": "docs/PUBLIC-ENGINE-CLAIM.md",
+    "wedges": [
+      {
+        "id": "laravel-min",
+        "path": "flagship/laravel-min",
+        "prove": "pnpm run pilot:laravel-min"
+      },
+      {
+        "id": "cobol-clbs",
+        "path": "fixtures/hub-cobol-clbs-mini",
+        "prove": "pnpm run pilot:cobol-clbs",
+        "note": "Inventory + best-fit + residual; EXTFMAP sole P0 until ZD&T drop/ABSENT — never invent"
+      }
+    ],
     "wedge": "flagship/laravel-min",
     "prove": "pnpm run pilot:laravel-min",
+    "proveCobol": "pnpm run pilot:cobol-clbs",
     "chat": "pnpm run chrysalis:chat",
-    "invariant": "Models propose; WebIR + oracle + verify dispose. LiteRT refused."
+    "invariant": "Models propose; WebIR + oracle + verify dispose. LiteRT refused. No EXTFMAP/Db2/CICS invent."
   }
 }

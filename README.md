@@ -9,7 +9,7 @@ code is verified against its real behavior — not trusted on faith.
 **Works best with an AI assistant** (Cursor, MCP, Migration Chat) — models
 propose; WebIR + oracle + verify dispose. See [`docs/AI-ASSIST.md`](./docs/AI-ASSIST.md)
 and the buyer-facing [`docs/CURSOR-PILOT-KIT.md`](./docs/CURSOR-PILOT-KIT.md)
-(`pnpm run pilot:laravel-min`). LiteRT.js is **not** part of the convert path.
+(`pnpm run pilot:laravel-min` · `pnpm run pilot:cobol-clbs`). LiteRT.js is **not** part of the convert path.
 
 It converts PHP to modern TypeScript, but that's only one of its three legs:
 
@@ -291,4 +291,10 @@ See `DESIGN.md § 2` for the full argument.
 
 ## License
 
-[MIT](./LICENSE).
+[Apache-2.0](./LICENSE).
+
+## Trademarks
+
+**AgenticOp** and **Chrysalis** are used to identify the AgenticOp practice and
+this engine (`https://agenticop.io`). Third-party names and marks remain the
+property of their respective owners.
