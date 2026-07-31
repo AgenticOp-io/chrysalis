@@ -457,6 +457,26 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
     attrs.cicsAssignOptions = [...inv.cicsAssignOptions];
   }
   if (inv?.cicsEibSymbols?.length) attrs.cicsEibSymbols = [...inv.cicsEibSymbols];
+  // G10105 — procedure / data-division verb + USAGE catalogs.
+  if (typeof inv?.initializeOps === "number" && inv.initializeOps > 0) {
+    attrs.initializeOps = inv.initializeOps;
+  }
+  if (typeof inv?.setToTrue === "number" && inv.setToTrue > 0) {
+    attrs.setToTrue = inv.setToTrue;
+  }
+  if (typeof inv?.goback === "number" && inv.goback > 0) attrs.goback = inv.goback;
+  if (typeof inv?.stopRun === "number" && inv.stopRun > 0) attrs.stopRun = inv.stopRun;
+  if (typeof inv?.exitProgram === "number" && inv.exitProgram > 0) {
+    attrs.exitProgram = inv.exitProgram;
+  }
+  if (typeof inv?.lengthOf === "number" && inv.lengthOf > 0) attrs.lengthOf = inv.lengthOf;
+  if (typeof inv?.redefines === "number" && inv.redefines > 0) {
+    attrs.redefines = inv.redefines;
+  }
+  if (inv?.usageTokens?.length) attrs.usageTokens = [...inv.usageTokens];
+  // G10106 — CICS INTO/FROM data areas.
+  if (inv?.cicsIntoAreas?.length) attrs.cicsIntoAreas = [...inv.cicsIntoAreas];
+  if (inv?.cicsFromAreas?.length) attrs.cicsFromAreas = [...inv.cicsFromAreas];
   if (typeof inv?.stringOps === "number" && inv.stringOps > 0) attrs.stringOps = inv.stringOps;
   if (typeof inv?.unstringOps === "number" && inv.unstringOps > 0) {
     attrs.unstringOps = inv.unstringOps;
@@ -628,6 +648,8 @@ export function inventoryCobolSource(source, file = "") {
   const sqlCursorNames = parseExecSqlCursorNames(code);
   const cicsAssignOptions = parseExecCicsAssignOptions(code);
   const cicsEibSymbols = parseCicsEibSymbols(code);
+  const procedureDataCatalog = parseCobolProcedureDataCatalog(code);
+  const cicsIntoFrom = parseExecCicsIntoFrom(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
   const fileIo = (code.match(READ_WRITE_RE) || []).length;
   const organizationIndexed = (code.match(ORGANIZATION_INDEXED_RE) || []).length;
@@ -708,6 +730,16 @@ export function inventoryCobolSource(source, file = "") {
     sqlCursorNames,
     cicsAssignOptions,
     cicsEibSymbols,
+    initializeOps: procedureDataCatalog.initializeOps,
+    setToTrue: procedureDataCatalog.setToTrue,
+    goback: procedureDataCatalog.goback,
+    stopRun: procedureDataCatalog.stopRun,
+    exitProgram: procedureDataCatalog.exitProgram,
+    lengthOf: procedureDataCatalog.lengthOf,
+    redefines: procedureDataCatalog.redefines,
+    usageTokens: procedureDataCatalog.usageTokens,
+    cicsIntoAreas: cicsIntoFrom.into,
+    cicsFromAreas: cicsIntoFrom.from,
     respClauses,
     execSql,
     execSqlOps,
@@ -1217,6 +1249,80 @@ export function parseCicsEibSymbols(source) {
     if (re.test(code)) hit.push(sym);
   }
   return hit.sort();
+}
+
+/**
+ * Procedure / data-division verb + USAGE token catalogs (G10105). Exhaust peel.
+ *
+ * @param {string} source
+ * @returns {{
+ *   initializeOps: number,
+ *   setToTrue: number,
+ *   goback: number,
+ *   stopRun: number,
+ *   exitProgram: number,
+ *   lengthOf: number,
+ *   redefines: number,
+ *   usageTokens: string[],
+ * }}
+ */
+export function parseCobolProcedureDataCatalog(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const usage = [];
+  const usageRe =
+    /\b(?:USAGE\s+IS\s+)?(COMP-3|COMP-5|COMP-4|COMP|PACKED-DECIMAL|BINARY|DISPLAY|INDEX|POINTER)\b/gi;
+  let m;
+  while ((m = usageRe.exec(code)) !== null) {
+    if (m[1]) usage.push(String(m[1]).toUpperCase());
+  }
+  return {
+    initializeOps: (code.match(/\bINITIALIZE\b/gi) || []).length,
+    setToTrue: (code.match(/\bSET\s+[A-Z0-9-]+\s+TO\s+TRUE\b/gi) || []).length,
+    goback: (code.match(/\bGOBACK\b/gi) || []).length,
+    stopRun: (code.match(/\bSTOP\s+RUN\b/gi) || []).length,
+    exitProgram: (code.match(/\bEXIT\s+PROGRAM\b/gi) || []).length,
+    lengthOf: (code.match(/\bLENGTH\s+OF\b/gi) || []).length,
+    redefines: (code.match(/\bREDEFINES\b/gi) || []).length,
+    usageTokens: [...new Set(usage)].sort(),
+  };
+}
+
+/**
+ * INTO/FROM data-area names on EXEC CICS READ/WRITE/REWRITE/browse (G10106).
+ *
+ * @param {string} source
+ * @returns {{ into: string[], from: string[] }}
+ */
+export function parseExecCicsIntoFrom(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const into = [];
+  /** @type {string[]} */
+  const from = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (
+      !/^(?:READ|WRITE|REWRITE|READNEXT|READPREV|STARTBR)\b/.test(body)
+    ) {
+      continue;
+    }
+    const intoRe = /\bINTO\s*\(\s*([A-Z][A-Z0-9-]*)/g;
+    const fromRe = /\bFROM\s*\(\s*([A-Z][A-Z0-9-]*)/g;
+    let p;
+    while ((p = intoRe.exec(body)) !== null) {
+      if (p[1]) into.push(String(p[1]).toUpperCase());
+    }
+    while ((p = fromRe.exec(body)) !== null) {
+      if (p[1]) from.push(String(p[1]).toUpperCase());
+    }
+  }
+  return {
+    into: [...new Set(into)].sort(),
+    from: [...new Set(from)].sort(),
+  };
 }
 
 /**

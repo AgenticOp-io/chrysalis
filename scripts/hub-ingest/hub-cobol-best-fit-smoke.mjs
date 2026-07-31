@@ -2172,6 +2172,106 @@ export async function runCobolBestFitSmoke() {
     reason: `cardAssign=${(cardAssignAttrs?.cicsAssignOptions || []).join(",")} cardEib=${(cardAssignAttrs?.cicsEibSymbols || []).join(",")} cosgnAssign=${(cosgnAssignAttrs?.cicsAssignOptions || []).join(",")} cosgnEib=${(cosgnAssignAttrs?.cicsEibSymbols || []).join(",")}`,
   });
 
+  // G10105 — procedure/data-division + USAGE exhaust catalogs.
+  const coacctG105Path = join(CLBS_MINI, "_upstream/COACCT01.cbl");
+  const coacctG105Src = existsSync(coacctG105Path)
+    ? readFileSync(coacctG105Path, "utf8")
+    : "";
+  const coacctG105Inv = coacctG105Src
+    ? inventoryCobolSource(coacctG105Src, "COACCT01.cbl")
+    : null;
+  const coacctG105Attrs = coacctG105Inv
+    ? buildCobolWebIrHoleAttrs(coacctG105Inv)
+    : null;
+  const bchctlPath = join(CLBS_BATCH, "BCHCTLRN.cbl");
+  const bchctlSrc = existsSync(bchctlPath) ? readFileSync(bchctlPath, "utf8") : "";
+  const bchctlInv = bchctlSrc ? inventoryCobolSource(bchctlSrc, "BCHCTLRN.cbl") : null;
+  const bchctlAttrs = bchctlInv ? buildCobolWebIrHoleAttrs(bchctlInv) : null;
+  results.push({
+    id: "webir-hole-attrs-procedure-data-usage",
+    ok:
+      !!coacctG105Attrs &&
+      Number(coacctG105Attrs.initializeOps) >= 1 &&
+      Number(coacctG105Attrs.setToTrue) >= 1 &&
+      Number(coacctG105Attrs.redefines) >= 1 &&
+      Array.isArray(coacctG105Attrs.usageTokens) &&
+      coacctG105Attrs.usageTokens.includes("COMP-3") &&
+      Number(coacctG105Attrs.goback) >= 1 &&
+      !!bchctlAttrs &&
+      Number(bchctlAttrs.initializeOps) >= 1,
+    reason: `init=${coacctG105Attrs?.initializeOps} setTrue=${coacctG105Attrs?.setToTrue} redef=${coacctG105Attrs?.redefines} usage=${(coacctG105Attrs?.usageTokens || []).join(",")} goback=${coacctG105Attrs?.goback} bchInit=${bchctlAttrs?.initializeOps}`,
+  });
+
+  // G10106 — CICS INTO/FROM + inventory-peels-exhausted stamp.
+  const cardIntoAttrs = cardOnlnInv
+    ? buildCobolWebIrHoleAttrs(cardOnlnInv)
+    : null;
+  results.push({
+    id: "webir-hole-attrs-cics-into-from",
+    ok:
+      !!cardIntoAttrs &&
+      Array.isArray(cardIntoAttrs.cicsIntoAreas) &&
+      cardIntoAttrs.cicsIntoAreas.includes("DFHCOMMAREA") &&
+      Array.isArray(cardIntoAttrs.cicsFromAreas) &&
+      cardIntoAttrs.cicsFromAreas.includes("DFHCOMMAREA") &&
+      Number(cardIntoAttrs.lengthOf) >= 1,
+    reason: `into=${(cardIntoAttrs?.cicsIntoAreas || []).join(",")} from=${(cardIntoAttrs?.cicsFromAreas || []).join(",")} lengthOf=${cardIntoAttrs?.lengthOf}`,
+  });
+
+  /** Required exhaust surface keys on a rich online hole-attr object. */
+  const exhaustKeys = [
+    "execCicsOps",
+    "execCicsFiles",
+    "execCicsTdQueues",
+    "execCicsTsQueues",
+    "handleConditionNames",
+    "handleAidNames",
+    "handleAbendLabels",
+    "cicsAssignOptions",
+    "cicsEibSymbols",
+    "cicsIntoAreas",
+    "cicsFromAreas",
+    "selectAssign",
+    "callTargets",
+    "acceptFrom",
+    "displayLiterals",
+    "organizations",
+    "fdNames",
+    "sqlCursorNames",
+    "initializeOps",
+    "setToTrue",
+    "usageTokens",
+    "jclPgmMatched",
+    "jclDdMatched",
+  ];
+  const exhaustProbe = {
+    ...(cardIntoAttrs || {}),
+    ...(coacctG105Attrs || {}),
+    ...(jclAttrs || {}),
+    ...(jclDdAttrs || {}),
+    ...(cotrtlicAttrs || {}),
+    ...(cbactAttrs || {}),
+    ...(cbpaupAttrs || {}),
+    ...(coacctAttrs || {}),
+    ...(inqFileAttrs || {}),
+    ...(corptQAttrs || {}),
+    ...(portQAttrs || {}),
+  };
+  const missingExhaust = exhaustKeys.filter((k) => {
+    const v = exhaustProbe[k];
+    if (Array.isArray(v)) return v.length < 1;
+    if (typeof v === "number") return !(v > 0);
+    return v == null;
+  });
+  results.push({
+    id: "cobol-inventory-peels-exhausted",
+    ok: missingExhaust.length === 0 && residualP0Open[0]?.id === "copy:EXTFMAP",
+    reason:
+      missingExhaust.length === 0
+        ? `exhausted keys=${exhaustKeys.length} p0=${residualP0Open.map((i) => i.id).join(",")}`
+        : `missing=${missingExhaust.join(",")}`,
+  });
+
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];
   for (const emitTarget of targets) {
     for (const id of suiteIdsFor(emitTarget)) {

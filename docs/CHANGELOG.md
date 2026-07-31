@@ -1,3 +1,4 @@
+2026-07-31 | Chrysalis | G10105–G10106 COBOL inventory peels exhausted: procedure/USAGE catalogs + CICS INTO/FROM + cobol-inventory-peels-exhausted gate; best-fit 118/118; EXTFMAP sole P0; no LCB claim | local/GCE | N
 2026-07-31 | Chrysalis | G10104 COBOL deepen: CICS ASSIGN options + EIB/DFHCOMMAREA symbol catalog; best-fit 115/115; no runtime invent; EXTFMAP sole P0; no LCB claim | local/GCE | N
 2026-07-31 | Chrysalis | G10102–G10103 COBOL deepen: HANDLE AID/ABEND + ORGANIZATION/FD/INVALID KEY; SQL cursor names + JCL DD↔ASSIGN crosswalk; best-fit 114/114; no runtime invent; EXTFMAP sole P0; no LCB claim | local/GCE | N
 2026-07-30 | Chrysalis | G10101 COBOL deepen: HANDLE CONDITION names/targets; STRING/UNSTRING/INSPECT + OPEN modes; JCL EXEC PGM↔PROGRAM-ID crosswalk (IDCAMS/IKJEFT01 honest holes); best-fit 112/112; no runtime invent; no LCB claim | local/GCE | N

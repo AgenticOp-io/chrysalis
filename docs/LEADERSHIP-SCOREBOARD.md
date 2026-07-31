@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-31 (G10102–G10104 HANDLE AID/org/FD + SQL cursor/JCL DD + ASSIGN/EIB; EXTFMAP sole P0)
+**As of:** 2026-07-31 (G10105–G10106 inventory peels **exhausted**; EXTFMAP sole P0)
 
 ---
 
@@ -153,7 +153,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10104** (ASSIGN/EIB; HANDLE AID/org/FD; SQL cursors; JCL DD; prior TD/TS+SELECT/CALL/LINK) | no LCB claim; **EXTFMAP** sole P0 COPY + Db2/IMS/MQ runtimes still holes — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) |
+| COBOL primary | **65/65** behavioral; WebIR deepen **G10085–G10106** (**inventory peels exhausted**); sole open P0=`copy:EXTFMAP` | no LCB claim; Db2/IMS/MQ/VSAM/JES runtimes still holes — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -167,13 +167,15 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
 | **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
-| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Closed G10085–G10104** — inventory→WebIR through CICS ASSIGN/EIB, HANDLE AID/ABEND, ORGANIZATION/FD, SQL cursors, JCL DD↔ASSIGN (+ G10100–G10101 peels) |
+| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Exhausted G10085–G10106** — gate `cobol-inventory-peels-exhausted`; further peels need new corpus or charter |
 | **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM/MQ/IMS) | **Closed G10083 structural** — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `exec-dli`/`ibm-mq`/`exec-sql` holes; **no runtime** |
 | **4** | COBOL Tier C IBM BMS AID books | **G10084** symbol catalog; **DFHAID/DFHBMSCA** + **CMQ\*** licensed local drops (gitignored, residual **closed** when present); **EXTFMAP** sole open P0 (may be ABSENT from SDFHCOB) |
 | — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
 | — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
 
 **Closed COBOL this finish pack:**
+- G10106 — CICS INTO/FROM data areas; **`cobol-inventory-peels-exhausted`** stamp (23 surface keys; P0=`copy:EXTFMAP` only)
+- G10105 — INITIALIZE / SET TO TRUE / GOBACK / STOP RUN / EXIT PROGRAM / LENGTH OF / REDEFINES / USAGE tokens
 - G10104 — EXEC CICS ASSIGN option names; EIB/DFHCOMMAREA symbol catalog
 - G10103 — EXEC SQL cursor names; JCL DD↔ASSIGN crosswalk (system DDs filtered; unmatched app DDs honest holes)
 - G10102 — HANDLE AID names/targets; HANDLE ABEND LABEL; ORGANIZATION types; FD names; INVALID KEY counts
@@ -211,8 +213,9 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Next (charter required — do not invent):**
 1. **EXTFMAP** (sole P0) — ZD&T hunt on `B5C551` / SDFHCOB or prove **ABSENT**; never invent. **CMQ*** closed via DHE MQ Advanced for Developers drop
 2. **Real Db2 / CICS / VSAM / MQ / IMS runtime adapters** — charter only; no façades (structural Medium+ closed G10083; P1 residuals cataloged)
-3. Inventory peels through G10104; next real jump = EXTFMAP drop/ABSENT or chartered runtime
-4. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
+3. **CLBS mini inventory peels exhausted (G10106)** — reopen only with new origin corpus
+4. **Parallel GTM:** Cursor Pilot Kit + public engine claim — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) (does not invent COBOL runtimes)
+5. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
 
