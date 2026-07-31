@@ -31,6 +31,8 @@ import {
   crosswalkOnlineCicsPrograms,
   parseJclExecPrograms,
   crosswalkJclPrograms,
+  parseJclDdNames,
+  crosswalkJclDdAssign,
 } from "./cobol-pattern-lift.mjs";
 import { buildCobolResidualLedger } from "./cobol-residual-ledger.mjs";
 import { emitFromCobolPatterns, detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
@@ -2039,6 +2041,104 @@ export async function runCobolBestFitSmoke() {
       jclAttrs.jclPgmHole.includes("IDCAMS") &&
       jclAttrs.jclPgmHole.includes("IKJEFT01"),
     reason: `matched=${(jclAttrs.jclPgmMatched || []).slice(0, 8).join(",")} hole=${(jclAttrs.jclPgmHole || []).join(",")}`,
+  });
+
+  // G10102 — HANDLE AID/ABEND + ORGANIZATION/FD/INVALID KEY catalogs.
+  const cardAidAttrs = cardOnlnInv ? buildCobolWebIrHoleAttrs(cardOnlnInv) : null;
+  const idxProbePath = join(CLBS_BATCH, "IDXPROBE.cbl");
+  const idxProbeSrc = existsSync(idxProbePath) ? readFileSync(idxProbePath, "utf8") : "";
+  const idxProbeInv = idxProbeSrc
+    ? inventoryCobolSource(idxProbeSrc, "IDXPROBE.cbl")
+    : null;
+  const idxProbeAttrs = idxProbeInv ? buildCobolWebIrHoleAttrs(idxProbeInv) : null;
+  const cbactOrgAttrs = cbactInv ? buildCobolWebIrHoleAttrs(cbactInv) : null;
+  results.push({
+    id: "webir-hole-attrs-handle-aid-org-fd",
+    ok:
+      !!cardAidAttrs &&
+      Array.isArray(cardAidAttrs.handleAidNames) &&
+      cardAidAttrs.handleAidNames.includes("ENTER") &&
+      cardAidAttrs.handleAidNames.includes("PF3") &&
+      Array.isArray(cardAidAttrs.handleAidTargets) &&
+      cardAidAttrs.handleAidTargets.some(
+        (t) => t?.aid === "ENTER" && t?.paragraph === "P100-PROCESS",
+      ) &&
+      Array.isArray(cardAidAttrs.handleAbendLabels) &&
+      cardAidAttrs.handleAbendLabels.includes("P900-ABEND") &&
+      !!idxProbeAttrs &&
+      Array.isArray(idxProbeAttrs.organizations) &&
+      idxProbeAttrs.organizations.includes("INDEXED") &&
+      Array.isArray(idxProbeAttrs.fdNames) &&
+      idxProbeAttrs.fdNames.includes("IDX-FILE") &&
+      Number(idxProbeAttrs.invalidKey) >= 1 &&
+      !!cbactOrgAttrs &&
+      Array.isArray(cbactOrgAttrs.organizations) &&
+      (cbactOrgAttrs.organizations.includes("INDEXED") ||
+        cbactOrgAttrs.organizations.includes("SEQUENTIAL")),
+    reason: `aid=${(cardAidAttrs?.handleAidNames || []).join(",")} abend=${(cardAidAttrs?.handleAbendLabels || []).join(",")} org=${(idxProbeAttrs?.organizations || []).join(",")} fd=${(idxProbeAttrs?.fdNames || []).join(",")} invKey=${idxProbeAttrs?.invalidKey}`,
+  });
+
+  // G10103 — SQL cursor names + JCL DD↔ASSIGN crosswalk.
+  const cotrtlicG103Path = join(CLBS_ONLINE, "COTRTLIC.cbl");
+  const cotrtlicG103Src = existsSync(cotrtlicG103Path)
+    ? readFileSync(cotrtlicG103Path, "utf8")
+    : "";
+  const cotrtlicG103Inv = cotrtlicG103Src
+    ? inventoryCobolSource(cotrtlicG103Src, "COTRTLIC.cbl")
+    : null;
+  const cotrtlicAttrs = cotrtlicG103Inv
+    ? buildCobolWebIrHoleAttrs(cotrtlicG103Inv)
+    : null;
+  const sqlinvG103Path = join(CLBS_BATCH, "SQLINV00.cbl");
+  const sqlinvG103Src = existsSync(sqlinvG103Path)
+    ? readFileSync(sqlinvG103Path, "utf8")
+    : "";
+  const sqlinvG103Inv = sqlinvG103Src
+    ? inventoryCobolSource(sqlinvG103Src, "SQLINV00.cbl")
+    : null;
+  const sqlinvAttrs = sqlinvG103Inv
+    ? buildCobolWebIrHoleAttrs(sqlinvG103Inv)
+    : null;
+  /** @type {string[]} */
+  const allAssignDds = [];
+  for (const dir of [CLBS_ONLINE, join(CLBS_MINI, "_upstream"), CLBS_BATCH]) {
+    if (!existsSync(dir)) continue;
+    for (const name of readdirSync(dir).filter((n) => /\.cbl$/i.test(n))) {
+      const invA = inventoryCobolSource(
+        readFileSync(join(dir, name), "utf8"),
+        name,
+      );
+      allAssignDds.push(...(invA.assignDdNames || []));
+    }
+  }
+  /** @type {string[]} */
+  const allJclDds = [];
+  if (existsSync(upstreamJclDirG101)) {
+    for (const name of readdirSync(upstreamJclDirG101).filter((n) =>
+      /\.jcl$/i.test(n),
+    )) {
+      allJclDds.push(
+        ...parseJclDdNames(readFileSync(join(upstreamJclDirG101, name), "utf8")),
+      );
+    }
+  }
+  const jclDdXwalk = crosswalkJclDdAssign(allJclDds, allAssignDds);
+  const jclDdAttrs = buildCobolWebIrHoleAttrs({ unresolved: [] }, jclDdXwalk);
+  results.push({
+    id: "webir-hole-attrs-sql-cursor-jcl-dd",
+    ok:
+      !!cotrtlicAttrs &&
+      Array.isArray(cotrtlicAttrs.sqlCursorNames) &&
+      cotrtlicAttrs.sqlCursorNames.includes("C-TR-TYPE-FORWARD") &&
+      !!sqlinvAttrs &&
+      Array.isArray(sqlinvAttrs.sqlCursorNames) &&
+      sqlinvAttrs.sqlCursorNames.includes("CUR1") &&
+      Array.isArray(jclDdAttrs.jclDdMatched) &&
+      jclDdAttrs.jclDdMatched.includes("ACCTFILE") &&
+      jclDdAttrs.jclDdMatched.includes("PORTFILE") &&
+      Array.isArray(jclDdAttrs.jclDdHole) &&
+      jclDdAttrs.jclDdHole.length >= 1,
+    reason: `cursors=${(cotrtlicAttrs?.sqlCursorNames || []).join(",")}+${(sqlinvAttrs?.sqlCursorNames || []).join(",")} ddOk=${(jclDdAttrs.jclDdMatched || []).slice(0, 6).join(",")} ddHoleN=${(jclDdAttrs.jclDdHole || []).length}`,
   });
 
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];

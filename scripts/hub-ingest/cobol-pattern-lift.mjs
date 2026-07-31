@@ -437,6 +437,21 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (inv?.handleConditionTargets?.length) {
     attrs.handleConditionTargets = [...inv.handleConditionTargets];
   }
+  // G10102 — HANDLE AID / ABEND + ORGANIZATION / FD catalogs.
+  if (inv?.handleAidNames?.length) attrs.handleAidNames = [...inv.handleAidNames];
+  if (inv?.handleAidTargets?.length) {
+    attrs.handleAidTargets = [...inv.handleAidTargets];
+  }
+  if (inv?.handleAbendLabels?.length) {
+    attrs.handleAbendLabels = [...inv.handleAbendLabels];
+  }
+  if (inv?.organizations?.length) attrs.organizations = [...inv.organizations];
+  if (inv?.fdNames?.length) attrs.fdNames = [...inv.fdNames];
+  if (typeof inv?.invalidKey === "number" && inv.invalidKey > 0) {
+    attrs.invalidKey = inv.invalidKey;
+  }
+  // G10103 — SQL cursor names + JCL DD crosswalk opts.
+  if (inv?.sqlCursorNames?.length) attrs.sqlCursorNames = [...inv.sqlCursorNames];
   if (typeof inv?.stringOps === "number" && inv.stringOps > 0) attrs.stringOps = inv.stringOps;
   if (typeof inv?.unstringOps === "number" && inv.unstringOps > 0) {
     attrs.unstringOps = inv.unstringOps;
@@ -447,6 +462,8 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (inv?.openModes?.length) attrs.openModes = [...inv.openModes];
   if (opts.jclPgmMatched?.length) attrs.jclPgmMatched = [...opts.jclPgmMatched];
   if (opts.jclPgmHole?.length) attrs.jclPgmHole = [...opts.jclPgmHole];
+  if (opts.jclDdMatched?.length) attrs.jclDdMatched = [...opts.jclDdMatched];
+  if (opts.jclDdHole?.length) attrs.jclDdHole = [...opts.jclDdHole];
   if (inv?.execSqlOps?.length) attrs.execSqlOps = [...inv.execSqlOps];
   if (inv?.execSqlIncludes?.length) attrs.execSqlIncludes = [...inv.execSqlIncludes];
   if (inv?.execDliOps?.length) attrs.execDliOps = [...inv.execDliOps];
@@ -594,8 +611,16 @@ export function inventoryCobolSource(source, file = "") {
   const handleCondCatalog = parseExecCicsHandleConditions(code);
   const handleConditionNames = handleCondCatalog.names;
   const handleConditionTargets = handleCondCatalog.targets;
+  const handleAidCatalog = parseExecCicsHandleAid(code);
+  const handleAidNames = handleAidCatalog.names;
+  const handleAidTargets = handleAidCatalog.targets;
+  const handleAbendLabels = parseExecCicsHandleAbendLabels(code);
   const stringUnstringInspect = parseCobolStringUnstringInspect(code);
   const openModes = parseCobolOpenModes(code);
+  const organizations = parseCobolOrganizations(code);
+  const fdNames = parseCobolFdNames(code);
+  const invalidKey = (code.match(/\bINVALID\s+KEY\b/gi) || []).length;
+  const sqlCursorNames = parseExecSqlCursorNames(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
   const fileIo = (code.match(READ_WRITE_RE) || []).length;
   const organizationIndexed = (code.match(ORGANIZATION_INDEXED_RE) || []).length;
@@ -663,10 +688,17 @@ export function inventoryCobolSource(source, file = "") {
     handleAid,
     handleConditionNames,
     handleConditionTargets,
+    handleAidNames,
+    handleAidTargets,
+    handleAbendLabels,
     stringOps: stringUnstringInspect.string,
     unstringOps: stringUnstringInspect.unstring,
     inspectOps: stringUnstringInspect.inspect,
     openModes,
+    organizations,
+    fdNames,
+    invalidKey,
+    sqlCursorNames,
     respClauses,
     execSql,
     execSqlOps,
@@ -1003,6 +1035,123 @@ export function parseExecCicsHandleConditions(source) {
 }
 
 /**
+ * AID keys + paragraph targets from `EXEC CICS HANDLE AID …` (G10102).
+ *
+ * @param {string} source
+ * @returns {{ names: string[], targets: Array<{ aid: string, paragraph: string }> }}
+ */
+export function parseExecCicsHandleAid(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  /** @type {Array<{ aid: string, paragraph: string }>} */
+  const targets = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!/^HANDLE\s+AID\b/.test(body)) continue;
+    const after = body.replace(/^HANDLE\s+AID\b/, "").trim();
+    const pairRe = /\b([A-Z][A-Z0-9-]*)\s*\(\s*([A-Z][A-Z0-9-]*)\s*\)/g;
+    let p;
+    while ((p = pairRe.exec(after)) !== null) {
+      const aid = String(p[1]).toUpperCase();
+      const paragraph = String(p[2]).toUpperCase();
+      names.push(aid);
+      targets.push({ aid, paragraph });
+    }
+  }
+  return {
+    names: [...new Set(names)].sort(),
+    targets,
+  };
+}
+
+/**
+ * `HANDLE ABEND LABEL(paragraph)` targets (G10102).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsHandleAbendLabels(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const labels = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!/^HANDLE\s+ABEND\b/.test(body)) continue;
+    const labelRe = /\bLABEL\s*\(\s*([A-Z][A-Z0-9-]*)\s*\)/g;
+    let p;
+    while ((p = labelRe.exec(body)) !== null) {
+      if (p[1]) labels.push(String(p[1]).toUpperCase());
+    }
+  }
+  return [...new Set(labels)].sort();
+}
+
+/**
+ * FILE-CONTROL `ORGANIZATION IS …` tokens (G10102).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolOrganizations(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const orgs = [];
+  const re =
+    /\bORGANIZATION\s+IS\s+(LINE\s+SEQUENTIAL|SEQUENTIAL|INDEXED|RELATIVE)\b/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    if (m[1]) orgs.push(String(m[1]).toUpperCase().replace(/\s+/g, " "));
+  }
+  return [...new Set(orgs)].sort();
+}
+
+/**
+ * FD entry names (G10102).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolFdNames(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  const re = /\bFD\s+([A-Z][A-Z0-9-]*)/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    if (m[1]) names.push(String(m[1]).toUpperCase());
+  }
+  return [...new Set(names)].sort();
+}
+
+/**
+ * Cursor names from `EXEC SQL DECLARE … CURSOR` (G10103). No Db2 invent.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecSqlCursorNames(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  EXEC_SQL_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_SQL_BLOCK_RE.exec(code)) !== null) {
+    const body = String(m[1] || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+    const cm = /^DECLARE\s+([A-Z][A-Z0-9-]*)\s+CURSOR\b/.exec(body);
+    if (cm?.[1]) names.push(cm[1]);
+  }
+  return [...new Set(names)].sort();
+}
+
+/**
  * Counts of STRING / UNSTRING / INSPECT verbs (G10101). Catalog only — no invent.
  *
  * @param {string} source
@@ -1069,6 +1218,66 @@ export function crosswalkJclPrograms(jclPgms, programIds) {
   return {
     jclPgmMatched: pgms.filter((p) => known.has(p)).sort(),
     jclPgmHole: pgms.filter((p) => !known.has(p)).sort(),
+  };
+}
+
+/** System / utility DD names that are not COBOL ASSIGN targets. */
+const JCL_DD_SYSTEM = new Set([
+  "SYSPRINT",
+  "SYSIN",
+  "SYSOUT",
+  "STEPLIB",
+  "JOBLIB",
+  "SYSTSPRT",
+  "SYSTSIN",
+  "SYSUDUMP",
+  "CEEDUMP",
+  "SORTIN",
+  "SORTOUT",
+  "SYSABOUT",
+  "SYSDBOUT",
+  "SYSTERM",
+]);
+
+/**
+ * JCL `DD` ddnames (G10103). Skips `*` and `DATA` inline markers. No JES invent.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseJclDdNames(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  // //DDNAME DD … or DDNAME DD … (card images without //)
+  const re = /(?:^|\n)\s*(?:\/\/)?([A-Z][A-Z0-9$#@]*)\s+DD\b/gim;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    const name = String(m[1]).toUpperCase();
+    if (!name || name === "DATA" || name.startsWith("*")) continue;
+    names.push(name);
+  }
+  return [...new Set(names)].sort();
+}
+
+/**
+ * Crosswalk application JCL DD names against COBOL `ASSIGN TO` ddnames (G10103).
+ * System DDs stay in hole set when not assigned in COBOL.
+ *
+ * @param {Iterable<string>} jclDds
+ * @param {Iterable<string>} assignDdNames
+ * @returns {{ jclDdMatched: string[], jclDdHole: string[] }}
+ */
+export function crosswalkJclDdAssign(jclDds, assignDdNames) {
+  const known = new Set(
+    [...(assignDdNames || [])].map((p) => String(p).toUpperCase()),
+  );
+  const dds = [...new Set([...(jclDds || [])].map((p) => String(p).toUpperCase()))].filter(
+    (d) => !JCL_DD_SYSTEM.has(d),
+  );
+  return {
+    jclDdMatched: dds.filter((d) => known.has(d)).sort(),
+    jclDdHole: dds.filter((d) => !known.has(d)).sort(),
   };
 }
 
