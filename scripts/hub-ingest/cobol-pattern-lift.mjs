@@ -452,6 +452,11 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   }
   // G10103 — SQL cursor names + JCL DD crosswalk opts.
   if (inv?.sqlCursorNames?.length) attrs.sqlCursorNames = [...inv.sqlCursorNames];
+  // G10104 — CICS ASSIGN option names + EIB/COMMAREA symbols.
+  if (inv?.cicsAssignOptions?.length) {
+    attrs.cicsAssignOptions = [...inv.cicsAssignOptions];
+  }
+  if (inv?.cicsEibSymbols?.length) attrs.cicsEibSymbols = [...inv.cicsEibSymbols];
   if (typeof inv?.stringOps === "number" && inv.stringOps > 0) attrs.stringOps = inv.stringOps;
   if (typeof inv?.unstringOps === "number" && inv.unstringOps > 0) {
     attrs.unstringOps = inv.unstringOps;
@@ -621,6 +626,8 @@ export function inventoryCobolSource(source, file = "") {
   const fdNames = parseCobolFdNames(code);
   const invalidKey = (code.match(/\bINVALID\s+KEY\b/gi) || []).length;
   const sqlCursorNames = parseExecSqlCursorNames(code);
+  const cicsAssignOptions = parseExecCicsAssignOptions(code);
+  const cicsEibSymbols = parseCicsEibSymbols(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
   const fileIo = (code.match(READ_WRITE_RE) || []).length;
   const organizationIndexed = (code.match(ORGANIZATION_INDEXED_RE) || []).length;
@@ -699,6 +706,8 @@ export function inventoryCobolSource(source, file = "") {
     fdNames,
     invalidKey,
     sqlCursorNames,
+    cicsAssignOptions,
+    cicsEibSymbols,
     respClauses,
     execSql,
     execSqlOps,
@@ -1149,6 +1158,65 @@ export function parseExecSqlCursorNames(source) {
     if (cm?.[1]) names.push(cm[1]);
   }
   return [...new Set(names)].sort();
+}
+
+/**
+ * Option names from `EXEC CICS ASSIGN option(…)` (G10104). Skips RESP/RESP2.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseExecCicsAssignOptions(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const opts = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!/^ASSIGN\b/.test(body)) continue;
+    const after = body.replace(/^ASSIGN\b/, "").trim();
+    const optRe = /\b([A-Z][A-Z0-9-]*)\s*\(/g;
+    let p;
+    while ((p = optRe.exec(after)) !== null) {
+      const name = String(p[1]).toUpperCase();
+      if (name === "RESP" || name === "RESP2") continue;
+      opts.push(name);
+    }
+  }
+  return [...new Set(opts)].sort();
+}
+
+/** Common CICS EIB / COMMAREA symbols referenced in online programs. */
+const CICS_EIB_SYMBOLS = [
+  "DFHCOMMAREA",
+  "DFHRESP",
+  "EIBCALEN",
+  "EIBAID",
+  "EIBRESP",
+  "EIBRESP2",
+  "EIBRCODE",
+  "EIBFN",
+  "EIBTRNID",
+  "EIBTASKN",
+  "EIBTRMID",
+];
+
+/**
+ * Inventoried CICS EIB / DFHCOMMAREA symbol references (G10104). Catalog only.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCicsEibSymbols(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const hit = [];
+  for (const sym of CICS_EIB_SYMBOLS) {
+    const re = new RegExp(`\\b${sym}\\b`, "i");
+    if (re.test(code)) hit.push(sym);
+  }
+  return hit.sort();
 }
 
 /**

@@ -2141,6 +2141,37 @@ export async function runCobolBestFitSmoke() {
     reason: `cursors=${(cotrtlicAttrs?.sqlCursorNames || []).join(",")}+${(sqlinvAttrs?.sqlCursorNames || []).join(",")} ddOk=${(jclDdAttrs.jclDdMatched || []).slice(0, 6).join(",")} ddHoleN=${(jclDdAttrs.jclDdHole || []).length}`,
   });
 
+  // G10104 — CICS ASSIGN options + EIB/COMMAREA symbol catalog.
+  const cardAssignAttrs = cardOnlnInv
+    ? buildCobolWebIrHoleAttrs(cardOnlnInv)
+    : null;
+  const cosgnAssignPath = join(CLBS_ONLINE, "COSGN00C.cbl");
+  const cosgnAssignSrc = existsSync(cosgnAssignPath)
+    ? readFileSync(cosgnAssignPath, "utf8")
+    : "";
+  const cosgnAssignInv = cosgnAssignSrc
+    ? inventoryCobolSource(cosgnAssignSrc, "COSGN00C.cbl")
+    : null;
+  const cosgnAssignAttrs = cosgnAssignInv
+    ? buildCobolWebIrHoleAttrs(cosgnAssignInv)
+    : null;
+  results.push({
+    id: "webir-hole-attrs-cics-assign-eib",
+    ok:
+      !!cardAssignAttrs &&
+      Array.isArray(cardAssignAttrs.cicsAssignOptions) &&
+      cardAssignAttrs.cicsAssignOptions.includes("APPLID") &&
+      Array.isArray(cardAssignAttrs.cicsEibSymbols) &&
+      cardAssignAttrs.cicsEibSymbols.includes("DFHCOMMAREA") &&
+      !!cosgnAssignAttrs &&
+      Array.isArray(cosgnAssignAttrs.cicsAssignOptions) &&
+      cosgnAssignAttrs.cicsAssignOptions.includes("APPLID") &&
+      Array.isArray(cosgnAssignAttrs.cicsEibSymbols) &&
+      (cosgnAssignAttrs.cicsEibSymbols.includes("EIBCALEN") ||
+        cosgnAssignAttrs.cicsEibSymbols.includes("DFHCOMMAREA")),
+    reason: `cardAssign=${(cardAssignAttrs?.cicsAssignOptions || []).join(",")} cardEib=${(cardAssignAttrs?.cicsEibSymbols || []).join(",")} cosgnAssign=${(cosgnAssignAttrs?.cicsAssignOptions || []).join(",")} cosgnEib=${(cosgnAssignAttrs?.cicsEibSymbols || []).join(",")}`,
+  });
+
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];
   for (const emitTarget of targets) {
     for (const id of suiteIdsFor(emitTarget)) {
