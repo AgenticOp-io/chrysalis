@@ -422,6 +422,31 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   // G10099 — CICS FILE / QUEUE literal catalogs on hole attrs (no VSAM/TDQ invent).
   if (inv?.execCicsFiles?.length) attrs.execCicsFiles = [...inv.execCicsFiles];
   if (inv?.execCicsQueues?.length) attrs.execCicsQueues = [...inv.execCicsQueues];
+  // G10100 — TD vs TS queue split (union kept above).
+  if (inv?.execCicsTdQueues?.length) attrs.execCicsTdQueues = [...inv.execCicsTdQueues];
+  if (inv?.execCicsTsQueues?.length) attrs.execCicsTsQueues = [...inv.execCicsTsQueues];
+  if (inv?.selectAssign?.length) attrs.selectAssign = [...inv.selectAssign];
+  if (inv?.assignDdNames?.length) attrs.assignDdNames = [...inv.assignDdNames];
+  if (inv?.callTargets?.length) attrs.callTargets = [...inv.callTargets];
+  if (inv?.acceptFrom?.length) attrs.acceptFrom = [...inv.acceptFrom];
+  if (inv?.displayLiterals?.length) attrs.displayLiterals = [...inv.displayLiterals];
+  // G10101 — HANDLE CONDITION names + STRING/UNSTRING/INSPECT + OPEN modes (catalog only).
+  if (inv?.handleConditionNames?.length) {
+    attrs.handleConditionNames = [...inv.handleConditionNames];
+  }
+  if (inv?.handleConditionTargets?.length) {
+    attrs.handleConditionTargets = [...inv.handleConditionTargets];
+  }
+  if (typeof inv?.stringOps === "number" && inv.stringOps > 0) attrs.stringOps = inv.stringOps;
+  if (typeof inv?.unstringOps === "number" && inv.unstringOps > 0) {
+    attrs.unstringOps = inv.unstringOps;
+  }
+  if (typeof inv?.inspectOps === "number" && inv.inspectOps > 0) {
+    attrs.inspectOps = inv.inspectOps;
+  }
+  if (inv?.openModes?.length) attrs.openModes = [...inv.openModes];
+  if (opts.jclPgmMatched?.length) attrs.jclPgmMatched = [...opts.jclPgmMatched];
+  if (opts.jclPgmHole?.length) attrs.jclPgmHole = [...opts.jclPgmHole];
   if (inv?.execSqlOps?.length) attrs.execSqlOps = [...inv.execSqlOps];
   if (inv?.execSqlIncludes?.length) attrs.execSqlIncludes = [...inv.execSqlIncludes];
   if (inv?.execDliOps?.length) attrs.execDliOps = [...inv.execDliOps];
@@ -472,6 +497,10 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (opts.bmsMapHole?.length) attrs.bmsMapHole = [...opts.bmsMapHole];
   if (opts.bmsMapsetMatched?.length) attrs.bmsMapsetMatched = [...opts.bmsMapsetMatched];
   if (opts.bmsMapsetHole?.length) attrs.bmsMapsetHole = [...opts.bmsMapsetHole];
+  if (opts.cicsLinkMatched?.length) attrs.cicsLinkMatched = [...opts.cicsLinkMatched];
+  if (opts.cicsLinkHole?.length) attrs.cicsLinkHole = [...opts.cicsLinkHole];
+  if (opts.cicsXctlMatched?.length) attrs.cicsXctlMatched = [...opts.cicsXctlMatched];
+  if (opts.cicsXctlHole?.length) attrs.cicsXctlHole = [...opts.cicsXctlHole];
   if (opts.emitPatternKind) attrs.emitPatternKind = opts.emitPatternKind;
   if (opts.copyExpanded?.length) attrs.copyExpanded = [...opts.copyExpanded];
   if (opts.copySkipped?.length) attrs.copySkipped = [...opts.copySkipped];
@@ -548,12 +577,25 @@ export function inventoryCobolSource(source, file = "") {
   const execCicsLinkPrograms = parseExecCicsLinkPrograms(code);
   const execCicsXctlPrograms = parseExecCicsXctlPrograms(code);
   const execCicsFiles = parseExecCicsFiles(code);
-  const execCicsQueues = parseExecCicsQueues(code);
+  const queueCatalog = parseExecCicsQueueCatalog(code);
+  const execCicsQueues = queueCatalog.all;
+  const execCicsTdQueues = queueCatalog.td;
+  const execCicsTsQueues = queueCatalog.ts;
+  const selectAssign = parseCobolSelectAssign(code);
+  const assignDdNames = [...new Set(selectAssign.map((s) => s.assign))];
+  const callTargets = parseCobolCallTargets(code);
+  const acceptFrom = parseCobolAcceptFrom(code);
+  const displayLiterals = parseCobolDisplayLiterals(code);
   const ibmMqCallOps = parseIbmMqCallOps(code);
   const cicsAidSymbols = parseCicsAidSymbols(code);
   const bmsAttrSymbols = parseBmsAttrSymbols(code);
   const handleCondition = (code.match(HANDLE_CONDITION_RE) || []).length;
   const handleAid = (code.match(HANDLE_AID_RE) || []).length;
+  const handleCondCatalog = parseExecCicsHandleConditions(code);
+  const handleConditionNames = handleCondCatalog.names;
+  const handleConditionTargets = handleCondCatalog.targets;
+  const stringUnstringInspect = parseCobolStringUnstringInspect(code);
+  const openModes = parseCobolOpenModes(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
   const fileIo = (code.match(READ_WRITE_RE) || []).length;
   const organizationIndexed = (code.match(ORGANIZATION_INDEXED_RE) || []).length;
@@ -607,11 +649,24 @@ export function inventoryCobolSource(source, file = "") {
     execCicsXctlPrograms,
     execCicsFiles,
     execCicsQueues,
+    execCicsTdQueues,
+    execCicsTsQueues,
+    selectAssign,
+    assignDdNames,
+    callTargets,
+    acceptFrom,
+    displayLiterals,
     ibmMqCallOps,
     cicsAidSymbols,
     bmsAttrSymbols,
     handleCondition,
     handleAid,
+    handleConditionNames,
+    handleConditionTargets,
+    stringOps: stringUnstringInspect.string,
+    unstringOps: stringUnstringInspect.unstring,
+    inspectOps: stringUnstringInspect.inspect,
+    openModes,
     respClauses,
     execSql,
     execSqlOps,
@@ -758,34 +813,275 @@ export function parseExecCicsXctlPrograms(source) {
  * @returns {string[]}
  */
 export function parseExecCicsFiles(source) {
-  return parseExecCicsNamedClause(source, "FILE");
+  return parseExecCicsNamedClause(source);
 }
 
 /**
- * Literal `QUEUE('…')` / `TD QUEUE('…')` names from EXEC CICS blocks.
- * Does not invent TDQ/TSQ runtime — catalog only (G10099).
+ * Literal `QUEUE('…')` names from EXEC CICS blocks (TD+TS union).
+ * Prefer {@link parseExecCicsQueueCatalog} for TD vs TS split (G10100).
  *
  * @param {string} source
  * @returns {string[]}
  */
 export function parseExecCicsQueues(source) {
-  return parseExecCicsNamedClause(source, "QUEUE");
+  return parseExecCicsQueueCatalog(source).all;
+}
+
+/**
+ * Split TD vs TS temporary-storage / transient-data queue names (G10100).
+ * Does not invent TDQ/TSQ runtime — catalog only.
+ *
+ * @param {string} source
+ * @returns {{ td: string[], ts: string[], all: string[] }}
+ */
+export function parseExecCicsQueueCatalog(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const td = [];
+  /** @type {string[]} */
+  const ts = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    const isTd =
+      /\bTD\s+QUEUE\b/.test(body) ||
+      /\b(?:WRITEQ|READQ|DELETEQ)\s+TD\b/.test(body);
+    const isTs =
+      /\b(?:WRITEQ|READQ|DELETEQ)\s+TS\b/.test(body) ||
+      (/\bQUEUE\s*\(/.test(body) && !isTd && !/\bTD\b/.test(body));
+    const clauseRe = /\b(?:TD\s+)?QUEUE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi;
+    let c;
+    while ((c = clauseRe.exec(body)) !== null) {
+      const name = (c[1] || c[2] || "").toUpperCase();
+      if (!name) continue;
+      if (isTd) td.push(name);
+      else if (isTs || /\bQUEUE\s*\(/.test(body)) ts.push(name);
+    }
+  }
+  const tdU = [...new Set(td)];
+  const tsU = [...new Set(ts)];
+  return { td: tdU, ts: tsU, all: [...new Set([...tdU, ...tsU])] };
+}
+
+/**
+ * FILE-CONTROL `SELECT … ASSIGN TO …` pairs (batch dual of CICS FILE) — G10100.
+ *
+ * @param {string} source
+ * @returns {Array<{ select: string, assign: string }>}
+ */
+export function parseCobolSelectAssign(source) {
+  const code = String(source || "");
+  /** @type {Array<{ select: string, assign: string }>} */
+  const out = [];
+  const re =
+    /\bSELECT\s+([A-Z][A-Z0-9-]*)\s+ASSIGN\s+TO\s+([A-Z][A-Z0-9-]*)/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    out.push({
+      select: String(m[1]).toUpperCase(),
+      assign: String(m[2]).toUpperCase(),
+    });
+  }
+  return out;
+}
+
+/**
+ * Literal `CALL '…'` targets (dynamic CALL identifiers stay unlisted) — G10100.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolCallTargets(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  const re = /\bCALL\s+(?:'([^']+)'|"([^"]+)")/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    const name = m[1] || m[2];
+    if (name) names.push(name.toUpperCase());
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * `ACCEPT … FROM` special registers / mnemonic names — G10100.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolAcceptFrom(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  const re = /\bACCEPT\s+[A-Z0-9-]+\s+FROM\s+([A-Z][A-Z0-9-]*)/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    if (m[1]) names.push(String(m[1]).toUpperCase());
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Literal operands of `DISPLAY '…'` (non-literal DISPLAY stays hole) — G10100.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolDisplayLiterals(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const vals = [];
+  const re = /\bDISPLAY\s+(?:'([^']*)'|"([^"]*)")/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    const v = m[1] != null ? m[1] : m[2];
+    if (v != null && v !== "") vals.push(v);
+  }
+  return [...new Set(vals)].slice(0, 40);
+}
+
+/**
+ * Crosswalk LINK/XCTL PROGRAM targets against known PROGRAM-IDs in the tree (G10100).
+ *
+ * @param {{ link?: string[], xctl?: string[] }} referenced
+ * @param {Iterable<string>} programIds
+ * @returns {{
+ *   cicsLinkMatched: string[],
+ *   cicsLinkHole: string[],
+ *   cicsXctlMatched: string[],
+ *   cicsXctlHole: string[],
+ * }}
+ */
+export function crosswalkOnlineCicsPrograms(referenced, programIds) {
+  const known = new Set(
+    [...(programIds || [])].map((p) => String(p).toUpperCase()),
+  );
+  const link = [...new Set((referenced?.link || []).map((p) => String(p).toUpperCase()))];
+  const xctl = [...new Set((referenced?.xctl || []).map((p) => String(p).toUpperCase()))];
+  return {
+    cicsLinkMatched: link.filter((p) => known.has(p)).sort(),
+    cicsLinkHole: link.filter((p) => !known.has(p)).sort(),
+    cicsXctlMatched: xctl.filter((p) => known.has(p)).sort(),
+    cicsXctlHole: xctl.filter((p) => !known.has(p)).sort(),
+  };
+}
+
+/**
+ * Named conditions + paragraph targets from `EXEC CICS HANDLE CONDITION …` (G10101).
+ * Does not invent CICS condition handling — catalog only.
+ *
+ * @param {string} source
+ * @returns {{ names: string[], targets: Array<{ condition: string, paragraph: string }> }}
+ */
+export function parseExecCicsHandleConditions(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  /** @type {Array<{ condition: string, paragraph: string }>} */
+  const targets = [];
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!/^HANDLE\s+CONDITION\b/.test(body)) continue;
+    const after = body.replace(/^HANDLE\s+CONDITION\b/, "").trim();
+    const pairRe = /\b([A-Z][A-Z0-9-]*)\s*\(\s*([A-Z][A-Z0-9-]*)\s*\)/g;
+    let p;
+    while ((p = pairRe.exec(after)) !== null) {
+      const condition = String(p[1]).toUpperCase();
+      const paragraph = String(p[2]).toUpperCase();
+      names.push(condition);
+      targets.push({ condition, paragraph });
+    }
+  }
+  return {
+    names: [...new Set(names)].sort(),
+    targets,
+  };
+}
+
+/**
+ * Counts of STRING / UNSTRING / INSPECT verbs (G10101). Catalog only — no invent.
+ *
+ * @param {string} source
+ * @returns {{ string: number, unstring: number, inspect: number }}
+ */
+export function parseCobolStringUnstringInspect(source) {
+  const code = String(source || "");
+  return {
+    string: (code.match(/\bSTRING\b/gi) || []).length,
+    unstring: (code.match(/\bUNSTRING\b/gi) || []).length,
+    inspect: (code.match(/\bINSPECT\b/gi) || []).length,
+  };
+}
+
+/**
+ * `OPEN INPUT|OUTPUT|I-O|EXTEND` mode tokens (G10101).
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseCobolOpenModes(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const modes = [];
+  const re = /\bOPEN\s+(INPUT|OUTPUT|I-O|EXTEND)\b/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    if (m[1]) modes.push(String(m[1]).toUpperCase());
+  }
+  return [...new Set(modes)].sort();
+}
+
+/**
+ * `EXEC PGM=` names from a JCL body (G10101). No JES invent.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function parseJclExecPrograms(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const pgms = [];
+  const re = /\bEXEC\s+PGM=([A-Z0-9$#@]+)/gi;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    if (m[1]) pgms.push(String(m[1]).toUpperCase());
+  }
+  return [...new Set(pgms)].sort();
+}
+
+/**
+ * Crosswalk JCL `EXEC PGM=` against known PROGRAM-IDs (G10101).
+ * Utility PGMs (IDCAMS, IKJEFT01, …) remain honest holes.
+ *
+ * @param {Iterable<string>} jclPgms
+ * @param {Iterable<string>} programIds
+ * @returns {{ jclPgmMatched: string[], jclPgmHole: string[] }}
+ */
+export function crosswalkJclPrograms(jclPgms, programIds) {
+  const known = new Set(
+    [...(programIds || [])].map((p) => String(p).toUpperCase()),
+  );
+  const pgms = [...new Set([...(jclPgms || [])].map((p) => String(p).toUpperCase()))];
+  return {
+    jclPgmMatched: pgms.filter((p) => known.has(p)).sort(),
+    jclPgmHole: pgms.filter((p) => !known.has(p)).sort(),
+  };
 }
 
 /**
  * @param {string} source
- * @param {"FILE"|"QUEUE"} kind
  * @returns {string[]}
  */
-function parseExecCicsNamedClause(source, kind) {
+function parseExecCicsNamedClause(source) {
+  // FILE path only — QUEUE uses parseExecCicsQueueCatalog (G10100).
   const code = String(source || "");
   /** @type {string[]} */
   const names = [];
-  // QUEUE also matches "TD QUEUE('…')" after normalizeExecCicsBody collapses whitespace.
-  const clauseRe =
-    kind === "QUEUE"
-      ? /\b(?:TD\s+)?QUEUE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi
-      : /\bFILE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi;
+  const clauseRe = /\bFILE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/gi;
   EXEC_CICS_BLOCK_RE.lastIndex = 0;
   let m;
   while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {

@@ -97,7 +97,11 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
     if (!/\.(cbl|cob)$/i.test(file)) continue;
     const r = relPath(root, file);
     const inv = inventoryCobolSource(readText(file), r);
-    for (const cpy of inv.copybooks || []) {
+    const books = [
+      ...(inv.copybooks || []),
+      ...(inv.execSqlIncludes || []),
+    ];
+    for (const cpy of books) {
       allCopy.push(cpy);
       if (isProprietaryCobolCopybook(cpy)) {
         const upper = String(cpy).toUpperCase();
@@ -134,14 +138,43 @@ export function buildCobolResidualLedger(originRoot, opts = {}) {
 
   const uniqueCopy = [...new Set(allCopy.map((c) => String(c).toUpperCase()))];
   const resolved = resolveCobolCopybooks(uniqueCopy, copyDirs.length ? copyDirs : [root]);
+  /** @type {Map<string, string[]>} */
+  const missingFiles = new Map();
+  for (const file of files) {
+    if (!/\.(cbl|cob)$/i.test(file)) continue;
+    const r = relPath(root, file);
+    const inv = inventoryCobolSource(readText(file), r);
+    const books = [
+      ...(inv.copybooks || []),
+      ...(inv.execSqlIncludes || []),
+    ].map((c) => String(c).toUpperCase());
+    for (const name of books) {
+      if (!name || isProprietaryCobolCopybook(name)) continue;
+      const hit = resolved.find((x) => String(x?.name || "").toUpperCase() === name);
+      if (hit && !hit.resolved) {
+        if (!missingFiles.has(name)) missingFiles.set(name, []);
+        missingFiles.get(name).push(r);
+      }
+    }
+  }
   for (const hit of resolved) {
     const name = String(hit?.name || "").toUpperCase();
     if (!name || hit.resolved || isProprietaryCobolCopybook(name)) continue;
+    const refs = missingFiles.get(name) || [];
     add(`missing-copy:${name}`, {
       classification: "missing-copy",
-      issue: `COPY ${name} not found under copybook/cpy/_upstream`,
+      issue: `COPY/INCLUDE ${name} not found under copybook/cpy/_upstream`,
       status: "open",
+      file: refs[0],
     });
+    for (const f of refs.slice(1, 20)) {
+      add(`missing-copy:${name}`, {
+        classification: "missing-copy",
+        issue: `COPY/INCLUDE ${name} not found under copybook/cpy/_upstream`,
+        status: "open",
+        file: f,
+      });
+    }
   }
 
   for (const name of origin.proprietaryCopy || []) {

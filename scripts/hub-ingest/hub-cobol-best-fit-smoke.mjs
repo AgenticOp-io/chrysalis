@@ -28,6 +28,9 @@ import {
   inferCobolCopybookDirs,
   inventoryBmsSource,
   crosswalkOnlineBmsMaps,
+  crosswalkOnlineCicsPrograms,
+  parseJclExecPrograms,
+  crosswalkJclPrograms,
 } from "./cobol-pattern-lift.mjs";
 import { buildCobolResidualLedger } from "./cobol-residual-ledger.mjs";
 import { emitFromCobolPatterns, detectEmitPattern, expectedFromPattern } from "./cobol-pattern-emit.mjs";
@@ -1782,13 +1785,108 @@ export async function runCobolBestFitSmoke() {
       inqFileAttrs.execCicsFiles.includes("HISTFILE") &&
       Array.isArray(inqFileAttrs.execCicsQueues) &&
       inqFileAttrs.execCicsQueues.includes("INQTMP") &&
+      Array.isArray(inqFileAttrs.execCicsTsQueues) &&
+      inqFileAttrs.execCicsTsQueues.includes("INQTMP") &&
       !!portQAttrs &&
       Array.isArray(portQAttrs.execCicsQueues) &&
       portQAttrs.execCicsQueues.includes("PORTTMP") &&
       !!corptQAttrs &&
       Array.isArray(corptQAttrs.execCicsQueues) &&
-      corptQAttrs.execCicsQueues.includes("JOBS"),
-    reason: `cardFiles=${(cardFileAttrs?.execCicsFiles || []).join(",")} inqFiles=${(inqFileAttrs?.execCicsFiles || []).join(",")} inqQ=${(inqFileAttrs?.execCicsQueues || []).join(",")} portQ=${(portQAttrs?.execCicsQueues || []).join(",")} corptQ=${(corptQAttrs?.execCicsQueues || []).join(",")}`,
+      corptQAttrs.execCicsQueues.includes("JOBS") &&
+      Array.isArray(corptQAttrs.execCicsTdQueues) &&
+      corptQAttrs.execCicsTdQueues.includes("JOBS"),
+    reason: `cardFiles=${(cardFileAttrs?.execCicsFiles || []).join(",")} inqTs=${(inqFileAttrs?.execCicsTsQueues || []).join(",")} portQ=${(portQAttrs?.execCicsQueues || []).join(",")} corptTd=${(corptQAttrs?.execCicsTdQueues || []).join(",")}`,
+  });
+
+  // G10100 — SELECT ASSIGN + CALL/ACCEPT/DISPLAY catalogs + LINK/XCTL crosswalk + residual P0 gate.
+  const cbactPath = join(CLBS_BATCH, "CBACT01C.cbl");
+  const cbactSrc = existsSync(cbactPath) ? readFileSync(cbactPath, "utf8") : "";
+  const cbactInv = cbactSrc ? inventoryCobolSource(cbactSrc, "CBACT01C.cbl") : null;
+  const cbactAttrs = cbactInv ? buildCobolWebIrHoleAttrs(cbactInv) : null;
+  const cbpaupPath = join(CLBS_MINI, "_upstream/CBPAUP0C.cbl");
+  const cbpaupSrc = existsSync(cbpaupPath) ? readFileSync(cbpaupPath, "utf8") : "";
+  const cbpaupInv = cbpaupSrc ? inventoryCobolSource(cbpaupSrc, "CBPAUP0C.cbl") : null;
+  const cbpaupAttrs = cbpaupInv ? buildCobolWebIrHoleAttrs(cbpaupInv) : null;
+  const coacctPath = join(CLBS_MINI, "_upstream/COACCT01.cbl");
+  const coacctSrc = existsSync(coacctPath) ? readFileSync(coacctPath, "utf8") : "";
+  const coacctInv = coacctSrc ? inventoryCobolSource(coacctSrc, "COACCT01.cbl") : null;
+  const coacctAttrs = coacctInv ? buildCobolWebIrHoleAttrs(coacctInv) : null;
+  results.push({
+    id: "webir-hole-attrs-select-call-accept",
+    ok:
+      !!cbactAttrs &&
+      Array.isArray(cbactAttrs.assignDdNames) &&
+      cbactAttrs.assignDdNames.includes("ACCTFILE") &&
+      Array.isArray(cbactAttrs.selectAssign) &&
+      cbactAttrs.selectAssign.some((s) => s?.assign === "ACCTFILE") &&
+      !!cbpaupAttrs &&
+      Array.isArray(cbpaupAttrs.acceptFrom) &&
+      cbpaupAttrs.acceptFrom.includes("DATE") &&
+      cbpaupAttrs.acceptFrom.includes("SYSIN") &&
+      Array.isArray(cbpaupAttrs.displayLiterals) &&
+      cbpaupAttrs.displayLiterals.length >= 1 &&
+      !!coacctAttrs &&
+      Array.isArray(coacctAttrs.callTargets) &&
+      coacctAttrs.callTargets.includes("MQOPEN"),
+    reason: `assign=${(cbactAttrs?.assignDdNames || []).join(",")} accept=${(cbpaupAttrs?.acceptFrom || []).join(",")} dispN=${(cbpaupAttrs?.displayLiterals || []).length} calls=${(coacctAttrs?.callTargets || []).slice(0, 6).join(",")}`,
+  });
+
+  /** @type {string[]} */
+  const treeProgramIds = [];
+  for (const dir of [CLBS_ONLINE, join(CLBS_MINI, "_upstream"), CLBS_BATCH]) {
+    if (!existsSync(dir)) continue;
+    for (const name of readdirSync(dir).filter((n) => /\.cbl$/i.test(n))) {
+      const invP = inventoryCobolSource(readFileSync(join(dir, name), "utf8"), name);
+      treeProgramIds.push(...(invP.programIds || []));
+    }
+  }
+  const cardLinkXwalk = crosswalkOnlineCicsPrograms(
+    {
+      link: cardOnlnInv?.execCicsLinkPrograms || [],
+      xctl: cardOnlnInv?.execCicsXctlPrograms || [],
+    },
+    treeProgramIds,
+  );
+  const corptLinkXwalk = crosswalkOnlineCicsPrograms(
+    {
+      link: corptInvG99?.execCicsLinkPrograms || [],
+      xctl: corptInvG99?.execCicsXctlPrograms || [],
+    },
+    treeProgramIds,
+  );
+  const cardLinkAttrs = cardOnlnInv
+    ? buildCobolWebIrHoleAttrs(cardOnlnInv, cardLinkXwalk)
+    : null;
+  const corptLinkAttrs = corptInvG99
+    ? buildCobolWebIrHoleAttrs(corptInvG99, corptLinkXwalk)
+    : null;
+  results.push({
+    id: "webir-hole-attrs-cics-link-crosswalk",
+    ok:
+      !!cardLinkAttrs &&
+      Array.isArray(cardLinkAttrs.cicsLinkMatched) &&
+      cardLinkAttrs.cicsLinkMatched.includes("CORPT00C") &&
+      cardLinkAttrs.cicsLinkMatched.includes("COTRN00C") &&
+      Array.isArray(cardLinkAttrs.cicsLinkHole) &&
+      !!corptLinkAttrs &&
+      Array.isArray(corptLinkAttrs.cicsXctlMatched) &&
+      corptLinkAttrs.cicsXctlMatched.includes("COMEN01C"),
+    reason: `cardLinkOk=${(cardLinkAttrs?.cicsLinkMatched || []).slice(0, 8).join(",")} cardLinkHoleN=${(cardLinkAttrs?.cicsLinkHole || []).length} corptXctl=${(corptLinkAttrs?.cicsXctlMatched || []).join(",")}`,
+  });
+
+  const idxAlt = liftOne("IDXALTRN.cbl", "hub-lift:cobol-g10100-idxalt");
+  const idxDel = liftOne("IDXDELRN.cbl", "hub-lift:cobol-g10100-idxdel");
+  const idxRw = liftOne("IDXSTRWR.cbl", "hub-lift:cobol-g10100-idxrw");
+  results.push({
+    id: "webir-emit-pattern-indexed-family-widen",
+    ok:
+      idxAlt.pat?.kind === "indexed-alt-key-read" &&
+      idxAlt.has(idxAlt.exp) &&
+      idxDel.pat?.kind === "indexed-delete" &&
+      idxDel.has(idxDel.exp) &&
+      idxRw.pat?.kind === "indexed-start-rewrite" &&
+      idxRw.has(idxRw.exp),
+    reason: `alt=${idxAlt.pat?.kind}/${idxAlt.exp} del=${idxDel.pat?.kind}/${idxDel.exp} rw=${idxRw.pat?.kind}/${idxRw.exp}`,
   });
 
   const upstreamBmsDir = join(CLBS_MINI, "_upstream");
@@ -1862,6 +1960,85 @@ export async function runCobolBestFitSmoke() {
     reason: residual
       ? `items=${residual.summary?.itemCount} P0=${residual.summary?.byPriority?.P0} P1=${residual.summary?.byPriority?.P1} ids=${[...residualIds].slice(0, 12).join(",")}`
       : "missing-ledger",
+  });
+  const residualP0Open = (residual.items || []).filter(
+    (i) => i.priority === "P0" && i.status === "open",
+  );
+  const residualMissingWithFiles = (residual.items || []).filter(
+    (i) =>
+      String(i.id).startsWith("missing-copy:") &&
+      Array.isArray(i.files) &&
+      i.files.length >= 1,
+  );
+  results.push({
+    id: "cobol-residual-p0-extfmap-only",
+    ok:
+      residualP0Open.length === 1 &&
+      residualP0Open[0]?.id === "copy:EXTFMAP" &&
+      residualIds.has("copy:DFHAID") &&
+      (residual.items || []).find((i) => i.id === "copy:DFHAID")?.status === "closed" &&
+      residualMissingWithFiles.length >= 1,
+    reason: `p0Open=${residualP0Open.map((i) => i.id).join(",")} missingWithFiles=${residualMissingWithFiles.length}`,
+  });
+
+  // G10101 — HANDLE CONDITION names + STRING/OPEN catalogs + JCL PGM↔PROGRAM-ID crosswalk.
+  const coactupPath = join(CLBS_ONLINE, "COACTUPC.cbl");
+  const coactupSrc = existsSync(coactupPath) ? readFileSync(coactupPath, "utf8") : "";
+  const coactupInv = coactupSrc ? inventoryCobolSource(coactupSrc, "COACTUPC.cbl") : null;
+  const coactupAttrs = coactupInv ? buildCobolWebIrHoleAttrs(coactupInv) : null;
+  const copausPath = join(CLBS_MINI, "_upstream/COPAUS0C.cbl");
+  const copausSrc = existsSync(copausPath) ? readFileSync(copausPath, "utf8") : "";
+  const copausInv = copausSrc ? inventoryCobolSource(copausSrc, "COPAUS0C.cbl") : null;
+  const copausAttrs = copausInv ? buildCobolWebIrHoleAttrs(copausInv) : null;
+  results.push({
+    id: "webir-hole-attrs-handle-string-open",
+    ok:
+      !!coactupAttrs &&
+      Array.isArray(coactupAttrs.handleConditionNames) &&
+      coactupAttrs.handleConditionNames.includes("ERROR") &&
+      coactupAttrs.handleConditionNames.includes("NOTFND") &&
+      Array.isArray(coactupAttrs.handleConditionTargets) &&
+      coactupAttrs.handleConditionTargets.some(
+        (t) => t?.condition === "ERROR" && t?.paragraph === "P900-ABEND",
+      ) &&
+      !!cbactAttrs &&
+      Array.isArray(cbactAttrs.openModes) &&
+      cbactAttrs.openModes.includes("INPUT") &&
+      cbactAttrs.openModes.includes("OUTPUT") &&
+      !!copausAttrs &&
+      Number(copausAttrs.stringOps) >= 1,
+    reason: `handle=${(coactupAttrs?.handleConditionNames || []).join(",")} open=${(cbactAttrs?.openModes || []).join(",")} stringOps=${copausAttrs?.stringOps}`,
+  });
+
+  /** @type {string[]} */
+  const allJclPgms = [];
+  const upstreamJclDirG101 = join(CLBS_MINI, "_upstream");
+  if (existsSync(upstreamJclDirG101)) {
+    for (const name of readdirSync(upstreamJclDirG101).filter((n) =>
+      /\.jcl$/i.test(n),
+    )) {
+      allJclPgms.push(
+        ...parseJclExecPrograms(
+          readFileSync(join(upstreamJclDirG101, name), "utf8"),
+        ),
+      );
+    }
+  }
+  const jclXwalk = crosswalkJclPrograms(allJclPgms, treeProgramIds);
+  const jclAttrs = buildCobolWebIrHoleAttrs(
+    { unresolved: [] },
+    jclXwalk,
+  );
+  results.push({
+    id: "webir-hole-attrs-jcl-pgm-crosswalk",
+    ok:
+      Array.isArray(jclAttrs.jclPgmMatched) &&
+      jclAttrs.jclPgmMatched.includes("PORTADD") &&
+      jclAttrs.jclPgmMatched.includes("CBEXPORT") &&
+      Array.isArray(jclAttrs.jclPgmHole) &&
+      jclAttrs.jclPgmHole.includes("IDCAMS") &&
+      jclAttrs.jclPgmHole.includes("IKJEFT01"),
+    reason: `matched=${(jclAttrs.jclPgmMatched || []).slice(0, 8).join(",")} hole=${(jclAttrs.jclPgmHole || []).join(",")}`,
   });
 
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];
