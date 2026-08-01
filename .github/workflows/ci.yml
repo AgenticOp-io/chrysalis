@@ -61,7 +61,7 @@ jobs:
       - name: Build
         run: pnpm -r build
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version: "1.22"
 
