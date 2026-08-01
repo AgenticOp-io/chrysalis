@@ -150,6 +150,7 @@
     "cobol:extfmap-absent": "node scripts/cobol-extfmap-absent.mjs",
     "hub:cursor-pilot-kit-smoke": "node scripts/hub-ingest/hub-cursor-pilot-kit-smoke.mjs",
     "hub:public-engine-claim-smoke": "node scripts/hub-ingest/hub-public-engine-claim-smoke.mjs",
+    "hub:oss-scrub-smoke": "node scripts/hub-ingest/hub-oss-scrub-smoke.mjs",
     "hub:php-nextjs-verify": "node scripts/hub-ingest/hub-php-nextjs-verify.mjs",
     "hub:php-nextjs-flagship-verify": "node scripts/hub-ingest/hub-php-nextjs-verify.mjs --flagship",
     "hub:php-nextjs-symfony-verify": "node scripts/hub-ingest/hub-php-nextjs-verify.mjs --symfony",

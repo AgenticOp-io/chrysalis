@@ -14,10 +14,11 @@ The Cursor Pilot Kit only works for buyers if they can **clone and run** without
 Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md) (AgenticOps layout) plus:
 
 - [x] `LICENSE` is Apache-2.0; `package.json` / `COMMERCIAL.md` / README agree (**G10108**)  
-- [ ] No SA keys, `.env`, customer corpora, filled private pack in history  
+- [x] No SA keys / `.env` / private-key / `engagements/` / private-pack in **tracked tree** — `pnpm run hub:oss-scrub-smoke` (**G10109**); full **git history** scrub remains operator per `07-oss-scrub-checklist.md`  
 - [x] Pilot Kit docs link from README (`docs/CURSOR-PILOT-KIT.md`) — laravel-min + `pilot:cobol-clbs` (**G10108**)  
 - [x] `pnpm run hub:cursor-pilot-kit-smoke` green  
 - [x] `pnpm run hub:public-engine-claim-smoke` green (**G10108**)  
+- [x] `pnpm run hub:oss-scrub-smoke` green (**G10109**)  
 - [x] `pnpm run pilot:laravel-min` green on clean Linux/GCE (`chrysalis-test-vm`, 2026-07-24) with PHP `mysqli` + `pdo_sqlite` — still verify on buyer machines  
 - [x] `pnpm run pilot:cobol-clbs` green locally (inventory + best-fit + residual; EXTFMAP sole P0) (**G10107**)  
 - [x] `pnpm run hub:complete-conversion-prove:laravel-min` → `stGreen`+`stClosed` (2026-07-24) — hole-free CWL projection (session boot + ternary lit-branch guards); Hono verify gold 20/20  

@@ -106,12 +106,23 @@ export async function runPublicEngineClaimSmoke() {
     ),
   });
 
+  checks.push({
+    id: "oss-scrub-helper",
+    ok: mustInclude(
+      join(ROOT, "scripts/hub-ingest/hub-oss-scrub-smoke.mjs"),
+      "chrysalis.hub.oss-scrub-smoke",
+      "service_account",
+      "FORBIDDEN_NAME_RE",
+    ),
+  });
+
   const pkgScripts = readFileSync(join(ROOT, "package.json"), "utf8");
   checks.push({
     id: "package-scripts",
     ok:
       pkgScripts.includes("hub:public-engine-claim-smoke") &&
-      pkgScripts.includes("cobol:extfmap-absent"),
+      pkgScripts.includes("cobol:extfmap-absent") &&
+      pkgScripts.includes("hub:oss-scrub-smoke"),
   });
 
   const ok = checks.every((c) => c.ok);

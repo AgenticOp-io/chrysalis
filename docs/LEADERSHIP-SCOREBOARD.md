@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-07-31 (G10108 public-claim packaging + EXTFMAP ABSENT helper; inventory exhausted; Pilot COBOL wedge)
+**As of:** 2026-08-01 (G10109 OSS scrub smoke; G10108 public-claim; inventory exhausted; EXTFMAP sole P0)
 
 ---
 
@@ -214,9 +214,10 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 1. **EXTFMAP** (sole P0) — ZD&T hunt on `B5C551` / SDFHCOB or attest **ABSENT** via `CHRYSALIS_EXTFMAP_ABSENT=1` + `pnpm run cobol:extfmap-absent` (never invent). **CMQ*** closed via DHE MQ Advanced for Developers drop
 2. **Real Db2 / CICS / VSAM / MQ / IMS runtime adapters** — charter only; no façades (structural Medium+ closed G10083; P1 residuals cataloged)
 3. **CLBS mini inventory peels exhausted (G10106)** — reopen only with new origin corpus
-4. **Parallel GTM:** Cursor Pilot Kit — laravel-min + **COBOL CLBS** wedges (`pilot:laravel-min` / `pilot:cobol-clbs`) + public-claim smoke (**G10108**) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md)
+4. **Parallel GTM:** Cursor Pilot Kit + public-claim + **OSS scrub** (`hub:oss-scrub-smoke` **G10109**) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) · [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)
 5. **Brand CTA (Requested):** agenticop.io “Start a Pilot” → Pilot Kit 15-minute path
 6. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
+7. **Full git-history OSS scrub** — operator (BFG/filter-repo) if secrets ever landed; tracked-tree gate is green
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
 
