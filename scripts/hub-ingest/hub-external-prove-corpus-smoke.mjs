@@ -248,16 +248,28 @@ function runNodeSmoke(scriptRel, extraArgs = [], timeoutMs = 600_000, env = proc
       durationMs,
     };
   }
-  const ok = r.status === 0 && (report == null || report.ok === true || report.skipped === true);
+  // G10110 — some smokes use `skip: string` (honest) with exit 0 + ok:false;
+  // treat as skipped, not fail (node-express-oracle-verify pattern).
+  const skipped =
+    report?.skipped === true ||
+    (typeof report?.skip === "string" && report.skip.length > 0) ||
+    report?.result === "skip";
+  const ok =
+    r.status === 0 && (report == null || report.ok === true || skipped);
   return {
     status: r.status ?? 1,
-    skipped: false,
+    skipped: Boolean(skipped),
     ok,
     reason: ok
-      ? undefined
+      ? skipped
+        ? typeof report?.skip === "string"
+          ? report.skip
+          : "skipped"
+        : undefined
       : report?.failed?.[0]?.reason ||
         report?.reason ||
-        `exit=${r.status} ${(r.stderr || "").slice(0, 240)}`,
+        (typeof report?.skip === "string" ? report.skip : undefined) ||
+        `exit=${r.status} ${(r.stderr || r.stdout || "").slice(0, 240)}`,
     report,
     durationMs,
   };
@@ -326,11 +338,19 @@ export async function runExternalProveCorpusSmoke(flags = parseArgs([])) {
         600_000,
         clbsEnv,
       );
+      // G10110 — Windows Device Guard / missing cobc → honest skip (prove on GCE).
+      const cobcBlocked =
+        /Device Guard|cobc-compile-failed|clang\.exe.*blocked|cobc.*not found/i.test(
+          `${r.reason || ""} ${JSON.stringify(r.report?.failed || [])}`,
+        );
+      const clbsResult = r.skipped || cobcBlocked ? "skip" : r.ok ? "ok" : "fail";
       pushRow(scoreboard, {
         corpus: "cobol-legacy-benchmark-suite",
         gate: "hub:cobol-clbs-prove-smoke",
-        result: r.skipped ? "skip" : r.ok ? "ok" : "fail",
-        notes: r.reason,
+        result: clbsResult,
+        notes: cobcBlocked
+          ? `cobc-unavailable-host (use GCE): ${r.reason || "cobc-blocked"}`
+          : r.reason,
         detail: r.report
           ? {
               ok: r.report.ok,

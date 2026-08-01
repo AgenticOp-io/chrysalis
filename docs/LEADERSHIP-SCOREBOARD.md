@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-01 (G10109 OSS scrub smoke; G10108 public-claim; inventory exhausted; EXTFMAP sole P0)
+**As of:** 2026-08-01 (G10110 external-prove skip honesty; G10109 OSS scrub; EXTFMAP sole P0)
 
 ---
 

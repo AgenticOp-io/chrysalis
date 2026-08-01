@@ -1,3 +1,4 @@
+2026-08-01 | Chrysalis | G10110 external-prove honesty: treat smoke `skip` string as skip (node-express-oracle); cobc Device Guard → skip not fail on Windows host | local | N
 2026-08-01 | Chrysalis | G10109 OSS scrub smoke: git ls-files secret/private-pack hygiene gate (hub:oss-scrub-smoke); public-claim checklist tracked-tree closed; history scrub remains operator; no invent | local | N
 2026-07-31 | Chrysalis | G10108 public engine claim packaging: README Apache-2.0+trademarks; Pilot MCP dual-wedge; hub:public-engine-claim-smoke; cobol:extfmap-absent operator attestation (no invent); residual status=absent when attested | local | N
 2026-07-31 | Chrysalis | G10107 Cursor Pilot Kit COBOL wedge: pilot:cobol-clbs (best-fit 118 + residual P0=EXTFMAP) + kit smoke v2; no runtime invent | local | N
