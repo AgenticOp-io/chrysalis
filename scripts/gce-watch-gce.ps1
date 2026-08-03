@@ -11,7 +11,7 @@
 param(
   [string] $Project = $(if ($env:CHRYSALIS_GCE_PROJECT) { $env:CHRYSALIS_GCE_PROJECT } else { "chrysalis-dev-f5x6qv" }),
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm",
+  [string] $Name = "",
   [int] $IntervalSec = $(if ($env:CHRYSALIS_GCE_WATCH_INTERVAL_SEC) { [int]$env:CHRYSALIS_GCE_WATCH_INTERVAL_SEC } else { 10 }),
   [string] $LogPath = "",
   [switch] $Detach,
@@ -23,6 +23,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $repoRoot = Split-Path -Parent $scriptDir
 . (Join-Path $scriptDir "gce-auth-activate.ps1") | Out-Null

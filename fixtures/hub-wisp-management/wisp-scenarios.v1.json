@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.scenario-inventory",
   "schemaVersion": 1,
   "ok": true,
-  "moduleRoot": "C:\\Users\\david\\AgenticOps\\products\\wisptools\\Module_Manager",
+  "moduleRoot": "../../products/wisptools/Module_Manager",
   "counts": {
     "sveltePages": 76,
     "layouts": 8,

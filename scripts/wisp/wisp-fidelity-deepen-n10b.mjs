@@ -10,6 +10,10 @@ import { spawnSync } from "node:child_process";
 import { firebaseDemoIdToken, liveRefreshWispApiGoldens } from "../lib/live-refresh-api-goldens.mjs";
 import { liveMutateTraceGoldens } from "../lib/live-mutate-trace-goldens.mjs";
 import { applyWispApiGoldenHandlers } from "../wisp-cwl-apply-api-golden-handlers.mjs";
+import {
+  wispPlatformAdminEmail,
+  wispPlatformAdminPassword,
+} from "../lib/wisp-demo-credentials.mjs";
 
 export const DEEPEN_N10B_KIND = "chrysalis.wisp.fidelity-deepen-n10b";
 
@@ -309,10 +313,13 @@ export async function runFidelityDeepenN10b(opts = {}) {
 
   // 21 — admin tenants GET (platform admin optional)
   {
-    const adminLogin = await firebaseDemoIdToken({
-      email: process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_EMAIL || "admin@wisptools.io",
-      password: process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD || "WisptoolsAdmin2026!",
-    });
+    const adminPassword = wispPlatformAdminPassword({ required: false });
+    const adminLogin = adminPassword
+      ? await firebaseDemoIdToken({
+          email: wispPlatformAdminEmail(),
+          password: adminPassword,
+        })
+      : { ok: false, skip: "missing-CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD" };
     if (adminLogin.ok && adminLogin.idToken) {
       const adminHeaders = {
         ...headers,

@@ -48,7 +48,7 @@ Implemented in `hub:cobol-clbs-prove-smoke` (weights sum to 100):
 | --- | --- | --- |
 | **Structural Completeness** | 30 | PROGRAM-ID / PROCEDURE paragraphs found; COPY + EXEC CICS/SQL + PERFORM inventoried; lift routeCount ≥ 1 |
 | **Documentation Quality** | 20 | Comment density / identification headers present on CLBS mini |
-| **Behavioral Fidelity** | 50 | GnuCOBOL vs emitted Python **per subject** (65 subjects incl. **histldrn**, **idxprobe**, **cardaccf**, **rptposrn**, **idxaltrn**, **cardschd**, **rptaurn**, **idxstrwr**, **rptstarn**, **prcseqrn**, **idxdelrn**, **idxaltrw**, **rtnanarn**, **bchctlrn**, **posupdrn**, **rcvprcrn**, **rtncdern**, **utlmntrn**, **utlvalrn**, **idxgtnrn**, **utlmonrn**, **tstvalrn**, **portvalrn**, **idxnlprn**, **utlmntls**, **tstgenrn**, **portaddrn**, **portupdrn**, **idxltprn**, **portdelrn**, **portreadrn**, **porttranrn**, **idxeqprn**, **portvaldn**, **idxngtrn**, **portmstrn**, **portcomrn**, **idxeqnrn**, **idxnlnrn**, **idxltnrn**, **idxngprn**, **ckprstdn**, **portfliodn**, **errhanddn**, **ckprstph**); Java/C# `EXPECTED:` tags; **plus** `cobol-pattern-emit` generated contracts; or skip with `behavioralSkipped: true` when no compiler |
+| **Behavioral Fidelity** | 50 | GnuCOBOL vs emitted Python **per subject** (68 subjects incl. **cbact04rn**, **cardtranrn**, **bankwdrwrn**, **histldrn**, **idxprobe**, **cardaccf**, **rptposrn**, **idxaltrn**, **cardschd**, **rptaurn**, **idxstrwr**, **rptstarn**, **prcseqrn**, **idxdelrn**, **idxaltrw**, **rtnanarn**, **bchctlrn**, **posupdrn**, **rcvprcrn**, **rtncdern**, **utlmntrn**, **utlvalrn**, **idxgtnrn**, **utlmonrn**, **tstvalrn**, **portvalrn**, **idxnlprn**, **utlmntls**, **tstgenrn**, **portaddrn**, **portupdrn**, **idxltprn**, **portdelrn**, **portreadrn**, **porttranrn**, **idxeqprn**, **portvaldn**, **idxngtrn**, **portmstrn**, **portcomrn**, **idxeqnrn**, **idxnlnrn**, **idxltnrn**, **idxngprn**, **ckprstdn**, **portfliodn**, **errhanddn**, **ckprstph**); Java/C# `EXPECTED:` tags; **plus** `cobol-pattern-emit` generated contracts; or skip with `behavioralSkipped: true` when no compiler |
 
 Overall score is reported; smoke **ok** requires structural+docs floors and either behavioral green **or** an honest toolchain skip (not a silent pass).
 
@@ -82,6 +82,9 @@ Overall score is reported; smoke **ok** requires structural+docs floors and eith
 | `rptposrn` | `batch/RPTPOSRN.cbl` | `405.75` | CLBS `RPTPOS00`-shaped position report — LINE SEQUENTIAL master + report (no INDEXED/COPY) |
 | `idxaltrn` | `batch/IDXALTRN.cbl` | `88.25` | **GnuCOBOL INDEXED + ALTERNATE KEY** (BDB) alt-key read — still ≠ mainframe VSAM |
 | `cardschd` | `batch/CARDSCHD.cbl` | `39.00` | CardDemo multi-tran fee schedule (`OCCURS` schedule × txs + `SEARCH` rate + `COMPUTE` sum) |
+| `cbact04rn` | `batch/CBACT04RN.cbl` | `1.25` | CardDemo CBACT04C monthly interest `(bal*rate)/1200` extract (**G10113**, no VSAM) |
+| `cardtranrn` | `batch/CARDTRANRN.cbl` | `2.50` | CardDemo type-01 purchase fee `EVALUATE` extract (**G10113**, no CICS) |
+| `bankwdrwrn` | `batch/BANKWDRWRN.cbl` | `155.00` | Rocket-bank withdrawal remaining extract (**G10113**) |
 | `rptaurn` | `batch/RPTAUDRN.cbl` | `85.75` | CLBS `RPTAUD00`-shaped audit report — LINE SEQUENTIAL audit+error + report (no INDEXED/COPY) |
 | `idxstrwr` | `batch/IDXSTRWR.cbl` | `82.50` | **GnuCOBOL INDEXED START + REWRITE** (BDB) — still ≠ mainframe VSAM |
 | `rptstarn` | `batch/RPTSTARN.cbl` | `71.75` | CLBS `RPTSTA00`-shaped stats report — LINE SEQUENTIAL DB2+batch metrics + report (no INDEXED/COPY) |

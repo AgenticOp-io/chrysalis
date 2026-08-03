@@ -10,13 +10,15 @@
  *   node scripts/lib/live-refresh-api-goldens.mjs --discover --firebase-demo-login
  *   node scripts/lib/live-refresh-api-goldens.mjs --bearer "$TOKEN" --tenant-id "$TID"
  *
- * Env: CHRYSALIS_HSS_BEARER, CHRYSALIS_HSS_TENANT_ID, CHRYSALIS_FIREBASE_API_KEY
+ * Env: CHRYSALIS_HSS_BEARER, CHRYSALIS_HSS_TENANT_ID, CHRYSALIS_FIREBASE_API_KEY,
+ *      CHRYSALIS_WISP_DEMO_EMAIL, CHRYSALIS_WISP_DEMO_PASSWORD
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { goldenFileName, listApiRouteSpecs } from "./cwl-api-oracle-contract.mjs";
 import { applyWispApiGoldenHandlers } from "../wisp-cwl-apply-api-golden-handlers.mjs";
+import { wispDemoEmail, wispDemoPassword } from "./wisp-demo-credentials.mjs";
 
 export const LIVE_REFRESH_API_GOLDENS_KIND = "chrysalis.wisp.live-refresh-api-goldens";
 
@@ -59,9 +61,10 @@ export async function firebaseDemoIdToken(opts = {}) {
       /* ignore */
     }
   }
-  const email = opts.email || process.env.CHRYSALIS_WISP_DEMO_EMAIL || "demo@wisptools.io";
-  const password = opts.password || process.env.CHRYSALIS_WISP_DEMO_PASSWORD || "WisptoolsDemo2026!";
+  const email = opts.email || wispDemoEmail();
+  const password = opts.password || wispDemoPassword({ required: false });
   if (!apiKey) return { ok: false, skip: "missing-firebase-api-key" };
+  if (!password) return { ok: false, skip: "missing-CHRYSALIS_WISP_DEMO_PASSWORD" };
   const res = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
     {

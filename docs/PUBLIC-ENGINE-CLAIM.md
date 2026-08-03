@@ -11,6 +11,8 @@ The Cursor Pilot Kit only works for buyers if they can **clone and run** without
 
 ## Checklist (before `gh repo edit --visibility public`)
 
+**Flip runbook:** [`GO-PUBLIC.md`](./GO-PUBLIC.md) (commands + history scrub + tag).
+
 Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md) (AgenticOps layout) plus:
 
 - [x] `LICENSE` is Apache-2.0; `package.json` / `COMMERCIAL.md` / README agree (**G10108**)  

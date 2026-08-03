@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { runWispCwlStaticExport } from "../wisp-cwl-static-export.mjs";
 import { countWispMarkupHoles } from "../wisp-hole-metrics-lib.mjs";
 import { enrichWispPilotTraces } from "../wisp-enrich-pilot-traces.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_FILL_HOLES_KIND = "chrysalis.hub.wisp-fill-holes";
 export const WISP_FILL_HOLES_SCHEMA_VERSION = 2;
@@ -16,7 +17,7 @@ function countHoles(cwlText) {
 export async function runWispFillHolesSmoke(opts = {}) {
   const root = resolve(opts.repoRoot ?? scriptRoot);
   const wisp = resolve(
-    opts.wispRoot ?? process.env.CHRYSALIS_WISP_ROOT ?? "C:/Users/david/Downloads/WISPTools/Module_Manager",
+    opts.wispRoot ?? resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT),
   );
   const fixture = join(root, "fixtures/hub-wisp-management");
   const fixtureCwl = join(fixture, "routes.cwl");

@@ -2,12 +2,11 @@
 /** WISP package UI lift smoke (G9410, D6366). */
 import { existsSync } from "node:fs";
 import { applyWispPackageUiLift } from "../wisp-cwl-package-ui-lift.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export async function runWispPackageUiLiftSmoke() {
   const wispRoot =
-    process.env.CHRYSALIS_WISP_ROOT ??
-    process.env.WISP_MODULE_DIR ??
-    "C:/Users/david/Downloads/WISPTools/Module_Manager";
+    resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 
   if (!existsSync(wispRoot)) {
     return {

@@ -16,6 +16,7 @@ import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ENTRY = join(ROOT, "scripts/wisp/wisp-cwl-arcgis-entry.mjs");
@@ -25,9 +26,7 @@ const OUT_CSS = join(OUT_DIR, "wisp-cwl-arcgis.bundle.css");
 
 const WISP_CANDIDATES = [
   process.env.CHRYSALIS_WISP_ROOT,
-  process.env.WISP_MODULE_DIR,
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
-  "C:/Users/david/Downloads/WISPTools/Module_Manager",
+  process.env.WISP_MODULE_DIR,
 ].filter(Boolean);
 
 function resolveWispRoot() {

@@ -11,6 +11,7 @@ import {
 } from "../wisp-cwl-gateway-config.mjs";
 import { prepareWispCwlDeployBundle, syncWispOriginalCssAssets } from "../wisp-cwl-pipeline.mjs";
 import { wispOriginalCssLink } from "../wisp-cwl-chimera-gateway.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_CWL_VISUAL_DEPTH_SMOKE_KIND = "chrysalis.wisp.cwl-visual-depth-smoke";
 
@@ -19,10 +20,11 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export function runWispCwlVisualDepthSmoke() {
   const config = loadWispPipelineConfig();
   const wispRoot = resolve(
-    process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      config.defaultWispRoot ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+    resolveWispModuleRoot(
+      process.env.CHRYSALIS_WISP_ROOT ??
+        process.env.WISP_MODULE_DIR ??
+        config.defaultWispRoot,
+    ),
   );
   const fixtureDir = join(scriptRoot, "fixtures/hub-wisp-management");
   const sync = syncWispOriginalCssAssets({ wispRoot, fixtureDir });

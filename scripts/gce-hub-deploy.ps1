@@ -14,13 +14,15 @@ param(
   [Parameter(Mandatory = $true)]
   [string] $Project,
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm",
+  [string] $Name = "",
   [switch] $TunnelThroughIap,
   [switch] $SkipLocalBuild,
   [switch] $SkipHubFinish
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $refresh = Join-Path $PSScriptRoot "gce-test-vm-refresh.ps1"
 

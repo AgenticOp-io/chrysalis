@@ -7,6 +7,7 @@
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot, resolveWispBackendRoot } from "./wisp-origin-paths.mjs";
 
 export const SYNC_API_PATHS_KIND = "chrysalis.wisp.sync-api-paths";
 
@@ -112,13 +113,8 @@ export function syncWispApiPathsFromBackend(opts = {}) {
   const backendRoot = resolve(
     opts.backendRoot ??
       process.env.CHRYSALIS_WISP_BACKEND ??
-      join(
-        process.env.CHRYSALIS_WISP_ROOT ??
-          process.env.WISP_MODULE_DIR ??
-          "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
-        "..",
-        "backend-services",
-      ),
+      process.env.CHRYSALIS_WISP_BACKEND_ROOT ??
+      resolveWispBackendRoot(),
   );
   const serverPath = join(backendRoot, "server.js");
   const manifestPath = resolve(opts.manifestPath ?? defaultManifest);

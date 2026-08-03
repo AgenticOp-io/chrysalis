@@ -68,6 +68,7 @@ $ErrorActionPreference = "Stop"
 $env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $tarball = $null
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
 
 function Invoke-Gcloud {
   param([string[]] $GcloudArgs)
@@ -106,6 +107,7 @@ $instanceExists = ($LASTEXITCODE -eq 0)
 $ErrorActionPreference = $prevEa
 if ($instanceExists) {
   if ($Recreate) {
+    Assert-ChrysalisGceInstanceDeletable -Name $Name -Zone $Zone -Project $Project
     Write-Host "Deleting existing instance $Name ..."
     Invoke-Gcloud -GcloudArgs @("compute", "instances", "delete", $Name, "--zone=$Zone", "--project=$Project", "--quiet")
   }

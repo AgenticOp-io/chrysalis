@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.hole-manifest",
   "schemaVersion": 1,
   "ok": true,
-  "previewPath": "C:\\Users\\david\\AgenticOps\\engines\\PHP_converter\\fixtures\\hub-wisp-management\\cwl-preview.json",
+  "previewPath": "fixtures/hub-wisp-management/cwl-preview.json",
   "routeCount": 87,
   "uiHoleCount": 0,
   "apiProxyRouteCount": 455,

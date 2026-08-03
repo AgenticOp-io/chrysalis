@@ -17,6 +17,7 @@ import {
   WISP_CLIENT_REDIRECT_ROUTES,
 } from "./cwl-apply-client-redirects.mjs";
 import { WISP_FORCE_MODULE_DEMO_PATHS } from "../wisp-cwl-module-demo-lib.mjs";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 export const WISP_PACKAGE_UI_LIFT_KIND = "chrysalis.wisp.package-ui-lift";
 export const WISP_PACKAGE_UI_LIFT_SCHEMA_VERSION = 1;
@@ -48,9 +49,7 @@ async function loadIngest() {
 export async function applyWispPackageUiLift(opts = {}) {
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const path = opts.routesPath ?? routesPath;
   if (!existsSync(path)) {

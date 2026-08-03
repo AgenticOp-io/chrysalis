@@ -12,6 +12,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 export const ORIGIN_COMPARE_KIND = "chrysalis.complete-conversion.origin-compare";
 export const ORIGIN_COMPARE_SCHEMA_VERSION = 1;
@@ -108,9 +109,7 @@ export async function runCompleteConversionOriginCompare(opts = {}) {
   );
   const originRoot = resolve(
     opts.originRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const skipLive =
     opts.skipLive === true ||

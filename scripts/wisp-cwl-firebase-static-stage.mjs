@@ -8,6 +8,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
 import { WISP_CHIMERA_STATIC_ASSETS, wrapWispCwlHtmlDocument } from "./wisp-cwl-chimera-gateway.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_CWL_FIREBASE_STATIC_STAGE_KIND = "chrysalis.wisp.firebase-static-stage";
 export const WISP_CWL_FIREBASE_STATIC_STAGE_SCHEMA_VERSION = 1;
@@ -47,10 +48,11 @@ export function stageWispCwlStaticExportClient(opts = {}) {
   const exportDir = resolve(opts.exportDir ?? resolveCwlStaticExportDir(config));
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      config.defaultWispRoot ??
-      "C:/Users/david/Downloads/WISPTools/Module_Manager",
+      resolveWispModuleRoot(
+        process.env.CHRYSALIS_WISP_ROOT ??
+          process.env.WISP_MODULE_DIR ??
+          config.defaultWispRoot,
+      ),
   );
   const clientDir = join(wispRoot, "build/client");
   const manifest = readCwlStaticExportManifest(exportDir);

@@ -18,6 +18,10 @@ import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import {
   inventoryBmsSource,
   inventoryCobolSource,
+  inventoryCsdSource,
+  inventoryDclgenSource,
+  crosswalkCsdPrograms,
+  crosswalkCsdMapsets,
   parseCobolRoutes,
   resolveCobolCopybooks,
 } from "./cobol-pattern-lift.mjs";
@@ -590,6 +594,30 @@ const BEHAVIORAL_SUBJECTS = [
     csharp: join(MINI, "batch/reference_emit_ckprstph.cs"),
     copyInclude: join(MINI, "copybook"),
   },
+  {
+    id: "cbact04rn",
+    cob: join(MINI, "batch/CBACT04RN.cbl"),
+    expected: join(MINI, "batch/expected-cbact04rn.txt"),
+    py: join(MINI, "batch/reference_emit_cbact04rn.py"),
+    java: join(MINI, "batch/reference_emit_cbact04rn.java"),
+    csharp: join(MINI, "batch/reference_emit_cbact04rn.cs"),
+  },
+  {
+    id: "cardtranrn",
+    cob: join(MINI, "batch/CARDTRANRN.cbl"),
+    expected: join(MINI, "batch/expected-cardtranrn.txt"),
+    py: join(MINI, "batch/reference_emit_cardtranrn.py"),
+    java: join(MINI, "batch/reference_emit_cardtranrn.java"),
+    csharp: join(MINI, "batch/reference_emit_cardtranrn.cs"),
+  },
+  {
+    id: "bankwdrwrn",
+    cob: join(MINI, "batch/BANKWDRWRN.cbl"),
+    expected: join(MINI, "batch/expected-bankwdrwrn.txt"),
+    py: join(MINI, "batch/reference_emit_bankwdrwrn.py"),
+    java: join(MINI, "batch/reference_emit_bankwdrwrn.java"),
+    csharp: join(MINI, "batch/reference_emit_bankwdrwrn.cs"),
+  },
 ];
 
 
@@ -970,6 +998,32 @@ export async function runCobolClbsProveSmoke() {
       cardInv.unresolved.includes("exec-cics"),
     reason: cardInv
       ? `cics=${cardInv.execCics} ops=${(cardInv.execCicsOps || []).join(",")} sections=${cardInv.sectionCount} routes=${cardRoutes.length} using=${cardInv.procedureUsing}`
+      : "missing-CARDONLN",
+  });
+
+  // G10112 — CICS control option catalogs on CARDONLN + INQONLN ENQ/DEQ (no region invent).
+  const inqOnlnPath = join(MINI, "online/INQONLN.cbl");
+  const inqOnlnSrc = existsSync(inqOnlnPath) ? readFileSync(inqOnlnPath, "utf8") : "";
+  const inqOnlnInv = inqOnlnSrc
+    ? inventoryCobolSource(inqOnlnSrc, "online/INQONLN.cbl")
+    : null;
+  checks.push({
+    id: "online-cics-control-option-catalog",
+    ok:
+      !!cardInv &&
+      (cardInv.cicsReturnTransids || []).includes("CB00") &&
+      (cardInv.cicsReturnOptions || []).includes("TRANSID") &&
+      (cardInv.cicsFormtimeOptions || []).includes("YYYYMMDD") &&
+      (cardInv.cicsAsktimeOptions || []).includes("ABSTIME") &&
+      (cardInv.cicsAbendAbcodes || []).includes("CDE1") &&
+      (cardInv.cicsGetmainOptions || []).includes("SET") &&
+      (cardInv.cicsInquireFiles || []).includes("ACCTDAT") &&
+      Number(cardInv.cicsSyncpoint) >= 1 &&
+      !!inqOnlnInv &&
+      (inqOnlnInv.cicsEnqResources || []).length >= 1 &&
+      (inqOnlnInv.cicsDeqResources || []).length >= 1,
+    reason: cardInv
+      ? `retTid=${(cardInv.cicsReturnTransids || []).join(",")} form=${(cardInv.cicsFormtimeOptions || []).join(",")} abend=${(cardInv.cicsAbendAbcodes || []).join(",")} enq=${(inqOnlnInv?.cicsEnqResources || []).join(",")}`
       : "missing-CARDONLN",
   });
 
@@ -1590,6 +1644,57 @@ export async function runCobolClbsProveSmoke() {
     reason: cardschdInv
       ? `occurs=${cardschdInv.occurs} search=${cardschdInv.search} computes=${cardschdInv.computes}`
       : "missing-CARDSCHD",
+  });
+
+  const cbact04rnPath = join(MINI, "batch/CBACT04RN.cbl");
+  const cbact04rnSrc = existsSync(cbact04rnPath) ? readFileSync(cbact04rnPath, "utf8") : "";
+  const cbact04rnInv = cbact04rnSrc
+    ? inventoryCobolSource(cbact04rnSrc, "batch/CBACT04RN.cbl")
+    : null;
+  checks.push({
+    id: "batch-cbact04rn-shape",
+    ok:
+      !!cbact04rnInv &&
+      cbact04rnInv.programIds.includes("CBACT04RN") &&
+      cbact04rnInv.computes >= 1 &&
+      /\/\s*1200/i.test(cbact04rnSrc),
+    reason: cbact04rnInv
+      ? `computes=${cbact04rnInv.computes} programIds=${cbact04rnInv.programIds.join(",")}`
+      : "missing-CBACT04RN",
+  });
+
+  const cardtranrnPath = join(MINI, "batch/CARDTRANRN.cbl");
+  const cardtranrnSrc = existsSync(cardtranrnPath) ? readFileSync(cardtranrnPath, "utf8") : "";
+  const cardtranrnInv = cardtranrnSrc
+    ? inventoryCobolSource(cardtranrnSrc, "batch/CARDTRANRN.cbl")
+    : null;
+  checks.push({
+    id: "batch-cardtranrn-shape",
+    ok:
+      !!cardtranrnInv &&
+      cardtranrnInv.programIds.includes("CARDTRANRN") &&
+      (cardtranrnInv.evaluateAny ?? 0) >= 1 &&
+      cardtranrnInv.computes >= 1,
+    reason: cardtranrnInv
+      ? `evaluateAny=${cardtranrnInv.evaluateAny} computes=${cardtranrnInv.computes}`
+      : "missing-CARDTRANRN",
+  });
+
+  const bankwdrwrnPath = join(MINI, "batch/BANKWDRWRN.cbl");
+  const bankwdrwrnSrc = existsSync(bankwdrwrnPath) ? readFileSync(bankwdrwrnPath, "utf8") : "";
+  const bankwdrwrnInv = bankwdrwrnSrc
+    ? inventoryCobolSource(bankwdrwrnSrc, "batch/BANKWDRWRN.cbl")
+    : null;
+  checks.push({
+    id: "batch-bankwdrwrn-shape",
+    ok:
+      !!bankwdrwrnInv &&
+      bankwdrwrnInv.programIds.includes("BANKWDRWRN") &&
+      bankwdrwrnInv.computes >= 1 &&
+      /\bWS-WDRW\s*<=\s*WS-BAL\b/i.test(bankwdrwrnSrc),
+    reason: bankwdrwrnInv
+      ? `computes=${bankwdrwrnInv.computes} programIds=${bankwdrwrnInv.programIds.join(",")}`
+      : "missing-BANKWDRWRN",
   });
 
   const rptaurnPath = join(MINI, "batch/RPTAUDRN.cbl");
@@ -2535,6 +2640,12 @@ export async function runCobolClbsProveSmoke() {
         "_upstream/COPAUS0C.cbl",
       )
     : null;
+  const copaus1cInv = existsSync(join(upstreamJclDir, "COPAUS1C.cbl"))
+    ? inventoryCobolSource(
+        readFileSync(join(upstreamJclDir, "COPAUS1C.cbl"), "utf8"),
+        "_upstream/COPAUS1C.cbl",
+      )
+    : null;
   const copaus2cInv = existsSync(join(upstreamJclDir, "COPAUS2C.cbl"))
     ? inventoryCobolSource(
         readFileSync(join(upstreamJclDir, "COPAUS2C.cbl"), "utf8"),
@@ -2593,6 +2704,101 @@ export async function runCobolClbsProveSmoke() {
       authCopyResolved.includes("AUTHFRDS") &&
       authCopyResolved.includes("IMSFUNCS"),
     reason: `present=${mediumPlusPresent.length}/${mediumPlusRequired.length} mqMissing=${mqMissing.join(",")} dliMissing=${dliMissing.join(",")} authCopyMissing=${authCopyMissing.join(",")} mq=${(coacct01Inv?.ibmMqCallOps || []).join(",")} dli=${(cbpaup0cInv?.execDliOps || []).join(",")} sql=${(copaus2cInv?.execSqlOps || []).join(",")}`,
+  });
+
+  // G10111 — CardDemo CSD + DCLGEN structural inventory (catalog only; no CICS/Db2 invent).
+  const crddemomCsd = existsSync(join(upstreamJclDir, "CRDDEMOM.csd"))
+    ? inventoryCsdSource(
+        readFileSync(join(upstreamJclDir, "CRDDEMOM.csd"), "utf8"),
+        "_upstream/CRDDEMOM.csd",
+      )
+    : null;
+  const crddemo2Csd = existsSync(join(upstreamJclDir, "CRDDEMO2.csd"))
+    ? inventoryCsdSource(
+        readFileSync(join(upstreamJclDir, "CRDDEMO2.csd"), "utf8"),
+        "_upstream/CRDDEMO2.csd",
+      )
+    : null;
+  const authfrdsDcl = existsSync(join(upstreamJclDir, "AUTHFRDS.dcl"))
+    ? inventoryDclgenSource(
+        readFileSync(join(upstreamJclDir, "AUTHFRDS.dcl"), "utf8"),
+        "_upstream/AUTHFRDS.dcl",
+      )
+    : existsSync(join(COPYBOOK_DIR, "AUTHFRDS.dcl"))
+      ? inventoryDclgenSource(
+          readFileSync(join(COPYBOOK_DIR, "AUTHFRDS.dcl"), "utf8"),
+          "copybook/AUTHFRDS.dcl",
+        )
+      : null;
+  const dcltrtyp = existsSync(join(upstreamJclDir, "DCLTRTYP.dcl"))
+    ? inventoryDclgenSource(
+        readFileSync(join(upstreamJclDir, "DCLTRTYP.dcl"), "utf8"),
+        "_upstream/DCLTRTYP.dcl",
+      )
+    : null;
+  const dcltrcat = existsSync(join(upstreamJclDir, "DCLTRCAT.dcl"))
+    ? inventoryDclgenSource(
+        readFileSync(join(upstreamJclDir, "DCLTRCAT.dcl"), "utf8"),
+        "_upstream/DCLTRCAT.dcl",
+      )
+    : null;
+  const csdPrograms = [
+    ...(crddemomCsd?.programs || []),
+    ...(crddemo2Csd?.programs || []),
+  ];
+  const csdMapsets = [
+    ...(crddemomCsd?.mapsets || []),
+    ...(crddemo2Csd?.mapsets || []),
+  ];
+  const upstreamProgramIds = [
+    ...(coacct01Inv?.programIds || []),
+    ...(codate01Inv?.programIds || []),
+    ...(copaua0cInv?.programIds || []),
+    ...(copaus0cInv?.programIds || []),
+    ...(copaus1cInv?.programIds || []),
+    ...(copaus2cInv?.programIds || []),
+    ...(cbpaup0cInv?.programIds || []),
+  ];
+  const csdProgXwalk = crosswalkCsdPrograms(csdPrograms, upstreamProgramIds);
+  /** @type {string[]} */
+  const bmsMapsetLabels = [];
+  for (const invB of upstreamBmsInventories) {
+    bmsMapsetLabels.push(...(invB.mapsets || []));
+  }
+  const csdMapXwalk = crosswalkCsdMapsets(csdMapsets, bmsMapsetLabels);
+  const crddemomLinks = (crddemomCsd?.transactionPrograms || []).map(
+    (l) => `${l.transaction}->${l.program}`,
+  );
+  checks.push({
+    id: "upstream-carddemo-csd-dclgen-inventory",
+    ok:
+      !!crddemomCsd &&
+      crddemomCsd.programs.includes("COACCT01") &&
+      crddemomCsd.programs.includes("CODATE01") &&
+      crddemomCsd.transactions.includes("CDRA") &&
+      crddemomCsd.transactions.includes("CDRD") &&
+      crddemomLinks.includes("CDRA->COACCT01") &&
+      crddemomLinks.includes("CDRD->CODATE01") &&
+      !!crddemo2Csd &&
+      crddemo2Csd.programs.includes("COPAUA0C") &&
+      crddemo2Csd.mapsets.includes("COPAU00") &&
+      crddemo2Csd.mapsets.includes("COPAU01") &&
+      (crddemo2Csd.db2Entries || []).length >= 1 &&
+      (crddemo2Csd.db2Trans || []).length >= 1 &&
+      csdProgXwalk.csdProgramMatched.includes("COACCT01") &&
+      csdProgXwalk.csdProgramMatched.includes("COPAUA0C") &&
+      csdProgXwalk.csdProgramHole.length === 0 &&
+      csdMapXwalk.csdMapsetMatched.includes("COPAU00") &&
+      !!authfrdsDcl &&
+      (authfrdsDcl.tables || []).some((t) => /AUTHFRDS$/.test(t)) &&
+      (authfrdsDcl.columns || []).includes("CARD_NUM") &&
+      (authfrdsDcl.columnCount || 0) >= 20 &&
+      !!dcltrtyp &&
+      (dcltrtyp.tables || []).some((t) => /TRANSACTION_TYPE$/.test(t)) &&
+      (dcltrtyp.columns || []).includes("TR_TYPE") &&
+      !!dcltrcat &&
+      (dcltrcat.columns || []).includes("TRC_TYPE_CATEGORY"),
+    reason: `csdProgMatch=${csdProgXwalk.csdProgramMatched.join(",")} csdProgHole=${csdProgXwalk.csdProgramHole.join(",")} mapMatch=${csdMapXwalk.csdMapsetMatched.join(",")} mapHole=${csdMapXwalk.csdMapsetHole.join(",")} authCols=${authfrdsDcl?.columnCount ?? 0} links=${crddemomLinks.join(",")}`,
   });
 
   // G10084 — Tier C AID/BMSCA symbol catalog from real CardDemo upstream.

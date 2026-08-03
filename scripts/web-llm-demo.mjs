@@ -66,7 +66,7 @@ async function main() {
   console.error("");
   console.error("POC hub:", summary.hubPath);
   if (summary.demoUrl) console.error("WISP demo:", summary.demoUrl);
-  console.error("Login: demo@wisptools.io / WisptoolsDemo2026!");
+  console.error("Login: demo@wisptools.io (password from env CHRYSALIS_WISP_DEMO_PASSWORD)");
   if (existsSync(summary.hubPath)) {
     console.error("Open the hub HTML file in a browser to review scenario results.");
   }

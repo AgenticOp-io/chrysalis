@@ -7,15 +7,14 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyPostG7790ScenarioMetadata, isWispNativeCutoverMode } from "./wisp-cwl-post-g7790.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_SCENARIO_INVENTORY_KIND = "chrysalis.wisp.scenario-inventory";
 export const WISP_SCENARIO_INVENTORY_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultRoot =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/Downloads/WISPTools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 const defaultOut = join(scriptRoot, "fixtures/hub-wisp-management/wisp-scenarios.v1.json");
 
 /** @param {string} dir */

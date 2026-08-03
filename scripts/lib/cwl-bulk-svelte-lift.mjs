@@ -9,6 +9,7 @@ import {
   WISP_FORBIDDEN_STUB_PATTERNS,
 } from "../wisp-cwl-ui-parity-lib.mjs";
 import { buildWispModuleDemoHtml } from "../wisp-cwl-module-demo-lib.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_BULK_LIFT_KIND = "chrysalis.wisp.bulk-lift";
 
@@ -22,9 +23,7 @@ export const WISP_BULK_LIFT_SKIP_PATHS = new Set([
 ]);
 
 const defaultWispRoot =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/Downloads/WISPTools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 
 /** @param {string} httpPath */
 export function titleFromHttpPath(httpPath) {

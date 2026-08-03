@@ -12,6 +12,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { runCwlHtmlTemplateHyphenGuardGate } from "./hub-cwl-html-template-hyphen-smoke.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_WHOLE_SITE_FINISH_KIND = "chrysalis.hub.wisp-whole-site-finish";
 export const WISP_WHOLE_SITE_FINISH_SCHEMA_VERSION = 1;
@@ -21,9 +22,7 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export async function runWispWholeSiteFinishSmoke(opts = {}) {
   const root = resolve(opts.repoRoot ?? scriptRoot);
   const wisp = resolve(
-    opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      "C:/Users/david/Downloads/WISPTools/Module_Manager",
+    opts.wispRoot ?? resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT),
   );
   const fixture = join(root, "fixtures/hub-wisp-management");
   const fixtureCwl = join(fixture, "routes.cwl");

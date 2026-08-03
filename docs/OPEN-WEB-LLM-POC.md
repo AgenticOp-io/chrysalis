@@ -16,7 +16,7 @@ This is not training or hosted inference — it is the **demo loop** sponsors an
 pnpm run web-llm:demo
 ```
 
-Open `reports/web-llm/poc/index.html`. WISP live demo: [http://34.61.255.147:19100](http://34.61.255.147:19100) (`demo@wisptools.io` / `WisptoolsDemo2026!`).
+Open `reports/web-llm/poc/index.html`. WISP live demo: [http://34.61.255.147:19100](http://34.61.255.147:19100) (`demo@wisptools.io`; password from env `CHRYSALIS_WISP_DEMO_PASSWORD` — do not commit passwords).
 
 Strict live GCE anchor probes (operator / post-deploy):
 

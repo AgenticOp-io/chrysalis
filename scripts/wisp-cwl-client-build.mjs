@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
 import { stageWispCwlStaticExportClient } from "./wisp-cwl-firebase-static-stage.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_CWL_CLIENT_BUILD_KIND = "chrysalis.wisp.client-build";
 export const WISP_CWL_CLIENT_BUILD_SCHEMA_VERSION = 1;
@@ -19,9 +20,7 @@ export const WISP_CWL_CLIENT_BUILD_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultRoot =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 
 /** @type {Record<WispDeployTarget, { npmScript: string, env: Record<string, string>, summary: string }>} */
 export const WISP_DEPLOY_TARGET_PROFILES = {

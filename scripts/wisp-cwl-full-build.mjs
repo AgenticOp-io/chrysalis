@@ -22,6 +22,7 @@ import { applyWispPhase31BulkLift } from "./wisp-cwl-apply-phase31-bulk-lift.mjs
 import { applyWispPhase30UiParity } from "./wisp-cwl-apply-phase30-ui-parity.mjs";
 import { applyWispPhase30bModuleParity } from "./wisp-cwl-apply-phase30b-module-parity.mjs";
 import { applyWispPhase32CompleteDemo } from "./wisp-cwl-apply-phase32-complete-demo.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_CWL_FULL_BUILD_KIND = "chrysalis.wisp-cwl-full-build";
 export const WISP_CWL_FULL_BUILD_SCHEMA_VERSION = 1;
@@ -37,9 +38,7 @@ function runBindShowcase() {
   });
 }
 const defaultRoot =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 
 function runNode(script, args = []) {
   const r = spawnSync(process.execPath, [join(scriptRoot, script), ...args], {

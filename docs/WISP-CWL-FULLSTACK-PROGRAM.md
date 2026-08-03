@@ -7,7 +7,7 @@
 > **Build:** **default CI showcase** (Phase 45, **D6336** supersedes **D6259** default-build bar) — see [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) · extended operator path: [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §1a  
 > **Queue:** **G6300–G6420** closed; **G6500–G6700** closed; **CWL language:** maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md)  
 > **Template app:** [AgenticOp-io/WISP-Management](https://github.com/AgenticOp-io/WISP-Management) `Module_Manager/`  
-> **Local path (operator):** `C:\Users\david\Downloads\WISPTools\Module_Manager`  
+> **Local path (operator):** `$REPO/../../products/wisptools/Module_Manager (or CHRYSALIS_WISP_MODULE_ROOT)`  
 > **Authority:** STRATEGIC-PLAN §13; **DESIGN D6192**, **D6205**
 
 WISP is the **showcase full-stack CWL migration** for the **Module_Manager UI layer**: SvelteKit → CWL + chimera gateway, with **existing backend APIs left as-is** (Express/MongoDB on `acs-hss-server`). Goal: demonstrate CWL surfaces on real WISP UI scenarios; **proxy** `/api/*` to the live backend — do not replatform the backend in this program unless explicitly amended later.

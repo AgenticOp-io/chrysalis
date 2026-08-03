@@ -90,7 +90,7 @@ export async function runWebLlmBuildPocHub(opts = {}) {
 
   <div class="demo-creds">
     <strong>WISP live demo</strong> — <a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">${escapeHtml(demoUrl)}</a><br />
-    Login: <code>demo@wisptools.io</code> / <code>WisptoolsDemo2026!</code>
+    Login: <code>demo@wisptools.io</code> — password from env <code>CHRYSALIS_WISP_DEMO_PASSWORD</code>
     ${liveStep?.skip ? `<br />Live probe: <span class="skip">${escapeHtml(liveStep.skip)}</span> (set <code>CHRYSALIS_WISP_POC_LIVE=1</code> for strict)` : ""}
   </div>
 

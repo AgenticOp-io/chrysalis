@@ -1,8 +1,19 @@
 # GCE test runner (default)
 
-**Run Chrysalis tests on `chrysalis-test-vm` (Linux), not on a laptop that may sleep.**
+**Run Chrysalis tests on the preferred GCE host (`agenticop-master`, IP `35.224.146.25`), not on a laptop that may sleep.**
+
+Override: **`CHRYSALIS_GCE_INSTANCE`**. Protect catalog: **`fixtures/ci/gce-protected-instances.json`** — never delete **`agenticop-master`** / **`fusion-lab`**.
+
+**Migrate onto master (bootstrap + staging copy):** `pnpm run gce:migrate:agenticop-master`
 
 Prerequisites: project **`chrysalis-dev-f5x6qv`** (or set **`CHRYSALIS_GCE_PROJECT`**).
+
+**DNS / money cutover (operator):** Public hub A records still point at legacy **`chrysalis-test-vm`** (`34.61.255.147`) until you cut over to **`agenticop-master`** (`35.224.146.25`).
+
+1. Hub smoke on master: `http://35.224.146.25:19090/` → **200** (already green after migrate).
+2. Flip DNS A for **`hub.agenticop.io`** + **`chrysalis.agenticop.io`** → `35.224.146.25`.
+3. TLS edge on master: `pnpm run deploy:hub-caddy-tls` (defaults to preferred host) — needs DNS first for HTTP-01. Master does **not** yet run the D6396 nginx/LE stack (hub is on `:19090` only).
+4. Smoke HTTPS on both hostnames, then **stop** (do **not** delete) **`chrysalis-test-vm`**. Never delete **`agenticop-master`** / **`fusion-lab`**.
 
 ### Permanent auth (recommended for agents / scripts)
 

@@ -322,7 +322,7 @@ Header comment allowed (match DFHAID style if present): trial / non-production /
 
 ### Track F — Local drop + prove (after each batch) — **no git add**
 
-Work from repo root: `C:\Users\david\AgenticOps\engines\PHP_converter`.
+Work from repo root: `$REPO` (Chrysalis / `engines/PHP_converter`).
 
 ### F.1 Confirm gitignore (do not force-add)
 

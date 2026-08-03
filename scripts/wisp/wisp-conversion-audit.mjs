@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_CONVERSION_AUDIT_KIND = "chrysalis.wisp-conversion-audit";
 export const WISP_CONVERSION_AUDIT_SCHEMA_VERSION = 1;
@@ -139,9 +140,7 @@ export function auditWispConversion(opts = {}) {
   const clientPath = resolve(opts.clientPath ?? join(fixtureDir, "wisp-cwl-client.js"));
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const routesSource = existsSync(routesPath) ? readFileSync(routesPath, "utf8") : "";
   const clientSource = existsSync(clientPath) ? readFileSync(clientPath, "utf8") : "";

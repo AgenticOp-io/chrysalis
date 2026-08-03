@@ -12,6 +12,7 @@ import { updatePieceStatuses } from "./source-corpus.mjs";
 import { replaceRouteHandlerBlock, routesPath as defaultRoutesPath } from "./cwl-apply-surfaces.mjs";
 import { sveltePagePathForRoute } from "./cwl-bulk-svelte-lift.mjs";
 import { buildWispModuleHtmlPageBlock, WISP_GCE_LOGIN_PROFILE } from "../wisp-cwl-ui-parity-lib.mjs";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 export const CONVERT_ALL_PIECES_KIND = "chrysalis.convert-all-pieces";
 export const CONVERT_ALL_PIECES_SCHEMA_VERSION = 1;
@@ -20,11 +21,10 @@ export const CONVERT_ALL_PIECES_GATE = "G9993";
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const defaultCorpusDir = join(scriptRoot, "reports/origin-corpus");
 
-/** Visible demo login credentials for the GCE test site (main/login page). */
+/** Visible demo login credentials panel for the GCE test site (main/login page). */
 function injectDemoCredentialsPanel(html, profile = WISP_GCE_LOGIN_PROFILE) {
   if (html.includes("demo-credentials-panel")) return html;
   const email = String(profile.demoEmail || "demo@wisptools.io");
-  const password = String(profile.demoPassword || "WisptoolsDemo2026!");
   const esc = (s) =>
     String(s)
       .replace(/&/g, "&amp;")
@@ -34,7 +34,7 @@ function injectDemoCredentialsPanel(html, profile = WISP_GCE_LOGIN_PROFILE) {
   const panel = `<div class="demo-credentials-panel" role="note">
         <p class="demo-credentials-title">Demo login</p>
         <p><strong>Email:</strong> ${esc(email)}</p>
-        <p><strong>Password:</strong> ${esc(password)}</p>
+        <p><strong>Password:</strong> set via env <code>CHRYSALIS_WISP_DEMO_PASSWORD</code> (operators only; not printed here)</p>
         <p class="demo-credentials-hint">Use these on the GCE test site. Firebase Auth on management.wisptools.io.</p>
       </div>`;
   let out = html;
@@ -53,10 +53,10 @@ function injectDemoCredentialsPanel(html, profile = WISP_GCE_LOGIN_PROFILE) {
       return `${a} value="${esc(email)}"${b}`;
     },
   );
-  // Surface password in the placeholder so it's visible even if CSS hides the panel.
+  // Mask password placeholder — never embed a real password in markup.
   out = out.replace(
     /(<input[^>]*\bid="password"[^>]*?\splaceholder=")([^"]*)(")/i,
-    `$1${esc(password)}$3`,
+    `$1••••••••$3`,
   );
   return out;
 }
@@ -152,9 +152,7 @@ function structuralInlineSet(sources, moduleName, base, pageSource) {
 export async function convertAllOriginPieces(opts = {}) {
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const routesPath = opts.routesPath ?? defaultRoutesPath;
   const apiProxyPath = opts.apiProxyPath ?? join(scriptRoot, "fixtures/hub-wisp-management/api-proxy.cwl");

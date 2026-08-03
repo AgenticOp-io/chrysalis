@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 /** @param {RegExp[]} patterns */
 export function htmlContainsForbiddenStub(html, patterns = WISP_FORBIDDEN_STUB_PATTERNS) {
@@ -33,17 +34,7 @@ const parityLibRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** @returns {string} */
 function resolveWispRootForParity() {
-  for (const key of ["CHRYSALIS_WISP_ROOT", "WISP_MODULE_DIR"]) {
-    const v = process.env[key];
-    if (v && existsSync(resolve(v))) return resolve(v);
-  }
-  for (const c of [
-    "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
-    "C:/Users/david/Downloads/WISPTools/Module_Manager",
-  ]) {
-    if (existsSync(c)) return resolve(c);
-  }
-  return resolve("C:/Users/david/AgenticOps/products/wisptools/Module_Manager");
+  return resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 }
 
 /**
@@ -138,11 +129,12 @@ export function wispUiAnchorSpecs() {
 export const WISP_UI_PARITY_KIND = "chrysalis.wisp.ui-parity";
 export const WISP_UI_PARITY_SCHEMA_VERSION = 1;
 
-/** GCE / Firebase showcase login profile (Module_Manager single-use defaults). */
+/** GCE / Firebase showcase login profile (public email; password from operator env). */
 export const WISP_GCE_LOGIN_PROFILE = {
   title: "WISP Management",
   demoEmail: "demo@wisptools.io",
-  demoPassword: "WisptoolsDemo2026!",
+  /** Empty in-repo — operators set CHRYSALIS_WISP_DEMO_PASSWORD (never commit). */
+  demoPassword: "",
   firebaseProject: "wisptools-production",
 };
 
@@ -245,7 +237,7 @@ export function buildWispLoginParityHtml(profile = WISP_GCE_LOGIN_PROFILE) {
       <div class="demo-credentials-panel" role="note">
         <p class="demo-credentials-title">Demo login</p>
         <p><strong>Email:</strong> ${esc(profile.demoEmail)}</p>
-        <p><strong>Password:</strong> ${esc(profile.demoPassword)}</p>
+        <p><strong>Password:</strong> set via env <code>CHRYSALIS_WISP_DEMO_PASSWORD</code> (operators only; not printed here)</p>
         <p class="demo-credentials-hint">On management.wisptools.io uses Firebase Auth; on the GCE demo uses native CWL session.</p>
       </div>
       <p class="subtitle">Use your email and password to access ${esc(profile.title)}.</p>

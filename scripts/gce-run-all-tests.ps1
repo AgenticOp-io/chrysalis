@@ -15,7 +15,7 @@
 param(
   [string] $Project = $(if ($env:CHRYSALIS_GCE_PROJECT) { $env:CHRYSALIS_GCE_PROJECT } else { "chrysalis-dev-f5x6qv" }),
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm",
+  [string] $Name = "",
   [switch] $Detach,
   [switch] $SkipRefresh,
   [switch] $Status,
@@ -28,6 +28,8 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
 $VmName = $Name
 $sshExtra = @()

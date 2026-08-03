@@ -38,6 +38,7 @@ param(
 $ErrorActionPreference = "Stop"
 $env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
 . (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
 
@@ -299,6 +300,7 @@ if ($Create) {
   $existing = Get-InstanceStatus
   if ($existing -ne "NOT_FOUND") {
     if ($Recreate) {
+      Assert-ChrysalisGceInstanceDeletable -Name $Name -Zone $Zone -Project $Project
       Write-Host "Deleting existing $Name ..."
       Invoke-Gcloud -GcloudArgs @("compute", "instances", "delete", $Name, "--zone=$Zone", "--project=$Project", "--quiet")
     } else {
@@ -361,6 +363,7 @@ if ($Stop) {
 }
 
 if ($Delete) {
+  Assert-ChrysalisGceInstanceDeletable -Name $Name -Zone $Zone -Project $Project
   Invoke-Gcloud -GcloudArgs @("compute", "instances", "delete", $Name, "--zone=$Zone", "--project=$Project", "--quiet")
   exit 0
 }

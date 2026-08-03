@@ -91,6 +91,31 @@ export function lowerCobolEmitPatternWebIr(ctx, pattern, expected, loc) {
         provenance: prov("mul"),
       }),
     );
+  } else if (pattern.kind === "monthly-interest") {
+    for (const key of ["bal", "rate", "divisor", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+  } else if (pattern.kind === "bank-withdraw") {
+    for (const key of ["bal", "wdrw", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
+  } else if (pattern.kind === "card-tran-type-fee") {
+    if (m.trnType != null) {
+      stmts.push(
+        data.literal({
+          value: String(m.trnType),
+          type: HUB_T.string,
+          origin,
+          provenance: prov("trn-type"),
+        }),
+      );
+    }
+    for (const key of ["amt", "rate", "result"]) {
+      const v = m[key];
+      if (typeof v === "number") stmts.push(numLit(v));
+    }
   } else if (
     pattern.kind === "truncate-div" &&
     typeof m.a === "number" &&

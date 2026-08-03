@@ -31,6 +31,7 @@ import { applyWispPhase30bModuleParity } from "./wisp-cwl-apply-phase30b-module-
 import { applyWispPhase32CompleteDemo } from "./wisp-cwl-apply-phase32-complete-demo.mjs";
 import { inspectRoutesCwlIntegrity } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { isWispFullSiteProgramClosed } from "./wisp-cwl-post-g7790.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 import {
   loadWispPipelineConfig,
   patchOperatorGceDeployPipelineConfig,
@@ -116,7 +117,7 @@ export function resolveWispRoot(config) {
   for (const key of config.wispRootEnv ?? ["CHRYSALIS_WISP_ROOT", "WISP_MODULE_DIR"]) {
     if (process.env[key]) return resolve(process.env[key]);
   }
-  return resolve(config.defaultWispRoot ?? "C:/Users/david/AgenticOps/products/wisptools/Module_Manager");
+  return resolve(config.defaultWispRoot || resolveWispModuleRoot());
 }
 
 /**

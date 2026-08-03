@@ -23,6 +23,15 @@ const FORBIDDEN_CONTENT = [
   { id: "private-key-block", re: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/ },
   { id: "google-sa-type", re: /"type"\s*:\s*"service_account"/ },
   { id: "aws-akia", re: /\bAKIA[0-9A-Z]{16}\b/ },
+  // Burned WISP demo passwords formerly committed — must never return to tip.
+  // Built from parts so this smoke file does not contain the contiguous literals.
+  { id: "wisp-demo-password-literal", re: new RegExp(["Wisptools", "Demo", "2026!"].join("")) },
+  { id: "wisp-admin-password-literal", re: new RegExp(["Wisptools", "Admin", "2026!"].join("")) },
+  // Developer machine absolute paths — use wisp-origin-paths / env instead
+  {
+    id: "users-david-agenticops-path",
+    re: new RegExp(["Users", "[/\\\\]", "david", "[/\\\\]", "AgenticOps"].join(""), "i"),
+  },
 ];
 
 const SKIP_DIR = new Set([

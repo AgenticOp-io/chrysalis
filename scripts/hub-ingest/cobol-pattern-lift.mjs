@@ -477,6 +477,49 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   // G10106 — CICS INTO/FROM data areas.
   if (inv?.cicsIntoAreas?.length) attrs.cicsIntoAreas = [...inv.cicsIntoAreas];
   if (inv?.cicsFromAreas?.length) attrs.cicsFromAreas = [...inv.cicsFromAreas];
+  // G10112 — CICS control / time / storage / sync option catalogs.
+  if (inv?.cicsReturnTransids?.length) {
+    attrs.cicsReturnTransids = [...inv.cicsReturnTransids];
+  }
+  if (inv?.cicsReturnOptions?.length) {
+    attrs.cicsReturnOptions = [...inv.cicsReturnOptions];
+  }
+  if (inv?.cicsFormtimeOptions?.length) {
+    attrs.cicsFormtimeOptions = [...inv.cicsFormtimeOptions];
+  }
+  if (inv?.cicsAsktimeOptions?.length) {
+    attrs.cicsAsktimeOptions = [...inv.cicsAsktimeOptions];
+  }
+  if (inv?.cicsAbendAbcodes?.length) {
+    attrs.cicsAbendAbcodes = [...inv.cicsAbendAbcodes];
+  }
+  if (inv?.cicsGetmainOptions?.length) {
+    attrs.cicsGetmainOptions = [...inv.cicsGetmainOptions];
+  }
+  if (inv?.cicsFreemainOptions?.length) {
+    attrs.cicsFreemainOptions = [...inv.cicsFreemainOptions];
+  }
+  if (inv?.cicsDelayOptions?.length) {
+    attrs.cicsDelayOptions = [...inv.cicsDelayOptions];
+  }
+  if (inv?.cicsInquireFiles?.length) {
+    attrs.cicsInquireFiles = [...inv.cicsInquireFiles];
+  }
+  if (inv?.cicsRetrieveInto?.length) {
+    attrs.cicsRetrieveInto = [...inv.cicsRetrieveInto];
+  }
+  if (inv?.cicsEnqResources?.length) {
+    attrs.cicsEnqResources = [...inv.cicsEnqResources];
+  }
+  if (inv?.cicsDeqResources?.length) {
+    attrs.cicsDeqResources = [...inv.cicsDeqResources];
+  }
+  if (typeof inv?.cicsSyncpoint === "number" && inv.cicsSyncpoint > 0) {
+    attrs.cicsSyncpoint = inv.cicsSyncpoint;
+  }
+  if (typeof inv?.cicsReturnOps === "number" && inv.cicsReturnOps > 0) {
+    attrs.cicsReturnOps = inv.cicsReturnOps;
+  }
   if (typeof inv?.stringOps === "number" && inv.stringOps > 0) attrs.stringOps = inv.stringOps;
   if (typeof inv?.unstringOps === "number" && inv.unstringOps > 0) {
     attrs.unstringOps = inv.unstringOps;
@@ -650,6 +693,7 @@ export function inventoryCobolSource(source, file = "") {
   const cicsEibSymbols = parseCicsEibSymbols(code);
   const procedureDataCatalog = parseCobolProcedureDataCatalog(code);
   const cicsIntoFrom = parseExecCicsIntoFrom(code);
+  const cicsControl = parseExecCicsControlCatalog(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
   const fileIo = (code.match(READ_WRITE_RE) || []).length;
   const organizationIndexed = (code.match(ORGANIZATION_INDEXED_RE) || []).length;
@@ -740,6 +784,20 @@ export function inventoryCobolSource(source, file = "") {
     usageTokens: procedureDataCatalog.usageTokens,
     cicsIntoAreas: cicsIntoFrom.into,
     cicsFromAreas: cicsIntoFrom.from,
+    cicsReturnTransids: cicsControl.returnTransids,
+    cicsReturnOptions: cicsControl.returnOptions,
+    cicsFormtimeOptions: cicsControl.formtimeOptions,
+    cicsAsktimeOptions: cicsControl.asktimeOptions,
+    cicsAbendAbcodes: cicsControl.abendAbcodes,
+    cicsGetmainOptions: cicsControl.getmainOptions,
+    cicsFreemainOptions: cicsControl.freemainOptions,
+    cicsDelayOptions: cicsControl.delayOptions,
+    cicsInquireFiles: cicsControl.inquireFiles,
+    cicsRetrieveInto: cicsControl.retrieveInto,
+    cicsEnqResources: cicsControl.enqResources,
+    cicsDeqResources: cicsControl.deqResources,
+    cicsSyncpoint: cicsControl.syncpoint,
+    cicsReturnOps: cicsControl.returnOps,
     respClauses,
     execSql,
     execSqlOps,
@@ -1322,6 +1380,146 @@ export function parseExecCicsIntoFrom(source) {
   return {
     into: [...new Set(into)].sort(),
     from: [...new Set(from)].sort(),
+  };
+}
+
+/**
+ * CICS control / time / storage / sync option catalogs (G10112).
+ * RETURN TRANSID + options, FORMATTIME/ASKTIME options, SYNCPOINT, ABEND ABCODE,
+ * GETMAIN/FREEMAIN/DELAY options, INQUIRE FILE, RETRIEVE INTO, ENQ/DEQ RESOURCE.
+ * Catalog only — no CICS region invent.
+ *
+ * @param {string} source
+ */
+export function parseExecCicsControlCatalog(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const returnTransids = [];
+  /** @type {string[]} */
+  const returnOptions = [];
+  /** @type {string[]} */
+  const formtimeOptions = [];
+  /** @type {string[]} */
+  const asktimeOptions = [];
+  /** @type {string[]} */
+  const abendAbcodes = [];
+  /** @type {string[]} */
+  const getmainOptions = [];
+  /** @type {string[]} */
+  const freemainOptions = [];
+  /** @type {string[]} */
+  const delayOptions = [];
+  /** @type {string[]} */
+  const inquireFiles = [];
+  /** @type {string[]} */
+  const retrieveInto = [];
+  /** @type {string[]} */
+  const enqResources = [];
+  /** @type {string[]} */
+  const deqResources = [];
+  let syncpoint = 0;
+  let returnOps = 0;
+
+  /**
+   * @param {string} after
+   * @param {string[]} into
+   */
+  function pushParenOptions(after, into) {
+    const optRe = /\b([A-Z][A-Z0-9-]*)\s*\(/g;
+    let p;
+    while ((p = optRe.exec(after)) !== null) {
+      const name = String(p[1]).toUpperCase();
+      if (name === "RESP" || name === "RESP2") continue;
+      into.push(name);
+    }
+  }
+
+  EXEC_CICS_BLOCK_RE.lastIndex = 0;
+  let m;
+  while ((m = EXEC_CICS_BLOCK_RE.exec(code)) !== null) {
+    const body = normalizeExecCicsBody(m[1]);
+    if (!body) continue;
+
+    if (/^RETURN\b/.test(body)) {
+      returnOps += 1;
+      const after = body.replace(/^RETURN\b/, "").trim();
+      pushParenOptions(after, returnOptions);
+      const tidRe = /\bTRANSID\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/g;
+      let t;
+      while ((t = tidRe.exec(body)) !== null) {
+        const id = (t[1] || t[2] || "").toUpperCase();
+        if (id) returnTransids.push(id);
+      }
+    } else if (/^FORMATTIME\b/.test(body)) {
+      const after = body.replace(/^FORMATTIME\b/, "").trim();
+      pushParenOptions(after, formtimeOptions);
+      if (/\bTIMESEP\b/.test(after) && !/\bTIMESEP\s*\(/.test(after)) {
+        formtimeOptions.push("TIMESEP");
+      }
+    } else if (/^ASKTIME\b/.test(body)) {
+      pushParenOptions(body.replace(/^ASKTIME\b/, "").trim(), asktimeOptions);
+    } else if (/^SYNCPOINT\b/.test(body)) {
+      syncpoint += 1;
+    } else if (/^ABEND\b/.test(body)) {
+      const abRe = /\bABCODE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/g;
+      let a;
+      while ((a = abRe.exec(body)) !== null) {
+        const codeLit = (a[1] || a[2] || "").toUpperCase();
+        if (codeLit) abendAbcodes.push(codeLit);
+      }
+    } else if (/^GETMAIN\b/.test(body)) {
+      pushParenOptions(body.replace(/^GETMAIN\b/, "").trim(), getmainOptions);
+    } else if (/^FREEMAIN\b/.test(body)) {
+      pushParenOptions(body.replace(/^FREEMAIN\b/, "").trim(), freemainOptions);
+    } else if (/^DELAY\b/.test(body)) {
+      pushParenOptions(body.replace(/^DELAY\b/, "").trim(), delayOptions);
+    } else if (/^INQUIRE\b/.test(body)) {
+      const fileRe = /\bFILE\s*\(\s*(?:'([^']+)'|"([^"]+)")\s*\)/g;
+      let f;
+      while ((f = fileRe.exec(body)) !== null) {
+        const name = (f[1] || f[2] || "").toUpperCase();
+        if (name) inquireFiles.push(name);
+      }
+    } else if (/^RETRIEVE\b/.test(body)) {
+      const intoRe = /\bINTO\s*\(\s*([A-Z][A-Z0-9-]*)/g;
+      let p;
+      while ((p = intoRe.exec(body)) !== null) {
+        if (p[1]) retrieveInto.push(String(p[1]).toUpperCase());
+      }
+    } else if (/^ENQ\b/.test(body)) {
+      const resRe =
+        /\bRESOURCE\s*\(\s*(?:'([^']+)'|"([^"]+)"|([A-Z][A-Z0-9-]*))/g;
+      let r;
+      while ((r = resRe.exec(body)) !== null) {
+        const name = (r[1] || r[2] || r[3] || "").toUpperCase();
+        if (name) enqResources.push(name);
+      }
+    } else if (/^DEQ\b/.test(body)) {
+      const resRe =
+        /\bRESOURCE\s*\(\s*(?:'([^']+)'|"([^"]+)"|([A-Z][A-Z0-9-]*))/g;
+      let r;
+      while ((r = resRe.exec(body)) !== null) {
+        const name = (r[1] || r[2] || r[3] || "").toUpperCase();
+        if (name) deqResources.push(name);
+      }
+    }
+  }
+
+  return {
+    returnTransids: [...new Set(returnTransids)].sort(),
+    returnOptions: [...new Set(returnOptions)].sort(),
+    formtimeOptions: [...new Set(formtimeOptions)].sort(),
+    asktimeOptions: [...new Set(asktimeOptions)].sort(),
+    abendAbcodes: [...new Set(abendAbcodes)].sort(),
+    getmainOptions: [...new Set(getmainOptions)].sort(),
+    freemainOptions: [...new Set(freemainOptions)].sort(),
+    delayOptions: [...new Set(delayOptions)].sort(),
+    inquireFiles: [...new Set(inquireFiles)].sort(),
+    retrieveInto: [...new Set(retrieveInto)].sort(),
+    enqResources: [...new Set(enqResources)].sort(),
+    deqResources: [...new Set(deqResources)].sort(),
+    syncpoint,
+    returnOps,
   };
 }
 
@@ -2007,6 +2205,216 @@ export function inventoryBmsSource(source, file = "") {
     withAttrb,
     withInitial,
     withColor,
+  };
+}
+
+/**
+ * Inventory CICS CSD DEFINE text (structural only — no region invent).
+ * CardDemo CRDDEMO*.csd: PROGRAM / TRANSACTION / MAPSET / LIBRARY / DB2ENTRY / DB2TRAN.
+ *
+ * @param {string} source
+ * @param {string} [file]
+ */
+export function inventoryCsdSource(source, file = "") {
+  const code = String(source || "").replace(/\r\n/g, "\n");
+  /** @type {string[]} */
+  const programs = [];
+  /** @type {string[]} */
+  const transactions = [];
+  /** @type {string[]} */
+  const mapsets = [];
+  /** @type {string[]} */
+  const libraries = [];
+  /** @type {string[]} */
+  const db2Entries = [];
+  /** @type {string[]} */
+  const db2Trans = [];
+  /** @type {string[]} */
+  const files = [];
+  /** @type {string[]} */
+  const groups = [];
+  /** @type {{ transaction: string, program: string }[]} */
+  const transactionPrograms = [];
+  /** @type {{ program: string, transid: string }[]} */
+  const programTransids = [];
+
+  const defineRe =
+    /DEFINE\s+([A-Z0-9]+)\(([^)]+)\)([\s\S]*?)(?=DEFINE\s+[A-Z0-9]+\(|$)/gi;
+  let m;
+  defineRe.lastIndex = 0;
+  while ((m = defineRe.exec(code)) !== null) {
+    const kind = String(m[1] || "").toUpperCase();
+    const name = String(m[2] || "")
+      .trim()
+      .toUpperCase();
+    const body = String(m[3] || "");
+    const groupM = /\bGROUP\s*\(\s*([^)\s]+)\s*\)/i.exec(body);
+    if (groupM?.[1]) groups.push(groupM[1].toUpperCase());
+    if (!name) continue;
+    if (kind === "PROGRAM") {
+      programs.push(name);
+      const tid = /\bTRANSID\s*\(\s*([^)\s]+)\s*\)/i.exec(body);
+      if (tid?.[1]) {
+        programTransids.push({
+          program: name,
+          transid: tid[1].toUpperCase(),
+        });
+      }
+    } else if (kind === "TRANSACTION") {
+      transactions.push(name);
+      const prog = /\bPROGRAM\s*\(\s*([^)\s]+)\s*\)/i.exec(body);
+      if (prog?.[1]) {
+        transactionPrograms.push({
+          transaction: name,
+          program: prog[1].toUpperCase(),
+        });
+      }
+    } else if (kind === "MAPSET") {
+      mapsets.push(name);
+    } else if (kind === "LIBRARY") {
+      libraries.push(name);
+    } else if (kind === "DB2ENTRY") {
+      db2Entries.push(name);
+    } else if (kind === "DB2TRAN") {
+      db2Trans.push(name);
+    } else if (kind === "FILE") {
+      files.push(name);
+    }
+  }
+
+  return {
+    file,
+    programs: [...new Set(programs)],
+    transactions: [...new Set(transactions)],
+    mapsets: [...new Set(mapsets)],
+    libraries: [...new Set(libraries)],
+    db2Entries: [...new Set(db2Entries)],
+    db2Trans: [...new Set(db2Trans)],
+    files: [...new Set(files)],
+    groups: [...new Set(groups)],
+    transactionPrograms,
+    programTransids,
+    defineCount:
+      programs.length +
+      transactions.length +
+      mapsets.length +
+      libraries.length +
+      db2Entries.length +
+      db2Trans.length +
+      files.length,
+  };
+}
+
+/**
+ * Inventory Db2 DCLGEN / DECLARE TABLE copybooks (structural — no Db2 connect).
+ *
+ * @param {string} source
+ * @param {string} [file]
+ */
+export function inventoryDclgenSource(source, file = "") {
+  const code = String(source || "").replace(/\r\n/g, "\n");
+  /** @type {string[]} */
+  const tables = [];
+  /** @type {string[]} */
+  const columns = [];
+  /** @type {string[]} */
+  const cobolGroups = [];
+  /** @type {{ table: string, columns: string[] }[]} */
+  const tableColumns = [];
+
+  const declRe =
+    /DECLARE\s+([A-Z0-9_.]+)\s+TABLE\s*\(([\s\S]*?)\)\s*END-EXEC/gi;
+  let m;
+  declRe.lastIndex = 0;
+  while ((m = declRe.exec(code)) !== null) {
+    const table = String(m[1] || "")
+      .trim()
+      .toUpperCase();
+    const body = String(m[2] || "");
+    if (table) tables.push(table);
+    /** @type {string[]} */
+    const cols = [];
+    // Split on commas that separate column defs (ignore commas inside DECIMAL(p, s)).
+    const parts = [];
+    let cur = "";
+    let depth = 0;
+    for (const ch of body) {
+      if (ch === "(") depth += 1;
+      else if (ch === ")") depth = Math.max(0, depth - 1);
+      if (ch === "," && depth === 0) {
+        parts.push(cur);
+        cur = "";
+        continue;
+      }
+      cur += ch;
+    }
+    if (cur.trim()) parts.push(cur);
+    for (const part of parts) {
+      const colM =
+        /^\s*([A-Z][A-Z0-9_]*)\s+(CHAR|VARCHAR|DECIMAL|SMALLINT|INTEGER|INT|DATE|TIMESTAMP|BIGINT|FLOAT|REAL|DOUBLE|GRAPHIC|VARGRAPHIC|BLOB|CLOB|DBCLOB)\b/i.exec(
+          part,
+        );
+      if (colM?.[1]) {
+        const col = colM[1].toUpperCase();
+        cols.push(col);
+        columns.push(col);
+      }
+    }
+    if (table) tableColumns.push({ table, columns: [...new Set(cols)] });
+  }
+
+  const groupRe = /^\s*01\s+([A-Z0-9][A-Z0-9-]*)\s*\./gim;
+  groupRe.lastIndex = 0;
+  while ((m = groupRe.exec(code)) !== null) {
+    if (m[1]) cobolGroups.push(m[1].toUpperCase());
+  }
+
+  return {
+    file,
+    tables: [...new Set(tables)],
+    columns: [...new Set(columns)],
+    cobolGroups: [...new Set(cobolGroups)],
+    tableColumns,
+    tableCount: tables.length,
+    columnCount: columns.length,
+  };
+}
+
+/**
+ * Crosswalk CSD PROGRAM names ↔ COBOL PROGRAM-ID inventory.
+ *
+ * @param {string[]} csdPrograms
+ * @param {string[]} programIds
+ */
+export function crosswalkCsdPrograms(csdPrograms, programIds) {
+  const idSet = new Set(
+    [...(programIds || [])].map((p) => String(p).toUpperCase()),
+  );
+  const programs = [
+    ...new Set([...(csdPrograms || [])].map((p) => String(p).toUpperCase())),
+  ];
+  return {
+    csdProgramMatched: programs.filter((p) => idSet.has(p)).sort(),
+    csdProgramHole: programs.filter((p) => !idSet.has(p)).sort(),
+  };
+}
+
+/**
+ * Crosswalk CSD MAPSET names ↔ BMS DFHMSD labels.
+ *
+ * @param {string[]} csdMapsets
+ * @param {string[]} bmsMapsets
+ */
+export function crosswalkCsdMapsets(csdMapsets, bmsMapsets) {
+  const bmsSet = new Set(
+    [...(bmsMapsets || [])].map((m) => String(m).toUpperCase()),
+  );
+  const mapsets = [
+    ...new Set([...(csdMapsets || [])].map((m) => String(m).toUpperCase())),
+  ];
+  return {
+    csdMapsetMatched: mapsets.filter((m) => bmsSet.has(m)).sort(),
+    csdMapsetHole: mapsets.filter((m) => !bmsSet.has(m)).sort(),
   };
 }
 

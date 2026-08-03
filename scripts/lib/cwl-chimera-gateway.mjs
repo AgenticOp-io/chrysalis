@@ -8,6 +8,7 @@ import { dirname, join, resolve, basename, extname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadWispPipelineConfig } from "./cwl-gateway-config.mjs";
 import { resolveWispPreviewSession } from "../wisp-cwl-post-g7790.mjs";
+import { wispDemoEmail, wispDemoPassword } from "./wisp-demo-credentials.mjs";
 
 export const WISP_CHIMERA_GATEWAY_KIND = "chrysalis.wisp.chimera-gateway";
 export const WISP_CHIMERA_GATEWAY_SCHEMA_VERSION = 1;
@@ -394,13 +395,14 @@ function loadWispFirebaseClientConfig() {
 export function createWispLiveApiAuth() {
   const cfg = loadWispFirebaseClientConfig();
   const apiKey = process.env.CHRYSALIS_FIREBASE_API_KEY || cfg?.apiKey || "";
-  const email = process.env.CHRYSALIS_WISP_DEMO_EMAIL || "demo@wisptools.io";
-  const password = process.env.CHRYSALIS_WISP_DEMO_PASSWORD || "WisptoolsDemo2026!";
+  const email = wispDemoEmail();
+  const password = wispDemoPassword({ required: false });
   const tenantId = process.env.CHRYSALIS_HSS_TENANT_ID || cfg?.defaultTenantId || "";
   let cached = { token: "", exp: 0 };
   /** @type {Promise<string> | null} */
   let pending = null;
   async function login() {
+    if (!password) throw new Error("missing-CHRYSALIS_WISP_DEMO_PASSWORD");
     const res = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
       {
@@ -417,7 +419,7 @@ export function createWispLiveApiAuth() {
     return cached.token;
   }
   return {
-    enabled: Boolean(apiKey),
+    enabled: Boolean(apiKey && password),
     tenantId,
     email,
     /** @param {boolean} [force] refresh even if a cached token remains valid */

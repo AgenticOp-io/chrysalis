@@ -1,6 +1,7 @@
 /**
  * COBOL origin inventory adapter (G10089).
- * Detects PROGRAM-ID / .cbl|.cob|.cpy|.bms trees; inventories via inventoryCobolSource
+ * Detects PROGRAM-ID / .cbl|.cob|.cpy|.bms|.csd|.dcl trees; inventories via
+ * inventoryCobolSource / inventoryBmsSource / inventoryCsdSource / inventoryDclgenSource
  * so site-inventory Step 1 matches hub COBOL hole catalogs (D6448 inventory-first).
  * Does not invent DFHAID/DFHBMSCA/EXTFMAP/CMQ* or Db2/IMS/MQ/CICS runtimes.
  */
@@ -9,6 +10,8 @@ import { extname, join } from "node:path";
 import {
   inventoryBmsSource,
   inventoryCobolSource,
+  inventoryCsdSource,
+  inventoryDclgenSource,
   isProprietaryCobolCopybook,
   resolveCobolCopybooks,
 } from "../../hub-ingest/cobol-pattern-lift.mjs";
@@ -23,13 +26,15 @@ import {
 
 export const name = "cobol";
 
-/** COBOL / BMS / copybook extensions (walk filter). */
+/** COBOL / BMS / CSD / DCLGEN / copybook extensions (walk filter). */
 export const COBOL_INVENTORY_EXT = new Set([
   ".cbl",
   ".cob",
   ".cpy",
   ".copy",
   ".bms",
+  ".csd",
+  ".dcl",
 ]);
 
 /**
@@ -67,6 +72,10 @@ export function inventoryOrigin(root) {
   const programs = [];
   /** @type {object[]} */
   const bmsMaps = [];
+  /** @type {object[]} */
+  const csdInventories = [];
+  /** @type {object[]} */
+  const dclgenInventories = [];
   /** @type {string[]} */
   const proprietaryCopy = [];
   /** @type {string[]} */
@@ -91,6 +100,50 @@ export function inventoryOrigin(root) {
       if ((bms.dfhmdi || 0) > 0 || (bms.dfhmdf || 0) > 0) {
         pushGate(b, "bms-map", "overlay", r);
         showGates.push("bms-map");
+      }
+      continue;
+    }
+
+    if (ext === ".csd") {
+      const csd = inventoryCsdSource(text, r);
+      csdInventories.push(csd);
+      for (const prog of csd.programs || []) {
+        b.apis.push(`csd-program:${prog}`);
+        b.components.push(`csd-program:${prog}`);
+      }
+      for (const tran of csd.transactions || []) {
+        b.apis.push(`csd-transaction:${tran}`);
+      }
+      for (const ms of csd.mapsets || []) {
+        b.components.push(`csd-mapset:${ms}`);
+      }
+      for (const link of csd.transactionPrograms || []) {
+        b.nests.push({
+          parent: `TRAN:${link.transaction}`,
+          child: `PROGRAM:${link.program}`,
+          kind: "csd-transaction-program",
+        });
+      }
+      if ((csd.defineCount || 0) > 0) {
+        pushGate(b, "csd-define", "overlay", r);
+        showGates.push("csd-define");
+      }
+      continue;
+    }
+
+    if (ext === ".dcl") {
+      const dcl = inventoryDclgenSource(text, r);
+      dclgenInventories.push(dcl);
+      for (const table of dcl.tables || []) {
+        b.components.push(`dclgen-table:${table}`);
+        b.apis.push(`dclgen-table:${table}`);
+      }
+      for (const col of dcl.columns || []) {
+        b.components.push(`dclgen-column:${col}`);
+      }
+      if ((dcl.tableCount || 0) > 0) {
+        pushGate(b, "dclgen-table", "overlay", r);
+        showGates.push("dclgen-table");
       }
       continue;
     }
@@ -159,6 +212,8 @@ export function inventoryOrigin(root) {
     programCount: programs.length,
     programs: programs.slice(0, 500),
     bmsMaps: bmsMaps.slice(0, 200),
+    csdInventories: csdInventories.slice(0, 50),
+    dclgenInventories: dclgenInventories.slice(0, 50),
     proprietaryCopy: uniq(proprietaryCopy),
     copybooks: uniqueCopy,
     routes: uniq(b.routes).slice(0, 500),

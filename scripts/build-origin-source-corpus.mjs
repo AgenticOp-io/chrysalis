@@ -12,6 +12,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot, resolveWispBackendRoot } from "./lib/wisp-origin-paths.mjs";
 import {
   buildSourceCorpus,
   writeSourceCorpusArtifacts,
@@ -20,14 +21,12 @@ import {
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function defaultRoots() {
-  const wisp =
-    process.env.CHRYSALIS_WISP_ROOT ??
-    process.env.WISP_MODULE_DIR ??
-    "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
-  const parent = resolve(wisp, "..");
-  const backend = join(parent, "backend-services");
-  const roots = [resolve(wisp)];
-  if (existsSync(backend)) roots.push(resolve(backend));
+  const wisp = resolveWispModuleRoot(
+    process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR,
+  );
+  const backend = resolveWispBackendRoot();
+  const roots = [wisp];
+  if (existsSync(backend)) roots.push(backend);
   return roots;
 }
 

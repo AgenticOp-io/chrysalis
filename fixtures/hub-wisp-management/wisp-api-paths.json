@@ -2769,5 +2769,5 @@
     "USER_TENANTS_CF": "https://usertenants-nxulhoqnyq-uc.a.run.app"
   },
   "syncedAt": "2026-07-21T02:48:18.784Z",
-  "backendRoot": "C:/Users/david/AgenticOps/products/wisptools/backend-services"
+  "backendRoot": "../../products/wisptools/backend-services"
 }

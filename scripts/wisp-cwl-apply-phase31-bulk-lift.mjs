@@ -13,6 +13,7 @@ import { routesPath } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { reconcilePreviewFromRoutesCwl } from "./wisp-cwl-apply-module-routes-lib.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 import { scanWispRoutesForForbiddenStubs } from "./wisp-cwl-ui-parity-verify.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_PHASE31_BULK_LIFT_KIND = WISP_BULK_LIFT_KIND;
 
@@ -22,9 +23,7 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 function runPackageUiLiftSync(opts = {}) {
   const wispRoot =
     opts.wispRoot ??
-    process.env.CHRYSALIS_WISP_ROOT ??
-    process.env.WISP_MODULE_DIR ??
-    "C:/Users/david/Downloads/WISPTools/Module_Manager";
+    resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
   const env = {
     ...process.env,
     CHRYSALIS_WISP_ROOT: wispRoot,

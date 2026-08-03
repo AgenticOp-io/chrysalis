@@ -16,8 +16,8 @@ param(
   [Parameter(Mandatory = $true)]
   [string] $Project,
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm",
-  [string] $WispModuleDir = "C:\Users\david\AgenticOps\products\wisptools\Module_Manager",
+  [string] $Name = "",
+  [string] $WispModuleDir = "",
   [string] $BackendUrl = "https://hss.wisptools.io",
   [string] $SvelteFallback = "http://127.0.0.1:3000",
   [int] $Port = 19100,
@@ -28,7 +28,27 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+# Resolve WispModuleDir via env or sibling AgenticOps layout (no hardcoded developer path)
+if (-not $WispModuleDir) {
+  if ($env:CHRYSALIS_WISP_MODULE_ROOT) { $WispModuleDir = $env:CHRYSALIS_WISP_MODULE_ROOT }
+  elseif ($env:CHRYSALIS_WISP_ROOT) { $WispModuleDir = $env:CHRYSALIS_WISP_ROOT }
+  elseif ($env:WISP_MODULE_DIR) { $WispModuleDir = $env:WISP_MODULE_DIR }
+  else {
+    $cand = @(
+      (Join-Path $repoRoot "..\..\products\wisptools\Module_Manager"),
+      (Join-Path $repoRoot "..\wisptools\Module_Manager")
+    )
+    foreach ($c in $cand) {
+      if (Test-Path $c) { $WispModuleDir = $c; break }
+    }
+  }
+}
+if (-not $WispModuleDir) {
+  throw "WispModuleDir not set. Pass -WispModuleDir or set CHRYSALIS_WISP_MODULE_ROOT / CHRYSALIS_WISP_ROOT."
+}
 . (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
 

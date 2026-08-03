@@ -11,6 +11,10 @@ import { spawnSync } from "node:child_process";
 import { firebaseDemoIdToken, liveRefreshWispApiGoldens } from "../lib/live-refresh-api-goldens.mjs";
 import { liveMutateTraceGoldens } from "../lib/live-mutate-trace-goldens.mjs";
 import { applyWispApiGoldenHandlers } from "../wisp-cwl-apply-api-golden-handlers.mjs";
+import {
+  wispPlatformAdminEmail,
+  wispPlatformAdminPassword,
+} from "../lib/wisp-demo-credentials.mjs";
 
 export const DEEPEN_CATALOG_KIND = "chrysalis.wisp.fidelity-deepen-catalog";
 export const DEFAULT_TENANT_ID = "6a166eb07089304417ec967a";
@@ -114,10 +118,15 @@ export async function authContext(opts = {}) {
   let admin = { ok: false };
   let adminHeaders = null;
   if (opts.needAdmin !== false) {
-    admin = await firebaseDemoIdToken({
-      email: process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_EMAIL || "admin@wisptools.io",
-      password: process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD || "WisptoolsAdmin2026!",
-    });
+    const adminPassword = wispPlatformAdminPassword({ required: false });
+    if (!adminPassword) {
+      admin = { ok: false, skip: "missing-CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD" };
+    } else {
+      admin = await firebaseDemoIdToken({
+        email: wispPlatformAdminEmail(),
+        password: adminPassword,
+      });
+    }
     adminHeaders = {
       Accept: "application/json",
       "Content-Type": "application/json",

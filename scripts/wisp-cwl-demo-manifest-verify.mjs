@@ -8,6 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WISP_DEMO_MANIFEST_KIND } from "./wisp-cwl-demo-manifest.mjs";
 import { isWispNativeCutoverMode, isWispApiProxyHeaderOk } from "./wisp-cwl-post-g7790.mjs";
+import { wispDemoEmail, wispDemoPassword } from "./lib/wisp-demo-credentials.mjs";
 
 export const WISP_DEMO_MANIFEST_VERIFY_KIND = "chrysalis.wisp.demo-manifest.verify";
 export const WISP_DEMO_MANIFEST_VERIFY_SCHEMA_VERSION = 1;
@@ -160,14 +161,22 @@ export async function runWispDemoManifestVerify(opts) {
       if (method !== "GET" && method !== "HEAD") {
         headers["content-type"] = "application/json";
       }
+      let bodyPayload;
+      if (method !== "GET" && method !== "HEAD") {
+        const raw = spec.body ?? { email: wispDemoEmail(), password: "" };
+        bodyPayload = { ...raw };
+        if (!String(bodyPayload.password ?? "").trim()) {
+          bodyPayload.password = wispDemoPassword({ required: false });
+        }
+        if (!String(bodyPayload.email ?? "").trim()) {
+          bodyPayload.email = wispDemoEmail();
+        }
+      }
       const res = await fetch(url, {
         method,
         redirect: "manual",
         headers,
-        body:
-          method === "GET" || method === "HEAD"
-            ? undefined
-            : JSON.stringify(spec.body ?? { email: "demo@wisptools.io", password: "WisptoolsDemo2026!" }),
+        body: bodyPayload === undefined ? undefined : JSON.stringify(bodyPayload),
       });
       const text = await res.text();
       const proxyHeader = res.headers.get("x-chrysalis-wisp-proxy") ?? "";

@@ -115,6 +115,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | EXEC SQL / CICS **catalog** holes | Fake Db2 / CICS / VSAM runtimes |
 | BMS DFHM* **label inventory** + MAP/MAPSET crosswalk (G10079–G10082) | DFHAID / DFHBMSCA / EXTFMAP stubs or invented PORT/INQ maps |
 | CardDemo Medium+ **structural** VSAM-MQ / IMS / Db2 catalogs (G10083) | Fake MQ / IMS / Db2 runtimes or invented CMQ* books |
+| CardDemo **CSD + DCLGEN** structural catalogs (G10111) | Invented CICS region / Db2 connect from CSD/DCLGEN text |
 | AID/BMSCA **symbol catalog** from upstream (G10084) | Invented `DFHAID.cpy` / `DFHBMSCA.cpy` (IBM proprietary) |
 | Operator-licensed SDFHCOB drop on disk (gitignored) | Committing / publishing IBM Restricted Materials as product code |
 | GnuCOBOL behavioral subjects already green (65/65 after G10078) | New behavioral façades to claim “modernized CLBS” |
@@ -125,7 +126,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 
 **G10079–G10082 structural BMS/CICS:** inventory + crosswalk only. Missing `INQMAP`/`INQMNU`/`PORT*`/`PORTSET` and AID copybooks stay holes — do not fabricate map bodies or IBM books.
 
-**G10085–G10106:** WebIR deepen inventory peels **exhausted** on CLBS mini (procedure/USAGE, CICS INTO/FROM, prior FILE/QUEUE/HANDLE/LINK/JCL/SQL catalogs). Still refuse inventing EXTFMAP/DFHATTR stubs or Db2/IMS/MQ/VSAM/JES runtimes. Operator SDFHCOB path: [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) (books **gitignored** — never publish).
+**G10085–G10106:** WebIR deepen inventory peels **exhausted** on CLBS mini (procedure/USAGE, CICS INTO/FROM, prior FILE/QUEUE/HANDLE/LINK/JCL/SQL catalogs). **G10111** adds CSD/DCLGEN artifact-class inventory; **G10112** adds CICS control option catalogs (RETURN/FORMATTIME/SYNCPOINT/…) — still refuse inventing EXTFMAP/DFHATTR stubs or Db2/IMS/MQ/VSAM/JES runtimes. Operator SDFHCOB path: [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) (books **gitignored** — never publish).
 
 **G10077 Tier A+:** secondary-dialect / prefix bingo is **not** the default next queue — COBOL primary (chartered Tier B Medium+ / Tier C) unless the operator explicitly asks for another dialect peel.
 

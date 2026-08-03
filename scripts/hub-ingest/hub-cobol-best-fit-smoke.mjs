@@ -27,8 +27,12 @@ import {
   expandCobolCopybooks,
   inferCobolCopybookDirs,
   inventoryBmsSource,
+  inventoryCsdSource,
+  inventoryDclgenSource,
   crosswalkOnlineBmsMaps,
   crosswalkOnlineCicsPrograms,
+  crosswalkCsdPrograms,
+  crosswalkCsdMapsets,
   parseJclExecPrograms,
   crosswalkJclPrograms,
   parseJclDdNames,
@@ -1553,6 +1557,36 @@ export async function runCobolBestFitSmoke() {
     reason: `pay=${pay.pat?.kind}/${pay.exp} stat=${stat.pat?.kind}/${stat.exp} accf=${accf.pat?.kind}/${accf.exp} schd=${schd.pat?.kind}/${schd.exp}`,
   });
 
+  // G10113 — no-z/OS CardDemo/bank COMPUTE peels (monthly interest / tran-type fee / withdraw).
+  const intc = liftOne("CBACT04RN.cbl", "hub-lift:cobol-g10113-int");
+  const tran = liftOne("CARDTRANRN.cbl", "hub-lift:cobol-g10113-tran");
+  const wdrw = liftOne("BANKWDRWRN.cbl", "hub-lift:cobol-g10113-wdrw");
+  results.push({
+    id: "webir-emit-pattern-no-zos-card-bank",
+    ok:
+      intc.pat?.kind === "monthly-interest" &&
+      intc.exp === "1.25" &&
+      intc.has(1000) &&
+      intc.has(1.5) &&
+      intc.has(1200) &&
+      intc.has(1.25) &&
+      intc.has(intc.exp) &&
+      tran.pat?.kind === "card-tran-type-fee" &&
+      tran.exp === "2.50" &&
+      tran.has("01") &&
+      tran.has(100) &&
+      tran.has(0.025) &&
+      tran.has(2.5) &&
+      tran.has(tran.exp) &&
+      wdrw.pat?.kind === "bank-withdraw" &&
+      wdrw.exp === "155.00" &&
+      wdrw.has(200) &&
+      wdrw.has(45) &&
+      wdrw.has(155) &&
+      wdrw.has(wdrw.exp),
+    reason: `intc=${intc.pat?.kind}/${intc.exp} tran=${tran.pat?.kind}/${tran.exp} wdrw=${wdrw.pat?.kind}/${wdrw.exp}`,
+  });
+
   // G10092b — licensed DFHAID/DFHBMSCA/EXTFMAP expand when operator drop present (never invent).
   const propDirs = [join(CLBS_MINI, "copybook")];
   const propExpand = expandCobolCopybooks(
@@ -2226,6 +2260,66 @@ export async function runCobolBestFitSmoke() {
     reason: `into=${(cardIntoAttrs?.cicsIntoAreas || []).join(",")} from=${(cardIntoAttrs?.cicsFromAreas || []).join(",")} lengthOf=${cardIntoAttrs?.lengthOf}`,
   });
 
+  // G10112 — CICS control/time/storage/sync option catalogs (does not reopen exhaust stamp).
+  const cardCtrlAttrs = cardOnlnInv
+    ? buildCobolWebIrHoleAttrs(cardOnlnInv)
+    : null;
+  const inqCtrlPath = join(CLBS_ONLINE, "INQONLN.cbl");
+  const inqCtrlSrc = existsSync(inqCtrlPath) ? readFileSync(inqCtrlPath, "utf8") : "";
+  const inqCtrlInv = inqCtrlSrc
+    ? inventoryCobolSource(inqCtrlSrc, "INQONLN.cbl")
+    : null;
+  const inqCtrlAttrs = inqCtrlInv ? buildCobolWebIrHoleAttrs(inqCtrlInv) : null;
+  const codateCtrlPath = join(CLBS_MINI, "_upstream/CODATE01.cbl");
+  const codateCtrlSrc = existsSync(codateCtrlPath)
+    ? readFileSync(codateCtrlPath, "utf8")
+    : "";
+  const codateCtrlInv = codateCtrlSrc
+    ? inventoryCobolSource(codateCtrlSrc, "CODATE01.cbl")
+    : null;
+  const codateCtrlAttrs = codateCtrlInv
+    ? buildCobolWebIrHoleAttrs(codateCtrlInv)
+    : null;
+  results.push({
+    id: "webir-hole-attrs-cics-control-options",
+    ok:
+      !!cardCtrlAttrs &&
+      Array.isArray(cardCtrlAttrs.cicsReturnTransids) &&
+      cardCtrlAttrs.cicsReturnTransids.includes("CB00") &&
+      Array.isArray(cardCtrlAttrs.cicsReturnOptions) &&
+      cardCtrlAttrs.cicsReturnOptions.includes("TRANSID") &&
+      cardCtrlAttrs.cicsReturnOptions.includes("COMMAREA") &&
+      Array.isArray(cardCtrlAttrs.cicsFormtimeOptions) &&
+      cardCtrlAttrs.cicsFormtimeOptions.includes("ABSTIME") &&
+      cardCtrlAttrs.cicsFormtimeOptions.includes("YYYYMMDD") &&
+      Array.isArray(cardCtrlAttrs.cicsAsktimeOptions) &&
+      cardCtrlAttrs.cicsAsktimeOptions.includes("ABSTIME") &&
+      Array.isArray(cardCtrlAttrs.cicsGetmainOptions) &&
+      cardCtrlAttrs.cicsGetmainOptions.includes("SET") &&
+      Array.isArray(cardCtrlAttrs.cicsFreemainOptions) &&
+      cardCtrlAttrs.cicsFreemainOptions.includes("DATA") &&
+      Array.isArray(cardCtrlAttrs.cicsDelayOptions) &&
+      cardCtrlAttrs.cicsDelayOptions.includes("INTERVAL") &&
+      Array.isArray(cardCtrlAttrs.cicsInquireFiles) &&
+      cardCtrlAttrs.cicsInquireFiles.includes("ACCTDAT") &&
+      Array.isArray(cardCtrlAttrs.cicsAbendAbcodes) &&
+      cardCtrlAttrs.cicsAbendAbcodes.includes("CDE1") &&
+      Number(cardCtrlAttrs.cicsSyncpoint) >= 1 &&
+      Number(cardCtrlAttrs.cicsReturnOps) >= 1 &&
+      !!inqCtrlAttrs &&
+      Array.isArray(inqCtrlAttrs.cicsEnqResources) &&
+      inqCtrlAttrs.cicsEnqResources.length >= 1 &&
+      Array.isArray(inqCtrlAttrs.cicsDeqResources) &&
+      inqCtrlAttrs.cicsDeqResources.length >= 1 &&
+      !!codateCtrlAttrs &&
+      Array.isArray(codateCtrlAttrs.cicsRetrieveInto) &&
+      codateCtrlAttrs.cicsRetrieveInto.includes("MQTM") &&
+      Array.isArray(codateCtrlAttrs.cicsFormtimeOptions) &&
+      codateCtrlAttrs.cicsFormtimeOptions.includes("MMDDYYYY") &&
+      codateCtrlAttrs.cicsFormtimeOptions.includes("TIMESEP"),
+    reason: `retTid=${(cardCtrlAttrs?.cicsReturnTransids || []).join(",")} form=${(cardCtrlAttrs?.cicsFormtimeOptions || []).join(",")} abend=${(cardCtrlAttrs?.cicsAbendAbcodes || []).join(",")} sync=${cardCtrlAttrs?.cicsSyncpoint} enq=${(inqCtrlAttrs?.cicsEnqResources || []).join(",")} retrieve=${(codateCtrlAttrs?.cicsRetrieveInto || []).join(",")}`,
+  });
+
   /** Required exhaust surface keys on a rich online hole-attr object. */
   const exhaustKeys = [
     "execCicsOps",
@@ -2280,6 +2374,95 @@ export async function runCobolBestFitSmoke() {
         : `missing=${missingExhaust.join(",")}`,
   });
 
+  // G10111 — CardDemo CSD + DCLGEN structural catalogs (new artifact class; peels stay exhausted).
+  const crddemomInv = existsSync(join(upstreamBmsDir, "CRDDEMOM.csd"))
+    ? inventoryCsdSource(
+        readFileSync(join(upstreamBmsDir, "CRDDEMOM.csd"), "utf8"),
+        "CRDDEMOM.csd",
+      )
+    : null;
+  const crddemo2Inv = existsSync(join(upstreamBmsDir, "CRDDEMO2.csd"))
+    ? inventoryCsdSource(
+        readFileSync(join(upstreamBmsDir, "CRDDEMO2.csd"), "utf8"),
+        "CRDDEMO2.csd",
+      )
+    : null;
+  const authDclInv = existsSync(join(CLBS_MINI, "copybook", "AUTHFRDS.dcl"))
+    ? inventoryDclgenSource(
+        readFileSync(join(CLBS_MINI, "copybook", "AUTHFRDS.dcl"), "utf8"),
+        "AUTHFRDS.dcl",
+      )
+    : existsSync(join(upstreamBmsDir, "AUTHFRDS.dcl"))
+      ? inventoryDclgenSource(
+          readFileSync(join(upstreamBmsDir, "AUTHFRDS.dcl"), "utf8"),
+          "AUTHFRDS.dcl",
+        )
+      : null;
+  const dclTypInv = existsSync(join(upstreamBmsDir, "DCLTRTYP.dcl"))
+    ? inventoryDclgenSource(
+        readFileSync(join(upstreamBmsDir, "DCLTRTYP.dcl"), "utf8"),
+        "DCLTRTYP.dcl",
+      )
+    : null;
+  let siteCsd = 0;
+  let siteDcl = 0;
+  try {
+    const { inventoryOrigin } = await import("../lib/site-inventory/cobol.mjs");
+    const site = inventoryOrigin(CLBS_MINI);
+    siteCsd = (site.csdInventories || []).length;
+    siteDcl = (site.dclgenInventories || []).length;
+  } catch {
+    siteCsd = 0;
+    siteDcl = 0;
+  }
+  const csdAllPrograms = [
+    ...(crddemomInv?.programs || []),
+    ...(crddemo2Inv?.programs || []),
+  ];
+  const csdAllMapsets = [
+    ...(crddemomInv?.mapsets || []),
+    ...(crddemo2Inv?.mapsets || []),
+  ];
+  const coacctSrcPath = existsSync(join(upstreamBmsDir, "COACCT01.cbl"))
+    ? join(upstreamBmsDir, "COACCT01.cbl")
+    : null;
+  const coacctPid = coacctSrcPath
+    ? inventoryCobolSource(readFileSync(coacctSrcPath, "utf8"), "COACCT01.cbl")
+        .programIds
+    : [];
+  const copauSrc = ["COPAUA0C", "COPAUS0C", "COPAUS1C", "COPAUS2C", "CODATE01"]
+    .map((n) => join(upstreamBmsDir, `${n}.cbl`))
+    .filter((p) => existsSync(p))
+    .flatMap((p) => inventoryCobolSource(readFileSync(p, "utf8"), p).programIds);
+  const csdProgX = crosswalkCsdPrograms(csdAllPrograms, [
+    ...coacctPid,
+    ...copauSrc,
+  ]);
+  const csdMapX = crosswalkCsdMapsets(csdAllMapsets, bmsMapsets);
+  results.push({
+    id: "carddemo-csd-dclgen-structural",
+    ok:
+      !!crddemomInv &&
+      crddemomInv.programs.includes("COACCT01") &&
+      (crddemomInv.transactionPrograms || []).some(
+        (l) => l.transaction === "CDRA" && l.program === "COACCT01",
+      ) &&
+      !!crddemo2Inv &&
+      crddemo2Inv.mapsets.includes("COPAU00") &&
+      (crddemo2Inv.db2Entries || []).length >= 1 &&
+      csdProgX.csdProgramMatched.includes("COACCT01") &&
+      csdProgX.csdProgramHole.length === 0 &&
+      csdMapX.csdMapsetMatched.includes("COPAU00") &&
+      !!authDclInv &&
+      (authDclInv.columns || []).includes("CARD_NUM") &&
+      (authDclInv.columnCount || 0) >= 20 &&
+      !!dclTypInv &&
+      (dclTypInv.columns || []).includes("TR_TYPE") &&
+      siteCsd >= 2 &&
+      siteDcl >= 2,
+    reason: `csdProg=${csdProgX.csdProgramMatched.join(",")} map=${csdMapX.csdMapsetMatched.join(",")} authCols=${authDclInv?.columnCount ?? 0} siteCsd=${siteCsd} siteDcl=${siteDcl}`,
+  });
+
   const targets = [...BEST_FIT_TARGETS, ...CONTROL_TARGETS];
   for (const emitTarget of targets) {
     for (const id of suiteIdsFor(emitTarget)) {
@@ -2317,10 +2500,18 @@ export async function runCobolBestFitSmoke() {
         detail: { skipped: r.skipped === true, correctness: r.correctness },
       });
     } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const sqliteMissing =
+        msg.includes("ERR_UNKNOWN_BUILTIN_MODULE") && msg.includes("node:sqlite");
       results.push({
         id: `trace:${id}`,
-        ok: false,
-        reason: e instanceof Error ? e.message : String(e),
+        ok: sqliteMissing ? true : false,
+        reason: sqliteMissing
+          ? "skipped:no-node-sqlite"
+          : msg,
+        detail: sqliteMissing
+          ? { skipped: true, correctness: null }
+          : undefined,
       });
     }
   }

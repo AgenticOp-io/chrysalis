@@ -1,28 +1,37 @@
 #!/usr/bin/env node
 /**
- * Ensure platform-admin Firebase user exists (admin@wisptools.io) with a known demo password.
+ * Ensure platform-admin Firebase user exists (admin@wisptools.io) with operator-supplied password.
  * Uses wisptools-production Firebase Admin SDK JSON (modular firebase-admin v14 API).
+ *
+ * Env:
+ *   CHRYSALIS_WISP_PLATFORM_ADMIN_EMAIL (default admin@wisptools.io)
+ *   CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD (required)
+ *   CHRYSALIS_WISP_FIREBASE_ADMIN_JSON (preferred path to Admin SDK JSON)
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import {
+  wispPlatformAdminEmail,
+  wispPlatformAdminPassword,
+} from "../lib/wisp-demo-credentials.mjs";
 
 const require = createRequire(import.meta.url);
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const reportPath = join(scriptRoot, "reports/wisp/platform-admin-bootstrap.json");
 
-const DEFAULT_EMAIL = "admin@wisptools.io";
-const DEFAULT_PASSWORD = process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD || "WisptoolsAdmin2026!";
-
 function loadAuth() {
   const candidates = [
     process.env.CHRYSALIS_WISP_FIREBASE_ADMIN_JSON,
-    "C:/Users/david/AgenticOps/products/wisptools/wisptools-production-firebase-adminsdk.json",
     join(scriptRoot, "../../products/wisptools/wisptools-production-firebase-adminsdk.json"),
   ].filter(Boolean);
   const saPath = candidates.find((p) => existsSync(String(p)));
-  if (!saPath) throw new Error("firebase-admin-json-missing");
+  if (!saPath) {
+    throw new Error(
+      "firebase-admin-json-missing — set CHRYSALIS_WISP_FIREBASE_ADMIN_JSON or place Admin SDK JSON at ../../products/wisptools/wisptools-production-firebase-adminsdk.json relative to repo root",
+    );
+  }
   const { initializeApp, cert, getApps } = require("firebase-admin/app");
   const { getAuth } = require("firebase-admin/auth");
   if (!getApps().length) {
@@ -32,8 +41,8 @@ function loadAuth() {
 }
 
 export async function bootstrapPlatformAdmin(opts = {}) {
-  const email = (opts.email || process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_EMAIL || DEFAULT_EMAIL).trim();
-  const password = (opts.password || DEFAULT_PASSWORD).trim();
+  const email = (opts.email || wispPlatformAdminEmail()).trim();
+  const password = (opts.password || wispPlatformAdminPassword()).trim();
   const { auth, saPath } = loadAuth();
   let uid = null;
   let action = "updated";

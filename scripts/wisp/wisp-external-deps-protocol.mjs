@@ -19,6 +19,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const EXTERNAL_DEPS_KIND = "chrysalis.wisp.external-deps";
 export const EXTERNAL_DEPS_SCHEMA = 1;
@@ -26,9 +27,7 @@ export const EXTERNAL_DEPS_SCHEMA = 1;
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const DEFAULT_WISP_ROOT =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 
 /** Host suffixes treated as first-party (not external vendor). */
 const FIRST_PARTY_HOST_RE =

@@ -2,7 +2,7 @@
   "kind": "chrysalis.hub.cwl-preview",
   "schemaVersion": 1,
   "ok": true,
-  "cwlPath": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.chrysalis\\migration.cwl",
+  "cwlPath": "../../products/wisptools/Module_Manager/.chrysalis/migration.cwl",
   "moduleName": "migration",
   "imports": [],
   "routeCount": 87,

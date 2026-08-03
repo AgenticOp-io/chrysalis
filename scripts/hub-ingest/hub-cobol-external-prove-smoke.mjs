@@ -497,6 +497,55 @@ const EMIT_REF_SUBJECTS = [
     java: join(MINI_BATCH, "reference_emit_idxngprn.java"),
     csharp: join(MINI_BATCH, "reference_emit_idxngprn.cs"),
   },
+  {
+    id: "ckprstdn",
+    expected: join(MINI_BATCH, "expected-ckprstdn.txt"),
+    py: join(MINI_BATCH, "reference_emit_ckprstdn.py"),
+    java: join(MINI_BATCH, "reference_emit_ckprstdn.java"),
+    csharp: join(MINI_BATCH, "reference_emit_ckprstdn.cs"),
+  },
+  {
+    id: "portfliodn",
+    expected: join(MINI_BATCH, "expected-portfliodn.txt"),
+    py: join(MINI_BATCH, "reference_emit_portfliodn.py"),
+    java: join(MINI_BATCH, "reference_emit_portfliodn.java"),
+    csharp: join(MINI_BATCH, "reference_emit_portfliodn.cs"),
+  },
+  {
+    id: "errhanddn",
+    expected: join(MINI_BATCH, "expected-errhanddn.txt"),
+    py: join(MINI_BATCH, "reference_emit_errhanddn.py"),
+    java: join(MINI_BATCH, "reference_emit_errhanddn.java"),
+    csharp: join(MINI_BATCH, "reference_emit_errhanddn.cs"),
+  },
+  {
+    id: "ckprstph",
+    expected: join(MINI_BATCH, "expected-ckprstph.txt"),
+    py: join(MINI_BATCH, "reference_emit_ckprstph.py"),
+    java: join(MINI_BATCH, "reference_emit_ckprstph.java"),
+    csharp: join(MINI_BATCH, "reference_emit_ckprstph.cs"),
+  },
+  {
+    id: "cbact04rn",
+    expected: join(MINI_BATCH, "expected-cbact04rn.txt"),
+    py: join(MINI_BATCH, "reference_emit_cbact04rn.py"),
+    java: join(MINI_BATCH, "reference_emit_cbact04rn.java"),
+    csharp: join(MINI_BATCH, "reference_emit_cbact04rn.cs"),
+  },
+  {
+    id: "cardtranrn",
+    expected: join(MINI_BATCH, "expected-cardtranrn.txt"),
+    py: join(MINI_BATCH, "reference_emit_cardtranrn.py"),
+    java: join(MINI_BATCH, "reference_emit_cardtranrn.java"),
+    csharp: join(MINI_BATCH, "reference_emit_cardtranrn.cs"),
+  },
+  {
+    id: "bankwdrwrn",
+    expected: join(MINI_BATCH, "expected-bankwdrwrn.txt"),
+    py: join(MINI_BATCH, "reference_emit_bankwdrwrn.py"),
+    java: join(MINI_BATCH, "reference_emit_bankwdrwrn.java"),
+    csharp: join(MINI_BATCH, "reference_emit_bankwdrwrn.cs"),
+  },
 ];
 
 /** @type {Array<{ id: string, url: string, dir: string, subpath?: string, shallow?: boolean }>} */
@@ -1011,6 +1060,13 @@ export async function runCobolExternalProveSmoke() {
       idxnlnrn: "IDXNLNRN.cbl",
       idxltnrn: "IDXLTNRN.cbl",
       idxngprn: "IDXNGPRN.cbl",
+      ckprstdn: "CKPRSTDN.cbl",
+      portfliodn: "PORTFLIODN.cbl",
+      errhanddn: "ERRHANDDN.cbl",
+      ckprstph: "CKPRSTPH.cbl",
+      cbact04rn: "CBACT04RN.cbl",
+      cardtranrn: "CARDTRANRN.cbl",
+      bankwdrwrn: "BANKWDRWRN.cbl",
     }[s.id] || "");
     if (!existsSync(s.expected) || !existsSync(s.py) || !existsSync(cobPath)) {
       emitRefs.push({ id: s.id, ok: false, reason: "missing-files" });

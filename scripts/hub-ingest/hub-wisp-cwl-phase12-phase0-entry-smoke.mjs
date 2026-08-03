@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { buildWispScenarioInventory } from "../wisp-cwl-scenario-inventory.mjs";
 import { generateWispApiProxyCwl } from "../wisp-cwl-generate-api-proxy-cwl.mjs";
 import { runWispChimeraGatewaySmoke } from "./hub-wisp-cwl-chimera-gateway-smoke.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_CWL_PHASE12_PHASE0_ENTRY_SMOKE_KIND = "chrysalis.wisp-cwl-phase12-phase0-entry-smoke";
 export const WISP_CWL_PHASE12_PHASE0_ENTRY_SMOKE_SCHEMA_VERSION = 1;
@@ -47,7 +48,7 @@ export function runWispCwlApiPathsManifestGate() {
 
 export function runWispCwlScenarioInventoryGate() {
   const path = join(scriptRoot, "fixtures/hub-wisp-management/wisp-scenarios.v1.json");
-  const wispRoot = process.env.CHRYSALIS_WISP_ROOT ?? "C:/Users/david/Downloads/WISPTools/Module_Manager";
+  const wispRoot = resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT);
   const live = buildWispScenarioInventory(wispRoot);
   if (!live.ok) {
     if (existsSync(path)) return { ok: true, skip: "wisp-root-unavailable-used-fixture" };

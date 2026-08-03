@@ -9,10 +9,12 @@ param(
   [Parameter(Mandatory = $true)]
   [string] $Project,
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm"
+  [string] $Name = ""
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $index = Join-Path $PSScriptRoot "hub-brand\hub-projects-index.html"
 $css = Join-Path $PSScriptRoot "hub-brand\hub-projects-agenticops.css"

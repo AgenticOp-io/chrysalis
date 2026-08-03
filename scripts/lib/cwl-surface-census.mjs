@@ -10,6 +10,7 @@
 import { readFileSync, readdirSync, statSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, "..", "..");
@@ -332,7 +333,6 @@ export function runWispSurfaceCensus(opts = {}) {
     // Current AgenticOps layout (products/), then legacy clients/ path.
     join(REPO, "..", "..", "products", "wisptools", "Module_Manager"),
     join(REPO, "..", "..", "clients", "wisptools", "Module_Manager"),
-    "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
   ].filter(Boolean);
   const wispRoot =
     wispRootCandidates.find((p) => existsSync(join(String(p), "src", "routes"))) ||

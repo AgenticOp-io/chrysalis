@@ -6,6 +6,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const MODULE_TIPS_EXTRACT_KIND = "chrysalis.wisp.module-tips-extract";
 
@@ -17,9 +18,7 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export function extractWispModuleTips(opts = {}) {
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const tipsTs = join(wispRoot, "src/lib/config/moduleTips.ts");
   const outDir = resolve(opts.outDir ?? join(scriptRoot, "fixtures/hub-wisp-management"));

@@ -7,15 +7,14 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildWispClient } from "./wisp-cwl-client-build.mjs";
+import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
 
 export const WISP_SVELTE_SIDECAR_BUILD_KIND = "chrysalis.wisp.svelte-sidecar-build";
 export const WISP_SVELTE_SIDECAR_BUILD_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultRoot =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 const defaultOut = join(scriptRoot, "generated/wisp-svelte-sidecar");
 
 /** @param {string} src @param {string} dest */

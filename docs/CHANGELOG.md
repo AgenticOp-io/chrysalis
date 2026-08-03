@@ -1,3 +1,9 @@
+2026-08-03 | Chrysalis | OSS go-public prep: scrub WISP password literals + machine paths; GO-PUBLIC runbook; NOTICE; harden hub:oss-scrub-smoke; remote still PRIVATE pending rotate+commit+flip | local | N
+2026-08-03 | Chrysalis | GO-PUBLIC runbook + gitignore OSS hygiene; claim smoke requires flip doc; history scrub empty for SA/.env/IBM cpy; remote still PRIVATE | local | N
+2026-08-01 | Chrysalis | GCE protect allowlist (agenticop-master/fusion-lab) + gce:migrate:agenticop-master; preferred host agenticop-master; never delete do-not-delete VMs | local/GCE | N
+2026-08-03 | Chrysalis | G10113 no-z/OS CardDemo/bank peels (monthly-interest / card-tran-type-fee / bank-withdraw); behavioral 68/68 GCE cobc; COBOL-NO-ZOS-CEILING; EXTFMAP sole P0 | local/GCE | N
+2026-08-01 | Chrysalis | G10112 CICS control option catalogs (RETURN/FORMATTIME/SYNCPOINT/ABEND/GETMAIN/ENQ/…); best-fit 120/120; no CICS invent; EXTFMAP sole P0 | local | N
+2026-08-01 | Chrysalis | G10111 CardDemo CSD+DCLGEN structural inventory: inventoryCsdSource/inventoryDclgenSource + PROGRAM/MAPSET crosswalks; site-inventory .csd/.dcl; clbs/best-fit gates; no CICS/Db2 invent; EXTFMAP sole P0 | local | N
 2026-08-01 | Chrysalis | G10110 external-prove honesty: treat smoke `skip` string as skip (node-express-oracle); cobc Device Guard → skip not fail on Windows host | local | N
 2026-08-01 | Chrysalis | G10109 OSS scrub smoke: git ls-files secret/private-pack hygiene gate (hub:oss-scrub-smoke); public-claim checklist tracked-tree closed; history scrub remains operator; no invent | local | N
 2026-07-31 | Chrysalis | G10108 public engine claim packaging: README Apache-2.0+trademarks; Pilot MCP dual-wedge; hub:public-engine-claim-smoke; cobol:extfmap-absent operator attestation (no invent); residual status=absent when attested | local | N

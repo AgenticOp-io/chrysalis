@@ -17,6 +17,7 @@ import { countCwlMarkupHoles, classifyCwlHoleBuckets } from "../lib/cwl-hole-met
 import { convertAllOriginPieces } from "../lib/convert-origin-pieces.mjs";
 import { writeWispHoleReport } from "./wisp-hole-report.mjs";
 import { unescapeCwlHtmlLiteral } from "../lib/unescape-cwl-html.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const COMPLETE_CONVERSION_KIND = "chrysalis.complete-conversion-protocol";
 export const COMPLETE_CONVERSION_SCHEMA_VERSION = 1;
@@ -176,9 +177,7 @@ export async function runCompleteConversionProtocol(opts = {}) {
   const cwlPath = resolve(opts.routesPath ?? routesPath);
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const maxRounds = Number(opts.maxRounds ?? 20);
   const stopAfterNoImprovement = Number(opts.stopAfterNoImprovement ?? 3);

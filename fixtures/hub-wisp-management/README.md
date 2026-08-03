@@ -24,7 +24,7 @@ Pinned **contract artifacts** for the WISP → CWL **showcase POC** — not a fu
 
 Point ingest/lift at the operator clone:
 
-`C:\Users\david\Downloads\WISPTools\Module_Manager`
+`$REPO/../../products/wisptools/Module_Manager (or CHRYSALIS_WISP_MODULE_ROOT)`
 
 Or set `CHRYSALIS_WISP_ROOT`.
 

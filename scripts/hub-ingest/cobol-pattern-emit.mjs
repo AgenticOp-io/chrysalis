@@ -1218,6 +1218,30 @@ export function detectEmitPattern(source) {
     }
   }
 
+  // CardDemo CARDTRANRN — EVALUATE transaction type × fee rate
+  if (
+    /\bEVALUATE\s+WS-TRN-TYPE\b/i.test(code) &&
+    /\bWHEN\s+'01'/i.test(code) &&
+    /\bWHEN\s+'02'/i.test(code) &&
+    values.has("WS-TRN-AMT") &&
+    values.has("WS-FEE-RATE")
+  ) {
+    const typeMatch = /\bWS-TRN-TYPE\s+PIC\s+X\(\d+\)\s+VALUE\s+'([^']+)'/i.exec(
+      code,
+    );
+    const trnType = (typeMatch?.[1] || "01").toUpperCase();
+    const amt = /** @type {number} */ (values.get("WS-TRN-AMT") ?? 0);
+    const rate = /** @type {number} */ (values.get("WS-FEE-RATE") ?? 0);
+    let fee = 0;
+    if (trnType === "01") fee = Math.round(amt * rate * 100 + 1e-9) / 100;
+    else if (trnType === "02")
+      fee = Math.round(amt * rate * 0.5 * 100 + 1e-9) / 100;
+    return {
+      kind: "card-tran-type-fee",
+      meta: { trnType, amt, rate, result: fee, decimals: 2 },
+    };
+  }
+
   // Multi-WHEN EVALUATE subject (not EVALUATE TRUE) — EVALMANY
   const evalSubj =
     /\bEVALUATE\s+(?!TRUE\b)([A-Z][A-Z0-9-]*)\b/i.exec(code);
@@ -1729,6 +1753,44 @@ export function detectEmitPattern(source) {
     };
   }
 
+  // CardDemo CBACT04RN — monthly interest (bal * annual-rate) / 1200
+  const monthlyInt =
+    /\bCOMPUTE\s+[A-Z0-9-]+\s+(?:ROUNDED\s*)?=\s*\(\s*([A-Z][A-Z0-9-]*)\s*\*\s*([A-Z][A-Z0-9-]*)\s*\)\s*\/\s*1200\b/i.exec(
+      code,
+    );
+  if (monthlyInt) {
+    const balN = monthlyInt[1].toUpperCase();
+    const rateN = monthlyInt[2].toUpperCase();
+    if (values.has(balN) && values.has(rateN)) {
+      const bal = /** @type {number} */ (values.get(balN));
+      const rate = /** @type {number} */ (values.get(rateN));
+      const result = Math.round((bal * rate) / 1200 * 100 + 1e-9) / 100;
+      return {
+        kind: "monthly-interest",
+        meta: { bal, rate, divisor: 1200, result, decimals: 2 },
+      };
+    }
+  }
+
+  // Rocket-bank BANKWDRWRN — IF withdraw <= bal then bal - withdraw
+  if (
+    /\bIF\s+WS-WDRW\s*<=\s*WS-BAL\b/i.test(code) &&
+    /\bCOMPUTE\s+WS-REMAIN\s+ROUNDED\s*=\s*WS-BAL\s*-\s*WS-WDRW\b/i.test(code) &&
+    values.has("WS-BAL") &&
+    values.has("WS-WDRW")
+  ) {
+    const bal = /** @type {number} */ (values.get("WS-BAL"));
+    const wdrw = /** @type {number} */ (values.get("WS-WDRW"));
+    const result =
+      wdrw <= bal
+        ? Math.round((bal - wdrw) * 100 + 1e-9) / 100
+        : bal;
+    return {
+      kind: "bank-withdraw",
+      meta: { bal, wdrw, result, decimals: 2 },
+    };
+  }
+
   // COMPUTE … ROUNDED = A * B
   const roundedMul =
     /\bCOMPUTE\s+[A-Z0-9-]+\s+ROUNDED\s*=\s*([A-Z][A-Z0-9-]*)\s*\*\s*([A-Z][A-Z0-9-]*)/i.exec(
@@ -1790,6 +1852,11 @@ export function detectEmitPattern(source) {
 export function expectedFromPattern(pattern) {
   const m = pattern.meta;
   switch (pattern.kind) {
+    case "monthly-interest":
+    case "bank-withdraw":
+    case "card-tran-type-fee": {
+      return Number(m.result).toFixed(/** @type {number} */ (m.decimals) || 2);
+    }
     case "rounded-product": {
       const v = Math.round(/** @type {number} */ (m.a) * /** @type {number} */ (m.b) * 100 + 1e-9) / 100;
       return v.toFixed(/** @type {number} */ (m.decimals) || 2);
@@ -2104,6 +2171,30 @@ function emitPython(p, expected, id) {
     `# EXPECTED: ${expected}`,
   ];
   switch (p.kind) {
+    case "monthly-interest":
+      lines.push(`BAL = ${m.bal}`);
+      lines.push(`RATE = ${m.rate}`);
+      lines.push(`RESULT = round((BAL * RATE) / 1200 + 1e-12, 2)`);
+      lines.push(`print(f"{RESULT:.2f}")`);
+      break;
+    case "bank-withdraw":
+      lines.push(`BAL = ${m.bal}`);
+      lines.push(`WDRW = ${m.wdrw}`);
+      lines.push(`RESULT = round(BAL - WDRW + 1e-12, 2) if WDRW <= BAL else BAL`);
+      lines.push(`print(f"{RESULT:.2f}")`);
+      break;
+    case "card-tran-type-fee":
+      lines.push(`TRN_TYPE = ${JSON.stringify(m.trnType)}`);
+      lines.push(`AMT = ${m.amt}`);
+      lines.push(`RATE = ${m.rate}`);
+      lines.push(`if TRN_TYPE == "01":`);
+      lines.push(`    FEE = round(AMT * RATE + 1e-12, 2)`);
+      lines.push(`elif TRN_TYPE == "02":`);
+      lines.push(`    FEE = round(AMT * RATE * 0.5 + 1e-12, 2)`);
+      lines.push(`else:`);
+      lines.push(`    FEE = 0.0`);
+      lines.push(`print(f"{FEE:.2f}")`);
+      break;
     case "rounded-product":
       lines.push(`AMOUNT = ${m.a}`);
       lines.push(`RATE = ${m.b}`);
@@ -2537,6 +2628,32 @@ function emitJava(p, expected, id) {
   /** @type {string[]} */
   const body = [];
   switch (p.kind) {
+    case "monthly-interest":
+      body.push(`    double bal = ${m.bal};`);
+      body.push(`    double rate = ${m.rate};`);
+      body.push(`    double result = Math.round((bal * rate) / 1200.0 * 100.0) / 100.0;`);
+      body.push(`    System.out.printf("%.2f%n", result);`);
+      break;
+    case "bank-withdraw":
+      body.push(`    double bal = ${m.bal};`);
+      body.push(`    double wdrw = ${m.wdrw};`);
+      body.push(`    double result = wdrw <= bal ? Math.round((bal - wdrw) * 100.0) / 100.0 : bal;`);
+      body.push(`    System.out.printf("%.2f%n", result);`);
+      break;
+    case "card-tran-type-fee":
+      body.push(`    String type = ${JSON.stringify(m.trnType)};`);
+      body.push(`    double amt = ${m.amt};`);
+      body.push(`    double rate = ${m.rate};`);
+      body.push(`    double fee;`);
+      body.push(`    if ("01".equals(type)) {`);
+      body.push(`      fee = Math.round(amt * rate * 100.0) / 100.0;`);
+      body.push(`    } else if ("02".equals(type)) {`);
+      body.push(`      fee = Math.round(amt * rate * 0.5 * 100.0) / 100.0;`);
+      body.push(`    } else {`);
+      body.push(`      fee = 0.0;`);
+      body.push(`    }`);
+      body.push(`    System.out.printf("%.2f%n", fee);`);
+      break;
     case "rounded-product":
       body.push(`    double amount = ${m.a};`);
       body.push(`    double rate = ${m.b};`);
@@ -3045,6 +3162,32 @@ function emitCsharp(p, expected, id) {
   /** @type {string[]} */
   const body = [];
   switch (p.kind) {
+    case "monthly-interest":
+      body.push(`    double bal = ${m.bal};`);
+      body.push(`    double rate = ${m.rate};`);
+      body.push(`    double result = Math.Round((bal * rate) / 1200.0, 2);`);
+      body.push(`    Console.WriteLine(result.ToString("0.00"));`);
+      break;
+    case "bank-withdraw":
+      body.push(`    double bal = ${m.bal};`);
+      body.push(`    double wdrw = ${m.wdrw};`);
+      body.push(`    double result = wdrw <= bal ? Math.Round(bal - wdrw, 2) : bal;`);
+      body.push(`    Console.WriteLine(result.ToString("0.00"));`);
+      break;
+    case "card-tran-type-fee":
+      body.push(`    string type = ${JSON.stringify(m.trnType)};`);
+      body.push(`    double amt = ${m.amt};`);
+      body.push(`    double rate = ${m.rate};`);
+      body.push(`    double fee;`);
+      body.push(`    if (type == "01") {`);
+      body.push(`      fee = Math.Round(amt * rate, 2);`);
+      body.push(`    } else if (type == "02") {`);
+      body.push(`      fee = Math.Round(amt * rate * 0.5, 2);`);
+      body.push(`    } else {`);
+      body.push(`      fee = 0.0;`);
+      body.push(`    }`);
+      body.push(`    Console.WriteLine(fee.ToString("0.00"));`);
+      break;
     case "rounded-product":
       body.push(`    double amount = ${m.a};`);
       body.push(`    double rate = ${m.b};`);

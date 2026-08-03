@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_WIZARD_CATALOG_KIND = "chrysalis.wisp-wizard-catalog";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -8,9 +9,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export function extractWispWizardCatalog(opts = {}) {
   const wispRoot = resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
   const sourcePath = join(wispRoot, "src/lib/config/wizardCatalog.ts");
   const outPath = resolve(

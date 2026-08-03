@@ -13,7 +13,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string] $Project,
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm",
+  [string] $Name = "",
   [switch] $TunnelThroughIap,
   [switch] $StartStatusServer,
   [switch] $SkipHubFinish
@@ -22,6 +22,8 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 $bootstrap = Join-Path $PSScriptRoot "gce-test-vm-bootstrap.sh"
 $finish = Join-Path $PSScriptRoot "gce-hub-finish-deploy.sh"
 $tarball = Join-Path $env:TEMP ("chrysalis-src-" + [guid]::NewGuid().ToString("n") + ".tar.gz")

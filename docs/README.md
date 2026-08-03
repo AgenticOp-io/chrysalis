@@ -16,6 +16,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [AI Assist + Migration Chat](./AI-ASSIST.md) | MCP + chat; LiteRT refused |
 | [**Cursor Pilot Kit**](./CURSOR-PILOT-KIT.md) | **GTM #1** — MCP + laravel-min self-serve pilot |
 | [Public engine claim](./PUBLIC-ENGINE-CLAIM.md) | Apache trust-fix checklist before going public |
+| [Go public](./GO-PUBLIC.md) | Operator flip runbook (smokes + history scrub + `gh` visibility) |
 | [Leadership scoreboard](./LEADERSHIP-SCOREBOARD.md) | SSOT — closed D6448-ST + secondary dialects + honest skips |
 | [Do not invent](./DO-NOT-INVENT.md) | Index of refused façades / honest holes (D6442/D6447) + links to `fixtures/ci/*honest*` |
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |

@@ -83,7 +83,24 @@ export async function runPublicEngineClaimSmoke() {
       "CURSOR-PILOT-KIT",
       "Apache-2.0",
       "pilot:cobol-clbs",
+      "GO-PUBLIC.md",
     ),
+  });
+
+  checks.push({
+    id: "go-public-runbook",
+    ok: mustInclude(
+      join(ROOT, "docs/GO-PUBLIC.md"),
+      "gh repo edit",
+      "hub:oss-scrub-smoke",
+      "visibility public",
+      "D6447",
+    ),
+  });
+
+  checks.push({
+    id: "notice-file",
+    ok: mustInclude(join(ROOT, "NOTICE"), "AgenticOp", "Chrysalis"),
   });
 
   checks.push({

@@ -15,11 +15,13 @@ param(
   [Parameter(Mandatory = $true)]
   [string] $Project,
   [string] $Zone = "us-central1-a",
-  [string] $Name = "chrysalis-test-vm",
+  [string] $Name = "",
   [switch] $TunnelThroughIap
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gce-protected-instances.ps1")
+if (-not $Name) { $Name = Get-ChrysalisGceDefaultInstance }
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $script = Join-Path $PSScriptRoot "gce-hub-nginx-tls.sh"
 $example = Join-Path $repoRoot "docs/nginx/chrysalis-hub.vhost.example"

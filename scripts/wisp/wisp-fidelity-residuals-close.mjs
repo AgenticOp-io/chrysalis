@@ -15,6 +15,10 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { firebaseDemoIdToken, liveRefreshWispApiGoldens } from "../lib/live-refresh-api-goldens.mjs";
 import { liveMutateTraceGoldens } from "../lib/live-mutate-trace-goldens.mjs";
+import {
+  wispPlatformAdminEmail,
+  wispPlatformAdminPassword,
+} from "../lib/wisp-demo-credentials.mjs";
 
 export const RESIDUALS_CLOSE_KIND = "chrysalis.wisp.fidelity-residuals-close";
 
@@ -114,11 +118,10 @@ export async function runFidelityResidualsClose(opts = {}) {
     status: "skipped-no-credentials",
     note: "Set CHRYSALIS_WISP_PLATFORM_ADMIN_EMAIL + PASSWORD to probe /api/users",
   };
-  const adminEmail = (process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_EMAIL || "").trim() || "admin@wisptools.io";
-  const adminPassword =
-    (process.env.CHRYSALIS_WISP_PLATFORM_ADMIN_PASSWORD || "").trim() || "WisptoolsAdmin2026!";
-  // Always attempt platform-admin probe (bootstrap script sets password when run).
-  {
+  const adminEmail = wispPlatformAdminEmail();
+  const adminPassword = wispPlatformAdminPassword({ required: false });
+  // Probe platform-admin only when password is set (no committed default).
+  if (adminPassword) {
     const adminLogin = await firebaseDemoIdToken({ email: adminEmail, password: adminPassword });
     if (adminLogin.ok && adminLogin.idToken) {
       const r = await fetch(`${baseUrl}/api/users`, {

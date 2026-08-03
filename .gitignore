@@ -123,3 +123,17 @@ fixtures/hub-cobol-clbs-mini/copybook/EXTFMAP.cpy
 fixtures/hub-cobol-clbs-mini/copybook/DFHATTR.cpy
 fixtures/hub-cobol-clbs-mini/copybook/CMQ*.cpy
 
+# Local OSS hygiene — never ship dumps / cobc artifacts / probe trees
+generated/_*
+generated/_ibm-mq-dev/
+_gce-st-*
+_wave-st-*
+_ext_hits.txt
+_holes-tmp.json
+_prove*.out
+fixtures/hub-cobol-clbs-mini/batch/.chrysalis-cobc/
+fixtures/_deno-serve-probe/
+fixtures/_drogon-probe/
+fixtures/_revel-probe/
+fixtures/hub-wisp-management/routes.cwl.mojibake-backup
+

@@ -26,6 +26,10 @@
       "effects": [],
       "operands": [],
       "attrs": {
+        "callTargets": [
+          "SUBPROG"
+        ],
+        "goback": 1,
         "programIds": [
           "LEGACY-CALL"
         ],
@@ -34,6 +38,9 @@
           "call",
           "accept",
           "display"
+        ],
+        "usageTokens": [
+          "DISPLAY"
         ]
       },
       "origin": {

@@ -14,15 +14,14 @@ import { buildWispDemoManifest } from "../wisp-cwl-demo-manifest.mjs";
 import { patchOperatorGceDeployPipelineConfig, loadWispPipelineConfig } from "./cwl-gateway-config.mjs";
 import { inspectRoutesCwlIntegrity } from "./cwl-apply-surfaces.mjs";
 import { resolveHubConvertIsRouting } from "../hub-ingest/hub-llm-convert-is-routing.mjs";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 export const WISP_SVELTE_NATIVE_CONVERT_KIND = "chrysalis.wisp.svelte-native-convert";
 export const WISP_SVELTE_NATIVE_CONVERT_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const defaultRoot =
-  process.env.CHRYSALIS_WISP_ROOT ??
-  process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR);
 
 function runNode(script, args = [], env = {}) {
   const r = spawnSync(process.execPath, [join(scriptRoot, script), ...args], {

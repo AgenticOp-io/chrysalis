@@ -27,6 +27,7 @@ import {
 } from "../wisp-cwl-pipeline.mjs";
 import { stageWispCwlStaticExportClient } from "../wisp-cwl-firebase-static-stage.mjs";
 import { runWispFirebaseDeploy } from "../wisp-cwl-firebase-deploy.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const RESTART_KIND = "chrysalis.wisp.convert-restart";
 export const RESTART_SCHEMA_VERSION = 1;
@@ -36,9 +37,7 @@ const reportPath = join(root, "reports/wisp/convert-restart.json");
 
 const WISP_ROOT_CANDIDATES = [
   process.env.CHRYSALIS_WISP_ROOT,
-  process.env.WISP_MODULE_DIR,
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
-  "C:/Users/david/Downloads/WISPTools/Module_Manager",
+  process.env.WISP_MODULE_DIR,
 ].filter(Boolean);
 
 function resolveWispRoot() {

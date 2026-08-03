@@ -34,6 +34,7 @@ import {
 } from "../wisp-cwl-pipeline.mjs";
 import { stageWispCwlStaticExportClient } from "../wisp-cwl-firebase-static-stage.mjs";
 import { runWispFirebaseDeploy } from "../wisp-cwl-firebase-deploy.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_POC_FROM_SCRATCH_KIND = "chrysalis.wisp.poc-from-scratch";
 export const WISP_POC_FROM_SCRATCH_SCHEMA_VERSION = 1;
@@ -42,9 +43,7 @@ export const WISP_POC_FROM_SCRATCH_GATE = "G9992";
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 /** Candidate Module_Manager roots when env is unset. */
-const WISP_ROOT_CANDIDATES = [
-  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
-  "C:/Users/david/Downloads/WISPTools/Module_Manager",
+const WISP_ROOT_CANDIDATES = [
 ];
 
 /**

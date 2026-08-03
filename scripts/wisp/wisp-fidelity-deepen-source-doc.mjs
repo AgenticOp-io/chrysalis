@@ -9,13 +9,12 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDeepenCandidates, loadCatalog, scriptRoot } from "./wisp-fidelity-deepen-harness.mjs";
 import { extractExpressApiMounts } from "../lib/sync-api-paths-from-backend.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const SOURCE_DOC_KIND = "chrysalis.wisp.fidelity-deepen-source-doc";
 
 const DEFAULT_BACKEND = join(
-  process.env.CHRYSALIS_WISP_ROOT ??
-    process.env.WISP_MODULE_DIR ??
-    "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+  resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   "..",
   "backend-services",
 );
@@ -31,9 +30,7 @@ export function resolveBackendRoot(opts = {}) {
 export function resolveModuleManagerRoot(opts = {}) {
   return resolve(
     opts.wispRoot ??
-      process.env.CHRYSALIS_WISP_ROOT ??
-      process.env.WISP_MODULE_DIR ??
-      "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
+      resolveWispModuleRoot(process.env.CHRYSALIS_WISP_ROOT ?? process.env.WISP_MODULE_DIR),
   );
 }
 
