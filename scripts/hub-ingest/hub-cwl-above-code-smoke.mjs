@@ -8,9 +8,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlGreenfieldCutoverGate } from "./hub-cwl-greenfield-cutover-smoke.mjs";
+import { runCwlLanguagePillarSmoke } from "./hub-cwl-language-pillar-smoke.mjs";
 
 export const CWL_ABOVE_CODE_SMOKE_KIND = "chrysalis.hub.cwl-above-code-smoke";
-export const CWL_ABOVE_CODE_SMOKE_SCHEMA_VERSION = 1;
+export const CWL_ABOVE_CODE_SMOKE_SCHEMA_VERSION = 2;
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -24,6 +25,15 @@ export async function runCwlAboveCodeSmoke(opts = {}) {
     readFileSync(docPath, "utf8").includes("CWL-Above-Code") &&
     readFileSync(docPath, "utf8").includes("disposable");
   checks.push({ id: "docs-cwl-above-code", ok: docOk });
+
+  const pillar = await runCwlLanguagePillarSmoke(opts);
+  checks.push({
+    id: "cwl-language-pillar-core",
+    ok: pillar.ok === true,
+    detail: pillar.ok
+      ? `languageVersion=${pillar.languageVersion};goldens=${pillar.goldenDirs?.length ?? 0}`
+      : (pillar.failed ?? []).map((f) => f.id).join(",") || "pillar-failed",
+  });
 
   const greenfield = await runCwlGreenfieldCutoverGate(opts);
   checks.push({
@@ -56,9 +66,11 @@ export async function runCwlAboveCodeSmoke(opts = {}) {
     ok,
     gate: "G10116",
     decision: "D6541",
+    deepen: "G10123",
     thesis: "CWL is source; TypeScript/Hono/Fastify are disposable emit backends",
     checks,
     failed: checks.filter((c) => !c.ok),
+    pillar,
     greenfield,
     generatedAt: new Date().toISOString(),
   };

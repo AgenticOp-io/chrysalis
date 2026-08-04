@@ -19,12 +19,15 @@ Dual primary (**D6540**) stays: COBOL ∥ language deepen fill **ingress**. Thes
 
 ```bash
 pnpm run hub:hole-type-system-smoke
-pnpm run hub:cwl-above-code-smoke
+pnpm run hub:cwl-language-pillar-smoke   # CWL core (G10123) — check before Convert deepen
+pnpm run hub:cwl-above-code-smoke        # includes pillar + greenfield disposable backends
 pnpm run hub:dispose-plane-smoke
 pnpm run hub:agent-era-substrate-smoke   # composite
 ```
 
 **Deepen (G10117–G10119 pack):** taxonomy includes `runtime:` / `exec:` and types dialect honesty catalogs (`drogon` / `revel` / `nancy` / `deno-serve` / `tapir`) via `classifyTaxonomyCatalogFixtures`. Dispose Plane issues an agent-facing dispose certificate (`chrysalis.dispose.certificate` in `scripts/lib/dispose-certificate.mjs`) — merge only when certificate.ok + confirm. Convert apply writes `.chrysalis/hub-convert.dispose-certificate.json` and refuses apply without it.
+
+**CWL core (G10123 / D6548):** language version + golden fixtures live in `engines/chrysalis-cwl`. Convert always resolves that pillar before claiming CWL-Above-Code green.
 
 ## Explicit non-goals
 

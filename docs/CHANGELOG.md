@@ -1,3 +1,4 @@
+2026-08-04 | Chrysalis | G10123 D6548 CWL language pillar bridge: always check chrysalis-cwl LANGUAGE_VERSION + language-gold gate; hub:cwl-language-pillar-smoke; CWL-Above-Code requires pillar | local | N
 2026-08-03 | Chrysalis | G10115 D6540 Rails routes.rb route-table + thin render json hub:rails-routes-smoke 20/20 (G10006 skip closed at table level); no resources/filters/AR invent | local | N
 2026-08-03 | Chrysalis | G10114 D6540 unpark Revel Go secondary: conf/routes + Controller.Action RenderJSON/Status/Params peels; hub:revel-smoke 20/20 (G10065 skip closed); no router.GET/interceptor invent | local | N
 2026-08-03 | Chrysalis | G10114 D6540 dual primary (COBOL ∥ language deepen); unpark Nancy FX route-surface hub:nancy-smoke 20/20 (G10050 skip closed); no NancyHost invent | local | N

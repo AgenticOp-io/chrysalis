@@ -6,10 +6,14 @@
 
 ## Public API
 
-- Grammar and semantics: **`docs/CWL.md`**
+- Grammar and semantics: **`docs/language/CWL.md`**
+- Language version: **`LANGUAGE_VERSION.md`**
+- Golden fixtures: **`fixtures/language-gold/`**
+- Round-trip gate: **`npm run test:cwl-roundtrip`**
 - **Runtime:** **`@chrysalis/runtime-cwl`** — in-process HTTP server via WebIR simulation (G154)
 - **Emit:** **`@chrysalis/emit-runtime-cwl`** — deployable Node project (`routes.cwl` + `webir.json` + server entry)
 - Ingest: **`scripts/hub-ingest/cwl-ingest.mjs`** (`.cwl` → WebIR)
+- Print: **`scripts/hub-ingest/cwl-print.mjs`** (AST → `.cwl`, no WebIR)
 - Emit: **`scripts/hub-ingest/emit-cwl-from-hub.mjs`** (WebIR → `.cwl`)
 - Parser: **`scripts/hub-ingest/cwl-parser.mjs`**
 

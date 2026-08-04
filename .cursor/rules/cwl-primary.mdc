@@ -1,0 +1,13 @@
+---
+description: Before any CWL package/script/RFC change, check chrysalis-cwl first
+globs: packages/cwl*/**/*.{mjs,js,ts,md},packages/runtime-cwl*/**/*.{mjs,js,ts,md},**/cwl-*.mjs,docs/CWL*.md,scripts/hub-ingest/cwl*.mjs
+alwaysApply: false
+---
+
+# Convert lane — CWL is not yours to redefine
+
+These paths may be junctions or mirrors of **`../chrysalis-cwl`**.
+
+1. Read/edit the real sources under `engines/chrysalis-cwl` first.
+2. Only then sync convert mirrors (see `docs/CWL-PILLAR-HOME.md` and `scripts/hub-ingest/CWL-SCRIPTS-CANONICAL.md`).
+3. Do not land language-only fixes solely in this convert tree.

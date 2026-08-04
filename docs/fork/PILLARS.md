@@ -8,4 +8,6 @@ AgenticOps runs **three interactive components**:
 
 Convert **produces/consumes CWL**. Secure may bridge to CWL later; it must not block convert language maturation, and convert must not absorb Helix.
 
+**Operator rule:** before Convert deepen, check CWL core (`LANGUAGE_VERSION.md` + `hub:cwl-language-pillar-smoke` / CWL-Above-Code). Do not treat every Convert spike as a CWL language change.
+
 Portfolio doc: `AgenticOps/docs/THREE_PILLARS.md`.

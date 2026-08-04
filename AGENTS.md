@@ -6,6 +6,8 @@
 
 **True conversion only. Never demo-only code.**
 
+**CWL ownership:** Language logic lives in **`../chrysalis-cwl`**. Before changing parsers, runtimes, emit packages, language RFCs, or core `cwl-*.mjs` tooling, **always check and edit that pillar first**, then sync junctions/mirrors here (`docs/CWL-PILLAR-HOME.md`). Do not invent divergent CWL behavior only under convert.
+
 Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin, Next, Express, …) — not WISP-only. WISP is the POC that proves the law; the law is product-wide.
 
 | Law | Meaning |

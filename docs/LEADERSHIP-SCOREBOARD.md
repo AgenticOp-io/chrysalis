@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-03 (**G10122** RENAMES layout; **G10121** ODO; **G10120** public corpus; EXTFMAP sole COBOL P0)
+**As of:** 2026-08-04 (**G10123** CWL language pillar; **G10122** RENAMES; EXTFMAP sole COBOL P0)
 
 ---
 
@@ -173,6 +173,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Priority | Work | Status |
 | --- | --- | --- |
 | **S0** | Agent-era substrate (Hole Type System · CWL-Above-Code · Dispose Plane) | **Entry closed G10116** — dispose certificate on convert-apply; taxonomy + dialect honesty catalogs typed |
+| **S0b** | CWL language pillar core (`LANGUAGE_VERSION` + goldens + round-trip) | **Closed G10123** — always check CWL before Convert deepen; `hub:cwl-language-pillar-smoke` |
 | **L0** | Unpark previously skipped frameworks → route-surface gold | **Active G10114** — Nancy · Rails · Revel · Drogon · Deno.serve · **Tapir G10119** closed · next: Phoenix LiveView (charter only — no invent) |
 | **L1** | Cheap honest-hole peels inside closed secondaries | Reopen when L0 chartered or operator names a dialect |
 | **1** | COBOL Tier A COPY surface | **Closed G10075** |
@@ -185,7 +186,8 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 **Parity bar (languages vs COBOL):** route-surface gold **20/20** + honest residual catalog + no invented runtime. COBOL keeps behavioral cobc prove; languages keep verify gold — do not force-fake LiveView/DI to “match” COBOL subject counts.
 
-**Closed COBOL this finish pack:**
+**Closed this finish pack:**
+- G10123 — CWL language pillar bridge (`chrysalis-cwl` LANGUAGE_VERSION + language-gold local parse→print; Convert `hub:cwl-language-pillar-smoke`; CWL-Above-Code requires pillar)
 - G10122 — Level-66 RENAMES layout inventory (`renames` / `renamesNames` / `renamesRanges`); copybook-rs fixtures `hub-cobol-layout-renames`; best-fit `webir-hole-attrs-renames`
 - G10121 — OCCURS DEPENDING ON layout inventory (`odo` / `dependingOnNames`); JRecord labeled fixtures `hub-cobol-layout-odo`; best-fit `webir-hole-attrs-occurs-depending` (does **not** reopen G10106 exhaust)
 - G10120 — public mega-corpus registry + census off-repo (phases 1–8 mapped; JRecord/cb2xml/zopeneditor/db2-samples/gnucobol-src; **GCE prove STATUS_OK** — CLBS 68/68 + external + census 1156→scale); feature-index + `hub:cobol-corpus-query` + `hub:cobol-peel-candidates`; does **not** close EXTFMAP

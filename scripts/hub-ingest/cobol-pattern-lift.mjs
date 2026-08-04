@@ -99,6 +99,12 @@ const OCCURS_DEPENDING_RE =
 /** Level-66 RENAMES (G10122) — catalog only. */
 const RENAMES_CLAUSE_RE =
   /\b66\s+([A-Za-z0-9-]+)\s+RENAMES\s+([A-Za-z0-9-]+)(?:\s+THRU\s+([A-Za-z0-9-]+))?/gi;
+/** COPY … REPLACING head (G10124) — not INITIALIZE/INSPECT REPLACING. */
+const COPY_REPLACING_HEAD_RE =
+  /\bCOPY\s+([A-Za-z0-9][A-Za-z0-9-]*)(?:\s+(?:OF|IN)\s+[A-Za-z0-9][A-Za-z0-9-]*)?\s+REPLACING\b/gi;
+/** One REPLACING pair: optional LEADING/TRAILING + ==…== or quoted literals. */
+const COPY_REPLACING_PAIR_RE =
+  /\b(LEADING|TRAILING)?\s*(?:==([^=]+)==|"([^"]+)"|'([^']+)')\s+BY\s+(?:==([^=]+)==|"([^"]+)"|'([^']+)')/gi;
 /** SEARCH table — not END-SEARCH. */
 const SEARCH_RE = /(?<!END-)\bSEARCH\s+[A-Z0-9-]+/gi;
 const EVALUATE_NUMERIC_WHEN_RE = /\bWHEN\s+(\d+)\b/gi;
@@ -492,6 +498,19 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
   if (typeof inv?.renames === "number" && inv.renames > 0) attrs.renames = inv.renames;
   if (inv?.renamesNames?.length) attrs.renamesNames = [...inv.renamesNames];
   if (inv?.renamesRanges?.length) attrs.renamesRanges = [...inv.renamesRanges];
+  // G10124 — COPY … REPLACING (catalog only; no copy-expansion invent).
+  if (typeof inv?.copyReplacing === "number" && inv.copyReplacing > 0) {
+    attrs.copyReplacing = inv.copyReplacing;
+  }
+  if (inv?.copyReplacingBooks?.length) {
+    attrs.copyReplacingBooks = [...inv.copyReplacingBooks];
+  }
+  if (inv?.copyReplacingPairs?.length) {
+    attrs.copyReplacingPairs = [...inv.copyReplacingPairs];
+  }
+  if (inv?.copyReplacingModes?.length) {
+    attrs.copyReplacingModes = [...inv.copyReplacingModes];
+  }
   // G10106 — CICS INTO/FROM data areas.
   if (inv?.cicsIntoAreas?.length) attrs.cicsIntoAreas = [...inv.cicsIntoAreas];
   if (inv?.cicsFromAreas?.length) attrs.cicsFromAreas = [...inv.cicsFromAreas];
@@ -712,6 +731,7 @@ export function inventoryCobolSource(source, file = "") {
   const procedureDataCatalog = parseCobolProcedureDataCatalog(code);
   const occursDepending = parseCobolOccursDepending(code);
   const renamesCatalog = parseCobolRenames(code);
+  const copyReplacingCatalog = parseCobolCopyReplacing(code);
   const cicsIntoFrom = parseExecCicsIntoFrom(code);
   const cicsControl = parseExecCicsControlCatalog(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
@@ -745,7 +765,9 @@ export function inventoryCobolSource(source, file = "") {
     programIds,
     routes,
     routeCount: routes.length,
-    copybooks: [...new Set(copybooks)],
+    copybooks: [
+      ...new Set([...copybooks, ...copyReplacingCatalog.copyReplacingBooks]),
+    ],
     performs: [...new Set(performs)],
     evaluateWhens: [...new Set(evaluateWhens)],
     evaluateNumericWhens: [...new Set(evaluateNumericWhens)],
@@ -757,6 +779,10 @@ export function inventoryCobolSource(source, file = "") {
     renames: renamesCatalog.renames,
     renamesNames: renamesCatalog.renamesNames,
     renamesRanges: renamesCatalog.renamesRanges,
+    copyReplacing: copyReplacingCatalog.copyReplacing,
+    copyReplacingBooks: copyReplacingCatalog.copyReplacingBooks,
+    copyReplacingPairs: copyReplacingCatalog.copyReplacingPairs,
+    copyReplacingModes: copyReplacingCatalog.copyReplacingModes,
     search,
     procedureUsing,
     procedureUsingArgs,
@@ -1379,6 +1405,72 @@ export function parseCobolRenames(source) {
     renames: names.length,
     renamesNames: [...new Set(names)],
     renamesRanges: [...new Set(ranges)],
+  };
+}
+
+/**
+ * COPY … REPLACING catalog (G10124). Catalog only — no copy-expansion invent.
+ * Does not match INITIALIZE/INSPECT/REPLACE (standalone) REPLACING.
+ *
+ * @param {string} source
+ * @returns {{
+ *   copyReplacing: number,
+ *   copyReplacingBooks: string[],
+ *   copyReplacingPairs: string[],
+ *   copyReplacingModes: string[],
+ * }}
+ */
+export function parseCobolCopyReplacing(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const books = [];
+  /** @type {string[]} */
+  const pairs = [];
+  /** @type {string[]} */
+  const modes = [];
+  COPY_REPLACING_HEAD_RE.lastIndex = 0;
+  let head;
+  while ((head = COPY_REPLACING_HEAD_RE.exec(code)) !== null) {
+    if (head[1]) books.push(String(head[1]).toUpperCase());
+    const start = head.index + head[0].length;
+    // Slice until statement-ending period (not inside ==…==).
+    let end = start;
+    let inPseudo = false;
+    while (end < code.length) {
+      if (code[end] === "=" && code[end + 1] === "=") {
+        inPseudo = !inPseudo;
+        end += 2;
+        continue;
+      }
+      if (!inPseudo && code[end] === ".") break;
+      end += 1;
+    }
+    const body = code.slice(start, end);
+    COPY_REPLACING_PAIR_RE.lastIndex = 0;
+    let pm;
+    let pairCount = 0;
+    while ((pm = COPY_REPLACING_PAIR_RE.exec(body)) !== null) {
+      pairCount += 1;
+      const mode = (pm[1] || "exact").toLowerCase();
+      modes.push(mode);
+      const from = String(pm[2] ?? pm[3] ?? pm[4] ?? "")
+        .trim()
+        .toUpperCase();
+      const to = String(pm[5] ?? pm[6] ?? pm[7] ?? "")
+        .trim()
+        .toUpperCase();
+      if (from && to) pairs.push(`${from}=>${to}`);
+    }
+    if (pairCount === 0) {
+      // Head matched but pairs opaque — still count the COPY REPLACING stmt.
+      modes.push("opaque");
+    }
+  }
+  return {
+    copyReplacing: books.length,
+    copyReplacingBooks: [...new Set(books)],
+    copyReplacingPairs: [...new Set(pairs)],
+    copyReplacingModes: [...new Set(modes)],
   };
 }
 

@@ -448,6 +448,8 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (active)
 
+**Amended 2026-08-04 (D6548 / G10123) — CWL language pillar bootstrap (core check).** Always check CWL before Convert deepen: `engines/chrysalis-cwl` ships `LANGUAGE_VERSION.md` + golden `.cwl` fixtures; Convert gate `hub:cwl-language-pillar-smoke` proves parse→print; `hub:cwl-above-code-smoke` requires pillar green. Dual primary (**D6540**) continues; CWL is SoR for language maturity (not every peel is a CWL RFC).
+
 **Amended 2026-08-03 (D6544 / G10119) — Tapir Scala secondary unparked.** Was G10057 skip. Now `hub-gold-tapir` + `hub:tapir-smoke` (20/20): peel `endpoint.VERB.in` + `serverLogicSuccess` Map/lit — no jsonBody/plainBody invent. Akka ST; Http4s + Finch green. Convert apply wires dispose certificate. Catalog: [`fixtures/ci/tapir-honest-skip.json`](../fixtures/ci/tapir-honest-skip.json) (`closed-route-surface`).
 
 **Amended 2026-08-03 (D6545 / G10120) — Public COBOL mega-corpus census.** Off-repo clones under `CHRYSALIS_COBOL_CORPORA_ROOT` + registry/census (`hub:cobol-corpus-census`). Maps commercial 8-phase corpus advice to Chrysalis honesty — **does not** close `copy:EXTFMAP`. Doc: [`docs/COBOL-EXTERNAL-PROVE-CORPORA.md`](./COBOL-EXTERNAL-PROVE-CORPORA.md).
