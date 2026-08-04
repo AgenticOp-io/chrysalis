@@ -1,5 +1,8 @@
 # Chrysalis
 
+> **Portfolio path:** `engines/chrysalis-convert` (formerly `PHP_converter`; that name is now a junction here).  
+> **Security sibling:** `engines/chrysalis-security` (Helix). Fork notes: [`docs/fork/README.md`](./docs/fork/README.md) · [`CONVERT_FORK.md`](./CONVERT_FORK.md).
+
 > A web framework you can grow *inside* a legacy PHP app until it consumes it.
 
 Chrysalis turns legacy modernization from a **translation problem** into a
