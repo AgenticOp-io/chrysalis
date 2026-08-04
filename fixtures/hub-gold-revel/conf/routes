@@ -1,0 +1,23 @@
+# hub-gold-revel — 20-route Revel conf/routes table (secondary to Gin ST).
+# METHOD PATH Controller.Action — no router.GET invent (G10114 / D6540).
+
+GET     /health                 App.Health
+GET     /ping                   App.Ping
+GET     /version                App.Version
+GET     /ready                  App.Ready
+GET     /count                  App.Count
+GET     /flag                   App.Flag
+GET     /build                  App.Build
+GET     /tier                   App.Tier
+GET     /meta                   App.Meta
+POST    /echo                   App.Echo
+GET     /items                  App.ListItems
+GET     /items/:id              App.GetItem
+POST    /items                  App.CreateItem
+GET     /search                 App.Search
+PUT     /items/:id              App.UpdateItem
+DELETE  /items/:id              App.DeleteItem
+PATCH   /items/:id              App.PatchItem
+GET     /users/:userId          App.GetUser
+GET     /stats                  App.Stats
+POST    /notify                 App.Notify

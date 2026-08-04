@@ -1,33 +1,24 @@
 {
-  "kind": "chrysalis.hub.nancy-honest-skip",
+  "kind": "chrysalis.hub.nancy-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T03:49:00.000Z",
-  "decision": "skip",
-  "gate": "G10050",
-  "note": "Nancy FX secondary dialect deferred (D6447). Not cheap on shared csharp-ast-ingest / parseCsharpRoutes: unlike Carter (G10041), Nancy does not reuse Minimal API app.Map* peels. Origin surface is NancyModule constructor Get|Post|Put|Patch|Delete(\"/path\", …) plus Response.AsJson / Negotiate / HttpStatusCode / dynamic parameters.id — a new route+body+status+param peel suite, not peel-reuse. Probe: 0 routes lifted from NancyModule Get/Post (current peels only see app.Map* + [Http*]). Minimal API remains C# D6448-ST; ASP.NET controllers + Carter stay green. Do not invent Nancy bootstrap (NancyHost/IApp) or AspNet Results.Json into Nancy gold.",
-  "probeEvidence": {
-    "fixture": "fixtures/_nancy-probe/HomeModule.cs (ephemeral probe, not shipped)",
-    "routesLifted": 0,
-    "handlerHoles": 0,
-    "patterns": [
-      "public class HomeModule : NancyModule { public HomeModule() { Get(\"/path\", _ => …); } }",
-      "Get(\"/items/{id}\", parameters => Response.AsJson(new { id = (string)parameters.id }))",
-      "Post(\"/x\", _ => HttpStatusCode.OK)"
-    ]
-  },
-  "requiredOriginShapes": [
-    "public class XxxModule : NancyModule",
-    "public XxxModule() { Get|Post|Put|Patch|Delete(\"/path\", …); }",
-    "Response.AsJson / Negotiate.WithModel / HttpStatusCode.* returns",
-    "{id} path templates + dynamic parameters.id"
-  ],
+  "generatedAt": "2026-08-03T23:40:00.000Z",
+  "decision": "closed-route-surface",
+  "gate": "G10114",
+  "priorSkip": "G10050",
+  "note": "Nancy FX NancyModule constructor Get|Post|Put|Patch|Delete(\"/path\", …) route-surface closed via hub-gold-nancy / hub:nancy-smoke (20/20). Minimal API remains C# D6448-ST; ASP.NET controllers + Carter stay green. Do not invent NancyHost/IApp pipelines or DI (**D6447**).",
+  "smoke": "hub:nancy-smoke",
+  "fixture": "fixtures/hub-gold-nancy",
   "honestHoles": [
-    { "shape": "NancyModule constructor Get|Post|Put|Patch|Delete(\"/path\", …)", "reason": "hub-nancy:module-route" },
-    { "shape": "Response.AsJson / Negotiate.WithModel(+WithStatusCode)", "reason": "hub-nancy:response-json" },
-    { "shape": "HttpStatusCode enum returns", "reason": "hub-nancy:http-status-code" },
-    { "shape": "dynamic parameters.id / Request.Query path-query refs", "reason": "hub-nancy:dynamic-params" },
     { "shape": "NancyHost / IApp / before/after pipelines / DI", "reason": "hub-nancy:bootstrap" },
+    { "shape": "Indexer Get[\"/path\"] = … form", "reason": "hub-nancy:indexer-route" },
+    { "shape": "Negotiate.WithModel / complex content negotiation", "reason": "hub-nancy:negotiate" },
     { "shape": "Non-literal Get|Post paths", "reason": "hub-csharp:path-non-literal" }
   ],
-  "revisitWhen": "Chartered NancyModule corpus appears and peel cost is bounded (constructor Get/Post + AsJson/HttpStatusCode + parameters.id) without inventing NancyHost runtime or stealing ASP.NET Map*/controller peels."
+  "closedShapes": [
+    "NancyModule constructor Get|Post|Put|Patch|Delete(\"/path\", …)",
+    "Response.AsJson(new { … }) + optional .WithStatusCode(HttpStatusCode.*)",
+    "HttpStatusCode.OK|Created|Accepted|NoContent scalar/status returns",
+    "{id} path templates + (string)parameters.id",
+    "(string)Request.Query.q / Request.Query[\"q\"]"
+  ]
 }

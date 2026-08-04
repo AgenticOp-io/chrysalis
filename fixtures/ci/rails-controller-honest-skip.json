@@ -1,10 +1,23 @@
 {
   "kind": "chrysalis.hub.rails-controller-honest-skip",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T22:45:00.000Z",
-  "decision": "skip",
-  "gate": "G10006",
-  "note": "Rails secondary dialect deferred (D6447). Standard Rails is routes.rb `to: 'controller#action'` plus `app/controllers/*_controller.rb` — Phoenix-class cross-file resolve (ActionController, `render json:`, filters). Bounded inline `to: ->(env) { [status, headers, [body]] }` rack lambdas in one file were probed: ruby-ast-ingest (Sinatra `do…end` peel only) lifts route verbs but leaves 6/6 handler holes; closing 20/20 would require a new rack-triple + path_parameters/Rack::Request peel, not a cheap extension. Sinatra D6448-ST remains `hub-flagship-ruby`. Do not invent ActionController or LiveView-like UI.",
+  "generatedAt": "2026-08-03T23:45:00.000Z",
+  "decision": "closed-route-surface",
+  "gate": "G10115",
+  "priorSkip": "G10006",
+  "decisionCharter": "D6540",
+  "note": "Rails secondary route-table surface closed via hub-gold-rails-routes / hub:rails-routes-smoke (20/20). Peels Rails.application.routes.draw get|post|put|patch|delete \"/path\", to: \"ctrl#action\" plus thin ActionController::API render json: / params[:id] cross-file resolve. Sinatra remains Ruby D6448-ST. Do not invent resources/namespace/scope macros, filters, views, ActiveRecord, or LiveView (**D6447**). G10006 full-controller skip superseded at route-table level only.",
+  "fixture": "fixtures/hub-gold-rails-routes",
+  "smoke": "pnpm run hub:rails-routes-smoke",
+  "supported": [
+    "Rails.application.routes.draw do … end",
+    "get|post|put|patch|delete \"/path\", to: \"controller#action\"",
+    "get \"/path\" => \"controller#action\" sugar",
+    "/:id path templates",
+    "class XxxController < ActionController::API def action; render json: … end",
+    "render json: scalar | { key: … } | params[:id]",
+    "render json: …, status: N"
+  ],
   "probeEvidence": {
     "fixture": "fixtures/_rails-probe/routes.rb (ephemeral probe, not shipped)",
     "routesLifted": 6,
@@ -13,19 +26,15 @@
       "get \"/path\", to: ->(_env) { [200, {}, [literal]] }",
       "env[\"action_dispatch.request.path_parameters\"][\"id\"]",
       "Rack::Request.new(env).params[\"q\"]"
-    ]
+    ],
+    "note": "Inline rack lambdas remain honest holes — gold uses controller#action + render json only."
   },
-  "requiredOriginShapes": [
-    "Rails.application.routes.draw do … end",
-    "get|post \"/path\", to: \"controller#action\"",
-    "class XxxController < ActionController::Base … def action … render json: … end"
-  ],
   "honestHoles": [
-    { "shape": "Rails get \"/x\", to: \"ctrl#action\" controller dispatch", "reason": "hub-ruby:rails-controller" },
-    { "shape": "ActionController render json:/status:/head helpers", "reason": "hub-ruby:action-controller" },
     { "shape": "resources / namespace / scope route macros", "reason": "hub-ruby:rails-route-macro" },
+    { "shape": "before/after filters / respond_to / views", "reason": "hub-ruby:action-controller-filters" },
     { "shape": "Inline rack lambda bodies without dedicated peel", "reason": "hub-ruby:rails-rack-lambda" },
-    { "shape": "ActiveJob / ActionCable / ViewComponent UI", "reason": "hub-ruby:rails-ui-runtime" }
+    { "shape": "Strong params / ActiveRecord / ActiveJob / ActionCable", "reason": "hub-ruby:rails-runtime" },
+    { "shape": "ViewComponent / LiveView-like UI", "reason": "hub-ruby:rails-ui-runtime" }
   ],
-  "revisitWhen": "Chartered origin corpus includes real Rails routes+controller pairs (no invented runtime), and peel cost is bounded — likely shared cross-file controller resolve with Phoenix, not Sinatra-only pattern lift."
+  "revisitWhen": "Chartered origin needs resources/namespace macros or deeper ActionController peels without inventing filters/AR/LiveView — keep Sinatra as Ruby ST."
 }

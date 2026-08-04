@@ -1,55 +1,24 @@
 {
-  "kind": "chrysalis.hub.revel-honest-skip",
+  "kind": "chrysalis.hub.revel-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T04:15:00.000Z",
-  "decision": "skip",
-  "gate": "G10065",
-  "note": "Revel Go secondary dialect deferred (D6442/D6447). Not cheap on go-ast-ingest / parseGoRoutes: unlike Gin ST or Buffalo/Martini/Beego-functional peels (app.GET|m.Get|web.Get + same-file handlers), Revel origin is conf/routes `METHOD PATH Controller.Action` plus app/controllers `func (c App) Action() revel.Result` — Rails-class cross-file resolve (G10006 parallel). conf/routes is not .go so the Go lift never sees route tables. Action methods have no `.GET|\".Get(\"/path\"` registration. Probe also shows Params.Route.Get(\"id\") / Params.Query.Get(\"q\") false-positive Chi-style `.Get(\"…\")` matches (phantom paths \"id\"/\"q\", both holes) — not real Revel routes. Closing 20/20 would need conf/routes parser + Controller.Action body peel (RenderJSON / Response.Status / Params) — not Gin/Buffalo/Martini peel-reuse. Gin remains Go D6448-ST; Chi/Echo/Fiber/Iris/Beego/Buffalo/Martini/Gorilla/ServeMux stay green. Do not invent Revel router.GET façades or middleware. No D6527.",
-  "probeEvidence": {
-    "fixture": "fixtures/_revel-probe (ephemeral probe; conf/routes + app/controllers/app.go)",
-    "confRoutesDeclared": 6,
-    "routesLiftedReal": 0,
-    "astRouteCount": 2,
-    "handlerHoles": 2,
-    "falsePositiveNote": "parseGoRoutes Chi verb RE matched c.Params.Route.Get(\"id\") and c.Params.Query.Get(\"q\") as phantom GET routes with paths \"id\"/\"q\"; both lifted as holes — not conf/routes Controller.Action peels",
-    "patterns": [
-      "conf/routes: GET /health App.Health",
-      "conf/routes: GET /items/:id App.GetItem",
-      "type App struct { *revel.Controller }",
-      "func (c App) Health() revel.Result { return c.RenderJSON(true) }",
-      "c.Params.Route.Get(\"id\") / c.Params.Query.Get(\"q\")",
-      "c.Response.Status = 201|202 before RenderJSON"
-    ]
-  },
-  "requiredOriginShapes": [
-    "github.com/revel/revel import",
-    "conf/routes METHOD PATH Controller.Action lines",
-    "type Xxx struct { *revel.Controller }",
-    "func (c Xxx) Action() revel.Result { … }",
-    "c.RenderJSON / c.Render / c.Response.Status",
-    "optional c.Params.Route|Query.Get path/query refs"
-  ],
+  "generatedAt": "2026-08-03T23:46:00.000Z",
+  "decision": "closed-route-surface",
+  "gate": "G10114",
+  "priorSkip": "G10065",
+  "note": "Revel conf/routes METHOD PATH Controller.Action route-surface closed via hub-gold-revel / hub:revel-smoke (20/20). Peels RenderJSON / Response.Status / Params.Route|Query.Get on matching controller Action methods. Gin remains Go D6448-ST; Chi/Echo/Fiber/Iris/Beego/Buffalo/Martini/Gorilla/ServeMux stay green. Do not invent revel router.GET façades or interceptors (**D6447**).",
+  "smoke": "hub:revel-smoke",
+  "fixture": "fixtures/hub-gold-revel",
   "honestHoles": [
-    { "shape": "conf/routes METHOD PATH Controller.Action table", "reason": "hub-revel:conf-routes" },
-    { "shape": "Controller Action methods returning revel.Result", "reason": "hub-revel:controller-action" },
-    { "shape": "c.RenderJSON / c.Render / revel.Result helpers", "reason": "hub-revel:render-result" },
-    { "shape": "c.Response.Status / revel response status", "reason": "hub-revel:response-status" },
-    { "shape": "c.Params.Route|Query.Get path/query refs", "reason": "hub-revel:params" },
     { "shape": "Interceptors / filters / modules / revel.OnAppStart", "reason": "hub-revel:lifecycle" },
     { "shape": "Invented revel router.GET|/Martini-style façade (not origin)", "reason": "hub-revel:router-invent" },
+    { "shape": "c.Render / template HTML beyond cheap JSON", "reason": "hub-revel:render-html" },
     { "shape": "Non-literal conf/routes paths", "reason": "hub-go:path-non-literal" }
   ],
-  "peersStayGreen": [
-    "hub:go-flagship / hub:complete-conversion-prove:go (Gin ST)",
-    "hub:chi-smoke (G10009)",
-    "hub:echo-smoke (G10010)",
-    "hub:fiber-smoke (G10017)",
-    "hub:iris-smoke (G10038)",
-    "hub:beego-smoke (G10045)",
-    "hub:buffalo-smoke (G10055)",
-    "hub:martini-smoke (G10056)",
-    "hub:gorilla-smoke (G10018)",
-    "hub:servemux-smoke (G10030)"
-  ],
-  "revisitWhen": "Chartered Revel corpus appears and peel cost is bounded (literal conf/routes METHOD+path + same-file or resolved Controller.Action + RenderJSON/Status/Params) without inventing router.GET façades or stealing Gin/Buffalo/Martini peels — likely shared Rails/Phoenix-class cross-file controller resolve (G10006)."
+  "closedShapes": [
+    "conf/routes METHOD PATH Controller.Action table",
+    "func (c App) Action() revel.Result same-project resolve",
+    "c.RenderJSON(lit|map[string]interface{}{…})",
+    "c.Response.Status = N before RenderJSON",
+    "c.Params.Route.Get(\"id\") / c.Params.Query.Get(\"q\")"
+  ]
 }

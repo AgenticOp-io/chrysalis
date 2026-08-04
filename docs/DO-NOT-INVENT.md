@@ -12,11 +12,11 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | Catalog | Covers |
 | --- | --- |
 | [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN / AdonisJS ORIGIN / CF Workers fetch-export |
-| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux secondaries; Gin ST (+ Group peel G10066); Revel skipped (G10065) |
-| [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **skipped** (G10065; conf/routes + Controller.Action; no D6527) |
+| [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux / Revel secondaries; Gin ST (+ Group peel G10066) |
+| [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **closed route-surface** (G10114; was G10065 skip; interceptors/router.GET invent remain holes) |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
-| [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails secondary peel **skipped** (G10006; not cheap) |
+| [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails route-table **closed G10115**; resources/filters/AR remain holes |
 | [`fixtures/ci/roda-honest-holes.json`](../fixtures/ci/roda-honest-holes.json) | Roda secondary (G10022); nested `r.on`/plugins = holes |
 | [`fixtures/ci/quart-honest-holes.json`](../fixtures/ci/quart-honest-holes.json) | Quart secondary (G10026); middleware/WebSocket/Blueprint beyond cheap = holes |
 | [`fixtures/ci/flask-blueprint-honest-holes.json`](../fixtures/ci/flask-blueprint-honest-holes.json) | Flask Blueprint secondary peel (G10070); cross-file/nested/register override/middleware = holes |
@@ -95,8 +95,8 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Phoenix LiveView / controllers | Cross-file `Ctrl,:action` + maps | phoenix-controller-honest-skip |
 | IBM BMS maps | Licensed `DFHAID` / `DFHBMSCA` / `EXTFMAP` in SDFHCOB | **G10084** symbol catalog only; COPY stay unresolved |
 | COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS/MQ/IMS behavior | **65/65** after G10078; Medium+ is **structural** (G10083); no LCB claim |
-| Rails secondary | `routes.rb` + controller cross-file; inline rack lambda peel not cheap | `rails-controller-honest-skip` (G10006) |
-| Revel Go secondary | `conf/routes` + `Controller.Action` / `revel.Result` (Rails-class); no Gin/Buffalo/Martini peel-reuse | `revel-honest-skip` (G10065; no D6527) |
+| Rails secondary | route-table + thin `render json` closed G10115; resources/filters/AR = holes | `rails-controller-honest-skip` (G10115) |
+| Revel Go secondary | `conf/routes` + `Controller.Action` / `revel.Result` — route-surface closed; no router.GET invent | `revel-honest-skip` (G10114 closed; interceptors remain holes) |
 | Blazor / ERB / Django | Inventory + markup adapters | MULTI-ORIGIN Tier C — plan amendment |
 | JAX-RS CDI / filters / providers / Application | Full CDI container, filter pipeline, `Application` bootstrap | Spring is Java ST; JAX-RS resource routes closed (G10012); CDI/filters/providers = holes |
 | Micronaut DI / filters / Application | `@Singleton`/`@Factory` DI, `HttpServerFilter`, `Application.run` | Spring is Java ST; Micronaut controller routes closed (G10020); DI/filters/Application = holes |
@@ -138,4 +138,4 @@ Prove: `pnpm run hub:cobol-clbs-prove-smoke` · Docs: [`COBOL-MODERNIZATION-PROV
 
 1. **Add hole** — append to the matching `fixtures/ci/*honest*.json` (or new catalog) + one line here + scoreboard “Honest skips”.
 2. **Close hole** — only after a real origin peel + smoke/prove; never by stubbing runtime.
-3. **Charter** — Flutter / LiveView / BMS / Rails (G10006 skipped) / Blazor require an explicit plan amendment before build.
+3. **Charter** — Flutter / LiveView / BMS / Rails resources·filters (beyond G10115 route-table) / Blazor require an explicit plan amendment before build.

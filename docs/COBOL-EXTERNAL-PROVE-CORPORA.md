@@ -1,10 +1,50 @@
 # External COBOL prove corpora
 
 > **Status:** active  
-> **Gate:** `pnpm run hub:cobol-external-prove-smoke`  
-> **Does not claim:** LegacyCodeBench public leaderboard scores  
+> **Gate:** `pnpm run hub:cobol-external-prove-smoke` · census `pnpm run hub:cobol-corpus-census` (**G10120**)  
+> **Does not claim:** LegacyCodeBench public leaderboard scores · does **not** close `copy:EXTFMAP`
 
 Public COBOL modernization / training demos run through Chrysalis **inventory + pattern-lift + optional cobc probe**, plus the in-repo CLBS 3-track prove.
+
+## Mega-corpus strategy (commercial deepen)
+
+A 5k–20k public copybook/BMS/DCLGEN corpus **helps** layout peels (COMP-3 / OCCURS / REDEFINES / national), BMS inventory stress, and external prove scale. It does **not** replace:
+
+| Need | Why corpora are not enough |
+| --- | --- |
+| `copy:EXTFMAP` P0 | Application/licensed member — ZD&T drop or proven ABSENT only (**D6447**) |
+| CardDemo CICS online runtime | Needs CICS TS / CICS TX — not inventable |
+| IBM Restricted Materials on `main` | Forbidden — blobs stay under `CHRYSALIS_COBOL_CORPORA_ROOT` |
+
+**How we assemble:** clone public repos off-repo (`scripts/gce-clone-cobol-corpora.sh`), registry in [`fixtures/ci/cobol-public-corpus-registry.json`](../fixtures/ci/cobol-public-corpus-registry.json), census via `hub:cobol-corpus-census`. Deferred until license review: Hercules/MVS/CBT Tape dumps, Micro Focus redistributables.
+
+## Phased map (external mega-corpus advice → Chrysalis)
+
+Adopt the 8-phase commercial corpus plan **only** where it stays translate/inventory-honest (**D6442** / **D6447**). Realistic public totals (20k–50k) are fine **off-repo**; they do not replace ZD&T/ABSENT for `EXTFMAP`.
+
+| Phase | External advice | Chrysalis stance |
+| --- | --- | --- |
+| **1** Production apps | AWS CardDemo ★★★★★ + bank demos | **Already primary** — CardDemo in external prove + online CICS/SQL hole inventory; Rocket Bank / AZ-Legacy also cloned |
+| **2** IBM samples | Enterprise / DB2 / CICS / DFDL / Z Open Editor | **Partial** — `cobol-is-fun`, OMP course, `ibm-zopeneditor-sample`. DFDL only when clearly redistributable — never Restricted Materials on `main` |
+| **3** GnuCOBOL | Compiler tests, intrinsics, REPORT WRITER, SORT | **Active** — examples + CLBS behavioral prove; full testsuite = optional off-repo deepen |
+| **4** CICS / BMS folders | Harvest maps into login/menu/inquiry/… trees | **Inventory-only** — census `DFHMSD` + CardDemo `app/bms`. **Refuse** inventing BMS folder façades |
+| **5** DB2 | DCLGEN, SQLCA/SQLDA, embedded SQL | **Partial** — CardDemo `DCL*` + `EXEC SQL` inventory; no invented DB2 runtime |
+| **6** IMS | PCB / PSB / segments | **Deferred** — public redistributable only; `EXEC DLI` stays hole |
+| **7** Layout stress | Artificial COMP-*/ODO/66/77/78/88 books | **Prefer upstream** (JRecord/cb2xml/CardDemo). Artificial stress = **labeled fixtures** only — not fake production apps |
+| **8** Parser torture | COPY REPLACING, nested REDEFINES/OCCURS, HANDLE/LINK/XCTL | **Prefer upstream** CardDemo online programs already exercising those shapes |
+
+**Metadata index:** `reports/cobol/corpus-feature-index.json` (per-file feature tags) + census rollups. Query on any machine that has the fetched index (no cobc):
+
+```powershell
+pnpm run hub:cobol-corpus-query -- --all odo --limit 20
+pnpm run hub:cobol-corpus-query -- --all redefines,comp3 --corpus jrecord
+pnpm run hub:cobol-corpus-query -- --any execCics,dfhmsd
+pnpm run hub:cobol-peel-candidates   # ranked layout/BMS candidates → reports/cobol/peel-candidates.json
+```
+
+SQLite is optional later if clones hit multi-k and JSON query UX is too slow.
+
+**CardDemo scale note:** upstream marketing “250+ programs” includes generated/variant trees; a shallow clone typically yields on the order of tens of `.cbl` + tens of `.cpy` + BMS/JCL — census reports the on-disk truth, not brochure counts.
 
 ## Corpora
 
@@ -18,21 +58,42 @@ Public COBOL modernization / training demos run through Chrysalis **inventory + 
 | `gnucobol-examples` | [OlegKunitsyn/gnucobol-examples](https://github.com/OlegKunitsyn/gnucobol-examples) |
 | `az-legacy-engineering` | [AZ-Legacy-Engineering](https://github.com/bhbandam/AZ-Legacy-Engineering) |
 | `rocket-bank` | [RocketSoftware BankDemo](https://github.com/RocketSoftwareCOBOLandMainframe/BankDemo) |
+| `jrecord` | [bmTas/JRecord](https://github.com/bmTas/JRecord) — layout copybook gold (COMP-3/OCCURS/REDEFINES) |
+| `cb2xml` | [bmTas/cb2xml](https://github.com/bmTas/cb2xml) — copybook→XML layouts |
+| `ibm-zopeneditor-sample` | [IBM/zopeneditor-sample](https://github.com/IBM/zopeneditor-sample) — phase 2 IBM public sample |
+| `copybook-rs` | [EffortlessMetrics/copybook-rs](https://github.com/EffortlessMetrics/copybook-rs) — layout stress fixtures |
+| `zalmane-copybook` / `cobol-copybook-to-json` | Public copybook parser/sample fixtures |
+| `cobol-check` / `omp-cobol-check` | neopragma + OMP cobol-check samples |
+| `cobol-unit-test` / `cobol-rekt` | Unit-test samples + reverse-eng toolkit |
+| `ibm-db2-samples` | [IBM/db2-samples](https://github.com/IBM/db2-samples) — EXEC SQL inventory |
+| `gnucobol-src` | [OCamlPro/gnucobol](https://github.com/OCamlPro/gnucobol) — compiler tests (large) |
+| `copybook2json` / `proleap-cobol-parser` | Layout + parser torture fixtures |
 
 Sources overlap [LegacyCodeBench](https://github.com/Kalmantic/legacycodebench) `DATASET_SOURCES` (COBOL only).
 
-## Setup (GCE / Linux)
+## Setup (GCE / Linux only)
+
+**Do not run Node COBOL prove/census on Windows** — cobc / fixture timing blocks there. Use GCE:
+
+```powershell
+pnpm run test:gce:cobol            # detached: clone + census + full prove
+pnpm run test:gce:cobol:status
+pnpm run test:gce:cobol:fetch
+```
+
+On the VM (or after sync):
 
 ```bash
 bash scripts/gce-clone-cobol-corpora.sh
 export CHRYSALIS_COBOL_CORPORA_ROOT=$HOME/chrysalis-cobol-corpora
 export CHRYSALIS_COBOL_CLBS_ROOT=$HOME/COBOL-Legacy-Benchmark-Suite
+pnpm run hub:cobol-corpus-census          # G10120 layout/BMS/DCLGEN counts
 pnpm run hub:cobol-external-prove-smoke
 # or all COBOL gates:
 bash scripts/gce-cobol-full-prove-gates.sh
 ```
 
-Report: `reports/cobol/external-prove.json` (includes **scoreboard** + `cobcBar` + `emitRefContracts` + `emitGeneratedContracts`).
+Report: `reports/cobol/external-prove.json` (includes **scoreboard** + `cobcBar` + `emitRefContracts` + `emitGeneratedContracts`); census: `reports/cobol/corpus-census.json`.
 
 ### Scoreboard fields (honest)
 

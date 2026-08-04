@@ -2320,6 +2320,66 @@ export async function runCobolBestFitSmoke() {
     reason: `retTid=${(cardCtrlAttrs?.cicsReturnTransids || []).join(",")} form=${(cardCtrlAttrs?.cicsFormtimeOptions || []).join(",")} abend=${(cardCtrlAttrs?.cicsAbendAbcodes || []).join(",")} sync=${cardCtrlAttrs?.cicsSyncpoint} enq=${(inqCtrlAttrs?.cicsEnqResources || []).join(",")} retrieve=${(codateCtrlAttrs?.cicsRetrieveInto || []).join(",")}`,
   });
 
+  // G10121 — OCCURS DEPENDING ON layout catalog (new artifact class; does not reopen G10106 exhaust).
+  const odoFixDir = join(ROOT, "fixtures/hub-cobol-layout-odo");
+  const odoSimplePath = join(odoFixDir, "OccursDepending1.cbl");
+  const odoComplexPath = join(odoFixDir, "OccursDepending.cbl");
+  const odoSimpleSrc = existsSync(odoSimplePath) ? readFileSync(odoSimplePath, "utf8") : "";
+  const odoComplexSrc = existsSync(odoComplexPath) ? readFileSync(odoComplexPath, "utf8") : "";
+  const odoSimpleInv = odoSimpleSrc
+    ? inventoryCobolSource(odoSimpleSrc, "OccursDepending1.cbl")
+    : null;
+  const odoComplexInv = odoComplexSrc
+    ? inventoryCobolSource(odoComplexSrc, "OccursDepending.cbl")
+    : null;
+  const odoSimpleAttrs = odoSimpleInv ? buildCobolWebIrHoleAttrs(odoSimpleInv) : null;
+  const odoComplexAttrs = odoComplexInv ? buildCobolWebIrHoleAttrs(odoComplexInv) : null;
+  results.push({
+    id: "webir-hole-attrs-occurs-depending",
+    ok:
+      !!odoSimpleAttrs &&
+      Number(odoSimpleAttrs.odo) >= 2 &&
+      Array.isArray(odoSimpleAttrs.dependingOnNames) &&
+      odoSimpleAttrs.dependingOnNames.includes("MONTHS") &&
+      odoSimpleAttrs.dependingOnNames.includes("WEEK-NO") &&
+      !!odoComplexAttrs &&
+      Number(odoComplexAttrs.odo) >= 2 &&
+      Number(odoComplexAttrs.redefines) >= 1 &&
+      Array.isArray(odoComplexAttrs.dependingOnNames) &&
+      odoComplexAttrs.dependingOnNames.includes("LEVEL-COUNT") &&
+      odoComplexAttrs.dependingOnNames.includes("MONTHS"),
+    reason: `simpleOdo=${odoSimpleAttrs?.odo} deps=${(odoSimpleAttrs?.dependingOnNames || []).join(",")} complexOdo=${odoComplexAttrs?.odo} complexRedef=${odoComplexAttrs?.redefines} complexDeps=${(odoComplexAttrs?.dependingOnNames || []).join(",")}`,
+  });
+
+  // G10122 — Level-66 RENAMES layout catalog (does not reopen G10106 exhaust).
+  const renFixDir = join(ROOT, "fixtures/hub-cobol-layout-renames");
+  const renRedefPath = join(renFixDir, "renames_r4_redefines.cpy");
+  const renOdoPath = join(renFixDir, "renames_r5_odo.cpy");
+  const renRedefSrc = existsSync(renRedefPath) ? readFileSync(renRedefPath, "utf8") : "";
+  const renOdoSrc = existsSync(renOdoPath) ? readFileSync(renOdoPath, "utf8") : "";
+  const renRedefInv = renRedefSrc
+    ? inventoryCobolSource(renRedefSrc, "renames_r4_redefines.cpy")
+    : null;
+  const renOdoInv = renOdoSrc ? inventoryCobolSource(renOdoSrc, "renames_r5_odo.cpy") : null;
+  const renRedefAttrs = renRedefInv ? buildCobolWebIrHoleAttrs(renRedefInv) : null;
+  const renOdoAttrs = renOdoInv ? buildCobolWebIrHoleAttrs(renOdoInv) : null;
+  results.push({
+    id: "webir-hole-attrs-renames",
+    ok:
+      !!renRedefAttrs &&
+      Number(renRedefAttrs.renames) >= 1 &&
+      Array.isArray(renRedefAttrs.renamesNames) &&
+      renRedefAttrs.renamesNames.includes("PAYMENT-INFO") &&
+      Number(renRedefAttrs.redefines) >= 1 &&
+      !!renOdoAttrs &&
+      Number(renOdoAttrs.renames) >= 1 &&
+      renOdoAttrs.renamesNames.includes("ORDER-ITEMS") &&
+      Number(renOdoAttrs.odo) >= 1 &&
+      Array.isArray(renOdoAttrs.dependingOnNames) &&
+      renOdoAttrs.dependingOnNames.includes("ITEM-COUNT"),
+    reason: `redefRen=${renRedefAttrs?.renames} names=${(renRedefAttrs?.renamesNames || []).join(",")} redef=${renRedefAttrs?.redefines} odoRen=${renOdoAttrs?.renames} odoNames=${(renOdoAttrs?.renamesNames || []).join(",")} odo=${renOdoAttrs?.odo} deps=${(renOdoAttrs?.dependingOnNames || []).join(",")}`,
+  });
+
   /** Required exhaust surface keys on a rich online hole-attr object. */
   const exhaustKeys = [
     "execCicsOps",

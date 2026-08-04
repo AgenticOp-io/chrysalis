@@ -18,6 +18,18 @@ const RUBY_NAMESPACE_OPEN_RE =
 const RUBY_RODA_VERB_RE =
   /\b(?:[a-zA-Z_]\w*\.)?(get|post|put|patch|delete|head|options)\s+((?:['"][^'"]+['"]|String|Integer|Hash|:[A-Za-z_]\w*)(?:\s*,\s*(?:['"][^'"]+['"]|String|Integer|Hash|:[A-Za-z_]\w*))*)\s+do(?:\s*\|([^|]+)\|)?/gi;
 
+/**
+ * Rails route table (G10115 / D6540): `get "/path" => "ctrl#action"` or
+ * `get "/path", to: "ctrl#action"`. No `resources` / `namespace` / `scope` macros.
+ */
+const RUBY_RAILS_ROUTE_RE =
+  /\b(get|post|put|patch|delete|head|options)\s+['"]([^'"]+)['"]\s*(?:,\s*to:\s*['"]([^'#]+#[^'"]+)['"]|\s*=>\s*['"]([^'#]+#[^'"]+)['"])/gi;
+
+export type RailsRouteTarget = HubNativeRoute & {
+  readonly controller: string;
+  readonly action: string;
+};
+
 function lineAt(source: string, index: number): number {
   return source.slice(0, index).split("\n").length;
 }
@@ -29,6 +41,64 @@ export function isRubyRodaSource(source: string): boolean {
     /\bclass\s+\w+\s*<\s*Roda\b/.test(source) ||
     /\broute\s+do\s*\|/.test(source)
   );
+}
+
+/**
+ * True when source is a Rails `routes.draw` table (secondary; Sinatra remains Ruby ST).
+ * G10115 / D6540 — route-table peel only (not full ActionController invent).
+ */
+export function isRubyRailsRoutesSource(source: string): boolean {
+  return (
+    /\bRails\.application\.routes\.draw\b/.test(source) ||
+    (/\broutes\.draw\s+do\b/.test(source) &&
+      /\b(?:get|post|put|patch|delete)\s+['"][^'"]+['"]\s*(?:,\s*to:\s*['"]|\s*=>\s*['"])\w+#/.test(
+        source,
+      ))
+  );
+}
+
+/**
+ * True when source is an ActionController class (bodies resolved from routes.rb).
+ */
+export function isRubyRailsControllerSource(source: string): boolean {
+  return (
+    /\bclass\s+\w+Controller\s*<\s*(?:ActionController::(?:Base|API)|ApplicationController)\b/.test(
+      source,
+    )
+  );
+}
+
+/**
+ * Parse Rails `get|post … "/path" => "ctrl#action"` / `to: "ctrl#action"` targets.
+ */
+export function parseRailsRouteTable(source: string): RailsRouteTarget[] {
+  const routes: RailsRouteTarget[] = [];
+  const seen = new Set<string>();
+  RUBY_RAILS_ROUTE_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = RUBY_RAILS_ROUTE_RE.exec(source)) !== null) {
+    const method = (m[1] ?? "get").toUpperCase();
+    const pathRaw = m[2] ?? "/";
+    const path = pathRaw.startsWith("/") ? pathRaw : `/${pathRaw}`;
+    const target = (m[3] ?? m[4] ?? "").trim();
+    const hash = target.indexOf("#");
+    if (hash < 0) continue;
+    const controller = target.slice(0, hash).trim();
+    const action = target.slice(hash + 1).trim();
+    if (!controller || !action) continue;
+    const key = `${method}:${path}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    routes.push({
+      method,
+      path,
+      line: lineAt(source, m.index),
+      name: `r_${routes.length}`,
+      controller,
+      action,
+    });
+  }
+  return routes;
 }
 
 /**
@@ -179,6 +249,22 @@ export function parseRubyRoutes(source: string): HubNativeRoute[] {
       line: lineAt(source, index),
       name: `r_${routes.length}`,
     });
+  }
+
+  // Rails routes.rb table — prefer controller#action targets over Sinatra do/end.
+  if (isRubyRailsRoutesSource(source)) {
+    for (const r of parseRailsRouteTable(source)) {
+      const key = `${r.method}:${r.path}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      routes.push({
+        method: r.method,
+        path: r.path,
+        line: r.line,
+        name: r.name ?? `r_${routes.length}`,
+      });
+    }
+    return routes;
   }
 
   if (roda) {

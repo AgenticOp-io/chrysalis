@@ -66,6 +66,14 @@ export function isGoMartiniSource(source: string): boolean {
   );
 }
 
+/**
+ * True when source is a Revel controller (secondary dialect; Gin remains Go ST).
+ * Route table lives in `conf/routes` — use {@link parseRevelConfRoutes}; do not invent router.GET.
+ */
+export function isGoRevelSource(source: string): boolean {
+  return /github\.com\/revel\/revel/.test(source) || /\*revel\.Controller/.test(source);
+}
+
 /** True when source imports gorilla/mux (secondary dialect; Gin remains Go ST). */
 export function isGoGorillaSource(source: string): boolean {
   return /github\.com\/gorilla\/mux/.test(source);
@@ -259,5 +267,40 @@ export function parseGoRoutes(source: string): HubNativeRoute[] {
     push("GET", raw, m.index);
   }
 
+  return routes;
+}
+
+/**
+ * Parse Revel `conf/routes` lines: `METHOD PATH Controller.Action` (ignore `#` comments).
+ * Does not invent router.GET — path comes from the routes table only (G10114 / D6540).
+ */
+export function parseRevelConfRoutes(source: string): HubNativeRoute[] {
+  const routes: HubNativeRoute[] = [];
+  const seen = new Set<string>();
+  const lines = source.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i] ?? "";
+    const hash = line.indexOf("#");
+    if (hash >= 0) line = line.slice(0, hash);
+    line = line.trim();
+    if (!line) continue;
+    const m = line.match(
+      /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\S+)\s+([A-Za-z_][\w]*)\.([A-Za-z_][\w]*)\s*$/i,
+    );
+    if (!m) continue;
+    const method = (m[1] ?? "GET").toUpperCase();
+    const path = m[2] ?? "/";
+    const controller = m[3] ?? "App";
+    const action = m[4] ?? "Index";
+    const key = `${method}:${path}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    routes.push({
+      method,
+      path,
+      line: i + 1,
+      name: `${controller}.${action}`,
+    });
+  }
   return routes;
 }

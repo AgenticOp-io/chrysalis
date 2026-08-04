@@ -68,6 +68,12 @@ const SCALA_HTTP4S_CASE_RE =
  * Akka `get(path("…"))` is rejected by isFinchMatcherInner (must start with string lit).
  */
 const SCALA_FINCH_VERB_HEAD_RE = /\b(get|post|put|patch|delete|head|options)\s*\(/gi;
+/**
+ * Tapir secondary (G10119): `endpoint.get.in("seg")…serverLogicSuccess(…)`.
+ * Not Finch string-led `get("…")` — requires endpoint.VERB fluent chain.
+ */
+const SCALA_TAPIR_ENDPOINT_RE =
+  /\bendpoint\s*\.\s*(get|post|put|patch|delete|head|options)\b/gi;
 const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
 /** http4k secondary (G10024): `"path" bind Method.GET to` / `"path" bind GET to` / `bindMethod`. */
 const HTTP4K_ROUTE_RE =
@@ -317,6 +323,107 @@ export function findFinchEndpointAt(source, fromIndex) {
 /** @param {string} after */
 function braceRelSafe(after) {
   return /^\s*\{/.test(after);
+}
+
+/**
+ * Map Tapir StatusCode enum / numeric token → HTTP status.
+ * @param {string} tok
+ * @returns {number | undefined}
+ */
+function parseTapirStatusToken(tok) {
+  const t = String(tok ?? "").trim();
+  if (/^\d+$/.test(t)) return Number.parseInt(t, 10);
+  /** @type {Record<string, number>} */
+  const map = {
+    Ok: 200,
+    OK: 200,
+    Created: 201,
+    Accepted: 202,
+    NoContent: 204,
+    BadRequest: 400,
+    Unauthorized: 401,
+    Forbidden: 403,
+    NotFound: 404,
+    InternalServerError: 500,
+  };
+  return map[t];
+}
+
+/**
+ * Peel Tapir fluent chain → method/path/query/status (G10119).
+ * Body authority is serverLogicSuccess / serverLogic — codecs .out(jsonBody|…) ignored (no invent).
+ * @param {string} chain
+ * @returns {{ method: string, path: string, queryBinds: Array<{ varName: string, queryName: string }>, status?: number } | null}
+ */
+export function parseTapirEndpointChain(chain) {
+  const methodM = /\bendpoint\s*\.\s*(get|post|put|patch|delete|head|options)\b/i.exec(chain);
+  if (!methodM) return null;
+  const method = methodM[1].toUpperCase();
+  /** @type {string[]} */
+  const segs = [];
+  /** @type {Array<{ varName: string, queryName: string }>} */
+  const queryBinds = [];
+
+  for (const m of chain.matchAll(/\.in\s*\(\s*"([^"]+)"\s*\)/g)) {
+    const s = m[1];
+    if (s.includes("/")) {
+      for (const piece of s.split("/").filter(Boolean)) segs.push(piece);
+    } else if (s.length > 0) {
+      segs.push(s);
+    }
+  }
+  for (const m of chain.matchAll(
+    /\.in\s*\(\s*path\s*(?:\[[^\]]*\])?\s*\(\s*"([^"]+)"\s*\)\s*\)/g,
+  )) {
+    segs.push(`{${m[1]}}`);
+  }
+  for (const m of chain.matchAll(
+    /\.in\s*\(\s*query(?:Option)?\s*(?:\[[^\]]*\])?\s*\(\s*"([^"]+)"\s*\)\s*\)/g,
+  )) {
+    queryBinds.push({ varName: m[1], queryName: m[1] });
+  }
+
+  /** @type {number | undefined} */
+  let status;
+  const st = /\.out\s*\(\s*statusCode\s*\(\s*(?:StatusCode\.)?([A-Za-z_][A-Za-z0-9_]*|\d+)\s*\)\s*\)/.exec(
+    chain,
+  );
+  if (st) status = parseTapirStatusToken(st[1]);
+
+  if (!/\.serverLogic(?:Success)?\s*\(/.test(chain)) return null;
+  const path = segs.length === 0 ? "/" : `/${segs.join("/")}`;
+  return { method, path, queryBinds, ...(status != null ? { status } : {}) };
+}
+
+/**
+ * Resolve Tapir endpoint at a source offset (G10119).
+ * @param {string} source
+ * @param {number} fromIndex
+ * @returns {{ method: string, path: string, queryBinds: Array<{ varName: string, queryName: string }>, status?: number, index: number } | null}
+ */
+export function findTapirEndpointAt(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 2000);
+  // Non-global match — must not touch SCALA_TAPIR_ENDPOINT_RE.lastIndex (parseScalaRoutes loop).
+  const m = /\bendpoint\s*\.\s*(get|post|put|patch|delete|head|options)\b/i.exec(slice);
+  if (!m || m.index === undefined) return null;
+  const absIndex = fromIndex + m.index;
+  if (isScalaCommentishAt(source, absIndex)) return null;
+  const window = source.slice(absIndex, absIndex + 2000);
+  const sl = /\.serverLogic(?:Success)?\s*\(/.exec(window);
+  if (!sl || sl.index === undefined) return null;
+  const openIdx = absIndex + sl.index + sl[0].length - 1;
+  const bal = extractBalancedParenInner(source, openIdx);
+  if (!bal) return null;
+  const chain = source.slice(absIndex, bal.end + 1);
+  const parsed = parseTapirEndpointChain(chain);
+  if (!parsed) return null;
+  return {
+    method: parsed.method,
+    path: parsed.path,
+    queryBinds: parsed.queryBinds,
+    ...(parsed.status != null ? { status: parsed.status } : {}),
+    index: absIndex,
+  };
 }
 
 /**
@@ -702,6 +809,14 @@ export function parseScalaRoutes(source) {
     const parsed = parseFinchEndpointMatcher(bal.inner, lambdaNames);
     if (!parsed) continue;
     pushRoute(routes, source, m[1], parsed.path, m.index, seen);
+  }
+  // Tapir secondary (G10119 / D6544) — after Finch; requires endpoint.VERB + serverLogic*.
+  SCALA_TAPIR_ENDPOINT_RE.lastIndex = 0;
+  while ((m = SCALA_TAPIR_ENDPOINT_RE.exec(source)) !== null) {
+    if (isScalaCommentishAt(source, m.index)) continue;
+    const found = findTapirEndpointAt(source, m.index);
+    if (!found || found.index !== m.index) continue;
+    pushRoute(routes, source, found.method, found.path, found.index, seen);
   }
   return routes;
 }

@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "generatedAt": "2026-07-28T04:00:00.000Z",
   "gate": "G10073",
-  "note": "Catalog only (D6447 / D6535). Literal Sinatra namespace('/api') do … get|post path join is lifted (hub:sinatra-ns-smoke 20/20). Deepens Sinatra D6448-ST — not a secondary dialect. Do not invent conditions helpers, Rack map, or base.path. Roda/Grape/Padrino secondaries remain closed. Rails secondary stays skipped (G10006).",
+  "note": "Catalog only (D6447 / D6535). Literal Sinatra namespace('/api') do … get|post path join is lifted (hub:sinatra-ns-smoke 20/20). Deepens Sinatra D6448-ST — not a secondary dialect. Do not invent conditions helpers, Rack map, or base.path. Roda/Grape/Padrino secondaries remain closed. Rails route-table closed G10115 (was G10006 skip).",
   "fixture": "fixtures/hub-gold-sinatra-ns",
   "smoke": "pnpm run hub:sinatra-ns-smoke",
   "st": "pnpm run hub:complete-conversion-prove:ruby",

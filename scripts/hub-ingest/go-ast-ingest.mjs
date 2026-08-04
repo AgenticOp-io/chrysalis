@@ -16,11 +16,21 @@
  * `r.JSON` / `r.String`),
  * Martini (G10056: `martini.Classic` + `m.Get|Post` + `:id` + `params["id"]` +
  * `r.JSON` / `json.NewEncoder(w)`),
+ * Revel (G10114 / D6540: `conf/routes` METHOD PATH Controller.Action +
+ * `func (c App) Action() revel.Result` + `RenderJSON` / `Response.Status` /
+ * `Params.Route|Query.Get` — no router.GET invent; was G10065 skip),
  * Gorilla mux (G10018: `HandleFunc`+`Methods` + `mux.Vars` + `json.NewEncoder`),
  * and Go 1.22+ net/http ServeMux (G10030: `HandleFunc("METHOD /path")` + `r.PathValue`
- * + `json.NewEncoder`) secondary peels share the same route scan via `detectGoWebDialect`.
+ * + `json.NewEncoder`) secondary peels share the same route scan via `detectGoWebDialect`
+ * (Revel uses project-level `liftGoRevelProjectToWebir` instead of per-file verb scan).
  */
-import { parseGoRoutes } from "../../packages/hub-native-bridge/dist/go.js";
+import { readdir, readFile } from "node:fs/promises";
+import { extname, join } from "node:path";
+import {
+  parseGoRoutes,
+  parseRevelConfRoutes,
+  isGoRevelSource,
+} from "../../packages/hub-native-bridge/dist/go.js";
 import {
   emitHubRoute,
   hubHandlerBodyHole,
@@ -32,7 +42,7 @@ import {
 import { lowerHubReturnTree } from "./hub-native-return-tree.mjs";
 import { lowerHubDbQuery } from "./hub-native-sql-effects.mjs";
 
-export { parseGoRoutes };
+export { parseGoRoutes, parseRevelConfRoutes, isGoRevelSource };
 
 const LITERAL_RETURN_RE = /return\s+("([^"]*)"|'([^']*)'|true|false|-?\d+)\b/;
 const GIN_STRING_RE = /c\.String\s*\(\s*(\d+)\s*,\s*"([^"]*)"\s*\)/;
@@ -102,6 +112,17 @@ const MARTINI_JSON_MAP_RE =
   /\w+\.JSON\s*\(\s*(\d+)\s*,\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)/;
 const MARTINI_JSON_SCALAR_RE =
   /\w+\.JSON\s*\(\s*(\d+)\s*,\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)/;
+// Revel (G10114): c.RenderJSON / c.Response.Status — status is a separate stmt.
+const REVEL_CTRL = String.raw`(?:c)`;
+const REVEL_JSON_MAP_RE = new RegExp(
+  String.raw`(?:return\s+)?${REVEL_CTRL}\.RenderJSON\s*\(\s*map\[string\](?:interface\{\}|any)\s*\{([\s\S]*?)\}\s*\)`,
+);
+const REVEL_JSON_SCALAR_RE = new RegExp(
+  String.raw`(?:return\s+)?${REVEL_CTRL}\.RenderJSON\s*\(\s*(?!map\[)(?:(true|false)|(-?\d+)|"([^"]*)"|(\w+))\s*\)`,
+);
+const REVEL_STATUS_RE = new RegExp(
+  String.raw`${REVEL_CTRL}\.Response\.Status\s*=\s*(\d+)`,
+);
 const GO_HTTP_STATUS_CONST = {
   StatusOK: 200,
   StatusCreated: 201,
@@ -270,6 +291,15 @@ export function isGoMartiniSource(source) {
 }
 
 /**
+ * Revel secondary dialect (G10114 / D6540) — controller source only;
+ * route table is `conf/routes` via {@link parseRevelConfRoutes}.
+ * @param {string} source
+ */
+export function isGoRevelControllerSource(source) {
+  return isGoRevelSource(source);
+}
+
+/**
  * Gorilla mux secondary dialect (G10018 / D6480).
  * @param {string} source
  */
@@ -287,7 +317,7 @@ export function isGoServeMuxSource(source) {
 
 /**
  * @param {string} source
- * @returns {"chi" | "echo" | "iris" | "beego" | "buffalo" | "martini" | "fiber" | "gorilla" | "servemux" | "gin"}
+ * @returns {"chi" | "echo" | "iris" | "beego" | "buffalo" | "martini" | "fiber" | "gorilla" | "servemux" | "revel" | "gin"}
  */
 export function detectGoWebDialect(source) {
   if (isGoChiSource(source)) return "chi";
@@ -296,6 +326,7 @@ export function detectGoWebDialect(source) {
   if (isGoBeegoSource(source)) return "beego";
   if (isGoBuffaloSource(source)) return "buffalo";
   if (isGoMartiniSource(source)) return "martini";
+  if (isGoRevelSource(source)) return "revel";
   if (isGoFiberSource(source)) return "fiber";
   if (isGoGorillaSource(source)) return "gorilla";
   if (isGoServeMuxSource(source)) return "servemux";
@@ -1506,6 +1537,323 @@ function parseGoMartiniHandlerBody(bodySlice) {
 }
 
 /**
+ * Revel refs: c.Params.Route.Get("id"), c.Params.Query.Get("q") — G10114.
+ * @param {string} bodySlice
+ */
+function parseGoRevelRefs(bodySlice) {
+  /** @type {Record<string, { source: string, name: string, default?: unknown }>} */
+  const byVar = {};
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*c\.Params\.Route\.Get\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "path", name: m[2] };
+  }
+  for (const m of bodySlice.matchAll(
+    /(\w+)\s*:=\s*c\.Params\.Query\.Get\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    byVar[m[1]] = { source: "query", name: m[2], default: "" };
+  }
+  return byVar;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+function parseGoRevelStatusCode(bodySlice) {
+  const m = bodySlice.match(REVEL_STATUS_RE);
+  if (!m) return undefined;
+  return Number.parseInt(m[1], 10);
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoRevelMapReturn(bodySlice, byVar) {
+  const m = bodySlice.match(REVEL_JSON_MAP_RE);
+  if (!m) return null;
+  const status = parseGoRevelStatusCode(bodySlice) ?? 200;
+  /** @type {Array<{ key: string, value: object }>} */
+  const entries = [];
+  GIN_H_PAIR_RE.lastIndex = 0;
+  for (const pair of m[1].matchAll(GIN_H_PAIR_RE)) {
+    const key = pair[1];
+    if (pair[2] !== undefined) {
+      entries.push({ key, value: { t: "lit", v: pair[2] } });
+      continue;
+    }
+    const word = pair[3] ?? pair[4];
+    if (word === "true" || word === "false") {
+      entries.push({ key, value: { t: "lit", v: word === "true" } });
+    } else if (word && /^-?\d+$/.test(word)) {
+      entries.push({ key, value: { t: "lit", v: Number.parseInt(word, 10) } });
+    } else if (word && byVar[word]) {
+      entries.push({ key, value: { t: "ref", ...byVar[word] } });
+    } else {
+      return null;
+    }
+  }
+  if (entries.length === 0) return null;
+  return { status, returnTree: { t: "obj", entries } };
+}
+
+/**
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} byVar
+ */
+function parseGoRevelJsonScalar(bodySlice, byVar) {
+  const m = bodySlice.match(REVEL_JSON_SCALAR_RE);
+  if (!m) return null;
+  const status = parseGoRevelStatusCode(bodySlice) ?? 200;
+  if (m[1] !== undefined) {
+    return { status, kind: "lit", value: m[1] === "true" };
+  }
+  if (m[2] !== undefined) {
+    return { status, kind: "lit", value: Number.parseInt(m[2], 10) };
+  }
+  if (m[3] !== undefined) {
+    return { status, kind: "lit", value: m[3] };
+  }
+  const varName = m[4];
+  if (varName && byVar[varName]) {
+    return { status, kind: "ref", returnTree: { t: "ref", ...byVar[varName] } };
+  }
+  return null;
+}
+
+/**
+ * @param {string} bodySlice
+ */
+export function parseGoRevelHandlerBody(bodySlice) {
+  const byVar = parseGoRevelRefs(bodySlice);
+  const sqlEffects = parseGoSqlEffects(bodySlice, byVar);
+  const jsonMap = parseGoRevelMapReturn(bodySlice, byVar);
+  const jsonScalar = jsonMap ? null : parseGoRevelJsonScalar(bodySlice, byVar);
+  const litRet = !jsonMap && !jsonScalar ? bodySlice.match(LITERAL_RETURN_RE) : null;
+
+  if (jsonMap || sqlEffects.length > 0) {
+    return {
+      kind: "handler",
+      sqlEffects,
+      returnTree: jsonMap?.returnTree ?? null,
+      status: jsonMap?.status,
+    };
+  }
+  if (jsonScalar?.kind === "ref") {
+    return {
+      kind: "handler",
+      sqlEffects: [],
+      returnTree: jsonScalar.returnTree,
+      status: jsonScalar.status,
+    };
+  }
+  if (jsonScalar?.kind === "lit") {
+    return { kind: "scalar", status: jsonScalar.status, value: jsonScalar.value };
+  }
+  if (litRet) {
+    return { kind: "scalar", status: 200, value: parseGoLiteral(litRet[1]) };
+  }
+  return null;
+}
+
+/**
+ * Resolve `func (c App) Action() revel.Result { … }` (value or pointer receiver).
+ * @param {string} source
+ * @param {string} controller
+ * @param {string} action
+ */
+export function extractGoRevelActionBody(source, controller, action) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(controller)) return null;
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(action)) return null;
+  const defRe = new RegExp(
+    String.raw`func\s+\(\s*\w+\s+\*?${controller}\s*\)\s+${action}\s*\(\s*\)\s+(?:\w+\.)?Result\s*\{`,
+  );
+  const defM = source.match(defRe);
+  if (!defM || defM.index === undefined) return null;
+  const absOpen = defM.index + defM[0].lastIndexOf("{");
+  const bal = extractBalancedBraceInner(source, absOpen);
+  if (!bal) return null;
+  const line = source.slice(0, absOpen).split("\n").length;
+  return { bodySlice: bal.inner, line, absOpen, absEnd: bal.end, controller, action };
+}
+
+/**
+ * Index Controller.Action → body across Go sources (same-project resolve).
+ * @param {Array<{ file: string, source: string }>} files
+ */
+export function indexGoRevelActions(files) {
+  /** @type {Map<string, { bodySlice: string, line: number, file: string }>} */
+  const map = new Map();
+  const actionRe =
+    /func\s+\(\s*\w+\s+\*?([A-Za-z_][\w]*)\s*\)\s+([A-Za-z_][\w]*)\s*\(\s*\)\s+(?:\w+\.)?Result\s*\{/g;
+  for (const { file, source } of files) {
+    if (!isGoRevelSource(source)) continue;
+    actionRe.lastIndex = 0;
+    let m;
+    while ((m = actionRe.exec(source)) !== null) {
+      const controller = m[1];
+      const action = m[2];
+      const key = `${controller}.${action}`;
+      if (map.has(key)) continue;
+      const extracted = extractGoRevelActionBody(source, controller, action);
+      if (!extracted) continue;
+      map.set(key, {
+        bodySlice: extracted.bodySlice,
+        line: extracted.line,
+        file,
+      });
+    }
+  }
+  return map;
+}
+
+/**
+ * @param {string} dir
+ * @param {string[]} out
+ * @param {number} depth
+ */
+async function walkGoFiles(dir, out, depth) {
+  if (depth > 14 || out.length >= 8000) return;
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const ent of entries) {
+    if (
+      ent.name === "node_modules" ||
+      ent.name === ".git" ||
+      ent.name === "vendor" ||
+      ent.name === ".chrysalis"
+    ) {
+      continue;
+    }
+    const p = join(dir, ent.name);
+    if (ent.isDirectory()) await walkGoFiles(p, out, depth + 1);
+    else if (ent.isFile() && extname(ent.name).toLowerCase() === ".go") {
+      out.push(p);
+    }
+  }
+}
+
+/**
+ * True when project has Revel `conf/routes` with at least one METHOD PATH Controller.Action.
+ * @param {string} projectDir
+ */
+export async function detectGoRevelProject(projectDir) {
+  const routesPath = join(projectDir, "conf", "routes");
+  let text;
+  try {
+    text = await readFile(routesPath, "utf8");
+  } catch {
+    return null;
+  }
+  const routes = parseRevelConfRoutes(text);
+  if (routes.length === 0) return null;
+  return { routesPath, routesText: text, routes };
+}
+
+/**
+ * Project-level Revel lift: conf/routes + Controller.Action body peels (G10114 / D6540).
+ * Does not invent router.GET façades or interceptors.
+ * @param {object} opts
+ */
+export async function liftGoRevelProjectToWebir(opts) {
+  const { webir, builder, wr, projectDir, language = "go" } = opts;
+  const detected = await detectGoRevelProject(projectDir);
+  if (!detected) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: false, fileCount: 0 };
+  }
+
+  const goPaths = [];
+  await walkGoFiles(projectDir, goPaths, 0);
+  /** @type {Array<{ file: string, source: string }>} */
+  const files = [];
+  let revelControllerCount = 0;
+  for (const abs of goPaths) {
+    const source = await readFile(abs, "utf8").catch(() => "");
+    const file = abs.startsWith(projectDir)
+      ? abs.slice(projectDir.length).replace(/^[/\\]+/, "").replace(/\\/g, "/")
+      : abs.replace(/\\/g, "/");
+    files.push({ file, source });
+    if (isGoRevelSource(source)) revelControllerCount += 1;
+  }
+  if (revelControllerCount === 0) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: false, fileCount: goPaths.length };
+  }
+
+  const actions = indexGoRevelActions(files);
+  const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
+  const ctx = { data, effect, webir };
+  const routesFile = "conf/routes";
+
+  for (const r of detected.routes) {
+    const actionKey = r.name ?? "";
+    const extracted = actions.get(actionKey);
+    let bodyId;
+    const routeMeta = {
+      method: r.method,
+      path: r.path,
+      line: r.line,
+      name: `revel_${String(actionKey).replace(/[^a-zA-Z0-9]+/g, "_")}`,
+    };
+    if (!extracted) {
+      bodyId = hubHandlerBodyHole(ctx, "hub-revel:handler-body", {
+        file: routesFile,
+        line: r.line,
+      });
+      emitHubRoute({
+        webir,
+        builder,
+        wr,
+        language,
+        file: routesFile,
+        route: routeMeta,
+        bodyId,
+      });
+      continue;
+    }
+    const loc = { file: extracted.file, line: extracted.line };
+    const parsed = parseGoRevelHandlerBody(extracted.bodySlice);
+    if (parsed?.kind === "handler") {
+      bodyId =
+        lowerGoHandlerBody(
+          ctx,
+          {
+            sqlEffects: parsed.sqlEffects,
+            returnTree: parsed.returnTree,
+            status: parsed.status,
+            line: extracted.line,
+          },
+          loc,
+        ) ?? hubHandlerBodyHole(ctx, "hub-revel:handler-body", loc);
+    } else if (parsed?.kind === "scalar") {
+      bodyId = lowerGoScalarLit(ctx, parsed.status ?? 200, parsed.value, loc);
+    } else {
+      bodyId = hubHandlerBodyHole(ctx, "hub-revel:handler-body", loc);
+    }
+    emitHubRoute({
+      webir,
+      builder,
+      wr,
+      language,
+      file: extracted.file,
+      route: { ...routeMeta, line: extracted.line },
+      bodyId,
+    });
+  }
+
+  return {
+    routeCount: detected.routes.length,
+    astRouteCount: detected.routes.length,
+    usedAst: true,
+    fileCount: goPaths.length + 1,
+  };
+}
+
+/**
  * @param {string} bodySlice
  */
 function parseGoGinRefs(bodySlice) {
@@ -1708,6 +2056,11 @@ function lowerGoScalarLit(ctx, status, value, loc) {
  */
 export function liftGoFileToWebir(opts) {
   const { webir, builder, wr, source, file, language } = opts;
+  // Revel controllers alone are not a route table — Params.*.Get false-positives
+  // Chi verb peels. Project lift via conf/routes (liftGoRevelProjectToWebir).
+  if (isGoRevelSource(source)) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: false };
+  }
   const data = webir.dataDialect.builders(builder);
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };

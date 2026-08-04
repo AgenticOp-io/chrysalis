@@ -11,8 +11,18 @@
  * likewise reuses Sinatra peels; symbol controllers / mount stay honest holes.
  * G10073 / D6535: Sinatra `namespace '/api' do` literal path join (deepens ST;
  * Rack map / conditions / invented base.path stay honest holes).
+ * G10115 / D6540: Rails `routes.draw` `get|post … => "ctrl#action"` + thin
+ * ActionController `render json:` / `params[:id]` cross-file resolve (no
+ * resources/filters/LiveView invent; G10006 skip closed at route-table level).
  */
-import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  parseRubyRoutes,
+  parseRailsRouteTable,
+  isRubyRailsRoutesSource,
+  isRubyRailsControllerSource,
+} from "../../packages/hub-native-bridge/dist/ruby.js";
 import {
   emitHubRoute,
   hubHandlerBodyHole,
@@ -26,10 +36,14 @@ import { lowerHubDbQuery } from "./hub-native-sql-effects.mjs";
 export { parseRubyRoutes };
 
 const RUBY_JSON_HASH_RE = /json\s+(?:\{([\s\S]*?)\}|(.+?))\s*$/m;
+/** Rails ActionController: `render json: { … }` / `render json: true`. */
+const RUBY_RENDER_JSON_RE =
+  /render\s+json:\s*(?:\{([\s\S]*?)\}|(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|(?:params\[:[A-Za-z_]\w*\])))\s*(?:,\s*status:\s*(\d+))?/m;
 /** Roda json plugin: bare `{ key: val }` as the handler return. */
 const RUBY_BARE_HASH_RE = /\{([\s\S]*?)\}\s*$/m;
 const RUBY_SQL_CALL_RE = /\w+\.(?:execute|query|exec)\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/gi;
-const RUBY_STATUS_RE = /(?:\bstatus\s+(\d+)\b|response\.status\s*=\s*(\d+))/;
+const RUBY_STATUS_RE =
+  /(?:\bstatus\s+(\d+)\b|response\.status\s*=\s*(\d+)|render\s+json:[^,]+,\s*status:\s*(\d+))/;
 const RUBY_SCALAR_LIT_RE =
   /(?:^|\n)\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')\s*(?:\n|$)/;
 const RUBY_PARAMS_REF_RE =
@@ -95,6 +109,13 @@ function parseRubyParamRefs(bodySlice, routePath = "", blockParams = []) {
       byVar[name] = { source: pathNames.has(name) ? "path" : "query", name };
     }
   }
+  // Rails: params[:id] / params[:userId]
+  for (const m of bodySlice.matchAll(/(?:r\.|request\.)?params\[:([A-Za-z_]\w*)\]/g)) {
+    const name = m[1];
+    if (!byVar[name]) {
+      byVar[name] = { source: pathNames.has(name) ? "path" : "query", name };
+    }
+  }
   for (const m of bodySlice.matchAll(
     /(?:r\.|request\.)?params\.fetch\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]*)['"]\s*\)/g,
   )) {
@@ -121,15 +142,15 @@ function parseRubyParamRefs(bodySlice, routePath = "", blockParams = []) {
 function lowerRubyHashValue(rawVal, refs) {
   const v = rawVal.trim();
   if (refs[v]) return { t: "ref", ...refs[v] };
-  // Roda: `r.params["q"] || ""` / `r.params["q"].to_s`
+  // Roda/Sinatra/Rails: `params["q"] || ""` / `params[:q] || ""` / `.to_s`
   const paramOr = v.match(
-    /^(?:r\.|request\.)?params\[\s*['"]([^'"]+)['"]\s*\]\s*(?:\|\|\s*['"]([^'"]*)['"]|\.to_s)?$/,
+    /^(?:r\.|request\.)?params\[\s*(?:['"]([^'"]+)['"]|:([A-Za-z_]\w*))\s*\]\s*(?:\|\|\s*['"]([^'"]*)['"]|\.to_s)?$/,
   );
   if (paramOr) {
-    const name = paramOr[1];
+    const name = paramOr[1] ?? paramOr[2];
     const ref = refs[name];
-    if (paramOr[2] !== undefined) {
-      return { t: "ref", source: "query", name, default: paramOr[2] };
+    if (paramOr[3] !== undefined) {
+      return { t: "ref", source: "query", name, default: paramOr[3] };
     }
     return ref ? { t: "ref", ...ref } : { t: "ref", source: "query", name };
   }
@@ -140,9 +161,9 @@ function lowerRubyHashValue(rawVal, refs) {
     v.startsWith("r.params.fetch") ||
     v.startsWith("request.params[")
   ) {
-    const q = v.match(/['"]([^'"]+)['"]/);
+    const q = v.match(/['"]([^'"]+)['"]|:([A-Za-z_]\w*)/);
     if (!q) return null;
-    const name = q[1];
+    const name = q[1] ?? q[2];
     const fetchDef = v.match(/\.fetch\(\s*['"][^'"]+['"]\s*,\s*['"]([^'"]*)['"]\s*\)/);
     if (fetchDef) return { t: "ref", source: "query", name, default: fetchDef[1] };
     const ref = refs[name];
@@ -175,6 +196,24 @@ function lowerRubyHashValue(rawVal, refs) {
  * @param {Record<string, { source: string, name: string, default?: unknown }>} refs
  */
 function parseRubyJsonReturnTree(bodySlice, refs) {
+  const render = bodySlice.match(RUBY_RENDER_JSON_RE);
+  if (render) {
+    if (render[1] !== undefined) {
+      const inner = render[1].trim();
+      /** @type {Array<{ key: string, value: object }>} */
+      const entries = [];
+      for (const pair of inner.matchAll(/(\w+)\s*:\s*([^,\n}]+)/g)) {
+        const key = pair[1];
+        const value = lowerRubyHashValue(pair[2], refs);
+        if (!value) return null;
+        entries.push({ key, value });
+      }
+      if (entries.length === 0) return null;
+      return { t: "obj", entries };
+    }
+    // Scalar render json: true / params[:id]
+    return null; // handled by parseRubyBodyReturn scalar path
+  }
   const m = bodySlice.match(RUBY_JSON_HASH_RE) ?? bodySlice.match(RUBY_BARE_HASH_RE);
   if (!m) return null;
   const inner = (m[1] ?? m[2] ?? "").trim();
@@ -246,8 +285,57 @@ function parseRubyBodyReturn(bodySlice, routePath) {
   const sqlEffects = parseRubySqlEffects(body, refs);
   const statusM = body.match(RUBY_STATUS_RE);
   const status = statusM
-    ? Number.parseInt(statusM[1] ?? statusM[2] ?? "", 10)
+    ? Number.parseInt(statusM[1] ?? statusM[2] ?? statusM[3] ?? "", 10)
     : undefined;
+
+  // Rails: render json: { … }[, status: N]  OR  render json: true|params[:id]
+  const renderM = body.match(RUBY_RENDER_JSON_RE);
+  if (renderM) {
+    const renderStatus = renderM[3] ? Number.parseInt(renderM[3], 10) : status;
+    if (renderM[1] !== undefined) {
+      const returnTree = parseRubyJsonReturnTree(body, refs);
+      if (returnTree) {
+        return {
+          sqlEffects,
+          returnTree,
+          status: renderStatus,
+          kind: "json",
+          refs,
+        };
+      }
+    } else if (renderM[2] !== undefined) {
+      const raw = renderM[2].trim();
+      const lit = parseLiteralToken(raw);
+      if (lit !== null) {
+        return {
+          sqlEffects: [],
+          returnTree: { t: "lit", v: lit },
+          status: renderStatus,
+          kind: "scalar-lit",
+          refs,
+        };
+      }
+      const paramRef = raw.match(/^params\[:([A-Za-z_]\w*)\]$/);
+      if (paramRef) {
+        const name = paramRef[1];
+        const pathNames = new Set(
+          [...routePath.matchAll(/:([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1]),
+        );
+        const ref = refs[name] ?? {
+          source: pathNames.has(name) ? "path" : "query",
+          name,
+        };
+        return {
+          sqlEffects: [],
+          returnTree: { t: "ref", ...ref },
+          status: renderStatus,
+          kind: "scalar-ref",
+          refs,
+        };
+      }
+    }
+  }
+
   const returnTree = parseRubyJsonReturnTree(body, refs);
   if (returnTree || sqlEffects.length > 0 || status !== undefined) {
     /** @type {"json" | "scalar-lit" | "scalar-ref" | null} */
@@ -407,10 +495,163 @@ function rubyBlockLiteralAfter(source, fromIndex) {
 }
 
 /**
+ * Rails controller file for `hub` → `app/controllers/hub_controller.rb`.
+ * @param {string} projectDir
+ * @param {string} controller — e.g. `hub` or `admin/items`
+ */
+function railsControllerPath(projectDir, controller) {
+  const parts = controller.split("/").filter(Boolean);
+  if (parts.length === 0) return null;
+  const leaf = parts[parts.length - 1];
+  const dirs = parts.slice(0, -1);
+  const file = join(projectDir, "app", "controllers", ...dirs, `${leaf}_controller.rb`);
+  return file;
+}
+
+/**
+ * Extract `def action … end` body from a Rails controller source.
+ * @param {string} source
+ * @param {string} action
+ * @returns {{ bodySlice: string, line: number } | null}
+ */
+function extractRailsActionBody(source, action) {
+  const re = new RegExp(`\\bdef\\s+${action.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+  const m = re.exec(source);
+  if (!m) return null;
+  const afterDef = m.index + m[0].length;
+  // Method body until matching `end` at def depth (track def/end, not do/end alone).
+  let depth = 1;
+  const tokenRe = /\b(?:def|class|module|do)\b|\bend\b/gi;
+  tokenRe.lastIndex = afterDef;
+  let t;
+  while ((t = tokenRe.exec(source)) !== null) {
+    if (/^(?:def|class|module|do)$/i.test(t[0])) depth += 1;
+    else {
+      depth -= 1;
+      if (depth === 0) {
+        const bodySlice = source.slice(afterDef, t.index);
+        const line = source.slice(0, m.index).split("\n").length;
+        return { bodySlice, line };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {object} ctx
+ * @param {object} parsed
+ * @param {{ file: string, line?: number }} loc
+ */
+function lowerParsedRubyBody(ctx, parsed, loc) {
+  if (parsed?.kind === "scalar-lit" && parsed.returnTree?.t === "lit") {
+    return lowerRubyScalarLit(ctx, parsed.status, parsed.returnTree.v, loc);
+  }
+  if (parsed?.kind === "scalar-ref" && parsed.returnTree) {
+    return (
+      lowerRubyHandlerBodyFull(
+        ctx,
+        {
+          sqlEffects: [],
+          returnTree: parsed.returnTree,
+          status: parsed.status,
+          line: loc.line,
+        },
+        loc,
+      ) ?? null
+    );
+  }
+  if (parsed && (parsed.sqlEffects.length > 0 || parsed.returnTree || parsed.status)) {
+    return (
+      lowerRubyHandlerBodyFull(
+        ctx,
+        {
+          sqlEffects: parsed.sqlEffects,
+          returnTree: parsed.returnTree,
+          status: parsed.status,
+          line: loc.line,
+        },
+        loc,
+      ) ?? null
+    );
+  }
+  return null;
+}
+
+/**
+ * Lift Rails routes.rb + resolve thin ActionController actions (G10115 / D6540).
+ * @param {object} opts
+ */
+function liftRailsRoutesToWebir(opts) {
+  const { webir, builder, wr, source, file, language, projectDir } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
+  const ctx = { data, effect, webir };
+  const detailed = parseRailsRouteTable(source);
+  if (detailed.length === 0) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: true, suppressFileLift: true };
+  }
+
+  /** @type {Map<string, string>} */
+  const controllerCache = new Map();
+
+  for (const r of detailed) {
+    const ctrlPath = projectDir ? railsControllerPath(projectDir, r.controller) : null;
+    let ctrlSource = "";
+    let ctrlFile = file;
+    if (ctrlPath && existsSync(ctrlPath)) {
+      if (!controllerCache.has(ctrlPath)) {
+        controllerCache.set(ctrlPath, readFileSync(ctrlPath, "utf8"));
+      }
+      ctrlSource = controllerCache.get(ctrlPath) ?? "";
+      ctrlFile = ctrlPath.startsWith(projectDir)
+        ? ctrlPath.slice(projectDir.length).replace(/^[/\\]/, "").replace(/\\/g, "/")
+        : ctrlPath.replace(/\\/g, "/");
+    }
+
+    const extracted = ctrlSource ? extractRailsActionBody(ctrlSource, r.action) : null;
+    const loc = { file: ctrlFile, line: extracted?.line ?? r.line };
+    const parsed = extracted ? parseRubyBodyReturn(extracted.bodySlice, r.path) : null;
+    let bodyId = lowerParsedRubyBody(ctx, parsed, loc);
+    if (!bodyId) {
+      bodyId = hubHandlerBodyHole(ctx, "hub-ruby:rails-controller", {
+        file: ctrlFile,
+        line: r.line,
+      });
+    }
+    emitHubRoute({
+      webir,
+      builder,
+      wr,
+      language,
+      file,
+      route: { method: r.method, path: r.path, line: r.line, name: r.name },
+      bodyId,
+    });
+  }
+
+  return {
+    routeCount: detailed.length,
+    astRouteCount: detailed.length,
+    usedAst: true,
+  };
+}
+
+/**
  * @param {object} opts
  */
 export function liftRubyFileToWebir(opts) {
   const { webir, builder, wr, source, file, language } = opts;
+
+  // ActionController bodies are resolved from routes.rb — suppress silver file-lift.
+  if (isRubyRailsControllerSource(source) && !isRubyRailsRoutesSource(source)) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: true, suppressFileLift: true };
+  }
+
+  if (isRubyRailsRoutesSource(source)) {
+    return liftRailsRoutesToWebir(opts);
+  }
+
   const data = webir.dataDialect.builders(builder);
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };
@@ -426,21 +667,8 @@ export function liftRubyFileToWebir(opts) {
     const parsed = extracted ? parseRubyBodyReturn(extracted.bodySlice, r.path) : null;
     const loc = { file, line: extracted?.line ?? r.line };
 
-    if (parsed?.kind === "scalar-lit" && parsed.returnTree?.t === "lit") {
-      bodyId = lowerRubyScalarLit(ctx, parsed.status, parsed.returnTree.v, loc);
-    } else if (parsed && (parsed.sqlEffects.length > 0 || parsed.returnTree || parsed.status)) {
-      bodyId =
-        lowerRubyHandlerBodyFull(
-          ctx,
-          {
-            sqlEffects: parsed.sqlEffects,
-            returnTree: parsed.returnTree,
-            status: parsed.status,
-            line: loc.line,
-          },
-          loc,
-        ) ?? hubHandlerBodyHole(ctx, "hub-ruby:handler-body", { file, line: r.line });
-    } else {
+    bodyId = lowerParsedRubyBody(ctx, parsed, loc);
+    if (!bodyId) {
       const lit = rubyBlockLiteralAfter(source, idx);
       bodyId =
         lit?.value !== undefined

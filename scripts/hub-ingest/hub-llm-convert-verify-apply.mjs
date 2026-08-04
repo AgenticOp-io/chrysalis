@@ -118,6 +118,22 @@ export async function applyHubConvertHoleProposals(input) {
   const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
   const verify = runConvertVerifyGate(projectDir);
   const mod = await loadWebLlm();
+  const { buildDisposeCertificate, assertDisposeCertificate } = await import(
+    "../lib/dispose-certificate.mjs"
+  );
+  const disposeCertificate = buildDisposeCertificate({
+    gateOk: verify.gatePass === true,
+    ...(typeof verify.correctness === "number"
+      ? { verifyCorrectness: verify.correctness }
+      : {}),
+    holeCount: artifact.holeCount ?? 0,
+    evaluateVerifyGatePolicy: mod.evaluateVerifyGatePolicy,
+  });
+  const certPath = join(projectDir, ".chrysalis", "hub-convert.dispose-certificate.json");
+  mkdirSync(dirname(certPath), { recursive: true });
+  writeFileSync(certPath, `${JSON.stringify(disposeCertificate, null, 2)}\n`, "utf8");
+  const certAssert = assertDisposeCertificate(disposeCertificate);
+
   const governor = mod.governConvertAction({
     action: "hub_convert_apply_holes",
     confirmApply: input.confirmApply === true,
@@ -129,6 +145,13 @@ export async function applyHubConvertHoleProposals(input) {
     confirmApply: input.confirmApply === true,
     holeCount: artifact.holeCount ?? 0,
   });
+  // Dispose Plane: refuse apply without a green dispose certificate (G10116 / G10119 pack).
+  if (!certAssert.ok && policy.ok) {
+    policy.ok = false;
+    policy.canApply = false;
+    policy.applied = false;
+    policy.reasons = [...(policy.reasons ?? []), ...certAssert.reasons];
+  }
 
   const trajectoryPath =
     artifact.trajectoryPath ?? join(projectDir, ".chrysalis", "hub-convert.trajectory.jsonl");
@@ -183,6 +206,8 @@ export async function applyHubConvertHoleProposals(input) {
         gatePass: verify.gatePass === true,
         summaryPath: verify.summaryPath,
       },
+      disposeCertificate,
+      disposeCertificatePath: certPath,
       applyPolicy: policy,
       governor,
       proposals: (artifact.proposals ?? []).map((p) => ({
@@ -197,6 +222,7 @@ export async function applyHubConvertHoleProposals(input) {
       ok: false,
       applied: false,
       verifyGate: verify,
+      disposeCertificate,
       applyPolicy: policy,
       governor,
       artifact: pending,
@@ -214,6 +240,8 @@ export async function applyHubConvertHoleProposals(input) {
       gatePass: true,
       summaryPath: verify.summaryPath,
     },
+    disposeCertificate,
+    disposeCertificatePath: certPath,
     applyPolicy: policy,
     governor,
     proposals: (artifact.proposals ?? []).map((p) => ({

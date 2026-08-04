@@ -98,6 +98,29 @@ async function main() {
     middlewareUseCount = lifted.middlewareUseCount ?? 0;
     middlewareLoweredCount = lifted.middlewareRootCount ?? 0;
   } else {
+    // Revel Go: conf/routes + Controller.Action (G10114 / D6540) — project lift before
+    // per-file Go verbs so Params.*.Get cannot false-positive Chi .Get peels.
+    let revelHandled = false;
+    if (language === "go") {
+      const { detectGoRevelProject, liftGoRevelProjectToWebir } = await import("./go-ast-ingest.mjs");
+      const revel = await detectGoRevelProject(projectDir);
+      if (revel) {
+        const lifted = await liftGoRevelProjectToWebir({
+          projectDir,
+          webir,
+          builder,
+          wr,
+          language: "go",
+        });
+        if (lifted.usedAst) {
+          astRouteCount = lifted.astRouteCount ?? 0;
+          fileCount = lifted.fileCount ?? 0;
+          revelHandled = true;
+        }
+      }
+    }
+
+    if (!revelHandled) {
     const exts = new Set(EXT_BY_LANG[language] ?? []);
     if (exts.size === 0) throw new Error(`unsupported language: ${language}`);
     await walk(projectDir, exts, paths, 0);
@@ -245,6 +268,7 @@ async function main() {
       provenance: [webir.provenance("hub-ingest", `route:${language}`)],
     });
     builder.addRoot(routeId);
+    }
     }
   }
 

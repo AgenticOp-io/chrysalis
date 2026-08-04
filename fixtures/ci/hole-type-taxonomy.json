@@ -1,0 +1,53 @@
+{
+  "kind": "chrysalis.hole.type-taxonomy",
+  "schemaVersion": 1,
+  "gate": "G10116",
+  "decision": "D6541",
+  "note": "Hole Type System — categorize free-string hole reasons. Unknown is first-class; silent invent is refused.",
+  "categories": {
+    "legacy": {
+      "prefix": ["legacy:"],
+      "meaning": "Origin construct not yet lowered; honest refuse"
+    },
+    "hub": {
+      "prefix": ["hub-"],
+      "meaning": "Hub ingest dialect surface not peeled (handler body, framework, vendor island)"
+    },
+    "cwl": {
+      "prefix": ["cwl:"],
+      "meaning": "CWL parse / projection incompleteness"
+    },
+    "auth": {
+      "prefix": ["auth:"],
+      "meaning": "Auth-boundary tagged residual"
+    },
+    "copy": {
+      "prefix": ["copy:"],
+      "meaning": "COBOL / include COPY residual (P0/P1 ledger)"
+    },
+    "openapi": {
+      "prefix": ["openapi:", "har:"],
+      "meaning": "Contract import honesty boundary"
+    },
+    "runtime": {
+      "prefix": ["runtime:", "exec:"],
+      "meaning": "Runtime / EXEC residual (CICS/SQL/etc.) tagged outside hub dialect peels"
+    }
+  },
+  "catalogFixtures": [
+    "fixtures/ci/drogon-honest-skip.json",
+    "fixtures/ci/revel-honest-skip.json",
+    "fixtures/ci/nancy-honest-skip.json",
+    "fixtures/ci/deno-serve-honest-skip.json",
+    "fixtures/ci/tapir-honest-skip.json"
+  ],
+  "forbiddenInventPatterns": [
+    "invent:",
+    "demo-only:",
+    "force-settle:",
+    "facade:",
+    "bing-basemap:",
+    "osm-default-invent:"
+  ],
+  "refuseSilentCompletion": true
+}

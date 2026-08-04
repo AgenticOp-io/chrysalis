@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "generatedAt": "2026-07-28T04:10:00.000Z",
   "gate": "G10062",
-  "note": "Catalog only (D6447 / D6524). Flat Padrino get|post route surface on Padrino::Application is lifted via Sinatra peels (hub:padrino-smoke 20/20), same cheap reuse as Grape G10032. Do not invent symbol controllers, Padrino.mount multi-app, filters/helpers, or Rails ActionController. Sinatra remains Ruby D6448-ST. Roda secondary remains closed (G10022). Grape secondary remains closed (G10032). Rails secondary stays skipped (G10006).",
+  "note": "Catalog only (D6447 / D6524). Flat Padrino get|post route surface on Padrino::Application is lifted via Sinatra peels (hub:padrino-smoke 20/20), same cheap reuse as Grape G10032. Do not invent symbol controllers, Padrino.mount multi-app, filters/helpers, or Rails ActionController. Sinatra remains Ruby D6448-ST. Roda secondary remains closed (G10022). Grape secondary remains closed (G10032). Rails route-table closed G10115 (was G10006 skip).",
   "fixture": "fixtures/hub-gold-padrino",
   "smoke": "pnpm run hub:padrino-smoke",
   "st": "pnpm run hub:complete-conversion-prove:ruby",

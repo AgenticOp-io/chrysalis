@@ -1,6 +1,8 @@
 import type { HubNativeRoute } from "./schema.js";
 
 const CSHARP_MAP_RE = /\bapp\.Map(Get|Post|Put|Delete|Patch)\s*\(\s*"([^"]+)"/gi;
+/** Nancy FX module routes: Get("/path", …) / Post("/path", …) in NancyModule constructors. */
+const CSHARP_NANCY_RE = /\b(Get|Post|Put|Patch|Delete)\s*\(\s*"([^"]+)"\s*,/gi;
 const CSHARP_HTTP_ATTR_RE =
   /\[(Http(Get|Post|Put|Patch|Delete|Head|Options))(?:\(\s*"([^"]*)"\s*\))?\]/gi;
 const CSHARP_CLASS_RE = /(\[(?:[^\[\]]|\[[^\]]*\])*\]\s*)*public\s+(?:partial\s+)?class\s+\w+[^{]*\{/g;
@@ -98,6 +100,17 @@ export function parseCsharpRoutes(source: string): HubNativeRoute[] {
   let m: RegExpExecArray | null;
   while ((m = CSHARP_MAP_RE.exec(source)) !== null) {
     push(m[1] ?? "Get", m[2] ?? "/", m.index);
+  }
+
+  // Nancy FX — only when NancyModule is in the file (avoid bare Get( false positives).
+  // Strip // comments so doc examples like Delete("/path" do not become phantom routes.
+  if (/\bNancyModule\b/.test(source)) {
+    const noLineComments = source.replace(/\/\/[^\n]*/g, "");
+    CSHARP_NANCY_RE.lastIndex = 0;
+    let n: RegExpExecArray | null;
+    while ((n = CSHARP_NANCY_RE.exec(noLineComments)) !== null) {
+      push(n[1] ?? "Get", n[2] ?? "/", n.index);
+    }
   }
 
   return routes;

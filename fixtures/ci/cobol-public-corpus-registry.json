@@ -1,0 +1,226 @@
+{
+  "kind": "chrysalis.cobol.public-corpus-registry",
+  "schemaVersion": 2,
+  "gate": "G10120",
+  "note": "Off-repo public COBOL layout/BMS/DCLGEN corpora for inventory + external prove. Blobs stay under CHRYSALIS_COBOL_CORPORA_ROOT — never commit to main. Does not close copy:EXTFMAP (licensed/ABSENT only). Phases align external mega-corpus advice to Chrysalis honesty.",
+  "refuse": [
+    "IBM Restricted Materials / SDFHCOB proprietary members on main",
+    "Invented EXTFMAP / DFHAID stubs",
+    "Hercules/MVS/CBT dumps without per-archive license review",
+    "LegacyCodeBench public leaderboard claim",
+    "Hand-built BMS login/menu trees as if they were origin apps (D6447)",
+    "Invented production DFDL/IMS PCB trees labeled as IBM product samples"
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "name": "Public production applications",
+      "chrysalis": "active",
+      "note": "Highest value. CardDemo already in external prove + online hole inventory."
+    },
+    {
+      "id": 2,
+      "name": "IBM public samples",
+      "chrysalis": "partial",
+      "note": "cobol-is-fun + zopeneditor-sample clone targets. DFDL/zOS samples only when clearly redistributable — not Restricted Materials."
+    },
+    {
+      "id": 3,
+      "name": "GnuCOBOL",
+      "chrysalis": "active",
+      "note": "examples + CLBS prove. Full compiler testsuite clone is optional deepen (parser correctness)."
+    },
+    {
+      "id": 4,
+      "name": "CICS / BMS harvest",
+      "chrysalis": "inventory-only",
+      "note": "Census counts DFHMSD; do not invent folder taxonomy login/menu/… façades. Prefer origin mapsets (CardDemo app/bms)."
+    },
+    {
+      "id": 5,
+      "name": "DB2 / DCLGEN",
+      "chrysalis": "partial",
+      "note": "CardDemo DCL* + EXEC SQL inventory; SQLCA/SQLDA from public samples only — no invented DB2 runtime."
+    },
+    {
+      "id": 6,
+      "name": "IMS",
+      "chrysalis": "deferred",
+      "note": "Collect public PCB/PSB only when licensed/redistributable; EXEC DLI stays hole until then."
+    },
+    {
+      "id": 7,
+      "name": "Record layout stress",
+      "chrysalis": "prefer-upstream",
+      "note": "JRecord/cb2xml + CardDemo copybooks first. Artificial stress copybooks only as labeled fixtures under fixtures/ — never as fake production apps."
+    },
+    {
+      "id": 8,
+      "name": "Parser torture",
+      "chrysalis": "prefer-upstream",
+      "note": "COPY REPLACING / nested REDEFINES / EXEC CICS HANDLE|LINK|XCTL from CardDemo online corpus. Do not invent EXEC blocks."
+    }
+  ],
+  "corpora": [
+    {
+      "id": "aws-carddemo",
+      "phase": 1,
+      "url": "https://github.com/aws-samples/aws-mainframe-modernization-carddemo.git",
+      "why": "Best public modernization app: BMS + copybooks + CICS/SQL/VSAM/JCL (already in external prove)"
+    },
+    {
+      "id": "rocket-bank",
+      "phase": 1,
+      "url": "https://github.com/RocketSoftwareCOBOLandMainframe/BankDemo.git",
+      "why": "BankDemo public production-shaped tree"
+    },
+    {
+      "id": "az-legacy-engineering",
+      "phase": 1,
+      "url": "https://github.com/bhbandam/AZ-Legacy-Engineering.git",
+      "why": "Enterprise-shaped samples (curated cobc probes)"
+    },
+    {
+      "id": "ibm-cobol-fun",
+      "phase": 2,
+      "url": "https://github.com/IBM/cobol-is-fun.git",
+      "why": "Public IBM training COBOL"
+    },
+    {
+      "id": "ibm-zopeneditor-sample",
+      "phase": 2,
+      "url": "https://github.com/IBM/zopeneditor-sample.git",
+      "why": "IBM Z Open Editor public sample (COBOL/copy/JCL surface)"
+    },
+    {
+      "id": "cobol-course",
+      "phase": 2,
+      "url": "https://github.com/openmainframeproject/cobol-programming-course.git",
+      "why": "OMP course samples"
+    },
+    {
+      "id": "gnucobol-examples",
+      "phase": 3,
+      "url": "https://github.com/OlegKunitsyn/gnucobol-examples.git",
+      "why": "GnuCOBOL examples"
+    },
+    {
+      "id": "dscobol-projects",
+      "phase": 3,
+      "url": "https://github.com/dscobol/Cobol-Projects.git",
+      "why": "Gnu-friendly project samples"
+    },
+    {
+      "id": "jrecord",
+      "phase": 7,
+      "url": "https://github.com/bmTas/JRecord.git",
+      "why": "Large public copybook test set — COMP/COMP-3/OCCURS/REDEFINES/national (layout peel gold)"
+    },
+    {
+      "id": "cb2xml",
+      "phase": 7,
+      "url": "https://github.com/bmTas/cb2xml.git",
+      "why": "Copybook→XML layouts companion to JRecord"
+    },
+    {
+      "id": "copybook-rs",
+      "phase": 7,
+      "url": "https://github.com/EffortlessMetrics/copybook-rs.git",
+      "why": "Layout stress fixtures — COMP-3/ODO/REDEFINES/RENAMES (parser/layout peel gold)"
+    },
+    {
+      "id": "zalmane-copybook",
+      "phase": 7,
+      "url": "https://github.com/zalmane/copybook.git",
+      "why": "Public copybook parser test fixtures"
+    },
+    {
+      "id": "cobol-copybook-to-json",
+      "phase": 7,
+      "url": "https://github.com/arunkumars-mf/cobol-copybook-to-json.git",
+      "why": "Sample employee layout copybooks (OCCURS/REDEFINES/COMP-3)"
+    },
+    {
+      "id": "cobol-check",
+      "phase": 3,
+      "url": "https://github.com/neopragma/cobol-check.git",
+      "why": "Unit-test framework samples (Gnu-adjacent)"
+    },
+    {
+      "id": "omp-cobol-check",
+      "phase": 3,
+      "url": "https://github.com/openmainframeproject/cobol-check.git",
+      "why": "OMP cobol-check samples"
+    },
+    {
+      "id": "cobol-unit-test",
+      "phase": 3,
+      "url": "https://github.com/neopragma/cobol-unit-test.git",
+      "why": "Batch unit-test framework + sample programs"
+    },
+    {
+      "id": "cobol-rekt",
+      "phase": 1,
+      "url": "https://github.com/avishek-sen-gupta/cobol-rekt.git",
+      "why": "Legacy reverse-engineering toolkit + public COBOL samples"
+    },
+    {
+      "id": "ibm-db2-samples",
+      "phase": 5,
+      "url": "https://github.com/IBM/db2-samples.git",
+      "why": "Public IBM DB2 samples (EXEC SQL / host-var surface inventory)"
+    },
+    {
+      "id": "gnucobol-src",
+      "phase": 3,
+      "url": "https://github.com/OCamlPro/gnucobol.git",
+      "why": "GnuCOBOL tree incl. tests — parser torture / intrinsic coverage (large; off-repo)"
+    },
+    {
+      "id": "copybook2json",
+      "phase": 7,
+      "url": "https://github.com/douglaspands/copybook2json.git",
+      "why": "Copybook→JSON sample layouts"
+    },
+    {
+      "id": "proleap-cobol-parser",
+      "phase": 8,
+      "url": "https://github.com/uwol/proleap-cobol-parser.git",
+      "why": "ANTLR COBOL parser test corpus (COPY/REDEFINES/OCCURS shapes)"
+    }
+  ],
+  "planned": [
+    {
+      "id": "ibm-dfdl-public",
+      "phase": 2,
+      "why": "Only if a clearly redistributable public DFDL/copybook sample repo is pinned — refuse Restricted Materials"
+    },
+    {
+      "id": "public-ims-pcb-psb",
+      "phase": 6,
+      "why": "Deferred — need redistributable PCB/PSB corpus; no invent"
+    }
+  ],
+  "deferred": [
+    {
+      "id": "hercules-mvs-cbt",
+      "why": "Volume + license review required before clone automation"
+    },
+    {
+      "id": "micro-focus-samples",
+      "why": "Often proprietary / not redistributable onto main (includes MicroFocus/BankDemo)"
+    }
+  ],
+  "metadataIndex": {
+    "today": "reports/cobol/corpus-feature-index.json + peel-candidates.json",
+    "query": "pnpm run hub:cobol-corpus-query -- --all odo",
+    "peelCandidates": "pnpm run hub:cobol-peel-candidates",
+    "queries": [
+      "files with OCCURS DEPENDING ON (odo)",
+      "files with REDEFINES + COMP-3",
+      "BMS DFHMSD maps",
+      "EXEC CICS / EXEC SQL / EXEC DLI hits"
+    ],
+    "notYet": "SQLite optional when artifact counts exceed comfortable JSON query"
+  }
+}

@@ -527,6 +527,54 @@ function extractHapiRoutesFromCall(node) {
 }
 
 /**
+ * Deno.serve dialect marker: `Deno.serve(handler)` / `Deno.serve(opts, handler)` (G10118).
+ * Does not invent Bun-like `{ routes }` (**D6447** / D6522).
+ * @param {import('estree').CallExpression} node
+ */
+function isDenoServeCall(node) {
+  if (node?.type !== "CallExpression") return false;
+  const callee = node.callee;
+  if (callee?.type !== "MemberExpression" || callee.computed) return false;
+  if (callee.object?.type !== "Identifier" || callee.object.name !== "Deno") return false;
+  return callee.property?.type === "Identifier" && callee.property.name === "serve";
+}
+
+/**
+ * Handler arg from `Deno.serve(fn)` or `Deno.serve(options, fn)`.
+ * @param {import('estree').CallExpression} node
+ * @returns {import('estree').Function | null}
+ */
+function findDenoServeHandlerFromCall(node) {
+  if (!isDenoServeCall(node)) return null;
+  const args = node.arguments ?? [];
+  for (const arg of args) {
+    const fn = handlerCallback(arg);
+    if (fn) return fn;
+    if (arg?.type === "ArrowFunctionExpression" || arg?.type === "FunctionExpression") {
+      return arg;
+    }
+  }
+  return null;
+}
+
+/**
+ * Peel Deno.serve handler body via CF Workers pathname+method peels (G10063 reuse / G10118).
+ * @param {import('estree').CallExpression} node
+ * @returns {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>}
+ */
+function extractDenoServeRoutesFromCall(node) {
+  const fn = findDenoServeHandlerFromCall(node);
+  if (!fn || fn.body?.type !== "BlockStatement") return [];
+  /** @type {Array<{ method: string, path: string, fn: import('estree').Function, loc: { line: number, column: number } }>} */
+  const out = [];
+  for (const s of fn.body.body ?? []) {
+    if (s.type === "IfStatement") peelCfWorkersIfRoutes(s, out);
+    else if (s.type === "SwitchStatement") peelCfWorkersSwitchRoutes(s, out);
+  }
+  return out;
+}
+
+/**
  * Bun.serve dialect marker: `Bun.serve({…})` (G10048 — routes peel only).
  * @param {import('estree').CallExpression} node
  */
@@ -2929,6 +2977,7 @@ export function liftJavaScriptFileToWebir(opts) {
   let elysiaOrigin = false;
   let oakOrigin = false;
   let bunServeOrigin = false;
+  let denoServeOrigin = false;
   let ittyOrigin = false;
   let cfWorkersOrigin = false;
   let adonisOrigin = false;
@@ -2986,6 +3035,10 @@ export function liftJavaScriptFileToWebir(opts) {
         for (const hr of extractHapiRoutesFromCall(node)) routes.push(hr);
         if (isBunServeCall(node)) bunServeOrigin = true;
         for (const br of extractBunServeRoutesFromCall(node)) routes.push(br);
+        if (isDenoServeCall(node)) {
+          denoServeOrigin = true;
+          for (const dr of extractDenoServeRoutesFromCall(node)) routes.push(dr);
+        }
         if (isIttyRouterCallExpression(node)) ittyOrigin = true;
         // Adonis `Route.get|post|…` receiver (G10059).
         if (
@@ -3010,10 +3063,11 @@ export function liftJavaScriptFileToWebir(opts) {
         if (isAdonisImportSource(node)) adonisOrigin = true;
       },
     });
-    // Workers fetch export (G10063): only when no Bun.serve / itty / Hono / Elysia / Oak / Adonis
-    // router markers — do not steal Bun.serve `fetch` fallback or itty `export default router`.
+    // Workers fetch export (G10063): only when no Bun.serve / Deno.serve / itty / Hono /
+    // Elysia / Oak / Adonis — do not steal Bun/Deno handlers or itty `export default router`.
     if (
       !bunServeOrigin &&
+      !denoServeOrigin &&
       !ittyOrigin &&
       !honoOrigin &&
       !elysiaOrigin &&
@@ -3067,19 +3121,21 @@ export function liftJavaScriptFileToWebir(opts) {
       ? `nestjs`
       : adonisOrigin
         ? `adonis`
-        : cfWorkersOrigin
-          ? `cf-workers`
-          : ittyOrigin
-            ? `itty`
-            : bunServeOrigin
-              ? `bun-serve`
-              : oakOrigin
-                ? `oak`
-                : elysiaOrigin
-                  ? `elysia`
-                  : honoOrigin
-                    ? `hono`
-                    : null;
+        : denoServeOrigin
+          ? `deno-serve`
+          : cfWorkersOrigin
+            ? `cf-workers`
+            : ittyOrigin
+              ? `itty`
+              : bunServeOrigin
+                ? `bun-serve`
+                : oakOrigin
+                  ? `oak`
+                  : elysiaOrigin
+                    ? `elysia`
+                    : honoOrigin
+                      ? `hono`
+                      : null;
     const handlerId = wr.handler({
       attrs: {
         name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,

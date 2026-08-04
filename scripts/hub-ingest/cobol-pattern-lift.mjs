@@ -90,6 +90,15 @@ const RECORD_KEY_RE = /\bRECORD\s+KEY\s+IS\s+([A-Za-z0-9-]+)/gi;
 const ALTERNATE_RECORD_KEY_RE = /\bALTERNATE\s+RECORD\s+KEY\s+IS\s+([A-Za-z0-9-]+)/gi;
 const COMPUTE_RE = /\bCOMPUTE\s+/gi;
 const OCCURS_RE = /\bOCCURS\s+\d+/gi;
+/**
+ * OCCURS … DEPENDING ON name (ODO) — inventory only (G10121).
+ * Does not invent variable-length runtime.
+ */
+const OCCURS_DEPENDING_RE =
+  /\bOCCURS\b[\s\S]{0,120}?\bDEPENDING(?:\s+ON)?\s+([A-Za-z0-9-]+)/gi;
+/** Level-66 RENAMES (G10122) — catalog only. */
+const RENAMES_CLAUSE_RE =
+  /\b66\s+([A-Za-z0-9-]+)\s+RENAMES\s+([A-Za-z0-9-]+)(?:\s+THRU\s+([A-Za-z0-9-]+))?/gi;
 /** SEARCH table — not END-SEARCH. */
 const SEARCH_RE = /(?<!END-)\bSEARCH\s+[A-Z0-9-]+/gi;
 const EVALUATE_NUMERIC_WHEN_RE = /\bWHEN\s+(\d+)\b/gi;
@@ -474,6 +483,15 @@ export function buildCobolWebIrHoleAttrs(inv, opts = {}) {
     attrs.redefines = inv.redefines;
   }
   if (inv?.usageTokens?.length) attrs.usageTokens = [...inv.usageTokens];
+  // G10121 — OCCURS DEPENDING ON (layout catalog; no ODO runtime invent).
+  if (typeof inv?.odo === "number" && inv.odo > 0) attrs.odo = inv.odo;
+  if (inv?.dependingOnNames?.length) {
+    attrs.dependingOnNames = [...inv.dependingOnNames];
+  }
+  // G10122 — Level-66 RENAMES (layout catalog; no rename runtime invent).
+  if (typeof inv?.renames === "number" && inv.renames > 0) attrs.renames = inv.renames;
+  if (inv?.renamesNames?.length) attrs.renamesNames = [...inv.renamesNames];
+  if (inv?.renamesRanges?.length) attrs.renamesRanges = [...inv.renamesRanges];
   // G10106 — CICS INTO/FROM data areas.
   if (inv?.cicsIntoAreas?.length) attrs.cicsIntoAreas = [...inv.cicsIntoAreas];
   if (inv?.cicsFromAreas?.length) attrs.cicsFromAreas = [...inv.cicsFromAreas];
@@ -692,6 +710,8 @@ export function inventoryCobolSource(source, file = "") {
   const cicsAssignOptions = parseExecCicsAssignOptions(code);
   const cicsEibSymbols = parseCicsEibSymbols(code);
   const procedureDataCatalog = parseCobolProcedureDataCatalog(code);
+  const occursDepending = parseCobolOccursDepending(code);
+  const renamesCatalog = parseCobolRenames(code);
   const cicsIntoFrom = parseExecCicsIntoFrom(code);
   const cicsControl = parseExecCicsControlCatalog(code);
   const respClauses = (code.match(RESP_CLAUSE_RE) || []).length;
@@ -732,6 +752,11 @@ export function inventoryCobolSource(source, file = "") {
     evaluateTrue,
     evaluateAny,
     occurs,
+    odo: occursDepending.odo,
+    dependingOnNames: occursDepending.dependingOnNames,
+    renames: renamesCatalog.renames,
+    renamesNames: renamesCatalog.renamesNames,
+    renamesRanges: renamesCatalog.renamesRanges,
     search,
     procedureUsing,
     procedureUsingArgs,
@@ -1307,6 +1332,54 @@ export function parseCicsEibSymbols(source) {
     if (re.test(code)) hit.push(sym);
   }
   return hit.sort();
+}
+
+/**
+ * OCCURS … DEPENDING ON names (G10121). Catalog only — no ODO runtime invent.
+ *
+ * @param {string} source
+ * @returns {{ odo: number, dependingOnNames: string[] }}
+ */
+export function parseCobolOccursDepending(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  OCCURS_DEPENDING_RE.lastIndex = 0;
+  let m;
+  while ((m = OCCURS_DEPENDING_RE.exec(code)) !== null) {
+    if (m[1]) names.push(String(m[1]).toUpperCase());
+  }
+  return {
+    odo: names.length,
+    dependingOnNames: [...new Set(names)],
+  };
+}
+
+/**
+ * Level-66 RENAMES catalog (G10122). No rename runtime invent.
+ *
+ * @param {string} source
+ * @returns {{ renames: number, renamesNames: string[], renamesRanges: string[] }}
+ */
+export function parseCobolRenames(source) {
+  const code = String(source || "");
+  /** @type {string[]} */
+  const names = [];
+  /** @type {string[]} */
+  const ranges = [];
+  RENAMES_CLAUSE_RE.lastIndex = 0;
+  let m;
+  while ((m = RENAMES_CLAUSE_RE.exec(code)) !== null) {
+    if (m[1]) names.push(String(m[1]).toUpperCase());
+    const from = m[2] ? String(m[2]).toUpperCase() : "";
+    const thru = m[3] ? String(m[3]).toUpperCase() : "";
+    if (from) ranges.push(thru ? `${from} THRU ${thru}` : from);
+  }
+  return {
+    renames: names.length,
+    renamesNames: [...new Set(names)],
+    renamesRanges: [...new Set(ranges)],
+  };
 }
 
 /**

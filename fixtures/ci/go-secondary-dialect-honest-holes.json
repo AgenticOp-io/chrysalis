@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.go-secondary-dialect-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T04:00:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Buffalo Use/Group/Resource, Martini Use/Group/Map/binding, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, Revel conf/routes+Controller.Action (G10065 skip), or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST (literal Group prefix peel closed G10066).",
+  "generatedAt": "2026-08-03T23:46:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Chi Mount/middleware, Echo Group/middleware/binders, Fiber Group/middleware/binders, Iris Party/middleware/binders, Beego Filter/NSNamespace/Controller, Buffalo Use/Group/Resource, Martini Use/Group/Map/binding, Gorilla Subrouter/middleware, ServeMux middleware (stdlib has none) / pattern-conflict runtimes, Revel interceptors/OnAppStart/router.GET invent, or non-literal Go path runtimes. Lift origin shapes that appear, else leave honest holes. Gin remains Go D6448-ST (literal Group prefix peel closed G10066). Revel route-surface closed G10114.",
   "dialects": {
     "gin": {
       "fixture": "fixtures/hub-flagship-go",
@@ -202,19 +202,32 @@
         { "shape": "conflicting ServeMux patterns", "reason": "hub-servemux:pattern-conflict" },
         { "shape": "Non-literal path templates", "reason": "hub-go:path-non-literal" }
       ]
+    },
+    "revel": {
+      "fixture": "fixtures/hub-gold-revel",
+      "smoke": "pnpm run hub:revel-smoke",
+      "st": "pnpm run hub:go-flagship && pnpm run hub:complete-conversion-prove:go",
+      "supported": [
+        "conf/routes METHOD PATH Controller.Action (literal)",
+        "Same-project func (c App) Action() revel.Result resolve",
+        ":id path templates",
+        "c.Params.Route.Get / c.Params.Query.Get peels",
+        "c.RenderJSON(lit|map[string]interface{}{…})",
+        "c.Response.Status = N before RenderJSON"
+      ],
+      "honestHoles": [
+        { "shape": "Interceptors / filters / modules / revel.OnAppStart", "reason": "hub-revel:lifecycle" },
+        { "shape": "Invented revel router.GET façade", "reason": "hub-revel:router-invent" },
+        { "shape": "c.Render / template HTML beyond cheap JSON", "reason": "hub-revel:render-html" },
+        { "shape": "Non-literal conf/routes paths", "reason": "hub-go:path-non-literal" }
+      ]
     }
   },
-  "absentOrigins": [
-    {
-      "dialect": "revel",
-      "gate": "G10065",
-      "catalog": "fixtures/ci/revel-honest-skip.json",
-      "note": "conf/routes + Controller.Action Rails-class — not cheap; no D6527; Gin ST + functional Go secondaries stay green"
-    }
-  ],
+  "absentOrigins": [],
   "nextTargets": [
-    "Go secondary set: Gin ST (+ Group peel G10066) + Chi + Echo + Fiber + Iris + Beego + Buffalo + Martini + Gorilla + ServeMux smokes (G10009/G10010/G10017/G10038/G10045/G10055/G10056/G10018/G10030); Revel skipped (G10065)",
+    "Go secondary set: Gin ST (+ Group peel G10066) + Chi + Echo + Fiber + Iris + Beego + Buffalo + Martini + Gorilla + ServeMux + Revel smokes (G10009/G10010/G10017/G10038/G10045/G10055/G10056/G10018/G10030/G10114)",
+    "Drogon registerHandler closed G10117; Rails routes.rb closed G10115",
     "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
-    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+    "Flutter / LiveView / COBOL prove / no Dependabot"
   ]
 }

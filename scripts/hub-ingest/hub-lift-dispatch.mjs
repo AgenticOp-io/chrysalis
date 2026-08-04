@@ -65,7 +65,7 @@ export function trySpecializedHubLift(opts) {
     { can: canElixirAstIngest, lift: liftElixirFileToWebir },
     // Prefer dart-ast (Shelf router.get|post / Response.ok|status / jsonEncode) over thin pattern lift.
     { can: canDartAstIngest, lift: liftDartFileToWebir },
-    // Prefer cpp-ast (Crow / cpp-httplib verbs + JSON/status/path-query) over silver file-lift.
+    // Prefer cpp-ast (Crow / Drogon registerHandler / cpp-httplib verbs + JSON/status/path-query) over silver file-lift.
     { can: canCppAstIngest, lift: liftCppFileToWebir },
     // Slim (G10028) + Lumen (G10049) secondary: $app-> / $router-> / Route:: closures —
     // not packages/ingest Laravel/Symfony/plain.
@@ -79,7 +79,12 @@ export function trySpecializedHubLift(opts) {
   for (const { can, lift } of lifters) {
     if (!can(opts.language, opts.ext)) continue;
     const r = lift(opts);
-    if (r.usedAst && (r.routeCount > 0 || (r.middlewareRootCount ?? 0) > 0)) return r;
+    if (
+      r.usedAst &&
+      (r.routeCount > 0 || r.suppressFileLift || (r.middlewareRootCount ?? 0) > 0)
+    ) {
+      return r;
+    }
   }
   return null;
 }

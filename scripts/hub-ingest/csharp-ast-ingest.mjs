@@ -28,6 +28,16 @@ const CSHARP_CREATED_BODY_RE =
 const CSHARP_ACCEPTED_BODY_RE =
   /Results\.Accepted\s*\(\s*[^,)]*\s*,\s*new\s*\{([\s\S]*?)\}\s*\)/;
 const CSHARP_SQL_CALL_RE = /\w+\.(?:Execute|Query|ExecuteReader)\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/gi;
+/** Nancy FX: Response.AsJson(new { … })[.WithStatusCode(HttpStatusCode.X)] */
+const NANCY_ASJSON_RE =
+  /Response\.AsJson\s*\(\s*new\s*\{([\s\S]*?)\}\s*\)(?:\s*\.WithStatusCode\s*\(\s*HttpStatusCode\.(\w+)\s*\))?/;
+const NANCY_STATUS_RE = /\bHttpStatusCode\.(OK|Created|Accepted|NoContent)\b/;
+const NANCY_HTTP_STATUS = {
+  OK: 200,
+  Created: 201,
+  Accepted: 202,
+  NoContent: 204,
+};
 
 /**
  * @param {string} language
@@ -75,6 +85,10 @@ function parseCsharpParamRefs(lambdaParams, routePath) {
   for (const m of lambdaParams.matchAll(/(\w+)\s*=\s*req(?:uest)?\.Query\[("([^"]+)")\]\.ToString\(\)/g)) {
     byVar[m[1]] = { source: "query", name: m[3] };
   }
+  // Nancy DynamicDictionary — parameters.id / Request.Query.q
+  for (const name of pathParams) {
+    byVar[name] = { source: "path", name };
+  }
   return byVar;
 }
 
@@ -114,7 +128,20 @@ function parseCsharpObjectEntries(inner, refs) {
   const entries = [];
   for (const pair of inner.matchAll(/(\w+)(?:\s*=\s*([^,}\n]+))?/g)) {
     const key = pair[1];
-    const rawVal = (pair[2] ?? pair[1]).trim();
+    let rawVal = (pair[2] ?? pair[1]).trim();
+    // Nancy: (string)parameters.id / (string)Request.Query.q
+    const nancyPath = rawVal.match(/\(string\)\s*parameters\.(\w+)/);
+    if (nancyPath && refs[nancyPath[1]]) {
+      entries.push({ key, value: { t: "ref", ...refs[nancyPath[1]] } });
+      continue;
+    }
+    const nancyQuery = rawVal.match(/\(string\)\s*Request\.Query(?:\.(\w+)|\[\s*"([^"]+)"\s*\])/);
+    if (nancyQuery) {
+      const qName = nancyQuery[1] || nancyQuery[2];
+      entries.push({ key, value: { t: "ref", source: "query", name: qName } });
+      continue;
+    }
+    rawVal = rawVal.replace(/\(string\)\s*/g, "").trim();
     if (refs[rawVal]) {
       entries.push({ key, value: { t: "ref", ...refs[rawVal] } });
     } else if (rawVal === "true" || rawVal === "false") {
@@ -131,6 +158,9 @@ function parseCsharpObjectEntries(inner, refs) {
       else if (h) entries.push({ key, value: { t: "ref", source: "header", name: h[2] } });
       else if (c) entries.push({ key, value: { t: "ref", source: "cookie", name: c[2] } });
       else return null;
+    } else if (/^parameters\.\w+$/.test(rawVal) && refs[rawVal.slice("parameters.".length)]) {
+      const n = rawVal.slice("parameters.".length);
+      entries.push({ key, value: { t: "ref", ...refs[n] } });
     } else {
       return null;
     }
@@ -174,6 +204,8 @@ function boundCsharpMapBody(bodySlice) {
   let rest = bodySlice;
   const nextMap = rest.search(/\n\s*app\.Map(?:Get|Post|Put|Patch|Delete)\b/);
   if (nextMap >= 0) rest = rest.slice(0, nextMap);
+  const nextNancy = rest.search(/\n\s*(?:Get|Post|Put|Patch|Delete)\s*\(/);
+  if (nextNancy >= 0) rest = rest.slice(0, nextNancy);
   return rest.replace(/\)\s*;\s*$/s, "").trim();
 }
 
@@ -196,13 +228,18 @@ function parseCsharpBodyReturn(bodySlice, refs) {
       return { status, returnTree: { t: "lit", v }, kind: "scalar-lit" };
     }
   }
+  const nancyPathScalar = bodySlice.match(/^\(string\)\s*parameters\.(\w+)\s*/);
+  if (nancyPathScalar && refs[nancyPathScalar[1]]) {
+    return { status, returnTree: { t: "ref", ...refs[nancyPathScalar[1]] }, kind: "scalar-ref" };
+  }
   const idM = bodySlice.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*/);
-  if (idM && refs[idM[1]] && !bodySlice.startsWith("Results.")) {
+  if (idM && refs[idM[1]] && !bodySlice.startsWith("Results.") && !bodySlice.startsWith("Response.")) {
     return { status, returnTree: { t: "ref", ...refs[idM[1]] }, kind: "scalar-ref" };
   }
 
   const anon = bodySlice.match(CSHARP_JSON_ANON_RE);
   const dict = bodySlice.match(CSHARP_JSON_DICT_RE);
+  const nancyJson = bodySlice.match(NANCY_ASJSON_RE);
   if (anon) {
     returnTree = parseCsharpObjectEntries(anon[1], refs);
     if (anon[2]) status = Number.parseInt(anon[2], 10);
@@ -210,6 +247,12 @@ function parseCsharpBodyReturn(bodySlice, refs) {
   } else if (dict) {
     returnTree = parseCsharpObjectEntries(dict[1], refs);
     if (dict[2]) status = Number.parseInt(dict[2], 10);
+    kind = returnTree ? "json" : null;
+  } else if (nancyJson) {
+    returnTree = parseCsharpObjectEntries(nancyJson[1], refs);
+    if (nancyJson[2] && NANCY_HTTP_STATUS[nancyJson[2]] !== undefined) {
+      status = NANCY_HTTP_STATUS[nancyJson[2]];
+    }
     kind = returnTree ? "json" : null;
   } else {
     const createdBody = bodySlice.match(CSHARP_CREATED_BODY_RE);
@@ -226,6 +269,18 @@ function parseCsharpBodyReturn(bodySlice, refs) {
       status = 201;
       kind = "json";
       returnTree = { t: "obj", entries: [] };
+    } else {
+      const nancyStatus = bodySlice.match(NANCY_STATUS_RE);
+      if (nancyStatus && NANCY_HTTP_STATUS[nancyStatus[1]] !== undefined) {
+        status = NANCY_HTTP_STATUS[nancyStatus[1]];
+        if (status === 200) {
+          returnTree = { t: "lit", v: true };
+          kind = "scalar-lit";
+        } else {
+          kind = "json";
+          returnTree = { t: "obj", entries: [] };
+        }
+      }
     }
   }
 
@@ -381,12 +436,36 @@ function parseCsharpHandlerBody(source, fromIndex, routePath) {
 
   const slice = source.slice(fromIndex, fromIndex + 4000);
   const mapM = slice.match(/Map(?:Get|Post|Put|Patch|Delete)\s*\(\s*"[^"]+"\s*,\s*\(([^)]*)\)\s*=>\s*/i);
-  if (!mapM) return null;
-  const lambdaParams = mapM[1];
-  const bodyStart = slice.indexOf("=>", mapM.index ?? 0) + 2;
+  if (mapM) {
+    const lambdaParams = mapM[1];
+    const bodyStart = slice.indexOf("=>", mapM.index ?? 0) + 2;
+    const bodySlice = boundCsharpMapBody(slice.slice(bodyStart));
+    const line = source.slice(0, fromIndex).split("\n").length;
+    const refs = parseCsharpRequestRefs(bodySlice, parseCsharpParamRefs(lambdaParams, routePath));
+    const sqlEffects = parseCsharpSqlEffects(bodySlice, refs);
+    const { status, returnTree, kind } = parseCsharpBodyReturn(bodySlice, refs);
+    if (sqlEffects.length === 0 && !returnTree && status === undefined) return null;
+    return { sqlEffects, returnTree, status, kind, line };
+  }
+
+  // Nancy FX: Get("/path", args => …)
+  const nancyM = slice.match(
+    /(?:Get|Post|Put|Patch|Delete)\s*\(\s*"[^"]+"\s*,\s*(?:\(([^)]*)\)|(\w+))\s*=>\s*/i,
+  );
+  if (!nancyM || !/\bNancyModule\b/.test(source)) return null;
+  const lambdaParams = nancyM[1] ?? nancyM[2] ?? "";
+  const bodyStart = slice.indexOf("=>", nancyM.index ?? 0) + 2;
   const bodySlice = boundCsharpMapBody(slice.slice(bodyStart));
   const line = source.slice(0, fromIndex).split("\n").length;
   const refs = parseCsharpRequestRefs(bodySlice, parseCsharpParamRefs(lambdaParams, routePath));
+  // Explicit Nancy parameters.id / Request.Query refs in body
+  for (const m of bodySlice.matchAll(/parameters\.(\w+)/g)) {
+    if (!refs[m[1]]) refs[m[1]] = { source: "path", name: m[1] };
+  }
+  for (const m of bodySlice.matchAll(/Request\.Query(?:\.(\w+)|\[\s*"([^"]+)"\s*\])/g)) {
+    const qName = m[1] || m[2];
+    refs[`__nancy_q_${qName}`] = { source: "query", name: qName };
+  }
   const sqlEffects = parseCsharpSqlEffects(bodySlice, refs);
   const { status, returnTree, kind } = parseCsharpBodyReturn(bodySlice, refs);
   if (sqlEffects.length === 0 && !returnTree && status === undefined) return null;

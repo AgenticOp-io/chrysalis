@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-03 (G10113 no-z/OS CardDemo/bank peels; behavioral **68/68**; EXTFMAP sole P0)
+**As of:** 2026-08-03 (**G10122** RENAMES layout; **G10121** ODO; **G10120** public corpus; EXTFMAP sole COBOL P0)
 
 ---
 
@@ -82,6 +82,12 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10042 | Helidon MP JAX-RS Java | `hub:helidon-smoke` | secondary to Spring Java ST; **reuses G10012 JAX-RS peels**; CDI/MP Config/Helidon SE = honest holes |
 | G10008 | ASP.NET controllers | `hub:aspnet-controllers-smoke` | secondary to Minimal API C# ST; DI/filter/Razor = honest holes |
 | G10041 | Carter C# | `hub:carter-smoke` | secondary to Minimal API C# ST; **reuses Minimal API Map\* peels**; MapCarter/DI/filters = honest holes |
+| G10119 | Tapir Scala | `hub:tapir-smoke` | unparked from G10057; endpoint.VERB.in + serverLogicSuccess Map/lit; no jsonBody invent; interpreters = honest holes |
+| G10118 | Deno.serve | `hub:deno-serve-smoke` | unparked from G10060; Deno.serve + method/pathname switch via CF Workers peel reuse; no `{ routes }` invent; URLPattern/@std/http = honest holes |
+| G10117 | Drogon C++ | `hub:drogon-smoke` | unparked from G10058; app().registerHandler + Json::Value/newHttpJsonResponse/setBody/setStatusCode/getParameter/{id}; METHOD_ADD/filters = honest holes |
+| G10116 | Agent-era substrate | `hub:agent-era-substrate-smoke` | D6541 — Hole Type System + CWL-Above-Code + Dispose Plane entry; taxonomy refuses invent/demo-only/force-settle |
+| G10114 | Nancy FX C# | `hub:nancy-smoke` | unparked from G10050; NancyModule Get|Post + AsJson/HttpStatusCode/parameters.id; NancyHost/indexer = honest holes |
+| G10114 | Revel Go | `hub:revel-smoke` | unparked from G10065; conf/routes METHOD PATH Controller.Action + RenderJSON/Status/Params; interceptors/router.GET invent = honest holes |
 | G10004 | Ktor Kotlin | `hub:ktor-smoke` | secondary to Spring Kotlin ST; auth/plugins/nested routing = honest holes |
 | G10024 | http4k Kotlin | `hub:http4k-smoke` | secondary to Spring Kotlin ST; filters/lenses/nested/server = honest holes |
 | G10009 | Go Chi | `hub:chi-smoke` | secondary to Gin Go ST; middleware/Mount = honest holes |
@@ -94,6 +100,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10022 | Ruby Roda | `hub:roda-smoke` | secondary to Sinatra Ruby ST; nested `r.on`/plugins = honest holes |
 | G10032 | Ruby Grape | `hub:grape-smoke` | secondary to Sinatra Ruby ST; reuses Sinatra peels; `route_param`/`present` = honest holes |
 | G10062 | Ruby Padrino | `hub:padrino-smoke` | secondary to Sinatra Ruby ST; reuses Sinatra peels (Grape-class); symbol controllers/mount/filters = honest holes |
+| G10115 | Ruby Rails routes.rb | `hub:rails-routes-smoke` | unparked from G10006; `to: "ctrl#action"` + thin `render json:`/`params[:id]`; resources/filters/AR = honest holes |
 | G10028 | PHP Slim | `hub:slim-smoke` | secondary to Laravel/Symfony/plain-php ST; PSR-15/`$app->group` = honest holes |
 | G10049 | PHP Lumen / Laravel-router | `hub:lumen-smoke` | secondary to Laravel/Symfony/plain-php ST; Slim remains first PHP secondary; middleware/controllers = honest holes |
 
@@ -114,11 +121,12 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | itty-router non-empty `all` / nested Router / body|headers|cookies | honest holes | empty `all` closed (G10064); G10047 ORIGIN route surface |
 | Cloudflare Workers KV/D1/`env` / dynamic segments / opaque fetch | honest holes | G10063 fetch-export method+pathname surface only |
 | Phoenix controllers / LiveView | skipped | `fixtures/ci/phoenix-controller-honest-skip.json` |
-| Rails secondary (`routes.rb` → controller) | skipped (G10006) | `fixtures/ci/rails-controller-honest-skip.json` |
-| Nancy FX C# secondary | skipped (G10050) | `fixtures/ci/nancy-honest-skip.json` — not Minimal API Map* peel-reuse |
-| Tapir Scala secondary | skipped (G10057) | `fixtures/ci/tapir-honest-skip.json` — fluent combinator/codec DSL not Ok peel-reuse; no D6519 |
-| Drogon C++ secondary | skipped (G10058) | `fixtures/ci/drogon-honest-skip.json` — registerHandler/callback not Crow/httplib peel-reuse; no D6520 |
-| Revel Go secondary | skipped (G10065) | `fixtures/ci/revel-honest-skip.json` — conf/routes + Controller.Action Rails-class; no Gin/Buffalo/Martini peel-reuse; no D6527 |
+| Rails secondary (`routes.rb` → controller) | **Closed route-surface G10115** | was G10006 skip; `hub:rails-routes-smoke` 20/20; resources/filters/AR still honest holes |
+| Nancy FX C# secondary | **Closed route-surface G10114** | was G10050 skip; `hub:nancy-smoke` 20/20; NancyHost/indexer still honest holes |
+| Revel Go secondary | **Closed route-surface G10114** | was G10065 skip; `hub:revel-smoke` 20/20; interceptors/router.GET invent still honest holes |
+| Tapir Scala secondary | **Closed route-surface G10119** | was G10057 skip; `hub:tapir-smoke` 20/20; jsonBody/interpreters still honest holes |
+| Deno.serve TS ORIGIN | **Closed route-surface G10118** | was G10060 skip; `hub:deno-serve-smoke` 20/20; CF Workers peel reuse; `{ routes }` invent still refused |
+| Drogon C++ secondary | **Closed route-surface G10117** | was G10058 skip; `hub:drogon-smoke` 20/20; METHOD_ADD/filters still honest holes |
 | Roda nested `r.on` / plugins / auth | honest holes | G10022 route surface only (`roda-honest-holes.json`) |
 | Grape `route_param` / `present` / `params do` / namespace | honest holes | G10032 flat route surface only (`grape-honest-holes.json`) |
 | Padrino symbol controllers / mount / filters | honest holes | G10062 flat Sinatra-compatible surface only (`padrino-honest-holes.json`) |
@@ -153,27 +161,34 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **68/68** behavioral (**G10113** monthly-interest / card-tran-type-fee / bank-withdraw); WebIR deepen **G10085–G10106** (**inventory peels exhausted**); **G10111** CSD+DCLGEN; **G10112** CICS control option catalogs; sole open P0=`copy:EXTFMAP` | no LCB claim; **live z/OS / CICS TX required next** for EXTFMAP drop or CardDemo CICS/VSAM/Db2 runtime — see [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md) |
+| COBOL primary | **68/68** behavioral (**G10113**); WebIR deepen **G10085–G10106** exhausted + **G10111/G10112** + **G10121** ODO + **G10122** RENAMES; **G10120** mega-corpus; sole open P0=`copy:EXTFMAP` | no LCB claim; **live z/OS / CICS TX** for EXTFMAP — [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md) · [`COBOL-EXTERNAL-PROVE-CORPORA.md`](./COBOL-EXTERNAL-PROVE-CORPORA.md) |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
 
 ## Cheap deepen queue
 
-**Default next (G10077 Tier A+):** **COBOL primary** — not more secondary-dialect peels.
+**Default next (D6540 / G10114 + D6541 / G10116):** **dual primary** ingress (COBOL **or** language deepen) **and** agent-era substrate when ownership/SoR is in scope.
 
 | Priority | Work | Status |
 | --- | --- | --- |
-| **1** | COBOL Tier A COPY surface | **Closed G10075** (228/271 resolve; BMS holes only) |
-| **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65**) |
-| **2b** | COBOL structural BMS/CICS catalog | **Closed G10079–G10082** (DFHM inventory + MAP crosswalk + COTRT BMS + SEND-MAP/TEXT catalog; INQ*/PORT* holes stay) |
-| **2c** | COBOL→WebIR deepen (CWL-shaped) | **Exhausted G10085–G10106** — gate `cobol-inventory-peels-exhausted`; **G10111** CSD+DCLGEN artifact class; **G10112** CICS control option catalogs (RETURN/FORMATTIME/SYNCPOINT/…) without reopening exhaust stamp |
-| **3** | COBOL Tier B Medium+ (Db2/CICS/VSAM/MQ/IMS) | **Closed G10083 structural** + **G10111** CSD/DCLGEN catalogs — CardDemo VSAM-MQ + IMS/Db2/MQ auth corpus; `exec-dli`/`ibm-mq`/`exec-sql` holes; **no runtime** |
-| **4** | COBOL Tier C IBM BMS AID books | **G10084** symbol catalog; **DFHAID/DFHBMSCA** + **CMQ\*** licensed local drops (gitignored, residual **closed** when present); **EXTFMAP** sole open P0 (may be ABSENT from SDFHCOB) |
-| — | Secondary-dialect / prefix bingo (Gin/Hono/Fiber/…) | **Paused as default** — reopen only if explicitly asked |
-| — | Flutter / Phoenix LiveView / Rails | Charter required (unchanged) |
+| **S0** | Agent-era substrate (Hole Type System · CWL-Above-Code · Dispose Plane) | **Entry closed G10116** — dispose certificate on convert-apply; taxonomy + dialect honesty catalogs typed |
+| **L0** | Unpark previously skipped frameworks → route-surface gold | **Active G10114** — Nancy · Rails · Revel · Drogon · Deno.serve · **Tapir G10119** closed · next: Phoenix LiveView (charter only — no invent) |
+| **L1** | Cheap honest-hole peels inside closed secondaries | Reopen when L0 chartered or operator names a dialect |
+| **1** | COBOL Tier A COPY surface | **Closed G10075** |
+| **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65** → **68/68** via G10113) |
+| **2b–2c** | COBOL BMS/CICS + WebIR deepen | **Exhausted G10079–G10112** |
+| **3** | COBOL Tier B Medium+ structural | **Closed G10083** + **G10111** — no runtime |
+| **4** | COBOL Tier C IBM BMS AID books | **EXTFMAP** sole open P0 |
+| — | Secondary-dialect / prefix bingo | **Unpaused (D6540)** — peel without inventing onions |
+| — | Flutter / Phoenix LiveView / Rails *filters/resources* | Still charter; Rails route-table + thin `render json` closed G10115 |
+
+**Parity bar (languages vs COBOL):** route-surface gold **20/20** + honest residual catalog + no invented runtime. COBOL keeps behavioral cobc prove; languages keep verify gold — do not force-fake LiveView/DI to “match” COBOL subject counts.
 
 **Closed COBOL this finish pack:**
+- G10122 — Level-66 RENAMES layout inventory (`renames` / `renamesNames` / `renamesRanges`); copybook-rs fixtures `hub-cobol-layout-renames`; best-fit `webir-hole-attrs-renames`
+- G10121 — OCCURS DEPENDING ON layout inventory (`odo` / `dependingOnNames`); JRecord labeled fixtures `hub-cobol-layout-odo`; best-fit `webir-hole-attrs-occurs-depending` (does **not** reopen G10106 exhaust)
+- G10120 — public mega-corpus registry + census off-repo (phases 1–8 mapped; JRecord/cb2xml/zopeneditor/db2-samples/gnucobol-src; **GCE prove STATUS_OK** — CLBS 68/68 + external + census 1156→scale); feature-index + `hub:cobol-corpus-query` + `hub:cobol-peel-candidates`; does **not** close EXTFMAP
 - G10113 — no-z/OS CardDemo/bank COMPUTE peels (`monthly-interest` / `card-tran-type-fee` / `bank-withdraw`); behavioral **68/68** on `agenticop-master` cobc; [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md); best-fit `webir-emit-pattern-no-zos-card-bank`
 - G10112 — CICS RETURN TRANSID/options, FORMATTIME/ASKTIME, SYNCPOINT, ABEND ABCODE, GETMAIN/FREEMAIN/DELAY, INQUIRE FILE, RETRIEVE INTO, ENQ/DEQ RESOURCE catalogs; best-fit `webir-hole-attrs-cics-control-options`; no CICS invent
 - G10111 — CardDemo CSD (`CRDDEMOM`/`CRDDEMO2`) + DCLGEN (`AUTHFRDS`/`DCLTR*`) structural inventory + PROGRAM/MAPSET crosswalks; site-inventory `.csd`/`.dcl`; best-fit `carddemo-csd-dclgen-structural`; no CICS/Db2 invent

@@ -11,7 +11,7 @@ flat Sinatra-compatible `get|post|… "/path"`, `/:id` templates, bare Hash retu
 - Symbol controllers (`get :index`), `Padrino.mount`, filters/helpers stay honest unsupported
   shapes (**D6447** — not present in this gold).
 - Hole-free lift smoke: `pnpm run hub:padrino-smoke`
-- Rails secondary stays skipped (G10006). Roda (G10022) + Grape (G10032) remain closed.
+- Rails route-table closed G10115. Roda (G10022) + Grape (G10032) remain closed.
 
 ## Honest holes (unsupported shapes)
 

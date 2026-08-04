@@ -1,7 +1,9 @@
 /**
- * C++ hub ingest — Crow (`CROW_ROUTE`) + cpp-httplib (`svr.Get/Post/…`) deepened
- * for D6448-ST cwl-api flagship: brace-bounded handler bodies, crow::json::wvalue /
- * httplib set_content JSON, path/query refs, crow::response(status, …) (hub-flagship-cpp).
+ * C++ hub ingest — Crow (`CROW_ROUTE`) + Drogon (`app().registerHandler`) +
+ * cpp-httplib (`svr.Get/Post/…`) deepened for D6448-ST cwl-api flagship:
+ * brace-bounded handler bodies, crow::json::wvalue / Json::Value /
+ * httplib set_content JSON, path/query refs, crow::response(status, …) /
+ * Drogon callback(HttpResponse::…) (hub-flagship-cpp + hub-gold-drogon).
  * Prefer this over silver file-lift when HTTP framework routes are present.
  */
 import {
@@ -131,9 +133,20 @@ function crowPathParamNames(paramSource) {
   for (const part of paramSource.split(",")) {
     const p = part.trim();
     if (!p) continue;
-    if (/crow::request\b/.test(p) || /\bRequest\b/.test(p) || /\bResponse\b/.test(p)) continue;
+    if (
+      /crow::request\b/.test(p) ||
+      /\bRequest\b/.test(p) ||
+      /\bResponse\b/.test(p) ||
+      /HttpRequestPtr\b/.test(p) ||
+      /HttpResponsePtr\b/.test(p) ||
+      /std::function\b/.test(p) ||
+      /\bCallback\b/.test(p) ||
+      /\bcallback\b/.test(p)
+    ) {
+      continue;
+    }
     const m = p.match(/\b([A-Za-z_][A-Za-z0-9_]*)\s*$/);
-    if (m) names.push(m[1]);
+    if (m && m[1] !== "callback") names.push(m[1]);
   }
   return names;
 }
@@ -265,20 +278,139 @@ export function parseCppHttplibRoutes(source, file = "") {
 }
 
 /**
+ * Parse Drogon method set `{Get}` / `{Get, Post}` / `{drogon::Get}`.
+ * @param {string} methodsInner
+ */
+function parseDrogonMethods(methodsInner) {
+  /** @type {string[]} */
+  const methods = [];
+  for (const m of methodsInner.matchAll(
+    /(?:drogon::)?(Get|Post|Put|Patch|Delete|Head|Options)\b/gi,
+  )) {
+    methods.push(m[1].toUpperCase());
+  }
+  return methods.length > 0 ? methods : ["GET"];
+}
+
+/**
+ * Parse Drogon `app().registerHandler("/path", lambda, {Get|Post|…})`.
+ * Does not peel METHOD_ADD / HttpController (**D6447**).
+ * @param {string} source
+ * @param {string} [file]
+ */
+export function parseCppDrogonRoutes(source, file = "") {
+  /** @type {Array<{ method: string, path: string, line: number, name?: string, index: number, dialect: string }>} */
+  const routes = [];
+  const seen = new Set();
+  const re = /app\s*\(\s*\)\s*\.\s*registerHandler\s*\(/g;
+  let m;
+  while ((m = re.exec(source)) !== null) {
+    const openIdx = m.index + m[0].length - 1;
+    const bal = extractBalancedParenInner(source, openIdx);
+    if (!bal) continue;
+    const inner = bal.inner;
+    const pathM = /^\s*"([^"]+)"\s*,/.exec(inner);
+    if (!pathM) continue;
+    let path = pathM[1];
+    path = path.replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, "{$1}");
+    const methodsTail = /\{\s*([^}]*)\}\s*$/.exec(inner);
+    if (!methodsTail) continue;
+    const methods = parseDrogonMethods(methodsTail[1]);
+    for (const method of methods) {
+      const key = `${method}:${path}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      routes.push({
+        method,
+        path,
+        line: lineAt(source, m.index),
+        name: `cpp_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+        index: m.index,
+        dialect: "drogon",
+        file,
+      });
+    }
+  }
+  return routes;
+}
+
+/**
  * @param {string} source
  */
 export function parseCppRoutes(source, file = "") {
   const crow = parseCppCrowRoutes(source, file);
   if (crow.length > 0) return crow;
+  const drogon = parseCppDrogonRoutes(source, file);
+  if (drogon.length > 0) return drogon;
   return parseCppHttplibRoutes(source, file);
 }
 
 /**
- * Bound Crow/httplib lambda body after a route registration.
+ * Find `[](params){ body }` with balanced param parens (handles nested
+ * `std::function<void(const HttpResponsePtr &)>` in Drogon lambdas).
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+function findCppLambda(source, fromIndex) {
+  const end = Math.min(source.length, fromIndex + 12000);
+  for (let i = fromIndex; i < end; i++) {
+    if (source[i] !== "[") continue;
+    let j = i + 1;
+    while (j < end) {
+      const ch = source[j];
+      if (ch === '"' || ch === "'") {
+        const quote = ch;
+        j += 1;
+        while (j < end) {
+          if (source[j] === "\\") {
+            j += 2;
+            continue;
+          }
+          if (source[j] === quote) {
+            j += 1;
+            break;
+          }
+          j += 1;
+        }
+        continue;
+      }
+      if (ch === "]") break;
+      j += 1;
+    }
+    if (j >= end || source[j] !== "]") continue;
+    j += 1;
+    while (j < end && /\s/.test(source[j])) j += 1;
+    if (source[j] !== "(") continue;
+    const paramsBal = extractBalancedParenInner(source, j);
+    if (!paramsBal) continue;
+    let k = paramsBal.end + 1;
+    while (k < end && /\s/.test(source[k])) k += 1;
+    if (/^mutable\b/.test(source.slice(k, k + 8))) {
+      k += 7;
+      while (k < end && /\s/.test(source[k])) k += 1;
+    }
+    if (source[k] !== "{") continue;
+    const bodyBal = extractBalancedBraceInner(source, k);
+    if (!bodyBal) return null;
+    return {
+      paramSource: paramsBal.inner,
+      bodySlice: bodyBal.inner,
+      line: source.slice(0, k).split("\n").length,
+      absOpen: k,
+      absEnd: bodyBal.end,
+    };
+  }
+  return null;
+}
+
+/**
+ * Bound Crow/httplib/Drogon lambda body after a route registration.
  * @param {string} source
  * @param {number} fromIndex
  */
 export function extractCppHandlerBody(source, fromIndex) {
+  const found = findCppLambda(source, fromIndex);
+  if (found) return found;
   const slice = source.slice(fromIndex, fromIndex + 8000);
   // Crow: CROW_ROUTE… ([](args){ … })  or  ([](){ … })
   // httplib: .Get("…", [](const httplib::Request& req, httplib::Response& res){ … })
@@ -299,6 +431,19 @@ export function extractCppHandlerBody(source, fromIndex) {
     absEnd: bal.end,
   };
 }
+
+/** @type {Record<string, number>} */
+const DROGON_STATUS_ENUM = {
+  k200OK: 200,
+  k201Created: 201,
+  k202Accepted: 202,
+  k204NoContent: 204,
+  k400BadRequest: 400,
+  k401Unauthorized: 401,
+  k403Forbidden: 403,
+  k404NotFound: 404,
+  k500InternalServerError: 500,
+};
 
 /**
  * @param {string} jsonInner
@@ -377,6 +522,12 @@ function collectCppParamRefs(bodySlice, paramRefs) {
   )) {
     paramRefs[m[1]] = { source: "query", name: m[2], default: "" };
   }
+  // Drogon: auto q = req->getParameter("q");
+  for (const m of bodySlice.matchAll(
+    /(?:auto|std::string|string)\s+(\w+)\s*=\s*\w+\s*->\s*getParameter\s*\(\s*"([^"]+)"\s*\)/g,
+  )) {
+    paramRefs[m[1]] = { source: "query", name: m[2], default: "" };
+  }
   // httplib: auto id = req.matches[1];
   for (const m of bodySlice.matchAll(
     /(?:auto|std::string|string)\s+(\w+)\s*=\s*\w+\.matches\s*\[\s*(\d+)\s*\]/g,
@@ -403,6 +554,16 @@ function parseCppBodyReturn(bodySlice, paramRefs) {
   // httplib: res.status = 201;
   const statusAssign = bodySlice.match(/\bres\.status\s*=\s*(\d+)\s*;/);
   if (statusAssign) status = Number.parseInt(statusAssign[1], 10);
+
+  // Drogon: resp->setStatusCode(k201Created) / setStatusCode(201)
+  const drogonStatus = bodySlice.match(
+    /->\s*setStatusCode\s*\(\s*(k[A-Za-z0-9]+|\d+)\s*\)/,
+  );
+  if (drogonStatus) {
+    const tok = drogonStatus[1];
+    if (/^\d+$/.test(tok)) status = Number.parseInt(tok, 10);
+    else if (DROGON_STATUS_ENUM[tok] != null) status = DROGON_STATUS_ENUM[tok];
+  }
 
   // Crow: return crow::response(201, x);  or return crow::response(202, x);
   const crowResp = bodySlice.match(
@@ -456,10 +617,11 @@ function parseCppBodyReturn(bodySlice, paramRefs) {
     }
   }
 
-  // Crow / nlohmann: x["k"] = v;  (same assignment shape)
+  // Crow / nlohmann / Drogon Json::Value: x["k"] = v;
   const wvalDecl =
     bodySlice.match(/crow::json::wvalue\s+(\w+)\s*;/) ||
-    bodySlice.match(/nlohmann::json\s+(\w+)\s*;/);
+    bodySlice.match(/nlohmann::json\s+(\w+)\s*;/) ||
+    bodySlice.match(/Json::Value\s+(\w+)\s*;/);
   const returnVar = bodySlice.match(/return\s+(\w+)\s*;/);
   const dumpSet =
     wvalDecl &&
@@ -468,13 +630,53 @@ function parseCppBodyReturn(bodySlice, paramRefs) {
         String.raw`res\.set_content\s*\(\s*${wvalDecl[1]}\.dump\s*\(\s*\)\s*,\s*"application/json"\s*\)`,
       ),
     );
-  if (wvalDecl && ((returnVar && returnVar[1] === wvalDecl[1]) || dumpSet)) {
+  const drogonJsonCb =
+    wvalDecl &&
+    (bodySlice.match(
+      new RegExp(
+        String.raw`callback\s*\(\s*HttpResponse::newHttpJsonResponse\s*\(\s*${wvalDecl[1]}\s*\)\s*\)`,
+      ),
+    ) ||
+      bodySlice.match(
+        new RegExp(
+          String.raw`HttpResponse::newHttpJsonResponse\s*\(\s*${wvalDecl[1]}\s*\)`,
+        ),
+      ));
+  if (wvalDecl && ((returnVar && returnVar[1] === wvalDecl[1]) || dumpSet || drogonJsonCb)) {
     const tree = parseCrowWvalueAssignments(bodySlice, wvalDecl[1], paramRefs);
     if (tree) {
       returnTree = tree;
       kind = "json";
       return { status, returnTree, kind };
     }
+  }
+
+  // Drogon: resp->setBody(var) where var is path/query ref
+  const drogonBodyVar = bodySlice.match(
+    /->\s*setBody\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)/,
+  );
+  if (drogonBodyVar && paramRefs[drogonBodyVar[1]]) {
+    returnTree = { t: "ref", ...paramRefs[drogonBodyVar[1]] };
+    kind = "scalar-ref";
+    return { status, returnTree, kind };
+  }
+
+  // Drogon: resp->setBody("ok"|true|42) — coerce JSON-ish text like httplib set_content
+  const drogonBodyLit = bodySlice.match(
+    /->\s*setBody\s*\(\s*(true|false|-?\d+|"([^"]*)")\s*\)/,
+  );
+  if (drogonBodyLit) {
+    const raw =
+      drogonBodyLit[2] !== undefined ? drogonBodyLit[2] : drogonBodyLit[1];
+    if (raw === "true" || raw === "false") {
+      returnTree = { t: "lit", v: raw === "true" };
+    } else if (/^-?\d+$/.test(raw)) {
+      returnTree = { t: "lit", v: Number.parseInt(raw, 10) };
+    } else {
+      returnTree = { t: "lit", v: raw };
+    }
+    kind = "scalar-lit";
+    return { status, returnTree, kind };
   }
 
   // httplib scalar/text set_content — also accept path-param var as body

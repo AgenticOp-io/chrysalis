@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "generatedAt": "2026-07-24T23:05:00.000Z",
   "gate": "G10022",
-  "note": "Catalog only (D6447 / D6484). Shallow Roda r.get|post route surface is lifted (hub:roda-smoke 20/20). Do not invent nested r.on trees, plugin auth, or multi-file Roda apps. Sinatra remains Ruby D6448-ST. Rails secondary stays skipped (G10006).",
+  "note": "Catalog only (D6447 / D6484). Shallow Roda r.get|post route surface is lifted (hub:roda-smoke 20/20). Do not invent nested r.on trees, plugin auth, or multi-file Roda apps. Sinatra remains Ruby D6448-ST. Rails route-table closed G10115 (was G10006 skip).",
   "fixture": "fixtures/hub-gold-roda",
   "smoke": "pnpm run hub:roda-smoke",
   "st": "pnpm run hub:complete-conversion-prove:ruby",

@@ -43,24 +43,29 @@
       ]
     },
     "nancy": {
-      "decision": "skip",
-      "gate": "G10050",
+      "decision": "closed-route-surface",
+      "gate": "G10114",
+      "priorSkip": "G10050",
       "catalog": "fixtures/ci/nancy-honest-skip.json",
+      "smoke": "hub:nancy-smoke",
       "st": "pnpm run hub:complete-conversion-prove:csharp",
-      "supported": [],
+      "supported": [
+        "NancyModule Get|Post|Put|Patch|Delete(\"/path\", …)",
+        "Response.AsJson(new { … }).WithStatusCode(HttpStatusCode.*)",
+        "(string)parameters.id / Request.Query.*"
+      ],
       "honestHoles": [
-        { "shape": "NancyModule constructor Get|Post|Put|Patch|Delete(\"/path\", …)", "reason": "hub-nancy:module-route" },
-        { "shape": "Response.AsJson / Negotiate / HttpStatusCode", "reason": "hub-nancy:response-json" },
-        { "shape": "dynamic parameters.id", "reason": "hub-nancy:dynamic-params" },
-        { "shape": "NancyHost / pipelines / DI", "reason": "hub-nancy:bootstrap" }
+        { "shape": "NancyHost / pipelines / DI", "reason": "hub-nancy:bootstrap" },
+        { "shape": "Indexer Get[\"/path\"] = …", "reason": "hub-nancy:indexer-route" },
+        { "shape": "Negotiate.WithModel", "reason": "hub-nancy:negotiate" },
+        { "shape": "Non-literal Get|Post paths", "reason": "hub-csharp:path-non-literal" }
       ]
     }
   },
   "absentOrigins": [],
   "nextTargets": [
-    "C# secondary set: Minimal API ST + ASP.NET controllers (G10008) + Carter via Map* peels (G10041) smokes closed; Nancy skipped (G10050)",
-    "Nancy FX peel skipped — not cheap (see fixtures/ci/nancy-honest-skip.json)",
-    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
-    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+    "C# secondary set: Minimal API ST + ASP.NET controllers (G10008) + Carter (G10041) + Nancy route-surface (G10114)",
+    "Drogon registerHandler closed G10117; Rails routes.rb closed G10115",
+    "Phoenix LiveView / Flutter still charter — no invent"
   ]
 }

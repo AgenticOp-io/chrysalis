@@ -1,39 +1,23 @@
 {
-  "kind": "chrysalis.hub.drogon-honest-skip",
+  "kind": "chrysalis.hub.drogon-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T04:10:00.000Z",
-  "decision": "skip",
-  "gate": "G10058",
-  "note": "Drogon C++ secondary dialect deferred (D6442/D6447). Not cheap on cpp-ast-ingest / parseCppRoutes: unlike Crow CROW_ROUTE ST or cpp-httplib svr.Get|Post peels, Drogon origin is app().registerHandler(\"/path\", …, {Get|Post|…}) (or METHOD_ADD controller macros) with async callback(HttpResponsePtr) bodies — HttpResponse::newHttpJsonResponse / newHttpResponse + setBody / setStatusCode(k201Created|…) + Json::Value + req->getParameter — a new route+callback-body+status+param peel suite, not Crow/httplib peel-reuse. Probe: 0 routes lifted from registerHandler (current peels only see CROW_ROUTE + .Get|.Post). Crow remains C++ D6448-ST; cpp-httplib stays green. Do not invent Drogon HttpAppFramework bootstrap, METHOD_ADD/HttpController, filters, or Crow/httplib façades into Drogon gold. No D6520.",
-  "probeEvidence": {
-    "fixture": "fixtures/_drogon-probe/main.cpp (ephemeral probe)",
-    "routesLifted": 0,
-    "handlerHoles": 0,
-    "patterns": [
-      "app().registerHandler(\"/path\", [](const HttpRequestPtr &, std::function<void(const HttpResponsePtr &)> &&callback) { … }, {Get})",
-      "app().registerHandler(\"/items/{id}\", [](…, const std::string &id) { Json::Value x; x[\"id\"] = id; callback(HttpResponse::newHttpJsonResponse(x)); }, {Get})",
-      "req->getParameter(\"q\") + Json::Value query echo",
-      "resp->setStatusCode(k202Accepted) before callback",
-      "METHOD_ADD(Ctrl::get, \"/other\", Get) — controller macro, not registerHandler"
-    ]
-  },
-  "requiredOriginShapes": [
-    "#include <drogon/drogon.h> / using namespace drogon",
-    "app().registerHandler(\"/path\", lambda, {Get|Post|Put|Patch|Delete})",
-    "HttpResponse::newHttpJsonResponse(Json::Value) / newHttpResponse + setBody",
-    "callback(resp) async completion",
-    "optional {id} path templates + lambda path args / req->getParameter",
-    "optional resp->setStatusCode(k201Created|k202Accepted|…)"
-  ],
+  "generatedAt": "2026-08-04T00:40:00.000Z",
+  "decision": "closed-route-surface",
+  "gate": "G10117",
+  "priorSkip": "G10058",
+  "note": "Drogon app().registerHandler route-surface closed via hub-gold-drogon / hub:drogon-smoke (20/20). Peels literal path + {Get|Post|Put|Patch|Delete} method set + Json::Value/newHttpJsonResponse/setBody + setStatusCode(k*) + getParameter/{id} lambda args. Crow remains C++ D6448-ST; cpp-httplib stays green. Do not invent METHOD_ADD/HttpController, filters/advice, or Crow/httplib façades into Drogon gold (**D6447**).",
+  "smoke": "hub:drogon-smoke",
+  "fixture": "fixtures/hub-gold-drogon",
   "honestHoles": [
-    { "shape": "app().registerHandler(\"/path\", …, {Get|Post|…})", "reason": "hub-drogon:register-handler" },
     { "shape": "METHOD_ADD / HttpController METHOD_LIST", "reason": "hub-drogon:method-add" },
-    { "shape": "callback(HttpResponsePtr) async response completion", "reason": "hub-drogon:callback-response" },
-    { "shape": "HttpResponse::newHttpJsonResponse / Json::Value bodies", "reason": "hub-drogon:json-response" },
-    { "shape": "setStatusCode(k*) / HttpStatusCode enums", "reason": "hub-drogon:status-code" },
-    { "shape": "req->getParameter path/query refs", "reason": "hub-drogon:get-parameter" },
     { "shape": "HttpAppFramework bootstrap / filters / advice", "reason": "hub-drogon:bootstrap" },
     { "shape": "Non-literal registerHandler paths", "reason": "hub-cpp:path-non-literal" }
   ],
-  "revisitWhen": "Chartered Drogon registerHandler corpus appears and peel cost is bounded (literal path + {Get|Post} method set + Json::Value/newHttpJsonResponse/setBody + setStatusCode(k*) + getParameter/{id} lambda args) without inventing METHOD_ADD controllers, filters, or stealing Crow/httplib peels."
+  "closedShapes": [
+    "app().registerHandler(\"/path\", lambda, {Get|Post|Put|Patch|Delete})",
+    "HttpResponse::newHttpJsonResponse(Json::Value) / newHttpResponse + setBody",
+    "callback(resp) async completion",
+    "{id} path templates + lambda path args / req->getParameter",
+    "resp->setStatusCode(k201Created|k202Accepted|…)"
+  ]
 }

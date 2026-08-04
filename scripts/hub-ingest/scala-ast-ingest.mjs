@@ -1,12 +1,13 @@
 /**
  * Scala hub ingest — Akka HTTP / Play / Http4s / Finch path patterns deepened for
  * D6448-ST cwl-api: brace-bounded Akka bodies + Http4s `case … => Ok/Created/…` +
- * Finch `get("path") { Ok(…) }` / `get("items" :: path[String])`, Map/lit
- * (+ path/query refs). Flagship stays Akka (`hub-flagship-scala`); Http4s + Finch
+ * Finch `get("path") { Ok(…) }` / Tapir `endpoint.get.in("seg").serverLogicSuccess(…)`, Map/lit
+ * (+ path/query refs). Flagship stays Akka (`hub-flagship-scala`); Http4s + Finch + Tapir
  * are secondary hole-free dialect paths. Prefer this over thin pattern-route-lift.
  */
 import {
   findFinchEndpointAt,
+  findTapirEndpointAt,
   parseScalaRoutes,
   stripScalaEndpointLambda,
 } from "./pattern-route-parsers.mjs";
@@ -142,6 +143,39 @@ function extractBalancedParenInner(source, openIdx) {
  */
 export function extractScalaRouteBody(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 8000);
+
+  // Tapir: .serverLogicSuccess(…) / .serverLogic(…) — peel lambda body (G10119).
+  const tapirSl = slice.match(/\.serverLogic(?:Success)?\s*\(/);
+  if (tapirSl && tapirSl.index !== undefined) {
+    const absOpen = fromIndex + tapirSl.index + tapirSl[0].length - 1;
+    const bal = extractBalancedParenInner(source, absOpen);
+    if (bal) {
+      const inner = bal.inner.trim();
+      const arrow = /^(?:\(([^)=>]+)\)|(_|[A-Za-z_][A-Za-z0-9_]*))(?:\s*:\s*[^=]+)?\s*=>\s*/.exec(
+        inner,
+      );
+      if (arrow) {
+        return {
+          bodySlice: inner.slice(arrow[0].length).trim(),
+          line: source.slice(0, absOpen).split("\n").length,
+        };
+      }
+      if (inner.startsWith("{")) {
+        const brace = extractBalancedBraceInner(inner, 0);
+        if (brace) {
+          return {
+            bodySlice: brace.inner,
+            line: source.slice(0, absOpen).split("\n").length,
+          };
+        }
+      }
+      return {
+        bodySlice: inner,
+        line: source.slice(0, absOpen).split("\n").length,
+      };
+    }
+  }
+
   // Akka/Play: get(path("/x")) { ... }  |  ("GET", "/x") -> { ... }  |  GET(p"/x") { ... }
   const braceM = slice.match(/\)\s*(?:->\s*)?\{/);
   if (braceM && braceM.index !== undefined) {
@@ -309,8 +343,36 @@ function parseScalaBodyReturn(bodySlice, paramRefs) {
     status = HTTP4S_STATUS[http4sRef[1]] ?? 200;
     returnTree = { t: "ref", ...paramRefs[http4sRef[2]] };
     kind = "scalar-ref";
-  } else if (plainMap === null) {
-    void mapFromExpr;
+  } else {
+    // Tapir serverLogicSuccess body: Right/IO.pure/pure wrappers then bare Map/lit/ref
+    let slice = bodySlice.trim();
+    const wrap = /^(?:Right|IO\.pure|pure)\s*\(/.exec(slice);
+    if (wrap) {
+      const bal = extractBalancedParenInner(slice, wrap[0].length - 1);
+      if (bal) slice = bal.inner.trim();
+    }
+    const bareMap = /^Map\s*\(/.exec(slice);
+    if (bareMap) {
+      const mapArg = extractBalancedParenInner(slice, bareMap[0].length - 1);
+      returnTree = mapArg ? parseScalaMapReturnTree(mapArg.inner, paramRefs) : null;
+      kind = returnTree ? "json" : null;
+    } else {
+      const bareLit = /^(true|false|-?\d+(?:\.\d+)?|"([^"]*)")\s*$/.exec(slice);
+      if (bareLit) {
+        const v =
+          bareLit[2] !== undefined ? bareLit[2] : parseLiteralToken(bareLit[1]);
+        if (v !== null) {
+          returnTree = { t: "lit", v };
+          kind = "scalar-lit";
+        }
+      } else {
+        const bareRef = /^([A-Za-z_][A-Za-z0-9_]*)\s*$/.exec(slice);
+        if (bareRef && paramRefs[bareRef[1]]) {
+          returnTree = { t: "ref", ...paramRefs[bareRef[1]] };
+          kind = "scalar-ref";
+        }
+      }
+    }
   }
 
   return { status, returnTree, kind };
@@ -400,9 +462,27 @@ export function liftScalaFileToWebir(opts) {
           };
         }
       }
-      const { status, returnTree, kind } = parseScalaBodyReturn(bodySlice, paramRefs);
+      // Tapir query / status: `endpoint.get.in(query[String]("q")).out(statusCode(…))`
+      const tapir = findTapirEndpointAt(source, idx);
+      if (tapir) {
+        for (const q of tapir.queryBinds) {
+          paramRefs[q.varName] = {
+            source: "query",
+            name: q.queryName,
+            default: "",
+          };
+        }
+      }
+      let { status, returnTree, kind } = parseScalaBodyReturn(bodySlice, paramRefs);
+      if (tapir?.status != null && (status == null || status === 200)) {
+        status = tapir.status;
+      }
 
-      if (kind === "scalar-lit" && returnTree?.t === "lit") {
+      if (
+        kind === "scalar-lit" &&
+        returnTree?.t === "lit" &&
+        !(typeof status === "number" && status !== 200)
+      ) {
         bodyId = lowerHubLiteral(ctx, returnTree.v, loc);
       } else if (returnTree || (typeof status === "number" && status !== 200)) {
         bodyId =

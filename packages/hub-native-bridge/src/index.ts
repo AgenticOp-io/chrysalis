@@ -10,13 +10,19 @@ export {
 } from "./java.js";
 export {
   parseGoRoutes,
+  parseRevelConfRoutes,
+  isGoRevelSource,
   joinGoGroupPath,
   collectGoGinGroupPrefixes,
 } from "./go.js";
 export {
   parseRubyRoutes,
+  parseRailsRouteTable,
   isRubyRodaSource,
+  isRubyRailsRoutesSource,
+  isRubyRailsControllerSource,
   buildRodaPath,
   joinSinatraNamespacePath,
+  type RailsRouteTarget,
 } from "./ruby.js";
 export { parseCsharpRoutes, joinCsharpControllerPath } from "./csharp.js";

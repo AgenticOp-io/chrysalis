@@ -1,39 +1,32 @@
 {
-  "kind": "chrysalis.hub.deno-serve-honest-skip",
+  "kind": "chrysalis.hub.deno-serve-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T04:05:00.000Z",
-  "decision": "skip",
-  "gate": "G10060",
-  "design": "D6522",
-  "note": "Deno.serve ORIGIN secondary dialect deferred (D6442/D6447 / D6522). Not cheap on javascript-ast-ingest: Deno.serve has no Bun-like `routes` object (open Deno serve-router request; docs route via pathname/method switch, URLPattern, or @std/http route). D6510 already lists method+path switch-only servers as Bun.serve honest holes — peeling Deno.serve would require a new control-flow peel suite (if/else + switch + URLPattern.exec + pathname.split + @std/http route tables), not peel-reuse of Bun routes-object / Oak router.get|post / itty Router. Probe: astRouteCount 0 on Deno.serve(handler) + pathname/method + URLPattern (current peels only see Bun.serve({ routes }) + framework routers). Express/TS remain D6448-ST; Oak (G10043) / Bun.serve (G10048) / itty (G10047) stay green. Do not invent Deno.serve({ routes }) or a switch-to-CWL control-flow invent.",
-  "probeEvidence": {
-    "fixture": "fixtures/_deno-serve-probe/src/app.ts (ephemeral probe, not shipped gold)",
-    "astRouteCount": 0,
-    "heuristicRouteCount": 0,
-    "patterns": [
-      "Deno.serve((req) => { const url = new URL(req.url); if (url.pathname === \"/health\" && req.method === \"GET\") return Response.json(true); … })",
-      "new URLPattern({ pathname: \"/items/:id\" }).exec(url) + req.method",
-      "Deno.serve({ port }, handler) options bag (no routes key in Deno API)"
-    ]
-  },
-  "requiredOriginShapes": [
-    "Deno.serve(handler) / Deno.serve(options, handler)",
-    "URL pathname + method switch (literal if/else or switch)",
-    "URLPattern pathname groups OR manual path split for :id",
-    "Response.json / new Response (+ ResponseInit status)"
-  ],
+  "generatedAt": "2026-08-04T00:50:00.000Z",
+  "decision": "closed-route-surface",
+  "gate": "G10118",
+  "priorSkip": "G10060",
+  "design": "D6543",
+  "note": "Deno.serve pathname+method route-surface closed via hub-gold-deno-serve / hub:deno-serve-smoke (20/20). Peels Deno.serve(handler|opts,handler) + literal `${method} ${pathname}` switch / if chains via CF Workers control-flow reuse (G10063). Express/TS remain D6448-ST; Oak / Bun.serve / itty / CF Workers stay green. Do not invent Deno.serve({ routes }) Bun-parity object (**D6447** / D6522).",
+  "smoke": "hub:deno-serve-smoke",
+  "fixture": "fixtures/hub-gold-deno-serve",
   "honestHoles": [
-    { "shape": "Deno.serve(handler) pathname + method switch / early returns", "reason": "hub-js:deno-serve-switch" },
     { "shape": "URLPattern.exec + pathname.groups path params", "reason": "hub-js:deno-serve-urlpattern" },
     { "shape": "@std/http route(routes, defaultHandler) table", "reason": "hub-js:deno-std-http-route" },
     { "shape": "Invented Deno.serve({ routes }) Bun-parity object (not in Deno API)", "reason": "hub-js:deno-serve-routes-invent" },
     { "shape": "Named handler refs / websocket upgrade / TLS options beyond peel", "reason": "hub-js:deno-serve-extra" },
     { "shape": "Non-literal pathname/method tests", "reason": "hub-js:path-non-literal" }
   ],
+  "closedShapes": [
+    "Deno.serve(handler) / Deno.serve(options, handler)",
+    "switch (`${req.method} ${url.pathname}`) case \"GET /path\"",
+    "if (pathname === \"/x\" && method === \"GET\") return Response.json(…)",
+    "Response.json / Response.json(body, { status: N })",
+    "url.searchParams.get(\"q\")"
+  ],
   "peersStayGreen": [
     "hub:oak-smoke (G10043)",
     "hub:bun-serve-smoke (G10048)",
-    "hub:itty-smoke (G10047)"
-  ],
-  "revisitWhen": "Deno ships a literal Bun-like Deno.serve({ routes }) surface, or a chartered corpus makes a bounded pathname/method + URLPattern peel cheaper than inventing control-flow routing — without inventing routes-object or stealing Oak/Bun/itty peels."
+    "hub:itty-smoke (G10047)",
+    "hub:cf-workers-smoke (G10063)"
+  ]
 }

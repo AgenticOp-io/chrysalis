@@ -423,16 +423,24 @@
             ]
         },
         "deno-serve": {
-            "decision": "skip",
-            "gate": "G10060",
-            "design": "D6522",
+            "decision": "closed-route-surface",
+            "gate": "G10118",
+            "priorSkip": "G10060",
+            "design": "D6543",
             "catalog": "fixtures/ci/deno-serve-honest-skip.json",
+            "fixture": "fixtures/hub-gold-deno-serve",
+            "smoke": "pnpm run hub:deno-serve-smoke",
             "st": "pnpm run hub:complete-conversion-prove:typescript",
-            "supported": [],
+            "supported": [
+                "Deno.serve(handler) / Deno.serve(options, handler)",
+                "switch (`${req.method} ${url.pathname}`) literal cases",
+                "Response.json / Response.json(body, { status: N })",
+                "url.searchParams.get"
+            ],
             "honestHoles": [
                 {
-                    "shape": "Deno.serve(handler) pathname + method switch / URLPattern / @std/http route",
-                    "reason": "hub-js:deno-serve-switch"
+                    "shape": "URLPattern / @std/http route / dynamic :id",
+                    "reason": "hub-js:deno-serve-urlpattern"
                 },
                 {
                     "shape": "Invented Deno.serve({ routes }) (not in Deno API; Bun-only)",
@@ -484,8 +492,8 @@
         "Koa/Hono/Oak/itty complex middleware peel only when origin shapes exist (no invented onion runtime; empty/next-only closed G9959/G10044; Elysia empty lifecycle closed G10053; itty empty all closed G10064)",
         "Elysia plugins / non-empty lifecycle / macros peel only when origin shapes exist (no invented plugin runtime; `.use` â‰  pass-through)",
         "Nest @UseGuards catalog â†’ hole when present in origin (no invented guard runtime)",
-        "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); Express Router mount peel closed (G10067 / D6529); Hono ORIGIN secondary closed (G10019) + pass-through mw (G10044); Elysia ORIGIN secondary closed (G10025) + empty lifecycle (G10053); Oak Deno ORIGIN secondary closed (G10043); Bun.serve ORIGIN secondary closed (G10048); itty-router Workers ORIGIN secondary closed (G10047) + empty all (G10064); Cloudflare Workers fetch-export closed (G10063 / D6525); AdonisJS ORIGIN secondary closed (G10059 / D6521); Deno.serve skipped not-cheap (G10060 / D6522); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
-        "Deno.serve peel skipped â€” not cheap (see fixtures/ci/deno-serve-honest-skip.json); no Deno.serve({ routes }) invent",
+        "Thin Node secondary set closed (Express ST + Fastify/Koa/Nest/Hapi/Restify/Polka smokes); Express Router mount peel closed (G10067 / D6529); Hono ORIGIN secondary closed (G10019) + pass-through mw (G10044); Elysia ORIGIN secondary closed (G10025) + empty lifecycle (G10053); Oak Deno ORIGIN secondary closed (G10043); Bun.serve ORIGIN secondary closed (G10048); itty-router Workers ORIGIN secondary closed (G10047) + empty all (G10064); Cloudflare Workers fetch-export closed (G10063 / D6525); AdonisJS ORIGIN secondary closed (G10059 / D6521); Deno.serve pathname+method closed (G10118 / D6543); G10005 IDENT destructure peel closed for params/query/payload; G10014 Hapi multi-method array peel closed",
+        "Deno.serve({ routes }) invent still refused — not in Deno API (see fixtures/ci/deno-serve-honest-skip.json honest holes)",
         "Phoenix router+controller peel skipped â€” not cheap without cross-file Ctrl,:action resolve + LiveView invent risk (D6447); stays honest hole",
         "Flutter / Dart Frog / LiveView / COBOL 61/61 pause / no Dependabot"
     ]

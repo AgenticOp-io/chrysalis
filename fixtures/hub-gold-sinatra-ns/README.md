@@ -8,7 +8,7 @@ Ruby **Sinatra** namespace prefix peel: `require "sinatra/namespace"` +
 - **Deepens Sinatra D6448-ST** (not a secondary dialect) — Roda/Grape/Padrino remain
   separate secondaries; flat Sinatra flagship unchanged.
 - Hole-free lift smoke: `pnpm run hub:sinatra-ns-smoke`
-- Rails secondary stays skipped (G10006).
+- Rails route-table closed G10115 (`hub:rails-routes-smoke`).
 
 ## Honest holes (unsupported shapes)
 
