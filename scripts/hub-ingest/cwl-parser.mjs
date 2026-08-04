@@ -356,6 +356,10 @@ export function parseCwlModule(source, file) {
     let responseContentType = null;
     /** @type {object | null} */
     let loadBody = null;
+    /** @type {Array<{ condExpr: string, status: number | null, body: object | null }>} */
+    const earlyGuards = [];
+    /** @type {Array<{ collection: string, key: string | null, item: string, body: object | null }>} */
+    const foreachBindings = [];
     let body = { kind: "hole", reason: "cwl:empty-handler" };
     while (i < lines.length) {
       const inner = lines[i].trim();
@@ -465,30 +469,88 @@ export function parseCwlModule(source, file) {
         else loadBody = { kind: "hole", reason: `cwl:${parsed.error}` };
         continue;
       }
-      // Early-exit guards (RFC-0021): opaque residual or projectable cond expr.
-      // Bodies are origin status/return only; complex conds stay in WebIR.
+      // Early-exit guards (RFC-0021): capture cond + status/return body.
       const ifGuard = IF_GUARD_RE.exec(inner);
       if (ifGuard) {
+        const condExpr = ifGuard[1].trim();
+        let guardStatus = null;
+        /** @type {object | null} */
+        let guardBody = null;
         let depth = 1;
         while (i < lines.length && depth > 0) {
           const gline = lines[i].trim();
           i += 1;
+          if (depth === 1 && gline && gline !== "}") {
+            const gsm = STATUS_RE.exec(gline);
+            if (gsm) {
+              guardStatus = Number(gsm[1]);
+              continue;
+            }
+            const gHtml = extractCwlHtmlReturnLiteral(gline);
+            if (gHtml !== null) {
+              const lit = parseCwlLiteral(gHtml);
+              if (lit.ok && typeof lit.value === "string") guardBody = { kind: "html", value: lit.value };
+              continue;
+            }
+            const gret = RETURN_RE.exec(gline);
+            if (gret) {
+              const parsed = parseCwlReturnValue(gret[1], {
+                path: handlerPathParams,
+                query: handlerQueryParams,
+                header: handlerHeaders,
+                cookie: handlerCookies,
+                body: handlerBodyParams,
+                pathDefaults: handlerPathDefaults,
+                queryDefaults: handlerQueryDefaults,
+              });
+              if (parsed.ok) guardBody = parsed.body;
+              continue;
+            }
+          }
           if (gline.endsWith("{")) depth += 1;
           if (gline === "}") depth -= 1;
         }
+        earlyGuards.push({ condExpr, status: guardStatus, body: guardBody });
         continue;
       }
-      // Stmt-level foreach binding (collection + item). Body is chrome/docs
-      // surface only — parser skips; Hono/WebIR remain loop authority.
+      // Stmt-level foreach binding (RFC-0021).
       const foreachBind = FOREACH_RE.exec(inner);
       if (foreachBind) {
+        const collection = foreachBind[1];
+        const key = foreachBind[2] ?? null;
+        const item = foreachBind[3];
+        /** @type {object | null} */
+        let feBody = null;
         let depth = 1;
         while (i < lines.length && depth > 0) {
           const gline = lines[i].trim();
           i += 1;
+          if (depth === 1 && gline && gline !== "}") {
+            const gHtml = extractCwlHtmlReturnLiteral(gline);
+            if (gHtml !== null) {
+              const lit = parseCwlLiteral(gHtml);
+              if (lit.ok && typeof lit.value === "string") feBody = { kind: "html", value: lit.value };
+              continue;
+            }
+            const gret = RETURN_RE.exec(gline);
+            if (gret) {
+              const parsed = parseCwlReturnValue(gret[1], {
+                path: handlerPathParams,
+                query: handlerQueryParams,
+                header: handlerHeaders,
+                cookie: handlerCookies,
+                body: handlerBodyParams,
+                pathDefaults: handlerPathDefaults,
+                queryDefaults: handlerQueryDefaults,
+              });
+              if (parsed.ok) feBody = parsed.body;
+              continue;
+            }
+          }
           if (gline.endsWith("{")) depth += 1;
           if (gline === "}") depth -= 1;
         }
+        foreachBindings.push({ collection, key, item, body: feBody });
         continue;
       }
       const ret = RETURN_RE.exec(inner);
@@ -531,7 +593,9 @@ export function parseCwlModule(source, file) {
       surfaceKind,
       effects,
       handlerPathParams,
+      handlerPathDefaults,
       handlerQueryParams,
+      handlerQueryDefaults,
       handlerHeaders,
       handlerCookies,
       handlerBodyParams,
@@ -539,6 +603,8 @@ export function parseCwlModule(source, file) {
       responseContentType,
       responseHeaders,
       loadBody,
+      earlyGuards,
+      foreachBindings,
       body,
     });
   }
