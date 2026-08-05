@@ -1,8 +1,27 @@
 {
   "name": "@chrysalis/cwl",
-  "version": "0.1.0",
+  "version": "0.1.7",
   "private": true,
-  "description": "Chrysalis Web Language — language surface. Parser/fmt remain in scripts until extracted; see LANGUAGE_VERSION.md.",
+  "description": "Chrysalis Web Language — version pin + pillar root helpers. Parser/fmt remain in scripts until extracted; see LANGUAGE_VERSION.md.",
   "license": "Apache-2.0",
-  "type": "module"
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "cwl": "../../scripts/cwl-cli.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AgenticOp-io/chrysalis-cwl.git",
+    "directory": "packages/cwl"
+  },
+  "homepage": "https://github.com/AgenticOp-io/chrysalis-cwl/blob/main/docs/language/CWL-PILLAR-HOME.md",
+  "files": [
+    "index.mjs",
+    "README.md",
+    "package.json"
+  ]
 }

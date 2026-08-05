@@ -1,7 +1,8 @@
 /**
  * CWL path parameter extraction (RFC-0002).
+ * Language-pillar local — WebIR helper uses thin hub-t (not convert hub-lift).
  */
-import { HUB_T } from "./hub-lift-webir-route.mjs";
+import { HUB_T } from "./hub-t.mjs";
 
 const CWL_PATH_PARAM_RE = /:([a-zA-Z_][a-zA-Z0-9_]*)/g;
 
@@ -13,7 +14,7 @@ const CWL_PATH_PARAM_RE = /:([a-zA-Z_][a-zA-Z0-9_]*)/g;
 export function extractPathParamsFromCwlPath(path) {
   /** @type {string[]} */
   const names = [];
-  for (const m of path.matchAll(CWL_PATH_PARAM_RE)) {
+  for (const m of String(path ?? "").matchAll(CWL_PATH_PARAM_RE)) {
     const n = m[1];
     if (!names.includes(n)) names.push(n);
   }

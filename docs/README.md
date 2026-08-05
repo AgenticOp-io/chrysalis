@@ -18,6 +18,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [Public engine claim](./PUBLIC-ENGINE-CLAIM.md) | Apache trust-fix checklist before going public |
 | [Go public](./GO-PUBLIC.md) | Operator flip runbook (smokes + history scrub + `gh` visibility) |
 | [Agent-era substrate](./AGENT-ERA-SUBSTRATE.md) | Hole Type System + CWL-Above-Code + Dispose Plane (G10116 / D6541) |
+| [**Core vs peel**](./CORE-VS-PEEL.md) | **D6551** — what may live outside typed WebIR/CWL core (not a stack rewrite) |
 | [Leadership scoreboard](./LEADERSHIP-SCOREBOARD.md) | SSOT — closed D6448-ST + secondary dialects + honest skips |
 | [Do not invent](./DO-NOT-INVENT.md) | Index of refused façades / honest holes (D6442/D6447) + links to `fixtures/ci/*honest*` |
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |

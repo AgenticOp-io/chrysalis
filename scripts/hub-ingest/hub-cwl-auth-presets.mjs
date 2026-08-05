@@ -1,7 +1,7 @@
 /**
  * CWL `use auth …` module presets (RFC-0007).
  */
-import { HUB_T } from "./hub-lift-webir-route.mjs";
+import { HUB_T } from "./hub-t.mjs";
 
 const CWL_AUTH_USE_RE = /^use\s+auth\s+(session|bearer)\s*;$/i;
 

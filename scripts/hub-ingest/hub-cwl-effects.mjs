@@ -1,6 +1,7 @@
 /**
  * CWL declared effects → WebIR Effect[] (RFC-0007).
  */
+import { HUB_T } from "./hub-t.mjs";
 
 /** @param {string[]} declared */
 export function cwlEffectsToWebir(declared) {
@@ -41,8 +42,6 @@ export function cwlEffectsToWebir(declared) {
   }
   return out;
 }
-
-const HUB_T = { string: { kind: "string" }, bool: { kind: "bool" }, unknown: { kind: "unknown" } };
 
 function hubOrigin(file, line = 1) {
   return { file, line, column: 1 };

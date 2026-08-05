@@ -2,8 +2,10 @@
 /**
  * CWL language pillar bridge smoke (G10123 / D6548).
  * Always check CWL as core: resolve chrysalis-cwl, require LANGUAGE_VERSION +
- * language-gold local parse→print gate, then Convert WebIR round-trip on a
- * hole-free subset (WebIR still lives in Convert).
+ * language-gold local parse→print (+ DNA bridge contract) gates, then Convert
+ * WebIR round-trip on a hole-free subset (WebIR still lives in Convert).
+ * RFC-0022 DNA seed/enforce stays in chrysalis-security — Convert only consumes
+ * the surface gold via WebIR round-trip + pillar gate spawn.
  */
 import { existsSync, readdirSync, readFileSync, realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -13,7 +15,7 @@ import { parseCwlModule } from "./cwl-parser.mjs";
 import { runCwlRoundtripSmoke } from "./hub-cwl-roundtrip-smoke.mjs";
 
 export const CWL_LANGUAGE_PILLAR_SMOKE_KIND = "chrysalis.hub.cwl-language-pillar-smoke";
-export const CWL_LANGUAGE_PILLAR_SMOKE_SCHEMA_VERSION = 2;
+export const CWL_LANGUAGE_PILLAR_SMOKE_SCHEMA_VERSION = 3;
 
 const CONVERT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -27,6 +29,7 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "09-fullstack-page",
   "13-middleware",
   "16-layout",
+  "24-dna-bridge",
 ];
 
 /**
@@ -113,32 +116,64 @@ export async function runCwlLanguagePillarSmoke(opts = {}) {
     : [];
   checks.push({
     id: "language-gold-count",
-    ok: goldDirs.length >= 10,
-    detail: goldDirs.join(",") || "none",
+    ok: goldDirs.length >= 20,
+    detail: `${goldDirs.length}:${goldDirs.join(",") || "none"}`,
   });
 
-  const gateScript = join(cwlRoot, "scripts/gate-cwl-roundtrip.mjs");
-  if (existsSync(gateScript)) {
+  const pkgVersionPath = join(cwlRoot, "packages/cwl/package.json");
+  if (languageVersion && existsSync(pkgVersionPath)) {
+    try {
+      const pkgVer = JSON.parse(readFileSync(pkgVersionPath, "utf8")).version;
+      checks.push({
+        id: "language-version-pkg-align",
+        ok: pkgVer === languageVersion,
+        detail: `LANGUAGE_VERSION=${languageVersion};@chrysalis/cwl=${pkgVer}`,
+      });
+    } catch (e) {
+      checks.push({
+        id: "language-version-pkg-align",
+        ok: false,
+        detail: String(e).slice(0, 200),
+      });
+    }
+  }
+
+  /**
+   * @param {string} id
+   * @param {string} relScript
+   * @param {string} okLabel
+   */
+  function spawnPillarGate(id, relScript, okLabel) {
+    const gateScript = join(cwlRoot, relScript);
+    if (!existsSync(gateScript)) {
+      checks.push({ id, ok: false, detail: `missing:${gateScript}` });
+      return;
+    }
     const spawned = spawnSync(process.execPath, [gateScript], {
       cwd: cwlRoot,
       encoding: "utf8",
       env: process.env,
     });
     checks.push({
-      id: "cwl-local-parse-print-gate",
+      id,
       ok: spawned.status === 0,
       detail:
         spawned.status === 0
-          ? "gate-cwl-roundtrip STATUS_OK"
+          ? okLabel
           : (spawned.stderr || spawned.stdout || "").slice(0, 400),
     });
-  } else {
-    checks.push({
-      id: "cwl-local-parse-print-gate",
-      ok: false,
-      detail: `missing:${gateScript}`,
-    });
   }
+
+  spawnPillarGate(
+    "cwl-local-parse-print-gate",
+    "scripts/gate-cwl-roundtrip.mjs",
+    "gate-cwl-roundtrip STATUS_OK",
+  );
+  spawnPillarGate(
+    "cwl-dna-bridge-contract-gate",
+    "scripts/gate-cwl-dna-bridge.mjs",
+    "gate-cwl-dna-bridge STATUS_OK",
+  );
 
   for (const name of WEBIR_ROUNDTRIP_DIRS) {
     const dir = join(goldRoot, name);
