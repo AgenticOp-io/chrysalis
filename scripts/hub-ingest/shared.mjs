@@ -1,6 +1,10 @@
+import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+/** Convert monorepo root (scripts/hub-ingest → ../..), not process.cwd(). */
+const CONVERT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 let cachedHubPython = null;
 
@@ -64,9 +68,29 @@ export function hubBundlePath(projectDir, originLang) {
   return join(projectDir, ".chrysalis", `hub.${originLang}.bundle.json`);
 }
 
+/**
+ * Load `@chrysalis/webir` without requiring process.cwd() to be convert root.
+ * Order: convert root via this file → cwd (legacy hub smokes) → package import.
+ * Slice 3 item 3 — see chrysalis-cwl docs/history/WEBIR-EXTRACT-PLAN.md.
+ */
 export async function loadWebir() {
-  const webirPkg = join(process.cwd(), "packages/webir/dist/index.js");
-  return import(pathToFileURL(webirPkg).href);
+  const candidates = [
+    join(CONVERT_ROOT, "packages/webir/dist/index.js"),
+    join(process.cwd(), "packages/webir/dist/index.js"),
+  ];
+  for (const entry of candidates) {
+    if (existsSync(entry)) {
+      return import(pathToFileURL(entry).href);
+    }
+  }
+  try {
+    return await import("@chrysalis/webir");
+  } catch (err) {
+    throw new Error(
+      `Cannot resolve @chrysalis/webir. Tried:\n  - ${candidates.join("\n  - ")}\n  - import("@chrysalis/webir")\n` +
+        `Cause: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 export async function loadEmitter(target) {
