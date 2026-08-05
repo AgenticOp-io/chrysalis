@@ -197,6 +197,8 @@
     "hub:hole-type-system-smoke": "node scripts/hub-ingest/hub-hole-type-system-smoke.mjs",
     "hub:cwl-above-code-smoke": "node scripts/hub-ingest/hub-cwl-above-code-smoke.mjs",
     "hub:cwl-language-pillar-smoke": "node scripts/hub-ingest/hub-cwl-language-pillar-smoke.mjs",
+    "fmt:cwl:webir": "node scripts/hub-ingest/cwl-fmt.mjs",
+    "fmt:cwl:pillar": "node ../chrysalis-cwl/scripts/hub-ingest/cwl-fmt.mjs",
     "hub:dispose-plane-smoke": "node scripts/hub-ingest/hub-dispose-plane-smoke.mjs",
     "hub:agent-era-substrate-smoke": "node scripts/hub-ingest/hub-agent-era-substrate-smoke.mjs",
     "hub:cwl-phase23-close-smoke": "node scripts/hub-ingest/hub-cwl-phase23-close-smoke.mjs",
@@ -1490,6 +1492,7 @@
     "hub:complete-conversion-prove:cpp": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-cpp"
   },
   "devDependencies": {
+    "@chrysalis/cwl": "file:../chrysalis-cwl/packages/cwl",
     "@types/node": "^20.19.41",
     "acorn": "^8.14.1",
     "acorn-walk": "^8.3.4",
