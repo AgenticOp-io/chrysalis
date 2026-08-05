@@ -448,6 +448,14 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (active)
 
+**Amended 2026-08-05 (D6551) — Core vs peel charter.** Governing question is not “TS vs Rust?” but **what may live outside typed WebIR/CWL core**. Hub smokes/peels/oracles stay peel by default; WebIR + CWL grammar + hole/verify contracts are core. Doc: [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md). Forced next: WebIR substrate flip (Slice 3 / link-until-pnpm), not a peel rewrite. Dual primary (**D6540**) and UT↔Helix spine (**D6550**) unchanged.
+
+**Amended 2026-08-05 (D6550 / G10125) — UT ↔ Helix spine owned by CWL (not Convert).** Language cutover prove is `chrysalis-cwl` `npm run smoke:ut-spine` (+ Secure `cutover-smoke`). Convert Pilot Kit stays laravel/cobol only — do not re-home DNA/surface spine here. Umbrella: [`AgenticOps/docs/UT-CONVERT-SECURE-SPINE.md`](../../docs/UT-CONVERT-SECURE-SPINE.md). EXTFMAP still sole COBOL P0; WebIR flip deferred (link-until-pnpm).
+
+**Amended 2026-08-04 (D6549 / G10124) — COPY … REPLACING layout inventory.** `parseCobolCopyReplacing` → hole attrs; labeled fixtures `hub-cobol-layout-copy-replacing`; best-fit `webir-hole-attrs-copy-replacing` (does not reopen G10106). Not INITIALIZE/INSPECT REPLACING; no copy-expansion invent; EXTFMAP still sole P0. CWL bridge WebIR subset widened with new language-gold dirs.
+
+**Amended 2026-08-05 (D6548) — cwl-fmt dual-mode locked.** Pillar parse→print vs convert WebIR fmt — [`CWL-FMT-DUAL-MODE.md`](./CWL-FMT-DUAL-MODE.md). DNA enforce / cutover identity compare → Secure; Convert consumes RFC-0022 surface only.
+
 **Amended 2026-08-04 (D6548 / G10123) — CWL language pillar bootstrap (core check).** Always check CWL before Convert deepen: `engines/chrysalis-cwl` ships `LANGUAGE_VERSION.md` + golden `.cwl` fixtures; Convert gate `hub:cwl-language-pillar-smoke` proves parse→print; `hub:cwl-above-code-smoke` requires pillar green. Dual primary (**D6540**) continues; CWL is SoR for language maturity (not every peel is a CWL RFC).
 
 **Amended 2026-08-03 (D6544 / G10119) — Tapir Scala secondary unparked.** Was G10057 skip. Now `hub-gold-tapir` + `hub:tapir-smoke` (20/20): peel `endpoint.VERB.in` + `serverLogicSuccess` Map/lit — no jsonBody/plainBody invent. Akka ST; Http4s + Finch green. Convert apply wires dispose certificate. Catalog: [`fixtures/ci/tapir-honest-skip.json`](../fixtures/ci/tapir-honest-skip.json) (`closed-route-surface`).

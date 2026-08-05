@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-04 (**G10123** CWL language pillar; **G10122** RENAMES; EXTFMAP sole COBOL P0)
+**As of:** 2026-08-05 (**D6551** core vs peel; **G10125** UT↔Helix spine; **G10124** COPY REPLACING; EXTFMAP sole COBOL P0 — still open)
 
 ---
 
@@ -161,7 +161,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **68/68** behavioral (**G10113**); WebIR deepen **G10085–G10106** exhausted + **G10111/G10112** + **G10121** ODO + **G10122** RENAMES; **G10120** mega-corpus; sole open P0=`copy:EXTFMAP` | no LCB claim; **live z/OS / CICS TX** for EXTFMAP — [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md) · [`COBOL-EXTERNAL-PROVE-CORPORA.md`](./COBOL-EXTERNAL-PROVE-CORPORA.md) |
+| COBOL primary | **68/68** behavioral (**G10113**); WebIR deepen **G10085–G10106** exhausted + **G10111/G10112** + **G10121** ODO + **G10122** RENAMES + **G10124** COPY REPLACING; **G10120** mega-corpus; sole open P0=`copy:EXTFMAP` | no LCB claim; **live z/OS / CICS TX** for EXTFMAP — [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md) · [`COBOL-EXTERNAL-PROVE-CORPORA.md`](./COBOL-EXTERNAL-PROVE-CORPORA.md) |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -174,6 +174,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | --- | --- | --- |
 | **S0** | Agent-era substrate (Hole Type System · CWL-Above-Code · Dispose Plane) | **Entry closed G10116** — dispose certificate on convert-apply; taxonomy + dialect honesty catalogs typed |
 | **S0b** | CWL language pillar core (`LANGUAGE_VERSION` + goldens + round-trip) | **Closed G10123** — always check CWL before Convert deepen; `hub:cwl-language-pillar-smoke` |
+| **S0c** | Core vs peel boundary (IR/CWL/verify vs hub scripts) | **Charter D6551** — [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md); next: WebIR Slice 3 flip, not peel rewrite |
 | **L0** | Unpark previously skipped frameworks → route-surface gold | **Active G10114** — Nancy · Rails · Revel · Drogon · Deno.serve · **Tapir G10119** closed · next: Phoenix LiveView (charter only — no invent) |
 | **L1** | Cheap honest-hole peels inside closed secondaries | Reopen when L0 chartered or operator names a dialect |
 | **1** | COBOL Tier A COPY surface | **Closed G10075** |
@@ -187,7 +188,9 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Parity bar (languages vs COBOL):** route-surface gold **20/20** + honest residual catalog + no invented runtime. COBOL keeps behavioral cobc prove; languages keep verify gold — do not force-fake LiveView/DI to “match” COBOL subject counts.
 
 **Closed this finish pack:**
+- G10124 — COPY … REPLACING layout inventory (`copyReplacing` / books / pairs / modes); fixtures `hub-cobol-layout-copy-replacing`; best-fit `webir-hole-attrs-copy-replacing`; CWL bridge WebIR subset widened
 - G10123 — CWL language pillar bridge (`chrysalis-cwl` LANGUAGE_VERSION + language-gold local parse→print; Convert `hub:cwl-language-pillar-smoke`; CWL-Above-Code requires pillar)
+- G10123 amend (2026-08-05) — pull CWL 0.1.7 / RFC-0022: smoke v3 + `24-dna-bridge` WebIR + DNA contract gate; Helix owns DNA enforce
 - G10122 — Level-66 RENAMES layout inventory (`renames` / `renamesNames` / `renamesRanges`); copybook-rs fixtures `hub-cobol-layout-renames`; best-fit `webir-hole-attrs-renames`
 - G10121 — OCCURS DEPENDING ON layout inventory (`odo` / `dependingOnNames`); JRecord labeled fixtures `hub-cobol-layout-odo`; best-fit `webir-hole-attrs-occurs-depending` (does **not** reopen G10106 exhaust)
 - G10120 — public mega-corpus registry + census off-repo (phases 1–8 mapped; JRecord/cb2xml/zopeneditor/db2-samples/gnucobol-src; **GCE prove STATUS_OK** — CLBS 68/68 + external + census 1156→scale); feature-index + `hub:cobol-corpus-query` + `hub:cobol-peel-candidates`; does **not** close EXTFMAP
@@ -231,10 +234,9 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **EXTFMAP** (sole P0) — needs live z/OS ZD&T hunt on `B5C551` / SDFHCOB **or** operator ABSENT attest after hunt (`CHRYSALIS_EXTFMAP_ABSENT=1`). Never invent. **CMQ*** closed via DHE MQ Advanced for Developers drop.
-2. **Chartered IBM runtimes** — Db2/CICS/VSAM/MQ/IMS/JES (not GnuCOBOL substitutes). Closest no-z/OS trial: **CICS TX + COBOL for Linux**.
-3. Parallel GTM: Cursor Pilot Kit + public-claim OSS publish.2. **Real Db2 / CICS / VSAM / MQ / IMS runtime adapters** — charter only; no façades (structural Medium+ closed G10083; CSD/DCLGEN catalogs G10111; P1 residuals cataloged)
-3. **CLBS mini `.cbl` inventory peels exhausted (G10106)** — reopen only with new origin corpus (G10111 used CSD/DCLGEN artifact class instead)
+1. **EXTFMAP** (sole P0) — needs live z/OS ZD&T hunt on `B5C551` / SDFHCOB **or** operator ABSENT attest after hunt (`CHRYSALIS_EXTFMAP_ABSENT=1`). Never invent. See [`EXTFMAP-RESIDUAL.md`](./EXTFMAP-RESIDUAL.md). **CMQ*** closed via DHE MQ Advanced for Developers drop.
+2. **Maintain UT↔Helix spine** — in **chrysalis-cwl** `npm run smoke:ut-spine` (G10125); not Convert Pilot Kit
+3. **Chartered IBM runtimes** — Db2/CICS/VSAM/MQ/IMS/JES (not GnuCOBOL substitutes). Closest no-z/OS trial: **CICS TX + COBOL for Linux**.
 4. **Parallel GTM:** Cursor Pilot Kit + public-claim + **OSS scrub** (`hub:oss-scrub-smoke` **G10109**) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) · [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)
 5. **Brand CTA (Requested):** agenticop.io “Start a Pilot” → Pilot Kit 15-minute path
 6. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered

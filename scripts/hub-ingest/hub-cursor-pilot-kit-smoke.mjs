@@ -3,6 +3,8 @@
  * Packaging smoke for Chrysalis Cursor Pilot Kit (GTM path from 07-23-26 brief).
  * Does not re-run full verify:flagship (that is pilot:laravel-min) — checks kit surface.
  *
+ * UT ↔ Helix spine lives in chrysalis-cwl (`npm run smoke:ut-spine`), not Convert.
+ *
  * Gate: hub:cursor-pilot-kit-smoke
  */
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
@@ -51,20 +53,21 @@ export async function runCursorPilotKitSmoke() {
     ok:
       pkg.includes("pilot:laravel-min") &&
       pkg.includes("pilot:cobol-clbs") &&
-      pkg.includes("hub:cursor-pilot-kit-smoke"),
-    reason: pkg.includes("pilot:cobol-clbs")
-      ? undefined
-      : "package.json scripts missing pilot:cobol-clbs",
+      pkg.includes("hub:cursor-pilot-kit-smoke") &&
+      !pkg.includes("pilot:ut-spine"),
+    reason: pkg.includes("pilot:ut-spine")
+      ? "UT spine must not live in Convert — use chrysalis-cwl smoke:ut-spine"
+      : undefined,
   });
 
   const ok = checks.every((c) => c.ok);
   const report = {
     kind: "chrysalis.hub.cursor-pilot-kit-smoke",
-    schemaVersion: 2,
+    schemaVersion: 4,
     ok,
     checks,
     failed: checks.filter((c) => !c.ok),
-    note: "Pilot Kit packaging; run pilot:laravel-min and/or pilot:cobol-clbs for wedge proves",
+    note: "Pilot Kit packaging (laravel/cobol). CWL↔Helix spine: chrysalis-cwl npm run smoke:ut-spine",
     generatedAt: new Date().toISOString(),
   };
 

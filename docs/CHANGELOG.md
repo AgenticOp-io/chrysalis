@@ -1,3 +1,9 @@
+2026-08-05 | Chrysalis | G10125 D6550 UT↔Helix spine owned by chrysalis-cwl (`smoke:ut-spine`); removed Convert pilot:ut-spine; EXTFMAP residual honest open; WebIR link-until-pnpm | local | N
+2026-08-05 | Convert | cwl-fmt dual-mode locked: docs/CWL-FMT-DUAL-MODE.md (pillar parse→print; convert WebIR fmt + fmt:cwl:webir); DNA enforce → Secure | local | N
+2026-08-05 | Chrysalis | D6551 Core vs peel charter: docs/CORE-VS-PEEL.md — IR/CWL/verify = core; hub peels/smokes/oracles = peel; not a TS↔Rust rewrite; §12 + AGENTS pointers | local | N
+2026-08-05 | Chrysalis | CWL 0.1.7 integrate: mirrors gate green (six always-sync file symlinks); Agent G helpers + hub-t synced; CWL-PILLAR-HOME + CWL-SCRIPTS-CANONICAL updated; @chrysalis/cwl junction at 0.1.7 | local | N
+2026-08-05 | Chrysalis | CWL 0.1.7 pull: language-pillar-smoke v3 (+24-dna-bridge WebIR + DNA contract gate spawn); RFC-0022 pointer; junctions already green | local | N
+2026-08-04 | Chrysalis | G10124 D6549 COPY REPLACING layout inventory peel + hub-cobol-layout-copy-replacing fixtures; best-fit webir-hole-attrs-copy-replacing; CWL WebIR bridge widened; EXTFMAP sole P0 | local | N
 2026-08-04 | Chrysalis | G10123 D6548 CWL language pillar bridge: always check chrysalis-cwl LANGUAGE_VERSION + language-gold gate; hub:cwl-language-pillar-smoke; CWL-Above-Code requires pillar | local | N
 2026-08-03 | Chrysalis | G10115 D6540 Rails routes.rb route-table + thin render json hub:rails-routes-smoke 20/20 (G10006 skip closed at table level); no resources/filters/AR invent | local | N
 2026-08-03 | Chrysalis | G10114 D6540 unpark Revel Go secondary: conf/routes + Controller.Action RenderJSON/Status/Params peels; hub:revel-smoke 20/20 (G10065 skip closed); no router.GET/interceptor invent | local | N

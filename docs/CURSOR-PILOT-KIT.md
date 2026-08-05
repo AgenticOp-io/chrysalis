@@ -23,6 +23,8 @@ Buyers work in **Cursor / MCP agents**. Speedscale already owns “AI needs traf
 | Checklist | `fixtures/pilot-kit/PILOT-CHECKLIST.md` |
 | Smoke | `pnpm run hub:cursor-pilot-kit-smoke` |
 
+**Not this kit:** CWL ↔ Helix cutover spine lives in **`chrysalis-cwl`** (`npm run smoke:ut-spine`) — Convert does not own DNA/surface cutover.
+
 ## 15-minute buyer path
 
 ```bash
