@@ -2,11 +2,15 @@
 
 **You are building a specific thing. Do not drift.**
 
+**Authority / git:** Parent authorizes push — see `AgenticOps/docs/AGENT_AUTHORITY.md` and `AgenticOps/docs/SUBAGENT_PUSH_PROTOCOL.md`.
+
 ## Absolute conversion law (every AI, every session)
 
 **True conversion only. Never demo-only code.**
 
 **CWL ownership:** Language logic lives in **`../chrysalis-cwl`**. Before changing parsers, runtimes, emit packages, language RFCs, or core `cwl-*.mjs` tooling, **always check and edit that pillar first**, then sync junctions/mirrors here (`docs/CWL-PILLAR-HOME.md`). Do not invent divergent CWL behavior only under convert.
+
+**Core vs peel (**D6551**):** Before adding weight to the monorepo, read [`docs/CORE-VS-PEEL.md`](docs/CORE-VS-PEEL.md). Hub peels/smokes/oracles may stay messy scripts; **WebIR + CWL grammar + hole/verify contracts** are the small typed core. Do not promote peels into core without an IR/language semantic win. Do not “fix” the stack by rewriting peels.
 
 Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin, Next, Express, …) — not WISP-only. WISP is the POC that proves the law; the law is product-wide.
 
