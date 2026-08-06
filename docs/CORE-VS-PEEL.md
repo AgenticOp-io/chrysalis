@@ -48,19 +48,21 @@
 
 ### Do next (substrate, still convert-owned work)
 
-4. **WebIR ownership flip (Slice 3)** — core package should not forever look like “just another convert package.” Junction/`file:` after consumers green; no mass peel move.
+4. **WebIR ownership flip (Slice 3)** — core package should not forever look like “just another convert package.” Junction/`file:` after consumers green; no mass peel move. **Deferred link-until-pnpm** — prove `loadWebir` / emit resolve without cwd hacks (`hub:webir-resolve-smoke`) before any `git mv`.
 5. **Optional:** convert fat ingest may *call* thin pillar lift for CWL-only paths — never junction fat over thin.
 6. **Dual-mode `cwl-fmt` is locked** ([`CWL-FMT-DUAL-MODE.md`](./CWL-FMT-DUAL-MODE.md)) — pillar parse→print vs convert WebIR fmt; do not merge into one file.
+7. **Consumer pin prove:** `pnpm run hub:cwl-pin-smoke` — `file:` pin + `@chrysalis/cwl` VERSION surface (not a second spine).
+8. **Consume CWL prove packs:** `hub:cwl-ingest-matrix-smoke` + `hub:cwl-helix-cutover-smoke` (prefers `smoke:ut-evidence`) — Convert spawns only; never forks DNA.
 
 ### Dual primary unchanged
 
-7. **COBOL / language deepen peels** stay peels. Leadership is route-surface gold + honest residuals — not IR expansion.
-8. **EXTFMAP / LiveView** remain charter-or-hole. Charter does not unlock invent.
+9. **COBOL / language deepen peels** stay peels. Leadership is route-surface gold + honest residuals — not IR expansion.
+10. **EXTFMAP / LiveView** remain charter-or-hole. Charter does not unlock invent.
 
 ### Stack implication (from the rule, not fashion)
 
-9. **TS/npm stays the Convert shell** (CLI, hub, emits, peels).  
-10. **Core is defined by contracts (WebIR + CWL + dispose), not by npm.** A future Rust/Go *core kernel* is allowed only if a named core package fails the bar — never as a peel rewrite.
+11. **TS/npm stays the Convert shell** (CLI, hub, emits, peels).  
+12. **Core is defined by contracts (WebIR + CWL + dispose), not by npm.** A future Rust/Go *core kernel* is allowed only if a named core package fails the bar — never as a peel rewrite.
 
 ---
 

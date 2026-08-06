@@ -101,9 +101,20 @@ export async function loadEmitter(target) {
         ? null
         : "packages/emit-hono/dist/index.js";
   if (target === "nextjs") return { kind: "nextjs-script" };
-  const href = pathToFileURL(join(process.cwd(), pkg)).href;
-  const mod = await import(href);
-  return { kind: "emit", emit: mod.emit };
+  // Prefer convert root (same as loadWebir) — do not require cwd == monorepo root.
+  const candidates = [
+    join(CONVERT_ROOT, pkg),
+    join(process.cwd(), pkg),
+  ];
+  for (const entry of candidates) {
+    if (existsSync(entry)) {
+      const mod = await import(pathToFileURL(entry).href);
+      return { kind: "emit", emit: mod.emit };
+    }
+  }
+  throw new Error(
+    `Cannot resolve emit backend "${target}". Tried:\n  - ${candidates.join("\n  - ")}`,
+  );
 }
 
 export function guessRoutePath(file) {

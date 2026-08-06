@@ -1,3 +1,6 @@
+2026-08-05 | Chrysalis | Consume CWL ingest-matrix + ut-evidence: hub:cwl-ingest-matrix-smoke; cutover smoke v2 prefers smoke:ut-evidence:helix; pin/webir-resolve smokes; loadEmitter CONVERT_ROOT | local | N
+2026-08-05 | Chrysalis | CWL sync + convert build: hub:cwl-pin-smoke + hub:webir-resolve-smoke (link-until-pnpm progress); loadEmitter uses CONVERT_ROOT like loadWebir; mirrors still junction-noop | local | N
+2026-08-05 | Chrysalis | G10126 UT missing: hub:cwl-helix-cutover-smoke (Convert consumes CWL spine); maintain-packaging asserts no pilot:ut-spine | local | N
 2026-08-05 | Chrysalis | G10125 D6550 UT↔Helix spine owned by chrysalis-cwl (`smoke:ut-spine`); removed Convert pilot:ut-spine; EXTFMAP residual honest open; WebIR link-until-pnpm | local | N
 2026-08-05 | Convert | cwl-fmt dual-mode locked: docs/CWL-FMT-DUAL-MODE.md (pillar parse→print; convert WebIR fmt + fmt:cwl:webir); DNA enforce → Secure | local | N
 2026-08-05 | Chrysalis | D6551 Core vs peel charter: docs/CORE-VS-PEEL.md — IR/CWL/verify = core; hub peels/smokes/oracles = peel; not a TS↔Rust rewrite; §12 + AGENTS pointers | local | N

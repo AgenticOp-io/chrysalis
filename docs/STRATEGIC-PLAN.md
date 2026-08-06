@@ -448,6 +448,8 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (active)
 
+**Amended 2026-08-05 (D6552 / G10126) — Convert consumes CWL↔Helix cutover.** `hub:cwl-helix-cutover-smoke` prefers pillar `smoke:ut-evidence --require-helix` (spine + ingest matrix) when present; else `smoke:ut-spine`. Companion: `hub:cwl-ingest-matrix-smoke`, `hub:cwl-pin-smoke`, `hub:webir-resolve-smoke`. Honest SKIP without siblings. Chimera+Helix playbook in Secure. Does not reopen EXTFMAP; WebIR flip still deferred (link-until-pnpm).
+
 **Amended 2026-08-05 (D6551) — Core vs peel charter.** Governing question is not “TS vs Rust?” but **what may live outside typed WebIR/CWL core**. Hub smokes/peels/oracles stay peel by default; WebIR + CWL grammar + hole/verify contracts are core. Doc: [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md). Forced next: WebIR substrate flip (Slice 3 / link-until-pnpm), not a peel rewrite. Dual primary (**D6540**) and UT↔Helix spine (**D6550**) unchanged.
 
 **Amended 2026-08-05 (D6550 / G10125) — UT ↔ Helix spine owned by CWL (not Convert).** Language cutover prove is `chrysalis-cwl` `npm run smoke:ut-spine` (+ Secure `cutover-smoke`). Convert Pilot Kit stays laravel/cobol only — do not re-home DNA/surface spine here. Umbrella: [`AgenticOps/docs/UT-CONVERT-SECURE-SPINE.md`](../../docs/UT-CONVERT-SECURE-SPINE.md). EXTFMAP still sole COBOL P0; WebIR flip deferred (link-until-pnpm).

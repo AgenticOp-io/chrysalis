@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+/**
+ * Convert consumer pin smoke — @chrysalis/cwl file: pin + VERSION surface.
+ * Does not own language semantics (chrysalis-cwl). No UT spine here.
+ */
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+export const CWL_PIN_SMOKE_KIND = "chrysalis.hub.cwl-pin-smoke";
+export const CWL_PIN_SMOKE_SCHEMA_VERSION = 1;
+
+const CONVERT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const EXPECTED_PIN = "file:../chrysalis-cwl/packages/cwl";
+
+/**
+ * @param {{ convertRoot?: string }} [opts]
+ */
+export async function runCwlPinSmoke(opts = {}) {
+  const root = opts.convertRoot ? resolve(opts.convertRoot) : CONVERT_ROOT;
+  /** @type {Array<{ id: string, ok: boolean, detail?: string }>} */
+  const checks = [];
+
+  const pkgPath = join(root, "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+  const pin =
+    pkg.dependencies?.["@chrysalis/cwl"] ||
+    pkg.devDependencies?.["@chrysalis/cwl"] ||
+    pkg.optionalDependencies?.["@chrysalis/cwl"] ||
+    null;
+  const pinOk =
+    pin === EXPECTED_PIN ||
+    (typeof pin === "string" && pin.includes("chrysalis-cwl/packages/cwl"));
+  checks.push({
+    id: "package-json-file-pin",
+    ok: pinOk,
+    detail: pin == null ? "missing" : String(pin),
+  });
+
+  const indexPath = join(root, "packages/cwl/index.mjs");
+  checks.push({
+    id: "packages-cwl-index",
+    ok: existsSync(indexPath),
+    detail: indexPath,
+  });
+
+  if (existsSync(indexPath)) {
+    const mod = await import(pathToFileURL(indexPath).href);
+    const version = mod.VERSION;
+    const lang = typeof mod.languageVersion === "function" ? mod.languageVersion() : null;
+    const pillar = typeof mod.pillarRoot === "function" ? mod.pillarRoot() : null;
+    checks.push({
+      id: "export-VERSION",
+      ok: typeof version === "string" && /^\d+\.\d+\.\d+/.test(version),
+      detail: String(version),
+    });
+    checks.push({
+      id: "export-languageVersion-align",
+      ok: lang === version,
+      detail: `languageVersion=${lang};VERSION=${version}`,
+    });
+    checks.push({
+      id: "export-pillarRoot",
+      ok: Boolean(pillar && existsSync(join(pillar, "LANGUAGE_VERSION.md"))),
+      detail: pillar ? String(pillar) : "missing",
+    });
+    checks.push({
+      id: "no-convert-ut-spine",
+      ok: !JSON.stringify(pkg.scripts || {}).includes("pilot:ut-spine"),
+      detail: "spine owned by chrysalis-cwl smoke:ut-spine",
+    });
+  }
+
+  const failed = checks.filter((c) => !c.ok);
+  const report = {
+    kind: CWL_PIN_SMOKE_KIND,
+    schemaVersion: CWL_PIN_SMOKE_SCHEMA_VERSION,
+    ok: failed.length === 0,
+    expectedPin: EXPECTED_PIN,
+    checks,
+    failed: failed.map((c) => c.id),
+    generatedAt: new Date().toISOString(),
+  };
+  return report;
+}
+
+const isDirect =
+  process.argv[1] != null &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+
+if (isDirect) {
+  const report = await runCwlPinSmoke();
+  console.log(JSON.stringify(report, null, 2));
+  process.exit(report.ok ? 0 : 1);
+}

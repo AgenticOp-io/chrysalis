@@ -20,6 +20,26 @@ const readme = readFileSync(join(root, "README.md"), "utf8");
 ok("readme-ut-canon", /UNIVERSAL-TRANSLATOR-CANON/.test(readme));
 ok("readme-g9990", /G9990/.test(readme));
 
+const pillarHome = readFileSync(join(root, "docs/CWL-PILLAR-HOME.md"), "utf8");
+ok(
+  "cwl-helix-spine-owned-by-cwl",
+  /smoke:ut-spine/.test(pillarHome) && /does \*\*not\*\* own DNA/.test(pillarHome),
+);
+ok(
+  "cwl-helix-cutover-script",
+  existsSync(join(root, "scripts/hub-ingest/hub-cwl-helix-cutover-smoke.mjs")),
+);
+const pkgJson = readFileSync(join(root, "package.json"), "utf8");
+ok("pkg-cwl-helix-cutover", /hub:cwl-helix-cutover-smoke/.test(pkgJson));
+ok("pkg-cwl-ingest-matrix", /hub:cwl-ingest-matrix-smoke/.test(pkgJson));
+ok("pkg-cwl-pin-smoke", /hub:cwl-pin-smoke/.test(pkgJson));
+ok("pkg-webir-resolve-smoke", /hub:webir-resolve-smoke/.test(pkgJson));
+ok("pkg-no-pilot-ut-spine", !/"pilot:ut-spine"/.test(pkgJson));
+ok(
+  "cwl-ingest-matrix-script",
+  existsSync(join(root, "scripts/hub-ingest/hub-cwl-ingest-matrix-smoke.mjs")),
+);
+
 const binSrc = readFileSync(join(root, "packages/cli/src/bin.ts"), "utf8");
 ok("cli-chat-subcommand", /\[\s*"chat"/.test(binSrc) || /case "chat"/.test(binSrc));
 ok("cli-chat-license-ungated", /cmd === "chat"/.test(binSrc) && /runLicenseGate/.test(binSrc));
