@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 /**
- * Prove shared.loadWebir resolves from convert root without cwd==convert
+ * Prove shared.loadWebir resolves from convert root without cwd==convert,
+ * and that pnpm workspace links `@chrysalis/webir` for package import
  * (WEBIR-EXTRACT-PLAN link-until-pnpm exit criterion 1 — progress, not ownership flip).
  */
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
 import { loadWebir } from "./shared.mjs";
 
 export const WEBIR_RESOLVE_SMOKE_KIND = "chrysalis.hub.webir-resolve-smoke";
 export const WEBIR_RESOLVE_SMOKE_SCHEMA_VERSION = 1;
 
 const CONVERT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const require = createRequire(join(CONVERT_ROOT, "package.json"));
 
 /**
  * @param {{ keepCwd?: boolean }} [opts]
@@ -44,6 +47,40 @@ export async function runWebirResolveSmoke(opts = {}) {
       ok: Boolean(hasBuilder),
       detail: webir ? Object.keys(webir).slice(0, 12).join(",") : "null",
     });
+
+    const linked =
+      existsSync(join(CONVERT_ROOT, "node_modules/@chrysalis/webir/package.json")) ||
+      existsSync(join(CONVERT_ROOT, "node_modules/@chrysalis/webir/dist/index.js"));
+    checks.push({
+      id: "pnpm-workspace-link",
+      ok: linked,
+      detail: linked
+        ? "node_modules/@chrysalis/webir present"
+        : "missing node_modules/@chrysalis/webir — run pnpm install",
+    });
+
+    try {
+      // Resolve from convert package.json so foreign cwd cannot hide the workspace link.
+      const pkgEntry = require.resolve("@chrysalis/webir");
+      const pkgMod = await import(pathToFileURL(pkgEntry).href);
+      const pkgOk =
+        typeof pkgMod?.ModuleBuilder === "function" ||
+        typeof pkgMod?.createModuleBuilder === "function" ||
+        typeof pkgMod?.Module === "function" ||
+        (pkgMod && typeof pkgMod === "object" && Object.keys(pkgMod).length > 0);
+      checks.push({
+        id: "package-import-chrysalis-webir",
+        ok: pkgOk,
+        detail: pkgEntry.replace(/\\/g, "/"),
+      });
+    } catch (e) {
+      checks.push({
+        id: "package-import-chrysalis-webir",
+        ok: false,
+        detail: String(e instanceof Error ? e.message : e).slice(0, 400),
+      });
+    }
+
     checks.push({
       id: "no-physical-flip",
       ok: true,
