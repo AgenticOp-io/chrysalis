@@ -21,7 +21,7 @@
     "vendor:parser-bridge": "node scripts/parser-bridge-composer-install.mjs",
     "vendor:oracle-java": "node scripts/ensure-oracle-java-vendor.mjs",
     "hub:install-native-probes": "node scripts/hub-install-native-probes.mjs",
-    "pretest": "node scripts/ensure-parser-bridge-vendor.mjs",
+    "pretest": "node scripts/link-webir-from-cwl.mjs && node scripts/ensure-parser-bridge-vendor.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:oracle-php-redactor": "php packages/oracle-php/tests/redactor_sql_rows_test.php && php packages/oracle-php/tests/redactor_sql_params_test.php",
@@ -1495,7 +1495,8 @@
     "hub:cpp-flagship": "node scripts/hub-ingest/hub-cpp-flagship.mjs",
     "hub:cpp-httplib-smoke": "node scripts/hub-ingest/hub-cpp-httplib-smoke.mjs",
     "hub:drogon-smoke": "node scripts/hub-ingest/hub-drogon-smoke.mjs",
-    "hub:complete-conversion-prove:cpp": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-cpp"
+    "hub:complete-conversion-prove:cpp": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-cpp",
+    "link:webir-from-cwl": "node scripts/link-webir-from-cwl.mjs"
   },
   "devDependencies": {
     "@chrysalis/cwl": "file:../chrysalis-cwl/packages/cwl",
@@ -1529,6 +1530,6 @@
     }
   },
   "dependencies": {
-    "@chrysalis/webir": "workspace:*"
+    "@chrysalis/webir": "file:../chrysalis-cwl/packages/webir"
   }
 }

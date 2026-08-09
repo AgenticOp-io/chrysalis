@@ -35,7 +35,13 @@ ok("pkg-cwl-ingest-matrix", /hub:cwl-ingest-matrix-smoke/.test(pkgJson));
 ok("pkg-cwl-pin-smoke", /hub:cwl-pin-smoke/.test(pkgJson));
 ok("pkg-webir-resolve-smoke", /hub:webir-resolve-smoke/.test(pkgJson));
 ok("pkg-phoenix-controllers-smoke", /hub:phoenix-controllers-smoke/.test(pkgJson));
-ok("pkg-webir-workspace-dep", /"@chrysalis\/webir"\s*:\s*"workspace:\*"/.test(pkgJson));
+ok(
+  "pkg-webir-from-cwl-dep",
+  /"@chrysalis\/webir"\s*:\s*"file:\.\.\/chrysalis-cwl\/packages\/webir"/.test(pkgJson) ||
+    /"@chrysalis\/webir"\s*:\s*"workspace:\*"/.test(pkgJson),
+);
+ok("pkg-link-webir-from-cwl", /link:webir-from-cwl/.test(pkgJson));
+ok("pkg-webir-reverse-home-doc", existsSync(join(root, "docs/WEBIR-REVERSE-HOME.md")));
 ok("pkg-no-pilot-ut-spine", !/"pilot:ut-spine"/.test(pkgJson));
 ok(
   "cwl-ingest-matrix-script",
