@@ -41,6 +41,14 @@ export interface RequestInput {
   readonly cookies: Readonly<Record<string, string>>;
   readonly session: Readonly<Record<string, SimValue>>;
   readonly pathParams: Readonly<Record<string, string>>;
+  /**
+   * HTTP request headers for `data.request.field` source `"header"`.
+   * Prefer **lower-case** keys (HTTP/2 style). Lookup is case-insensitive
+   * so `Authorization` and `authorization` both resolve. Omit or `{}` when
+   * absent — missing names bind `null` (no invented values).
+   * CWL handoff: `docs/history/CONVERT-REWRITE-HEADERS-REQUESTED.md`.
+   */
+  readonly headers?: Readonly<Record<string, string>>;
 }
 
 export interface DbReadEvent {
@@ -320,7 +328,8 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
       const source = (n.attrs as { source: string }).source;
       const name = (n.attrs as { name: string }).name;
       const bag = pickBag(ctx.input, source);
-      const v = bag[name];
+      const v =
+        source === "header" ? lookupHeader(bag, name) : bag[name];
       if (v === undefined) return { kind: "null" };
       return { kind: "str", value: v };
     }
@@ -411,18 +420,34 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
 function pickBag(input: RequestInput, source: string): Record<string, string> {
   switch (source) {
     case "query":
-      return input.query;
+      return input.query as Record<string, string>;
     case "body":
-      return input.post;
+      return input.post as Record<string, string>;
     case "cookie":
-      return input.cookies;
+      return input.cookies as Record<string, string>;
     case "path":
-      return input.pathParams;
+      return input.pathParams as Record<string, string>;
     case "header":
-      return {};
+      return (input.headers ?? {}) as Record<string, string>;
     default:
       return {};
   }
+}
+
+/**
+ * Header bag lookup: exact key, then lower-case (producers should prefer lower-case keys).
+ */
+function lookupHeader(
+  bag: Record<string, string>,
+  name: string,
+): string | undefined {
+  if (Object.prototype.hasOwnProperty.call(bag, name)) return bag[name];
+  const lower = name.toLowerCase();
+  if (Object.prototype.hasOwnProperty.call(bag, lower)) return bag[lower];
+  for (const [k, v] of Object.entries(bag)) {
+    if (k.toLowerCase() === lower) return v;
+  }
+  return undefined;
 }
 
 function toSimValue(v: unknown): SimValue {

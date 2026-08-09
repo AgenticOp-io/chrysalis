@@ -59,16 +59,45 @@ export async function runCwlPinSmoke(opts = {}) {
       ok: lang === version,
       detail: `languageVersion=${lang};VERSION=${version}`,
     });
+  checks.push({
+    id: "export-pillarRoot",
+    ok: Boolean(pillar && existsSync(join(pillar, "LANGUAGE_VERSION.md"))),
+    detail: pillar ? String(pillar) : "missing",
+  });
+  checks.push({
+    id: "cwl-1.0-pin-floor",
+    ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
+    detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
+  });
+  for (const sub of ["parser", "print", "diagnose", "lsp-map"]) {
+    const subPath = join(root, "packages/cwl", `${sub}.mjs`);
     checks.push({
-      id: "export-pillarRoot",
-      ok: Boolean(pillar && existsSync(join(pillar, "LANGUAGE_VERSION.md"))),
-      detail: pillar ? String(pillar) : "missing",
+      id: `package-subpath-${sub}`,
+      ok: existsSync(subPath),
+      detail: subPath,
     });
+  }
+  // Prove package subpath import via file URL (pnpm link may lag; junction is SoR).
+  try {
+    const parserUrl = pathToFileURL(join(root, "packages/cwl/parser.mjs")).href;
+    const parserMod = await import(parserUrl);
     checks.push({
-      id: "no-convert-ut-spine",
-      ok: !JSON.stringify(pkg.scripts || {}).includes("pilot:ut-spine"),
-      detail: "spine owned by chrysalis-cwl smoke:ut-spine",
+      id: "import-cwl-parser-subpath",
+      ok: typeof parserMod.parseCwlModule === "function" || Object.keys(parserMod).length > 0,
+      detail: Object.keys(parserMod).slice(0, 8).join(","),
     });
+  } catch (e) {
+    checks.push({
+      id: "import-cwl-parser-subpath",
+      ok: false,
+      detail: String(e instanceof Error ? e.message : e).slice(0, 300),
+    });
+  }
+  checks.push({
+    id: "no-convert-ut-spine",
+    ok: !JSON.stringify(pkg.scripts || {}).includes("pilot:ut-spine"),
+    detail: "spine owned by chrysalis-cwl smoke:ut-spine",
+  });
   }
 
   const failed = checks.filter((c) => !c.ok);

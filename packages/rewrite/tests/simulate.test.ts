@@ -48,6 +48,28 @@ describe("IR simulator (D19 core)", () => {
     expect(res.body).toBe("alice");
   });
 
+  it("echoes a header request.field (case-insensitive bag)", () => {
+    const m = buildModule(({ data, eff, loc }) => {
+      const h = data.requestField({
+        source: "header",
+        name: "Authorization",
+        type: T.string,
+        origin: loc(),
+      });
+      return eff.echo({ value: h, origin: loc() });
+    });
+    const hit = simulateHandler(m, routeIdOf(m), {
+      ...emptyInput,
+      headers: { authorization: "Bearer tok" },
+    });
+    expect(hit.errors).toEqual([]);
+    expect(hit.body).toBe("Bearer tok");
+
+    const miss = simulateHandler(m, routeIdOf(m), emptyInput);
+    expect(miss.errors).toEqual([]);
+    expect(miss.body).toBe("");
+  });
+
   it("propagates __assign writes into data.param reads", () => {
     const m = buildModule(({ data, eff, loc }) => {
       const name = data.literal({ value: "x", type: T.string, origin: loc() });
