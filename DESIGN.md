@@ -4045,6 +4045,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-08-09 — D6555** **Convert pin floor → CWL 1.0.4.** Sibling/`file:` tip + GitHub Packages `@agenticop-io/cwl@1.0.4`; `hub:cwl-pin-smoke` tip floor ≥ 1.0.4. No Convert language fork — polish is CWL-owned (CLI dna-seed, import-path LSP, hole-catalog gate).
 
+- **2026-08-09 — D6556** **Convert follows CWL 1.0.5–1.0.6.** Tip pin ≥ **1.0.6**; fat `cwl-ingest` ports `response-header` → WebIR `ResponseAttrs.headers` and stops HTML double-`web.request.response` wrap; prove `hub:cwl-execute-ingest-parity-smoke`. Keep `rewrite`/`emit-shared` dists buildable for pillar execute. **DESIGN §3 / D6442/D6447:** no invented CT/headers.
+
 - **2026-08-09 — D6554** **Fat CWL ingest RFC-0024 attachment holes.** Convert `scripts/hub-ingest/cwl-ingest.mjs` (fat, not junctioned over thin) must preserve pillar `attachmentHoles` + return body as WebIR `cwl:attachment-holes` blocks — no drop, no invent runtimes. Prove: `hub:cwl-attachment-holes-smoke` against language-gold `25-island-kinds`. **DESIGN §3 / D6442/D6447:** honesty parity with thin pillar ingest.
 
 - **2026-08-07 — D6540 / G10126** **Phoenix controller route-surface peel.** `hub-gold-phoenix-controllers` + `hub:phoenix-controllers-smoke` 20/20: `get|post|… "/path", XxxController, :action` + thin `json/2` / `put_status/2` / `params["id"]`. Plug.Router remains Elixir ST. LiveView / pipelines / resources stay honest holes (**D6447**). WebIR: root `@chrysalis/webir` `workspace:*` + resolve smoke proves pnpm package import (link-until-pnpm exit #1 progress). EXTFMAP remains operator hunt/ABSENT (`cobol:extfmap-status`).

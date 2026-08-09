@@ -307,16 +307,45 @@ export function liftCwlFileToWebir(opts) {
         : contentType
           ? "text"
           : "json";
+    /** @type {Record<string, string>} */
+    const responseHeaderBag = {};
+    for (const h of r.responseHeaders ?? []) {
+      if (!h?.name || !Object.prototype.hasOwnProperty.call(h, "default")) continue;
+      const v = h.default;
+      responseHeaderBag[String(h.name).toLowerCase()] =
+        v === null || v === undefined ? "" : typeof v === "string" ? v : String(v);
+    }
+    const hasResponseHeaders = Object.keys(responseHeaderBag).length > 0;
     let bodyId = valueId;
     const pageLoadHtml = Boolean(r.loadBody && r.body.kind === "html");
     const pageLoadUi = Boolean(r.loadBody && r.body.kind === "ui");
-    if (!pageLoadHtml && !pageLoadUi && (status !== 200 || contentType)) {
+    // `lowerCwlHtmlTemplateBody` / page-load HTML already emit `web.request.response` —
+    // do not wrap again (double echo). UI trees still need the outer response for CT.
+    // Parity with pillar thin ingest (CWL 1.0.5 response-header · 1.0.6 HTML wrap).
+    const htmlAlreadyResponded = r.body.kind === "html" || pageLoadHtml;
+    if (
+      !htmlAlreadyResponded &&
+      !pageLoadUi &&
+      (status !== 200 || contentType || hasResponseHeaders)
+    ) {
       bodyId = wrBuilders.response({
-        attrs: { status, kind, contentType },
+        attrs: {
+          status,
+          kind,
+          ...(contentType ? { contentType } : {}),
+          ...(hasResponseHeaders ? { headers: responseHeaderBag } : {}),
+        },
         value: valueId,
         origin: hubOrigin(file, r.line ?? 1),
         provenance: [
-          webir.provenance("hub-ingest", contentType ? "cwl:response-content-type" : "cwl:response-status"),
+          webir.provenance(
+            "hub-ingest",
+            contentType
+              ? "cwl:response-content-type"
+              : hasResponseHeaders
+                ? "cwl:response-header"
+                : "cwl:response-status",
+          ),
         ],
       });
     }
