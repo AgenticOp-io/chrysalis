@@ -96,7 +96,7 @@ export async function runCwlEarlyExitSmoke(opts = {}) {
     );
     checks.push({
       id: "23-foreach-nodes",
-      ok: foreachNodes.length >= 1,
+      ok: foreachNodes.length >= 3,
       detail: `count=${foreachNodes.length}`,
     });
     checks.push({

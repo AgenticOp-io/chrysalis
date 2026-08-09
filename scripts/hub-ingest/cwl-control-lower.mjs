@@ -367,8 +367,10 @@ function lowerControlStmts(ctx, stmts, wr, loc, bindings, status, lowerObjectEnt
       continue;
     }
     if (s.kind === "return") {
+      // Keep scanning: nested foreach/if after return are documentation IR
+      // (empty-iter / opaque skips under simulate — never invent N-iteration).
       parts.push(lowerExit(ctx, curStatus, s.body, wr, loc, lowerObjectEntriesBody));
-      break;
+      continue;
     }
     if (s.kind === "if") {
       const lowered = lowerIfConstruct(
