@@ -48,7 +48,7 @@
 
 ### Do next (substrate, still convert-owned work)
 
-4. **WebIR ownership flip (Slice 3)** — core package should not forever look like “just another convert package.” Junction/`file:` after consumers green; no mass peel move. **Deferred link-until-pnpm** — prove `loadWebir` / emit resolve without cwd hacks (`hub:webir-resolve-smoke`) before any `git mv`.
+4. **WebIR reverse-home (Slice 3)** — **Done on Convert:** `packages/webir` is junction/`file:../chrysalis-cwl/packages/webir` (CWL SoR). Setup: `pnpm run link:webir-from-cwl`. Prove: `hub:webir-resolve-smoke`. Doc: [`WEBIR-REVERSE-HOME.md`](./WEBIR-REVERSE-HOME.md). Edit WebIR only under chrysalis-cwl.
 5. **Optional:** convert fat ingest may *call* thin pillar lift for CWL-only paths — never junction fat over thin.
 6. **Dual-mode `cwl-fmt` is locked** ([`CWL-FMT-DUAL-MODE.md`](./CWL-FMT-DUAL-MODE.md)) — pillar parse→print vs convert WebIR fmt; do not merge into one file.
 7. **Consumer pin prove:** `pnpm run hub:cwl-pin-smoke` — `file:` pin + `@chrysalis/cwl` VERSION surface (not a second spine).
