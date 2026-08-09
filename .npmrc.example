@@ -10,7 +10,7 @@ Copy to **`.npmrc`** in the Convert root (gitignored). Do not commit tokens.
 Then optionally:
 
 ```json
-"@agenticop-io/cwl": "1.0.3"
+"@agenticop-io/cwl": "1.0.4"
 ```
 
 Default sibling pin stays:

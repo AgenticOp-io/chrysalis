@@ -1,6 +1,6 @@
 # Convert consumes CWL — pillar complete handoff
 
-**Status:** Convert consumer closeout vs CWL **`1.0.3`** ([`DNA-CWL-COMPLETE.md`](../../chrysalis-cwl/docs/history/DNA-CWL-COMPLETE.md))  
+**Status:** Convert consumer aligned to CWL **`1.0.4`** (pillar complete `1.0.3` + tooling polish)  
 **Date:** 2026-08-09
 
 ## Done (this lane)
@@ -9,7 +9,7 @@
 | --- | --- |
 | WebIR reverse-home | Junction + `file:../chrysalis-cwl/packages/webir` — [`WEBIR-REVERSE-HOME.md`](./WEBIR-REVERSE-HOME.md) |
 | Rewrite headers | `RequestInput.headers` + case-insensitive `pickBag(..., "header")` — `@chrysalis/rewrite` |
-| Language pin | `file:../chrysalis-cwl/packages/cwl` ≡ **`1.0.3`** (`hub:cwl-pin-smoke`) |
+| Language pin | `file:../chrysalis-cwl/packages/cwl` ≡ **`1.0.4`** (`hub:cwl-pin-smoke`) |
 | Cutover / pillar smokes | `hub:cwl-helix-cutover-smoke` · `hub:cwl-language-pillar-smoke` |
 | Honest landings | D6442/D6447 unchanged — peels emit holes, no façades |
 | Package subpaths | Pin smoke proves `parser` / `print` / `diagnose` / `lsp-map` / `dna-seed` |
@@ -19,10 +19,10 @@
 
 **Default (sibling checkout):** keep `"@chrysalis/cwl": "file:../chrysalis-cwl/packages/cwl"` so junctions + tip stay aligned.
 
-**Registry (GitHub Packages):** published name `@agenticop-io/cwl@1.0.3`. Copy [`.npmrc.example`](../.npmrc.example) → local `.npmrc` (gitignored) with a Packages token (`gh auth token` with `read:packages`), then:
+**Registry (GitHub Packages):** published name `@agenticop-io/cwl@1.0.4`. Copy [`.npmrc.example`](../.npmrc.example) → local `.npmrc` (gitignored) with a Packages token (`gh auth token` with `read:packages`), then:
 
 ```json
-"@agenticop-io/cwl": "1.0.3"
+"@agenticop-io/cwl": "1.0.4"
 ```
 
 Do not commit tokens. Local `file:` remains valid cutover per CWL Exit 1.0 docs.
@@ -38,7 +38,7 @@ Rewrite contract is ready on Convert (`packages/rewrite` dist).
 
 ```text
 CONVERT_GRAVITY: ok
-CWL_PIN: file:1.0.3 (registry @agenticop-io/cwl@1.0.3 ready via .npmrc.example)
+CWL_PIN: file:1.0.4 (registry @agenticop-io/cwl@1.0.4 ready via .npmrc.example)
 WEBIR: reverse-home ok
 SMOKES: hub:cwl-language-pillar-smoke · hub:cwl-helix-cutover-smoke · hub:webir-resolve-smoke · hub:cwl-attachment-holes-smoke
 
