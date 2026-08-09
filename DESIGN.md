@@ -4048,7 +4048,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-08-09 — D6556** **Convert follows CWL 1.0.5–1.0.6.** Tip pin = **1.0.6**; fat `cwl-ingest` ports `response-header` ? WebIR `ResponseAttrs.headers` and stops HTML double-`web.request.response` wrap; prove `hub:cwl-execute-ingest-parity-smoke`. Keep `rewrite`/`emit-shared` dists buildable for pillar execute. **DESIGN §3 / D6442/D6447:** no invented CT/headers.
 
 - **2026-08-09 — D6557** **Convert follows CWL 1.0.7–1.0.8.** Tip pin ≥ **1.0.8**; fat `cwl-ingest` syncs RFC-0021 `wrapWithEarlyGuards` via `cwl-control-lower.mjs` (fat import of `hub-lift-webir-route`); prove `hub:cwl-early-exit-smoke`; keep `hub:cwl-attachment-holes-smoke` green. Soft-path execute stays in pillar `runtime-cwl`. **DESIGN §3 / D6442/D6447:** opaque `g_*` skipped — no invent.
-- **2026-08-09 — D6558** **Convert follows CWL 1.0.9–1.0.10.** Tip pin ≥ **1.0.10**; fat cwl-ingest syncs ppendForeachBindings + else/else-if via cwl-control-lower.mjs; hub:cwl-early-exit-smoke v2 covers 19+23. Fat emit reverse remains hub-webir-routes (pillar thin emit is CWL-owned). **DESIGN §3 / D6442/D6447:** no invent.
+- **2026-08-09 ? D6558** **Convert follows CWL 1.0.9?1.0.10.** Tip pin ? **1.0.10**; fat `cwl-ingest` syncs `appendForeachBindings` + else/else-if via `cwl-control-lower.mjs`; `hub:cwl-early-exit-smoke` v2 covers 19+23. Fat emit reverse remains `hub-webir-routes` (pillar thin emit is CWL-owned). **DESIGN ?3 / D6442/D6447:** no invent.
 
 untime-cwl. **DESIGN §3 / D6442/D6447:** opaque g_* skipped — no invent.
 
