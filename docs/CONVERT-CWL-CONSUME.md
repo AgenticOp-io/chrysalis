@@ -13,6 +13,7 @@
 | Cutover / pillar smokes | `hub:cwl-helix-cutover-smoke` · `hub:cwl-language-pillar-smoke` |
 | Honest landings | D6442/D6447 unchanged — peels emit holes, no façades |
 | Package subpaths | Pin smoke proves `parser` / `print` / `diagnose` / `lsp-map` / `dna-seed` |
+| Fat ingest RFC-0024 | Convert `cwl-ingest` keeps `attachmentHoles` with return bodies — `hub:cwl-attachment-holes-smoke` (`25-island-kinds`) |
 
 ## Pin policy
 
@@ -39,9 +40,12 @@ Rewrite contract is ready on Convert (`packages/rewrite` dist).
 CONVERT_GRAVITY: ok
 CWL_PIN: file:1.0.3 (registry @agenticop-io/cwl@1.0.3 ready via .npmrc.example)
 WEBIR: reverse-home ok
-SMOKES: hub:cwl-language-pillar-smoke · hub:cwl-helix-cutover-smoke · hub:webir-resolve-smoke
+SMOKES: hub:cwl-language-pillar-smoke · hub:cwl-helix-cutover-smoke · hub:webir-resolve-smoke · hub:cwl-attachment-holes-smoke
 
 CONVERT_REWRITE_HEADERS: ok
 REWRITE: RequestInput.headers + pickBag header
 READY_FOR_CWL: mark 04 runtime-ok · matrix 6
+
+CONVERT_FAT_ATTACHMENT_HOLES: ok
+RFC-0024: fat cwl-ingest keeps attachmentHoles + return body
 ```

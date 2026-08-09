@@ -281,6 +281,20 @@ export function liftCwlFileToWebir(opts) {
     } else {
       valueId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
     }
+    // RFC-0024: attachment holes coexist with a return body — declare in WebIR, don't drop.
+    // Fat Convert ingest must match pillar thin `cwl-ingest` (CWL-SCRIPTS-CANONICAL).
+    const attachmentHoles = Array.isArray(r.attachmentHoles) ? r.attachmentHoles : [];
+    if (attachmentHoles.length > 0 && r.body?.kind !== "hole" && valueId) {
+      const holeIds = attachmentHoles.map((reason) =>
+        hubHandlerBodyHole(ctx, reason, loc),
+      );
+      valueId = data.block({
+        statements: [...holeIds, valueId],
+        type: HUB_T.unknown,
+        origin: hubOrigin(file, r.line ?? 1),
+        provenance: [webir.provenance("hub-ingest", "cwl:attachment-holes")],
+      });
+    }
     valueId = wrapCwlExecutableEffects({ data, webir, builder, file }, valueId, r.effects ?? [], loc);
     const status = r.responseStatus ?? 200;
     const contentType =

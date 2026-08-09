@@ -37,7 +37,7 @@ Keep `extractPathParamsFromCwlPath` identical to the pillar; convert may retain 
 | File | Reason |
 | --- | --- |
 | `cwl-fmt.mjs` | Convert keeps WebIR fmt; pillar fmt is parse→print — **locked dual-mode** |
-| `cwl-ingest.mjs` | Convert keeps fat hub-lift ingest; pillar uses thin `hub-lift-cwl-webir` |
+| `cwl-ingest.mjs` | Convert keeps fat hub-lift ingest; pillar uses thin `hub-lift-cwl-webir`. **Must** keep RFC-0024 `attachmentHoles` parity (`hub:cwl-attachment-holes-smoke`). |
 
 Decision doc: [`docs/CWL-FMT-DUAL-MODE.md`](../../docs/CWL-FMT-DUAL-MODE.md).  
 See pillar constitution §7: `chrysalis-cwl/docs/language/CWL-PILLAR-HOME.md`.

@@ -199,6 +199,7 @@
     "hub:cwl-above-code-smoke": "node scripts/hub-ingest/hub-cwl-above-code-smoke.mjs",
     "hub:cwl-language-pillar-smoke": "node scripts/hub-ingest/hub-cwl-language-pillar-smoke.mjs",
     "hub:cwl-pin-smoke": "node scripts/hub-ingest/hub-cwl-pin-smoke.mjs",
+    "hub:cwl-attachment-holes-smoke": "node scripts/hub-ingest/hub-cwl-attachment-holes-smoke.mjs",
     "hub:webir-resolve-smoke": "node scripts/hub-ingest/hub-webir-resolve-smoke.mjs",
     "hub:cwl-ingest-matrix-smoke": "node scripts/hub-ingest/hub-cwl-ingest-matrix-smoke.mjs",
     "hub:cwl-helix-cutover-smoke": "node scripts/hub-ingest/hub-cwl-helix-cutover-smoke.mjs",

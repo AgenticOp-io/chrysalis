@@ -175,7 +175,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | --- | --- | --- |
 | **S0** | Agent-era substrate (Hole Type System · CWL-Above-Code · Dispose Plane) | **Entry closed G10116** — dispose certificate on convert-apply; taxonomy + dialect honesty catalogs typed |
 | **S0b** | CWL language pillar core (`LANGUAGE_VERSION` + goldens + round-trip) | **Closed G10123** — always check CWL before Convert deepen; `hub:cwl-language-pillar-smoke` |
-| **S0c** | Core vs peel boundary (IR/CWL/verify vs hub scripts) | **Charter D6551** — [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md); next: WebIR Slice 3 flip, not peel rewrite |
+| **S0c** | Core vs peel boundary (IR/CWL/verify vs hub scripts) | **Charter D6551** — [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md); WebIR reverse-home done; fat ingest RFC-0024 attachment holes prove (`hub:cwl-attachment-holes-smoke`) |
 | **L0** | Unpark previously skipped frameworks → route-surface gold | **Active G10114** — Nancy · Rails · Revel · Drogon · Deno.serve · **Tapir G10119** closed � **Phoenix controllers G10126** closed · next: Phoenix LiveView (charter only — no invent) |
 | **L1** | Cheap honest-hole peels inside closed secondaries | Reopen when L0 chartered or operator names a dialect |
 | **1** | COBOL Tier A COPY surface | **Closed G10075** |
