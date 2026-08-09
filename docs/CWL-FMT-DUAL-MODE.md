@@ -26,6 +26,10 @@ pnpm run fmt:cwl:webir -- path/to/file.cwl
 cd ../chrysalis-cwl && npm run fmt:cwl -- path/to/file.cwl
 ```
 
+## Pillar `--webir` (1.0.12+)
+
+CWL pillar `cwl-fmt.mjs` may opt into **thin** WebIR round-trip via `--webir` (`hub-emit-cwl-webir`). That is **not** Convert's fat WebIR fmt (`hub-webir-routes`). Do not sync pillar `cwl-fmt` over Convert; do not treat pillar `--webir` as a replacement for `pnpm run fmt:cwl:webir`.
+
 ## Why dual (honesty)
 
 - **Language maturity** needs a WebIR-free fmt so `test:language` / CLI `fmt` stay runnable from the pillar alone.

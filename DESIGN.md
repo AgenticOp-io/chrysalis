@@ -4050,6 +4050,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-08-09 — D6557** **Convert follows CWL 1.0.7–1.0.8.** Tip pin ≥ **1.0.8**; fat `cwl-ingest` syncs RFC-0021 `wrapWithEarlyGuards` via `cwl-control-lower.mjs` (fat import of `hub-lift-webir-route`); prove `hub:cwl-early-exit-smoke`; keep `hub:cwl-attachment-holes-smoke` green. Soft-path execute stays in pillar `runtime-cwl`. **DESIGN §3 / D6442/D6447:** opaque `g_*` skipped — no invent.
 - **2026-08-09 ? D6558** **Convert follows CWL 1.0.9?1.0.10.** Tip pin ? **1.0.10**; fat `cwl-ingest` syncs `appendForeachBindings` + else/else-if via `cwl-control-lower.mjs`; `hub:cwl-early-exit-smoke` v2 covers 19+23. Fat emit reverse remains `hub-webir-routes` (pillar thin emit is CWL-owned). **DESIGN ?3 / D6442/D6447:** no invent.
 
+- **2026-08-09 — D6559** **Convert follows CWL 1.0.11–1.0.13.** Tip pin ≥ **1.0.13**; consume docs note thin-emit Rosetta stays CWL-owned while Convert fat emit/fmt remain dual-mode; junctioned hole catalog includes `cwl:emit:*`. Keep rewrite/emit-shared buildable. **DESIGN §3 / D6442/D6447:** no invent for opaque g_*/island execute.
+
 untime-cwl. **DESIGN §3 / D6442/D6447:** opaque g_* skipped — no invent.
 
 - **2026-08-09 — D6554** **Fat CWL ingest RFC-0024 attachment holes.** Convert `scripts/hub-ingest/cwl-ingest.mjs` (fat, not junctioned over thin) must preserve pillar `attachmentHoles` + return body as WebIR `cwl:attachment-holes` blocks — no drop, no invent runtimes. Prove: `hub:cwl-attachment-holes-smoke` against language-gold `25-island-kinds`. **DESIGN §3 / D6442/D6447:** honesty parity with thin pillar ingest.
