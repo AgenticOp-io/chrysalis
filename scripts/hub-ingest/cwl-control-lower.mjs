@@ -279,6 +279,75 @@ function lowerExit(ctx, status, body, wr, loc, lowerObjectEntriesBody) {
 
 /**
  * @param {object} ctx
+ * @param {object} node if / earlyGuard with optional elseIfs + elseStmts
+ * @param {object} wr
+ * @param {{ file: string, line?: number }} loc
+ * @param {object} bindings
+ * @param {number} status
+ * @param {Function} lowerObjectEntriesBody
+ * @param {string} provTag
+ * @returns {import('@chrysalis/webir').NodeId | null}
+ */
+function lowerIfConstruct(ctx, node, wr, loc, bindings, status, lowerObjectEntriesBody, provTag) {
+  const { data, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const cond = lowerCwlCondExpr(ctx, node.condExpr ?? "", bindings, loc);
+  if (!cond) return null;
+  // Opaque else-if → skip whole construct (no partial invent)
+  for (const ei of node.elseIfs ?? []) {
+    if (!lowerCwlCondExpr(ctx, ei.condExpr ?? "", bindings, loc)) return null;
+  }
+
+  const thenId =
+    Array.isArray(node.stmts) && node.stmts.length > 0
+      ? lowerControlStmts(ctx, node.stmts, wr, loc, bindings, node.status ?? status, lowerObjectEntriesBody)
+      : lowerExit(ctx, node.status ?? status, node.body, wr, loc, lowerObjectEntriesBody);
+
+  /** @type {import('@chrysalis/webir').NodeId | undefined} */
+  let elseId;
+  if (Array.isArray(node.elseStmts) && node.elseStmts.length > 0) {
+    elseId = lowerControlStmts(
+      ctx,
+      node.elseStmts,
+      wr,
+      loc,
+      bindings,
+      node.elseStatus ?? status,
+      lowerObjectEntriesBody,
+    );
+  } else if (node.elseBody) {
+    elseId = lowerExit(ctx, node.elseStatus ?? status, node.elseBody, wr, loc, lowerObjectEntriesBody);
+  }
+
+  const elseIfs = node.elseIfs ?? [];
+  for (let i = elseIfs.length - 1; i >= 0; i--) {
+    const ei = elseIfs[i];
+    const c = lowerCwlCondExpr(ctx, ei.condExpr ?? "", bindings, loc);
+    if (!c) return null;
+    const t =
+      Array.isArray(ei.stmts) && ei.stmts.length > 0
+        ? lowerControlStmts(ctx, ei.stmts, wr, loc, bindings, ei.status ?? status, lowerObjectEntriesBody)
+        : lowerExit(ctx, ei.status ?? status, ei.body, wr, loc, lowerObjectEntriesBody);
+    elseId = data.ifElse({
+      cond: c,
+      then: t,
+      ...(elseId ? { else: elseId } : {}),
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl:early-exit-else-if")],
+    });
+  }
+
+  return data.ifElse({
+    cond,
+    then: thenId,
+    ...(elseId ? { else: elseId } : {}),
+    origin,
+    provenance: [webir.provenance("hub-ingest", provTag)],
+  });
+}
+
+/**
+ * @param {object} ctx
  * @param {object[]} stmts
  * @param {object} wr
  * @param {{ file: string, line?: number }} loc
@@ -302,25 +371,17 @@ function lowerControlStmts(ctx, stmts, wr, loc, bindings, status, lowerObjectEnt
       break;
     }
     if (s.kind === "if") {
-      const cond = lowerCwlCondExpr(ctx, s.condExpr ?? "", bindings, loc);
-      if (!cond) continue;
-      const thenId = lowerControlStmts(
+      const lowered = lowerIfConstruct(
         ctx,
-        s.stmts ?? [],
+        s,
         wr,
         loc,
         bindings,
         curStatus,
         lowerObjectEntriesBody,
+        "cwl:early-exit-nested-if",
       );
-      parts.push(
-        data.ifElse({
-          cond,
-          then: thenId,
-          origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:early-exit-nested-if")],
-        }),
-      );
+      if (lowered) parts.push(lowered);
       continue;
     }
     // foreach: emit IR for documentation; empty/non-array iterable skips under simulate
@@ -365,6 +426,19 @@ function lowerControlStmts(ctx, stmts, wr, loc, bindings, status, lowerObjectEnt
 }
 
 /**
+ * @param {object} route
+ */
+function routeBindings(route) {
+  return {
+    path: route.handlerPathParams ?? [],
+    query: route.handlerQueryParams ?? [],
+    body: route.handlerBodyParams ?? [],
+    header: route.handlerHeaders ?? [],
+    cookie: route.handlerCookies ?? [],
+  };
+}
+
+/**
  * Wrap success value with projectable earlyGuards (halt on match).
  * @param {object} ctx
  * @param {import('@chrysalis/webir').NodeId} successId
@@ -378,30 +452,22 @@ export function wrapWithEarlyGuards(ctx, successId, earlyGuards, route, wr, lowe
   const { data, webir, file } = ctx;
   const loc = { file, line: route.line ?? 1 };
   const origin = hubOrigin(file, route.line ?? 1);
-  const bindings = {
-    path: route.handlerPathParams ?? [],
-    query: route.handlerQueryParams ?? [],
-    body: route.handlerBodyParams ?? [],
-    header: route.handlerHeaders ?? [],
-    cookie: route.handlerCookies ?? [],
-  };
+  const bindings = routeBindings(route);
   /** @type {import('@chrysalis/webir').NodeId[]} */
   const parts = [];
   for (const g of earlyGuards) {
-    const cond = lowerCwlCondExpr(ctx, g.condExpr ?? "", bindings, loc);
-    if (!cond) continue; // opaque g_* residual — skip invent
-    const thenId =
-      Array.isArray(g.stmts) && g.stmts.length > 0
-        ? lowerControlStmts(ctx, g.stmts, wr, loc, bindings, g.status ?? 200, lowerObjectEntriesBody)
-        : lowerExit(ctx, g.status ?? 200, g.body, wr, loc, lowerObjectEntriesBody);
-    parts.push(
-      data.ifElse({
-        cond,
-        then: thenId,
-        origin,
-        provenance: [webir.provenance("hub-ingest", "cwl:early-guard")],
-      }),
+    const lowered = lowerIfConstruct(
+      ctx,
+      g,
+      wr,
+      loc,
+      bindings,
+      g.status ?? 200,
+      lowerObjectEntriesBody,
+      "cwl:early-guard",
     );
+    if (!lowered) continue; // opaque g_* residual — skip invent
+    parts.push(lowered);
   }
   parts.push(successId);
   if (parts.length === 1) return successId;
@@ -410,5 +476,53 @@ export function wrapWithEarlyGuards(ctx, successId, earlyGuards, route, wr, lowe
     type: HUB_T.unknown,
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl:early-guards")],
+  });
+}
+
+/**
+ * Append top-level foreachBindings after success chrome (empty-iter IR honesty).
+ * Unbound collections → data.param → non-array → simulate skips body (no N-iteration claim).
+ * @param {object} ctx
+ * @param {import('@chrysalis/webir').NodeId} successId
+ * @param {object[]} foreachBindings
+ * @param {object} route
+ * @param {object} wr
+ * @param {Function} lowerObjectEntriesBody
+ */
+export function appendForeachBindings(ctx, successId, foreachBindings, route, wr, lowerObjectEntriesBody) {
+  if (!Array.isArray(foreachBindings) || foreachBindings.length === 0) return successId;
+  const { data, webir, file } = ctx;
+  const loc = { file, line: route.line ?? 1 };
+  const origin = hubOrigin(file, route.line ?? 1);
+  const bindings = routeBindings(route);
+  /** @type {import('@chrysalis/webir').NodeId[]} */
+  const feNodes = [];
+  for (const fe of foreachBindings) {
+    const iterable = lowerIdent(ctx, fe.collection ?? "items", bindings, loc);
+    const bodyId = lowerControlStmts(
+      ctx,
+      fe.stmts ?? [],
+      wr,
+      loc,
+      bindings,
+      200,
+      lowerObjectEntriesBody,
+    );
+    feNodes.push(
+      data.foreach({
+        iterable,
+        keyName: fe.key ?? undefined,
+        valueName: fe.item ?? "item",
+        body: bodyId,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl:foreach")],
+      }),
+    );
+  }
+  return data.block({
+    statements: [successId, ...feNodes],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl:foreach-bindings")],
   });
 }
