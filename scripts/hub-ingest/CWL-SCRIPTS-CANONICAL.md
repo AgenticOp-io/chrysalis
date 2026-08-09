@@ -1,4 +1,4 @@
-ï»¿# CWL scripts â€” sync note
+# CWL scripts — sync note
 
 **Primary holder:** `../chrysalis-cwl/scripts/hub-ingest/` (and the rest of the CWL pillar).
 
@@ -24,11 +24,12 @@ npm run test:cwl-mirrors
 
 ## Sync as helpers (copy; not junctioned by setup:mirrors)
 
-- `hub-t.mjs` â€” thin `HUB_T` (no fat `hub-lift-webir-route`)
+- `hub-t.mjs` — thin `HUB_T` (no fat `hub-lift-webir-route`)
 - `hub-cwl-path-params.mjs`
 - `hub-cwl-middleware.mjs`
 - `hub-cwl-auth-presets.mjs`
 - `hub-cwl-effects.mjs`
+- `cwl-control-lower.mjs` - RFC-0021 earlyGuards (Convert fat import uses `hub-lift-webir-route`; pillar uses thin lift)
 
 Keep `extractPathParamsFromCwlPath` identical to the pillar; convert may retain `cwlPathParamsForWebir`.
 
@@ -36,8 +37,8 @@ Keep `extractPathParamsFromCwlPath` identical to the pillar; convert may retain 
 
 | File | Reason |
 | --- | --- |
-| `cwl-fmt.mjs` | Convert keeps WebIR fmt; pillar fmt is parseâ†’print â€” **locked dual-mode** |
-| `cwl-ingest.mjs` | Convert keeps fat hub-lift ingest; pillar uses thin `hub-lift-cwl-webir`. **Must** keep RFC-0024 `attachmentHoles`, CWL **1.0.5** `response-header` â†’ `ResponseAttrs.headers`, and **1.0.6** HTML single-response wrap (`hub:cwl-attachment-holes-smoke`, `hub:cwl-execute-ingest-parity-smoke`). |
+| `cwl-fmt.mjs` | Convert keeps WebIR fmt; pillar fmt is parse?print — **locked dual-mode** |
+| `cwl-ingest.mjs` | Convert keeps fat hub-lift ingest; pillar uses thin `hub-lift-cwl-webir`. **Must** keep RFC-0024 `attachmentHoles`, CWL **1.0.5** `response-header` ? `ResponseAttrs.headers`, and **1.0.6** HTML single-response wrap, and **1.0.8** earlyGuards (`hub:cwl-attachment-holes-smoke`, `hub:cwl-execute-ingest-parity-smoke`, `hub:cwl-early-exit-smoke`). |
 
 Decision doc: [`docs/CWL-FMT-DUAL-MODE.md`](../../docs/CWL-FMT-DUAL-MODE.md).  
-See pillar constitution Â§7: `chrysalis-cwl/docs/language/CWL-PILLAR-HOME.md`.
+See pillar constitution §7: `chrysalis-cwl/docs/language/CWL-PILLAR-HOME.md`.
