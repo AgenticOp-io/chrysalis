@@ -69,7 +69,20 @@ export async function runCwlPinSmoke(opts = {}) {
     ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
     detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
   });
-  for (const sub of ["parser", "print", "diagnose", "lsp-map"]) {
+  // Tip floor for CWL pillar-complete handoff (DNA-CWL-COMPLETE / 1.0.3).
+  const parts = String(version ?? "").split(".").map((x) => Number.parseInt(x, 10));
+  const tipOk =
+    parts.length >= 3 &&
+    !parts.some((n) => Number.isNaN(n)) &&
+    (parts[0] > 1 ||
+      (parts[0] === 1 && parts[1] > 0) ||
+      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 3));
+  checks.push({
+    id: "cwl-1.0.3-tip-floor",
+    ok: tipOk,
+    detail: `VERSION=${version} (expect >= 1.0.3 after CWL pillar complete)`,
+  });
+  for (const sub of ["parser", "print", "diagnose", "lsp-map", "dna-seed"]) {
     const subPath = join(root, "packages/cwl", `${sub}.mjs`);
     checks.push({
       id: `package-subpath-${sub}`,
@@ -93,10 +106,35 @@ export async function runCwlPinSmoke(opts = {}) {
       detail: String(e instanceof Error ? e.message : e).slice(0, 300),
     });
   }
+  try {
+    const seedUrl = pathToFileURL(join(root, "packages/cwl/dna-seed.mjs")).href;
+    const seedMod = await import(seedUrl);
+    checks.push({
+      id: "import-cwl-dna-seed-subpath",
+      ok: Object.keys(seedMod).length > 0,
+      detail: Object.keys(seedMod).slice(0, 8).join(","),
+    });
+  } catch (e) {
+    checks.push({
+      id: "import-cwl-dna-seed-subpath",
+      ok: false,
+      detail: String(e instanceof Error ? e.message : e).slice(0, 300),
+    });
+  }
   checks.push({
     id: "no-convert-ut-spine",
     ok: !JSON.stringify(pkg.scripts || {}).includes("pilot:ut-spine"),
     detail: "spine owned by chrysalis-cwl smoke:ut-spine",
+  });
+  checks.push({
+    id: "convert-cwl-consume-doc",
+    ok: existsSync(join(root, "docs/CONVERT-CWL-CONSUME.md")),
+    detail: "docs/CONVERT-CWL-CONSUME.md",
+  });
+  checks.push({
+    id: "npmrc-example-registry",
+    ok: existsSync(join(root, ".npmrc.example")),
+    detail: ".npmrc.example (@agenticop-io/cwl GitHub Packages)",
   });
   }
 

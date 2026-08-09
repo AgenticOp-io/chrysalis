@@ -141,3 +141,7 @@ fixtures/hub-wisp-management/routes.cwl.mojibake-backup
 # WebIR SoR is chrysalis-cwl/packages/webir — local reverse-home junction (scripts/link-webir-from-cwl.mjs)
 packages/webir/
 
+
+# Local GitHub Packages auth (use .npmrc.example)
+.npmrc
+

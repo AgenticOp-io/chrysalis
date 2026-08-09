@@ -42,6 +42,8 @@ ok(
 );
 ok("pkg-link-webir-from-cwl", /link:webir-from-cwl/.test(pkgJson));
 ok("pkg-webir-reverse-home-doc", existsSync(join(root, "docs/WEBIR-REVERSE-HOME.md")));
+ok("pkg-convert-cwl-consume-doc", existsSync(join(root, "docs/CONVERT-CWL-CONSUME.md")));
+ok("pkg-npmrc-example", existsSync(join(root, ".npmrc.example")));
 ok("pkg-no-pilot-ut-spine", !/"pilot:ut-spine"/.test(pkgJson));
 ok(
   "cwl-ingest-matrix-script",

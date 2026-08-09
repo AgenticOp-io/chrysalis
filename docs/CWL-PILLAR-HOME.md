@@ -18,16 +18,17 @@ This convert tree **translates** into and out of it — it does not redefine it.
 
 **Primary tree:** `engines/chrysalis-cwl`  
 **Repo:** https://github.com/AgenticOp-io/chrysalis-cwl  
-**Pinned language:** see `LANGUAGE_VERSION.md` (currently **0.1.7**)
+**Pinned language:** see sibling `LANGUAGE_VERSION.md` (currently **`1.0.3`** — CWL pillar Exit/DNA complete)  
+**Consume closeout:** [`CONVERT-CWL-CONSUME.md`](./CONVERT-CWL-CONSUME.md) · WebIR: [`WEBIR-REVERSE-HOME.md`](./WEBIR-REVERSE-HOME.md)
 
-## Pin note (Phase 1.0 — pre-publish)
+## Pin note (Exit 1.0+)
 
-Convert pins `@chrysalis/cwl` as **`file:../chrysalis-cwl/packages/cwl`** (not a registry release; package stays private). Also resolve the language pillar via:
+Convert pins `@chrysalis/cwl` as **`file:../chrysalis-cwl/packages/cwl`** (tip **1.0.3**). Registry name `@agenticop-io/cwl` is published on GitHub Packages — see [`.npmrc.example`](../.npmrc.example). Also resolve the language pillar via:
 
 1. Sibling `../chrysalis-cwl` under `AgenticOps/engines/`  
 2. Env **`CHRYSALIS_CWL_ROOT`** → absolute path to that repo root (smokes / tools)
 
-Authority + future registry pin: [`chrysalis-cwl/docs/language/CWL-PUBLISH.md`](../../chrysalis-cwl/docs/language/CWL-PUBLISH.md). Junctions / `sync:convert` remain the ops path for mirrored scripts.
+Authority + registry pin: [`chrysalis-cwl/docs/language/CWL-PUBLISH.md`](../../chrysalis-cwl/docs/language/CWL-PUBLISH.md). Junctions / `sync:convert` remain the ops path for mirrored scripts.
 
 ## Before changing CWL behavior
 

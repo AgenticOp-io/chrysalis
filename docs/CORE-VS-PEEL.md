@@ -30,7 +30,7 @@
 | `*-ast-ingest` / `*-route-lift` / pattern peels | **~20** | **Peel** |
 | Fat `hub-lift-webir-route.mjs` | **~741 LOC** | **Peel** (origin + COBOL) |
 | Thin `hub-lift-cwl-webir.mjs` (pillar) | **~172 LOC** | **Core-adjacent** (CWL→WebIR only) |
-| `@chrysalis/webir` | typed package | **Core** (substrate; still physically under convert until Slice 3 flip) |
+| `@chrysalis/webir` | typed package | **Core** (SoR in `chrysalis-cwl/packages/webir`; Convert reverse-home junction / `file:` — [`WEBIR-REVERSE-HOME.md`](./WEBIR-REVERSE-HOME.md)) |
 | `@chrysalis/verify` / hole typing | typed packages | **Core** |
 | `emit-hono` / `emit-fastify` / `runtime-cwl*` | typed packages | **Peel-of-emit** (replaceable backends; CWL-Above-Code) |
 | `oracle-*` (PHP/Go/Java/…) | polyglot | **Peel** (origin truth sidecars — strength, not debt) |
