@@ -49,7 +49,7 @@
 ### Do next (substrate, still convert-owned work)
 
 4. **WebIR reverse-home (Slice 3)** — **Done on Convert:** `packages/webir` is junction/`file:../chrysalis-cwl/packages/webir` (CWL SoR). Setup: `pnpm run link:webir-from-cwl`. Prove: `hub:webir-resolve-smoke`. Doc: [`WEBIR-REVERSE-HOME.md`](./WEBIR-REVERSE-HOME.md). Edit WebIR only under chrysalis-cwl.
-5. **Fat CWL ingest honesty:** Convert keeps fat `cwl-ingest` (not a junction over thin) but must preserve pillar semantics such as RFC-0024 `attachmentHoles` — prove `hub:cwl-attachment-holes-smoke`. Optional later: call thin pillar lift for CWL-only paths.
+5. **Fat CWL ingest honesty:** Convert keeps fat `cwl-ingest` (not a junction over thin) but must preserve pillar semantics: RFC-0024 `attachmentHoles`, **1.0.5** `response-header` -> `ResponseAttrs.headers`, **1.0.6** HTML single-response wrap -- prove `hub:cwl-attachment-holes-smoke` + `hub:cwl-execute-ingest-parity-smoke`. Optional later: call thin pillar lift for CWL-only paths.
 6. **Dual-mode `cwl-fmt` is locked** ([`CWL-FMT-DUAL-MODE.md`](./CWL-FMT-DUAL-MODE.md)) — pillar parse→print vs convert WebIR fmt; do not merge into one file.
 7. **Consumer pin prove:** `pnpm run hub:cwl-pin-smoke` — `file:` pin + `@chrysalis/cwl` VERSION surface (not a second spine).
 8. **Consume CWL prove packs:** `hub:cwl-ingest-matrix-smoke` + `hub:cwl-helix-cutover-smoke` (prefers `smoke:ut-evidence`) — Convert spawns only; never forks DNA.
