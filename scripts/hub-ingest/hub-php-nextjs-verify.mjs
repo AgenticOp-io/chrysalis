@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -23,7 +24,7 @@ export const HUB_PHP_NEXTJS_VERIFY_KIND = "chrysalis.hub.php-nextjs-verify";
 export const HUB_PHP_NEXTJS_VERIFY_SCHEMA_VERSION = 1;
 
 function wptpAvailable() {
-  const root = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(scriptRoot, "..", "wptp-emit-nextjs"));
+  const root = resolveWptpRepoRoot(scriptRoot, "wptp-emit-nextjs");
   return existsSync(join(root, "package.json"));
 }
 

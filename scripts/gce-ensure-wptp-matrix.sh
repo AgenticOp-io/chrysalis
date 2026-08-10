@@ -5,9 +5,14 @@ set -euo pipefail
 REPO="${CHRYSALIS_STATUS_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
 cd "${REPO}"
 
-SIBLINGS_ROOT="${WPTP_SIBLINGS_ROOT:-$(dirname "${REPO}")}"
-MATRIX_ROOT="${WPTP_MATRIX_ROOT:-${SIBLINGS_ROOT}/wptp-matrix}"
-EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT:-${SIBLINGS_ROOT}/wptp-emit-nextjs}"
+# shellcheck source=lib/gce-wptp-siblings.sh
+# Prefer AgenticOps platforms/ when present (not engines/ legacy clones).
+# shellcheck disable=SC1091
+source "${REPO}/scripts/lib/gce-wptp-siblings.sh"
+chrysalis_export_wptp_roots "${REPO}"
+SIBLINGS_ROOT="${WPTP_SIBLINGS_ROOT}"
+MATRIX_ROOT="${WPTP_MATRIX_ROOT}"
+EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT}"
 MATRIX_REPO="${WPTP_MATRIX_REPO:-https://github.com/theorem6/wptp-matrix.git}"
 MATRIX_REF="${WPTP_MATRIX_REF:-v0.1.10}"
 

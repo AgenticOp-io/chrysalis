@@ -16,6 +16,7 @@ import { isHubAssetGoldEmitTarget } from "./hub-gold-asset-emit.mjs";
 import { runNativeTraceReplaySuite } from "./hub-gold-native-trace-replay.mjs";
 import { runCwlTraceReplaySuite } from "./hub-gold-cwl-trace-replay.mjs";
 import { runAssetTraceReplaySuite } from "./hub-gold-asset-trace-replay.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -24,7 +25,7 @@ const emitNextjsScript = join(scriptRoot, "scripts/hub-ingest/emit-nextjs-from-h
 const workerScript = join(scriptRoot, "scripts/hub-ingest/hub-gold-replay-worker.mjs");
 
 function wptpEmitNextjsAvailable() {
-  const root = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(scriptRoot, "..", "wptp-emit-nextjs"));
+  const root = resolveWptpRepoRoot(scriptRoot, "wptp-emit-nextjs");
   return existsSync(join(root, "package.json"));
 }
 

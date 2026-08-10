@@ -1,21 +1,22 @@
 /**
- * CI helper: import a chrysalis.webir.bundle via theorem6/wptp-ir and assert zero losses.
+ * CI helper: import a chrysalis.webir.bundle via @wptp/ir and assert zero losses.
  *
  * Env:
- *   WPTP_IR_ROOT        path to wptp-ir checkout (required)
+ *   WPTP_IR_ROOT        path to wptp-ir checkout (default: platforms/ then engines/ via wptp-siblings)
  *   WEBIR_BUNDLE_PATH   bundle JSON file (required)
  *
  * Optional flags:
  *   --bundle <path>     overrides WEBIR_BUNDLE_PATH
  *   --expect-nodes N    default 325 (tiny-blog flagship)
  */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { pathToFileURL, fileURLToPath } from "node:url";
+import { resolveWptpPackageEntry, resolveWptpRepoRoot } from "./lib/wptp-siblings.mjs";
 
 function usage() {
   process.stderr.write(
-    "Usage: WPTP_IR_ROOT=... WEBIR_BUNDLE_PATH=... node --import tsx scripts/verify-webir-bundle-wptp-ir.mjs\n" +
+    "Usage: WEBIR_BUNDLE_PATH=... node --import tsx scripts/verify-webir-bundle-wptp-ir.mjs\n" +
       "       node --import tsx scripts/verify-webir-bundle-wptp-ir.mjs --bundle <path> [--expect-nodes N]\n",
   );
   process.exit(1);
@@ -32,9 +33,10 @@ function parseArgs(argv) {
   return { bundle, expectNodes };
 }
 
-const wptpRoot = process.env.WPTP_IR_ROOT;
-if (!wptpRoot) {
-  process.stderr.write("verify-webir-bundle-wptp-ir: WPTP_IR_ROOT is required\n");
+const convertRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const wptpRoot = resolveWptpRepoRoot(convertRoot, "wptp-ir");
+if (!existsSync(join(wptpRoot, "package.json"))) {
+  process.stderr.write(`verify-webir-bundle-wptp-ir: wptp-ir missing at ${wptpRoot}\n`);
   process.exit(1);
 }
 
@@ -45,9 +47,10 @@ if (!bundle) {
 }
 
 const bundlePath = resolve(bundle);
-const { importWebIrBundleJson, summarizeLosses, assertIrDocumentV0 } = await import(
-  pathToFileURL(resolve(wptpRoot, "src/index.ts")).href,
-);
+const entry =
+  resolveWptpPackageEntry(convertRoot, "wptp-ir") ??
+  (existsSync(join(wptpRoot, "src/index.ts")) ? join(wptpRoot, "src/index.ts") : join(wptpRoot, "dist/index.js"));
+const { importWebIrBundleJson, summarizeLosses, assertIrDocumentV0 } = await import(pathToFileURL(entry).href);
 
 const raw = JSON.parse(readFileSync(bundlePath, "utf8"));
 const doc = importWebIrBundleJson(raw);
@@ -68,4 +71,6 @@ if (s.importedNodes !== expectNodes) {
   process.exit(1);
 }
 
-console.log(`verify-webir-bundle-wptp-ir: ok (${s.importedNodes} nodes, zero losses) from ${bundlePath}`);
+console.log(
+  `verify-webir-bundle-wptp-ir: ok (${s.importedNodes} nodes, zero losses) from ${bundlePath} via ${entry}`,
+);
