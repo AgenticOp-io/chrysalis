@@ -104,7 +104,7 @@ const COPY_REPLACING_HEAD_RE =
   /\bCOPY\s+([A-Za-z0-9][A-Za-z0-9-]*)(?:\s+(?:OF|IN)\s+[A-Za-z0-9][A-Za-z0-9-]*)?\s+REPLACING\b/gi;
 /** One REPLACING pair: optional LEADING/TRAILING + ==…== or quoted literals. */
 const COPY_REPLACING_PAIR_RE =
-  /\b(LEADING|TRAILING)?\s*(?:==([^=]+)==|"([^"]+)"|'([^']+)')\s+BY\s+(?:==([^=]+)==|"([^"]+)"|'([^']+)')/gi;
+  /(?:^|[\s,])(LEADING|TRAILING)?\s*(?:==([^=]+)==|"([^"]+)"|'([^']+)')\s+BY\s+(?:==([^=]+)==|"([^"]+)"|'([^']+)')/gi;
 /** SEARCH table — not END-SEARCH. */
 const SEARCH_RE = /(?<!END-)\bSEARCH\s+[A-Z0-9-]+/gi;
 const EVALUATE_NUMERIC_WHEN_RE = /\bWHEN\s+(\d+)\b/gi;
