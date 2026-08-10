@@ -14,6 +14,8 @@
 
 **WPTP orbit:** Hub Next.js / contract-first / matrix live under Convert as optional peels — [`docs/WPTP-CONVERT-ORBIT.md`](docs/WPTP-CONVERT-ORBIT.md). Prefer `platforms/wptp-*`. Do not fold into CWL.
 
+**Whole system map:** how all Convert + platforms + CWL work fits without waste — [`docs/CONVERT-WHOLE-SYSTEM.md`](docs/CONVERT-WHOLE-SYSTEM.md).
+
 Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin, Next, Express, …) — not WISP-only. WISP is the POC that proves the law; the law is product-wide.
 
 | Law | Meaning |

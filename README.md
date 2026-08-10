@@ -31,6 +31,8 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 **Product north star:** AI-assisted **Universal Translator** (WebIR → CWL ↔ emit; LLM/IS propose, verify dispose). Locked plan: [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](./docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9990** closed). WISP Module_Manager is POC only.
 
+**How the whole Convert system fits** (peels → CWL DNA → platforms/WPTP orbit → Helix): [`docs/CONVERT-WHOLE-SYSTEM.md`](./docs/CONVERT-WHOLE-SYSTEM.md).
+
 **Current workspace version: 2.0.2** (see [`CHANGELOG.md`](./CHANGELOG.md); tag **`v2.0.1`** on [GitHub Releases](https://github.com/AgenticOp-io/chrysalis/releases) when published). Install from a tarball: [`docs/INSTALLATION.md`](./docs/INSTALLATION.md#installing-from-a-release-tarball). The repo remains a **fast-moving monorepo**: milestones through **6A** (scoped) and **V2-M1–V2-M6** (scale-out) are complete per [`ROADMAP.md`](./ROADMAP.md); cross-cutting parser, oracle, verify depth, optional repair work, and roadmap **Remaining** slices continue on `main`.
 
 **Milestone 1 is closed** (tiny-blog vertical slice: ingest →

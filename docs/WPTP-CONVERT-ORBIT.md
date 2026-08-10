@@ -4,6 +4,8 @@
 **Not:** CWL DNA / Secure Helix core  
 **Layout:** AgenticOps `platforms/wptp-*` (preferred) · optional `engines/wptp-*` clones
 
+**Parent map:** how this orbit fits peels / CWL DNA / Helix — [`CONVERT-WHOLE-SYSTEM.md`](./CONVERT-WHOLE-SYSTEM.md).
+
 ## Thesis
 
 WPTP (Web Platform Translation Program) built the **WebIR bundle interchange**, **contract-first** OpenAPI/HAR paths, **Next.js emit**, and **compatibility matrix** that Convert’s Hub still uses. The product spine is now **CWL · Convert · Secure** with Rosetta meaning in `@chrysalis/webir` + CWL. WPTP stays as Convert’s **optional orbit** — peels, Hub legs, CI evidence — not a second language SoR.
