@@ -4054,7 +4054,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-08-09 — D6560** **Convert follows CWL 1.0.14–1.0.16.** Tip pin ≥ **1.0.16** (DNA queue CLOSED); fat `cwl-control-lower` keeps nested foreach/if after `return` as documentation IR (no N-iteration invent). **DESIGN §3 / D6442/D6447.**
 
-untime-cwl. **DESIGN §3 / D6442/D6447:** opaque g_* skipped — no invent.
+- **2026-08-09 — D6561** **Convert follows CWL 1.0.17.** Tip pin ≥ **1.0.17**; consume Helix DNA seed parity via junctioned `dna-seed` (`pathTemplateShapeEqual`, depth≥2 FPs, status_classes); fat `cwl-control-lower` keeps `hub-lift-webir-route` import (refuse thin sync overwrite; pillar uses `hub-lift-cwl-webir`). **DESIGN §3 / D6442/D6447.**
+
 
 - **2026-08-09 — D6554** **Fat CWL ingest RFC-0024 attachment holes.** Convert `scripts/hub-ingest/cwl-ingest.mjs` (fat, not junctioned over thin) must preserve pillar `attachmentHoles` + return body as WebIR `cwl:attachment-holes` blocks — no drop, no invent runtimes. Prove: `hub:cwl-attachment-holes-smoke` against language-gold `25-island-kinds`. **DESIGN §3 / D6442/D6447:** honesty parity with thin pillar ingest.
 

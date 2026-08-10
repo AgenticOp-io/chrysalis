@@ -69,18 +69,18 @@ export async function runCwlPinSmoke(opts = {}) {
     ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
     detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
   });
-  // Tip floor for CWL DNA queue CLOSED tip (LANGUAGE_VERSION / 1.0.16).
+  // Tip floor for CWL Helix DNA seed parity + control-lower sync (LANGUAGE_VERSION / 1.0.17).
   const parts = String(version ?? "").split(".").map((x) => Number.parseInt(x, 10));
   const tipOk =
     parts.length >= 3 &&
     !parts.some((n) => Number.isNaN(n)) &&
     (parts[0] > 1 ||
       (parts[0] === 1 && parts[1] > 0) ||
-      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 16));
+      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 17));
   checks.push({
-    id: "cwl-1.0.16-tip-floor",
+    id: "cwl-1.0.17-tip-floor",
     ok: tipOk,
-    detail: `VERSION=${version} (expect >= 1.0.16 after CWL DNA queue closed)`,
+    detail: `VERSION=${version} (expect >= 1.0.17 Helix DNA seed parity)`,
   });
   for (const sub of ["parser", "print", "diagnose", "lsp-map", "dna-seed"]) {
     const subPath = join(root, "packages/cwl", `${sub}.mjs`);
@@ -109,10 +109,14 @@ export async function runCwlPinSmoke(opts = {}) {
   try {
     const seedUrl = pathToFileURL(join(root, "packages/cwl/dna-seed.mjs")).href;
     const seedMod = await import(seedUrl);
+    const seedOk =
+      typeof seedMod.pathTemplateShapeEqual === "function" &&
+      typeof seedMod.responseKeyFingerprint === "function" &&
+      typeof seedMod.namesKeyFingerprint === "function";
     checks.push({
       id: "import-cwl-dna-seed-subpath",
-      ok: Object.keys(seedMod).length > 0,
-      detail: Object.keys(seedMod).slice(0, 8).join(","),
+      ok: seedOk,
+      detail: Object.keys(seedMod).slice(0, 12).join(","),
     });
   } catch (e) {
     checks.push({
