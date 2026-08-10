@@ -105,6 +105,13 @@ export async function runWptpOrbitSmoke(opts = {}) {
     detail: orbitDoc,
   });
 
+  const wholeDoc = join(root, "docs/CONVERT-WHOLE-SYSTEM.md");
+  checks.push({
+    id: "whole-system-doc",
+    ok: existsSync(wholeDoc),
+    detail: wholeDoc,
+  });
+
   const failed = checks.filter((c) => !c.ok);
   return {
     kind: WPTP_ORBIT_SMOKE_KIND,

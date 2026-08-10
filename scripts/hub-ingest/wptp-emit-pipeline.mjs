@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import { discoverContractArtifacts } from "./discover-contract-artifacts.mjs";
 import { resolveEmitBackend } from "./shared.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -43,8 +44,8 @@ export async function runHubEmitPipeline(projectDir, origin, output) {
   if (existsSync(composeScript)) {
     try {
       await runNode(composeScript, [projectDir, "--output", output === "nextjs" ? "nextjs" : backend === "fastify" ? "hono" : backend || "hono"], {
-        WPTP_MATRIX_ROOT: process.env.WPTP_MATRIX_ROOT ?? join(root, "..", "wptp-matrix"),
-        WPTP_EMIT_NEXTJS_ROOT: process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(root, "..", "wptp-emit-nextjs"),
+        WPTP_MATRIX_ROOT: resolveWptpRepoRoot(root, "wptp-matrix"),
+        WPTP_EMIT_NEXTJS_ROOT: resolveWptpRepoRoot(root, "wptp-emit-nextjs"),
       });
       await writeEmitNote(projectDir, {
         path: "wptp-compose",

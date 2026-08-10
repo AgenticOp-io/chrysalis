@@ -148,14 +148,26 @@ Junctions (gitignored — recreate with `pnpm run link:cwl-packages-from-cwl`):
 
 ## 5. Cohesion gates (green = system still wired)
 
+**One shot:**
+
+```powershell
+pnpm run hub:convert-whole-system-smoke
+# optional: include contract gold
+$env:CHRYSALIS_WHOLE_SYSTEM_GOLD="1"; pnpm run hub:convert-whole-system-smoke
+```
+
+Token: **`CONVERT_WHOLE_SYSTEM_OK`**.
+
 | Gate | Token / meaning |
 | --- | --- |
+| `hub:convert-whole-system-smoke` | Gravity + orbit + Helix + substrate (+ gold path) |
 | `hub:cwl-pin-smoke` | Tip pin + package surface |
 | `hub:convert-gravity-smoke` | Rosetta Step 2 Translation |
 | `hub:cwl-language-pillar-smoke` | CWL golds reachable |
 | `hub:cwl-helix-cutover-smoke` | Secure spine consume |
 | `hub:wptp-orbit-smoke` | `platforms/` + junctions + orbit doc |
 | `hub:agent-era-substrate-smoke` | Holes + CWL-Above-Code + dispose |
+| `hub:wptp-gold-smoke` | Contract→compose via `platforms/` matrix |
 
 Skip orbit without shame: `CHRYSALIS_SKIP_WPTP=1`.
 

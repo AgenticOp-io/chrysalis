@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
 import { runWptpGoldSmoke } from "./hub-wptp-gold-smoke.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 export const HUB_WPTP_STRICT_BATCH_KIND = "chrysalis.hub.wptp-strict-batch-smoke";
 export const HUB_WPTP_STRICT_BATCH_SCHEMA_VERSION = 1;
@@ -12,13 +13,13 @@ export const HUB_WPTP_STRICT_BATCH_SCHEMA_VERSION = 1;
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 function wptpEmitNextjsAvailable() {
-  const root = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(scriptRoot, "..", "wptp-emit-nextjs"));
+  const root = resolveWptpRepoRoot(scriptRoot, "wptp-emit-nextjs");
   return existsSync(join(root, "package.json"));
 }
 
 function wptpMatrixAvailable() {
-  const root = resolve(process.env.WPTP_MATRIX_ROOT ?? join(scriptRoot, "..", "wptp-matrix"));
-  return existsSync(root);
+  const root = resolveWptpRepoRoot(scriptRoot, "wptp-matrix");
+  return existsSync(join(root, "package.json"));
 }
 
 /** @param {{ ok?: boolean, skip?: string | null } | undefined} report */

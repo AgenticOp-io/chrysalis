@@ -9,6 +9,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import { discoverContractArtifacts } from "./discover-contract-artifacts.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -35,8 +36,8 @@ function runNode(script, args, env) {
 async function main() {
   const { siteDir, output } = parseArgs(process.argv);
   const chrysalisRoot = process.env.CHRYSALIS_ROOT ?? root;
-  const matrixRoot = process.env.WPTP_MATRIX_ROOT ?? join(root, "..", "wptp-matrix");
-  const emitNextJsRoot = process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(root, "..", "wptp-emit-nextjs");
+  const matrixRoot = resolveWptpRepoRoot(root, "wptp-matrix");
+  const emitNextJsRoot = resolveWptpRepoRoot(root, "wptp-emit-nextjs");
   const webir = join(siteDir, ".chrysalis", "ingested.webir.json");
   const bundle = join(siteDir, ".chrysalis", "ingested.webir.bundle.json");
   const outDir = join(siteDir, "generated", output === "hono" ? "hono" : "nextjs");

@@ -74,6 +74,7 @@
     "hub:brand": "node scripts/rebuild-hub-brand.mjs",
     "hub:install-wptp": "node scripts/install-wptp-hub-deps.mjs",
     "hub:wptp-orbit-smoke": "node scripts/hub-ingest/hub-wptp-orbit-smoke.mjs",
+    "hub:convert-whole-system-smoke": "node scripts/hub-ingest/hub-convert-whole-system-smoke.mjs",
     "build:hub-all": "pnpm -r build && pnpm run vendor:parser-bridge && pnpm run vendor:oracle-java && pnpm run hub:install-wptp",
     "hub:install-server": "bash scripts/hub-install.sh",
     "hub:serve": "node scripts/chrysalis-operator-web.mjs",

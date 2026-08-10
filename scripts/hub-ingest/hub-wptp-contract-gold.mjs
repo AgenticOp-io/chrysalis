@@ -8,6 +8,7 @@ import { mkdir, readdir } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const fixture = join(scriptRoot, "fixtures/hub-contract-first");
@@ -62,14 +63,14 @@ async function ensureWptpMatrixBuilt(matrixRoot) {
  * @param {"hono"|"nextjs"} target
  */
 export async function runHubWptpContractGold(target) {
-  const matrixRoot = process.env.WPTP_MATRIX_ROOT ?? join(scriptRoot, "..", "wptp-matrix");
+  const matrixRoot = resolveWptpRepoRoot(scriptRoot, "wptp-matrix");
   if (!existsSync(openapiPath)) {
     return { ok: false, reason: "missing-openapi", openapiPath, target };
   }
   if (!existsSync(matrixRoot)) {
     return { ok: false, skip: "no-wptp-matrix", matrixRoot, target };
   }
-  const emitNextJsRoot = process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(scriptRoot, "..", "wptp-emit-nextjs");
+  const emitNextJsRoot = resolveWptpRepoRoot(scriptRoot, "wptp-emit-nextjs");
   if (target === "nextjs" && !existsSync(join(emitNextJsRoot, "dist", "index.js"))) {
     return { ok: false, skip: "no-wptp-emit-nextjs", emitNextJsRoot, target };
   }
