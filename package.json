@@ -205,6 +205,7 @@
     "hub:webir-resolve-smoke": "node scripts/hub-ingest/hub-webir-resolve-smoke.mjs",
     "hub:cwl-ingest-matrix-smoke": "node scripts/hub-ingest/hub-cwl-ingest-matrix-smoke.mjs",
     "hub:cwl-helix-cutover-smoke": "node scripts/hub-ingest/hub-cwl-helix-cutover-smoke.mjs",
+    "hub:convert-gravity-smoke": "node scripts/hub-ingest/hub-convert-gravity-smoke.mjs",
     "fmt:cwl:webir": "node scripts/hub-ingest/cwl-fmt.mjs",
     "fmt:cwl:pillar": "node ../chrysalis-cwl/scripts/hub-ingest/cwl-fmt.mjs",
     "hub:dispose-plane-smoke": "node scripts/hub-ingest/hub-dispose-plane-smoke.mjs",

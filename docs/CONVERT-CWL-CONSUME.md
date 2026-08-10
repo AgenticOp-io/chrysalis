@@ -1,6 +1,6 @@
 # Convert consumes CWL — pillar complete handoff
 
-**Status:** Convert consumer aligned to CWL **`1.0.17`** (Helix DNA seed parity + control-lower sync)  
+**Status:** Convert consumer aligned to CWL **`1.0.17`** — **Rosetta Step 2 (Translation) closed**  
 **Date:** 2026-08-09
 
 ## Done (this lane)
@@ -17,6 +17,7 @@
 | Fat emit reverse | Convert `hub-webir-routes`; pillar thin emit is CWL-owned |
 | Dual-mode fmt | Locked — [`CWL-FMT-DUAL-MODE.md`](./CWL-FMT-DUAL-MODE.md) |
 | Sibling dists | `rewrite` + `emit-shared` buildable for pillar `runtime-cwl` |
+| **Step 2 Translation** | Honest peel/emit gravity — [`CONVERT-GRAVITY.md`](./CONVERT-GRAVITY.md) · `hub:convert-gravity-smoke` |
 
 ## Pin policy
 
@@ -38,5 +39,6 @@ Opaque `g_*` / DB evaluate, foreach N-iteration HTML, browser island **execution
 CONVERT_GRAVITY: ok
 CWL_PIN: file:1.0.17 (registry @agenticop-io/cwl@1.0.17 ready via .npmrc.example)
 WEBIR: reverse-home ok
-SMOKES: hub:cwl-language-pillar-smoke · hub:cwl-helix-cutover-smoke · hub:cwl-early-exit-smoke · hub:cwl-attachment-holes-smoke
+SMOKES: hub:convert-gravity-smoke (pin · pillar · helix · holes · above-code)
+PATH_STEP_2: Translation closed
 ```
