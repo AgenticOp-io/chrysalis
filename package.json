@@ -1508,7 +1508,7 @@
   "devDependencies": {
     "@chrysalis/cwl": "file:../chrysalis-cwl/packages/cwl",
     "@types/node": "^20.19.41",
-    "acorn": "^8.14.1",
+    "acorn": "^8.18.0",
     "acorn-walk": "^8.3.4",
     "firebase-admin": "^14.1.0",
     "firebase-tools": "^14.27.0",
