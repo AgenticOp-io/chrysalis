@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /**
  * Install WPTP siblings required by Translation Hub (Next.js emit + contract-first compose).
- * Clones AgenticOp-io/wptp-emit-nextjs (+ ensures @wptp/ir via npm) and wptp-matrix
- * next to the Chrysalis repo by default.
+ * Prefers AgenticOps `platforms/wptp-*` (see docs/WPTP-CONVERT-ORBIT.md + scripts/lib/wptp-siblings.mjs).
  *
  * Usage:
  *   node scripts/install-wptp-hub-deps.mjs
@@ -13,15 +12,16 @@ import { spawn } from "node:child_process";
 import { access, constants, readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolveWptpRepoRoot, resolveWptpSiblingsRoot } from "./lib/wptp-siblings.mjs";
 
 const chrysalisRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const siblingsRoot = resolve(process.env.WPTP_SIBLINGS_ROOT ?? join(chrysalisRoot, ".."));
+const siblingsRoot = resolveWptpSiblingsRoot(chrysalisRoot);
 const emitNextJsTag = process.env.WPTP_EMIT_NEXTJS_REF ?? "v0.1.1";
 const emitRepo = process.env.WPTP_EMIT_NEXTJS_REPO ?? "https://github.com/AgenticOp-io/wptp-emit-nextjs.git";
-const emitDir = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(siblingsRoot, "wptp-emit-nextjs"));
+const emitDir = resolveWptpRepoRoot(chrysalisRoot, "wptp-emit-nextjs");
 const matrixTag = process.env.WPTP_MATRIX_REF ?? "v0.1.10";
 const matrixRepo = process.env.WPTP_MATRIX_REPO ?? "https://github.com/AgenticOp-io/wptp-matrix.git";
-const matrixDir = resolve(process.env.WPTP_MATRIX_ROOT ?? join(siblingsRoot, "wptp-matrix"));
+const matrixDir = resolveWptpRepoRoot(chrysalisRoot, "wptp-matrix");
 
 const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
 
@@ -140,11 +140,13 @@ async function main() {
   process.stdout.write(
     `${JSON.stringify({
       ok: true,
+      siblingsRoot,
       emitNextJsRoot: emit.emitNextJsRoot,
       matrixRoot: matrix.matrixRoot,
       emitSkipped: emit.skipped,
       matrixSkipped: matrix.skipped,
-      wptpIrRoot: join(emit.emitNextJsRoot, "node_modules", "@wptp", "ir"),
+      wptpIrRoot: resolveWptpRepoRoot(chrysalisRoot, "wptp-ir"),
+      wptpIrNpm: join(emit.emitNextJsRoot, "node_modules", "@wptp", "ir"),
     })}\n`,
   );
 }

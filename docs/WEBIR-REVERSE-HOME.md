@@ -12,7 +12,9 @@ pnpm run link:webir-from-cwl
 ```
 
 Creates `packages/webir` → `../chrysalis-cwl/packages/webir` (Windows junction / Unix symlink).  
-Path is gitignored.
+Path is gitignored. For all CWL-owned packages (`cwl`, runtimes, emit-runtime): `pnpm run link:cwl-packages-from-cwl`.
+
+**Hazard:** Never `git rm` / checkout-delete through these junctions on Windows — they delete into `chrysalis-cwl`. Restore CWL with `git restore packages/` in that repo if it happens.
 
 Root pin: `"@chrysalis/webir": "file:../chrysalis-cwl/packages/webir"`.  
 Workspace packages may still declare `workspace:*` when the junction is present under `packages/*`.
