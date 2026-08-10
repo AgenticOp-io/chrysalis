@@ -123,6 +123,8 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
   const roots = [];
   /** @type {CwlUiNode[][]} */
   const stack = [roots];
+  /** @type {Array<CwlUiElementNode | null>} owner element for each children frame */
+  const owners = [null];
 
   for (let i = startIdx + 1; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -139,7 +141,9 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
     if (el) {
       const tag = el[1];
       const braceIdx = line.indexOf("{");
-      const attrTail = braceIdx >= 0 ? line.slice(el[0].length, braceIdx) : line.slice(el[0].length);
+      const restAfterTag = el[2] ?? "";
+      const braceInRest = restAfterTag.indexOf("{");
+      const attrTail = braceInRest >= 0 ? restAfterTag.slice(0, braceInRest) : restAfterTag;
       const attrs = parseElementAttrs(attrTail);
       /** @type {CwlUiElementNode} */
       const node = { kind: "element", tag, attrs, children: [] };
@@ -156,9 +160,11 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
         }
         depth += 1;
         stack.push(node.children);
+        owners.push(node);
         if (line.includes("}") && line.indexOf("}") > braceIdx) {
           depth -= 1;
           stack.pop();
+          owners.pop();
         }
       }
       continue;
@@ -182,11 +188,13 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
     if (onEv) {
       const parsed = parseCwlUiOnEventBlock(lines, i, onEv[1]);
       if (!parsed.ok) return { ok: false, error: parsed.error, consumed: parsed.consumed };
+      const owner = owners[owners.length - 1];
       const parent = stack[stack.length - 1];
       const last = parent[parent.length - 1];
-      if (last?.kind === "element") {
-        if (!last.events) last.events = [];
-        last.events.push({ name: parsed.name, action: parsed.action });
+      const target = owner?.kind === "element" ? owner : last?.kind === "element" ? last : null;
+      if (target) {
+        if (!target.events) target.events = [];
+        target.events.push({ name: parsed.name, action: parsed.action });
       }
       i = parsed.consumed - 1;
       continue;
@@ -198,17 +206,22 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
       stack[stack.length - 1].push(island);
       depth += 1;
       stack.push(island.children);
+      owners.push(null);
       const braceIdx = line.indexOf("{");
       if (braceIdx >= 0 && line.includes("}") && line.indexOf("}") > braceIdx) {
         depth -= 1;
         stack.pop();
+        owners.pop();
       }
       continue;
     }
 
     if (line === "}") {
       depth -= 1;
-      if (stack.length > 1) stack.pop();
+      if (stack.length > 1) {
+        stack.pop();
+        owners.pop();
+      }
       continue;
     }
 

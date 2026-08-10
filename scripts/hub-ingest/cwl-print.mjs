@@ -1,4 +1,127 @@
 /**
+ * Print `else if` / `else` tails for an if / earlyGuard node.
+ * @param {object} s
+ * @param {string} indent
+ * @param {string[]} lines
+ */
+function printElseTail(s, indent, lines) {
+  for (const ei of s.elseIfs ?? []) {
+    lines.push(`${indent}else if ${ei.condExpr} {`);
+    printControlStmts(controlStmtsOf(ei), `${indent}  `, lines);
+    lines.push(`${indent}}`);
+  }
+  if (Array.isArray(s.elseStmts) && s.elseStmts.length > 0) {
+    lines.push(`${indent}else {`);
+    printControlStmts(s.elseStmts, `${indent}  `, lines);
+    lines.push(`${indent}}`);
+  } else if (s.elseBody) {
+    lines.push(`${indent}else {`);
+    if (typeof s.elseStatus === "number") lines.push(`${indent}  status ${s.elseStatus};`);
+    if (s.elseBody?.kind === "html") {
+      lines.push(`${indent}  return html ${printCwlLiteral(s.elseBody.value)};`);
+    } else {
+      const expr = printCwlBodyExpr(s.elseBody);
+      if (expr != null) lines.push(`${indent}  return ${expr};`);
+    }
+    lines.push(`${indent}}`);
+  }
+}
+
+/**
+ * Print control-block stmt lists (`status` / `return` / nested `if` / `foreach`).
+ * Surface documentation only — no condition or loop evaluation.
+ * @param {object[]} stmts
+ * @param {string} indent
+ * @param {string[]} lines
+ */
+function printControlStmts(stmts, indent, lines) {
+  for (const s of stmts ?? []) {
+    if (s.kind === "status" && typeof s.status === "number") {
+      lines.push(`${indent}status ${s.status};`);
+      continue;
+    }
+    if (s.kind === "return") {
+      if (s.body?.kind === "html") {
+        lines.push(`${indent}return html ${printCwlLiteral(s.body.value)};`);
+      } else if (s.body) {
+        const expr = printCwlBodyExpr(s.body);
+        if (expr != null) lines.push(`${indent}return ${expr};`);
+      }
+      continue;
+    }
+    if (s.kind === "if") {
+      lines.push(`${indent}if ${s.condExpr} {`);
+      printControlStmts(s.stmts ?? [], `${indent}  `, lines);
+      lines.push(`${indent}}`);
+      printElseTail(s, indent, lines);
+      continue;
+    }
+    if (s.kind === "foreach") {
+      const keyPart = s.key ? ` ${s.key} =>` : "";
+      lines.push(`${indent}foreach ${s.collection} as${keyPart} ${s.item} {`);
+      printControlStmts(s.stmts ?? [], `${indent}  `, lines);
+      lines.push(`${indent}}`);
+    }
+  }
+}
+
+/**
+ * Flatten legacy status/body into a stmt list when `stmts` is absent.
+ * @param {{ status?: number | null, body?: object | null, stmts?: object[] }} block
+ */
+function controlStmtsOf(block) {
+  if (Array.isArray(block.stmts) && block.stmts.length > 0) return block.stmts;
+  /** @type {object[]} */
+  const out = [];
+  if (typeof block.status === "number") out.push({ kind: "status", status: block.status });
+  if (block.body) out.push({ kind: "return", body: block.body });
+  return out;
+}
+
+/**
+ * @param {object[] | null | undefined} stmts
+ */
+function canonicalizeElseIfs(elseIfs) {
+  return (elseIfs ?? []).map((ei) => ({
+    condExpr: ei.condExpr,
+    status: ei.status ?? null,
+    body: canonicalizeBody(ei.body),
+    stmts: canonicalizeControlStmts(controlStmtsOf(ei)),
+  }));
+}
+
+function canonicalizeControlStmts(stmts) {
+  return (stmts ?? []).map((s) => {
+    if (s.kind === "status") return { kind: "status", status: s.status ?? null };
+    if (s.kind === "return") return { kind: "return", body: canonicalizeBody(s.body) };
+    if (s.kind === "if") {
+      return {
+        kind: "if",
+        condExpr: s.condExpr,
+        status: s.status ?? null,
+        body: canonicalizeBody(s.body),
+        stmts: canonicalizeControlStmts(s.stmts),
+        elseIfs: canonicalizeElseIfs(s.elseIfs),
+        elseStmts: canonicalizeControlStmts(s.elseStmts ?? []),
+        elseStatus: s.elseStatus ?? null,
+        elseBody: canonicalizeBody(s.elseBody),
+      };
+    }
+    if (s.kind === "foreach") {
+      return {
+        kind: "foreach",
+        collection: s.collection,
+        key: s.key ?? null,
+        item: s.item,
+        body: canonicalizeBody(s.body),
+        stmts: canonicalizeControlStmts(s.stmts),
+      };
+    }
+    return s;
+  });
+}
+
+/**
  * Print a parsed CWL module AST back to source text.
  * Pair with `parseCwlModule` for language-pillar parse→print round-trips
  * without WebIR / convert hub helpers.
@@ -248,16 +371,9 @@ export function printCwlModule(mod, opts = {}) {
 
     for (const g of route.earlyGuards ?? []) {
       lines.push(`  if ${g.condExpr} {`);
-      if (typeof g.status === "number") {
-        lines.push(`    status ${g.status};`);
-      }
-      if (g.body?.kind === "html") {
-        lines.push(`    return html ${printCwlLiteral(g.body.value)};`);
-      } else if (g.body) {
-        const expr = printCwlBodyExpr(g.body);
-        if (expr != null) lines.push(`    return ${expr};`);
-      }
+      printControlStmts(controlStmtsOf(g), "    ", lines);
       lines.push("  }");
+      printElseTail(g, "  ", lines);
     }
 
     if (route.loadBody) {
@@ -269,30 +385,40 @@ export function printCwlModule(mod, opts = {}) {
     }
 
     const body = route.body;
-    if (body?.kind === "hole") {
-      const reason = String(body.reason ?? "cwl:hole");
+    const attachmentHoles = Array.isArray(route.attachmentHoles)
+      ? route.attachmentHoles
+      : [];
+    /** @param {string} reason */
+    const printHoleLine = (reason) => {
+      const r = String(reason ?? "cwl:hole");
       lines.push(
-        /^[A-Za-z0-9_:.-]+$/.test(reason)
-          ? `  hole ${reason};`
-          : `  hole legacy ${JSON.stringify(reason)};`,
+        /^[A-Za-z0-9_:.-]+$/.test(r)
+          ? `  hole ${r};`
+          : `  hole legacy ${JSON.stringify(r)};`,
       );
-    } else if (body?.kind === "ui") {
-      printCwlUiReturn(body, "  ", lines);
+    };
+    if (body?.kind === "hole") {
+      // Body-as-hole: print each attachment (or the body reason once).
+      if (attachmentHoles.length > 0) {
+        for (const reason of attachmentHoles) printHoleLine(reason);
+      } else {
+        printHoleLine(body.reason ?? "cwl:hole");
+      }
     } else {
-      const expr = printCwlBodyExpr(body);
-      if (expr != null) lines.push(`  return ${expr};`);
-      else lines.push(`  hole cwl:empty-handler;`);
+      for (const reason of attachmentHoles) printHoleLine(reason);
+      if (body?.kind === "ui") {
+        printCwlUiReturn(body, "  ", lines);
+      } else {
+        const expr = printCwlBodyExpr(body);
+        if (expr != null) lines.push(`  return ${expr};`);
+        else lines.push(`  hole cwl:empty-handler;`);
+      }
     }
 
     for (const fe of route.foreachBindings ?? []) {
       const keyPart = fe.key ? ` ${fe.key} =>` : "";
       lines.push(`  foreach ${fe.collection} as${keyPart} ${fe.item} {`);
-      if (fe.body?.kind === "html") {
-        lines.push(`    return html ${printCwlLiteral(fe.body.value)};`);
-      } else if (fe.body) {
-        const expr = printCwlBodyExpr(fe.body);
-        if (expr != null) lines.push(`    return ${expr};`);
-      }
+      printControlStmts(controlStmtsOf(fe), "    ", lines);
       lines.push("  }");
     }
 
@@ -344,13 +470,20 @@ export function canonicalizeCwlModule(mod) {
         condExpr: g.condExpr,
         status: g.status ?? null,
         body: canonicalizeBody(g.body),
+        stmts: canonicalizeControlStmts(controlStmtsOf(g)),
+        elseIfs: canonicalizeElseIfs(g.elseIfs),
+        elseStmts: canonicalizeControlStmts(g.elseStmts ?? []),
+        elseStatus: g.elseStatus ?? null,
+        elseBody: canonicalizeBody(g.elseBody),
       })),
       foreachBindings: (r.foreachBindings ?? []).map((fe) => ({
         collection: fe.collection,
         key: fe.key ?? null,
         item: fe.item,
         body: canonicalizeBody(fe.body),
+        stmts: canonicalizeControlStmts(controlStmtsOf(fe)),
       })),
+      attachmentHoles: [...(r.attachmentHoles ?? [])],
       body: canonicalizeBody(r.body),
     })),
   };
