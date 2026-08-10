@@ -1,15 +1,13 @@
 # Multi-repo workspace (Chrysalis + WPTP siblings)
 
-Chrysalis is **one repository** (`packages/*` monorepo), but it lives inside a larger
-program — the **Web Platform Translation Program (WPTP)** — whose other deliverables
-ship as **separate sibling repositories** (see [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md)
-and [`GIT-LAYOUT.md`](./GIT-LAYOUT.md)). This guide is the **recommended, high-hygiene**
-way to work on several of those repos at once **without** your IDE inventing phantom
-repositories from nested `.git` trees.
+Chrysalis Convert is **one repository**, but it still consumes the **Web Platform
+Translation Program (WPTP)** as an **optional Convert orbit** (Hub Next.js, contract-first
+compose, matrix grades) — not as CWL DNA. Constitution: [`WPTP-CONVERT-ORBIT.md`](./WPTP-CONVERT-ORBIT.md).
+Charter: [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) · layout: [`GIT-LAYOUT.md`](./GIT-LAYOUT.md).
 
-> TL;DR: keep each program repo as its **own clone in a shared parent folder**, then open
-> the tracked **`chrysalis-program.code-workspace`** (a *multi-root* workspace). Do **not**
-> nest one repo inside another, and do **not** open the shared parent folder directly.
+> TL;DR: prefer **`AgenticOps/platforms/wptp-*`** clones; resolve via
+> `scripts/lib/wptp-siblings.mjs`. Open **`chrysalis-program.code-workspace`** (multi-root).
+> Do **not** nest repos; do **not** open the shared parent folder as a single git root.
 
 ---
 
@@ -37,7 +35,24 @@ folder names only**, so it works regardless of which owner/fork you cloned from.
 
 ## 2. Recommended on-disk layout
 
-Put every repo as a **sibling** under one parent directory. Never nest them.
+**AgenticOps portfolio (preferred):**
+
+```
+AgenticOps/
+  engines/chrysalis-convert/   # this repo
+  engines/chrysalis-cwl/       # WebIR/CWL SoR (junctioned)
+  platforms/wptp-ir/
+  platforms/wptp-matrix/
+  platforms/wptp-emit-nextjs/
+  platforms/wptp-emit-hono/
+  platforms/wptp-emit-fastify/
+  platforms/wptp-adapter-openapi/
+  platforms/wptp-adapter-browser/
+```
+
+Resolver: `pnpm run hub:wptp-orbit-smoke` · `scripts/lib/wptp-siblings.mjs` prefers `platforms/` when `wptp-ir` is present.
+
+**Legacy flat siblings** (still supported):
 
 ```
 program/                       # any parent folder you like
@@ -52,7 +67,9 @@ program/                       # any parent folder you like
 Clone what you need (siblings are optional — the workspace tolerates missing folders):
 
 ```bash
-# from your chosen parent folder
+# portfolio
+git clone https://github.com/AgenticOp-io/wptp-ir.git platforms/wptp-ir
+# …or flat parent
 git clone https://github.com/AgenticOp-io/chrysalis.git
 git clone https://github.com/AgenticOp-io/wptp-ir.git
 git clone https://github.com/AgenticOp-io/wptp-matrix.git

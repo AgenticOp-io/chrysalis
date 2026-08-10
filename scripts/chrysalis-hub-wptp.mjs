@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 import { access, constants as fsConstants } from "node:fs/promises";
 import { join } from "node:path";
 import { WPTP_CI_REFERENCES } from "./chrysalis-hub-store.mjs";
+import { resolveWptpRepoRoot } from "./lib/wptp-siblings.mjs";
 
 async function exists(p) {
   try {
@@ -35,7 +36,7 @@ function runNodeScript(repo, scriptRel, envExtra = {}) {
 
 /** Run in-repo WPTP CI harness when siblings exist (hub VM smoke, not per-customer site). */
 export async function runWptpHubSmoke(repo, outputLanguage = "nextjs") {
-  const matrixRoot = process.env.WPTP_MATRIX_ROOT ?? join(repo, "..", "wptp-matrix");
+  const matrixRoot = resolveWptpRepoRoot(repo, "wptp-matrix");
   const matrixOk = await exists(join(matrixRoot, "src", "verify-silver-chrysalis.ts"));
   const refs = WPTP_CI_REFERENCES;
 
@@ -76,8 +77,8 @@ export async function runSiteWptpCompose(repo, site, outputLanguage) {
         env: {
           ...process.env,
           CHRYSALIS_ROOT: repo,
-          WPTP_MATRIX_ROOT: process.env.WPTP_MATRIX_ROOT ?? join(repo, "..", "wptp-matrix"),
-          WPTP_EMIT_NEXTJS_ROOT: process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(repo, "..", "wptp-emit-nextjs"),
+          WPTP_MATRIX_ROOT: resolveWptpRepoRoot(repo, "wptp-matrix"),
+          WPTP_EMIT_NEXTJS_ROOT: resolveWptpRepoRoot(repo, "wptp-emit-nextjs"),
         },
       },
     );

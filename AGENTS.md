@@ -12,6 +12,10 @@
 
 **Core vs peel (**D6551**):** Before adding weight to the monorepo, read [`docs/CORE-VS-PEEL.md`](docs/CORE-VS-PEEL.md). Hub peels/smokes/oracles may stay messy scripts; **WebIR + CWL grammar + hole/verify contracts** are the small typed core. Do not promote peels into core without an IR/language semantic win. Do not “fix” the stack by rewriting peels.
 
+**WPTP orbit:** Hub Next.js / contract-first / matrix live under Convert as optional peels — [`docs/WPTP-CONVERT-ORBIT.md`](docs/WPTP-CONVERT-ORBIT.md). Prefer `platforms/wptp-*`. Do not fold into CWL.
+
+**Whole system map + one-shot gate:** [`docs/CONVERT-WHOLE-SYSTEM.md`](docs/CONVERT-WHOLE-SYSTEM.md) · `pnpm run hub:convert-whole-system-smoke`.
+
 Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin, Next, Express, …) — not WISP-only. WISP is the POC that proves the law; the law is product-wide.
 
 | Law | Meaning |

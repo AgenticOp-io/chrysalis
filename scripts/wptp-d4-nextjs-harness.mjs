@@ -2,7 +2,7 @@
  * Run WPTP D4 bronze harness: OpenAPI + HAR → IR v0 → @wptp/emit-nextjs (App Router stubs).
  *
  * Env:
- *   WPTP_MATRIX_ROOT   — wptp-matrix checkout (default: ../wptp-matrix)
+ *   WPTP_MATRIX_ROOT   — override (else platforms/ then engines/ via wptp-siblings)
  */
 import { existsSync } from "node:fs";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -10,9 +10,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { fileURLToPath } from "node:url";
+import { resolveWptpRepoRoot } from "./lib/wptp-siblings.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const matrixRoot = resolve(process.env.WPTP_MATRIX_ROOT ?? join(ROOT, "..", "wptp-matrix"));
+const matrixRoot = resolveWptpRepoRoot(ROOT, "wptp-matrix");
 
 if (!existsSync(join(matrixRoot, "src", "compose.ts"))) {
   process.stderr.write(`wptp-d4-nextjs-harness: missing wptp-matrix at ${matrixRoot}\n`);

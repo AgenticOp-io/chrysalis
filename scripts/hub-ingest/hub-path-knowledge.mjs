@@ -128,7 +128,7 @@ export const LANGUAGE_PROFILES = {
     typicalFrameworks: ["Plug", "Phoenix"],
     routeStyle: "Plug.Router macros",
     notes:
-      "Plug.Router route-surface D6448-ST (hub-gold-elixir-plug / hub:elixir-flagship / hub:complete-conversion-prove:elixir). Phoenix LiveView / controller dispatch = honest holes (D6447).",
+      "Plug.Router route-surface D6448-ST (hub-gold-elixir-plug / hub:elixir-flagship / hub:complete-conversion-prove:elixir). Phoenix controller route-table closed G10126 (hub:phoenix-controllers-smoke); LiveView = honest hole (D6447).",
   },
   dart: {
     kind: "static",

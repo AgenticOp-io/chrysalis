@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.hub.elixir-plug-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T20:40:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Phoenix LiveView, controller dispatch, or Plug pipeline runtime. Lift Plug.Router shapes that appear, else leave honest holes. Route-surface ST closed via hub:elixir-flagship + hub:complete-conversion-prove:elixir.",
+  "generatedAt": "2026-08-07T06:20:00.000Z",
+  "note": "Catalog only (D6447). Plug.Router ST closed via hub:elixir-flagship + hub:complete-conversion-prove:elixir. Phoenix controller route-table closed separately (G10126 / hub:phoenix-controllers-smoke). Do not invent LiveView / pipelines.",
   "fixture": "fixtures/hub-gold-elixir-plug",
   "smoke": "pnpm run hub:elixir-smoke",
   "st": "pnpm run hub:elixir-flagship && pnpm run hub:complete-conversion-prove:elixir",
@@ -13,17 +13,21 @@
     ":id path templates → {id}"
   ],
   "honestHoles": [
-    { "shape": "Phoenix get \"/x\", Ctrl, :action controller dispatch", "reason": "hub-elixir:phoenix-controller" },
     { "shape": "Phoenix LiveView / live \"/…\"", "reason": "hub-elixir:liveview" },
     { "shape": "plug MyPlug pipelines beyond :match/:dispatch", "reason": "hub-elixir:pipeline-plug" },
     { "shape": "Nested case/with/fn/do inside route bodies", "reason": "hub-elixir:nested-do" },
-    { "shape": "forward / match catch-alls / non-literal paths", "reason": "hub-elixir:forward-match" },
-    { "shape": "Phoenix.Controller json/put_status helpers", "reason": "hub-elixir:phoenix-json-helper" }
+    { "shape": "forward / match catch-alls / non-literal paths", "reason": "hub-elixir:forward-match" }
+  ],
+  "secondaryClosed": [
+    {
+      "shape": "Phoenix get \"/x\", Ctrl, :action + thin json/put_status",
+      "gate": "G10126",
+      "smoke": "pnpm run hub:phoenix-controllers-smoke"
+    }
   ],
   "absentOrigins": [],
   "nextTargets": [
-    "Thin Node secondary set closed (Restify/Polka G9957/G9958)",
-    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
-    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+    "LiveView remains charter-only — no invent (D6447)",
+    "Flutter / COBOL EXTFMAP operator hunt / no Dependabot"
   ]
 }

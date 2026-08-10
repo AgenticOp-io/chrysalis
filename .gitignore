@@ -137,3 +137,17 @@ fixtures/_drogon-probe/
 fixtures/_revel-probe/
 fixtures/hub-wisp-management/routes.cwl.mojibake-backup
 
+
+# CWL SoR packages — local junctions into chrysalis-cwl (do not track through reparse points)
+# WebIR: scripts/link-webir-from-cwl.mjs
+packages/webir/
+packages/cwl/
+packages/runtime-cwl/
+packages/runtime-cwl-browser/
+packages/runtime-cwl-worker/
+packages/emit-runtime-cwl/
+
+
+# Local GitHub Packages auth (use .npmrc.example)
+.npmrc
+

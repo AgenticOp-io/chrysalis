@@ -9,6 +9,7 @@ import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
 import { cwlEffectsToWebir, wrapCwlExecutableEffects } from "./hub-cwl-effects.mjs";
 import { cwlPathParamsForWebir } from "./hub-cwl-path-params.mjs";
+import { appendForeachBindings, wrapWithEarlyGuards } from "./cwl-control-lower.mjs";
 
 /**
  * @param {string} language
@@ -281,7 +282,24 @@ export function liftCwlFileToWebir(opts) {
     } else {
       valueId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
     }
+    // RFC-0024: attachment holes coexist with a return body — declare in WebIR, don't drop.
+    // Fat Convert ingest must match pillar thin `cwl-ingest` (CWL-SCRIPTS-CANONICAL).
+    const attachmentHoles = Array.isArray(r.attachmentHoles) ? r.attachmentHoles : [];
+    if (attachmentHoles.length > 0 && r.body?.kind !== "hole" && valueId) {
+      const holeIds = attachmentHoles.map((reason) =>
+        hubHandlerBodyHole(ctx, reason, loc),
+      );
+      valueId = data.block({
+        statements: [...holeIds, valueId],
+        type: HUB_T.unknown,
+        origin: hubOrigin(file, r.line ?? 1),
+        provenance: [webir.provenance("hub-ingest", "cwl:attachment-holes")],
+      });
+    }
     valueId = wrapCwlExecutableEffects({ data, webir, builder, file }, valueId, r.effects ?? [], loc);
+    // RFC-0021 / CWL 1.0.8–1.0.9: earlyGuards (+ else) then foreachBindings (opaque g_* skipped).
+    valueId = wrapWithEarlyGuards(ctx, valueId, r.earlyGuards ?? [], r, wrBuilders, lowerObjectEntriesBody);
+    valueId = appendForeachBindings(ctx, valueId, r.foreachBindings ?? [], r, wrBuilders, lowerObjectEntriesBody);
     const status = r.responseStatus ?? 200;
     const contentType =
       r.responseContentType ??
@@ -293,16 +311,45 @@ export function liftCwlFileToWebir(opts) {
         : contentType
           ? "text"
           : "json";
+    /** @type {Record<string, string>} */
+    const responseHeaderBag = {};
+    for (const h of r.responseHeaders ?? []) {
+      if (!h?.name || !Object.prototype.hasOwnProperty.call(h, "default")) continue;
+      const v = h.default;
+      responseHeaderBag[String(h.name).toLowerCase()] =
+        v === null || v === undefined ? "" : typeof v === "string" ? v : String(v);
+    }
+    const hasResponseHeaders = Object.keys(responseHeaderBag).length > 0;
     let bodyId = valueId;
     const pageLoadHtml = Boolean(r.loadBody && r.body.kind === "html");
     const pageLoadUi = Boolean(r.loadBody && r.body.kind === "ui");
-    if (!pageLoadHtml && !pageLoadUi && (status !== 200 || contentType)) {
+    // `lowerCwlHtmlTemplateBody` / page-load HTML already emit `web.request.response` —
+    // do not wrap again (double echo). UI trees still need the outer response for CT.
+    // Parity with pillar thin ingest (CWL 1.0.5 response-header · 1.0.6 HTML wrap).
+    const htmlAlreadyResponded = r.body.kind === "html" || pageLoadHtml;
+    if (
+      !htmlAlreadyResponded &&
+      !pageLoadUi &&
+      (status !== 200 || contentType || hasResponseHeaders)
+    ) {
       bodyId = wrBuilders.response({
-        attrs: { status, kind, contentType },
+        attrs: {
+          status,
+          kind,
+          ...(contentType ? { contentType } : {}),
+          ...(hasResponseHeaders ? { headers: responseHeaderBag } : {}),
+        },
         value: valueId,
         origin: hubOrigin(file, r.line ?? 1),
         provenance: [
-          webir.provenance("hub-ingest", contentType ? "cwl:response-content-type" : "cwl:response-status"),
+          webir.provenance(
+            "hub-ingest",
+            contentType
+              ? "cwl:response-content-type"
+              : hasResponseHeaders
+                ? "cwl:response-header"
+                : "cwl:response-status",
+          ),
         ],
       });
     }

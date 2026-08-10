@@ -1,3 +1,7 @@
+2026-08-10 | Convert | CWL notify CONVERT-WHOLE-SYSTEM-NOTIFIED.md + harnesses platforms-first (silver/d3/d4) | local | N
+2026-08-09 | Convert | hub:convert-whole-system-smoke — live cohesion gate; gold/compose resolve platforms/wptp-* first | local | N
+2026-08-09 | Convert | CONVERT-WHOLE-SYSTEM.md — cohesive map: peels→CWL DNA, platforms WPTP orbit, COBOL/Hub/Helix (nothing wasted) | local | N
+2026-08-09 | Convert | WPTP Convert orbit cohesion: platforms/ sibling resolver, hub:wptp-orbit-smoke, link:cwl-packages-from-cwl (junction hazard), docs/WPTP-CONVERT-ORBIT.md | local | N
 2026-08-05 | Chrysalis | Consume CWL ingest-matrix + ut-evidence: hub:cwl-ingest-matrix-smoke; cutover smoke v2 prefers smoke:ut-evidence:helix; pin/webir-resolve smokes; loadEmitter CONVERT_ROOT | local | N
 2026-08-05 | Chrysalis | CWL sync + convert build: hub:cwl-pin-smoke + hub:webir-resolve-smoke (link-until-pnpm progress); loadEmitter uses CONVERT_ROOT like loadWebir; mirrors still junction-noop | local | N
 2026-08-05 | Chrysalis | G10126 UT missing: hub:cwl-helix-cutover-smoke (Convert consumes CWL spine); maintain-packaging asserts no pilot:ut-spine | local | N

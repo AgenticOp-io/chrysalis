@@ -1,0 +1,22 @@
+# GitHub Packages — CWL language pin (example)
+
+Copy to **`.npmrc`** in the Convert root (gitignored). Do not commit tokens.
+
+```ini
+@agenticop-io:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NPM_TOKEN}
+```
+
+Then optionally:
+
+```json
+"@agenticop-io/cwl": "1.0.17"
+```
+
+Default sibling pin stays:
+
+```json
+"@chrysalis/cwl": "file:../chrysalis-cwl/packages/cwl"
+```
+
+See [`docs/CONVERT-CWL-CONSUME.md`](docs/CONVERT-CWL-CONSUME.md) · CWL [`docs/language/CWL-PUBLISH.md`](../chrysalis-cwl/docs/language/CWL-PUBLISH.md).

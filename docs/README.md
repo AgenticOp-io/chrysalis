@@ -71,7 +71,9 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [External prove corpora](./EXTERNAL-PROVE-CORPORA.md) | Public CLBS / LCB inventory + in-tree scoreboard (`hub:external-prove-corpus-smoke`) |
 | [COBOL-primary + universal build](./COBOL-PRIMARY-UNIVERSAL-BUILD.md) | COBOL first; same template for all origins |
 | [GitHub Project](./GITHUB_PROJECT.md) | Project board bootstrap |
-| [Multi-repo workspace](./MULTI-REPO-WORKSPACE.md) | WPTP sibling repos |
+| [Convert whole system](./CONVERT-WHOLE-SYSTEM.md) | **Start here** — how peels, CWL DNA, Hub, platforms/WPTP, COBOL, Helix fit (nothing wasted) |
+| [WPTP Convert orbit](./WPTP-CONVERT-ORBIT.md) | WPTP as Convert Hub/CI peels (not CWL DNA) |
+| [Multi-repo workspace](./MULTI-REPO-WORKSPACE.md) | WPTP sibling clones / IDE multi-root |
 
 ---
 

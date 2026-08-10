@@ -121,6 +121,15 @@ simulator grows with it. Until then, abstention keeps this gate
 honest: it won't lie and say "behavior unchanged" when it didn't
 actually evaluate the code.
 
+### `RequestInput` headers (CWL execute handoff)
+
+`simulateHandler` accepts optional `RequestInput.headers` for
+`data.request.field` with `source: "header"`. Prefer **lower-case**
+keys; lookup is case-insensitive. Missing header names bind `null`
+(no invented values). Required so sibling CWL can mark
+`04-request-context` `runtime-ok` after passing HTTP `Headers` through
+pillar `buildRequestInput`.
+
 ## HTTP replay gate (D20)
 
 After D16–D19, **`applyRewritesAsync`** can replay a

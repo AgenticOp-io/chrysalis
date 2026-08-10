@@ -1,8 +1,11 @@
 /**
- * Elixir hub ingest — Plug.Router macros for foundation gold (G9953).
- * Peels `get|post|… "/path" do … end` + `send_resp` + `Jason.encode!`.
- * Does not invent Phoenix LiveView / controller runtime (D6447).
+ * Elixir hub ingest — Plug.Router macros for foundation gold (G9953) plus
+ * Phoenix controller route-table (G10126 / D6540):
+ *   get|post|… "/path", XxxController, :action + json/put_status / params["id"].
+ * Does not invent Phoenix LiveView / pipelines / resources (D6447).
  */
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import {
   emitHubRoute,
   hubHandlerBodyHole,
@@ -14,6 +17,10 @@ import { lowerHubReturnTree } from "./hub-native-return-tree.mjs";
 
 const ELIXIR_ROUTE_RE =
   /\b(get|post|put|patch|delete|head|options)\s+"([^"]+)"\s+do\b/gi;
+
+/** Phoenix.Router: get "/path", Mod.Controller, :action (not Plug do…end). */
+const PHOENIX_ROUTE_RE =
+  /\b(get|post|put|patch|delete|head|options)\s+"([^"]+)"\s*,\s*([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*:([A-Za-z_][A-Za-z0-9_]*)/gi;
 
 const METHOD_MAP = {
   get: "GET",
@@ -198,6 +205,127 @@ export function parseElixirPlugRoutes(source) {
 }
 
 /**
+ * @param {string} source
+ */
+export function isPhoenixRouterSource(source) {
+  PHOENIX_ROUTE_RE.lastIndex = 0;
+  return PHOENIX_ROUTE_RE.test(source);
+}
+
+/**
+ * @param {string} source
+ */
+export function isPhoenixControllerSource(source) {
+  return (
+    /\bdefmodule\s+[A-Za-z0-9_.]+Controller\b/.test(source) &&
+    /\bdef\s+[A-Za-z_][A-Za-z0-9_]*\s*\(\s*conn\b/.test(source) &&
+    !isPhoenixRouterSource(source)
+  );
+}
+
+/**
+ * @param {string} source
+ * @returns {Array<{ method: string, path: string, line: number, controller: string, action: string, pathParams?: string[] }>}
+ */
+export function parsePhoenixRouteTable(source) {
+  /** @type {Array<{ method: string, path: string, line: number, controller: string, action: string, pathParams?: string[] }>} */
+  const routes = [];
+  const seen = new Set();
+  PHOENIX_ROUTE_RE.lastIndex = 0;
+  let m;
+  while ((m = PHOENIX_ROUTE_RE.exec(source)) !== null) {
+    const verb = METHOD_MAP[m[1].toLowerCase()];
+    if (!verb) continue;
+    const path = normalizeElixirRoutePath(m[2]);
+    const key = `${verb} ${path}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const line = source.slice(0, m.index).split("\n").length;
+    const pathParams = [...path.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((x) => x[1]);
+    routes.push({
+      method: verb,
+      path,
+      line,
+      controller: m[3],
+      action: m[4],
+      pathParams,
+    });
+  }
+  return routes;
+}
+
+/**
+ * Walk project for `defmodule Mod.Controller do` sources.
+ * @param {string} projectDir
+ * @returns {Map<string, { abs: string, source: string }>}
+ */
+function indexPhoenixControllers(projectDir) {
+  /** @type {Map<string, { abs: string, source: string }>} */
+  const map = new Map();
+  /** @type {string[]} */
+  const stack = [projectDir];
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    if (!dir) break;
+    let entries;
+    try {
+      entries = readdirSync(dir);
+    } catch {
+      continue;
+    }
+    for (const name of entries) {
+      if (name === "node_modules" || name === ".chrysalis" || name === "deps" || name === "_build") {
+        continue;
+      }
+      const abs = join(dir, name);
+      let st;
+      try {
+        st = statSync(abs);
+      } catch {
+        continue;
+      }
+      if (st.isDirectory()) {
+        stack.push(abs);
+        continue;
+      }
+      if (!/\.exs?$/i.test(name)) continue;
+      let source = "";
+      try {
+        source = readFileSync(abs, "utf8");
+      } catch {
+        continue;
+      }
+      const mod = source.match(/\bdefmodule\s+([A-Za-z_][A-Za-z0-9_.]*Controller)\b/);
+      if (mod) map.set(mod[1], { abs, source });
+    }
+  }
+  return map;
+}
+
+/**
+ * Extract `def action(conn, …) do … end` body from a Phoenix controller.
+ * @param {string} source
+ * @param {string} action
+ * @returns {{ bodySlice: string, line: number } | null}
+ */
+function extractPhoenixActionBody(source, action) {
+  const re = new RegExp(
+    `\\bdef\\s+${action.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}\\s*\\(`,
+  );
+  const m = re.exec(source);
+  if (!m) return null;
+  const afterParen = source.indexOf(")", m.index + m[0].length - 1);
+  if (afterParen < 0) return null;
+  let i = afterParen + 1;
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  if (!source.startsWith("do", i)) return null;
+  const extracted = extractElixirDoEndInner(source, i);
+  if (!extracted) return null;
+  const line = source.slice(0, m.index).split("\n").length;
+  return { bodySlice: extracted.inner, line };
+}
+
+/**
  * Bindings: `id = conn.params["id"]` / query_params / body_params / path_params.
  * @param {string} bodySlice
  * @param {Record<string, { source: string, name: string, default?: unknown }>} pathRefs
@@ -252,6 +380,25 @@ function parseElixirParamBindings(bodySlice, pathRefs) {
     }
     byVar[field] = ref;
   }
+  // Phoenix controller params bag: params["id"] / params["q"] || ""
+  for (const im of bodySlice.matchAll(
+    /\bparams\[["']([^"']+)["']\](?:\s*\|\|\s*("([^"]*)"|'([^']*)'|true|false|-?\d+))?/g,
+  )) {
+    const field = im[1];
+    if (byVar[field] && byVar[field].default === undefined && im[2] !== undefined) {
+      const def = parseLiteralToken(im[2]);
+      if (def !== null) byVar[field].default = def;
+      continue;
+    }
+    if (byVar[field]) continue;
+    const source = pathRefs[field] ? "path" : "query";
+    const ref = { source, name: field };
+    if (im[2] !== undefined) {
+      const def = parseLiteralToken(im[2]);
+      if (def !== null) ref.default = def;
+    }
+    byVar[field] = ref;
+  }
   return byVar;
 }
 
@@ -268,21 +415,18 @@ function parseElixirMapEntries(inner, refs) {
     const rawVal = pair[2].trim();
     if (refs[rawVal]) {
       entries.push({ key, value: { t: "ref", ...refs[rawVal] } });
-    } else if (/^conn\.(params|query_params|body_params|path_params)\[/.test(rawVal)) {
+    } else if (/^(?:conn\.(params|query_params|body_params|path_params)|params)\[/.test(rawVal)) {
       const q = rawVal.match(/\[["']([^"']+)["']\](?:\s*\|\|\s*("([^"]*)"|'([^']*)'))?/);
       if (!q) return null;
       const name = q[1];
-      const ref = refs[name] ?? {
-        source: rawVal.includes("body_params")
-          ? "body"
-          : rawVal.includes("query_params")
-            ? "query"
-            : refs[name]?.source === "path" || /:id|:userId/.test(rawVal)
-              ? "path"
-              : "query",
-        name,
-      };
-      const value = { t: "ref", ...ref };
+      /** @type {"path"|"query"|"body"} */
+      let source = "query";
+      if (rawVal.includes("body_params")) source = "body";
+      else if (rawVal.includes("query_params")) source = "query";
+      else if (refs[name]?.source) source = /** @type {"path"|"query"|"body"} */ (refs[name].source);
+      else if (rawVal.includes("path_params")) source = "path";
+      const ref = refs[name] ?? { source, name };
+      const value = { t: "ref", source: refs[name]?.source ?? source, name };
       if (q[2] !== undefined) {
         const def = parseLiteralToken(q[2]);
         if (def !== null) value.default = def;
@@ -372,6 +516,127 @@ function parseElixirBodyReturn(bodySlice, refs) {
 }
 
 /**
+ * Phoenix.Controller `json/2` + `put_status/2` (pipe or nested). Falls back to Plug send_resp.
+ * @param {string} bodySlice
+ * @param {Record<string, { source: string, name: string, default?: unknown }>} refs
+ */
+function parsePhoenixControllerReturn(bodySlice, refs) {
+  let status = 200;
+  const statusPipe = bodySlice.match(/put_status\s*\(\s*(\d+)\s*\)/);
+  const statusNested = bodySlice.match(/put_status\s*\(\s*conn\s*,\s*(\d+)\s*\)/);
+  if (statusPipe) status = Number.parseInt(statusPipe[1], 10);
+  else if (statusNested) status = Number.parseInt(statusNested[1], 10);
+
+  const mapJson = [
+    ...bodySlice.matchAll(/json\s*\(\s*(?:conn\s*,\s*)?%\{([\s\S]*?)\}\s*\)/g),
+  ].pop();
+  const litJson = [
+    ...bodySlice.matchAll(
+      /json\s*\(\s*(?:conn\s*,\s*)?(true|false|-?\d+|"[^"]*"|'[^']*')\s*\)/g,
+    ),
+  ].pop();
+  const paramsJson = [
+    ...bodySlice.matchAll(/json\s*\(\s*(?:conn\s*,\s*)?params\[["']([^"']+)["']\]\s*\)/g),
+  ].pop();
+  const refJson = [...bodySlice.matchAll(/json\s*\(\s*(?:conn\s*,\s*)?(\w+)\s*\)/g)].pop();
+
+  /** @type {object | null} */
+  let returnTree = null;
+  /** @type {string | null} */
+  let kind = null;
+
+  if (mapJson) {
+    returnTree = parseElixirMapEntries(mapJson[1], refs);
+    kind = returnTree ? "json" : null;
+  } else if (litJson) {
+    const v = parseLiteralToken(litJson[1]);
+    if (v !== null) {
+      returnTree = { t: "lit", v };
+      kind = "scalar-lit";
+    }
+  } else if (paramsJson) {
+    const name = paramsJson[1];
+    const ref = refs[name] ?? { source: refs[name]?.source === "path" ? "path" : "query", name };
+    returnTree = { t: "ref", ...ref };
+    kind = "scalar-ref";
+  } else if (refJson && refs[refJson[1]]) {
+    returnTree = { t: "ref", ...refs[refJson[1]] };
+    kind = "scalar-ref";
+  }
+
+  if (kind) return { status, returnTree, kind };
+  return parseElixirBodyReturn(bodySlice, refs);
+}
+
+/**
+ * @param {object} opts
+ */
+function liftPhoenixRoutesToWebir(opts) {
+  const { webir, builder, wr, source, file, language, projectDir } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
+  const ctx = { data, effect, webir };
+  const detailed = parsePhoenixRouteTable(source);
+  if (detailed.length === 0) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: true, suppressFileLift: true };
+  }
+
+  const controllers = projectDir ? indexPhoenixControllers(projectDir) : new Map();
+
+  for (const r of detailed) {
+    const hit = controllers.get(r.controller);
+    const ctrlSource = hit?.source ?? "";
+    let ctrlFile = file;
+    if (hit?.abs && projectDir) {
+      ctrlFile = hit.abs.startsWith(projectDir)
+        ? hit.abs.slice(projectDir.length).replace(/^[/\\]/, "").replace(/\\/g, "/")
+        : hit.abs.replace(/\\/g, "/");
+    }
+
+    const extracted = ctrlSource ? extractPhoenixActionBody(ctrlSource, r.action) : null;
+    const loc = { file: ctrlFile, line: extracted?.line ?? r.line };
+    let bodyId;
+    if (!extracted) {
+      bodyId = hubHandlerBodyHole(ctx, "hub-elixir:phoenix-controller", {
+        file: ctrlFile,
+        line: r.line,
+      });
+    } else {
+      const { bodySlice, line } = extracted;
+      const bodyLoc = { file: ctrlFile, line };
+      const pathRefs = pathParamRefsFromPath(r.path);
+      const refs = parseElixirParamBindings(bodySlice, pathRefs);
+      const { status, returnTree, kind } = parsePhoenixControllerReturn(bodySlice, refs);
+
+      if (kind === "scalar-lit" && returnTree?.t === "lit" && status === 200) {
+        bodyId = lowerHubLiteral(ctx, returnTree.v, bodyLoc);
+      } else if (returnTree || (typeof status === "number" && status !== 200)) {
+        bodyId =
+          lowerElixirHandlerBodyFull(ctx, { returnTree, status }, bodyLoc) ??
+          hubHandlerBodyHole(ctx, "hub-elixir:phoenix-controller", bodyLoc);
+      } else {
+        bodyId = hubHandlerBodyHole(ctx, "hub-elixir:phoenix-controller", bodyLoc);
+      }
+    }
+    emitHubRoute({
+      webir,
+      builder,
+      wr,
+      language,
+      file,
+      route: { method: r.method, path: r.path, line: r.line, pathParams: r.pathParams },
+      bodyId,
+    });
+  }
+
+  return {
+    routeCount: detailed.length,
+    astRouteCount: detailed.length,
+    usedAst: true,
+  };
+}
+
+/**
  * @param {object} ctx
  * @param {{ returnTree: object | null, status?: number }} parsed
  * @param {{ file: string, line?: number }} loc
@@ -420,6 +685,16 @@ function lowerElixirHandlerBodyFull(ctx, parsed, loc) {
  */
 export function liftElixirFileToWebir(opts) {
   const { webir, builder, wr, source, file, language } = opts;
+
+  // Controller bodies are resolved from the Phoenix router — suppress silver file-lift.
+  if (isPhoenixControllerSource(source) && !isPhoenixRouterSource(source)) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: true, suppressFileLift: true };
+  }
+
+  if (isPhoenixRouterSource(source)) {
+    return liftPhoenixRoutesToWebir(opts);
+  }
+
   const data = webir.dataDialect.builders(builder);
   const effect = webir.effectDialect.builders(builder);
   const ctx = { data, effect, webir };

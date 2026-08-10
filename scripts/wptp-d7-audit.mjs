@@ -9,6 +9,7 @@ import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWptpRepoRoot } from "./lib/wptp-siblings.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "..");
@@ -59,7 +60,7 @@ record("chrysalis.parser-bridge.nikic", nikic.ok, nikic.ok ? "nikic parity tests
 
 // 2 — WebIR → WPTP IR smoke (in-repo)
 const bundleScript = join(repo, "scripts/verify-webir-bundle-wptp-ir.mjs");
-const wptpIrRoot = process.env.WPTP_IR_ROOT ?? resolve(repo, "../wptp-ir");
+const wptpIrRoot = resolveWptpRepoRoot(repo, "wptp-ir");
 const bundleOut = join(repo, "reports/ci/tiny-blog.webir.bundle.json");
 if (!existsSync(bundleScript)) {
   record("chrysalis.webir-bundle-wptp-ir", false, "script missing");
@@ -95,7 +96,7 @@ if (wfOk) {
 }
 
 // 4 — Sibling wptp-matrix (optional)
-const matrixRoot = process.env.WPTP_MATRIX_ROOT ?? resolve(repo, "../wptp-matrix");
+const matrixRoot = resolveWptpRepoRoot(repo, "wptp-matrix");
 if (existsSync(join(matrixRoot, "package.json"))) {
   const validate = run("npm run validate", { cwd: matrixRoot });
   record("wptp-matrix.validate", validate.ok, validate.ok ? matrixRoot : validate.err.slice(0, 200));
@@ -103,7 +104,12 @@ if (existsSync(join(matrixRoot, "package.json"))) {
   record("wptp-matrix.validate", true, `skipped (no checkout at ${matrixRoot})`);
 }
 
-// 5 — ROADMAP honesty pointer
+// 5 — Orbit cohesion doc + D7 playbook
+record(
+  "docs.wptp-convert-orbit",
+  existsSync(join(repo, "docs/WPTP-CONVERT-ORBIT.md")),
+  "docs/WPTP-CONVERT-ORBIT.md",
+);
 record(
   "docs.wptp-d7-playbook",
   existsSync(join(repo, "docs/WPTP-D7-ONGOING.md")),

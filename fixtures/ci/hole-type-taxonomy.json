@@ -32,6 +32,10 @@
     "runtime": {
       "prefix": ["runtime:", "exec:"],
       "meaning": "Runtime / EXEC residual (CICS/SQL/etc.) tagged outside hub dialect peels"
+    },
+    "unsupported": {
+      "prefix": ["unsupported:"],
+      "meaning": "Honest refuse for vendor/island/session surfaces not in CWL genome (RFC-0024 attachment holes, php-session, etc.)"
     }
   },
   "catalogFixtures": [

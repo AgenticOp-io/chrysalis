@@ -1,19 +1,26 @@
 {
   "kind": "chrysalis.hub.phoenix-controller-honest-skip",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T20:45:00.000Z",
-  "decision": "skip",
-  "note": "Phoenix controller peel deferred (D6447). Not cheap on shared Elixir AST: requires cross-file get \"/x\", Ctrl, :action → defmodule XxxController / def action resolve plus Phoenix.Controller json/put_status helpers. LiveView must not be invented. Plug.Router route-surface ST already closed (hub:complete-conversion-prove:elixir).",
-  "requiredOriginShapes": [
-    "defmodule XxxController do … end",
-    "def action(conn, params) do … end",
-    "router get|post \"/path\", XxxController, :action"
+  "generatedAt": "2026-08-07T06:20:00.000Z",
+  "decision": "closed-route-surface",
+  "gate": "G10126",
+  "priorSkip": "phoenix-controller-honest-skip",
+  "decisionCharter": "D6540",
+  "note": "Phoenix secondary route-table surface closed via hub-gold-phoenix-controllers / hub:phoenix-controllers-smoke (20/20). Peels get|post|put|patch|delete \"/path\", XxxController, :action plus thin Phoenix.Controller json/2 + put_status/2 + params[\"id\"] cross-file resolve. Plug.Router remains Elixir D6448-ST. Do not invent live \"/…\", LiveView, pipelines, resources/scope, views, or Ecto (**D6447**).",
+  "fixture": "fixtures/hub-gold-phoenix-controllers",
+  "smoke": "pnpm run hub:phoenix-controllers-smoke",
+  "supported": [
+    "Phoenix.Router get|post|put|patch|delete \"/path\", Mod.Controller, :action",
+    "/:id path templates → {id}",
+    "defmodule XxxController def action(conn, params| _params)",
+    "json(conn, lit | %{…} | params[\"id\"])",
+    "conn |> put_status(N) |> json(%{…})"
   ],
   "honestHoles": [
-    { "shape": "Phoenix get \"/x\", Ctrl, :action controller dispatch", "reason": "hub-elixir:phoenix-controller" },
-    { "shape": "Phoenix LiveView / live \"/…\"", "reason": "hub-elixir:liveview" },
-    { "shape": "Phoenix.Controller json/put_status helpers", "reason": "hub-elixir:phoenix-json-helper" },
-    { "shape": "pipeline plugs / scopes", "reason": "hub-elixir:pipeline" }
+    { "shape": "Phoenix LiveView / live \"/…\" / HEEx / sockets", "reason": "hub-elixir:liveview" },
+    { "shape": "pipeline / scope / custom plugs beyond router table", "reason": "hub-elixir:pipeline-plug" },
+    { "shape": "resources / forward / match catch-alls", "reason": "hub-elixir:forward-match" },
+    { "shape": "Views / render/3 / filters / Ecto / Absinthe", "reason": "hub-elixir:phoenix-runtime" }
   ],
-  "revisitWhen": "Chartered origin corpus includes real Phoenix controller+router pairs without LiveView, and peel cost is bounded (no invented runtime)."
+  "revisitWhen": "Chartered origin needs LiveView or deeper Phoenix runtime without inventing — keep Plug.Router as Elixir ST."
 }

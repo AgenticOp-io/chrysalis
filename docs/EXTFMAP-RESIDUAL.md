@@ -28,6 +28,13 @@ See [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-ZD&T-L
 | If not found: set `CHRYSALIS_EXTFMAP_ABSENT=1` and run `cobol:extfmap-absent` | |
 | Confirm `reports/cobol/extfmap-absent.json` status ≠ `open` | |
 
+## Status smoke (honest open)
+
+\powershell
+pnpm run cobol:extfmap-status
+\\n
+Exits 0 and prints status: open|present|absent-attested without inventing the COPY. Residual stays **open** until drop or ABSENT attestation.
+
 ## Relation to Pilot Kit
 
 `pilot:cobol-clbs` may stay green with EXTFMAP as sole open P0.  

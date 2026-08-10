@@ -142,7 +142,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
 | Commercial launch | Optional vendor gate | `COMMERCIAL.md` |
-| WPTP D2+ sibling repos | Out-of-repo matrix | `MULTI-REPO-WORKSPACE.md` |
+| WPTP Convert orbit (Hub / Next / matrix) | **Active optional** — not default DNA queue | [`WPTP-CONVERT-ORBIT.md`](./WPTP-CONVERT-ORBIT.md) · `MULTI-REPO-WORKSPACE.md` |
 | IR helper lifting backlog | Phase 45 first-class **G6731** / **G7200** | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) |
 
 **Unpaused 2026-07-13 (D6424):** WISP empty-page hydrate grind (was paused under **D6416**) — remaining structural surfaces closed at **G9932–G9939** (`hub:wisp-cwl-remaining-surface-smoke`). Still not default build without an explicit WISP ask: inventing GenieACS/maps/FCAPS widgets.

@@ -1,6 +1,7 @@
 # WPTP D7 — Continuous expansion (ongoing)
 
 **Program:** [Web Platform Translation Program](./MASTER-PROGRAM.md)  
+**Convert orbit:** [`WPTP-CONVERT-ORBIT.md`](./WPTP-CONVERT-ORBIT.md) (siblings resolver + Hub entrypoints)  
 **Entry:** D5 exit met.  
 **Exit:** None (continuous).
 
