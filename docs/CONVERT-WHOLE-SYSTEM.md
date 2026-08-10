@@ -195,5 +195,6 @@ Skip orbit without shame: `CHRYSALIS_SKIP_WPTP=1`.
 | [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) | Historical WPTP charter (D1+siblings) |
 | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) | What is not default |
 | CWL [`ROSETTA-UT-PATH.md`](../../chrysalis-cwl/docs/language/ROSETTA-UT-PATH.md) | Path Steps 1–6 |
+| CWL [`CONVERT-WHOLE-SYSTEM-NOTIFIED.md`](../../chrysalis-cwl/docs/history/CONVERT-WHOLE-SYSTEM-NOTIFIED.md) | Sibling notify — DNA unchanged; Convert owns orbit |
 
 **Bottom line:** Every peel, oracle, Hub path, COBOL layout, and `platforms/` repo was built to **push meaning toward a shared web model**. That model is now **CWL ↔ WebIR**. Convert’s job is to **keep filling it honestly**; WPTP keeps **serving Hub/Next/matrix**; nothing in that history needs to be thrown away — only aimed.
