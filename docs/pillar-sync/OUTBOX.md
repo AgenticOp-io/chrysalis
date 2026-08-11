@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_STANDBY: ok
-SHA: 28b98cdc
+SHA: c971e024
 HEARTBEAT: waiting
 BRANCH: candidate/wptp-convert-orbit
 CWL_PIN: file:1.0.17
