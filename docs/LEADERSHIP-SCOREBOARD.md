@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-11 (**G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
+**As of:** 2026-08-11 (**G10135** Polka honesty L1; **G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
 
 ---
 
@@ -52,6 +52,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G9957 | Restify | `hub:restify-smoke` | 20 + pass-through `pre`/`use` (G9959) |
 | G10134 | Restify honesty | `hub:restify-honesty-smoke` | expanded residual catalog; refuse plugins/complex pre-use runtime 20/20 force-close; G9957/G9959/G10005 remain sole Restify ORIGIN gold |
 | G9958 | Polka | `hub:polka-smoke` | 20 + pass-through `app.use` (G9959); completes thin Node set |
+| G10135 | Polka honesty | `hub:polka-honesty-smoke` | expanded residual catalog; refuse plugins/onion middleware runtime 20/20 force-close; G9958/G9959/G10005 remain sole Polka ORIGIN gold |
 | G10019 | Hono TS ORIGIN | `hub:hono-smoke` | secondary to Express/TS ST; **≠ emit-hono**; route surface |
 | G10044 | Hono pass-through mw | `hub:hono-smoke` v2 | empty/next-only `app.use` → `js.passthrough` (G9959 parallel); complex mw = honest holes |
 | G10131 | Hono honesty | `hub:hono-honesty-smoke` | expanded residual catalog; refuse middleware/RPC/JSX runtime 20/20 force-close; G10019/G10044 remain sole Hono ORIGIN gold |
@@ -122,8 +123,8 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | --- | --- | --- |
 | Nest DI / guards / pipes | honest holes | G9950 |
 | Restify plugins / complex `pre`/`use` / lifecycle | **Honest residual G10134** | `restify-honest-holes.json` + `RESTIFY_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
-| Koa onion `app.use` / compose / plugins / throw / nested Router | **Honest residual G10132** | `koa-honest-holes.json` + `KOA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**); Polka non-empty mw still honest holes |
-| Polka non-empty middleware | honest holes | no onion invent; empty/next-only closed (G9959) |
+| Koa onion `app.use` / compose / plugins / throw / nested Router | **Honest residual G10132** | `koa-honest-holes.json` + `KOA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
+| Polka non-empty middleware / plugins / sirv / nested mount | **Honest residual G10135** | `polka-honest-holes.json` + `POLKA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
 | Hono complex `app.use` / createMiddleware / RPC / JSX / validators / WebSocket | **Honest residual G10131** | `hono-honest-holes.json` + `HONO_HONESTY_OK`; empty/next-only closed (G10044); **refuse** force-close as full runtime 20/20 (**D6447**); ≠ emit-hono |
 | Elysia plugins / non-empty lifecycle / macros / derive / guard | **Honest residual G10133** | `elysia-honest-holes.json` + `ELYSIA_HONESTY_OK`; empty lifecycle closed (G10053); **refuse** force-close as full runtime 20/20 (**D6447**); G10025 route surface |
 | Oak `app.use` / `router.routes()` / request body|headers|cookies | honest holes | G10043 ORIGIN route surface only |

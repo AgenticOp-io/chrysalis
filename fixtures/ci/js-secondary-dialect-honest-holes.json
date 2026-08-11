@@ -182,25 +182,39 @@
         "polka": {
             "fixture": "fixtures/hub-gold-polka",
             "smoke": "pnpm run hub:polka-smoke",
+            "note": "ORIGIN secondary dialect (G9958 / G9959 pass-through app.use + G10005 IDENT). Residual honesty expanded G10135 (`polka-honest-holes.json` / `POLKA_HONESTY_OK`).",
             "supported": [
                 "app.get|post|put|patch|delete literal paths",
                 "res.writeHead(N) + res.end(JSON.stringify(â€¦)|literal)",
                 "req.params.* / req.query.*",
                 "res.statusCode = N",
-                "const { id } = req.params|query (IDENT peel, G10005)"
+                "const { id } = req.params|query (IDENT peel, G10005)",
+                "empty/next-only app.use → js.passthrough (G9959)"
             ],
             "honestHoles": [
                 {
-                    "shape": "app.use middleware chains",
-                    "reason": "hub-js:polka-middleware"
+                    "shape": "non-empty / complex app.use bodies + cascaded middleware chains",
+                    "reason": "hub-js:polka-middleware",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
+                },
+                {
+                    "shape": "polka plugins / sirv / body-parser / compression invent",
+                    "reason": "hub-js:polka-plugins",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
                 },
                 {
                     "shape": "named handlers / chained polka().get without Identifier recv",
-                    "reason": "hub-js:polka-named-handler"
+                    "reason": "hub-js:polka-named-handler",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
                 },
                 {
-                    "shape": "streaming res.write chunk loops / hijack",
-                    "reason": "hub-js:polka-stream"
+                    "shape": "streaming res.write chunk loops / hijack / nested mount invent",
+                    "reason": "hub-js:polka-stream",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
                 },
                 {
                     "shape": "nested/computed/rest destructure from params|query",
@@ -210,7 +224,13 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10135",
+                "catalog": "fixtures/ci/polka-honest-holes.json",
+                "smoke": "pnpm run hub:polka-honesty-smoke",
+                "token": "POLKA_HONESTY_OK"
+            }
         },
         "hono": {
             "fixture": "fixtures/hub-gold-hono",

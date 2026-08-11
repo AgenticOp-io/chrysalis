@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-l1-polka-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-l1-polka-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_L1_POLKA_HONESTY: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+DIALECT: Polka
+SMOKES: POLKA_HONESTY_OK · CONVERT_POLKA_HONESTY · hub:polka-smoke(G9958/G9959/G10005)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10135 — `fixtures/ci/polka-honest-holes.json` + `hub:polka-honesty-smoke`
+- Refuse Polka plugins/onion middleware full runtime 20/20 force-close; G9958/G9959/G10005 remain sole Polka ORIGIN gold; pass-through ceiling unchanged
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched; no new dialect wave
+
+---
+
 ## 2026-08-11 — convert-l1-restify-honesty
 
 **To:** cwl  
