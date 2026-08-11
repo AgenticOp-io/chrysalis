@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-l1-restify-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-l1-restify-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_L1_RESTIFY_HONESTY: ok
+SHA: 315b812e
+BRANCH: candidate/wptp-convert-orbit
+DIALECT: Restify
+SMOKES: RESTIFY_HONESTY_OK · CONVERT_RESTIFY_HONESTY · hub:restify-smoke(G9957/G9959/G10005)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10134 — `fixtures/ci/restify-honest-holes.json` + `hub:restify-honesty-smoke`
+- Refuse Restify plugins/complex pre-use full runtime 20/20 force-close; G9957/G9959/G10005 remain sole Restify ORIGIN gold; pass-through ceiling unchanged
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched; no new dialect wave
+
+---
+
 ## 2026-08-11 — convert-l1-elysia-honesty
 
 **To:** cwl  
