@@ -13,6 +13,7 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | --- | --- |
 | [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN / AdonisJS ORIGIN / CF Workers fetch-export |
 | [`fixtures/ci/hono-honest-holes.json`](../fixtures/ci/hono-honest-holes.json) | Hono complex mw / createMiddleware / RPC / JSX / validators / WebSocket residual (**G10131** honesty; refuse runtime 20/20; pass-through ceiling G10044) |
+| [`fixtures/ci/koa-honest-holes.json`](../fixtures/ci/koa-honest-holes.json) | Koa onion mw / compose / plugins / throw / cookies / nested Router residual (**G10132** honesty; refuse runtime 20/20; pass-through ceiling G9959) |
 | [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux / Revel secondaries; Gin ST (+ Group peel G10066) |
 | [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **closed route-surface** (G10114; was G10065 skip; interceptors/router.GET invent remain holes) |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
@@ -52,7 +53,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Stack | Do not invent | Closed instead |
 | --- | --- | --- |
 | NestJS | DI, guards, pipes, interceptors, bootstrap | Route-surface ST (`hub:nestjs-flagship`); @Headers/@Cookies/@Body field peels (G10015) |
-| Koa / Polka | Non-empty onion `app.use` | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
+| Koa / Polka | Non-empty onion `app.use` / koa-compose / plugins / throw / nested Router | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel; Koa honesty **G10132** |
 | Restify | Plugins, complex `pre`/`use` bodies | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Hapi | Plugins, `server.ext` lifecycle, auth options | Route + `h.response().code` smoke; G10005 IDENT destructure peel |
 | Hono | Complex `app.use` / createMiddleware / RPC / JSX / validators / WebSocket / nested `app.route` / ResponseInit | Empty/next-only pass-through (G10044); ORIGIN route surface (G10019); honesty **G10131**; **≠ emit-hono** |

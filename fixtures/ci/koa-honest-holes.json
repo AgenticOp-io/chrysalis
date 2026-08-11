@@ -1,0 +1,56 @@
+{
+  "kind": "chrysalis.hub.koa-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T03:30:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10132",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "expressTsSt": "D6448-ST / hub:complete-conversion-prove:typescript",
+    "koaOriginRouteSurface": "G10005 / hub:koa-smoke",
+    "koaPassThroughMw": "G9959 / hub:koa-smoke v2",
+    "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#koa"
+  },
+  "note": "Koa honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; pass-through ceiling G9959). Expands residual shapes that must stay holes. Route-surface gold remains Koa ORIGIN get|post + ctx.body/status/params/query + IDENT destructure (G10005) + empty/next-only app.use → js.passthrough (G9959). Do **not** invent complex middleware onion, koa-compose factories, ctx.throw/assert runtime, cookies/session/passport, nested Router mounts, bodyparser/static plugins, or generator middleware as a full Koa runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:koa-honesty-smoke",
+  "token": "KOA_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Koa onion middleware full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Koa onion peel; holes over façades; G9959+G10005 remain sole Koa ORIGIN gold; pass-through ceiling already known"
+  },
+  "supportedRouteSurfaceOnly": [
+    "app|router.get|post|put|patch|delete literal paths (G10005)",
+    "ctx.body = literal|object|param|query (G10005)",
+    "ctx.status = number (G10005)",
+    "ctx.params.* / ctx.query.* / ctx.request.body.* (G10005)",
+    "const { id } = ctx.params|query|request.body IDENT peel (G10005)",
+    "empty/next-only app.use → js.passthrough preset (G9959)",
+    "Express/TS D6448-ST — not Koa onion runtime"
+  ],
+  "honestHoles": [
+    { "shape": "non-empty / complex app.use bodies + cascaded onion middleware chains", "reason": "hub-js:koa-middleware" },
+    { "shape": "koa-compose / middleware factory invent / composed onion stacks", "reason": "hub-js:koa-compose" },
+    { "shape": "ctx.throw / ctx.assert / ctx.respond = false control-flow invent", "reason": "hub-js:koa-throw" },
+    { "shape": "ctx.cookies / ctx.set / streaming body / pipe invent", "reason": "hub-js:koa-cookies-set" },
+    { "shape": "koa-bodyparser / koa-static / koa-session / passport invent", "reason": "hub-js:koa-plugins" },
+    { "shape": "nested Router / router.prefix deep mount / router.use onion", "reason": "hub-js:koa-nested-router" },
+    { "shape": "generator-function middleware (legacy Koa v1 yield)", "reason": "hub-js:koa-generator-mw" },
+    { "shape": "koa-websocket / ws upgrade / streaming SSE invent", "reason": "hub-js:koa-websocket" },
+    { "shape": "ctx.state / ctx.app.context prototype extension invent", "reason": "hub-js:koa-context-state" },
+    { "shape": "new Koa() listen/bootstrap / multi-app mount invent", "reason": "hub-js:koa-bootstrap" },
+    { "shape": "nested/computed/rest destructure from params|query|body", "reason": "hub-js:koa-destructure" },
+    { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" },
+    { "shape": "Treat ORIGIN peel as invented full Koa onion runtime claim", "reason": "hub-js:koa-runtime-confusion" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-koa-middleware claiming hole-free onion runtime",
+    "hub-gold-koa must keep only empty/next-only app.use + route surface (no compose/plugins/throw invent)"
+  ],
+  "revisitWhen": "Explicit charter lands a real Koa onion origin corpus with a peel that does not invent middleware runtime — until then keep G9959+G10005 route surface + empty pass-through as the only Koa ORIGIN close.",
+  "nextTargets": [
+    "Maintain KOA_HONESTY_OK — refuse Koa onion middleware runtime 20/20 force-close",
+    "G9959/G10005 hub:koa-smoke remains sole Koa ORIGIN gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

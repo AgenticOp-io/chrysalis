@@ -1432,6 +1432,7 @@
     "hub:actix-scope-smoke": "node scripts/hub-ingest/hub-actix-scope-smoke.mjs",
     "hub:nestjs-smoke": "node scripts/hub-ingest/hub-nestjs-smoke.mjs",
     "hub:koa-smoke": "node scripts/hub-ingest/hub-koa-smoke.mjs",
+    "hub:koa-honesty-smoke": "node scripts/hub-ingest/hub-koa-honesty-smoke.mjs",
     "hub:hapi-smoke": "node scripts/hub-ingest/hub-hapi-smoke.mjs",
     "hub:fastapi-smoke": "node scripts/hub-ingest/hub-fastapi-smoke.mjs",
     "hub:starlette-smoke": "node scripts/hub-ingest/hub-starlette-smoke.mjs",

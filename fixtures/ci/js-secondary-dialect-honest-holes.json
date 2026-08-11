@@ -7,26 +7,40 @@
         "koa": {
             "fixture": "fixtures/hub-gold-koa",
             "smoke": "pnpm run hub:koa-smoke",
+            "note": "ORIGIN secondary dialect (G10005 / G9959 pass-through mw). Residual honesty expanded G10132 (`koa-honest-holes.json` / `KOA_HONESTY_OK`).",
             "supported": [
                 "app|router.get|post|put|patch|delete literal paths",
                 "ctx.body = literal|object|param|query",
                 "ctx.status = number",
                 "ctx.params.* / ctx.query.*",
                 "ctx.request.body.* / headers.* / query.*",
-                "const { id } = ctx.params|query|request.body (IDENT peel, G10005)"
+                "const { id } = ctx.params|query|request.body (IDENT peel, G10005)",
+                "empty/next-only app.use → js.passthrough (G9959)"
             ],
             "honestHoles": [
                 {
-                    "shape": "app.use / onion middleware chains",
-                    "reason": "hub-js:koa-middleware"
+                    "shape": "non-empty / complex app.use bodies + cascaded onion middleware chains",
+                    "reason": "hub-js:koa-middleware",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
                 },
                 {
                     "shape": "ctx.throw / ctx.assert / ctx.respond = false",
-                    "reason": "hub-js:koa-throw"
+                    "reason": "hub-js:koa-throw",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
                 },
                 {
                     "shape": "ctx.cookies / ctx.set / streaming body",
-                    "reason": "hub-js:koa-cookies-set"
+                    "reason": "hub-js:koa-cookies-set",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
+                },
+                {
+                    "shape": "koa-compose / plugins / nested Router invent",
+                    "reason": "hub-js:koa-compose",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
                 },
                 {
                     "shape": "nested/computed/rest destructure from params|query|body",
@@ -36,7 +50,13 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10132",
+                "catalog": "fixtures/ci/koa-honest-holes.json",
+                "smoke": "pnpm run hub:koa-honesty-smoke",
+                "token": "KOA_HONESTY_OK"
+            }
         },
         "nestjs": {
             "fixture": "fixtures/hub-gold-nestjs",
