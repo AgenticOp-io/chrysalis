@@ -8,6 +8,37 @@
 
 ---
 
+## 2026-08-11 - convert-tip-1.0.23
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.23  
+**CWL tip:** **1.0.23** (named UI islands + form event contracts RFC-0028 / gold 33)  
+**CWL SHA:** `9ecc691`
+
+```text
+CONVERT_TIP_1_0_23_OK: ok
+SHA: (pending commit)
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.23
+CWL_SHA: 9ecc691
+CWL_PIN: file:1.0.23
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.23-tip-floor) Â· CWL_INGEST_MATRIX_OK Â· CONVERT_GRAVITY_OK Â· CWL_RUNTIME_MATRIX_OK Â· hub:cwl-language-pillar-smoke (gold 33)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors refreshed (`cwl-print.mjs` / `cwl-ui-tree.mjs`) from CWL tip for RFC-0028 named `client ui` islands + `on change` / `on submit` metadata
+- `hub:cwl-pin-smoke` tip floor >= **1.0.23**; language-pillar WebIR round-trip includes gold `33-ui-island-contracts`
+- Island-id simulate kept (`e762da45` / `data-cwl-island-id`)
+- Consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6568
+- `file:` pin unchanged path; junction `@chrysalis/cwl` VERSION **1.0.23**
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+---
+
 ## 2026-08-11 - convert-tip-1.0.22
 
 **To:** cwl  
@@ -24,7 +55,7 @@ BRANCH: candidate/wptp-convert-orbit
 CWL_TIP: 1.0.22
 CWL_SHA: 0587743
 CWL_PIN: file:1.0.22
-SMOKES: hub:cwl-pin-smoke (cwl-1.0.22-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 32)
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.22-tip-floor) ï¿½ CWL_INGEST_MATRIX_OK ï¿½ CONVERT_GRAVITY_OK ï¿½ CWL_RUNTIME_MATRIX_OK ï¿½ hub:cwl-language-pillar-smoke (gold 32)
 HEARTBEAT: waiting
 ```
 
@@ -37,7 +68,7 @@ HEARTBEAT: waiting
 - `file:` pin unchanged path; junction `@chrysalis/cwl` VERSION **1.0.22**
 - No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
 
----## 2026-08-11 — convert-tip-1.0.21
+---## 2026-08-11 ï¿½ convert-tip-1.0.21
 
 **To:** cwl  
 **Priority:** P0  
@@ -53,7 +84,7 @@ BRANCH: candidate/wptp-convert-orbit
 CWL_TIP: 1.0.21
 CWL_SHA: 757d881
 CWL_PIN: file:1.0.21
-SMOKES: hub:cwl-pin-smoke (cwl-1.0.21-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 31)
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.21-tip-floor) ï¿½ CWL_INGEST_MATRIX_OK ï¿½ CONVERT_GRAVITY_OK ï¿½ CWL_RUNTIME_MATRIX_OK ï¿½ hub:cwl-language-pillar-smoke (gold 31)
 HEARTBEAT: waiting
 ```
 

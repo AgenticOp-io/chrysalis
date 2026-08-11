@@ -209,7 +209,8 @@ function printUiNode(node, indent, lines) {
     return;
   }
   if (node.kind === "island") {
-    lines.push(`${indent}client ui {`);
+    if (node.name) lines.push(`${indent}client ui ${JSON.stringify(String(node.name))} {`);
+    else lines.push(`${indent}client ui {`);
     for (const child of node.children ?? []) printUiNode(child, `${indent}  `, lines);
     lines.push(`${indent}}`);
     return;
@@ -559,7 +560,14 @@ function canonicalizeUiNode(node) {
     return { kind: "fragment", children: (node.children ?? []).map(canonicalizeUiNode) };
   }
   if (node.kind === "island") {
-    return { kind: "island", client: true, children: (node.children ?? []).map(canonicalizeUiNode) };
+    /** @type {{ kind: string, client: boolean, name?: string | null, children: unknown[] }} */
+    const out = {
+      kind: "island",
+      client: true,
+      children: (node.children ?? []).map(canonicalizeUiNode),
+    };
+    if (node.name) out.name = String(node.name);
+    return out;
   }
   if (node.kind === "element") {
     return {
