@@ -1,0 +1,56 @@
+{
+  "kind": "chrysalis.hub.elysia-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T03:45:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10133",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "expressTsSt": "D6448-ST / hub:complete-conversion-prove:typescript",
+    "elysiaOriginRouteSurface": "G10025 / hub:elysia-smoke",
+    "elysiaEmptyLifecycle": "G10053 / hub:elysia-smoke v2",
+    "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#elysia"
+  },
+  "note": "Elysia honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; empty-lifecycle pass-through ceiling G10053). Expands residual shapes that must stay holes. Route-surface gold remains Elysia ORIGIN get|post + ctx.params|query / IDENT bags + ctx.set.status + object/literal returns (G10025) + empty onRequest/onBeforeHandle → js.passthrough (G10053). Do **not** invent plugins / `.use` (not `(ctx, next)`), non-empty lifecycle / options/`as`, macros / derive / guard, nested `group`, WebSocket, or schema runtime as a full Elysia runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:elysia-honesty-smoke",
+  "token": "ELYSIA_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Elysia plugins/lifecycle/macros full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Elysia plugin/lifecycle peel beyond empty passthrough; holes over façades; G10025+G10053 remain sole Elysia ORIGIN gold; empty-lifecycle ceiling already known"
+  },
+  "supportedRouteSurfaceOnly": [
+    "new Elysia() factory dialect marker (G10025)",
+    "app.get|post|put|patch|delete literal paths (G10025)",
+    "ctx.params.* / ctx.query.* (G10025)",
+    "IDENT ({ params: { id } }) / ({ query: { q } }) handler bags (G10005 reuse)",
+    "ctx.set.status = N + literal|object return (G10025)",
+    "empty onRequest / onBeforeHandle → js.passthrough preset (G10053; parallel G10044/G9959)",
+    "Express/TS D6448-ST — not Elysia plugin/lifecycle runtime"
+  ],
+  "honestHoles": [
+    { "shape": "app.use / .use(plugin) / Elysia plugins (not pass-through-shaped)", "reason": "hub-js:elysia-plugins" },
+    { "shape": "non-empty onRequest / onBeforeHandle / onAfterHandle / onError + options/as scopes", "reason": "hub-js:elysia-lifecycle" },
+    { "shape": ".macro / derived context invent / custom lifecycle hooks beyond empty shells", "reason": "hub-js:elysia-macros" },
+    { "shape": ".derive / map / resolve context injection invent", "reason": "hub-js:elysia-derive" },
+    { "shape": ".guard / beforeHandle scopes with non-empty bodies / auth invent", "reason": "hub-js:elysia-guard" },
+    { "shape": "named handlers / app.group nesting / prefix / .mount", "reason": "hub-js:elysia-nested-route" },
+    { "shape": "t.Object / TypeBox schema runtime / body|query|params schema validators", "reason": "hub-js:elysia-schema" },
+    { "shape": ".ws / WebSocket upgrade / SSE / streaming helpers invent", "reason": "hub-js:elysia-websocket" },
+    { "shape": "new Elysia({ … }) listen/bootstrap / multi-instance mount invent", "reason": "hub-js:elysia-bootstrap" },
+    { "shape": "cookie / set.headers / redirect / file / status helpers beyond ctx.set.status", "reason": "hub-js:elysia-response-extra" },
+    { "shape": "nested/computed/rest destructure beyond IDENT bag fields", "reason": "hub-js:elysia-destructure" },
+    { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" },
+    { "shape": "Treat ORIGIN peel as invented full Elysia plugin/lifecycle runtime claim", "reason": "hub-js:elysia-runtime-confusion" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-elysia-plugins claiming hole-free plugin/lifecycle runtime",
+    "hub-gold-elysia must keep only empty onRequest/onBeforeHandle + route surface (no .use/macro/derive/group invent)"
+  ],
+  "revisitWhen": "Explicit charter lands a real Elysia plugin/lifecycle origin corpus with a peel that does not invent runtime — until then keep G10025+G10053 route surface + empty lifecycle as the only Elysia ORIGIN close.",
+  "nextTargets": [
+    "Maintain ELYSIA_HONESTY_OK — refuse Elysia plugins/lifecycle/macros runtime 20/20 force-close",
+    "G10025/G10053 hub:elysia-smoke remains sole Elysia ORIGIN gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

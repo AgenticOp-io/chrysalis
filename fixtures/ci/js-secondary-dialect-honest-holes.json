@@ -248,7 +248,7 @@
         "elysia": {
             "fixture": "fixtures/hub-gold-elysia",
             "smoke": "pnpm run hub:elysia-smoke",
-            "note": "ORIGIN secondary dialect (G10025 / D6487 + G10053 / D6515 empty lifecycle). Plugin `.use` is not `(ctx, next)` â€” leave honest hole.",
+            "note": "ORIGIN secondary dialect (G10025 / D6487 + G10053 / D6515 empty lifecycle). Plugin `.use` is not `(ctx, next)` — leave honest hole. Residual honesty expanded G10133 (`elysia-honest-holes.json` / `ELYSIA_HONESTY_OK`).",
             "supported": [
                 "new Elysia() factory (dialect marker)",
                 "app.get|post|put|patch|delete literal paths",
@@ -256,24 +256,32 @@
                 "IDENT ({ params: { id } }) / ({ query: { q } }) handler bags (G10005 reuse)",
                 "ctx.set.status = N",
                 "literal | object return (JSON body)",
-                "empty onRequest / onBeforeHandle â†’ js.passthrough preset (G10053; parallel G10044/G9959)"
+                "empty onRequest / onBeforeHandle → js.passthrough preset (G10053; parallel G10044/G9959)"
             ],
             "honestHoles": [
                 {
                     "shape": "app.use / .use(plugin) / Elysia plugins (not pass-through-shaped)",
-                    "reason": "hub-js:elysia-plugins"
+                    "reason": "hub-js:elysia-plugins",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": "non-empty onRequest / onBeforeHandle / other lifecycle + options/as scopes",
-                    "reason": "hub-js:elysia-lifecycle"
+                    "reason": "hub-js:elysia-lifecycle",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": ".macro / derived context / t.Object schema runtime",
-                    "reason": "hub-js:elysia-macros"
+                    "reason": "hub-js:elysia-macros",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": "named handlers / app.group nesting / prefix",
-                    "reason": "hub-js:elysia-nested-route"
+                    "reason": "hub-js:elysia-nested-route",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": "nested/computed/rest destructure beyond IDENT bag fields",
@@ -283,7 +291,13 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10133",
+                "catalog": "fixtures/ci/elysia-honest-holes.json",
+                "smoke": "pnpm run hub:elysia-honesty-smoke",
+                "token": "ELYSIA_HONESTY_OK"
+            }
         },
         "oak": {
             "fixture": "fixtures/hub-gold-oak",

@@ -1486,6 +1486,7 @@
     "hub:hono-smoke": "node scripts/hub-ingest/hub-hono-smoke.mjs",
     "hub:hono-honesty-smoke": "node scripts/hub-ingest/hub-hono-honesty-smoke.mjs",
     "hub:elysia-smoke": "node scripts/hub-ingest/hub-elysia-smoke.mjs",
+    "hub:elysia-honesty-smoke": "node scripts/hub-ingest/hub-elysia-honesty-smoke.mjs",
     "hub:oak-smoke": "node scripts/hub-ingest/hub-oak-smoke.mjs",
     "hub:itty-smoke": "node scripts/hub-ingest/hub-itty-smoke.mjs",
     "hub:adonis-smoke": "node scripts/hub-ingest/hub-adonis-smoke.mjs",
