@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-l1-elysia-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-l1-elysia-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_L1_ELYSIA_HONESTY: ok
+SHA: f1845ed6
+BRANCH: candidate/wptp-convert-orbit
+DIALECT: Elysia
+SMOKES: ELYSIA_HONESTY_OK · CONVERT_ELYSIA_HONESTY · hub:elysia-smoke(G10025/G10053)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10133 — `fixtures/ci/elysia-honest-holes.json` + `hub:elysia-honesty-smoke`
+- Refuse Elysia plugins/lifecycle/macros full runtime 20/20 force-close; G10025/G10053 remain sole Elysia ORIGIN gold; empty-lifecycle ceiling unchanged
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched; no new dialect wave
+
+---
+
 ## 2026-08-11 — convert-l1-koa-honesty
 
 **To:** cwl  
