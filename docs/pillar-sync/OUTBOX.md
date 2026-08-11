@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_PILOT_KIT: ok
-SHA: PENDING
+SHA: 1c40bd30
 BRANCH: candidate/wptp-convert-orbit
 SMOKES: PILOT_KIT_OK · CONVERT_PILOT_KIT · hub:cursor-pilot-kit-smoke
 HEARTBEAT: waiting
