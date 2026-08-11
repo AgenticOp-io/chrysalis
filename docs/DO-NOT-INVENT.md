@@ -22,7 +22,8 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | [`fixtures/ci/quart-honest-holes.json`](../fixtures/ci/quart-honest-holes.json) | Quart secondary (G10026); middleware/WebSocket/Blueprint beyond cheap = holes |
 | [`fixtures/ci/flask-blueprint-honest-holes.json`](../fixtures/ci/flask-blueprint-honest-holes.json) | Flask Blueprint secondary peel (G10070); cross-file/nested/register override/middleware = holes |
 | [`fixtures/ci/bottle-honest-holes.json`](../fixtures/ci/bottle-honest-holes.json) | Bottle secondary (G10027); plugins/middleware/templates/mount = holes |
-| [`fixtures/ci/dart-shelf-honest-holes.json`](../fixtures/ci/dart-shelf-honest-holes.json) | Shelf ST; Flutter / Frog / Pipeline |
+| [`fixtures/ci/dart-shelf-honest-holes.json`](../fixtures/ci/dart-shelf-honest-holes.json) | Shelf ST; Flutter / Frog / Pipeline (Flutter residual → G10129) |
+| [`fixtures/ci/flutter-honest-holes.json`](../fixtures/ci/flutter-honest-holes.json) | Flutter / widgets / engine / Material / Dart Frog residual (**G10129** honesty; refuse runtime 20/20) |
 | [`fixtures/ci/http4k-honest-holes.json`](../fixtures/ci/http4k-honest-holes.json) | http4k Kotlin secondary; Spring ST; Ktor secondary |
 | [`fixtures/ci/java-secondary-dialect-honest-holes.json`](../fixtures/ci/java-secondary-dialect-honest-holes.json) | Java JAX-RS (G10012) / Micronaut (G10020) / Quarkus via JAX-RS peels (G10034) / Helidon MP via JAX-RS peels (G10042) / Javalin (G10035); Spring ST |
 | [`fixtures/ci/finch-honest-holes.json`](../fixtures/ci/finch-honest-holes.json) | Finch Scala secondary (G10051); Akka ST; Http4s first Scala secondary; coproduct/lenses/TwitterServer = holes |
@@ -81,7 +82,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Ruby Rails | ActionController, `render json:`, cross-file `ctrl#action`, route macros | Sinatra ST (`hub-flagship-ruby`) |
 | Ruby Roda | Nested `r.on`/`r.is`, multi-file plugins/auth, non-literal matchers | Shallow `r.get|post` secondary (G10022) |
 | Elixir | LiveView / HEEx / sockets / channels, pipelines | Plug.Router ST; Phoenix controllers route-surface G10126; LiveView honesty G10128 |
-| Dart | Flutter, Dart Frog, Pipeline, mount/stream, cross-file named handlers | Shelf ST + same-file named handlers (G10007) |
+| Dart | Flutter, Dart Frog, Pipeline, mount/stream, cross-file named handlers | Shelf ST + same-file named handlers (G10007); Flutter honesty G10129 |
 | PHP Blade | Alpine `x-show`, Livewire `wire:*` hydrate | Inventory + basic Blade structural |
 | Vue Nitro | Whole-body / unbound `readBody` invent | Field peels + nested middleware presets |
 | OpenAPI/HAR | Nested body invent; cookie invent when absent; response-header invent when absent/schema-only; `/raw` without example; `/items/1`→`:id` invent; hyphenated cookie/header rename | Flat example peels; IDENT-safe header/cookie/body/response-header (G10002/G10031/G10054); concrete HAR paths |
@@ -92,7 +93,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 
 | Subject | Missing origin | Catalog / note |
 | --- | --- | --- |
-| Flutter / Dart Frog UI | Real Flutter/Frog app corpus | dart-shelf honest holes |
+| Flutter / Dart Frog UI | Real Flutter/Frog app corpus | flutter-honest-holes (G10129); Shelf ST closed G9956 |
 | Phoenix LiveView / HEEx / channels | Real LiveView corpus + non-invent peel | phoenix-liveview-honest-holes (G10128); controllers closed G10126 |
 | IBM BMS maps | Licensed `DFHAID` / `DFHBMSCA` / `EXTFMAP` in SDFHCOB | **G10084** symbol catalog only; COPY stay unresolved |
 | COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS/MQ/IMS behavior | **65/65** after G10078; Medium+ is **structural** (G10083); no LCB claim |
@@ -139,4 +140,4 @@ Prove: `pnpm run hub:cobol-clbs-prove-smoke` · Docs: [`COBOL-MODERNIZATION-PROV
 
 1. **Add hole** — append to the matching `fixtures/ci/*honest*.json` (or new catalog) + one line here + scoreboard “Honest skips”.
 2. **Close hole** — only after a real origin peel + smoke/prove; never by stubbing runtime.
-3. **Charter** — Flutter / LiveView / BMS / Rails resources·filters (beyond G10115 route-table) / Blazor require an explicit plan amendment before build.
+3. **Charter** — Flutter runtime / LiveView runtime / BMS / Rails resources·filters (beyond G10115 route-table) / Blazor require an explicit plan amendment before build. Honesty catalogs G10129/G10128 refuse force-close.

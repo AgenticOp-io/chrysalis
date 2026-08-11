@@ -1,0 +1,53 @@
+{
+  "kind": "chrysalis.hub.flutter-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T05:00:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10129",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "dartShelfSt": "G9956 / hub:complete-conversion-prove:dart",
+    "dartShelfNamedHandlers": "G10007 / hub:dart-smoke",
+    "dartShelfHonestHoles": "fixtures/ci/dart-shelf-honest-holes.json"
+  },
+  "note": "Flutter honesty catalog (dual-primary language deepen; parallel to LiveView G10128). Expands residual shapes that must stay holes. Route-surface gold remains Dart Shelf only (G9956/G10007). Do **not** invent Flutter widgets, engine, Material/Cupertino, Dart Frog, or Platform channels as a full runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:flutter-honesty-smoke",
+  "token": "FLUTTER_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Flutter / Dart UI full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Flutter/widget/engine peel; holes over façades"
+  },
+  "supportedRouteSurfaceOnly": [
+    "shelf_router Router get|post|put|patch|delete('/path', handler) (G9956)",
+    "Same-file named handler refs (G10007)",
+    "Response.ok(jsonEncode(…)) / Response(status, body: jsonEncode(…)) (G9954)",
+    "request.url.queryParameters + jsonDecode body peels — not Flutter UI"
+  ],
+  "honestHoles": [
+    { "shape": "package:flutter / WidgetsFlutterBinding / runApp", "reason": "hub-dart:flutter-app" },
+    { "shape": "StatelessWidget / StatefulWidget / State<T> / InheritedWidget", "reason": "hub-dart:flutter-widget" },
+    { "shape": "BuildContext / Widget build(BuildContext) / setState", "reason": "hub-dart:flutter-build" },
+    { "shape": "MaterialApp / CupertinoApp / Scaffold / ThemeData", "reason": "hub-dart:flutter-material" },
+    { "shape": "Navigator / routes Map / GoRouter / auto_route", "reason": "hub-dart:flutter-nav" },
+    { "shape": "Element / RenderObject / Flutter engine / PlatformDispatcher", "reason": "hub-dart:flutter-engine" },
+    { "shape": "MethodChannel / EventChannel / Platform views", "reason": "hub-dart:flutter-platform-channel" },
+    { "shape": "dart:ui / dart:ffi Flutter bindings / isolates UI thread", "reason": "hub-dart:flutter-dart-ui" },
+    { "shape": "Flutter web (flutter_web / canvaskit / html renderer)", "reason": "hub-dart:flutter-web" },
+    { "shape": "Dart Frog Route / RequestContext / middleware cascades", "reason": "hub-dart:dart-frog" },
+    { "shape": "Pipeline() / shelf middleware onion beyond Shelf ST", "reason": "hub-dart:pipeline" },
+    { "shape": "Router.mount / nested Shelf routers", "reason": "hub-dart:mount" },
+    { "shape": "flutter_test / WidgetTester / integration_test invent", "reason": "hub-dart:flutter-test-runtime" },
+    { "shape": "Riverpod / Bloc / Provider state as convert runtime", "reason": "hub-dart:flutter-state-mgmt" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-flutter claiming hole-free Flutter runtime",
+    "Shelf gold (hub-gold-dart-shelf) must not ship Flutter/Material/runApp invent"
+  ],
+  "revisitWhen": "Explicit charter lands a real Flutter/Dart Frog origin corpus with a peel that does not invent engine/widget runtime — until then keep G9956 Shelf as the only Dart route-surface close.",
+  "nextTargets": [
+    "Maintain FLUTTER_HONESTY_OK — refuse Flutter runtime 20/20 force-close",
+    "Rails resources·filters still charter",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

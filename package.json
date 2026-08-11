@@ -1470,6 +1470,7 @@
     "hub:rails-routes-smoke": "node scripts/hub-ingest/hub-rails-routes-smoke.mjs",
     "hub:phoenix-controllers-smoke": "node scripts/hub-ingest/hub-phoenix-controllers-smoke.mjs",
     "hub:phoenix-liveview-honesty-smoke": "node scripts/hub-ingest/hub-phoenix-liveview-honesty-smoke.mjs",
+    "hub:flutter-honesty-smoke": "node scripts/hub-ingest/hub-flutter-honesty-smoke.mjs",
     "hub:sinatra-ns-smoke": "node scripts/hub-ingest/hub-sinatra-ns-smoke.mjs",
     "hub:gorilla-smoke": "node scripts/hub-ingest/hub-gorilla-smoke.mjs",
     "hub:servemux-smoke": "node scripts/hub-ingest/hub-servemux-smoke.mjs",

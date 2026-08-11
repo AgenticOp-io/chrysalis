@@ -8,6 +8,31 @@
 
 ---
 
+## 2026-08-11 — convert-flutter-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-flutter-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_FLUTTER_HONESTY: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: FLUTTER_HONESTY_OK · CONVERT_FLUTTER_HONESTY · hub:dart-smoke(G9954/G10007)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10129 — `fixtures/ci/flutter-honest-holes.json` + `hub:flutter-honesty-smoke`
+- Refuse Flutter/widget/engine full runtime 20/20 force-close; Shelf route-surface remains sole Dart ST gold
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched
+
+---
+
 ## 2026-08-11 — convert-liveview-honesty
 
 **To:** cwl  
