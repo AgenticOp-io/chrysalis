@@ -20,7 +20,7 @@
  * `@chrysalis/ingest` currently produces for tiny-n1 and
  * tiny-blog-class handlers. Any op we don't recognize is returned as
  * a `SimError` and the verify gate treats the simulation as
- * inconclusive rather than a regression — we'd rather abstain than
+ * inconclusive rather than a regression â€” we'd rather abstain than
  * lie. See the module docstring in DESIGN.md D19 for scope.
  */
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
@@ -45,7 +45,7 @@ export interface RequestInput {
    * HTTP request headers for `data.request.field` source `"header"`.
    * Prefer **lower-case** keys (HTTP/2 style). Lookup is case-insensitive
    * so `Authorization` and `authorization` both resolve. Omit or `{}` when
-   * absent — missing names bind `null` (no invented values).
+   * absent â€” missing names bind `null` (no invented values).
    * CWL handoff: `docs/history/CONVERT-REWRITE-HEADERS-REQUESTED.md`.
    */
   readonly headers?: Readonly<Record<string, string>>;
@@ -86,7 +86,7 @@ export interface SimResponse {
   /**
    * Non-empty when the simulator hit an op it couldn't evaluate.
    * The verify gate treats a non-empty `errors` array as
-   * "inconclusive" — we don't rollback on inconclusive, but we do
+   * "inconclusive" â€” we don't rollback on inconclusive, but we do
    * record it so the signal isn't lost.
    */
   readonly errors: ReadonlyArray<SimError>;
@@ -124,7 +124,7 @@ export interface StubDb {
  * divergence on the very class of rewrites we built it to verify.
  *
  * The consequence: behavior-verify can't detect SQL-level semantic
- * regressions through this stub. That's an explicit trade-off —
+ * regressions through this stub. That's an explicit trade-off â€”
  * detecting SQL-level regressions requires a real database, which
  * belongs in a follow-on HTTP-replay layer. The stub's job is to
  * make PRE-rewrite and POST-rewrite IRs behave identically under
@@ -584,7 +584,7 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
   if (phpAttributes !== undefined && phpAttributes.length > 0) {
     ctx.phpAttributedCalls.push({ callee, phpAttributes: [...phpAttributes] });
   }
-  // Special: __assign(name, value) → env mutation.
+  // Special: __assign(name, value) â†’ env mutation.
   if (callee === "__assign") {
     const nameV = operand(ctx, n, 0);
     const val = operand(ctx, n, 1);
@@ -679,6 +679,11 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
     }
     case "__cwl_middleware_cors":
     case "__cwl_middleware_csrf":
+    case "__cwl_middleware_rate_limit":
+    case "__cwl_effect_mail_send":
+    case "__cwl_effect_db_read":
+    case "__cwl_effect_db_write":
+    case "__cwl_effect_io":
       return { kind: "null" };
     case "json_encode":
       return { kind: "str", value: jsonEncodeSimValue(args[0] ?? { kind: "null" }) };
@@ -734,7 +739,7 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       }
     }
     case "password_verify":
-      // Opaque by design — value doesn't matter as long as it's
+      // Opaque by design â€” value doesn't matter as long as it's
       // deterministic from the inputs.
       return { kind: "bool", value: simValueEquals(args[0] ?? { kind: "null" }, args[1] ?? { kind: "null" }) };
     case "require_login":
@@ -829,7 +834,7 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
         const inner = bound.tag.slice("callable:".length);
         return evalCall(ctx, { ...n, attrs: { ...n.attrs, callee: inner } } as NodeBase);
       }
-      // Unknown call — record the opaque result so downstream diffs
+      // Unknown call â€” record the opaque result so downstream diffs
       // don't silently succeed.
       ctx.errors.push({ reason: `unsupported call ${callee}`, nodeId: n.id, op: "data.call" });
       return { kind: "symbol", tag: `call:${callee}` };
