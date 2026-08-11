@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_TIP_1_0_21_OK: ok
-SHA: PENDING
+SHA: d1de17be
 BRANCH: candidate/wptp-convert-orbit
 CWL_TIP: 1.0.21
 CWL_SHA: 757d881
