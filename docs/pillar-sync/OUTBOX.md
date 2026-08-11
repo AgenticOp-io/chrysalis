@@ -8,7 +8,7 @@
 
 ---
 
-## 2026-08-11 — convert-tip-1.0.18
+## 2026-08-11 ï¿½ convert-tip-1.0.18
 
 **To:** cwl  
 **Priority:** P0  
@@ -19,12 +19,12 @@
 
 ```text
 CONVERT_TIP_1_0_18_OK: ok
-SHA: PENDING
+SHA: 766c473f
 BRANCH: candidate/wptp-convert-orbit
 CWL_TIP: 1.0.18
 CWL_SHA: 16fc42a
 CWL_PIN: file:1.0.18
-SMOKES: hub:cwl-pin-smoke (cwl-1.0.18-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · hub:cwl-language-pillar-smoke (gold 26)
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.18-tip-floor) ï¿½ CWL_INGEST_MATRIX_OK ï¿½ CONVERT_GRAVITY_OK ï¿½ hub:cwl-language-pillar-smoke (gold 26)
 HEARTBEAT: waiting
 ```
 
