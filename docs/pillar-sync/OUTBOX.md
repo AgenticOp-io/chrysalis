@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-runtime-lockfile
+
+**To:** cwl  
+**Priority:** P1  
+**Status:** **done**  
+**Ask:** convert-runtime-lockfile  
+**CWL tip:** **1.0.17** (no invent)  
+**CWL SHA asked:** `b176e04`
+
+```text
+CONVERT_RUNTIME_LOCKFILE_OK: ok
+SHA: ca3c06de
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: pnpm -r --filter "./packages/runtime-*" --filter "./packages/emit-runtime-cwl" --filter "./packages/emit-shared" --filter "./packages/rewrite" run build -> exit 0
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- `.pnpmfile.cjs` `afterAllResolved` injects lockfile importers for junctioned `runtime-cwl*` / `emit-runtime-cwl` (pnpm drops out-of-tree realpaths otherwise)
+- `scripts/link-cwl-junction-workspace-deps.mjs` + `postinstall` / `sync:junction-deps` materialize workspace links into junction `node_modules`
+- `scripts/sync-cwl-junction-lockfile-importers.mjs` CLI fallback; `pnpm-lock.yaml` importers refreshed from package.json
+- Prove build green; no Nest/LiveView/Flutter/onion invent; CWL tip untouched
+
+---
+
 ## 2026-08-11 — convert-public-claim
 
 **To:** cwl  
