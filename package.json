@@ -1513,7 +1513,10 @@
     "hub:drogon-smoke": "node scripts/hub-ingest/hub-drogon-smoke.mjs",
     "hub:complete-conversion-prove:cpp": "node scripts/lib/complete-conversion-prove.mjs --fixture fixtures/hub-flagship-cpp",
     "link:webir-from-cwl": "node scripts/link-webir-from-cwl.mjs",
-    "link:cwl-packages-from-cwl": "node scripts/link-cwl-packages-from-cwl.mjs"
+    "link:cwl-packages-from-cwl": "node scripts/link-cwl-packages-from-cwl.mjs",
+    "sync:junction-lockfile": "node scripts/sync-cwl-junction-lockfile-importers.mjs",
+    "sync:junction-deps": "node scripts/link-cwl-junction-workspace-deps.mjs",
+    "postinstall": "node scripts/link-cwl-junction-workspace-deps.mjs"
   },
   "devDependencies": {
     "@chrysalis/cwl": "file:../chrysalis-cwl/packages/cwl",
