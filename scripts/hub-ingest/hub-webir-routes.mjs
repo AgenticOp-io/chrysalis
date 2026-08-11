@@ -32,6 +32,26 @@ const CWL_SESSION_BOOT_CALLS = new Set([
   "session_write_close",
 ]);
 
+/**
+ * RFC-0020 executable effect / middleware stubs (Convert simulate no-ops).
+ * Project as handler `effects:` tags; do not hole the CWL surface (tip 1.0.20).
+ */
+const CWL_EXECUTABLE_EFFECT_CALLS = new Map([
+  ["__cwl_middleware_cors", "cors.allow"],
+  ["__cwl_middleware_csrf", "csrf.verify"],
+  ["__cwl_middleware_rate_limit", "rate.limit"],
+  ["__cwl_effect_mail_send", "mail.send"],
+  ["__cwl_effect_db_read", "db.read"],
+  ["__cwl_effect_db_write", "db.write"],
+  ["__cwl_effect_io", "io"],
+]);
+
+/** Effect-dialect ops lowered from declared effects (time.now / random). */
+const CWL_EXECUTABLE_EFFECT_OPS = new Map([
+  ["time.now", "time.now"],
+  ["random", "random"],
+]);
+
 /** Callees that end a handler branch (PHP exit/return) — early-exit guard marker. */
 const CWL_EARLY_EXIT_CALLEES = new Set(["__exit", "__return"]);
 
@@ -446,6 +466,8 @@ export function walkCwlHandlerBody(get, bodyId) {
   let guardCapture = null;
   let sessionRead = false;
   let sessionWrite = false;
+  /** @type {string[]} */
+  const declaredEffects = [];
 
   const looksHtmlLit = (v) =>
     typeof v === "string" && (/^\s*</.test(v) || /<!doctype/i.test(v) || htmlChrome || htmlParts.length > 0);
@@ -633,6 +655,29 @@ export function walkCwlHandlerBody(get, bodyId) {
       if (!value) value = { t: "lit", value: "" };
       return;
     }
+    if (n.dialect === "data" && n.op === "call") {
+      const callee = String(n.attrs?.callee ?? "");
+      if (CWL_EXECUTABLE_EFFECT_CALLS.has(callee)) {
+        const tag = CWL_EXECUTABLE_EFFECT_CALLS.get(callee);
+        if (tag && !declaredEffects.includes(tag)) declaredEffects.push(tag);
+        return;
+      }
+    }
+    if (n.dialect === "effect" && CWL_EXECUTABLE_EFFECT_OPS.has(String(n.op ?? ""))) {
+      const tag = CWL_EXECUTABLE_EFFECT_OPS.get(String(n.op));
+      if (tag && !declaredEffects.includes(tag)) declaredEffects.push(tag);
+      return;
+    }
+    // auth.require lowers to session.read with cwl:executable-auth-require provenance
+    if (
+      n.dialect === "effect" &&
+      n.op === "session.read" &&
+      Array.isArray(n.provenance) &&
+      n.provenance.some((p) => String(p?.locator ?? "") === "cwl:executable-auth-require")
+    ) {
+      if (!declaredEffects.includes("auth.require")) declaredEffects.push("auth.require");
+      return;
+    }
     if (n.dialect === "effect" && n.op === "session.read") {
       sessionRead = true;
       return;
@@ -784,9 +829,9 @@ export function walkCwlHandlerBody(get, bodyId) {
   }
 
   /** @type {string[]} */
-  const effects = [];
-  if (sessionRead) effects.push("session.read");
-  if (sessionWrite) effects.push("session.write");
+  const effects = [...declaredEffects];
+  if (sessionRead && !effects.includes("session.read")) effects.push("session.read");
+  if (sessionWrite && !effects.includes("session.write")) effects.push("session.write");
 
   return {
     status,

@@ -4060,6 +4060,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-08-11 — D6563** **Convert follows CWL 1.0.18.** Tip pin ≥ **1.0.18**; ALWAYS hub-ingest mirrors (cwl-parser / cwl-print) refreshed for RFC-0025 nested structured literals; hub:cwl-pin-smoke tip floor; no Nest/LiveView/Flutter/onion invent. **DESIGN §3 / D6561.**
 - **2026-08-11 - D6564** **Convert follows CWL 1.0.19.** Tip pin >= **1.0.19**; ALWAYS hub-ingest mirrors (cwl-parser / cwl-fullstack-holes) refreshed for Data v2 golds, Set-Cookie response-header, transport holes; hub:cwl-pin-smoke tip floor; no Nest/LiveView/Flutter/onion invent. **DESIGN section 3 / D6563.**
+- **2026-08-11 - D6565** **Convert follows CWL 1.0.20.** Tip pin >= **1.0.20**; ALWAYS hub-ingest mirror (hub-cwl-effects.mjs) refreshed for executable Effects beyond session presets (gold 30); hub:cwl-pin-smoke tip floor; simulate stubs kept (8e85963d); no Nest/LiveView/Flutter/onion invent. **DESIGN section 3 / D6564.**
 
 
 

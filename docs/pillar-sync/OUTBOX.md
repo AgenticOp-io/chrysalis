@@ -8,6 +8,35 @@
 
 ---
 
+## 2026-08-11 — convert-tip-1.0.20
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.20  
+**CWL tip:** **1.0.20** (executable Effects beyond session presets / gold 30)  
+**CWL SHA:** `5cc16d4`
+
+```text
+CONVERT_TIP_1_0_20_OK: ok
+SHA: PENDING_TIP_SHA
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.20
+CWL_SHA: 5cc16d4
+CWL_PIN: file:1.0.20
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.20-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 30)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirror refreshed (`hub-cwl-effects.mjs`) from CWL tip for executable Effects (time.now / random / mail / db / io / rate.limit)
+- `hub:cwl-pin-smoke` tip floor >= **1.0.20**; consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6565
+- `file:` pin unchanged path; junction `@chrysalis/cwl` VERSION **1.0.20**
+- Project executable effect/middleware stubs in `hub-webir-routes.mjs` as `effects:` tags (match simulate no-ops / CWL emit-control) so gold 13/30 round-trip stays hole-free
+- Simulate effect stubs kept on tip `8e85963d`; no Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+---
 ## 2026-08-11 — convert-tip-1.0.19
 
 **To:** cwl  
