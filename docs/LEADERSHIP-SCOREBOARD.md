@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-11 (**G10135** Polka honesty L1; **G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
+**As of:** 2026-08-11 (**G10136** Nest DI honesty L1; **G10135** Polka honesty L1; **G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
 
 ---
 
@@ -46,6 +46,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10029 | Poem Rust | `hub:poem-smoke` | `.at` + named get|post + `.nest` + `:id` |
 | G10037 | Salvo Rust | `hub:salvo-smoke` | `with_path` + flat `.push` + `{id}` + `req.param`/`query` |
 | G9950 | NestJS decorators | `hub:nestjs-smoke` | DI/guards/pipes = honest holes; **route-surface ST** via `hub:nestjs-flagship`; G10015 @Headers/@Cookies/@Body field peels |
+| G10136 | Nest DI honesty | `hub:nestjs-honesty-smoke` | expanded residual catalog; refuse Nest DI/modules/providers runtime 20/20 force-close; G9950/G10015 remain sole Nest route-surface gold |
 | G9951 | Hapi | `hub:hapi-smoke` | plugins/lifecycle = honest holes; G10005 params/query/payload destructure peel |
 | G10005 | Koa / Hapi / Restify / Polka | `hub:koa-smoke` … `hub:polka-smoke` | IDENT destructure from params/query/payload (shared JS AST); 20 + pass-through mw (G9959); no onion invent |
 | G10132 | Koa honesty | `hub:koa-honesty-smoke` | expanded residual catalog; refuse onion middleware runtime 20/20 force-close; G9959/G10005 remain sole Koa ORIGIN gold |
@@ -121,7 +122,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 | Subject | Status | Catalog / note |
 | --- | --- | --- |
-| Nest DI / guards / pipes | honest holes | G9950 |
+| Nest DI / modules / providers / guards / pipes | **Honest residual G10136** | `nestjs-honest-holes.json` + `NEST_DI_HONESTY_OK`; route-surface ST closed (G9950/G10015); **refuse** force-close as Nest DI 20/20 (**D6442** / **D6447**) |
 | Restify plugins / complex `pre`/`use` / lifecycle | **Honest residual G10134** | `restify-honest-holes.json` + `RESTIFY_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
 | Koa onion `app.use` / compose / plugins / throw / nested Router | **Honest residual G10132** | `koa-honest-holes.json` + `KOA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
 | Polka non-empty middleware / plugins / sirv / nested mount | **Honest residual G10135** | `polka-honest-holes.json` + `POLKA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |

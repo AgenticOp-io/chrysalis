@@ -1431,6 +1431,7 @@
     "hub:salvo-smoke": "node scripts/hub-ingest/hub-salvo-smoke.mjs",
     "hub:actix-scope-smoke": "node scripts/hub-ingest/hub-actix-scope-smoke.mjs",
     "hub:nestjs-smoke": "node scripts/hub-ingest/hub-nestjs-smoke.mjs",
+    "hub:nestjs-honesty-smoke": "node scripts/hub-ingest/hub-nestjs-honesty-smoke.mjs",
     "hub:koa-smoke": "node scripts/hub-ingest/hub-koa-smoke.mjs",
     "hub:koa-honesty-smoke": "node scripts/hub-ingest/hub-koa-honesty-smoke.mjs",
     "hub:hapi-smoke": "node scripts/hub-ingest/hub-hapi-smoke.mjs",

@@ -17,6 +17,7 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | [`fixtures/ci/elysia-honest-holes.json`](../fixtures/ci/elysia-honest-holes.json) | Elysia plugins / non-empty lifecycle / macros / derive / guard / nested group residual (**G10133** honesty; refuse runtime 20/20; empty-lifecycle ceiling G10053) |
 | [`fixtures/ci/restify-honest-holes.json`](../fixtures/ci/restify-honest-holes.json) | Restify plugins / complex `pre`/`use` / lifecycle / named handlers residual (**G10134** honesty; refuse runtime 20/20; pass-through ceiling G9959) |
 | [`fixtures/ci/polka-honest-holes.json`](../fixtures/ci/polka-honest-holes.json) | Polka non-empty mw / plugins / sirv / nested mount / stream residual (**G10135** honesty; refuse runtime 20/20; pass-through ceiling G9959) |
+| [`fixtures/ci/nestjs-honest-holes.json`](../fixtures/ci/nestjs-honest-holes.json) | Nest DI / modules / providers / guards / pipes / NestFactory residual (**G10136** honesty; refuse Nest DI runtime 20/20; route-surface ceiling G9950/G10015) |
 | [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux / Revel secondaries; Gin ST (+ Group peel G10066) |
 | [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **closed route-surface** (G10114; was G10065 skip; interceptors/router.GET invent remain holes) |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
@@ -55,7 +56,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 
 | Stack | Do not invent | Closed instead |
 | --- | --- | --- |
-| NestJS | DI, guards, pipes, interceptors, bootstrap | Route-surface ST (`hub:nestjs-flagship`); @Headers/@Cookies/@Body field peels (G10015) |
+| NestJS | DI, modules, providers, guards, pipes, interceptors, NestFactory bootstrap | Route-surface ST (`hub:nestjs-flagship`); @Headers/@Cookies/@Body field peels (G10015); honesty **G10136** |
 | Koa | Non-empty onion `app.use` / koa-compose / plugins / throw / nested Router | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel; honesty **G10132** |
 | Polka | Non-empty `app.use` / plugins / sirv / body-parser / nested mount / stream hijack | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel; honesty **G10135** |
 | Restify | Plugins, complex `pre`/`use` bodies, lifecycle, next.ifError, versioned routes | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel; honesty **G10134** |
@@ -147,4 +148,4 @@ Prove: `pnpm run hub:cobol-clbs-prove-smoke` · Docs: [`COBOL-MODERNIZATION-PROV
 
 1. **Add hole** — append to the matching `fixtures/ci/*honest*.json` (or new catalog) + one line here + scoreboard “Honest skips”.
 2. **Close hole** — only after a real origin peel + smoke/prove; never by stubbing runtime.
-3. **Charter** — Flutter runtime / LiveView runtime / BMS / Rails resources·filters runtime (beyond G10115 route-table) / Blazor require an explicit plan amendment before build. Honesty catalogs G10135/G10134/G10133/G10132/G10131/G10130/G10129/G10128 refuse force-close.
+3. **Charter** — Flutter runtime / LiveView runtime / BMS / Rails resources·filters runtime (beyond G10115 route-table) / Nest DI/modules/providers runtime / Blazor require an explicit plan amendment before build. Honesty catalogs G10136/G10135/G10134/G10133/G10132/G10131/G10130/G10129/G10128 refuse force-close.

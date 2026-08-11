@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-nest-di-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-nest-di-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_NEST_DI_HONESTY: ok
+SHA: WORK_SHA
+BRANCH: candidate/wptp-convert-orbit
+DIALECT: NestJS
+SMOKES: NEST_DI_HONESTY_OK · CONVERT_NEST_DI_HONESTY · hub:nestjs-smoke(G9950/G10015)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10136 — `fixtures/ci/nestjs-honest-holes.json` + `hub:nestjs-honesty-smoke`
+- Refuse Nest DI/modules/providers full runtime 20/20 force-close; G9950/G10015 remain sole Nest route-surface gold; no DI/modules/providers runtime invent (D6442)
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched; no new dialect wave
+
+---
+
 ## 2026-08-11 — convert-l1-polka-honesty
 
 **To:** cwl  

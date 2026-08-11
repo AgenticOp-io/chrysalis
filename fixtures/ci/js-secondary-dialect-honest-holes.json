@@ -63,6 +63,7 @@
             "smoke": "pnpm run hub:nestjs-smoke",
             "st": "pnpm run hub:nestjs-flagship && pnpm run hub:complete-conversion-prove:nestjs",
             "stScope": "route-surface cwl-api only; DI/guards not in gold",
+            "note": "ORIGIN route-surface ST (G9950 / G10015 field peels). Residual Nest DI honesty expanded G10136 (`nestjs-honest-holes.json` / `NEST_DI_HONESTY_OK`).",
             "supported": [
                 "@Controller prefix + @Get|Post|Put|Patch|Delete",
                 "@Param / @Query / @Body / @Headers / @Cookies / @HttpCode",
@@ -72,25 +73,41 @@
             "honestHoles": [
                 {
                     "shape": "@Module / providers / constructor DI",
-                    "reason": "hub-js:nest-di"
+                    "reason": "hub-js:nest-di",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "@UseGuards / interceptors / pipes / filters",
-                    "reason": "hub-js:nest-guards"
+                    "reason": "hub-js:nest-guards",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "@Res() / @Next() escape hatches",
-                    "reason": "hub-js:nest-res-escape"
+                    "reason": "hub-js:nest-res-escape",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "NestFactory bootstrap / dynamic modules",
-                    "reason": "hub-js:nest-bootstrap"
+                    "reason": "hub-js:nest-bootstrap",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "versioning / non-literal paths",
-                    "reason": "hub-js:nest-versioning"
+                    "reason": "hub-js:nest-versioning",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10136",
+                "catalog": "fixtures/ci/nestjs-honest-holes.json",
+                "smoke": "pnpm run hub:nestjs-honesty-smoke",
+                "token": "NEST_DI_HONESTY_OK"
+            }
         },
         "hapi": {
             "fixture": "fixtures/hub-gold-hapi",
