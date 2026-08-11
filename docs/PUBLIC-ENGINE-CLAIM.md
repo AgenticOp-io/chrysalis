@@ -9,6 +9,16 @@
 
 The Cursor Pilot Kit only works for buyers if they can **clone and run** without a private invite. Private + “open source” on the marketing site is a brand integrity failure.
 
+## Gate token
+
+```bash
+pnpm run hub:public-engine-claim-smoke
+# expect: "ok": true · PUBLIC_CLAIM_OK · CONVERT_PUBLIC_CLAIM (G10108)
+# report.honestGaps lists open residuals — not invented closes
+```
+
+**`PUBLIC_CLAIM_OK`** means in-repo claim packaging is green. It does **not** mean the GitHub remote is public, history is BFG-clean, brand CTA shipped, counsel signed off, or `copy:EXTFMAP` is settled.
+
 ## Checklist (before `gh repo edit --visibility public`)
 
 **Flip runbook:** [`GO-PUBLIC.md`](./GO-PUBLIC.md) (commands + history scrub + tag).
@@ -18,8 +28,8 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] `LICENSE` is Apache-2.0; `package.json` / `COMMERCIAL.md` / README agree (**G10108**)  
 - [x] No SA keys / `.env` / private-key / `engagements/` / private-pack in **tracked tree** — `pnpm run hub:oss-scrub-smoke` → **`OSS_SCRUB_OK`** (**G10109**); full **git history** scrub remains operator per `07-oss-scrub-checklist.md` (no BFG from the smoke)  
 - [x] Pilot Kit docs link from README (`docs/CURSOR-PILOT-KIT.md`) — laravel-min + `pilot:cobol-clbs` (**G10108**)  
-- [x] `pnpm run hub:cursor-pilot-kit-smoke` green  
-- [x] `pnpm run hub:public-engine-claim-smoke` green (**G10108**)  
+- [x] `pnpm run hub:cursor-pilot-kit-smoke` green → **`PILOT_KIT_OK`**  
+- [x] `pnpm run hub:public-engine-claim-smoke` green → **`PUBLIC_CLAIM_OK`** / **`CONVERT_PUBLIC_CLAIM`** (**G10108**)  
 - [x] `pnpm run hub:oss-scrub-smoke` green → **`OSS_SCRUB_OK`** / **`CONVERT_OSS_SCRUB`** (**G10109**)  
 - [x] `pnpm run pilot:laravel-min` green on clean Linux/GCE (`chrysalis-test-vm`, 2026-07-24) with PHP `mysqli` + `pdo_sqlite` — still verify on buyer machines  
 - [x] `pnpm run pilot:cobol-clbs` green locally (inventory + best-fit + residual; EXTFMAP sole P0) (**G10107**)  
@@ -78,6 +88,18 @@ Use [`../commercial/chrysalis-private-pack/07-oss-scrub-checklist.md`](../../com
 - [x] CONTRIBUTING: private adapters/corpora not accepted into `main`  
 - [x] Trademark notice for AgenticOp / Chrysalis (README **Trademarks** — **G10108**)  
 - [ ] Site copy: “Start a Pilot” → this kit’s 15-minute path (**Requested:** brand lane `brand/agenticops-web` — do not silent-edit)  
+
+## Honest open gaps (do not invent closes)
+
+These stay open on purpose. `PUBLIC_CLAIM_OK` lists them in `honestGaps` and does **not** flip them to done:
+
+| Gap | Owner | Note |
+| --- | --- | --- |
+| GitHub visibility still private | Operator + counsel | Flip only via [`GO-PUBLIC.md`](./GO-PUBLIC.md) |
+| Full git-history scrub / BFG | Operator | Tracked-tree gate is **`OSS_SCRUB_OK`** only |
+| Brand “Start a Pilot” CTA | Brand lane | Requested — do not silent-edit |
+| `copy:EXTFMAP` residual | Operator (ZD&T / ABSENT after hunt) | Sole Convert P0; honesty **G10127**; never invent (**D6447**) |
+| Counsel / trademark flip sign-off | Operator | Not claimed by packaging smoke |
 
 ## After public
 

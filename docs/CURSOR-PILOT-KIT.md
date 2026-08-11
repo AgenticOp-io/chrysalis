@@ -100,7 +100,7 @@ Sold as **AgenticOp practice** on the **Chrysalis engine** — not a second prod
 | Pilot kit packaging | `pnpm run hub:cursor-pilot-kit-smoke` → **`PILOT_KIT_OK`** |
 | Laravel-min verify | `pnpm run verify:flagship` / `pnpm run pilot:laravel-min` — **GCE green** with PHP `mysqli` + `pdo_sqlite` (`php8.2-mysql`, `php8.2-sqlite3`). Without them oracle-php / PDO fatals stay honest red |
 | COBOL CLBS pilot | `pnpm run pilot:cobol-clbs` — best-fit + residual ledger; `.cbl` peels exhausted; **G10111** CSD/DCLGEN catalogs; **EXTFMAP** sole open P0 (never invent) |
-| Public claim packaging | `pnpm run hub:public-engine-claim-smoke` — Apache LICENSE/README/trademark + Pilot Kit links (**G10108**) |
+| Public claim packaging | `pnpm run hub:public-engine-claim-smoke` → **`PUBLIC_CLAIM_OK`** — Apache LICENSE/README/trademark + Pilot Kit links (**G10108**; `honestGaps` keep EXTFMAP/brand/history open) |
 | OSS scrub (tracked tree) | `pnpm run hub:oss-scrub-smoke` → **`OSS_SCRUB_OK`** — no SA/`.env`/private-key/engagements in `git ls-files` (**G10109**; history scrub still operator; no BFG from gate) |
 | EXTFMAP ABSENT attest | `pnpm run cobol:extfmap-absent` with `CHRYSALIS_EXTFMAP_ABSENT=1` after ZD&T hunt — does **not** invent the book |
 | Non-flagship ST (plain-php API) | `pnpm run hub:complete-conversion-prove:plain-php` — D6448-ST `cwl-api` profile; hole-free CWL + fixture verify gold (no invented UI) |

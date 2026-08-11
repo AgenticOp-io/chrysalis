@@ -10,13 +10,13 @@ From repo root:
 
 ```bash
 pnpm run hub:oss-scrub-smoke          # → OSS_SCRUB_OK · CONVERT_OSS_SCRUB (G10109)
-pnpm run hub:public-engine-claim-smoke
+pnpm run hub:public-engine-claim-smoke # → PUBLIC_CLAIM_OK · CONVERT_PUBLIC_CLAIM (G10108)
 pnpm run hub:cursor-pilot-kit-smoke   # → PILOT_KIT_OK
 pnpm run pilot:laravel-min
 pnpm run pilot:cobol-clbs
 ```
 
-All five must print `"ok": true`. OSS scrub also prints **`OSS_SCRUB_OK`** (tracked-tree only — history scrub remains operator below; no BFG from the smoke).
+All five must print `"ok": true`. OSS scrub also prints **`OSS_SCRUB_OK`** (tracked-tree only — history scrub remains operator below; no BFG from the smoke). Public-claim prints **`PUBLIC_CLAIM_OK`** and lists `honestGaps` (visibility / history / brand CTA / `copy:EXTFMAP` / counsel) — those gaps are not invented closes.
 
 ## History scrub (operator)
 

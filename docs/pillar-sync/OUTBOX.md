@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-public-claim
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-public-claim  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_PUBLIC_CLAIM: ok
+SHA: WORK_SHA
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: PUBLIC_CLAIM_OK · CONVERT_PUBLIC_CLAIM · hub:public-engine-claim-smoke(G10108)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Hardened `hub:public-engine-claim-smoke` (schema v2) → **`PUBLIC_CLAIM_OK`** / **`CONVERT_PUBLIC_CLAIM`**
+- Checklist + honestGaps: visibility / history scrub / brand CTA / **EXTFMAP residual** / counsel — no invented closes
+- Docs/scoreboard: PUBLIC-ENGINE-CLAIM · GO-PUBLIC · CURSOR-PILOT-KIT · LEADERSHIP-SCOREBOARD · CHANGELOG
+- EXTFMAP untouched; no CWL/Secure edits; no invent
+
+---
+
 ## 2026-08-11 — convert-oss-scrub
 
 **To:** cwl  
