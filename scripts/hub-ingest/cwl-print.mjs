@@ -161,23 +161,19 @@ export function printCwlBodyExpr(body) {
       const parts = (body.entries ?? []).map((e) => {
         const v = e.value;
         if (!v) return `${e.key}: null`;
-        if (v.kind === "literal") return `${e.key}: ${printCwlLiteral(v.value)}`;
-        if (
-          v.kind === "pathParam" ||
-          v.kind === "queryParam" ||
-          v.kind === "headerParam" ||
-          v.kind === "cookieParam" ||
-          v.kind === "bodyParam"
-        ) {
-          if (v.kind === "cookieParam" && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(String(v.name ?? ""))) {
-            return `${e.key}: cookie ${v.name}`;
-          }
-          return `${e.key}: ${v.name}`;
-        }
-        return `${e.key}: ${printCwlLiteral(v.value ?? null)}`;
+        return `${e.key}: ${printCwlBodyExpr(v)}`;
       });
       return `{ ${parts.join(", ")} }`;
     }
+    case "array": {
+      const parts = (body.elements ?? []).map((el) => printCwlBodyExpr(el));
+      return `[${parts.join(", ")}]`;
+    }
+    case "cookieParam":
+      return `cookie ${body.name}`;
+    case "headerParam":
+    case "bodyParam":
+      return body.name ?? "null";
     case "hole":
     case "ui":
       return null;
@@ -514,6 +510,12 @@ function canonicalizeBody(body) {
         key: e.key,
         value: canonicalizeBody(e.value) ?? e.value,
       })),
+    };
+  }
+  if (body.kind === "array") {
+    return {
+      kind: "array",
+      elements: (body.elements ?? []).map((el) => canonicalizeBody(el) ?? el),
     };
   }
   if (body.kind === "literal" || body.kind === "html") {

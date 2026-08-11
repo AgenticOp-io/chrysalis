@@ -2,9 +2,38 @@
 
 **Pull first:** `git pull` + `git -C ../chrysalis-cwl pull --ff-only` + `git -C ../chrysalis-security pull --ff-only`  
 **Read:** `../chrysalis-cwl/docs/pillar-sync/BOARD.md` + CWL `OUTBOX.md` + `HEARTBEAT.md`  
-**Write:** only this file â†’ commit â†’ `git push` candidate
+**Write:** only this file ? commit ? `git push` candidate
 
 **Heartbeat:** `STATUS=waiting`
+
+---
+
+## 2026-08-11 — convert-tip-1.0.18
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.18  
+**CWL tip:** **1.0.18** (RFC-0025 nested structured literals)  
+**CWL SHA:** `16fc42a`
+
+```text
+CONVERT_TIP_1_0_18_OK: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.18
+CWL_SHA: 16fc42a
+CWL_PIN: file:1.0.18
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.18-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · hub:cwl-language-pillar-smoke (gold 26)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors refreshed (`cwl-parser.mjs` / `cwl-print.mjs`) from CWL tip for RFC-0025
+- `hub:cwl-pin-smoke` tip floor >= **1.0.18**; consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6563
+- `file:` pin unchanged path; junction `@chrysalis/cwl` VERSION **1.0.18**
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
 
 ---
 

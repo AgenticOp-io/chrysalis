@@ -203,19 +203,98 @@ function splitTopLevelObjectPairs(inner) {
 }
 
 /**
- * @param {string} objectExpr
- * @param {{ path: string[], query: string[], header: string[], cookie: string[], body: string[] }} bindings
+ * Parse a CWL array literal into structured elements (nested objects/arrays preserved).
+ * @param {string} arrayExpr
+ * @param {{ path: string[], query: string[], header: string[], cookie: string[], body: string[], pathDefaults?: object, queryDefaults?: object }} bindings
  */
+function parseCwlArrayElements(arrayExpr, bindings) {
+  const inner = arrayExpr.slice(1, -1).trim();
+  if (!inner) return { ok: true, elements: [] };
+  /** @type {Array<{ kind: string, value?: unknown, name?: string, entries?: object[], elements?: object[] }>} */
+  const elements = [];
+  for (const rawVal of splitTopLevelObjectPairs(inner)) {
+    const parsed = parseCwlStructuredValue(rawVal, bindings);
+    if (!parsed.ok) return { ok: false, error: parsed.error ?? "invalid-array-element" };
+    elements.push(parsed.value);
+  }
+  return { ok: true, elements };
+}
+
+/**
+ * Parse one object-field / array-element value without collapsing nested `{`/`[` to JSON.
+ * @param {string} rawVal
+ * @param {{ path: string[], query: string[], header: string[], cookie: string[], body: string[], pathDefaults?: object, queryDefaults?: object }} bindings
+ */
+function parseCwlStructuredValue(rawVal, bindings) {
+  const t = rawVal.trim();
+  if (t.startsWith("{") && t.endsWith("}")) {
+    const nested = parseCwlObjectEntries(t, bindings);
+    if (!nested.ok) return { ok: false, error: nested.error };
+    return { ok: true, value: { kind: "object", entries: nested.entries } };
+  }
+  if (t.startsWith("[") && t.endsWith("]")) {
+    const nested = parseCwlArrayElements(t, bindings);
+    if (!nested.ok) return { ok: false, error: nested.error };
+    return { ok: true, value: { kind: "array", elements: nested.elements } };
+  }
+  // Scalars only via parseCwlLiteral — reject object/array branches (handled above).
+  if (!(t.startsWith("{") || t.startsWith("["))) {
+    if (t === "true") return { ok: true, value: { kind: "literal", value: true } };
+    if (t === "false") return { ok: true, value: { kind: "literal", value: false } };
+    if (t === "null") return { ok: true, value: { kind: "literal", value: null } };
+    if (/^-?\d+$/.test(t)) return { ok: true, value: { kind: "literal", value: Number(t) } };
+    if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+      const lit = parseCwlLiteral(t);
+      if (lit.ok) return { ok: true, value: { kind: "literal", value: lit.value } };
+    }
+  }
+  const cookieKw = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(t);
+  if (cookieKw) {
+    return { ok: true, value: { kind: "cookieParam", name: cookieKw[1] } };
+  }
+  if (bindings.header.includes(t)) {
+    return { ok: true, value: { kind: "headerParam", name: t } };
+  }
+  if (bindings.cookie.includes(t)) {
+    return { ok: true, value: { kind: "cookieParam", name: t } };
+  }
+  if (bindings.body.includes(t)) {
+    return { ok: true, value: { kind: "bodyParam", name: t } };
+  }
+  if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(t)) {
+    if (bindings.path.includes(t)) {
+      const value = { kind: "pathParam", name: t };
+      if (Object.prototype.hasOwnProperty.call(bindings.pathDefaults ?? {}, t)) {
+        value.default = bindings.pathDefaults[t];
+      }
+      return { ok: true, value };
+    }
+    if (bindings.query.includes(t)) {
+      const value = { kind: "queryParam", name: t };
+      if (Object.prototype.hasOwnProperty.call(bindings.queryDefaults ?? {}, t)) {
+        value.default = bindings.queryDefaults[t];
+      }
+      return { ok: true, value };
+    }
+  }
+  return { ok: false, error: "unsupported-structured-value" };
+}
+
 function parseCwlObjectEntries(objectExpr, bindings) {
   const inner = objectExpr.slice(1, -1).trim();
   if (!inner) return { ok: true, entries: [] };
-  /** @type {Array<{ key: string, value: { kind: string, value?: unknown, name?: string } }>} */
+  /** @type {Array<{ key: string, value: { kind: string, value?: unknown, name?: string, entries?: object[], elements?: object[] } }>} */
   const entries = [];
   for (const pair of splitTopLevelObjectPairs(inner)) {
     const colon = pair.indexOf(":");
     if (colon < 0) return { ok: false, error: "invalid-object-pair" };
     const key = pair.slice(0, colon).trim();
     const rawVal = pair.slice(colon + 1).trim();
+    const structured = parseCwlStructuredValue(rawVal, bindings);
+    if (structured.ok) {
+      entries.push({ key, value: structured.value });
+      continue;
+    }
     const lit = parseCwlLiteral(rawVal);
     if (lit.ok) {
       entries.push({ key, value: { kind: "literal", value: lit.value } });

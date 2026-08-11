@@ -4058,6 +4058,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-08-09 — D6562** **Rosetta path Step 2 (Translation) closed.** Convert gravity: honest peel/emit through CWL — tip pin 1.0.17, WebIR reverse-home, `hub:convert-gravity-smoke` (pin · pillar · helix · hole-type incl. `unsupported:` · CWL-above-code). No façades (**D6447**). CWL ticks ROSETTA-UT-PATH Step 2. **DESIGN §3 / D6442.**
 
+- **2026-08-11 — D6563** **Convert follows CWL 1.0.18.** Tip pin ≥ **1.0.18**; ALWAYS hub-ingest mirrors (cwl-parser / cwl-print) refreshed for RFC-0025 nested structured literals; hub:cwl-pin-smoke tip floor; no Nest/LiveView/Flutter/onion invent. **DESIGN §3 / D6561.**
+
 
 
 - **2026-08-09 — D6554** **Fat CWL ingest RFC-0024 attachment holes.** Convert `scripts/hub-ingest/cwl-ingest.mjs` (fat, not junctioned over thin) must preserve pillar `attachmentHoles` + return body as WebIR `cwl:attachment-holes` blocks — no drop, no invent runtimes. Prove: `hub:cwl-attachment-holes-smoke` against language-gold `25-island-kinds`. **DESIGN §3 / D6442/D6447:** honesty parity with thin pillar ingest.
