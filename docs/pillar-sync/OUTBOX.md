@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_L1_POLKA_HONESTY: ok
-SHA: PENDING
+SHA: 6a666d7f
 BRANCH: candidate/wptp-convert-orbit
 DIALECT: Polka
 SMOKES: POLKA_HONESTY_OK · CONVERT_POLKA_HONESTY · hub:polka-smoke(G9958/G9959/G10005)
