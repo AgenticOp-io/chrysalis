@@ -93,10 +93,11 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary: "Unclassified browser script — honest hole until a catalogued island kind applies.",
   },
   "unsupported:sse": {
-    rfc: "0012",
+    rfc: "0027",
     origin: "cwl",
     surface: "api",
-    summary: "Server-Sent Events stream — declare hole until a streaming surface RFC exists; do not invent EventSource runtimes.",
+    summary:
+      "SSE residual beyond single-shot stream sse (RFC-0027) — keep hole; do not invent EventSource runtimes.",
   },
   "unsupported:websocket": {
     rfc: "0012",

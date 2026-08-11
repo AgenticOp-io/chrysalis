@@ -323,7 +323,9 @@ export function printCwlModule(mod, opts = {}) {
     if (typeof route.responseStatus === "number") {
       lines.push(`  status ${route.responseStatus};`);
     }
-    if (route.responseContentType) {
+    if (route.streamKind === "sse") {
+      lines.push(`  stream sse;`);
+    } else if (route.responseContentType) {
       const defaultHtml =
         (route.body?.kind === "html" || route.body?.kind === "ui") &&
         route.responseContentType === "text/html; charset=utf-8";
@@ -464,6 +466,7 @@ export function canonicalizeCwlModule(mod) {
       handlerMultipartFiles: [...(r.handlerMultipartFiles ?? [])],
       responseStatus: r.responseStatus ?? null,
       responseContentType: r.responseContentType ?? null,
+      streamKind: r.streamKind ?? null,
       responseHeaders: (r.responseHeaders ?? []).map((h) =>
         Object.prototype.hasOwnProperty.call(h, "default")
           ? { name: h.name, default: h.default }

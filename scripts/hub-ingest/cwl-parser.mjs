@@ -32,6 +32,8 @@ const MULTIPART_FIELD_RE = /^multipart\s+field\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const MULTIPART_FILE_RE = /^multipart\s+file\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const STATUS_RE = /^status\s+(\d{3})\s*;$/;
 const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
+/** RFC-0027: single-shot SSE surface (not EventSource runtime invent). */
+const STREAM_SSE_RE = /^stream\s+sse\s*;$/i;
 const RESPONSE_HEADER_RE = /^response-header\s+([A-Za-z][A-Za-z0-9_-]*)\s*(?:=\s*(.+?))?\s*;$/;
 const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
@@ -636,6 +638,8 @@ export function parseCwlModule(source, file) {
     const responseHeaders = [];
     let responseStatus = null;
     let responseContentType = null;
+    /** @type {string | null} */
+    let streamKind = null;
     /** @type {object | null} */
     let loadBody = null;
     /** @type {Array<{ condExpr: string, status: number | null, body: object | null, stmts: object[] }>} */
@@ -723,6 +727,11 @@ export function parseCwlModule(source, file) {
       const ctm = CONTENT_TYPE_RE.exec(inner);
       if (ctm) {
         responseContentType = normalizeCwlContentType(ctm[1] ?? "");
+        continue;
+      }
+      if (STREAM_SSE_RE.test(inner)) {
+        responseContentType = "text/event-stream";
+        streamKind = "sse";
         continue;
       }
       const rhm = RESPONSE_HEADER_RE.exec(inner);
@@ -900,6 +909,7 @@ export function parseCwlModule(source, file) {
       handlerMultipartFiles,
       responseStatus,
       responseContentType,
+      streamKind,
       responseHeaders,
       loadBody,
       earlyGuards,

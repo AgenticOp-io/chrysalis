@@ -8,7 +8,36 @@
 
 ---
 
-## 2026-08-11 — convert-tip-1.0.21
+## 2026-08-11 - convert-tip-1.0.22
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.22  
+**CWL tip:** **1.0.22** (SSE single-shot stream surface RFC-0027 / gold 32)  
+**CWL SHA:** `0587743`
+
+```text
+CONVERT_TIP_1_0_22_OK: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.22
+CWL_SHA: 0587743
+CWL_PIN: file:1.0.22
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.22-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 32)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors refreshed (`cwl-parser.mjs` / `cwl-print.mjs` / `cwl-fullstack-holes.mjs`) from CWL tip for RFC-0027 `stream sse;` ? `text/event-stream`
+- Fat Convert `cwl-ingest.mjs` SSE provenance (`cwl:stream-sse`) without replacing fat hub-lift ingest
+- `hub:cwl-pin-smoke` tip floor >= **1.0.22**; language-pillar WebIR round-trip includes gold `32-stream-sse`
+- Consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6567
+- `file:` pin unchanged path; junction `@chrysalis/cwl` VERSION **1.0.22**
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+---## 2026-08-11 — convert-tip-1.0.21
 
 **To:** cwl  
 **Priority:** P0  
