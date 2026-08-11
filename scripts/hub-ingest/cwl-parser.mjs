@@ -27,6 +27,9 @@ const QUERY_RE = /^query\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*(.+?))?\s*;$/;
 const HEADER_RE = /^header\s+([A-Za-z][A-Za-z0-9_-]*)\s*;$/;
 const COOKIE_RE = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const BODY_RE = /^body\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+/** RFC-0026: multipart field/file part bindings (not invent upload middleware). */
+const MULTIPART_FIELD_RE = /^multipart\s+field\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const MULTIPART_FILE_RE = /^multipart\s+file\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const STATUS_RE = /^status\s+(\d{3})\s*;$/;
 const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
 const RESPONSE_HEADER_RE = /^response-header\s+([A-Za-z][A-Za-z0-9_-]*)\s*(?:=\s*(.+?))?\s*;$/;
@@ -620,6 +623,15 @@ export function parseCwlModule(source, file) {
     const handlerHeaders = [];
     const handlerCookies = [];
     const handlerBodyParams = [];
+    /** @type {string[]} */
+    const handlerMultipartFields = [];
+    /** @type {string[]} */
+    const handlerMultipartFiles = [];
+    const bodyBindingsForReturn = () => [
+      ...handlerBodyParams,
+      ...handlerMultipartFields,
+      ...handlerMultipartFiles,
+    ];
     /** @type {Array<{ name: string, default?: unknown }>} */
     const responseHeaders = [];
     let responseStatus = null;
@@ -651,7 +663,7 @@ export function parseCwlModule(source, file) {
       query: handlerQueryParams,
       header: handlerHeaders,
       cookie: handlerCookies,
-      body: handlerBodyParams,
+      body: bodyBindingsForReturn(),
       pathDefaults: handlerPathDefaults,
       queryDefaults: handlerQueryDefaults,
     });
@@ -691,6 +703,16 @@ export function parseCwlModule(source, file) {
       const bm = BODY_RE.exec(inner);
       if (bm) {
         if (!handlerBodyParams.includes(bm[1])) handlerBodyParams.push(bm[1]);
+        continue;
+      }
+      const mpf = MULTIPART_FIELD_RE.exec(inner);
+      if (mpf) {
+        if (!handlerMultipartFields.includes(mpf[1])) handlerMultipartFields.push(mpf[1]);
+        continue;
+      }
+      const mpfile = MULTIPART_FILE_RE.exec(inner);
+      if (mpfile) {
+        if (!handlerMultipartFiles.includes(mpfile[1])) handlerMultipartFiles.push(mpfile[1]);
         continue;
       }
       const sm = STATUS_RE.exec(inner);
@@ -757,7 +779,7 @@ export function parseCwlModule(source, file) {
           query: handlerQueryParams,
           header: handlerHeaders,
           cookie: handlerCookies,
-          body: handlerBodyParams,
+          body: bodyBindingsForReturn(),
           pathDefaults: handlerPathDefaults,
           queryDefaults: handlerQueryDefaults,
         });
@@ -805,7 +827,7 @@ export function parseCwlModule(source, file) {
           query: handlerQueryParams,
           header: handlerHeaders,
           cookie: handlerCookies,
-          body: handlerBodyParams,
+          body: bodyBindingsForReturn(),
           pathDefaults: handlerPathDefaults,
           queryDefaults: handlerQueryDefaults,
         });
@@ -874,6 +896,8 @@ export function parseCwlModule(source, file) {
       handlerHeaders,
       handlerCookies,
       handlerBodyParams,
+      handlerMultipartFields,
+      handlerMultipartFiles,
       responseStatus,
       responseContentType,
       responseHeaders,

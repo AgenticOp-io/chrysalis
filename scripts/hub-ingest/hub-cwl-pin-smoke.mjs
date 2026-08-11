@@ -69,18 +69,18 @@ export async function runCwlPinSmoke(opts = {}) {
     ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
     detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
   });
-  // Tip floor for CWL Helix DNA seed parity + control-lower sync (LANGUAGE_VERSION / 1.0.20).
+  // Tip floor for CWL Helix DNA seed parity + control-lower sync (LANGUAGE_VERSION / 1.0.21).
   const parts = String(version ?? "").split(".").map((x) => Number.parseInt(x, 10));
   const tipOk =
     parts.length >= 3 &&
     !parts.some((n) => Number.isNaN(n)) &&
     (parts[0] > 1 ||
       (parts[0] === 1 && parts[1] > 0) ||
-      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 20));
+      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 21));
   checks.push({
-    id: "cwl-1.0.20-tip-floor",
+    id: "cwl-1.0.21-tip-floor",
     ok: tipOk,
-    detail: `VERSION=${version} (expect >= 1.0.20 executable Effects beyond session presets (gold 30))`,
+    detail: `VERSION=${version} (expect >= 1.0.21 multipart field/file bindings (gold 31))`,
   });
   for (const sub of ["parser", "print", "diagnose", "lsp-map", "dna-seed"]) {
     const subPath = join(root, "packages/cwl", `${sub}.mjs`);

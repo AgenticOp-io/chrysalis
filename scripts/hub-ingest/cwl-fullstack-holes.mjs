@@ -105,10 +105,11 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary: "WebSocket upgrade — declare hole until a duplex surface RFC exists; do not invent WS framework façades.",
   },
   "unsupported:multipart": {
-    rfc: "0005",
+    rfc: "0026",
     origin: "cwl",
     surface: "api",
-    summary: "multipart/form-data upload — declare hole until file/part binding is RFCd; do not invent upload middleware.",
+    summary:
+      "multipart/form-data residual beyond named field/file bindings (RFC-0026) — keep hole; do not invent upload middleware.",
   },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)

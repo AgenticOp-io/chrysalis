@@ -354,6 +354,12 @@ export function printCwlModule(mod, opts = {}) {
     for (const name of route.handlerCookies ?? []) {
       lines.push(`  cookie ${name};`);
     }
+    for (const name of route.handlerMultipartFields ?? []) {
+      lines.push(`  multipart field ${name};`);
+    }
+    for (const name of route.handlerMultipartFiles ?? []) {
+      lines.push(`  multipart file ${name};`);
+    }
     for (const name of route.handlerBodyParams ?? []) {
       lines.push(`  body ${name};`);
     }
@@ -454,6 +460,8 @@ export function canonicalizeCwlModule(mod) {
       handlerHeaders: [...(r.handlerHeaders ?? [])],
       handlerCookies: [...(r.handlerCookies ?? [])],
       handlerBodyParams: [...(r.handlerBodyParams ?? [])],
+      handlerMultipartFields: [...(r.handlerMultipartFields ?? [])],
+      handlerMultipartFiles: [...(r.handlerMultipartFiles ?? [])],
       responseStatus: r.responseStatus ?? null,
       responseContentType: r.responseContentType ?? null,
       responseHeaders: (r.responseHeaders ?? []).map((h) =>
