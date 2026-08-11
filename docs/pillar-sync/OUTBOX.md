@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_LIVEVIEW_HONESTY: ok
-SHA: PENDING_COMMIT
+SHA: 3d5a8ade
 BRANCH: candidate/wptp-convert-orbit
 SMOKES: LIVEVIEW_HONESTY_OK · hub:phoenix-controllers-smoke(G10126)
 HEARTBEAT: waiting
