@@ -17,7 +17,8 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
 | [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller route-surface **closed G10126**; LiveView still hole |
 | [`fixtures/ci/phoenix-liveview-honest-holes.json`](../fixtures/ci/phoenix-liveview-honest-holes.json) | Phoenix LiveView / HEEx / sockets / channels residual (**G10128** honesty; refuse runtime 20/20) |
-| [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails route-table **closed G10115**; resources/filters/AR remain holes |
+| [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails route-table **closed G10115**; resources/filters/AR → G10130 |
+| [`fixtures/ci/rails-filters-honest-holes.json`](../fixtures/ci/rails-filters-honest-holes.json) | Rails filters / resources / ActiveRecord residual (**G10130** honesty; refuse runtime 20/20) |
 | [`fixtures/ci/roda-honest-holes.json`](../fixtures/ci/roda-honest-holes.json) | Roda secondary (G10022); nested `r.on`/plugins = holes |
 | [`fixtures/ci/quart-honest-holes.json`](../fixtures/ci/quart-honest-holes.json) | Quart secondary (G10026); middleware/WebSocket/Blueprint beyond cheap = holes |
 | [`fixtures/ci/flask-blueprint-honest-holes.json`](../fixtures/ci/flask-blueprint-honest-holes.json) | Flask Blueprint secondary peel (G10070); cross-file/nested/register override/middleware = holes |
@@ -79,7 +80,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Ktor | Auth, plugins, nested routing beyond cheap peel | Route surface secondary (G10004) |
 | http4k | Filter/then chains, Body/Header lenses beyond req.path/query, nested/contract routing, server backends | Route surface secondary (G10024) |
 | Finch (Scala) | Endpoint `:+:` coproduct, jsonBody/header/cookie lenses, TwitterServer bootstrap, non-flat `::` | Flat `get("path")` / `path[String]` / `param` secondary (G10051) |
-| Ruby Rails | ActionController, `render json:`, cross-file `ctrl#action`, route macros | Sinatra ST (`hub-flagship-ruby`) |
+| Ruby Rails | filters / `resources` / ActiveRecord / ActionCable | Sinatra ST; Rails route-table G10115; filters honesty G10130 |
 | Ruby Roda | Nested `r.on`/`r.is`, multi-file plugins/auth, non-literal matchers | Shallow `r.get|post` secondary (G10022) |
 | Elixir | LiveView / HEEx / sockets / channels, pipelines | Plug.Router ST; Phoenix controllers route-surface G10126; LiveView honesty G10128 |
 | Dart | Flutter, Dart Frog, Pipeline, mount/stream, cross-file named handlers | Shelf ST + same-file named handlers (G10007); Flutter honesty G10129 |
@@ -97,7 +98,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Phoenix LiveView / HEEx / channels | Real LiveView corpus + non-invent peel | phoenix-liveview-honest-holes (G10128); controllers closed G10126 |
 | IBM BMS maps | Licensed `DFHAID` / `DFHBMSCA` / `EXTFMAP` in SDFHCOB | **G10084** symbol catalog only; COPY stay unresolved |
 | COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS/MQ/IMS behavior | **65/65** after G10078; Medium+ is **structural** (G10083); no LCB claim |
-| Rails secondary | route-table + thin `render json` closed G10115; resources/filters/AR = holes | `rails-controller-honest-skip` (G10115) |
+| Rails secondary | route-table + thin `render json` closed G10115; resources/filters/AR residual | rails-filters-honest-holes (G10130); route-table G10115 |
 | Revel Go secondary | `conf/routes` + `Controller.Action` / `revel.Result` — route-surface closed; no router.GET invent | `revel-honest-skip` (G10114 closed; interceptors remain holes) |
 | Blazor / ERB / Django | Inventory + markup adapters | MULTI-ORIGIN Tier C — plan amendment |
 | JAX-RS CDI / filters / providers / Application | Full CDI container, filter pipeline, `Application` bootstrap | Spring is Java ST; JAX-RS resource routes closed (G10012); CDI/filters/providers = holes |
@@ -140,4 +141,4 @@ Prove: `pnpm run hub:cobol-clbs-prove-smoke` · Docs: [`COBOL-MODERNIZATION-PROV
 
 1. **Add hole** — append to the matching `fixtures/ci/*honest*.json` (or new catalog) + one line here + scoreboard “Honest skips”.
 2. **Close hole** — only after a real origin peel + smoke/prove; never by stubbing runtime.
-3. **Charter** — Flutter runtime / LiveView runtime / BMS / Rails resources·filters (beyond G10115 route-table) / Blazor require an explicit plan amendment before build. Honesty catalogs G10129/G10128 refuse force-close.
+3. **Charter** — Flutter runtime / LiveView runtime / BMS / Rails resources·filters runtime (beyond G10115 route-table) / Blazor require an explicit plan amendment before build. Honesty catalogs G10130/G10129/G10128 refuse force-close.

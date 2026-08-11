@@ -1,3 +1,4 @@
+2026-08-11 | Convert | G10130 Rails filters/resources honesty (hub:rails-filters-honesty-smoke → RAILS_FILTERS_HONESTY_OK); residual catalog; refuse filters/AR runtime 20/20; G10115 sole Rails ST gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10129 Flutter honesty (hub:flutter-honesty-smoke → FLUTTER_HONESTY_OK); residual catalog; refuse Flutter/widget/engine runtime 20/20; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10128 Phoenix LiveView honesty (hub:phoenix-liveview-honesty-smoke → LIVEVIEW_HONESTY_OK); residual catalog; refuse LiveView runtime 20/20; EXTFMAP untouched | local | N
 2026-08-10 | Convert | G10127 EXTFMAP residual honesty smoke (hub:cobol-extfmap-residual-smoke → EXTFMAP_RESIDUAL_HONEST_OK); dual primary COBOL track; does not close copy:EXTFMAP | local | N

@@ -8,6 +8,31 @@
 
 ---
 
+## 2026-08-11 — convert-rails-filters-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-rails-filters-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_RAILS_FILTERS_HONESTY: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: RAILS_FILTERS_HONESTY_OK · CONVERT_RAILS_FILTERS_HONESTY · hub:rails-routes-smoke(G10115)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10130 — `fixtures/ci/rails-filters-honest-holes.json` + `hub:rails-filters-honesty-smoke`
+- Refuse filters/resources/AR full runtime 20/20 force-close; G10115 route-table remains sole Rails ST gold
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched
+
+---
+
 ## 2026-08-11 — convert-flutter-honesty
 
 **To:** cwl  
