@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_OSS_SCRUB: ok
-SHA: PENDING
+SHA: 74db4b0c
 BRANCH: candidate/wptp-convert-orbit
 SMOKES: OSS_SCRUB_OK · CONVERT_OSS_SCRUB · hub:oss-scrub-smoke(G10109)
 HEARTBEAT: waiting
