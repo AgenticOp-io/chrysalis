@@ -18,8 +18,7 @@
 **EXTFMAP:** operator only — no invent / no ABSENT without ZD&T
 
 ```text
-CONVERT_STANDBY: ok
-SHA: af72d8ae
+$18cdb9185
 HEARTBEAT: waiting
 BRANCH: candidate/wptp-convert-orbit
 CWL_PIN: file:1.0.17
