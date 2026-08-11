@@ -891,7 +891,11 @@ function renderUiTreeNode(ctx: SimCtx, n: NodeBase, node: unknown): string {
     const inner = Array.isArray(rec.children)
       ? rec.children.map((c) => renderUiTreeNode(ctx, n, c)).join("")
       : "";
-    return `<div data-cwl-island="client">${inner}</div>`;
+    const idAttr =
+      typeof rec.name === "string" && rec.name.length > 0
+        ? ` data-cwl-island-id="${htmlEscape(rec.name)}"`
+        : "";
+    return `<div data-cwl-island="client"${idAttr}>${inner}</div>`;
   }
   if (rec.kind === "element" && typeof rec.tag === "string") {
     const tag = rec.tag;
