@@ -15,7 +15,8 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux / Revel secondaries; Gin ST (+ Group peel G10066) |
 | [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **closed route-surface** (G10114; was G10065 skip; interceptors/router.GET invent remain holes) |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
-| [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller peel **skipped** (not cheap) |
+| [`fixtures/ci/phoenix-controller-honest-skip.json`](../fixtures/ci/phoenix-controller-honest-skip.json) | Phoenix controller route-surface **closed G10126**; LiveView still hole |
+| [`fixtures/ci/phoenix-liveview-honest-holes.json`](../fixtures/ci/phoenix-liveview-honest-holes.json) | Phoenix LiveView / HEEx / sockets / channels residual (**G10128** honesty; refuse runtime 20/20) |
 | [`fixtures/ci/rails-controller-honest-skip.json`](../fixtures/ci/rails-controller-honest-skip.json) | Rails route-table **closed G10115**; resources/filters/AR remain holes |
 | [`fixtures/ci/roda-honest-holes.json`](../fixtures/ci/roda-honest-holes.json) | Roda secondary (G10022); nested `r.on`/plugins = holes |
 | [`fixtures/ci/quart-honest-holes.json`](../fixtures/ci/quart-honest-holes.json) | Quart secondary (G10026); middleware/WebSocket/Blueprint beyond cheap = holes |
@@ -79,7 +80,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Finch (Scala) | Endpoint `:+:` coproduct, jsonBody/header/cookie lenses, TwitterServer bootstrap, non-flat `::` | Flat `get("path")` / `path[String]` / `param` secondary (G10051) |
 | Ruby Rails | ActionController, `render json:`, cross-file `ctrl#action`, route macros | Sinatra ST (`hub-flagship-ruby`) |
 | Ruby Roda | Nested `r.on`/`r.is`, multi-file plugins/auth, non-literal matchers | Shallow `r.get|post` secondary (G10022) |
-| Elixir | Phoenix controllers, LiveView, pipelines | Plug.Router ST |
+| Elixir | LiveView / HEEx / sockets / channels, pipelines | Plug.Router ST; Phoenix controllers route-surface G10126; LiveView honesty G10128 |
 | Dart | Flutter, Dart Frog, Pipeline, mount/stream, cross-file named handlers | Shelf ST + same-file named handlers (G10007) |
 | PHP Blade | Alpine `x-show`, Livewire `wire:*` hydrate | Inventory + basic Blade structural |
 | Vue Nitro | Whole-body / unbound `readBody` invent | Field peels + nested middleware presets |
@@ -92,7 +93,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Subject | Missing origin | Catalog / note |
 | --- | --- | --- |
 | Flutter / Dart Frog UI | Real Flutter/Frog app corpus | dart-shelf honest holes |
-| Phoenix LiveView / controllers | Cross-file `Ctrl,:action` + maps | phoenix-controller-honest-skip |
+| Phoenix LiveView / HEEx / channels | Real LiveView corpus + non-invent peel | phoenix-liveview-honest-holes (G10128); controllers closed G10126 |
 | IBM BMS maps | Licensed `DFHAID` / `DFHBMSCA` / `EXTFMAP` in SDFHCOB | **G10084** symbol catalog only; COPY stay unresolved |
 | COBOL behavioral beyond chartered gnu-honest extracts | Real Db2/CICS/VSAM/RANDOM/BMS/MQ/IMS behavior | **65/65** after G10078; Medium+ is **structural** (G10083); no LCB claim |
 | Rails secondary | route-table + thin `render json` closed G10115; resources/filters/AR = holes | `rails-controller-honest-skip` (G10115) |

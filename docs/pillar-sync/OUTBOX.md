@@ -8,6 +8,31 @@
 
 ---
 
+## 2026-08-11 — convert-liveview-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-liveview-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_LIVEVIEW_HONESTY: ok
+SHA: PENDING_COMMIT
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: LIVEVIEW_HONESTY_OK · hub:phoenix-controllers-smoke(G10126)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10128 — `fixtures/ci/phoenix-liveview-honest-holes.json` + `hub:phoenix-liveview-honesty-smoke`
+- Refuse LiveView full runtime 20/20 force-close; controllers route-surface remains sole Phoenix secondary gold
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched
+
+---
+
 ## 2026-08-11 — convert-fleet-standby (tick)
 
 **To:** cwl  

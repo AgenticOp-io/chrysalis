@@ -22,5 +22,12 @@
     { "shape": "resources / forward / match catch-alls", "reason": "hub-elixir:forward-match" },
     { "shape": "Views / render/3 / filters / Ecto / Absinthe", "reason": "hub-elixir:phoenix-runtime" }
   ],
-  "revisitWhen": "Chartered origin needs LiveView or deeper Phoenix runtime without inventing — keep Plug.Router as Elixir ST."
+  "revisitWhen": "Chartered origin needs LiveView or deeper Phoenix runtime without inventing — keep Plug.Router as Elixir ST.",
+  "liveviewHonesty": {
+    "gate": "G10128",
+    "catalog": "fixtures/ci/phoenix-liveview-honest-holes.json",
+    "smoke": "pnpm run hub:phoenix-liveview-honesty-smoke",
+    "token": "LIVEVIEW_HONESTY_OK",
+    "note": "LiveView remains honest-residual — refuse force-close as full runtime 20/20"
+  }
 }
