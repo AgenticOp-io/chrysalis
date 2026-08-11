@@ -129,25 +129,39 @@
         "restify": {
             "fixture": "fixtures/hub-gold-restify",
             "smoke": "pnpm run hub:restify-smoke",
+            "note": "ORIGIN secondary dialect (G9957 / G9959 pass-through pre|use + G10005 IDENT). Residual honesty expanded G10134 (`restify-honest-holes.json` / `RESTIFY_HONESTY_OK`).",
             "supported": [
                 "server.get|post|put|patch|del literal paths",
                 "res.send(value) / Restify res.send(code, body)",
                 "req.params.* / req.query.*",
                 "return next() after send (ignored peel)",
-                "const { id } = req.params|query (IDENT peel, G10005)"
+                "const { id } = req.params|query (IDENT peel, G10005)",
+                "empty/next-only server.pre / server.use → js.passthrough (G9959)"
             ],
             "honestHoles": [
                 {
-                    "shape": "server.pre / server.use middleware",
-                    "reason": "hub-js:restify-middleware"
+                    "shape": "non-empty / complex server.pre / server.use bodies + cascaded middleware chains",
+                    "reason": "hub-js:restify-middleware",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
                 },
                 {
-                    "shape": "server.on lifecycle / plugins.*",
-                    "reason": "hub-js:restify-plugins"
+                    "shape": "restify.plugins.* / bodyParser / queryParser / throttle / CORS invent",
+                    "reason": "hub-js:restify-plugins",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
                 },
                 {
-                    "shape": "named handler refs / next.ifError",
-                    "reason": "hub-js:restify-named-handler"
+                    "shape": "server.on lifecycle / after hooks invent",
+                    "reason": "hub-js:restify-lifecycle",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
+                },
+                {
+                    "shape": "named handler refs / next.ifError / versioned routes invent",
+                    "reason": "hub-js:restify-named-handler",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
                 },
                 {
                     "shape": "nested/computed/rest destructure from params|query",
@@ -157,7 +171,13 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10134",
+                "catalog": "fixtures/ci/restify-honest-holes.json",
+                "smoke": "pnpm run hub:restify-honesty-smoke",
+                "token": "RESTIFY_HONESTY_OK"
+            }
         },
         "polka": {
             "fixture": "fixtures/hub-gold-polka",

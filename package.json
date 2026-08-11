@@ -1482,6 +1482,7 @@
     "hub:martini-smoke": "node scripts/hub-ingest/hub-martini-smoke.mjs",
     "hub:revel-smoke": "node scripts/hub-ingest/hub-revel-smoke.mjs",
     "hub:restify-smoke": "node scripts/hub-ingest/hub-restify-smoke.mjs",
+    "hub:restify-honesty-smoke": "node scripts/hub-ingest/hub-restify-honesty-smoke.mjs",
     "hub:polka-smoke": "node scripts/hub-ingest/hub-polka-smoke.mjs",
     "hub:hono-smoke": "node scripts/hub-ingest/hub-hono-smoke.mjs",
     "hub:hono-honesty-smoke": "node scripts/hub-ingest/hub-hono-honesty-smoke.mjs",

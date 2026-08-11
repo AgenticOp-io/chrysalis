@@ -1,3 +1,4 @@
+2026-08-11 | Convert | G10134 Restify honesty L1 peel (hub:restify-honesty-smoke → RESTIFY_HONESTY_OK); expanded residual catalog; refuse plugins/complex pre-use runtime 20/20; G9957/G9959/G10005 sole Restify ORIGIN gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10133 Elysia honesty L1 peel (hub:elysia-honesty-smoke → ELYSIA_HONESTY_OK); expanded residual catalog; refuse plugins/lifecycle/macros runtime 20/20; G10025/G10053 sole Elysia ORIGIN gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10132 Koa honesty L1 peel (hub:koa-honesty-smoke → KOA_HONESTY_OK); expanded residual catalog; refuse onion middleware runtime 20/20; G9959/G10005 sole Koa ORIGIN gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10131 Hono honesty L1 peel (hub:hono-honesty-smoke → HONO_HONESTY_OK); expanded residual catalog; refuse middleware/RPC/JSX runtime 20/20; G10019/G10044 sole Hono ORIGIN gold; EXTFMAP untouched | local | N
