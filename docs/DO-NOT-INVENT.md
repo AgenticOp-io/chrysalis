@@ -12,6 +12,7 @@ Translate source or leave an honest hole. Do not pad leadership with façades.
 | Catalog | Covers |
 | --- | --- |
 | [`fixtures/ci/js-secondary-dialect-honest-holes.json`](../fixtures/ci/js-secondary-dialect-honest-holes.json) | Koa / Nest / Hapi / Restify / Polka / Hono ORIGIN (≠ emit-hono) / Elysia ORIGIN / Oak Deno ORIGIN / itty-router Workers ORIGIN / AdonisJS ORIGIN / CF Workers fetch-export |
+| [`fixtures/ci/hono-honest-holes.json`](../fixtures/ci/hono-honest-holes.json) | Hono complex mw / createMiddleware / RPC / JSX / validators / WebSocket residual (**G10131** honesty; refuse runtime 20/20; pass-through ceiling G10044) |
 | [`fixtures/ci/go-secondary-dialect-honest-holes.json`](../fixtures/ci/go-secondary-dialect-honest-holes.json) | Go Chi / Echo / Fiber / Iris / Beego / Buffalo / Martini / Gorilla mux / ServeMux / Revel secondaries; Gin ST (+ Group peel G10066) |
 | [`fixtures/ci/revel-honest-skip.json`](../fixtures/ci/revel-honest-skip.json) | Revel Go secondary peel **closed route-surface** (G10114; was G10065 skip; interceptors/router.GET invent remain holes) |
 | [`fixtures/ci/elixir-plug-honest-holes.json`](../fixtures/ci/elixir-plug-honest-holes.json) | Plug.Router ST; Phoenix / LiveView / pipelines |
@@ -54,7 +55,7 @@ Update those JSON files when a hole is closed by a real peel — not by inventin
 | Koa / Polka | Non-empty onion `app.use` | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Restify | Plugins, complex `pre`/`use` bodies | Empty/next-only pass-through (G9959); G10005 IDENT destructure peel |
 | Hapi | Plugins, `server.ext` lifecycle, auth options | Route + `h.response().code` smoke; G10005 IDENT destructure peel |
-| Hono | Complex `app.use` / middleware helpers, nested `app.route`, ResponseInit status | Empty/next-only pass-through (G10044); ORIGIN route surface (G10019); **≠ emit-hono** |
+| Hono | Complex `app.use` / createMiddleware / RPC / JSX / validators / WebSocket / nested `app.route` / ResponseInit | Empty/next-only pass-through (G10044); ORIGIN route surface (G10019); honesty **G10131**; **≠ emit-hono** |
 | Elysia | plugins / `.use` (not `(ctx, next)`), non-empty lifecycle / options/`as`, macros / derived context, nested `group` | ORIGIN route surface (G10025); empty `onRequest`/`onBeforeHandle` → `js.passthrough` (G10053) |
 | itty-router | middleware / nested Router / named handlers, body/headers/cookies | ORIGIN Workers route surface secondary (G10047); empty `all` via G10064 |
 | AdonisJS | Lucid ORM, IoC/`@inject`/providers, controller string refs, middleware/groups/auth | ORIGIN route surface secondary (G10059); no Lucid/IoC invent |

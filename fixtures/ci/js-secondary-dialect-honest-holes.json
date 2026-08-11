@@ -175,7 +175,7 @@
         "hono": {
             "fixture": "fixtures/hub-gold-hono",
             "smoke": "pnpm run hub:hono-smoke",
-            "note": "ORIGIN secondary dialect (G10019 / D6481 + G10044 / D6506 pass-through mw). Distinct from @chrysalis/emit-hono outbound emit target.",
+            "note": "ORIGIN secondary dialect (G10019 / D6481 + G10044 / D6506 pass-through mw). Distinct from @chrysalis/emit-hono outbound emit target. Residual honesty expanded G10131 (`hono-honest-holes.json` / `HONO_HONESTY_OK`).",
             "supported": [
                 "new Hono() factory (dialect marker)",
                 "app.get|post|put|patch|delete literal paths",
@@ -187,19 +187,27 @@
             "honestHoles": [
                 {
                     "shape": "non-empty / complex app.use bodies + Hono middleware helpers (logger, cors, â€¦)",
-                    "reason": "hub-js:hono-middleware"
+                    "reason": "hub-js:hono-middleware",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "c.req.header / parseBody / cookies / streaming body",
-                    "reason": "hub-js:hono-req-extra"
+                    "reason": "hub-js:hono-req-extra",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "c.json(body, { status }) ResponseInit object form",
-                    "reason": "hub-js:hono-response-init"
+                    "reason": "hub-js:hono-response-init",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "named handlers / app.route nesting / basePath",
-                    "reason": "hub-js:hono-nested-route"
+                    "reason": "hub-js:hono-nested-route",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "nested/computed/rest destructure from param|query bags",
@@ -209,7 +217,13 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10131",
+                "catalog": "fixtures/ci/hono-honest-holes.json",
+                "smoke": "pnpm run hub:hono-honesty-smoke",
+                "token": "HONO_HONESTY_OK"
+            }
         },
         "elysia": {
             "fixture": "fixtures/hub-gold-elysia",

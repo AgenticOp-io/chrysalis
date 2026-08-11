@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-l1-honest-peels
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-l1-honest-peels  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_L1_HONEST_PEELS: ok
+SHA: pending
+BRANCH: candidate/wptp-convert-orbit
+DIALECT: Hono
+SMOKES: HONO_HONESTY_OK · CONVERT_HONO_HONESTY · hub:hono-smoke(G10019/G10044)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10131 — `fixtures/ci/hono-honest-holes.json` + `hub:hono-honesty-smoke`
+- Refuse Hono middleware/RPC/JSX full runtime 20/20 force-close; G10019/G10044 remain sole Hono ORIGIN gold; pass-through ceiling unchanged
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched; no new dialect wave
+
+---
+
 ## 2026-08-11 — convert-rails-filters-honesty
 
 **To:** cwl  

@@ -1483,6 +1483,7 @@
     "hub:restify-smoke": "node scripts/hub-ingest/hub-restify-smoke.mjs",
     "hub:polka-smoke": "node scripts/hub-ingest/hub-polka-smoke.mjs",
     "hub:hono-smoke": "node scripts/hub-ingest/hub-hono-smoke.mjs",
+    "hub:hono-honesty-smoke": "node scripts/hub-ingest/hub-hono-honesty-smoke.mjs",
     "hub:elysia-smoke": "node scripts/hub-ingest/hub-elysia-smoke.mjs",
     "hub:oak-smoke": "node scripts/hub-ingest/hub-oak-smoke.mjs",
     "hub:itty-smoke": "node scripts/hub-ingest/hub-itty-smoke.mjs",
