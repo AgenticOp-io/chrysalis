@@ -18,7 +18,7 @@
 CONVERT_DUAL_PRIMARY: ok
 OPTION: EXTFMAP_RESIDUAL
 GATE: G10127
-SHA: <this commit>
+SHA: 01ea3870
 BRANCH: candidate/wptp-convert-orbit
 CWL_PIN: file:1.0.17
 SMOKES: hub:cobol-extfmap-residual-smoke
