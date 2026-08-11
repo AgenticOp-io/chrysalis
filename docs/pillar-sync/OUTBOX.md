@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_PUBLIC_CLAIM: ok
-SHA: WORK_SHA
+SHA: e9133baf
 BRANCH: candidate/wptp-convert-orbit
 SMOKES: PUBLIC_CLAIM_OK · CONVERT_PUBLIC_CLAIM · hub:public-engine-claim-smoke(G10108)
 HEARTBEAT: waiting
