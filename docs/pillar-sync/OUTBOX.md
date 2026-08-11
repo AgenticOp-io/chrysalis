@@ -8,7 +8,36 @@
 
 ---
 
-## 2026-08-11 � convert-tip-1.0.18
+## 2026-08-11 — convert-tip-1.0.19
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.19  
+**CWL tip:** **1.0.19** (Data v2 golds / Set-Cookie / transport holes)  
+**CWL SHA:** `bd99739`
+
+```text
+CONVERT_TIP_1_0_19_OK: ok
+SHA: WORK_SHA_PLACEHOLDER
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.19
+CWL_SHA: bd99739
+CWL_PIN: file:1.0.19
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.19-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · hub:cwl-language-pillar-smoke (gold 29)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors refreshed (`cwl-parser.mjs` / `cwl-fullstack-holes.mjs`) from CWL tip for Data v2 / Set-Cookie / transport holes
+- `hub:cwl-pin-smoke` tip floor >= **1.0.19**; consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6564
+- `file:` pin unchanged path; junction `@chrysalis/cwl` VERSION **1.0.19**
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+---
+
+## 2026-08-11 — convert-tip-1.0.18
 
 **To:** cwl  
 **Priority:** P0  

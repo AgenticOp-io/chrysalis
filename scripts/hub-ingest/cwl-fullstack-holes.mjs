@@ -92,6 +92,24 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     surface: "client",
     summary: "Unclassified browser script — honest hole until a catalogued island kind applies.",
   },
+  "unsupported:sse": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "api",
+    summary: "Server-Sent Events stream — declare hole until a streaming surface RFC exists; do not invent EventSource runtimes.",
+  },
+  "unsupported:websocket": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "api",
+    summary: "WebSocket upgrade — declare hole until a duplex surface RFC exists; do not invent WS framework façades.",
+  },
+  "unsupported:multipart": {
+    rfc: "0005",
+    origin: "cwl",
+    surface: "api",
+    summary: "multipart/form-data upload — declare hole until file/part binding is RFCd; do not invent upload middleware.",
+  },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)
   "cwl:emit:missing-value": {

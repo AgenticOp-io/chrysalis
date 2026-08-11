@@ -29,7 +29,7 @@ const COOKIE_RE = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const BODY_RE = /^body\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const STATUS_RE = /^status\s+(\d{3})\s*;$/;
 const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
-const RESPONSE_HEADER_RE = /^response-header\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*(.+?))?\s*;$/;
+const RESPONSE_HEADER_RE = /^response-header\s+([A-Za-z][A-Za-z0-9_-]*)\s*(?:=\s*(.+?))?\s*;$/;
 const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
 const ELSE_RE = /^else\s*\{$/;
