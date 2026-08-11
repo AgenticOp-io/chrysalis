@@ -19,7 +19,7 @@
 
 ```text
 CONVERT_L1_HONEST_PEELS: ok
-SHA: pending
+SHA: 245ea296
 BRANCH: candidate/wptp-convert-orbit
 DIALECT: Hono
 SMOKES: HONO_HONESTY_OK · CONVERT_HONO_HONESTY · hub:hono-smoke(G10019/G10044)
