@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-l1-koa-honesty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-l1-koa-honesty  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_L1_KOA_HONESTY: ok
+SHA: aea4abb2
+BRANCH: candidate/wptp-convert-orbit
+DIALECT: Koa
+SMOKES: KOA_HONESTY_OK · CONVERT_KOA_HONESTY · hub:koa-smoke(G9959/G10005)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- G10132 — `fixtures/ci/koa-honest-holes.json` + `hub:koa-honesty-smoke`
+- Refuse Koa onion middleware full runtime 20/20 force-close; G9959/G10005 remain sole Koa ORIGIN gold; pass-through ceiling unchanged
+- Scoreboard + DO-NOT-INVENT updated; no CWL/Secure edits; EXTFMAP untouched; no new dialect wave
+
+---
+
 ## 2026-08-11 — convert-l1-honest-peels
 
 **To:** cwl  
