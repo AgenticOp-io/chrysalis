@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-08-11 — convert-oss-scrub
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-oss-scrub  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_OSS_SCRUB: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: OSS_SCRUB_OK · CONVERT_OSS_SCRUB · hub:oss-scrub-smoke(G10109)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Hardened `hub:oss-scrub-smoke` (schema v2) → **`OSS_SCRUB_OK`** / **`CONVERT_OSS_SCRUB`**
+- Scrubbed burned WISP password literals from `docs/GO-PUBLIC.md` (tip gate now points at smoke)
+- Docs/scoreboard: PUBLIC-ENGINE-CLAIM · CURSOR-PILOT-KIT · LEADERSHIP-SCOREBOARD · CHANGELOG
+- Tracked-tree only — **no BFG/history rewrite**; EXTFMAP untouched; no CWL/Secure edits
+
+---
+
 ## 2026-08-11 — convert-pilot-kit
 
 **To:** cwl  

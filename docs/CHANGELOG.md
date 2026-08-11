@@ -1,3 +1,4 @@
+2026-08-11 | Convert | G10109 OSS scrub harden: hub:oss-scrub-smoke → OSS_SCRUB_OK/CONVERT_OSS_SCRUB; scrub burned password literals from GO-PUBLIC.md; tracked-tree only (no BFG); EXTFMAP untouched | local | N
 2026-08-11 | Convert | Cursor Pilot Kit 15-min path harden (docs/CURSOR-PILOT-KIT.md + checklist); hub:cursor-pilot-kit-smoke → PILOT_KIT_OK; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10136 Nest DI honesty L1 peel (hub:nestjs-honesty-smoke → NEST_DI_HONESTY_OK); expanded residual catalog; refuse Nest DI/modules/providers runtime 20/20; G9950/G10015 sole Nest route-surface gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10135 Polka honesty L1 peel (hub:polka-honesty-smoke → POLKA_HONESTY_OK); expanded residual catalog; refuse plugins/onion middleware runtime 20/20; G9958/G9959/G10005 sole Polka ORIGIN gold; EXTFMAP untouched | local | N

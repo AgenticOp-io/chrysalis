@@ -9,14 +9,14 @@
 From repo root:
 
 ```bash
-pnpm run hub:oss-scrub-smoke
+pnpm run hub:oss-scrub-smoke          # → OSS_SCRUB_OK · CONVERT_OSS_SCRUB (G10109)
 pnpm run hub:public-engine-claim-smoke
-pnpm run hub:cursor-pilot-kit-smoke
+pnpm run hub:cursor-pilot-kit-smoke   # → PILOT_KIT_OK
 pnpm run pilot:laravel-min
 pnpm run pilot:cobol-clbs
 ```
 
-All five must print `"ok": true`.
+All five must print `"ok": true`. OSS scrub also prints **`OSS_SCRUB_OK`** (tracked-tree only — history scrub remains operator below; no BFG from the smoke).
 
 ## History scrub (operator)
 
@@ -51,13 +51,14 @@ Fixtures (`wisp-demo-manifest.v1.json`) keep password fields as `""`; verify scr
 
 **Before flip (required):** rotate Firebase Auth passwords for `demo@wisptools.io` and `admin@wisptools.io` (and any other accounts that used the old committed literals). Those strings remain in **git history** even after tip scrub. Confirm Firebase web API key restrictions (HTTP referrer / app) for `wisptools-production` client config shipped in WISP fixtures.
 
-```powershell
-# Tip must be empty (oss-scrub also fails the flip prep if these return):
-git grep -n "WisptoolsDemo2026!" HEAD
-git grep -n "WisptoolsAdmin2026!" HEAD
+Primary tip gate (does **not** embed contiguous burned literals in docs):
+
+```bash
+pnpm run hub:oss-scrub-smoke
+# expect: "ok": true · OSS_SCRUB_OK · CONVERT_OSS_SCRUB (G10109)
 ```
 
-Do **not** invent replacement passwords into the repo — store only in operator env / password manager.
+Do **not** paste burned demo/admin password literals into docs or scripts — the smoke encodes those patterns from split parts. Do **not** invent replacement passwords into the repo — store only in operator env / password manager.
 
 ## Tip readiness
 

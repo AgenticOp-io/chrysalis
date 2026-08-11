@@ -130,6 +130,8 @@ export async function runPublicEngineClaimSmoke() {
       "chrysalis.hub.oss-scrub-smoke",
       "service_account",
       "FORBIDDEN_NAME_RE",
+      "OSS_SCRUB_OK",
+      "CONVERT_OSS_SCRUB",
     ),
   });
 
