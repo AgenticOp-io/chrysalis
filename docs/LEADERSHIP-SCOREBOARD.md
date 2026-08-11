@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-11 (**G10136** Nest DI honesty L1; **G10135** Polka honesty L1; **G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
+**As of:** 2026-08-11 (**Pilot Kit** 15-min path → `PILOT_KIT_OK`; **G10136** Nest DI honesty L1; **G10135** Polka honesty L1; **G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
 
 ---
 
@@ -259,8 +259,8 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 1. **EXTFMAP** (sole P0) — needs live z/OS ZD&T hunt on `B5C551` / SDFHCOB **or** operator ABSENT attest after hunt (`CHRYSALIS_EXTFMAP_ABSENT=1`). Never invent. Honesty gate **G10127** green while open. See [`EXTFMAP-RESIDUAL.md`](./EXTFMAP-RESIDUAL.md). **CMQ*** closed via DHE MQ Advanced for Developers drop.
 2. **Maintain UT↔Helix spine** — in **chrysalis-cwl** `npm run smoke:ut-spine` (G10125); not Convert Pilot Kit
 3. **Chartered IBM runtimes** — Db2/CICS/VSAM/MQ/IMS/JES (not GnuCOBOL substitutes). Closest no-z/OS trial: **CICS TX + COBOL for Linux**.
-4. **Parallel GTM:** Cursor Pilot Kit + public-claim + **OSS scrub** (`hub:oss-scrub-smoke` **G10109**) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) · [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)
-5. **Brand CTA (Requested):** agenticop.io “Start a Pilot” → Pilot Kit 15-minute path
+4. **Parallel GTM:** Cursor Pilot Kit 15-min path hardened (`hub:cursor-pilot-kit-smoke` → **`PILOT_KIT_OK`**) + public-claim + **OSS scrub** (`hub:oss-scrub-smoke` **G10109**) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) · [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)
+5. **Brand CTA (Requested):** agenticop.io “Start a Pilot” → Pilot Kit 15-minute path (`PILOT_KIT_OK` packaging gate)
 6. **Rails resources·filters runtime** — honesty **G10130** green (not runtime close); G10115 route-table remains sole Rails ST gold
 7. **Full git-history OSS scrub** — operator (BFG/filter-repo) if secrets ever landed; tracked-tree gate is green
 

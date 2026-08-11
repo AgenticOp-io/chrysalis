@@ -1,3 +1,4 @@
+2026-08-11 | Convert | Cursor Pilot Kit 15-min path harden (docs/CURSOR-PILOT-KIT.md + checklist); hub:cursor-pilot-kit-smoke → PILOT_KIT_OK; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10136 Nest DI honesty L1 peel (hub:nestjs-honesty-smoke → NEST_DI_HONESTY_OK); expanded residual catalog; refuse Nest DI/modules/providers runtime 20/20; G9950/G10015 sole Nest route-surface gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10135 Polka honesty L1 peel (hub:polka-honesty-smoke → POLKA_HONESTY_OK); expanded residual catalog; refuse plugins/onion middleware runtime 20/20; G9958/G9959/G10005 sole Polka ORIGIN gold; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10134 Restify honesty L1 peel (hub:restify-honesty-smoke → RESTIFY_HONESTY_OK); expanded residual catalog; refuse plugins/complex pre-use runtime 20/20; G9957/G9959/G10005 sole Restify ORIGIN gold; EXTFMAP untouched | local | N

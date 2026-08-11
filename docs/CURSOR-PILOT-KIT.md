@@ -21,32 +21,53 @@ Buyers work in **Cursor / MCP agents**. Speedscale already owns “AI needs traf
 | One-shot laravel-min prove | `pnpm run pilot:laravel-min` |
 | One-shot COBOL CLBS prove | `pnpm run pilot:cobol-clbs` (inventory + best-fit + residual; no runtime invent) |
 | Checklist | `fixtures/pilot-kit/PILOT-CHECKLIST.md` |
-| Smoke | `pnpm run hub:cursor-pilot-kit-smoke` |
+| Smoke | `pnpm run hub:cursor-pilot-kit-smoke` → **`PILOT_KIT_OK`** |
 
-**Not this kit:** CWL ↔ Helix cutover spine lives in **`chrysalis-cwl`** (`npm run smoke:ut-spine`) — Convert does not own DNA/surface cutover.
+**Not this kit:** CWL ↔ Helix cutover spine lives in **`chrysalis-cwl`** (`npm run smoke:ut-spine`) — Convert does not own DNA/surface cutover.  
+**EXTFMAP:** sole COBOL open P0 — never invent; optional `pilot:cobol-clbs` may report residual.
 
 ## 15-minute buyer path
 
+Runnable without invent. Packaging gate first (no PHP). Wedge prove needs PHP; stay honest-red if extensions missing.
+
+### Preconditions
+
+| Need | For |
+| --- | --- |
+| Node 20+ / pnpm | packaging + MCP |
+| `pnpm install && pnpm -r build` | laravel-min prove (CLI dist) |
+| PHP 8.1+ with `mysqli` + `pdo_sqlite` | laravel-min verify/oracle — **honest red** without them (no invented green) |
+
+### Steps
+
 ```bash
-# 0. Clone Chrysalis (public Apache claim — see PUBLIC-ENGINE-CLAIM.md)
-git clone <chrysalis-repo> && cd chrysalis
-pnpm install && pnpm -r build
+# 0. At Chrysalis convert repo root (clone if needed — PUBLIC-ENGINE-CLAIM.md)
+#    Fresh clone: pnpm install && pnpm -r build
 
-# 1. Prove the wedge (existing gates — no new convert path)
+# 1. Packaging gate (~1 min, no PHP) — expect token PILOT_KIT_OK
+pnpm run hub:cursor-pilot-kit-smoke
+
+# 2. Prove the laravel-min wedge (existing gates — no new convert path)
 pnpm run pilot:laravel-min
+# → reports/pilot-kit/laravel-min-pilot.json with ok: true
+# Honest SKIP/red: missing PHP mysqli/pdo_sqlite → fix PHP, do not force-settle
 
-# 2. Wire Cursor MCP
+# 3. Wire Cursor MCP
 # Copy fixtures/pilot-kit/cursor-mcp.json → Cursor MCP settings
-# Set cwd to this repo root; restart MCP
+# Replace REPLACE_WITH_CHRYSALIS_REPO_ROOT with this repo root; restart MCP
 
-# 3. Copy rule (optional but recommended)
+# 4. Copy rule (optional but recommended)
 # fixtures/pilot-kit/chrysalis-pilot.mdc → .cursor/rules/chrysalis-pilot.mdc
 
-# 4. In Cursor: ask the agent to list MCP tools, then propose a hole fill —
+# 5. In Cursor: list MCP tools, then propose a hole fill —
 #    apply only after chrysalis_verify / verify:flagship is green
 ```
 
-Expected pilot prove output: `reports/pilot-kit/laravel-min-pilot.json` with `ok: true`.
+| Gate | Token / artifact |
+| --- | --- |
+| Packaging | stdout **`PILOT_KIT_OK`** + `reports/pilot-kit/cursor-pilot-kit-smoke.json` |
+| Wedge prove | `reports/pilot-kit/laravel-min-pilot.json` `ok: true` |
+| Optional COBOL | `pnpm run pilot:cobol-clbs` — residual OK; **EXTFMAP** untouched |
 
 ## MCP tools (governor)
 
@@ -76,7 +97,7 @@ Sold as **AgenticOp practice** on the **Chrysalis engine** — not a second prod
 
 | Gate | Command |
 | --- | --- |
-| Pilot kit packaging | `pnpm run hub:cursor-pilot-kit-smoke` |
+| Pilot kit packaging | `pnpm run hub:cursor-pilot-kit-smoke` → **`PILOT_KIT_OK`** |
 | Laravel-min verify | `pnpm run verify:flagship` / `pnpm run pilot:laravel-min` — **GCE green** with PHP `mysqli` + `pdo_sqlite` (`php8.2-mysql`, `php8.2-sqlite3`). Without them oracle-php / PDO fatals stay honest red |
 | COBOL CLBS pilot | `pnpm run pilot:cobol-clbs` — best-fit + residual ledger; `.cbl` peels exhausted; **G10111** CSD/DCLGEN catalogs; **EXTFMAP** sole open P0 (never invent) |
 | Public claim packaging | `pnpm run hub:public-engine-claim-smoke` — Apache LICENSE/README/trademark + Pilot Kit links (**G10108**) |

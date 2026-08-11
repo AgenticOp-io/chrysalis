@@ -1,11 +1,16 @@
 # Pilot checklist (buyer)
 
+## Packaging gate (no invent)
+
+- [ ] `pnpm run hub:cursor-pilot-kit-smoke` → stdout **`PILOT_KIT_OK`**  
+- [ ] Report: `reports/pilot-kit/cursor-pilot-kit-smoke.json` with `ok: true`  
+
 ## Machine
 
-- [ ] Node 20+ / pnpm / PHP 8.1+ on PATH  
+- [ ] Node 20+ / pnpm / PHP 8.1+ on PATH (`mysqli` + `pdo_sqlite` for laravel-min)  
 - [ ] `pnpm install && pnpm -r build`  
 - [ ] `pnpm run pilot:laravel-min` → `ok: true`  
-- [ ] Optional COBOL wedge: `pnpm run pilot:cobol-clbs` → `ok: true` (EXTFMAP may remain sole open P0)  
+- [ ] Optional COBOL wedge: `pnpm run pilot:cobol-clbs` → `ok: true` (EXTFMAP may remain sole open P0 — never invent)  
 
 ## Cursor
 

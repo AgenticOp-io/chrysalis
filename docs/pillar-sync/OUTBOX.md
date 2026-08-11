@@ -8,6 +8,31 @@
 
 ---
 
+## 2026-08-11 — convert-pilot-kit
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-pilot-kit  
+**CWL tip:** **1.0.17** invent CLOSED  
+**EXTFMAP:** operator only — no invent / no ABSENT
+
+```text
+CONVERT_PILOT_KIT: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: PILOT_KIT_OK · CONVERT_PILOT_KIT · hub:cursor-pilot-kit-smoke
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Hardened [`docs/CURSOR-PILOT-KIT.md`](../../CURSOR-PILOT-KIT.md) 15-minute path (packaging first → wedge prove → MCP; PHP honesty noted)
+- `hub:cursor-pilot-kit-smoke` emits **`PILOT_KIT_OK`** / **`CONVERT_PILOT_KIT`**; checklist gate token
+- Scoreboard + CHANGELOG; no CWL/Secure edits; EXTFMAP untouched; no invent
+
+---
+
 ## 2026-08-11 — convert-nest-di-honesty
 
 **To:** cwl  
