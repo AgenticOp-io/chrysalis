@@ -1,3 +1,4 @@
+2026-08-10 | Convert | G10127 EXTFMAP residual honesty smoke (hub:cobol-extfmap-residual-smoke → EXTFMAP_RESIDUAL_HONEST_OK); dual primary COBOL track; does not close copy:EXTFMAP | local | N
 2026-08-10 | Convert | CWL notify CONVERT-WHOLE-SYSTEM-NOTIFIED.md + harnesses platforms-first (silver/d3/d4) | local | N
 2026-08-09 | Convert | hub:convert-whole-system-smoke — live cohesion gate; gold/compose resolve platforms/wptp-* first | local | N
 2026-08-09 | Convert | CONVERT-WHOLE-SYSTEM.md — cohesive map: peels→CWL DNA, platforms WPTP orbit, COBOL/Hub/Helix (nothing wasted) | local | N

@@ -1,7 +1,8 @@
-# EXTFMAP residual — honest close path (G10125)
+# EXTFMAP residual — honest close path (G10125 · G10127)
 
 **Status:** sole COBOL P0 remains **OPEN**  
-**Invariant:** Never invent `EXTFMAP.cpy` (**D6447**)
+**Invariant:** Never invent `EXTFMAP.cpy` (**D6447**)  
+**Dual-primary prove:** `pnpm run hub:cobol-extfmap-residual-smoke` → token **`EXTFMAP_RESIDUAL_HONEST_OK`** (**G10127**)
 
 ## Why not closed in the UT↔Helix spine ship
 
@@ -28,12 +29,18 @@ See [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-ZD&T-L
 | If not found: set `CHRYSALIS_EXTFMAP_ABSENT=1` and run `cobol:extfmap-absent` | |
 | Confirm `reports/cobol/extfmap-absent.json` status ≠ `open` | |
 
-## Status smoke (honest open)
+## Status + residual honesty smokes
 
-\powershell
+```powershell
 pnpm run cobol:extfmap-status
-\\n
-Exits 0 and prints status: open|present|absent-attested without inventing the COPY. Residual stays **open** until drop or ABSENT attestation.
+pnpm run hub:cobol-residual-ledger
+pnpm run hub:cobol-extfmap-residual-smoke
+```
+
+- `cobol:extfmap-status` — exits 0; prints `open|present|absent-attested` without inventing the COPY  
+- `hub:cobol-extfmap-residual-smoke` (**G10127**) — asserts sole open P0 proprietary COPY is `copy:EXTFMAP`, status matches drop disk, refuses force-close  
+
+Residual stays **open** until drop or ABSENT attestation.
 
 ## Relation to Pilot Kit
 
