@@ -8,6 +8,36 @@
 
 ---
 
+
+## 2026-08-21 - convert-tip-1.0.24
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.24  
+**CWL tip:** **1.0.24** (DNA bridge SSE/multipart/HEAD honesty RFC-0022 deepen / gold 34)  
+**CWL SHA:** `c20b1b1` (+ sibling working tip `packages/cwl` VERSION **1.0.24**)
+
+```text
+CONVERT_TIP_1_0_24_OK: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.24
+CWL_SHA: c20b1b1
+CWL_PIN: file:1.0.24
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.24-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 34)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors already byte-identical to CWL tip (no delta); junction `@chrysalis/cwl` / `dna-seed` resolves VERSION **1.0.24** tip seed honesty
+- `hub:cwl-pin-smoke` tip floor >= **1.0.24**; language-pillar WebIR round-trip includes gold `34-dna-bridge-surfaces`
+- Consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6569
+- `file:` pin unchanged path; registry note `@agenticop-io/cwl@1.0.24`
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+---
 ## 2026-08-21 â€” convert-traffic-decides-bar
 
 **To:** cwl  

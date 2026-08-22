@@ -18,12 +18,12 @@ This convert tree **translates** into and out of it ï¿½ it does not redefine 
 
 **Primary tree:** `engines/chrysalis-cwl`  
 **Repo:** https://github.com/AgenticOp-io/chrysalis-cwl  
-**Pinned language:** see sibling `LANGUAGE_VERSION.md` (currently **`1.0.23`** -- genome deepen OPEN (named UI islands + form event contracts / gold 33))
+**Pinned language:** see sibling `LANGUAGE_VERSION.md` (currently **`1.0.24`** -- genome deepen OPEN (DNA bridge SSE/multipart/HEAD honesty / gold 34))
 **Consume closeout:** [`CONVERT-CWL-CONSUME.md`](./CONVERT-CWL-CONSUME.md) — WebIR: [`WEBIR-REVERSE-HOME.md`](./WEBIR-REVERSE-HOME.md)
 
 ## Pin note (Exit 1.0+)
 
-Convert pins `@chrysalis/cwl` as **`file:../chrysalis-cwl/packages/cwl`** (tip **1.0.23**). Registry name `@agenticop-io/cwl` is published on GitHub Packages ï¿½ see [`.npmrc.example`](../.npmrc.example). Also resolve the language pillar via:
+Convert pins `@chrysalis/cwl` as **`file:../chrysalis-cwl/packages/cwl`** (tip **1.0.24**). Registry name `@agenticop-io/cwl` is published on GitHub Packages ï¿½ see [`.npmrc.example`](../.npmrc.example). Also resolve the language pillar via:
 
 1. Sibling `../chrysalis-cwl` under `AgenticOps/engines/`  
 2. Env **`CHRYSALIS_CWL_ROOT`** ? absolute path to that repo root (smokes / tools)
