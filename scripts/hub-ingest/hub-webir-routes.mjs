@@ -640,19 +640,52 @@ export function walkCwlHandlerBody(get, bodyId) {
       if (bodyOp) visit(bodyOp);
       return;
     }
-    if (n.dialect === "effect" && (n.op === "http.error" || n.op === "http.status")) {
+    if (n.dialect === "effect" && (n.op === "http.error" || n.op === "http.status" || n.op === "httpError")) {
       const s = Number(n.attrs?.status);
       if (Number.isFinite(s)) {
         status = s;
         if (guardCapture) guardCapture.status = s;
       }
+      // Tip 1.0.25 emit reverse: sole `effect.http.error` body (CWL/Svelte/Next load error)
+      // recovers as `load { error }` + empty page chrome — not a bare `@route` status.
+      // Status effects inside a block (API status-only) keep status and leave value to siblings.
+      if (!guardCapture && id === bodyId && Number.isFinite(s)) {
+        /** @type {Array<{ key: string, value: object }>} */
+        const entries = [{ key: "error", value: { t: "lit", value: s } }];
+        if (n.operands?.[0]) {
+          const msg = cwlValueOf(get, n.operands[0]);
+          if (msg.t === "lit" && typeof msg.value === "string") {
+            entries.push({ key: "message", value: msg });
+          }
+        }
+        loadData = { t: "obj", entries };
+        value = { t: "lit", value: "" };
+        responseKind = "html";
+      }
       return;
     }
     if (n.dialect === "effect" && n.op === "redirect") {
+      // Tip 1.0.25 emit reverse: sole `effect.redirect` → `load { redirect }` (fat hub-webir-routes).
       // Do not project Location concat/binop into the return value (would hole).
       status = 302;
       if (guardCapture) guardCapture.status = 302;
-      if (!value) value = { t: "lit", value: "" };
+      const loc = n.operands?.[0] ? cwlValueOf(get, n.operands[0]) : null;
+      if (
+        !guardCapture &&
+        loc &&
+        loc.t === "lit" &&
+        typeof loc.value === "string" &&
+        (id === bodyId || loadData == null)
+      ) {
+        loadData = {
+          t: "obj",
+          entries: [{ key: "redirect", value: { t: "lit", value: loc.value } }],
+        };
+        value = { t: "lit", value: "" };
+        responseKind = "html";
+      } else if (!value) {
+        value = { t: "lit", value: "" };
+      }
       return;
     }
     if (n.dialect === "data" && n.op === "call") {

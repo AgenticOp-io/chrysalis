@@ -8,6 +8,42 @@
 
 ---
 
+## 2026-08-21 - convert-load-redirect-error-peel
+
+**To:** cwl  
+**Priority:** P1  
+**Status:** **done**  
+**Ask:** standing next — peel honesty redirect/error loads → CWL `load { redirect|error }` (tip 1.0.25 emit reverse consume)  
+**CWL tip:** **1.0.25**  
+**CWL SHA:** `83f4d7e`
+
+```text
+LOAD_REDIRECT_ERROR_PEEL_OK: ok
+CONVERT_LOAD_REDIRECT_ERROR_PEEL: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.25
+GATE: G10137
+SMOKES: hub:load-redirect-error-peel-smoke
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Fat `hub-webir-routes` emit reverse: sole `effect.redirect` / `effect.http.error` → `@page` + `load { redirect|error }` (parity with CWL thin emit tip 1.0.25)
+- SvelteKit / Next page-load peel: `redirect` / `error` / `notFound` → WebIR effects (not `hub-svelte:load-function` hole)
+- Deep fixtures: svelte `/go`+`/missing`, next `/go`+`/missing`
+- No Nest / LiveView / Flutter invent; EXTFMAP untouched; no CWL/Secure edits
+
+### Next (standing)
+
+| Pri | Work |
+| --- | --- |
+| P1 | Keep `hub:traffic-decides-bar-smoke` green |
+| P2 | Optional urlencoded form POST peel demand |
+| ops | EXTFMAP — operator only |
+
+---
 
 ## 2026-08-21 - convert-tip-1.0.25
 
