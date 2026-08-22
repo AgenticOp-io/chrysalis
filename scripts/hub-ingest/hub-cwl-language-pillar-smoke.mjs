@@ -30,6 +30,10 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "13-middleware",
   "16-layout",
   "24-dna-bridge",
+  "32-stream-sse",
+  "33-ui-island-contracts",
+  "34-dna-bridge-surfaces",
+  "35-form-urlencoded",
 ];
 
 /**

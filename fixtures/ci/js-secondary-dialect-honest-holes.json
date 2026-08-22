@@ -7,26 +7,40 @@
         "koa": {
             "fixture": "fixtures/hub-gold-koa",
             "smoke": "pnpm run hub:koa-smoke",
+            "note": "ORIGIN secondary dialect (G10005 / G9959 pass-through mw). Residual honesty expanded G10132 (`koa-honest-holes.json` / `KOA_HONESTY_OK`).",
             "supported": [
                 "app|router.get|post|put|patch|delete literal paths",
                 "ctx.body = literal|object|param|query",
                 "ctx.status = number",
                 "ctx.params.* / ctx.query.*",
                 "ctx.request.body.* / headers.* / query.*",
-                "const { id } = ctx.params|query|request.body (IDENT peel, G10005)"
+                "const { id } = ctx.params|query|request.body (IDENT peel, G10005)",
+                "empty/next-only app.use → js.passthrough (G9959)"
             ],
             "honestHoles": [
                 {
-                    "shape": "app.use / onion middleware chains",
-                    "reason": "hub-js:koa-middleware"
+                    "shape": "non-empty / complex app.use bodies + cascaded onion middleware chains",
+                    "reason": "hub-js:koa-middleware",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
                 },
                 {
                     "shape": "ctx.throw / ctx.assert / ctx.respond = false",
-                    "reason": "hub-js:koa-throw"
+                    "reason": "hub-js:koa-throw",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
                 },
                 {
                     "shape": "ctx.cookies / ctx.set / streaming body",
-                    "reason": "hub-js:koa-cookies-set"
+                    "reason": "hub-js:koa-cookies-set",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
+                },
+                {
+                    "shape": "koa-compose / plugins / nested Router invent",
+                    "reason": "hub-js:koa-compose",
+                    "expandedCatalog": "fixtures/ci/koa-honest-holes.json",
+                    "gate": "G10132"
                 },
                 {
                     "shape": "nested/computed/rest destructure from params|query|body",
@@ -36,13 +50,20 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10132",
+                "catalog": "fixtures/ci/koa-honest-holes.json",
+                "smoke": "pnpm run hub:koa-honesty-smoke",
+                "token": "KOA_HONESTY_OK"
+            }
         },
         "nestjs": {
             "fixture": "fixtures/hub-gold-nestjs",
             "smoke": "pnpm run hub:nestjs-smoke",
             "st": "pnpm run hub:nestjs-flagship && pnpm run hub:complete-conversion-prove:nestjs",
             "stScope": "route-surface cwl-api only; DI/guards not in gold",
+            "note": "ORIGIN route-surface ST (G9950 / G10015 field peels). Residual Nest DI honesty expanded G10136 (`nestjs-honest-holes.json` / `NEST_DI_HONESTY_OK`).",
             "supported": [
                 "@Controller prefix + @Get|Post|Put|Patch|Delete",
                 "@Param / @Query / @Body / @Headers / @Cookies / @HttpCode",
@@ -52,25 +73,41 @@
             "honestHoles": [
                 {
                     "shape": "@Module / providers / constructor DI",
-                    "reason": "hub-js:nest-di"
+                    "reason": "hub-js:nest-di",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "@UseGuards / interceptors / pipes / filters",
-                    "reason": "hub-js:nest-guards"
+                    "reason": "hub-js:nest-guards",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "@Res() / @Next() escape hatches",
-                    "reason": "hub-js:nest-res-escape"
+                    "reason": "hub-js:nest-res-escape",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "NestFactory bootstrap / dynamic modules",
-                    "reason": "hub-js:nest-bootstrap"
+                    "reason": "hub-js:nest-bootstrap",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 },
                 {
                     "shape": "versioning / non-literal paths",
-                    "reason": "hub-js:nest-versioning"
+                    "reason": "hub-js:nest-versioning",
+                    "expandedCatalog": "fixtures/ci/nestjs-honest-holes.json",
+                    "gate": "G10136"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10136",
+                "catalog": "fixtures/ci/nestjs-honest-holes.json",
+                "smoke": "pnpm run hub:nestjs-honesty-smoke",
+                "token": "NEST_DI_HONESTY_OK"
+            }
         },
         "hapi": {
             "fixture": "fixtures/hub-gold-hapi",
@@ -109,25 +146,39 @@
         "restify": {
             "fixture": "fixtures/hub-gold-restify",
             "smoke": "pnpm run hub:restify-smoke",
+            "note": "ORIGIN secondary dialect (G9957 / G9959 pass-through pre|use + G10005 IDENT). Residual honesty expanded G10134 (`restify-honest-holes.json` / `RESTIFY_HONESTY_OK`).",
             "supported": [
                 "server.get|post|put|patch|del literal paths",
                 "res.send(value) / Restify res.send(code, body)",
                 "req.params.* / req.query.*",
                 "return next() after send (ignored peel)",
-                "const { id } = req.params|query (IDENT peel, G10005)"
+                "const { id } = req.params|query (IDENT peel, G10005)",
+                "empty/next-only server.pre / server.use → js.passthrough (G9959)"
             ],
             "honestHoles": [
                 {
-                    "shape": "server.pre / server.use middleware",
-                    "reason": "hub-js:restify-middleware"
+                    "shape": "non-empty / complex server.pre / server.use bodies + cascaded middleware chains",
+                    "reason": "hub-js:restify-middleware",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
                 },
                 {
-                    "shape": "server.on lifecycle / plugins.*",
-                    "reason": "hub-js:restify-plugins"
+                    "shape": "restify.plugins.* / bodyParser / queryParser / throttle / CORS invent",
+                    "reason": "hub-js:restify-plugins",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
                 },
                 {
-                    "shape": "named handler refs / next.ifError",
-                    "reason": "hub-js:restify-named-handler"
+                    "shape": "server.on lifecycle / after hooks invent",
+                    "reason": "hub-js:restify-lifecycle",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
+                },
+                {
+                    "shape": "named handler refs / next.ifError / versioned routes invent",
+                    "reason": "hub-js:restify-named-handler",
+                    "expandedCatalog": "fixtures/ci/restify-honest-holes.json",
+                    "gate": "G10134"
                 },
                 {
                     "shape": "nested/computed/rest destructure from params|query",
@@ -137,30 +188,50 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10134",
+                "catalog": "fixtures/ci/restify-honest-holes.json",
+                "smoke": "pnpm run hub:restify-honesty-smoke",
+                "token": "RESTIFY_HONESTY_OK"
+            }
         },
         "polka": {
             "fixture": "fixtures/hub-gold-polka",
             "smoke": "pnpm run hub:polka-smoke",
+            "note": "ORIGIN secondary dialect (G9958 / G9959 pass-through app.use + G10005 IDENT). Residual honesty expanded G10135 (`polka-honest-holes.json` / `POLKA_HONESTY_OK`).",
             "supported": [
                 "app.get|post|put|patch|delete literal paths",
                 "res.writeHead(N) + res.end(JSON.stringify(â€¦)|literal)",
                 "req.params.* / req.query.*",
                 "res.statusCode = N",
-                "const { id } = req.params|query (IDENT peel, G10005)"
+                "const { id } = req.params|query (IDENT peel, G10005)",
+                "empty/next-only app.use → js.passthrough (G9959)"
             ],
             "honestHoles": [
                 {
-                    "shape": "app.use middleware chains",
-                    "reason": "hub-js:polka-middleware"
+                    "shape": "non-empty / complex app.use bodies + cascaded middleware chains",
+                    "reason": "hub-js:polka-middleware",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
+                },
+                {
+                    "shape": "polka plugins / sirv / body-parser / compression invent",
+                    "reason": "hub-js:polka-plugins",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
                 },
                 {
                     "shape": "named handlers / chained polka().get without Identifier recv",
-                    "reason": "hub-js:polka-named-handler"
+                    "reason": "hub-js:polka-named-handler",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
                 },
                 {
-                    "shape": "streaming res.write chunk loops / hijack",
-                    "reason": "hub-js:polka-stream"
+                    "shape": "streaming res.write chunk loops / hijack / nested mount invent",
+                    "reason": "hub-js:polka-stream",
+                    "expandedCatalog": "fixtures/ci/polka-honest-holes.json",
+                    "gate": "G10135"
                 },
                 {
                     "shape": "nested/computed/rest destructure from params|query",
@@ -170,12 +241,18 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10135",
+                "catalog": "fixtures/ci/polka-honest-holes.json",
+                "smoke": "pnpm run hub:polka-honesty-smoke",
+                "token": "POLKA_HONESTY_OK"
+            }
         },
         "hono": {
             "fixture": "fixtures/hub-gold-hono",
             "smoke": "pnpm run hub:hono-smoke",
-            "note": "ORIGIN secondary dialect (G10019 / D6481 + G10044 / D6506 pass-through mw). Distinct from @chrysalis/emit-hono outbound emit target.",
+            "note": "ORIGIN secondary dialect (G10019 / D6481 + G10044 / D6506 pass-through mw). Distinct from @chrysalis/emit-hono outbound emit target. Residual honesty expanded G10131 (`hono-honest-holes.json` / `HONO_HONESTY_OK`).",
             "supported": [
                 "new Hono() factory (dialect marker)",
                 "app.get|post|put|patch|delete literal paths",
@@ -187,19 +264,27 @@
             "honestHoles": [
                 {
                     "shape": "non-empty / complex app.use bodies + Hono middleware helpers (logger, cors, â€¦)",
-                    "reason": "hub-js:hono-middleware"
+                    "reason": "hub-js:hono-middleware",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "c.req.header / parseBody / cookies / streaming body",
-                    "reason": "hub-js:hono-req-extra"
+                    "reason": "hub-js:hono-req-extra",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "c.json(body, { status }) ResponseInit object form",
-                    "reason": "hub-js:hono-response-init"
+                    "reason": "hub-js:hono-response-init",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "named handlers / app.route nesting / basePath",
-                    "reason": "hub-js:hono-nested-route"
+                    "reason": "hub-js:hono-nested-route",
+                    "expandedCatalog": "fixtures/ci/hono-honest-holes.json",
+                    "gate": "G10131"
                 },
                 {
                     "shape": "nested/computed/rest destructure from param|query bags",
@@ -209,12 +294,18 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10131",
+                "catalog": "fixtures/ci/hono-honest-holes.json",
+                "smoke": "pnpm run hub:hono-honesty-smoke",
+                "token": "HONO_HONESTY_OK"
+            }
         },
         "elysia": {
             "fixture": "fixtures/hub-gold-elysia",
             "smoke": "pnpm run hub:elysia-smoke",
-            "note": "ORIGIN secondary dialect (G10025 / D6487 + G10053 / D6515 empty lifecycle). Plugin `.use` is not `(ctx, next)` â€” leave honest hole.",
+            "note": "ORIGIN secondary dialect (G10025 / D6487 + G10053 / D6515 empty lifecycle). Plugin `.use` is not `(ctx, next)` — leave honest hole. Residual honesty expanded G10133 (`elysia-honest-holes.json` / `ELYSIA_HONESTY_OK`).",
             "supported": [
                 "new Elysia() factory (dialect marker)",
                 "app.get|post|put|patch|delete literal paths",
@@ -222,24 +313,32 @@
                 "IDENT ({ params: { id } }) / ({ query: { q } }) handler bags (G10005 reuse)",
                 "ctx.set.status = N",
                 "literal | object return (JSON body)",
-                "empty onRequest / onBeforeHandle â†’ js.passthrough preset (G10053; parallel G10044/G9959)"
+                "empty onRequest / onBeforeHandle → js.passthrough preset (G10053; parallel G10044/G9959)"
             ],
             "honestHoles": [
                 {
                     "shape": "app.use / .use(plugin) / Elysia plugins (not pass-through-shaped)",
-                    "reason": "hub-js:elysia-plugins"
+                    "reason": "hub-js:elysia-plugins",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": "non-empty onRequest / onBeforeHandle / other lifecycle + options/as scopes",
-                    "reason": "hub-js:elysia-lifecycle"
+                    "reason": "hub-js:elysia-lifecycle",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": ".macro / derived context / t.Object schema runtime",
-                    "reason": "hub-js:elysia-macros"
+                    "reason": "hub-js:elysia-macros",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": "named handlers / app.group nesting / prefix",
-                    "reason": "hub-js:elysia-nested-route"
+                    "reason": "hub-js:elysia-nested-route",
+                    "expandedCatalog": "fixtures/ci/elysia-honest-holes.json",
+                    "gate": "G10133"
                 },
                 {
                     "shape": "nested/computed/rest destructure beyond IDENT bag fields",
@@ -249,7 +348,13 @@
                     "shape": "non-literal path templates",
                     "reason": "hub-js:path-non-literal"
                 }
-            ]
+            ],
+            "honesty": {
+                "gate": "G10133",
+                "catalog": "fixtures/ci/elysia-honest-holes.json",
+                "smoke": "pnpm run hub:elysia-honesty-smoke",
+                "token": "ELYSIA_HONESTY_OK"
+            }
         },
         "oak": {
             "fixture": "fixtures/hub-gold-oak",

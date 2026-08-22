@@ -6,8 +6,10 @@ compose, matrix grades) — not as CWL DNA. Constitution: [`WPTP-CONVERT-ORBIT.m
 Charter: [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) · layout: [`GIT-LAYOUT.md`](./GIT-LAYOUT.md).
 
 > TL;DR: prefer **`AgenticOps/platforms/wptp-*`** clones; resolve via
-> `scripts/lib/wptp-siblings.mjs`. Open **`chrysalis-program.code-workspace`** (multi-root).
-> Do **not** nest repos; do **not** open the shared parent folder as a single git root.
+> `scripts/lib/wptp-siblings.mjs` (and GCE `scripts/lib/gce-wptp-siblings.sh`). Open
+> **`chrysalis-program.code-workspace`** from `engines/chrysalis-convert` (folders point at
+> `../../platforms/wptp-*`). Do **not** nest repos; do **not** open the shared parent as one git root;
+> do **not** keep editing legacy `engines/wptp-*` clones when platforms/ is present.
 
 ---
 

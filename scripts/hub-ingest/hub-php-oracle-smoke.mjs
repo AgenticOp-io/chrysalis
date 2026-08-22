@@ -8,6 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -26,7 +27,7 @@ function phpOnPath() {
 }
 
 function wptpEmitNextjsAvailable() {
-  const root = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(scriptRoot, "..", "wptp-emit-nextjs"));
+  const root = resolveWptpRepoRoot(scriptRoot, "wptp-emit-nextjs");
   return existsSync(join(root, "package.json"));
 }
 

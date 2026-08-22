@@ -99,13 +99,21 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
       continue;
     }
     if (value.kind === "bodyParam" && value.name) {
+      const name = String(value.name);
+      const files = ctx.multipartFiles ?? [];
+      const fields = ctx.multipartFields ?? [];
+      const locator = files.includes(name)
+        ? "cwl:multipart-file"
+        : fields.includes(name)
+          ? "cwl:multipart-field"
+          : "cwl:body";
       flat.push(
         data.requestField({
           source: "body",
-          name: value.name,
+          name,
           type: HUB_T.string,
           origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:body")],
+          provenance: [webir.provenance("hub-ingest", locator)],
         }),
       );
       continue;
@@ -204,6 +212,8 @@ export function liftCwlFileToWebir(opts) {
   for (const r of parsed.routes) {
     let valueId;
     const loc = { file, line: r.line };
+    ctx.multipartFields = r.handlerMultipartFields ?? [];
+    ctx.multipartFiles = r.handlerMultipartFiles ?? [];
     const htmlBindings = {
       path: r.handlerPathParams ?? [],
       query: r.handlerQueryParams ?? [],
@@ -332,6 +342,7 @@ export function liftCwlFileToWebir(opts) {
       !pageLoadUi &&
       (status !== 200 || contentType || hasResponseHeaders)
     ) {
+      const streamSse = r.streamKind === "sse" || contentType === "text/event-stream";
       bodyId = wrBuilders.response({
         attrs: {
           status,
@@ -344,11 +355,13 @@ export function liftCwlFileToWebir(opts) {
         provenance: [
           webir.provenance(
             "hub-ingest",
-            contentType
-              ? "cwl:response-content-type"
-              : hasResponseHeaders
-                ? "cwl:response-header"
-                : "cwl:response-status",
+            streamSse
+              ? "cwl:stream-sse"
+              : contentType
+                ? "cwl:response-content-type"
+                : hasResponseHeaders
+                  ? "cwl:response-header"
+                  : "cwl:response-status",
           ),
         ],
       });

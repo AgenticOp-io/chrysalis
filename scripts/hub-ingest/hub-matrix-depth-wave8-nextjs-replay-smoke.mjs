@@ -8,13 +8,10 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
+import { resolveWptpPackageEntry } from "../lib/wptp-siblings.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const emitDist = join(
-  resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(ROOT, "..", "wptp-emit-nextjs")),
-  "dist",
-  "index.js",
-);
+const emitDist = resolveWptpPackageEntry(ROOT, "wptp-emit-nextjs") ?? "";
 
 const SUITES = [
   "js-structured-nextjs",

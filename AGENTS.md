@@ -4,6 +4,8 @@
 
 **Authority / git:** Parent authorizes push — see `AgenticOps/docs/AGENT_AUTHORITY.md` and `AgenticOps/docs/SUBAGENT_PUSH_PROTOCOL.md`.
 
+**Sibling sync (required):** Every turn `git pull` this repo + `../chrysalis-cwl` + `../chrysalis-security`. Read `../chrysalis-cwl/docs/pillar-sync/BOARD.md` and CWL `OUTBOX.md`. Write only `docs/pillar-sync/OUTBOX.md` here; **commit + push candidate** before ending the turn. Never leave bus edits dirty.
+
 ## Absolute conversion law (every AI, every session)
 
 **True conversion only. Never demo-only code.**

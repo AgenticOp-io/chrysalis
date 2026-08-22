@@ -30,8 +30,8 @@ Adopt the 8-phase commercial corpus plan **only** where it stays translate/inven
 | **4** CICS / BMS folders | Harvest maps into login/menu/inquiry/… trees | **Inventory-only** — census `DFHMSD` + CardDemo `app/bms`. **Refuse** inventing BMS folder façades |
 | **5** DB2 | DCLGEN, SQLCA/SQLDA, embedded SQL | **Partial** — CardDemo `DCL*` + `EXEC SQL` inventory; no invented DB2 runtime |
 | **6** IMS | PCB / PSB / segments | **Deferred** — public redistributable only; `EXEC DLI` stays hole |
-| **7** Layout stress | Artificial COMP-*/ODO/66/77/78/88 books | **Prefer upstream** (JRecord/cb2xml/CardDemo). Artificial stress = **labeled fixtures** only — not fake production apps |
-| **8** Parser torture | COPY REPLACING, nested REDEFINES/OCCURS, HANDLE/LINK/XCTL | **Prefer upstream** CardDemo online programs already exercising those shapes |
+| **7** Layout stress | Artificial COMP-*/ODO/66/77/78/88 books | **Prefer upstream** (JRecord/cb2xml/CardDemo). Artificial stress = **labeled fixtures** only — not fake production apps. **Closed peels:** ODO **G10121**, RENAMES **G10122**, COPY REPLACING **G10124** |
+| **8** Parser torture | COPY REPLACING, nested REDEFINES/OCCURS, HANDLE/LINK/XCTL | **Prefer upstream** CardDemo online programs already exercising those shapes; COPY REPLACING inventory closed **G10124** (no expansion invent) |
 
 **Metadata index:** `reports/cobol/corpus-feature-index.json` (per-file feature tags) + census rollups. Query on any machine that has the fetched index (no cobc):
 

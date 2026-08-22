@@ -298,6 +298,27 @@ export async function liftNextAppProjectToWebir(opts) {
           load: loaded.loadFieldNames ?? [],
         };
         let html = liftStaticJsxPageHtml(source);
+        if (loaded.ok && (loaded.kind === "redirect" || loaded.kind === "error") && loaded.bodyId) {
+          emitHubRoute({
+            webir,
+            builder,
+            wr: wrBuilders,
+            language,
+            file: spec.file,
+            route: {
+              method: "GET",
+              path: spec.path,
+              name: spec.name,
+              line: 1,
+              pathParams,
+            },
+            bodyId: loaded.bodyId,
+            handlerEffects: [],
+          });
+          routeCount += 1;
+          astLiftCount += 1;
+          continue;
+        }
         if (loaded.ok && html) {
           html = applyBareFieldRefsToHtml(html, [...pathParams, ...(loaded.loadFieldNames ?? [])]);
           const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders, htmlBindings);

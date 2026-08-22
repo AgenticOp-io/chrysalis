@@ -36,7 +36,7 @@ export function cwlEffectsToWebir(declared) {
       out.push({ kind: "session.read" });
       continue;
     }
-    if (t === "cors.allow" || t === "csrf.verify") {
+    if (t === "cors.allow" || t === "csrf.verify" || t === "rate.limit") {
       out.push({ kind: "http.fetch" });
     }
   }
@@ -120,6 +120,84 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-csrf-verify")],
+        }),
+      );
+    } else if (t === "rate.limit") {
+      statements.push(
+        data.call({
+          callee: "__cwl_middleware_rate_limit",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-rate-limit")],
+        }),
+      );
+    } else if (t === "time.now") {
+      statements.push(
+        effect.timeNow({
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-time-now")],
+        }),
+      );
+    } else if (t === "random") {
+      const min = data.literal({
+        value: 0,
+        type: HUB_T.int,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl:executable-random-min")],
+      });
+      const max = data.literal({
+        value: 1,
+        type: HUB_T.int,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl:executable-random-max")],
+      });
+      statements.push(
+        effect.random({
+          min,
+          max,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-random")],
+        }),
+      );
+    } else if (t === "mail.send") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_mail_send",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-mail-send")],
+        }),
+      );
+    } else if (t === "db.read") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_db_read",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-db-read")],
+        }),
+      );
+    } else if (t === "db.write") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_db_write",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-db-write")],
+        }),
+      );
+    } else if (t === "io") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_io",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-io")],
         }),
       );
     }
