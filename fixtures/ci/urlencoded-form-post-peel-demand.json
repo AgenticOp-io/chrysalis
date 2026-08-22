@@ -1,0 +1,37 @@
+{
+  "kind": "chrysalis.hub.urlencoded-form-post-peel-demand",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-21T21:45:00.000Z",
+  "decision": "peel-demand",
+  "gate": "G10138",
+  "decisionCharter": "D6442",
+  "token": "URLENCODED_FORM_POST_PEEL_DEMAND_OK",
+  "smoke": "pnpm run hub:urlencoded-form-post-peel-demand-smoke",
+  "cwlTipFloor": "1.0.25",
+  "note": "Convert peel demand signal for CWL DNA-BUILD-NEXT P2: native urlencoded form POST language gold. Convert already peels Express express.urlencoded + form POST body fields into WebIR and now projects use urlencoded in fat CWL emit. CWL language-gold 05-request-body still uses use json only — deepen with use urlencoded + form POST gold (or new gold id). Do not invent Nest/LiveView/Flutter; EXTFMAP remains operator-only.",
+  "convertPeel": {
+    "originFixture": "fixtures/hub-gold-urlencoded-form-post",
+    "priorSurface": "fixtures/hub-gold-js-middleware (G8712 express.json+urlencoded)",
+    "webirMiddleware": "express.urlencoded",
+    "cwlEmit": ["use urlencoded;", "body email;", "body name;", "@route POST /signup"],
+    "htmlFormGet": "@route|@page GET /signup returns form HTML (chrome may stay html return)"
+  },
+  "demandFromCwl": {
+    "priority": "P2",
+    "item": "Native urlencoded form POST gold",
+    "ref": "docs/history/DNA-BUILD-NEXT.md",
+    "rfc": ["RFC-0001 use urlencoded", "RFC-0005 request body"],
+    "ask": "Language gold with module use urlencoded; + POST route binding form fields (not only use json;). Optional: preserve HTML form shell alongside POST handler.",
+    "doNot": [
+      "Forge Nest/LiveView/Flutter form runtimes",
+      "Silent invent to green smokes",
+      "Close EXTFMAP from this lane"
+    ]
+  },
+  "refuseForceClose": {
+    "claim": "CWL tip bump invented by Convert for urlencoded form POST",
+    "allowed": false,
+    "reason": "Language gold / tip deepen is CWL-owned; Convert publishes peel demand only"
+  },
+  "revisitWhen": "CWL lands language-gold use urlencoded form POST (or deepens 05-request-body) and asks Convert to pin the new tip"
+}

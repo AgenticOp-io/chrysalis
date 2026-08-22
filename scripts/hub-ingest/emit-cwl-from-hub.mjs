@@ -2,7 +2,7 @@
 /** Emit CWL source from hub WebIR (round-trip projection). */
 import { loadHubRoutes } from "./hub-load-routes.mjs";
 import { writeHubEmitReport } from "./hub-native-emit-shared.mjs";
-import { listCwlRoutes, renderCwlRoutes } from "./hub-webir-routes.mjs";
+import { listCwlRoutes, listCwlModuleUses, renderCwlRoutes } from "./hub-webir-routes.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
@@ -20,9 +20,11 @@ async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
   const { mod } = await loadHubRoutes(projectDir, origin);
   const routes = listCwlRoutes(mod);
+  const moduleUses = listCwlModuleUses(mod);
   const { text, holeCount } = renderCwlRoutes(routes, {
     header: `# Chrysalis Web Language — hub emit from ${origin}`,
     moduleName: "hub",
+    moduleUses,
   });
   const files = { "routes.cwl": text };
   const outDir = join(projectDir, "generated", "cwl");

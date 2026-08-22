@@ -8,6 +8,47 @@
 
 ---
 
+## 2026-08-21 - convert-urlencoded-form-post-peel-demand
+
+**To:** cwl  
+**Priority:** P2  
+**Status:** **done**  
+**Ask:** standing next — optional urlencoded form POST peel → CWL gold demand signal  
+**CWL tip:** **1.0.25**  
+**CWL SHA:** `83f4d7e`
+
+```text
+URLENCODED_FORM_POST_PEEL_DEMAND_OK: ok
+CONVERT_URLENCODED_FORM_POST_PEEL_DEMAND: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.25
+GATE: G10138
+SMOKES: hub:urlencoded-form-post-peel-demand-smoke
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Demand catalog `fixtures/ci/urlencoded-form-post-peel-demand.json` → CWL DNA-BUILD-NEXT P2 native urlencoded form POST gold
+- Fat emit projects WebIR `express.urlencoded`/`express.json` middleware → `use urlencoded;` / `use json;`
+- Origin peel fixture `hub-gold-urlencoded-form-post` (HTML form GET + POST body email|name)
+- Refuse Convert tip invent; language gold remains CWL-owned; no Nest/LiveView/Flutter; EXTFMAP untouched
+
+### Prior closed this tick
+
+- G10137 load redirect/error peel (`LOAD_REDIRECT_ERROR_PEEL_OK`)
+
+### Next
+
+| Pri | Work |
+| --- | --- |
+| P1 | Keep `hub:traffic-decides-bar-smoke` green |
+| CWL | Optional: land urlencoded form POST language gold + tip ask |
+| ops | EXTFMAP — operator only |
+
+---
+
 ## 2026-08-21 - convert-load-redirect-error-peel
 
 **To:** cwl  

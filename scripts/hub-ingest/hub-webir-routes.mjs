@@ -998,18 +998,60 @@ function cwlRenderValue(v) {
 }
 
 /**
+ * Collect CWL module `use` presets from WebIR middleware roots (RFC-0001).
+ * Express/Flask peels land `express.json` / `express.urlencoded` as
+ * `web.request.middleware` — fat emit must project them as `use json` /
+ * `use urlencoded` (urlencoded form POST peel demand / tip deepen signal).
+ * @param {import('@chrysalis/webir').Module} module
+ * @returns {Array<"express.json"|"express.urlencoded">}
+ */
+export function listCwlModuleUses(module) {
+  /** @type {Array<"express.json"|"express.urlencoded">} */
+  const uses = [];
+  const seen = new Set();
+  const nodes = module?.nodes;
+  /** @type {IterableIterator<object> | object[]} */
+  const iter =
+    nodes && typeof nodes.values === "function"
+      ? nodes.values()
+      : Object.values(nodes ?? {});
+  for (const n of iter) {
+    if (!n || n.dialect !== "web.request" || n.op !== "middleware") continue;
+    const kind = String(n.attrs?.kind ?? "");
+    if (kind !== "express.json" && kind !== "express.urlencoded") continue;
+    if (seen.has(kind)) continue;
+    seen.add(kind);
+    uses.push(/** @type {"express.json"|"express.urlencoded"} */ (kind));
+  }
+  // Stable order: json then urlencoded (matches common Express peel order).
+  uses.sort((a, b) => {
+    if (a === b) return 0;
+    if (a === "express.json") return -1;
+    if (b === "express.json") return 1;
+    return a.localeCompare(b);
+  });
+  return uses;
+}
+
+/**
  * Render the CWL projection of `listCwlRoutes` to CWL source text. Shared by the
  * round-trip emit (`emit-cwl-from-hub`) and the project-to-CWL migration export
  * (`hub-project-cwl-export`) so both carry the same status/param/`??`-default/
  * content-type/object-body fidelity rather than diverging projections.
  * @param {ReturnType<typeof listCwlRoutes>} routes
- * @param {{ header?: string, moduleName?: string }} [opts]
+ * @param {{ header?: string, moduleName?: string, moduleUses?: Array<"express.json"|"express.urlencoded">, surfaceOnHole?: boolean }} [opts]
  * @returns {{ text: string, holeCount: number, routeCount: number }}
  */
 export function renderCwlRoutes(routes, opts = {}) {
   const header = opts.header ?? "# Chrysalis Web Language";
   const moduleName = opts.moduleName ?? "hub";
   const lines = [header, `module ${moduleName};`, ""];
+  const moduleUses = opts.moduleUses ?? [];
+  for (const use of moduleUses) {
+    if (use === "express.json") lines.push("use json;");
+    else if (use === "express.urlencoded") lines.push("use urlencoded;");
+  }
+  if (moduleUses.length) lines.push("");
   let holeCount = 0;
   for (const r of routes) {
     const isPage =

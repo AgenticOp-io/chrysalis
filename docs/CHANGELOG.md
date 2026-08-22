@@ -1,3 +1,4 @@
+2026-08-21 | Convert | G10138 urlencoded form POST peel demand (hub:urlencoded-form-post-peel-demand-smoke → URLENCODED_FORM_POST_PEEL_DEMAND_OK); fat emit use urlencoded; CWL gold demand signal; EXTFMAP untouched | local | N
 2026-08-21 | Convert | G10137 load redirect/error peel honesty (hub:load-redirect-error-peel-smoke → LOAD_REDIRECT_ERROR_PEEL_OK); fat emit reverse + SvelteKit/Next peels land CWL load { redirect|error }; tip 1.0.25 consume; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10108 public-claim harden: hub:public-engine-claim-smoke → PUBLIC_CLAIM_OK/CONVERT_PUBLIC_CLAIM; honestGaps (visibility/history/brand CTA/EXTFMAP/counsel); no invent | local | N
 2026-08-11 | Convert | G10109 OSS scrub harden: hub:oss-scrub-smoke → OSS_SCRUB_OK/CONVERT_OSS_SCRUB; scrub burned password literals from GO-PUBLIC.md; tracked-tree only (no BFG); EXTFMAP untouched | local | N
