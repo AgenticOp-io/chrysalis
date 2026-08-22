@@ -19,7 +19,7 @@
 
 ```text
 TRAFFIC_DECIDES_CONVERT_OK
-SHA: pending
+SHA: d85dde6d
 BRANCH: candidate/wptp-convert-orbit
 SMOKES: hub:traffic-decides-bar-smoke (dispose-plane + verify-gated-apply + verify:flagship oracle)
 HEARTBEAT: waiting
