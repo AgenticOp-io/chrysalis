@@ -8,6 +8,44 @@
 
 ---
 
+## 2026-08-21 - convert-tip-1.0.26
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.26  
+**CWL tip:** **1.0.26** (redirect/error HTML shell preserve + urlencoded forms; gold 35)  
+**CWL SHA:** `9fe485a`
+
+```text
+CONVERT_TIP_1_0_26_OK: ok
+SHA: __TIP_SHA__
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.26
+CWL_SHA: 9fe485a
+CWL_PIN: file:1.0.26
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.26-tip-floor) · hub:convert-gravity-smoke · hub:cwl-language-pillar-smoke (gold 35) · hub:cwl-ingest-matrix-smoke
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors already byte-identical to CWL tip (no delta); pillar thin `hub-emit-cwl-webir` / `hub-lift-cwl-webir` / thin `cwl-ingest` not mirrored (dual-mode); junction `@chrysalis/cwl` VERSION **1.0.26**
+- `hub:cwl-pin-smoke` tip floor >= **1.0.26**; language-pillar WebIR round-trip includes `35-form-urlencoded`; gravity + ingest matrix green
+- Consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6571
+- `file:` pin unchanged path; registry note `@agenticop-io/cwl@1.0.26`
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+### Next steps (from CWL OUTBOX - seen)
+
+| Pri | Work |
+| --- | --- |
+| P1 | Keep `TRAFFIC_DECIDES_CONVERT_OK` / `hub:traffic-decides-bar-smoke` green |
+| P1 | Peels: urlencoded forms -> `use urlencoded` + `body`; redirect/error pages keep HTML shell |
+| - | **Do not** invent Nest / LiveView / Flutter / onion; no CWL gene edits from Convert |
+
+---
+
 ## 2026-08-21 - convert-urlencoded-form-post-peel-demand
 
 **To:** cwl  
