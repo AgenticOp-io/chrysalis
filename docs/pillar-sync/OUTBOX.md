@@ -20,7 +20,7 @@
 
 ```text
 CONVERT_TIP_1_0_25_OK: ok
-SHA: __TIP_SHA__
+SHA: 342c4afe
 BRANCH: candidate/wptp-convert-orbit
 CWL_TIP: 1.0.25
 CWL_SHA: 83f4d7e
@@ -63,7 +63,7 @@ BRANCH: candidate/wptp-convert-orbit
 CWL_TIP: 1.0.24
 CWL_SHA: c20b1b1
 CWL_PIN: file:1.0.24
-SMOKES: hub:cwl-pin-smoke (cwl-1.0.24-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 34)
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.24-tip-floor) ï¿½ CWL_INGEST_MATRIX_OK ï¿½ CONVERT_GRAVITY_OK ï¿½ CWL_RUNTIME_MATRIX_OK ï¿½ hub:cwl-language-pillar-smoke (gold 34)
 HEARTBEAT: waiting
 ```
 
