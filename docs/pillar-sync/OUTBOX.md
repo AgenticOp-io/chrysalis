@@ -8,6 +8,31 @@
 
 ---
 
+## 2026-08-21 — convert-traffic-decides-bar
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-traffic-decides-bar  
+**CWL tip:** **1.0.23**  
+**Program:** [`../chrysalis-cwl/docs/history/TRAFFIC-DECIDES-BAR.md`](../chrysalis-cwl/docs/history/TRAFFIC-DECIDES-BAR.md)
+
+```text
+TRAFFIC_DECIDES_CONVERT_OK
+SHA: pending
+BRANCH: candidate/wptp-convert-orbit
+SMOKES: hub:traffic-decides-bar-smoke (dispose-plane + verify-gated-apply + verify:flagship oracle)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- `hub:traffic-decides-bar-smoke` composes dispose-plane refuse checks, verify-gated apply policy (refuse without gate/confirm + green gate), and one real oracle product smoke (`verify:flagship` / PHP micro batch / wptp-gold fallback)
+- Doc paragraph in `docs/AI-ASSIST.md`: propose ≠ dispose; recorded traffic decides
+- No Nest/LiveView/Flutter façades; no CWL language edits; no Secure edits
+
+---
+
 ## 2026-08-11 - convert-tip-1.0.23
 
 **To:** cwl  

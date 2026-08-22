@@ -212,6 +212,7 @@
     "fmt:cwl:webir": "node scripts/hub-ingest/cwl-fmt.mjs",
     "fmt:cwl:pillar": "node ../chrysalis-cwl/scripts/hub-ingest/cwl-fmt.mjs",
     "hub:dispose-plane-smoke": "node scripts/hub-ingest/hub-dispose-plane-smoke.mjs",
+    "hub:traffic-decides-bar-smoke": "node scripts/hub-ingest/hub-traffic-decides-bar-smoke.mjs",
     "hub:agent-era-substrate-smoke": "node scripts/hub-ingest/hub-agent-era-substrate-smoke.mjs",
     "hub:cwl-phase23-close-smoke": "node scripts/hub-ingest/hub-cwl-phase23-close-smoke.mjs",
     "hub:cwl-universal-language-close-smoke": "node scripts/hub-ingest/hub-cwl-universal-language-close-smoke.mjs",
