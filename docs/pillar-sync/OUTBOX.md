@@ -9,6 +9,44 @@
 ---
 
 
+## 2026-08-21 - convert-tip-1.0.25
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** convert-tip-1.0.25  
+**CWL tip:** **1.0.25** (emit reverse for load redirect / http.error; gold 27 hole-free emit)  
+**CWL SHA:** `83f4d7e`
+
+```text
+CONVERT_TIP_1_0_25_OK: ok
+SHA: __TIP_SHA__
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.25
+CWL_SHA: 83f4d7e
+CWL_PIN: file:1.0.25
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.25-tip-floor) · CWL_INGEST_MATRIX_OK · CONVERT_GRAVITY_OK · CWL_RUNTIME_MATRIX_OK · hub:cwl-language-pillar-smoke (gold 34)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors already byte-identical to CWL tip (no delta); pillar thin `hub-emit-cwl-webir.mjs` not present in Convert (dual-mode / fat `hub-webir-routes`); junction `@chrysalis/cwl` VERSION **1.0.25**
+- `hub:cwl-pin-smoke` tip floor >= **1.0.25**; language-pillar / gravity / ingest / runtime matrices green
+- Consumer docs (CONVERT-GRAVITY / CONVERT-CWL-CONSUME / CWL-PILLAR-HOME) + DESIGN D6570
+- `file:` pin unchanged path; registry note `@agenticop-io/cwl@1.0.25`
+- No Nest/LiveView/Flutter/onion invent; no CWL language gene edits; no Secure edits
+
+### Next steps (from CWL OUTBOX - seen)
+
+| Pri | Work |
+| --- | --- |
+| P1 | Keep `hub:traffic-decides-bar-smoke` green on tip (`TRAFFIC_DECIDES_CONVERT_OK`) |
+| P1 | Peel honesty: when origin has redirect/error loads, land CWL `load { redirect|error }` (not facades) |
+| P2 | Optional: urlencoded form POST peel -> CWL gold demand signal |
+| - | **Do not** invent Nest / LiveView / Flutter / onion; no CWL gene edits from Convert |
+
+---
 ## 2026-08-21 - convert-tip-1.0.24
 
 **To:** cwl  
