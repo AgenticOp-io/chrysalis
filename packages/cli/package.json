@@ -17,7 +17,7 @@
     "clean": "rimraf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.1",
     "@chrysalis/webir": "workspace:*",
     "@chrysalis/ingest": "workspace:*",
     "@chrysalis/emit-fastify": "workspace:*",
