@@ -3,16 +3,17 @@
  * Chrysalis supplies WebIR bundle shape + optional moduleFromGoldenSnapshot validation; emit uses @wptp/emit-nextjs.
  *
  * Env:
- *   WPTP_EMIT_NEXTJS_ROOT  path to wptp-emit-nextjs (default: ../wptp-emit-nextjs)
- *   WPTP_IR_ROOT           optional override for @wptp/ir (default: wptp-emit-nextjs/node_modules/@wptp/ir)
+ *   WPTP_EMIT_NEXTJS_ROOT  path to wptp-emit-nextjs (default: platforms/ then engines/ via wptp-siblings)
+ *   WPTP_IR_ROOT           optional override for @wptp/ir (default: platforms/wptp-ir, else emit node_modules)
  *
  * Requires: pnpm -r build (webir); wptp-emit-nextjs npm run build.
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { platform } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { fileURLToPath } from "node:url";
+import { resolveWptpPackageEntry, resolveWptpRepoRoot } from "./lib/wptp-siblings.mjs";
 
 function usage(code = 1) {
   const text = `Emit Next.js App Router from chrysalis.webir.bundle via @wptp/emit-nextjs (WPTP silver).
@@ -38,9 +39,13 @@ function parseArgs(argv) {
 }
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const emitNextJsRoot = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(root, "..", "wptp-emit-nextjs"));
+const emitNextJsRoot = resolveWptpRepoRoot(root, "wptp-emit-nextjs");
+const platformsIr = resolveWptpRepoRoot(root, "wptp-ir");
 const wptpIrRoot = resolve(
-  process.env.WPTP_IR_ROOT ?? join(emitNextJsRoot, "node_modules", "@wptp", "ir"),
+  process.env.WPTP_IR_ROOT ??
+    (existsSync(join(platformsIr, "dist", "index.js"))
+      ? platformsIr
+      : join(emitNextJsRoot, "node_modules", "@wptp", "ir")),
 );
 const { bundle: bundlePath, out } = parseArgs(process.argv.slice(2));
 
@@ -60,8 +65,10 @@ const { moduleFromGoldenSnapshot } = await import(
 );
 moduleFromGoldenSnapshot(bundleObj.module);
 
-const { importWebIrBundleJson } = await import(pathToFileURL(join(wptpIrRoot, "dist/index.js")).href);
-const { emitNextJsAppRouter } = await import(pathToFileURL(join(emitNextJsRoot, "dist/index.js")).href);
+const irEntry = resolveWptpPackageEntry(root, "wptp-ir") ?? join(wptpIrRoot, "dist/index.js");
+const emitEntry = resolveWptpPackageEntry(root, "wptp-emit-nextjs") ?? join(emitNextJsRoot, "dist/index.js");
+const { importWebIrBundleJson } = await import(pathToFileURL(irEntry).href);
+const { emitNextJsAppRouter } = await import(pathToFileURL(emitEntry).href);
 
 const ir = importWebIrBundleJson(bundleObj);
 const emitted = emitNextJsAppRouter(ir);

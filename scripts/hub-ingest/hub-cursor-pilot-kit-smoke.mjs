@@ -4,8 +4,10 @@
  * Does not re-run full verify:flagship (that is pilot:laravel-min) — checks kit surface.
  *
  * UT ↔ Helix spine lives in chrysalis-cwl (`npm run smoke:ut-spine`), not Convert.
+ * EXTFMAP: untouched — never invent / never ABSENT without ZD&T hunt.
  *
  * Gate: hub:cursor-pilot-kit-smoke
+ * Token: PILOT_KIT_OK
  */
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -13,6 +15,9 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const KIT = join(ROOT, "fixtures/pilot-kit");
+
+export const PILOT_KIT_OK = "PILOT_KIT_OK";
+export const CONVERT_PILOT_KIT = "CONVERT_PILOT_KIT";
 
 function mustInclude(path, ...needles) {
   if (!existsSync(path)) return false;
@@ -25,12 +30,29 @@ export async function runCursorPilotKitSmoke() {
   const checks = [];
 
   const files = [
-    ["docs", join(ROOT, "docs/CURSOR-PILOT-KIT.md"), ["laravel-min", "cobol-clbs", "MCP", "propose"]],
+    [
+      "docs",
+      join(ROOT, "docs/CURSOR-PILOT-KIT.md"),
+      [
+        "15-minute",
+        "laravel-min",
+        "cobol-clbs",
+        "MCP",
+        "propose",
+        "PILOT_KIT_OK",
+        "hub:cursor-pilot-kit-smoke",
+        "EXTFMAP",
+      ],
+    ],
     ["public-claim", join(ROOT, "docs/PUBLIC-ENGINE-CLAIM.md"), ["Apache", "Pilot Kit"]],
     ["mcp-json", join(KIT, "cursor-mcp.json"), ["web-llm-mcp-server", "pilot:laravel-min"]],
     ["rule", join(KIT, "chrysalis-pilot.mdc"), ["verify dispose", "D6447"]],
     ["agents", join(KIT, "AGENTS-PILOT.md"), ["Propose ≠ dispose", "pilot:laravel-min"]],
-    ["checklist", join(KIT, "PILOT-CHECKLIST.md"), ["pilot:laravel-min", "pilot:cobol-clbs", "MCP"]],
+    [
+      "checklist",
+      join(KIT, "PILOT-CHECKLIST.md"),
+      ["pilot:laravel-min", "pilot:cobol-clbs", "MCP", "PILOT_KIT_OK", "hub:cursor-pilot-kit-smoke"],
+    ],
     ["runner-laravel", join(ROOT, "scripts/pilot-kit-laravel-min.mjs"), ["verify-flagship-laravel-min"]],
     ["runner-cobol", join(ROOT, "scripts/pilot-kit-cobol-clbs.mjs"), ["cobol-best-fit-smoke", "EXTFMAP"]],
     ["mcp-server", join(ROOT, "scripts/web-llm-mcp-server.mjs"), ["tools/list", "tools/call"]],
@@ -63,11 +85,13 @@ export async function runCursorPilotKitSmoke() {
   const ok = checks.every((c) => c.ok);
   const report = {
     kind: "chrysalis.hub.cursor-pilot-kit-smoke",
-    schemaVersion: 4,
+    schemaVersion: 5,
     ok,
+    token: ok ? PILOT_KIT_OK : undefined,
+    convertToken: ok ? CONVERT_PILOT_KIT : undefined,
     checks,
     failed: checks.filter((c) => !c.ok),
-    note: "Pilot Kit packaging (laravel/cobol). CWL↔Helix spine: chrysalis-cwl npm run smoke:ut-spine",
+    note: "Pilot Kit packaging (laravel/cobol). CWL↔Helix spine: chrysalis-cwl npm run smoke:ut-spine. EXTFMAP untouched.",
     generatedAt: new Date().toISOString(),
   };
 
@@ -85,6 +109,8 @@ export async function runCursorPilotKitSmoke() {
 async function main() {
   const r = await runCursorPilotKitSmoke();
   console.log(JSON.stringify(r, null, 2));
+  if (r.ok && r.token) console.log(r.token);
+  if (r.ok && r.convertToken) console.log(r.convertToken);
   if (!r.ok) process.exit(1);
 }
 

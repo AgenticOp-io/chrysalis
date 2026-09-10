@@ -85,7 +85,28 @@ export function listWptpSiblingStatus(convertRoot) {
   };
 }
 
-/** @param {string} [fromUrl] */
+/**
+ * Convert repo root from a script under `scripts/` or `scripts/lib/`.
+ * @param {string} [fromUrl]
+ */
 export function convertRootFromScript(fromUrl = import.meta.url) {
-  return resolve(dirname(fileURLToPath(fromUrl)), "..");
+  const here = dirname(fileURLToPath(fromUrl));
+  // scripts/lib → ../.. ; scripts → ..
+  const base = here.replace(/[/\\]lib$/, "");
+  return resolve(base, "..");
+}
+
+/**
+ * Prefer `dist/index.js`, else `src/index.js` / `src/index.ts` under a sibling repo.
+ * @param {string} convertRoot
+ * @param {string} name
+ * @returns {string | null}
+ */
+export function resolveWptpPackageEntry(convertRoot, name) {
+  const repo = resolveWptpRepoRoot(convertRoot, name);
+  for (const rel of ["dist/index.js", "src/index.js", "src/index.ts"]) {
+    const p = join(repo, rel);
+    if (existsSync(p)) return p;
+  }
+  return null;
 }

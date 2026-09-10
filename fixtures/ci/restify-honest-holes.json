@@ -1,0 +1,58 @@
+{
+  "kind": "chrysalis.hub.restify-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T04:00:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10134",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "expressTsSt": "D6448-ST / hub:complete-conversion-prove:typescript",
+    "restifyOriginRouteSurface": "G9957 / hub:restify-smoke",
+    "restifyPassThroughMw": "G9959 / hub:restify-smoke v2",
+    "identDestructure": "G10005 / hub:restify-smoke",
+    "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#restify"
+  },
+  "note": "Restify honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; pass-through ceiling G9959). Expands residual shapes that must stay holes. Route-surface gold remains Restify ORIGIN get|post|put|patch|del + res.send / res.send(code, body) + req.params|query + IDENT destructure (G9957/G10005) + empty/next-only server.pre / server.use → js.passthrough (G9959). Do **not** invent plugins.*, bodyParser/queryParser/throttle/CORS, non-empty pre/use onion, server.on lifecycle, next.ifError, named handler refs, versioned routes, or after hooks as a full Restify runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:restify-honesty-smoke",
+  "token": "RESTIFY_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Restify plugins/complex pre-use full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Restify plugin/onion peel beyond empty passthrough; holes over façades; G9957+G9959+G10005 remain sole Restify ORIGIN gold; pass-through ceiling already known"
+  },
+  "supportedRouteSurfaceOnly": [
+    "restify.createServer() factory dialect marker (G9957)",
+    "server.get|post|put|patch|del literal paths (G9957)",
+    "res.send(value) / Restify res.send(code, body) (G9957)",
+    "req.params.* / req.query.* (G9957)",
+    "return next() after send (ignored peel) (G9957)",
+    "const { id } = req.params|query IDENT peel (G10005)",
+    "empty/next-only server.pre / server.use → js.passthrough preset (G9959)",
+    "Express/TS D6448-ST — not Restify plugin runtime"
+  ],
+  "honestHoles": [
+    { "shape": "non-empty / complex server.pre / server.use bodies + cascaded middleware chains", "reason": "hub-js:restify-middleware" },
+    { "shape": "restify.plugins.* / bodyParser / queryParser / gzipResponse / throttle / CORS invent", "reason": "hub-js:restify-plugins" },
+    { "shape": "server.on lifecycle / after / once hooks invent", "reason": "hub-js:restify-lifecycle" },
+    { "shape": "named handler refs / next.ifError / next(err) control-flow invent", "reason": "hub-js:restify-named-handler" },
+    { "shape": "versioned routes / Accept-Version / server.get({ path, version }) invent", "reason": "hub-js:restify-versioned" },
+    { "shape": "server.use(restify.plugins.*) chained plugin onion invent", "reason": "hub-js:restify-plugin-onion" },
+    { "shape": "bunyan / auditLogger / requestLogger invent", "reason": "hub-js:restify-logging" },
+    { "shape": "conditional handlers / pre formats / formatters invent", "reason": "hub-js:restify-formatters" },
+    { "shape": "createServer({ … }) bootstrap options / multi-server mount invent", "reason": "hub-js:restify-bootstrap" },
+    { "shape": "res.redirect / res.header / res.set / streaming body invent beyond res.send", "reason": "hub-js:restify-response-extra" },
+    { "shape": "nested/computed/rest destructure from params|query", "reason": "hub-js:restify-destructure" },
+    { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" },
+    { "shape": "Treat ORIGIN peel as invented full Restify plugin/onion runtime claim", "reason": "hub-js:restify-runtime-confusion" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-restify-plugins claiming hole-free plugin/onion runtime",
+    "hub-gold-restify must keep only empty/next-only pre/use + route surface (no plugins.*/lifecycle invent)"
+  ],
+  "revisitWhen": "Explicit charter lands a real Restify plugin/onion origin corpus with a peel that does not invent runtime — until then keep G9957+G9959+G10005 route surface + empty pass-through as the only Restify ORIGIN close.",
+  "nextTargets": [
+    "Maintain RESTIFY_HONESTY_OK — refuse Restify plugins/complex pre-use runtime 20/20 force-close",
+    "G9957/G9959/G10005 hub:restify-smoke remains sole Restify ORIGIN gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

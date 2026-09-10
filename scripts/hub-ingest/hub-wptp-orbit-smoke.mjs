@@ -1,21 +1,47 @@
 #!/usr/bin/env node
 /**
- * Convert WPTP orbit cohesion smoke — siblings resolve + CWL WebIR reverse-home.
- * Does not require matrix gold or Next emit (those stay optional / honest skip).
+ * Convert WPTP orbit cohesion smoke — siblings resolve + load real platforms/@wptp code.
+ * Does not require matrix gold or full Next emit suites (those stay optional / honest skip).
  *
  *   pnpm run hub:wptp-orbit-smoke
  *   CHRYSALIS_SKIP_WPTP=1  → soft-ok skip
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { listWptpSiblingStatus } from "../lib/wptp-siblings.mjs";
+import { pathToFileURL, fileURLToPath } from "node:url";
+import {
+  listWptpSiblingStatus,
+  resolveWptpPackageEntry,
+  resolveWptpRepoRoot,
+} from "../lib/wptp-siblings.mjs";
 
 export const WPTP_ORBIT_SMOKE_KIND = "chrysalis.hub.wptp-orbit-smoke";
 export const WPTP_ORBIT_SMOKE_SCHEMA_VERSION = 1;
 export const WPTP_CONVERT_ORBIT_OK = "WPTP_CONVERT_ORBIT_OK";
 
 const CONVERT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+
+/**
+ * @param {string} convertRoot
+ * @param {string} name
+ * @param {string[]} [needExports]
+ */
+async function importSibling(convertRoot, name, needExports = []) {
+  const entry = resolveWptpPackageEntry(convertRoot, name);
+  if (!entry) {
+    return { ok: false, detail: `no dist/src entry under ${resolveWptpRepoRoot(convertRoot, name)}` };
+  }
+  try {
+    const mod = await import(pathToFileURL(entry).href);
+    const missing = needExports.filter((k) => typeof mod[k] !== "function" && typeof mod[k] !== "string");
+    if (missing.length) {
+      return { ok: false, detail: `${entry} missing exports: ${missing.join(",")}` };
+    }
+    return { ok: true, detail: entry };
+  } catch (e) {
+    return { ok: false, detail: `${entry}: ${e && e.message ? e.message : String(e)}` };
+  }
+}
 
 /**
  * @param {{ convertRoot?: string }} [opts]
@@ -38,10 +64,20 @@ export async function runWptpOrbitSmoke(opts = {}) {
   }
 
   const siblings = listWptpSiblingStatus(root);
+  const prefersPlatforms = /[/\\]platforms$/i.test(siblings.siblingsRoot);
   checks.push({
     id: "siblings-root",
     ok: Boolean(siblings.siblingsRoot),
     detail: siblings.siblingsRoot,
+  });
+  checks.push({
+    id: "siblings-prefer-platforms",
+    ok: prefersPlatforms || process.env.WPTP_SIBLINGS_ROOT != null,
+    detail: prefersPlatforms
+      ? "platforms/"
+      : process.env.WPTP_SIBLINGS_ROOT
+        ? `env override: ${process.env.WPTP_SIBLINGS_ROOT}`
+        : `expected ../../platforms when present; got ${siblings.siblingsRoot}`,
   });
 
   const required = ["wptp-ir", "wptp-matrix", "wptp-emit-nextjs"];
@@ -60,6 +96,28 @@ export async function runWptpOrbitSmoke(opts = {}) {
       id: `sibling-optional:${row.name}`,
       ok: true,
       detail: row.present ? row.root : `absent (ok): ${row.root}`,
+    });
+  }
+
+  // Load real platforms code (not package.json-only).
+  const irLoad = await importSibling(root, "wptp-ir", ["importWebIrBundleJson", "assertIrDocumentV0"]);
+  checks.push({ id: "import:wptp-ir", ok: irLoad.ok, detail: irLoad.detail });
+
+  const emitLoad = await importSibling(root, "wptp-emit-nextjs", ["emitNextJsAppRouter"]);
+  checks.push({ id: "import:wptp-emit-nextjs", ok: emitLoad.ok, detail: emitLoad.detail });
+
+  // Adapters / bronze emits: require built entry when the sibling is present (deps may be uninstalled).
+  for (const name of ["wptp-adapter-openapi", "wptp-adapter-browser", "wptp-emit-hono", "wptp-emit-fastify"]) {
+    const row = siblings.repos.find((r) => r.name === name);
+    if (!row?.present) {
+      checks.push({ id: `entry-optional:${name}`, ok: true, detail: "absent (ok)" });
+      continue;
+    }
+    const entry = resolveWptpPackageEntry(root, name);
+    checks.push({
+      id: `entry-optional:${name}`,
+      ok: Boolean(entry),
+      detail: entry || `present but no dist/src entry under ${row.root}`,
     });
   }
 

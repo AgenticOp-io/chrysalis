@@ -5,7 +5,11 @@
  * for the **working tree** (not full git history — that remains an operator scrub).
  *
  * Gate: hub:oss-scrub-smoke
- * Docs: docs/PUBLIC-ENGINE-CLAIM.md · commercial/chrysalis-private-pack/07-oss-scrub-checklist.md
+ * Tokens: OSS_SCRUB_OK · CONVERT_OSS_SCRUB
+ * Docs: docs/PUBLIC-ENGINE-CLAIM.md · docs/GO-PUBLIC.md · commercial/chrysalis-private-pack/07-oss-scrub-checklist.md
+ *
+ * EXTFMAP: untouched — never invent / never ABSENT without ZD&T hunt.
+ * No BFG / history rewrite from this gate — operator only.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
@@ -13,6 +17,9 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+
+export const OSS_SCRUB_OK = "OSS_SCRUB_OK";
+export const CONVERT_OSS_SCRUB = "CONVERT_OSS_SCRUB";
 
 /** Basename / path fragments that must not appear as tracked files. */
 const FORBIDDEN_NAME_RE =
@@ -124,6 +131,16 @@ function listCandidateFiles() {
   return out;
 }
 
+/**
+ * @param {string} path
+ * @param {...string} needles
+ */
+function mustInclude(path, ...needles) {
+  if (!existsSync(path)) return false;
+  const t = readFileSync(path, "utf8");
+  return needles.every((n) => t.includes(n));
+}
+
 export async function runOssScrubSmoke() {
   /** @type {Array<{ id: string, ok: boolean, reason?: string }>} */
   const checks = [];
@@ -227,6 +244,18 @@ export async function runOssScrubSmoke() {
       join(ROOT, "docs/PUBLIC-ENGINE-CLAIM.md"),
       "oss-scrub",
       "hub:oss-scrub-smoke",
+      "G10109",
+      "OSS_SCRUB_OK",
+    ),
+  });
+
+  checks.push({
+    id: "go-public-runbook",
+    ok: mustInclude(
+      join(ROOT, "docs/GO-PUBLIC.md"),
+      "hub:oss-scrub-smoke",
+      "OSS_SCRUB_OK",
+      "history scrub",
     ),
   });
 
@@ -239,13 +268,15 @@ export async function runOssScrubSmoke() {
   const ok = checks.every((c) => c.ok);
   const report = {
     kind: "chrysalis.hub.oss-scrub-smoke",
-    schemaVersion: 1,
+    schemaVersion: 2,
     ok,
+    token: ok ? OSS_SCRUB_OK : undefined,
+    convertToken: ok ? CONVERT_OSS_SCRUB : undefined,
     checks,
     failed: checks.filter((c) => !c.ok),
     nameHits: nameHits.slice(0, 50),
     contentHits: contentHits.slice(0, 50),
-    note: "Working-tree / git ls-files scrub only — full history rewrite remains operator (07-oss-scrub-checklist.md)",
+    note: "Working-tree / git ls-files scrub only — full history rewrite remains operator (07-oss-scrub-checklist.md). No BFG from this gate. EXTFMAP untouched.",
     generatedAt: new Date().toISOString(),
   };
 
@@ -263,19 +294,11 @@ export async function runOssScrubSmoke() {
   return report;
 }
 
-/**
- * @param {string} path
- * @param {...string} needles
- */
-function mustInclude(path, ...needles) {
-  if (!existsSync(path)) return false;
-  const t = readFileSync(path, "utf8");
-  return needles.every((n) => t.includes(n));
-}
-
 async function main() {
   const r = await runOssScrubSmoke();
   console.log(JSON.stringify(r, null, 2));
+  if (r.ok && r.token) console.log(r.token);
+  if (r.ok && r.convertToken) console.log(r.convertToken);
   if (!r.ok) process.exit(1);
 }
 

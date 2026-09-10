@@ -32,6 +32,26 @@ const CWL_SESSION_BOOT_CALLS = new Set([
   "session_write_close",
 ]);
 
+/**
+ * RFC-0020 executable effect / middleware stubs (Convert simulate no-ops).
+ * Project as handler `effects:` tags; do not hole the CWL surface (tip 1.0.20).
+ */
+const CWL_EXECUTABLE_EFFECT_CALLS = new Map([
+  ["__cwl_middleware_cors", "cors.allow"],
+  ["__cwl_middleware_csrf", "csrf.verify"],
+  ["__cwl_middleware_rate_limit", "rate.limit"],
+  ["__cwl_effect_mail_send", "mail.send"],
+  ["__cwl_effect_db_read", "db.read"],
+  ["__cwl_effect_db_write", "db.write"],
+  ["__cwl_effect_io", "io"],
+]);
+
+/** Effect-dialect ops lowered from declared effects (time.now / random). */
+const CWL_EXECUTABLE_EFFECT_OPS = new Map([
+  ["time.now", "time.now"],
+  ["random", "random"],
+]);
+
 /** Callees that end a handler branch (PHP exit/return) — early-exit guard marker. */
 const CWL_EARLY_EXIT_CALLEES = new Set(["__exit", "__return"]);
 
@@ -446,6 +466,8 @@ export function walkCwlHandlerBody(get, bodyId) {
   let guardCapture = null;
   let sessionRead = false;
   let sessionWrite = false;
+  /** @type {string[]} */
+  const declaredEffects = [];
 
   const looksHtmlLit = (v) =>
     typeof v === "string" && (/^\s*</.test(v) || /<!doctype/i.test(v) || htmlChrome || htmlParts.length > 0);
@@ -618,19 +640,75 @@ export function walkCwlHandlerBody(get, bodyId) {
       if (bodyOp) visit(bodyOp);
       return;
     }
-    if (n.dialect === "effect" && (n.op === "http.error" || n.op === "http.status")) {
+    if (n.dialect === "effect" && (n.op === "http.error" || n.op === "http.status" || n.op === "httpError")) {
       const s = Number(n.attrs?.status);
       if (Number.isFinite(s)) {
         status = s;
         if (guardCapture) guardCapture.status = s;
       }
+      // Tip 1.0.25 emit reverse: sole `effect.http.error` body (CWL/Svelte/Next load error)
+      // recovers as `load { error }` + empty page chrome — not a bare `@route` status.
+      // Status effects inside a block (API status-only) keep status and leave value to siblings.
+      if (!guardCapture && id === bodyId && Number.isFinite(s)) {
+        /** @type {Array<{ key: string, value: object }>} */
+        const entries = [{ key: "error", value: { t: "lit", value: s } }];
+        if (n.operands?.[0]) {
+          const msg = cwlValueOf(get, n.operands[0]);
+          if (msg.t === "lit" && typeof msg.value === "string") {
+            entries.push({ key: "message", value: msg });
+          }
+        }
+        loadData = { t: "obj", entries };
+        value = { t: "lit", value: "" };
+        responseKind = "html";
+      }
       return;
     }
     if (n.dialect === "effect" && n.op === "redirect") {
+      // Tip 1.0.25 emit reverse: sole `effect.redirect` → `load { redirect }` (fat hub-webir-routes).
       // Do not project Location concat/binop into the return value (would hole).
       status = 302;
       if (guardCapture) guardCapture.status = 302;
-      if (!value) value = { t: "lit", value: "" };
+      const loc = n.operands?.[0] ? cwlValueOf(get, n.operands[0]) : null;
+      if (
+        !guardCapture &&
+        loc &&
+        loc.t === "lit" &&
+        typeof loc.value === "string" &&
+        (id === bodyId || loadData == null)
+      ) {
+        loadData = {
+          t: "obj",
+          entries: [{ key: "redirect", value: { t: "lit", value: loc.value } }],
+        };
+        value = { t: "lit", value: "" };
+        responseKind = "html";
+      } else if (!value) {
+        value = { t: "lit", value: "" };
+      }
+      return;
+    }
+    if (n.dialect === "data" && n.op === "call") {
+      const callee = String(n.attrs?.callee ?? "");
+      if (CWL_EXECUTABLE_EFFECT_CALLS.has(callee)) {
+        const tag = CWL_EXECUTABLE_EFFECT_CALLS.get(callee);
+        if (tag && !declaredEffects.includes(tag)) declaredEffects.push(tag);
+        return;
+      }
+    }
+    if (n.dialect === "effect" && CWL_EXECUTABLE_EFFECT_OPS.has(String(n.op ?? ""))) {
+      const tag = CWL_EXECUTABLE_EFFECT_OPS.get(String(n.op));
+      if (tag && !declaredEffects.includes(tag)) declaredEffects.push(tag);
+      return;
+    }
+    // auth.require lowers to session.read with cwl:executable-auth-require provenance
+    if (
+      n.dialect === "effect" &&
+      n.op === "session.read" &&
+      Array.isArray(n.provenance) &&
+      n.provenance.some((p) => String(p?.locator ?? "") === "cwl:executable-auth-require")
+    ) {
+      if (!declaredEffects.includes("auth.require")) declaredEffects.push("auth.require");
       return;
     }
     if (n.dialect === "effect" && n.op === "session.read") {
@@ -784,9 +862,9 @@ export function walkCwlHandlerBody(get, bodyId) {
   }
 
   /** @type {string[]} */
-  const effects = [];
-  if (sessionRead) effects.push("session.read");
-  if (sessionWrite) effects.push("session.write");
+  const effects = [...declaredEffects];
+  if (sessionRead && !effects.includes("session.read")) effects.push("session.read");
+  if (sessionWrite && !effects.includes("session.write")) effects.push("session.write");
 
   return {
     status,
@@ -920,18 +998,60 @@ function cwlRenderValue(v) {
 }
 
 /**
+ * Collect CWL module `use` presets from WebIR middleware roots (RFC-0001).
+ * Express/Flask peels land `express.json` / `express.urlencoded` as
+ * `web.request.middleware` — fat emit must project them as `use json` /
+ * `use urlencoded` (urlencoded form POST peel demand / tip deepen signal).
+ * @param {import('@chrysalis/webir').Module} module
+ * @returns {Array<"express.json"|"express.urlencoded">}
+ */
+export function listCwlModuleUses(module) {
+  /** @type {Array<"express.json"|"express.urlencoded">} */
+  const uses = [];
+  const seen = new Set();
+  const nodes = module?.nodes;
+  /** @type {IterableIterator<object> | object[]} */
+  const iter =
+    nodes && typeof nodes.values === "function"
+      ? nodes.values()
+      : Object.values(nodes ?? {});
+  for (const n of iter) {
+    if (!n || n.dialect !== "web.request" || n.op !== "middleware") continue;
+    const kind = String(n.attrs?.kind ?? "");
+    if (kind !== "express.json" && kind !== "express.urlencoded") continue;
+    if (seen.has(kind)) continue;
+    seen.add(kind);
+    uses.push(/** @type {"express.json"|"express.urlencoded"} */ (kind));
+  }
+  // Stable order: json then urlencoded (matches common Express peel order).
+  uses.sort((a, b) => {
+    if (a === b) return 0;
+    if (a === "express.json") return -1;
+    if (b === "express.json") return 1;
+    return a.localeCompare(b);
+  });
+  return uses;
+}
+
+/**
  * Render the CWL projection of `listCwlRoutes` to CWL source text. Shared by the
  * round-trip emit (`emit-cwl-from-hub`) and the project-to-CWL migration export
  * (`hub-project-cwl-export`) so both carry the same status/param/`??`-default/
  * content-type/object-body fidelity rather than diverging projections.
  * @param {ReturnType<typeof listCwlRoutes>} routes
- * @param {{ header?: string, moduleName?: string }} [opts]
+ * @param {{ header?: string, moduleName?: string, moduleUses?: Array<"express.json"|"express.urlencoded">, surfaceOnHole?: boolean }} [opts]
  * @returns {{ text: string, holeCount: number, routeCount: number }}
  */
 export function renderCwlRoutes(routes, opts = {}) {
   const header = opts.header ?? "# Chrysalis Web Language";
   const moduleName = opts.moduleName ?? "hub";
   const lines = [header, `module ${moduleName};`, ""];
+  const moduleUses = opts.moduleUses ?? [];
+  for (const use of moduleUses) {
+    if (use === "express.json") lines.push("use json;");
+    else if (use === "express.urlencoded") lines.push("use urlencoded;");
+  }
+  if (moduleUses.length) lines.push("");
   let holeCount = 0;
   for (const r of routes) {
     const isPage =

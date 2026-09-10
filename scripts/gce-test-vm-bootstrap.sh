@@ -124,7 +124,9 @@ fi
 
 if [[ "${CHRYSALIS_SKIP_WPTP_HUB_DEPS:-}" != "1" ]]; then
   echo "[gce-test-vm-bootstrap] installing WPTP hub deps (wptp-emit-nextjs for Next.js output)..."
-  export WPTP_SIBLINGS_ROOT="${WPTP_SIBLINGS_ROOT:-${HOME}}"
+  # shellcheck disable=SC1091
+  source "${WORKDIR}/scripts/lib/gce-wptp-siblings.sh"
+  chrysalis_export_wptp_roots "${WORKDIR}"
   node scripts/install-wptp-hub-deps.mjs || echo "[gce-test-vm-bootstrap] WARN: WPTP hub deps failed (Next.js hub routes need sibling)"
 fi
 

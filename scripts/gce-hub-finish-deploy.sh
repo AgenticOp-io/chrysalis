@@ -19,7 +19,10 @@ ensure_php() {
 }
 
 ensure_php
-export WPTP_SIBLINGS_ROOT="${WPTP_SIBLINGS_ROOT:-${HOME}}"
+# Prefer platforms/ under portfolio when Convert lives at engines/chrysalis-*; else HOME (legacy VM layout).
+# shellcheck disable=SC1091
+source "${REPO}/scripts/lib/gce-wptp-siblings.sh"
+chrysalis_export_wptp_roots "${REPO}"
 export CHRYSALIS_HUB_ROOT="${CHRYSALIS_HUB_ROOT:-${HOME}/.chrysalis-hub}"
 mkdir -p "${CHRYSALIS_HUB_ROOT}/workspaces"
 

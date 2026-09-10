@@ -1,3 +1,18 @@
+2026-08-21 | Convert | G10138 urlencoded form POST peel demand (hub:urlencoded-form-post-peel-demand-smoke → URLENCODED_FORM_POST_PEEL_DEMAND_OK); fat emit use urlencoded; CWL gold demand signal; EXTFMAP untouched | local | N
+2026-08-21 | Convert | G10137 load redirect/error peel honesty (hub:load-redirect-error-peel-smoke → LOAD_REDIRECT_ERROR_PEEL_OK); fat emit reverse + SvelteKit/Next peels land CWL load { redirect|error }; tip 1.0.25 consume; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10108 public-claim harden: hub:public-engine-claim-smoke → PUBLIC_CLAIM_OK/CONVERT_PUBLIC_CLAIM; honestGaps (visibility/history/brand CTA/EXTFMAP/counsel); no invent | local | N
+2026-08-11 | Convert | G10109 OSS scrub harden: hub:oss-scrub-smoke → OSS_SCRUB_OK/CONVERT_OSS_SCRUB; scrub burned password literals from GO-PUBLIC.md; tracked-tree only (no BFG); EXTFMAP untouched | local | N
+2026-08-11 | Convert | Cursor Pilot Kit 15-min path harden (docs/CURSOR-PILOT-KIT.md + checklist); hub:cursor-pilot-kit-smoke → PILOT_KIT_OK; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10136 Nest DI honesty L1 peel (hub:nestjs-honesty-smoke → NEST_DI_HONESTY_OK); expanded residual catalog; refuse Nest DI/modules/providers runtime 20/20; G9950/G10015 sole Nest route-surface gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10135 Polka honesty L1 peel (hub:polka-honesty-smoke → POLKA_HONESTY_OK); expanded residual catalog; refuse plugins/onion middleware runtime 20/20; G9958/G9959/G10005 sole Polka ORIGIN gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10134 Restify honesty L1 peel (hub:restify-honesty-smoke → RESTIFY_HONESTY_OK); expanded residual catalog; refuse plugins/complex pre-use runtime 20/20; G9957/G9959/G10005 sole Restify ORIGIN gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10133 Elysia honesty L1 peel (hub:elysia-honesty-smoke → ELYSIA_HONESTY_OK); expanded residual catalog; refuse plugins/lifecycle/macros runtime 20/20; G10025/G10053 sole Elysia ORIGIN gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10132 Koa honesty L1 peel (hub:koa-honesty-smoke → KOA_HONESTY_OK); expanded residual catalog; refuse onion middleware runtime 20/20; G9959/G10005 sole Koa ORIGIN gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10131 Hono honesty L1 peel (hub:hono-honesty-smoke → HONO_HONESTY_OK); expanded residual catalog; refuse middleware/RPC/JSX runtime 20/20; G10019/G10044 sole Hono ORIGIN gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10130 Rails filters/resources honesty (hub:rails-filters-honesty-smoke → RAILS_FILTERS_HONESTY_OK); residual catalog; refuse filters/AR runtime 20/20; G10115 sole Rails ST gold; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10129 Flutter honesty (hub:flutter-honesty-smoke → FLUTTER_HONESTY_OK); residual catalog; refuse Flutter/widget/engine runtime 20/20; EXTFMAP untouched | local | N
+2026-08-11 | Convert | G10128 Phoenix LiveView honesty (hub:phoenix-liveview-honesty-smoke → LIVEVIEW_HONESTY_OK); residual catalog; refuse LiveView runtime 20/20; EXTFMAP untouched | local | N
+2026-08-10 | Convert | G10127 EXTFMAP residual honesty smoke (hub:cobol-extfmap-residual-smoke → EXTFMAP_RESIDUAL_HONEST_OK); dual primary COBOL track; does not close copy:EXTFMAP | local | N
 2026-08-10 | Convert | CWL notify CONVERT-WHOLE-SYSTEM-NOTIFIED.md + harnesses platforms-first (silver/d3/d4) | local | N
 2026-08-09 | Convert | hub:convert-whole-system-smoke — live cohesion gate; gold/compose resolve platforms/wptp-* first | local | N
 2026-08-09 | Convert | CONVERT-WHOLE-SYSTEM.md — cohesive map: peels→CWL DNA, platforms WPTP orbit, COBOL/Hub/Helix (nothing wasted) | local | N

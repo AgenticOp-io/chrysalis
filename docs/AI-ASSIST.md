@@ -4,6 +4,8 @@
 > **Invariant:** *Models propose; WebIR + oracle + verify dispose.*  
 > **Refused:** LiteRT.js / browser `.tflite` as convert substrate (wrong model class; not on the locked path).
 
+**Traffic-decides bar:** *AI drafts; recorded traffic decides.* LLM/IS may **propose** holes and scaffolds only — **propose ≠ dispose**. Merge and operator apply require a verify dispose certificate plus explicit confirm (`hub:dispose-plane-smoke`, `hub:llm-convert-verify-apply-smoke`). Oracle replay on real product fixtures decides whether a conversion claim is honest before “converted” (`hub:traffic-decides-bar-smoke` → `TRAFFIC_DECIDES_CONVERT_OK`). See [`../chrysalis-cwl/docs/history/TRAFFIC-DECIDES-BAR.md`](../chrysalis-cwl/docs/history/TRAFFIC-DECIDES-BAR.md) and [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md).
+
 ## Positioning
 
 Chrysalis is a **verified migration substrate** (WebIR, oracle, chimera, CWL).  

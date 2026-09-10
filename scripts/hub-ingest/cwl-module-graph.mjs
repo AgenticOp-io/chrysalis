@@ -56,6 +56,30 @@ export function markDuplicateCwlRoutes(parsed) {
 }
 
 /**
+ * List absolute paths in the `import "…";` graph (entry first; RFC-0009).
+ * @param {string} entryPath
+ * @param {(path: string) => string} [readFile]
+ * @param {string[]} [stack]
+ * @returns {string[]}
+ */
+export function listCwlImportGraph(entryPath, readFile = (p) => readFileSync(p, "utf8"), stack = []) {
+  const abs = resolve(entryPath);
+  if (stack.includes(abs)) {
+    throw new Error(`cwl:import-cycle:${abs}`);
+  }
+  const source = readFile(abs);
+  const parsed = parseCwlModule(source, abs);
+  const nextStack = [...stack, abs];
+  /** @type {string[]} */
+  const files = [abs];
+  for (const imp of parsed.imports ?? []) {
+    const childPath = resolve(dirname(abs), imp);
+    files.push(...listCwlImportGraph(childPath, readFile, nextStack));
+  }
+  return [...new Set(files)];
+}
+
+/**
  * Resolve a CWL entry file and its `import "…";` graph into one module.
  * @param {string} entryPath
  * @param {(path: string) => string} [readFile]

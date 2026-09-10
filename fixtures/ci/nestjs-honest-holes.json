@@ -1,0 +1,55 @@
+{
+  "kind": "chrysalis.hub.nestjs-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T05:30:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10136",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "expressTsSt": "D6448-ST / hub:complete-conversion-prove:typescript",
+    "nestjsRouteSurface": "G9950 / hub:nestjs-smoke",
+    "nestjsFlagshipSt": "hub:nestjs-flagship / hub:complete-conversion-prove:nestjs",
+    "nestjsFieldPeels": "G10015 / @Headers/@Cookies/@Body field peels",
+    "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#nestjs"
+  },
+  "note": "Nest DI honesty catalog (L1 cheap honest-hole peel inside already-closed Nest route-surface ST). Expands residual shapes that must stay holes: @Module / providers / constructor DI / guards / pipes / interceptors / filters / NestFactory bootstrap / dynamic modules. Route-surface gold remains @Controller + HTTP decorators + @Param/@Query/@Body/@Headers/@Cookies/@HttpCode (G9950/G10015) via hub:nestjs-smoke / hub:nestjs-flagship. Do **not** invent Nest DI / modules / providers runtime as Nest DI 20/20 (**D6442** / **D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:nestjs-honesty-smoke",
+  "token": "NEST_DI_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Nest DI / modules / providers full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Nest DI/modules/providers peel; holes over façades; G9950+G10015 remain sole Nest route-surface gold; refuse force-close as Nest DI 20/20"
+  },
+  "supportedRouteSurfaceOnly": [
+    "@Controller prefix + @Get|Post|Put|Patch|Delete path join (G9950)",
+    "@Param / @Query / @Body / @Headers / @Cookies / @HttpCode (G9950)",
+    "@Body('field') / @Headers('x') / @Cookies('y') → requestFields (G10015)",
+    "route-surface ST via hub:nestjs-flagship (cwl-api only; DI/guards not in gold)",
+    "Express/TS D6448-ST — not Nest DI/modules/providers runtime"
+  ],
+  "honestHoles": [
+    { "shape": "@Module / providers / exports / imports / controllers arrays", "reason": "hub-js:nest-di" },
+    { "shape": "constructor DI / @Inject / @Injectable / custom providers (useClass|useFactory|useValue|useExisting)", "reason": "hub-js:nest-di" },
+    { "shape": "request-/transient-scoped providers / injection tokens invent", "reason": "hub-js:nest-di-scope" },
+    { "shape": "@UseGuards / CanActivate / guard chains invent", "reason": "hub-js:nest-guards" },
+    { "shape": "interceptors / pipes / exception filters invent", "reason": "hub-js:nest-guards" },
+    { "shape": "@Res() / @Next() / raw Express escape hatches", "reason": "hub-js:nest-res-escape" },
+    { "shape": "NestFactory.create / listen / bootstrap / multi-app mount invent", "reason": "hub-js:nest-bootstrap" },
+    { "shape": "dynamic modules / forRoot / forFeature / ConfigurableModuleBuilder invent", "reason": "hub-js:nest-dynamic-module" },
+    { "shape": "MiddlewareConsumer / configure / NestMiddleware invent", "reason": "hub-js:nest-middleware" },
+    { "shape": "versioning / URI|header version / non-literal paths", "reason": "hub-js:nest-versioning" },
+    { "shape": "TestingModule / overrideProvider invent as conversion gold", "reason": "hub-js:nest-testing" },
+    { "shape": "microservices / CQRS / GraphQL Nest runtime invent", "reason": "hub-js:nest-microservice" },
+    { "shape": "Treat route-surface ST as invented Nest DI/modules/providers runtime claim", "reason": "hub-js:nest-runtime-confusion" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-nestjs-di claiming hole-free DI/modules/providers runtime",
+    "hub-gold-nestjs must keep only @Controller route surface (no @Module/providers/NestFactory invent)"
+  ],
+  "revisitWhen": "Explicit charter lands a real Nest DI/modules/providers origin corpus with a peel that does not invent runtime — until then keep G9950+G10015 route surface as the only Nest ORIGIN close.",
+  "nextTargets": [
+    "Maintain NEST_DI_HONESTY_OK — refuse Nest DI/modules/providers runtime 20/20 force-close",
+    "G9950/G10015 hub:nestjs-smoke + hub:nestjs-flagship remain sole Nest route-surface gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

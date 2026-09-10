@@ -19,6 +19,8 @@ overrides:
   hono: '>=4.12.28'
   '@opentelemetry/core': '>=1.30.2'
 
+pnpmfileChecksum: egfofqwlejjhih54vwx2jypeli
+
 importers:
 
   .:
@@ -155,6 +157,22 @@ importers:
         specifier: workspace:*
         version: link:../ingest
 
+  packages/emit-runtime-cwl:
+    dependencies:
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+    devDependencies:
+      '@chrysalis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+      '@chrysalis/runtime-cwl':
+        specifier: workspace:*
+        version: link:../runtime-cwl
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@20.19.41)(happy-dom@20.10.6)(vite@6.4.3(@types/node@20.19.41)(tsx@4.22.3)(yaml@2.8.4))
+
   packages/emit-shared:
     dependencies:
       '@chrysalis/insight':
@@ -257,6 +275,33 @@ importers:
         specifier: workspace:*
         version: link:../verify
 
+  packages/runtime-cwl:
+    dependencies:
+      '@chrysalis/emit-shared':
+        specifier: workspace:*
+        version: link:../emit-shared
+      '@chrysalis/rewrite':
+        specifier: workspace:*
+        version: link:../rewrite
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.41
+        version: 20.19.41
+
+  packages/runtime-cwl-browser: {}
+
+  packages/runtime-cwl-worker:
+    dependencies:
+      '@chrysalis/runtime-cwl':
+        specifier: workspace:*
+        version: link:../runtime-cwl
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+
   packages/verify:
     dependencies:
       '@chrysalis/oracle':
@@ -285,6 +330,7 @@ packages:
 
   '@chrysalis/cwl@file:../chrysalis-cwl/packages/cwl':
     resolution: {directory: ../chrysalis-cwl/packages/cwl, type: directory}
+    engines: {node: '>=22'}
     hasBin: true
 
   '@chrysalis/webir@file:../chrysalis-cwl/packages/webir':

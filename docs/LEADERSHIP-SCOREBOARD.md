@@ -3,7 +3,7 @@
 Single source of truth for closed **D6448-ST** flagships and hole-free **secondary dialects** (not ST).  
 Update this file when a prove/smoke closes or an honest-skip is chartered. Do not invent Nest DI / LiveView / Flutter / onion runtimes to pad the board (**D6442** / **D6447**).
 
-**As of:** 2026-08-05 (**D6551** core vs peel; **G10125** UT↔Helix spine; **G10124** COPY REPLACING; EXTFMAP sole COBOL P0 — still open)
+**As of:** 2026-08-11 (**Pilot Kit** 15-min path → `PILOT_KIT_OK`; **G10136** Nest DI honesty L1; **G10135** Polka honesty L1; **G10134** Restify honesty L1; **G10133** Elysia honesty L1; **G10132** Koa honesty L1; **G10131** Hono honesty L1; **G10130** Rails filters/resources honesty; **G10129** Flutter honesty; **G10128** Phoenix LiveView honesty; **G10127** EXTFMAP residual honesty; **D6551** core vs peel; EXTFMAP sole COBOL P0 — still open)
 
 ---
 
@@ -46,14 +46,20 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10029 | Poem Rust | `hub:poem-smoke` | `.at` + named get|post + `.nest` + `:id` |
 | G10037 | Salvo Rust | `hub:salvo-smoke` | `with_path` + flat `.push` + `{id}` + `req.param`/`query` |
 | G9950 | NestJS decorators | `hub:nestjs-smoke` | DI/guards/pipes = honest holes; **route-surface ST** via `hub:nestjs-flagship`; G10015 @Headers/@Cookies/@Body field peels |
+| G10136 | Nest DI honesty | `hub:nestjs-honesty-smoke` | expanded residual catalog; refuse Nest DI/modules/providers runtime 20/20 force-close; G9950/G10015 remain sole Nest route-surface gold |
 | G9951 | Hapi | `hub:hapi-smoke` | plugins/lifecycle = honest holes; G10005 params/query/payload destructure peel |
 | G10005 | Koa / Hapi / Restify / Polka | `hub:koa-smoke` … `hub:polka-smoke` | IDENT destructure from params/query/payload (shared JS AST); 20 + pass-through mw (G9959); no onion invent |
+| G10132 | Koa honesty | `hub:koa-honesty-smoke` | expanded residual catalog; refuse onion middleware runtime 20/20 force-close; G9959/G10005 remain sole Koa ORIGIN gold |
 | G9957 | Restify | `hub:restify-smoke` | 20 + pass-through `pre`/`use` (G9959) |
+| G10134 | Restify honesty | `hub:restify-honesty-smoke` | expanded residual catalog; refuse plugins/complex pre-use runtime 20/20 force-close; G9957/G9959/G10005 remain sole Restify ORIGIN gold |
 | G9958 | Polka | `hub:polka-smoke` | 20 + pass-through `app.use` (G9959); completes thin Node set |
+| G10135 | Polka honesty | `hub:polka-honesty-smoke` | expanded residual catalog; refuse plugins/onion middleware runtime 20/20 force-close; G9958/G9959/G10005 remain sole Polka ORIGIN gold |
 | G10019 | Hono TS ORIGIN | `hub:hono-smoke` | secondary to Express/TS ST; **≠ emit-hono**; route surface |
 | G10044 | Hono pass-through mw | `hub:hono-smoke` v2 | empty/next-only `app.use` → `js.passthrough` (G9959 parallel); complex mw = honest holes |
+| G10131 | Hono honesty | `hub:hono-honesty-smoke` | expanded residual catalog; refuse middleware/RPC/JSX runtime 20/20 force-close; G10019/G10044 remain sole Hono ORIGIN gold |
 | G10025 | Elysia TS ORIGIN | `hub:elysia-smoke` | secondary to Express/TS ST; plugins/macros = honest holes; empty lifecycle via G10053 |
 | G10053 | Elysia empty lifecycle | `hub:elysia-smoke` v2 | empty `onRequest`/`onBeforeHandle` → `js.passthrough` (G10044 parallel); plugin `.use` = honest hole |
+| G10133 | Elysia honesty | `hub:elysia-honesty-smoke` | expanded residual catalog; refuse plugins/lifecycle/macros runtime 20/20 force-close; G10025/G10053 remain sole Elysia ORIGIN gold |
 | G10043 | Oak Deno/JS ORIGIN | `hub:oak-smoke` | secondary to Express/TS ST; middleware/`router.routes()` = honest holes |
 | G10047 | itty-router JS/TS ORIGIN | `hub:itty-smoke` | secondary to Express/TS ST; empty `all` via G10064; complex mw/nested Router = honest holes |
 | G10064 | itty empty `router.all` | `hub:itty-smoke` v2 | empty/`next`-only `router.all` → `js.passthrough` (G10044 parallel); itty has no onion `next` |
@@ -101,7 +107,10 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | G10032 | Ruby Grape | `hub:grape-smoke` | secondary to Sinatra Ruby ST; reuses Sinatra peels; `route_param`/`present` = honest holes |
 | G10062 | Ruby Padrino | `hub:padrino-smoke` | secondary to Sinatra Ruby ST; reuses Sinatra peels (Grape-class); symbol controllers/mount/filters = honest holes |
 | G10126 | Phoenix controllers | `hub:phoenix-controllers-smoke` | unparked controller skip; `Ctrl, :action` + thin json/put_status; LiveView = honest holes |
-| G10115 | Ruby Rails routes.rb | `hub:rails-routes-smoke` | unparked from G10006; `to: "ctrl#action"` + thin `render json:`/`params[:id]`; resources/filters/AR = honest holes |
+| G10128 | Phoenix LiveView honesty | `hub:phoenix-liveview-honesty-smoke` | expanded residual catalog; refuse LiveView runtime 20/20 force-close; controllers G10126 remains sole Phoenix secondary gold |
+| G10129 | Flutter honesty | `hub:flutter-honesty-smoke` | expanded residual catalog; refuse Flutter/widget/engine runtime 20/20 force-close; Shelf G9956 remains sole Dart route-surface gold |
+| G10130 | Rails filters/resources honesty | `hub:rails-filters-honesty-smoke` | expanded residual catalog; refuse filters/resources/AR runtime 20/20 force-close; G10115 route-table remains sole Rails ST gold |
+| G10115 | Ruby Rails routes.rb | `hub:rails-routes-smoke` | unparked from G10006; `to: "ctrl#action"` + thin `render json:`/`params[:id]`; resources/filters/AR = honest holes (G10130) |
 | G10028 | PHP Slim | `hub:slim-smoke` | secondary to Laravel/Symfony/plain-php ST; PSR-15/`$app->group` = honest holes |
 | G10049 | PHP Lumen / Laravel-router | `hub:lumen-smoke` | secondary to Laravel/Symfony/plain-php ST; Slim remains first PHP secondary; middleware/controllers = honest holes |
 
@@ -113,16 +122,20 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 
 | Subject | Status | Catalog / note |
 | --- | --- | --- |
-| Nest DI / guards / pipes | honest holes | G9950 |
-| Restify plugins / complex `pre` bodies | honest holes | peel only empty/next-only |
-| Koa/Polka non-empty middleware | honest holes | no onion invent |
-| Hono complex `app.use` / middleware helpers | honest holes | empty/next-only closed (G10044); ≠ emit-hono |
-| Elysia plugins / non-empty lifecycle / macros | honest holes | empty lifecycle closed (G10053); G10025 route surface |
+| Nest DI / modules / providers / guards / pipes | **Honest residual G10136** | `nestjs-honest-holes.json` + `NEST_DI_HONESTY_OK`; route-surface ST closed (G9950/G10015); **refuse** force-close as Nest DI 20/20 (**D6442** / **D6447**) |
+| Restify plugins / complex `pre`/`use` / lifecycle | **Honest residual G10134** | `restify-honest-holes.json` + `RESTIFY_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
+| Koa onion `app.use` / compose / plugins / throw / nested Router | **Honest residual G10132** | `koa-honest-holes.json` + `KOA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
+| Polka non-empty middleware / plugins / sirv / nested mount | **Honest residual G10135** | `polka-honest-holes.json` + `POLKA_HONESTY_OK`; empty/next-only closed (G9959); **refuse** force-close as full runtime 20/20 (**D6447**) |
+| Hono complex `app.use` / createMiddleware / RPC / JSX / validators / WebSocket | **Honest residual G10131** | `hono-honest-holes.json` + `HONO_HONESTY_OK`; empty/next-only closed (G10044); **refuse** force-close as full runtime 20/20 (**D6447**); ≠ emit-hono |
+| Elysia plugins / non-empty lifecycle / macros / derive / guard | **Honest residual G10133** | `elysia-honest-holes.json` + `ELYSIA_HONESTY_OK`; empty lifecycle closed (G10053); **refuse** force-close as full runtime 20/20 (**D6447**); G10025 route surface |
 | Oak `app.use` / `router.routes()` / request body|headers|cookies | honest holes | G10043 ORIGIN route surface only |
 | itty-router non-empty `all` / nested Router / body|headers|cookies | honest holes | empty `all` closed (G10064); G10047 ORIGIN route surface |
 | Cloudflare Workers KV/D1/`env` / dynamic segments / opaque fetch | honest holes | G10063 fetch-export method+pathname surface only |
 | Phoenix controllers (route-table) | **Closed route-surface G10126** | was skip; `hub:phoenix-controllers-smoke` 20/20; LiveView still honest hole |
-| Rails secondary (`routes.rb` → controller) | **Closed route-surface G10115** | was G10006 skip; `hub:rails-routes-smoke` 20/20; resources/filters/AR still honest holes |
+| Phoenix LiveView / HEEx / sockets / channels | **Honest residual G10128** | `phoenix-liveview-honest-holes.json` + `LIVEVIEW_HONESTY_OK`; **refuse** force-close as full runtime 20/20 (**D6447**) |
+| Flutter / Dart Frog / widgets / engine | **Honest residual G10129** | `flutter-honest-holes.json` + `FLUTTER_HONESTY_OK`; **refuse** force-close as full runtime 20/20 (**D6447**); Shelf ST remains G9956 |
+| Rails secondary (`routes.rb` → controller) | **Closed route-surface G10115** | was G10006 skip; `hub:rails-routes-smoke` 20/20; sole Rails ST gold |
+| Rails filters / resources / ActiveRecord | **Honest residual G10130** | `rails-filters-honest-holes.json` + `RAILS_FILTERS_HONESTY_OK`; **refuse** force-close as full runtime 20/20 (**D6447**) |
 | Nancy FX C# secondary | **Closed route-surface G10114** | was G10050 skip; `hub:nancy-smoke` 20/20; NancyHost/indexer still honest holes |
 | Revel Go secondary | **Closed route-surface G10114** | was G10065 skip; `hub:revel-smoke` 20/20; interceptors/router.GET invent still honest holes |
 | Tapir Scala secondary | **Closed route-surface G10119** | was G10057 skip; `hub:tapir-smoke` 20/20; jsonBody/interpreters still honest holes |
@@ -131,7 +144,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Roda nested `r.on` / plugins / auth | honest holes | G10022 route surface only (`roda-honest-holes.json`) |
 | Grape `route_param` / `present` / `params do` / namespace | honest holes | G10032 flat route surface only (`grape-honest-holes.json`) |
 | Padrino symbol controllers / mount / filters | honest holes | G10062 flat Sinatra-compatible surface only (`padrino-honest-holes.json`) |
-| Flutter / Dart Frog / Pipeline | honest holes | Dart ST is Shelf + same-file named handlers (G10007) |
+| Flutter / Dart Frog / Pipeline | **Honest residual G10129** (Pipeline still shelf catalog) | Dart ST is Shelf + same-file named handlers (G10007); `FLUTTER_HONESTY_OK` |
 | FastAPI Depends / OAuth / middleware | honest holes | G10003 route surface only |
 | Go Chi middleware / Mount / non-literal paths | honest holes | G10009 route surface only |
 | Gin non-literal Group / Group middleware / `g.Use` | honest holes | G10066 literal Group path join only |
@@ -162,7 +175,7 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | Carter MapCarter / DI / filters / non-app Map\* receiver | honest holes | G10041 ICarterModule Map\* surface only (`csharp-secondary-dialect-honest-holes.json`) |
 | http4k Filter / lenses / nested routes / servers | honest holes | G10024 route surface only |
 | Finch Endpoint `:+:` / lenses / TwitterServer / non-flat `::` | honest holes | G10051 flat string/path/param surface only (`finch-honest-holes.json`) |
-| COBOL primary | **68/68** behavioral (**G10113**); WebIR deepen **G10085–G10106** exhausted + **G10111/G10112** + **G10121** ODO + **G10122** RENAMES + **G10124** COPY REPLACING; **G10120** mega-corpus; sole open P0=`copy:EXTFMAP` | no LCB claim; **live z/OS / CICS TX** for EXTFMAP — [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md) · [`COBOL-EXTERNAL-PROVE-CORPORA.md`](./COBOL-EXTERNAL-PROVE-CORPORA.md) |
+| COBOL primary | **68/68** behavioral (**G10113**); WebIR deepen **G10085–G10106** exhausted + **G10111/G10112** + **G10121** ODO + **G10122** RENAMES + **G10124** COPY REPLACING; **G10120** mega-corpus; sole open P0=`copy:EXTFMAP`; **G10127** residual honesty smoke (`hub:cobol-extfmap-residual-smoke`) | no LCB claim; **live z/OS / CICS TX** for EXTFMAP close — [`COBOL-IBM-SDFHCOB-DROP.md`](./COBOL-IBM-SDFHCOB-DROP.md) · [`COBOL-NO-ZOS-CEILING.md`](./COBOL-NO-ZOS-CEILING.md) · [`EXTFMAP-RESIDUAL.md`](./EXTFMAP-RESIDUAL.md) |
 | Dependabot merges | operator-only | do not merge unless asked |
 
 ---
@@ -176,19 +189,27 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 | **S0** | Agent-era substrate (Hole Type System · CWL-Above-Code · Dispose Plane) | **Entry closed G10116** — dispose certificate on convert-apply; taxonomy + dialect honesty catalogs typed |
 | **S0b** | CWL language pillar core (`LANGUAGE_VERSION` + goldens + round-trip) | **Closed G10123** — always check CWL before Convert deepen; `hub:cwl-language-pillar-smoke` |
 | **S0c** | Core vs peel boundary (IR/CWL/verify vs hub scripts) | **Charter D6551** — [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md); WebIR reverse-home done; fat ingest RFC-0024 attachment holes prove (`hub:cwl-attachment-holes-smoke`) |
-| **L0** | Unpark previously skipped frameworks → route-surface gold | **Active G10114** — Nancy · Rails · Revel · Drogon · Deno.serve · **Tapir G10119** closed � **Phoenix controllers G10126** closed · next: Phoenix LiveView (charter only — no invent) |
-| **L1** | Cheap honest-hole peels inside closed secondaries | Reopen when L0 chartered or operator names a dialect |
+| **L0** | Unpark previously skipped frameworks → route-surface gold | **Active G10114** — Nancy · Rails · Revel · Drogon · Deno.serve · **Tapir G10119** closed · **Phoenix controllers G10126** closed · **LiveView honesty G10128** · **Flutter honesty G10129** · **Rails filters honesty G10130** (catalog/smoke; no runtime invent) |
+| **L1** | Cheap honest-hole peels inside closed secondaries | **G10134** Restify honesty (pass-through ceiling G9959); **G10133** Elysia honesty (empty-lifecycle ceiling G10053); **G10132** Koa honesty (pass-through ceiling G9959); **G10131** Hono honesty (pass-through ceiling G10044); reopen when operator names next closed secondary |
 | **1** | COBOL Tier A COPY surface | **Closed G10075** |
 | **2** | COBOL Tier B Small gnu-honest extracts | **Closed G10076–G10078** (**65/65** → **68/68** via G10113) |
 | **2b–2c** | COBOL BMS/CICS + WebIR deepen | **Exhausted G10079–G10112** |
 | **3** | COBOL Tier B Medium+ structural | **Closed G10083** + **G10111** — no runtime |
 | **4** | COBOL Tier C IBM BMS AID books | **EXTFMAP** sole open P0 |
 | — | Secondary-dialect / prefix bingo | **Unpaused (D6540)** — peel without inventing onions |
-| — | Flutter / Phoenix LiveView / Rails *filters/resources* | Still charter; Rails route-table + thin `render json` closed G10115 |
+| — | Rails *filters/resources* | Honesty closed G10130 (not runtime); Restify honesty G10134; Elysia honesty G10133; Koa honesty G10132; Hono honesty G10131; Flutter honesty G10129; LiveView honesty G10128; Rails route-table + thin `render json` remains sole Rails ST gold G10115 |
 
 **Parity bar (languages vs COBOL):** route-surface gold **20/20** + honest residual catalog + no invented runtime. COBOL keeps behavioral cobc prove; languages keep verify gold — do not force-fake LiveView/DI to “match” COBOL subject counts.
 
 **Closed this finish pack:**
+- G10134 — Restify honesty L1 (`hub:restify-honesty-smoke` → `RESTIFY_HONESTY_OK`); expanded residual catalog; does **not** close Restify plugins/complex pre-use as runtime 20/20; G9957/G9959/G10005 remain sole Restify ORIGIN gold; EXTFMAP untouched
+- G10133 — Elysia honesty L1 (`hub:elysia-honesty-smoke` → `ELYSIA_HONESTY_OK`); expanded residual catalog; does **not** close Elysia plugins/lifecycle/macros as runtime 20/20; G10025/G10053 remain sole Elysia ORIGIN gold; EXTFMAP untouched
+- G10132 — Koa honesty L1 (`hub:koa-honesty-smoke` → `KOA_HONESTY_OK`); expanded residual catalog; does **not** close Koa onion middleware as runtime 20/20; G9959/G10005 remain sole Koa ORIGIN gold; EXTFMAP untouched
+- G10131 — Hono honesty L1 (`hub:hono-honesty-smoke` → `HONO_HONESTY_OK`); expanded residual catalog; does **not** close Hono middleware/RPC/JSX as runtime 20/20; G10019/G10044 remain sole Hono ORIGIN gold; EXTFMAP untouched
+- G10130 — Rails filters/resources honesty (`hub:rails-filters-honesty-smoke` → `RAILS_FILTERS_HONESTY_OK`); expanded residual catalog; does **not** close Rails filters/AR as runtime 20/20; G10115 remains sole Rails ST gold; EXTFMAP untouched
+- G10129 — Flutter honesty (`hub:flutter-honesty-smoke` → `FLUTTER_HONESTY_OK`); expanded residual catalog; does **not** close Flutter as runtime 20/20; EXTFMAP untouched
+- G10128 — Phoenix LiveView honesty (`hub:phoenix-liveview-honesty-smoke` → `LIVEVIEW_HONESTY_OK`); expanded residual catalog; does **not** close LiveView as runtime 20/20; EXTFMAP untouched
+- G10127 — EXTFMAP residual honesty dual-primary prove (`hub:cobol-extfmap-residual-smoke` → `EXTFMAP_RESIDUAL_HONEST_OK`); does **not** close `copy:EXTFMAP`
 - G10124 — COPY … REPLACING layout inventory (`copyReplacing` / books / pairs / modes); fixtures `hub-cobol-layout-copy-replacing`; best-fit `webir-hole-attrs-copy-replacing`; CWL bridge WebIR subset widened
 - G10123 — CWL language pillar bridge (`chrysalis-cwl` LANGUAGE_VERSION + language-gold local parse→print; Convert `hub:cwl-language-pillar-smoke`; CWL-Above-Code requires pillar)
 - G10123 amend (2026-08-05) — pull CWL 0.1.7 / RFC-0022: smoke v3 + `24-dna-bridge` WebIR + DNA contract gate; Helix owns DNA enforce
@@ -235,12 +256,12 @@ Update this file when a prove/smoke closes or an honest-skip is chartered. Do no
 **Secondary-dialect wave (G10003–G10074, closed; not the active queue):** route-surface peels and honest-skips across JS/Go/Java/Python/Ruby/Scala/Swift/Rust/C#/PHP — see git history / `docs/CHANGELOG.md` / catalogs under `fixtures/ci/*honest*`. Do **not** spawn another dialect wave unless the operator asks.
 
 **Next (charter required — do not invent):**
-1. **EXTFMAP** (sole P0) — needs live z/OS ZD&T hunt on `B5C551` / SDFHCOB **or** operator ABSENT attest after hunt (`CHRYSALIS_EXTFMAP_ABSENT=1`). Never invent. See [`EXTFMAP-RESIDUAL.md`](./EXTFMAP-RESIDUAL.md). **CMQ*** closed via DHE MQ Advanced for Developers drop.
+1. **EXTFMAP** (sole P0) — needs live z/OS ZD&T hunt on `B5C551` / SDFHCOB **or** operator ABSENT attest after hunt (`CHRYSALIS_EXTFMAP_ABSENT=1`). Never invent. Honesty gate **G10127** green while open. See [`EXTFMAP-RESIDUAL.md`](./EXTFMAP-RESIDUAL.md). **CMQ*** closed via DHE MQ Advanced for Developers drop.
 2. **Maintain UT↔Helix spine** — in **chrysalis-cwl** `npm run smoke:ut-spine` (G10125); not Convert Pilot Kit
 3. **Chartered IBM runtimes** — Db2/CICS/VSAM/MQ/IMS/JES (not GnuCOBOL substitutes). Closest no-z/OS trial: **CICS TX + COBOL for Linux**.
-4. **Parallel GTM:** Cursor Pilot Kit + public-claim + **OSS scrub** (`hub:oss-scrub-smoke` **G10109**) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) · [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)
-5. **Brand CTA (Requested):** agenticop.io “Start a Pilot” → Pilot Kit 15-minute path
-6. **Flutter** / **Phoenix LiveView** / Rails — only if explicitly chartered
+4. **Parallel GTM:** Cursor Pilot Kit 15-min path hardened (`hub:cursor-pilot-kit-smoke` → **`PILOT_KIT_OK`**) + **public-claim** (`hub:public-engine-claim-smoke` → **`PUBLIC_CLAIM_OK`** **G10108**; honestGaps keep EXTFMAP/brand/history open) + **OSS scrub** (`hub:oss-scrub-smoke` → **`OSS_SCRUB_OK`** **G10109**; tracked-tree only — no BFG) — [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) · [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md) · [`GO-PUBLIC.md`](./GO-PUBLIC.md)
+5. **Brand CTA (Requested):** agenticop.io “Start a Pilot” → Pilot Kit 15-minute path (`PILOT_KIT_OK` packaging gate)
+6. **Rails resources·filters runtime** — honesty **G10130** green (not runtime close); G10115 route-table remains sole Rails ST gold
 7. **Full git-history OSS scrub** — operator (BFG/filter-repo) if secrets ever landed; tracked-tree gate is green
 
 Middleware onion / plugin runtimes are **not** next — they require inventing runtime (**D6447**). Pass-through presets (G9959 Koa/Restify/Polka; G10044 Hono; G10053 Elysia empty lifecycle) are the honest ceiling for `use`/`pre` until a real origin corpus needs more.
@@ -248,7 +269,7 @@ Middleware onion / plugin runtimes are **not** next — they require inventing r
 ## Related
 
 - **Do not invent index:** [`DO-NOT-INVENT.md`](./DO-NOT-INVENT.md)  
-- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `java-secondary-dialect-honest-holes.json`, `csharp-secondary-dialect-honest-holes.json`, `go-secondary-dialect-honest-holes.json`, `phoenix-controller-honest-skip.json`, `rails-controller-honest-skip.json`, `roda-honest-holes.json`, `grape-honest-holes.json`, `padrino-honest-holes.json`, `quart-honest-holes.json`, `bottle-honest-holes.json`, `tornado-honest-holes.json`, `slim-honest-holes.json`, `lumen-honest-holes.json`, `nancy-honest-skip.json`, `tapir-honest-skip.json`, `drogon-honest-skip.json`, `revel-honest-skip.json`
+- Machine catalogs: `fixtures/ci/js-secondary-dialect-honest-holes.json`, `restify-honest-holes.json`, `elysia-honest-holes.json`, `koa-honest-holes.json`, `hono-honest-holes.json`, `elixir-plug-honest-holes.json`, `dart-shelf-honest-holes.json`, `flutter-honest-holes.json`, `java-secondary-dialect-honest-holes.json`, `csharp-secondary-dialect-honest-holes.json`, `go-secondary-dialect-honest-holes.json`, `phoenix-controller-honest-skip.json`, `phoenix-liveview-honest-holes.json`, `rails-controller-honest-skip.json`, `rails-filters-honest-holes.json`, `roda-honest-holes.json`, `grape-honest-holes.json`, `padrino-honest-holes.json`, `quart-honest-holes.json`, `bottle-honest-holes.json`, `tornado-honest-holes.json`, `slim-honest-holes.json`, `lumen-honest-holes.json`, `nancy-honest-skip.json`, `tapir-honest-skip.json`, `drogon-honest-skip.json`, `revel-honest-skip.json`
 - Claims checklist: [`PUBLIC-ENGINE-CLAIM.md`](./PUBLIC-ENGINE-CLAIM.md)  
 - Lift expansion gates: [`MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md)  
 - Strategic queue: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12  

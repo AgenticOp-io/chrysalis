@@ -1,0 +1,53 @@
+{
+  "kind": "chrysalis.hub.rails-filters-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T06:00:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10130",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "rubySinatraSt": "D6448-ST / hub:complete-conversion-prove:ruby",
+    "railsRoutesRouteSurface": "G10115 / hub:rails-routes-smoke",
+    "railsControllerHonestSkip": "fixtures/ci/rails-controller-honest-skip.json"
+  },
+  "note": "Rails filters/resources honesty catalog (dual-primary language deepen; parallel to LiveView G10128 / Flutter G10129). Expands residual shapes that must stay holes. Route-surface gold remains Rails routes.rb + thin render json only (G10115). Do **not** invent before_action/filters, resources/namespace/scope macros, ActiveRecord, or ActionCable as a full Rails runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:rails-filters-honesty-smoke",
+  "token": "RAILS_FILTERS_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Rails filters/resources/AR full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered filter/resources/AR peel; holes over façades; G10115 route-table remains sole Rails ST gold"
+  },
+  "supportedRouteSurfaceOnly": [
+    "Rails.application.routes.draw get|post|put|patch|delete \"/path\", to: \"ctrl#action\" (G10115)",
+    "get \"/path\" => \"controller#action\" sugar (G10115)",
+    "Thin ActionController::API render json: + params[:id] (G10115)",
+    "Sinatra D6448-ST — not Rails filters/AR"
+  ],
+  "honestHoles": [
+    { "shape": "before_action / after_action / around_action / skip_before_action", "reason": "hub-ruby:rails-before-action" },
+    { "shape": "before_filter / after_filter legacy aliases / prepend_*_action", "reason": "hub-ruby:action-controller-filters" },
+    { "shape": "resources / resource RESTful route macros", "reason": "hub-ruby:rails-resources" },
+    { "shape": "namespace / scope / member / collection route macros", "reason": "hub-ruby:rails-route-macro" },
+    { "shape": "concerns / shallow nesting / path helpers invent", "reason": "hub-ruby:rails-routing-dsl" },
+    { "shape": "ActiveRecord::Base / ApplicationRecord / associations / migrations", "reason": "hub-ruby:activerecord" },
+    { "shape": "strong params require/permit / ActionController::Parameters", "reason": "hub-ruby:strong-params" },
+    { "shape": "respond_to / render :template / ERB / ActionView", "reason": "hub-ruby:action-view" },
+    { "shape": "ActiveJob / ActionMailer / ActionCable / ActiveStorage", "reason": "hub-ruby:rails-runtime" },
+    { "shape": "authenticate_* / Devise / Pundit / CanCanCan auth filters", "reason": "hub-ruby:rails-auth-filters" },
+    { "shape": "Rack middleware onion / config.middleware invent", "reason": "hub-ruby:rails-middleware" },
+    { "shape": "Inline rack lambda bodies in routes.rb", "reason": "hub-ruby:rails-rack-lambda" },
+    { "shape": "ViewComponent / Hotwire / Turbo / Stimulus UI runtime", "reason": "hub-ruby:rails-ui-runtime" },
+    { "shape": "ActionController::Live / streaming / websocket controllers", "reason": "hub-ruby:rails-streaming" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-rails-filters claiming hole-free filter/AR runtime",
+    "Route-table gold (hub-gold-rails-routes) must not ship before_action/resources/AR invent"
+  ],
+  "revisitWhen": "Explicit charter lands a real Rails filters/resources/AR origin corpus with a peel that does not invent middleware/AR runtime — until then keep G10115 routes.rb + thin render json as the only Rails secondary route-surface close.",
+  "nextTargets": [
+    "Maintain RAILS_FILTERS_HONESTY_OK — refuse Rails filters/resources/AR runtime 20/20 force-close",
+    "G10115 hub:rails-routes-smoke remains sole Rails ST gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

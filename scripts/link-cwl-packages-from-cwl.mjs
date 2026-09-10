@@ -1,11 +1,11 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
  * Reverse-home CWL-owned packages into Convert as junctions/symlinks:
  *   packages/{cwl,webir,runtime-cwl,runtime-cwl-browser,runtime-cwl-worker,emit-runtime-cwl}
- * → chrysalis-cwl/packages/*
+ * â†’ chrysalis-cwl/packages/*
  *
  * WebIR alone: scripts/link-webir-from-cwl.mjs (still valid).
- * Do not git-add these paths (see .gitignore). Never git rm through them —
+ * Do not git-add these paths (see .gitignore). Never git rm through them â€”
  * Windows reparse points delete into the CWL tree.
  *
  * Usage: node scripts/link-cwl-packages-from-cwl.mjs
@@ -51,7 +51,7 @@ function linkOne(name) {
 
   if (existsSync(link) && isReparsePoint(link) && existsSync(join(link, "package.json"))) {
     const n = JSON.parse(readFileSync(join(link, "package.json"), "utf8")).name;
-    console.log(`ok: packages/${name} already → ${target} (${n})`);
+    console.log(`ok: packages/${name} already â†’ ${target} (${n})`);
     return { name, action: "reuse", target };
   }
 
@@ -75,16 +75,25 @@ function linkOne(name) {
   }
 
   const n = JSON.parse(readFileSync(join(link, "package.json"), "utf8")).name;
-  console.log(`linked: packages/${name} → ${target} (${n})`);
+  console.log(`linked: packages/${name} â†’ ${target} (${n})`);
   return { name, action: "linked", target };
 }
 
 function main() {
+  // After junctions exist, materialize workspace deps (pnpm skips out-of-tree realpaths).
   if (!existsSync(CWL_PACKAGES)) {
     console.error(`CWL packages dir missing: ${CWL_PACKAGES}`);
     process.exit(1);
   }
   const results = NAMES.map(linkOne);
+  const linkDeps = spawnSync(
+    process.execPath,
+    [join(CONVERT_ROOT, "scripts", "link-cwl-junction-workspace-deps.mjs")],
+    { cwd: CONVERT_ROOT, encoding: "utf8", stdio: "inherit" },
+  );
+  if (linkDeps.status !== 0) {
+    console.warn("warn: link-cwl-junction-workspace-deps.mjs failed (run pnpm install / sync:junction-deps)");
+  }
   console.log(JSON.stringify({ ok: true, results }, null, 2));
 }
 

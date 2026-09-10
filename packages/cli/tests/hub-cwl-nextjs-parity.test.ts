@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { expect, test } from "vitest";
+import { resolveWptpRepoRoot } from "../../../scripts/lib/wptp-siblings.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const LIFT = resolve(ROOT, "scripts/hub-ingest/lift-to-webir.mjs");
 const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
 const FIXTURE = resolve(ROOT, "fixtures/hub-gold-cwl");
-const emitNextJsRoot = process.env.WPTP_EMIT_NEXTJS_ROOT ?? resolve(ROOT, "..", "wptp-emit-nextjs");
+const emitNextJsRoot = resolveWptpRepoRoot(ROOT, "wptp-emit-nextjs");
 
 function countNextjsRouteFiles(appDir: string): number {
   let n = 0;

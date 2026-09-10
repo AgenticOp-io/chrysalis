@@ -1,0 +1,57 @@
+{
+  "kind": "chrysalis.hub.polka-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T05:00:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10135",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "expressTsSt": "D6448-ST / hub:complete-conversion-prove:typescript",
+    "polkaOriginRouteSurface": "G9958 / hub:polka-smoke",
+    "polkaPassThroughMw": "G9959 / hub:polka-smoke v2",
+    "identDestructure": "G10005 / hub:polka-smoke",
+    "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#polka"
+  },
+  "note": "Polka honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; pass-through ceiling G9959). Expands residual shapes that must stay holes. Route-surface gold remains Polka ORIGIN get|post|put|patch|delete + res.writeHead/res.end + req.params|query + IDENT destructure (G9958/G10005) + empty/next-only app.use → js.passthrough (G9959). Do **not** invent non-empty middleware onion, polka plugins/sirv/body-parser, nested mounts, streaming hijack, listen/bootstrap, or send helpers as a full Polka runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:polka-honesty-smoke",
+  "token": "POLKA_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Polka plugins/onion middleware full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Polka plugin/onion peel beyond empty passthrough; holes over façades; G9958+G9959+G10005 remain sole Polka ORIGIN gold; pass-through ceiling already known"
+  },
+  "supportedRouteSurfaceOnly": [
+    "polka() factory dialect marker (G9958)",
+    "app.get|post|put|patch|delete literal paths (G9958)",
+    "res.writeHead(N) + res.end(JSON.stringify(…)|literal) (G9958)",
+    "res.statusCode = N (G9958)",
+    "req.params.* / req.query.* (G9958)",
+    "const { id } = req.params|query IDENT peel (G10005)",
+    "empty/next-only app.use → js.passthrough preset (G9959)",
+    "Express/TS D6448-ST — not Polka plugin/onion runtime"
+  ],
+  "honestHoles": [
+    { "shape": "non-empty / complex app.use bodies + cascaded middleware chains", "reason": "hub-js:polka-middleware" },
+    { "shape": "polka plugins / sirv / body-parser / compression invent", "reason": "hub-js:polka-plugins" },
+    { "shape": "named handlers / chained polka().get without Identifier recv", "reason": "hub-js:polka-named-handler" },
+    { "shape": "streaming res.write chunk loops / hijack / pipe invent", "reason": "hub-js:polka-stream" },
+    { "shape": "nested polka() mount / sub-app / prefix onion invent", "reason": "hub-js:polka-nested-mount" },
+    { "shape": "app.listen / http.createServer bootstrap / multi-app mount invent", "reason": "hub-js:polka-bootstrap" },
+    { "shape": "send / @polka/send / helper response invent beyond res.end", "reason": "hub-js:polka-send" },
+    { "shape": "cookie / session / passport middleware invent", "reason": "hub-js:polka-session" },
+    { "shape": "nested/computed/rest destructure from params|query", "reason": "hub-js:polka-destructure" },
+    { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" },
+    { "shape": "ws upgrade / SSE / upgrade hijack invent", "reason": "hub-js:polka-websocket" },
+    { "shape": "Treat ORIGIN peel as invented full Polka plugin/onion runtime claim", "reason": "hub-js:polka-runtime-confusion" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-polka-plugins claiming hole-free plugin/onion runtime",
+    "hub-gold-polka must keep only empty/next-only app.use + route surface (no plugins/sirv/complex mw invent)"
+  ],
+  "revisitWhen": "Explicit charter lands a real Polka plugin/onion origin corpus with a peel that does not invent runtime — until then keep G9958+G9959+G10005 route surface + empty pass-through as the only Polka ORIGIN close.",
+  "nextTargets": [
+    "Maintain POLKA_HONESTY_OK — refuse Polka plugins/onion middleware runtime 20/20 force-close",
+    "G9958/G9959/G10005 hub:polka-smoke remains sole Polka ORIGIN gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

@@ -14,7 +14,9 @@ with flat `get|post|put|patch|delete "/path", to: "ctrl#action"`, plus thin
 
 | Shape | Hole / status |
 | --- | --- |
-| `resources` / `namespace` / `scope` macros | not lowered |
-| before/after filters / `respond_to` / views | not lowered |
-| Strong params / ActiveRecord / ActiveJob | not lowered |
+| `resources` / `namespace` / `scope` macros | not lowered — honesty catalog G10130 (`hub:rails-filters-honesty-smoke` → `RAILS_FILTERS_HONESTY_OK`) |
+| before/after filters / `respond_to` / views | not lowered — honesty catalog G10130 |
+| Strong params / ActiveRecord / ActiveJob | not lowered — honesty catalog G10130 |
 | Inline rack lambdas in routes.rb | not lowered (G10006 probe) |
+
+Refuse force-close as full Rails filters/AR runtime 20/20 — G10115 route-table remains sole Rails ST gold.

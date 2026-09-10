@@ -6,7 +6,7 @@
  * @typedef {{ kind: "element", tag: string, attrs: Array<{ key: string, value: string, isBinding: boolean }>, children: CwlUiNode[], events?: Array<{ name: string, action: string }> }} CwlUiElementNode
  * @typedef {{ kind: "text", text: string | null, binding: string | null }} CwlUiTextNode
  * @typedef {{ kind: "fragment", children: CwlUiNode[] }} CwlUiFragmentNode
- * @typedef {{ kind: "island", client: true, children: CwlUiNode[] }} CwlUiIslandNode
+ * @typedef {{ kind: "island", client: true, name?: string | null, children: CwlUiNode[] }} CwlUiIslandNode
  * @typedef {CwlUiElementNode | CwlUiTextNode | CwlUiFragmentNode} CwlUiNode
  */
 
@@ -19,6 +19,8 @@ const UI_COMPONENT_RETURN_RE = /^return\s+ui\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const CLIENT_UI_RE = /^client\s+ui\s*\{/;
+/** RFC-0028: named client island — `client ui "counter" { … }` */
+const CLIENT_UI_NAMED_RE = /^client\s+ui\s+"([^"]+)"\s*\{/;
 const ON_EVENT_RE = /^on\s+([a-zA-Z_]+)\s*\{/;
 const ACTION_RE = /^action\s+"([^"]+)"\s*;?$/;
 
@@ -123,6 +125,8 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
   const roots = [];
   /** @type {CwlUiNode[][]} */
   const stack = [roots];
+  /** @type {Array<CwlUiElementNode | null>} owner element for each children frame */
+  const owners = [null];
 
   for (let i = startIdx + 1; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -139,7 +143,9 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
     if (el) {
       const tag = el[1];
       const braceIdx = line.indexOf("{");
-      const attrTail = braceIdx >= 0 ? line.slice(el[0].length, braceIdx) : line.slice(el[0].length);
+      const restAfterTag = el[2] ?? "";
+      const braceInRest = restAfterTag.indexOf("{");
+      const attrTail = braceInRest >= 0 ? restAfterTag.slice(0, braceInRest) : restAfterTag;
       const attrs = parseElementAttrs(attrTail);
       /** @type {CwlUiElementNode} */
       const node = { kind: "element", tag, attrs, children: [] };
@@ -156,9 +162,11 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
         }
         depth += 1;
         stack.push(node.children);
+        owners.push(node);
         if (line.includes("}") && line.indexOf("}") > braceIdx) {
           depth -= 1;
           stack.pop();
+          owners.pop();
         }
       }
       continue;
@@ -182,33 +190,46 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
     if (onEv) {
       const parsed = parseCwlUiOnEventBlock(lines, i, onEv[1]);
       if (!parsed.ok) return { ok: false, error: parsed.error, consumed: parsed.consumed };
+      const owner = owners[owners.length - 1];
       const parent = stack[stack.length - 1];
       const last = parent[parent.length - 1];
-      if (last?.kind === "element") {
-        if (!last.events) last.events = [];
-        last.events.push({ name: parsed.name, action: parsed.action });
+      const target = owner?.kind === "element" ? owner : last?.kind === "element" ? last : null;
+      if (target) {
+        if (!target.events) target.events = [];
+        target.events.push({ name: parsed.name, action: parsed.action });
       }
       i = parsed.consumed - 1;
       continue;
     }
 
-    if (CLIENT_UI_RE.test(line)) {
+    const namedIsland = CLIENT_UI_NAMED_RE.exec(line);
+    if (namedIsland || CLIENT_UI_RE.test(line)) {
       /** @type {CwlUiIslandNode} */
-      const island = { kind: "island", client: true, children: [] };
+      const island = {
+        kind: "island",
+        client: true,
+        name: namedIsland ? namedIsland[1] : null,
+        children: [],
+      };
       stack[stack.length - 1].push(island);
       depth += 1;
       stack.push(island.children);
+      owners.push(null);
       const braceIdx = line.indexOf("{");
       if (braceIdx >= 0 && line.includes("}") && line.indexOf("}") > braceIdx) {
         depth -= 1;
         stack.pop();
+        owners.pop();
       }
       continue;
     }
 
     if (line === "}") {
       depth -= 1;
-      if (stack.length > 1) stack.pop();
+      if (stack.length > 1) {
+        stack.pop();
+        owners.pop();
+      }
       continue;
     }
 
@@ -363,6 +384,7 @@ function substituteUiComponentProps(node, propMap, componentProps) {
     return {
       kind: "island",
       client: true,
+      name: node.name ?? null,
       children: (node.children ?? []).map((c) => substituteUiComponentProps(c, propMap, componentProps)),
     };
   }
@@ -459,11 +481,14 @@ function serialiseUiNode(ctx, node, bindings, loc, operands) {
     return { kind: "text", text: node.text ?? "", escape: true };
   }
   if (node.kind === "island") {
-    return {
+    /** @type {{ kind: string, client: boolean, name?: string, children: unknown[] }} */
+    const out = {
       kind: "island",
       client: true,
       children: (node.children ?? []).map((c) => serialiseUiNode(ctx, c, bindings, loc, operands)),
     };
+    if (node.name) out.name = String(node.name);
+    return out;
   }
   if (node.kind === "element") {
     /** @type {Record<string, string | { operandIndex: number }>} */

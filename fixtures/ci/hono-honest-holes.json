@@ -1,0 +1,57 @@
+{
+  "kind": "chrysalis.hub.hono-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T03:15:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10131",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "expressTsSt": "D6448-ST / hub:complete-conversion-prove:typescript",
+    "honoOriginRouteSurface": "G10019 / hub:hono-smoke",
+    "honoPassThroughMw": "G10044 / hub:hono-smoke v2",
+    "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#hono"
+  },
+  "note": "Hono honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; pass-through ceiling G10044). Expands residual shapes that must stay holes. Route-surface gold remains Hono ORIGIN get|post + param/query + c.json/c.text + empty/next-only app.use → js.passthrough (G10019/G10044). Do **not** invent complex middleware onion, createMiddleware factories, RPC/hc, JSX, validators, WebSocket, or typed ContextVariableMap as a full Hono runtime 20/20 (**D6447**). ORIGIN ≠ @chrysalis/emit-hono. EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:hono-honesty-smoke",
+  "token": "HONO_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Hono middleware/RPC/JSX full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered Hono onion/RPC/JSX peel; holes over façades; G10019+G10044 remain sole Hono ORIGIN gold; pass-through ceiling already known"
+  },
+  "supportedRouteSurfaceOnly": [
+    "new Hono() factory dialect marker (G10019)",
+    "app.get|post|put|patch|delete literal paths (G10019)",
+    "c.req.param('id') / c.req.query('q') (G10019)",
+    "c.json(value) / c.json(value, status) / c.text(value[, status]) (G10019)",
+    "empty/next-only app.use → js.passthrough preset (G10044; parallel G9959)",
+    "Express/TS D6448-ST — not Hono onion/RPC"
+  ],
+  "honestHoles": [
+    { "shape": "non-empty / complex app.use bodies + Hono middleware helpers (logger, cors, jwt, basicAuth, …)", "reason": "hub-js:hono-middleware" },
+    { "shape": "createMiddleware / hono/factory createFactory|createApp invent", "reason": "hub-js:hono-create-middleware" },
+    { "shape": "c.req.header / parseBody / cookies / formData / streaming body", "reason": "hub-js:hono-req-extra" },
+    { "shape": "c.json(body, { status }) ResponseInit object form", "reason": "hub-js:hono-response-init" },
+    { "shape": "named handlers / app.route nesting / basePath / app.mount", "reason": "hub-js:hono-nested-route" },
+    { "shape": "hono/jsx / html() / JSX runtime / streaming SSR", "reason": "hub-js:hono-jsx" },
+    { "shape": "RPC / hc() client / typed client routes / @hono/zod-openapi invent", "reason": "hub-js:hono-rpc" },
+    { "shape": "zValidator / validator() / Zod|Valibot middleware helpers", "reason": "hub-js:hono-validator" },
+    { "shape": "upgradeWebSocket / WSContext / hibernation WebSocket", "reason": "hub-js:hono-websocket" },
+    { "shape": "ContextVariableMap / c.set|c.get typed vars / Variables generic invent", "reason": "hub-js:hono-context-vars" },
+    { "shape": "streamText / SSE / stream() helpers beyond c.json|c.text", "reason": "hub-js:hono-stream" },
+    { "shape": "Cloudflare/Workers bindings via c.env / Durable Objects / KV through Hono", "reason": "hub-js:hono-cf-bindings" },
+    { "shape": "nested/computed/rest destructure from param|query bags", "reason": "hub-js:hono-destructure" },
+    { "shape": "non-literal path templates", "reason": "hub-js:path-non-literal" },
+    { "shape": "Treat ORIGIN peel as @chrysalis/emit-hono outbound target", "reason": "hub-js:hono-emit-confusion" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-hono-middleware claiming hole-free onion/RPC/JSX runtime",
+    "hub-gold-hono must keep only empty/next-only app.use + route surface (no createMiddleware/RPC/jsx invent)"
+  ],
+  "revisitWhen": "Explicit charter lands a real Hono onion/RPC/JSX origin corpus with a peel that does not invent middleware runtime — until then keep G10019+G10044 route surface + empty pass-through as the only Hono ORIGIN close.",
+  "nextTargets": [
+    "Maintain HONO_HONESTY_OK — refuse Hono middleware/RPC/JSX runtime 20/20 force-close",
+    "G10019/G10044 hub:hono-smoke remains sole Hono ORIGIN gold",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

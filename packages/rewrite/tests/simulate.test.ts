@@ -359,4 +359,30 @@ describe("IR simulator (D19 core)", () => {
     expect(res.dbReads.length).toBe(1);
     expect(res.dbReads[0]!.sql).toContain("users");
   });
+
+  it("treats CWL middleware/effect stubs as verify-sandbox no-ops", () => {
+    const callees = [
+      "__cwl_middleware_cors",
+      "__cwl_middleware_csrf",
+      "__cwl_middleware_rate_limit",
+      "__cwl_effect_mail_send",
+      "__cwl_effect_db_read",
+      "__cwl_effect_db_write",
+      "__cwl_effect_io",
+    ] as const;
+    for (const callee of callees) {
+      const m = buildModule(({ data, eff, loc }) => {
+        const call = data.call({
+          callee,
+          args: [],
+          type: T.unknown,
+          origin: loc(),
+        });
+        return eff.echo({ value: call, origin: loc() });
+      });
+      const res = simulateHandler(m, routeIdOf(m), emptyInput);
+      expect(res.errors, callee).toEqual([]);
+      expect(res.body, callee).toBe("");
+    }
+  });
 });

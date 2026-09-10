@@ -1,11 +1,17 @@
 {
   "kind": "chrysalis.hub.dart-shelf-honest-holes",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-24T22:45:00.000Z",
-  "note": "Catalog only (D6447). Do not invent Flutter, Dart Frog, Pipeline middleware, or shelf_static runtime. Lift Shelf Router shapes that appear, else leave honest holes. Route-surface ST closed via hub:dart-flagship + hub:complete-conversion-prove:dart. Same-file named handlers closed G10007.",
+  "generatedAt": "2026-08-11T05:00:00.000Z",
+  "note": "Catalog only (D6447). Do not invent Flutter, Dart Frog, Pipeline middleware, or shelf_static runtime. Lift Shelf Router shapes that appear, else leave honest holes. Route-surface ST closed via hub:dart-flagship + hub:complete-conversion-prove:dart. Same-file named handlers closed G10007. Flutter UI residual expanded G10129 (`flutter-honest-holes.json` / `FLUTTER_HONESTY_OK`).",
   "fixture": "fixtures/hub-gold-dart-shelf",
   "smoke": "pnpm run hub:dart-smoke",
   "st": "pnpm run hub:dart-flagship && pnpm run hub:complete-conversion-prove:dart",
+  "flutterHonesty": {
+    "gate": "G10129",
+    "catalog": "fixtures/ci/flutter-honest-holes.json",
+    "smoke": "pnpm run hub:flutter-honesty-smoke",
+    "token": "FLUTTER_HONESTY_OK"
+  },
   "supported": [
     "shelf_router Router get|post|put|patch|delete('/path', handler)",
     "Same-file named handler refs (router.get('/x', myHandler) → Response name(Request …) { … })",
@@ -18,14 +24,14 @@
     { "shape": "Pipeline() / middleware cascades", "reason": "hub-dart:pipeline" },
     { "shape": "Cross-file named handler refs", "reason": "hub-dart:named-handler-cross-file" },
     { "shape": "Router.mount / nested routers", "reason": "hub-dart:mount" },
-    { "shape": "Flutter widgets / Dart Frog Route", "reason": "hub-dart:flutter-frog" },
+    { "shape": "Flutter widgets / engine / Material / Dart Frog Route", "reason": "hub-dart:flutter-frog", "expandedCatalog": "fixtures/ci/flutter-honest-holes.json", "gate": "G10129" },
     { "shape": "router.all / non-literal paths", "reason": "hub-dart:all-non-literal" },
     { "shape": "Streaming / HijackCallback bodies", "reason": "hub-dart:stream-hijack" }
   ],
   "absentOrigins": [],
   "nextTargets": [
-    "Thin Node secondary set closed (Restify/Polka G9957/G9958)",
-    "Phoenix controller peel skipped — not cheap (see fixtures/ci/phoenix-controller-honest-skip.json)",
-    "Flutter / LiveView / COBOL 61/61 pause / no Dependabot"
+    "Maintain FLUTTER_HONESTY_OK — refuse Flutter runtime 20/20 force-close",
+    "Rails resources·filters still charter",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
   ]
 }

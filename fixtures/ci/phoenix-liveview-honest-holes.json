@@ -1,0 +1,51 @@
+{
+  "kind": "chrysalis.hub.phoenix-liveview-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T03:00:00.000Z",
+  "decision": "honest-residual",
+  "gate": "G10128",
+  "decisionCharter": "D6447",
+  "priorSurfaces": {
+    "elixirPlugSt": "G9955 / hub:complete-conversion-prove:elixir",
+    "phoenixControllersRouteSurface": "G10126 / hub:phoenix-controllers-smoke"
+  },
+  "note": "Phoenix LiveView honesty catalog (dual-primary language deepen). Expands residual shapes that must stay holes. Route-surface gold remains Phoenix controllers only (G10126). Do **not** invent live \"/…\", HEEx, sockets, channels, or LiveView callbacks as a full runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "smoke": "pnpm run hub:phoenix-liveview-honesty-smoke",
+  "token": "LIVEVIEW_HONESTY_OK",
+  "refuseForceClose": {
+    "claim": "Phoenix LiveView full runtime 20/20",
+    "allowed": false,
+    "reason": "No chartered LiveView/HEEx/channel peel; holes over façades"
+  },
+  "supportedRouteSurfaceOnly": [
+    "Phoenix.Router get|post|put|patch|delete \"/path\", Mod.Controller, :action (G10126)",
+    "Thin Phoenix.Controller json/2 + put_status/2 + params[\"id\"] (G10126)",
+    "Plug.Router get|post|… do…end D6448-ST (G9955) — not LiveView"
+  ],
+  "honestHoles": [
+    { "shape": "live \"/…\" / live \"/…\", LiveMod router macros", "reason": "hub-elixir:liveview-route" },
+    { "shape": "use Phoenix.LiveView / Phoenix.LiveComponent", "reason": "hub-elixir:liveview-module" },
+    { "shape": "mount/3 · handle_event/3 · handle_info/2 · handle_params/3 · terminate/2", "reason": "hub-elixir:liveview-callbacks" },
+    { "shape": "~H\"\"\" / HEEx templates / .heex files", "reason": "hub-elixir:heex" },
+    { "shape": "Phoenix.Component / function components / attr/slot", "reason": "hub-elixir:phoenix-component" },
+    { "shape": "socket assigns / assign/3 / update/3 / connected?(socket)", "reason": "hub-elixir:liveview-socket" },
+    { "shape": "push_event / push_patch / push_navigate / live_redirect", "reason": "hub-elixir:liveview-nav" },
+    { "shape": "live_session / on_mount hooks / live_title", "reason": "hub-elixir:live-session" },
+    { "shape": "stream/3 · stream_insert / stream_delete / TemporaryAssigns", "reason": "hub-elixir:liveview-streams" },
+    { "shape": "Phoenix.Channel / channel join / handle_in / Presence", "reason": "hub-elixir:phoenix-channel" },
+    { "shape": "Phoenix.PubSub broadcast / subscribe from LiveView", "reason": "hub-elixir:phoenix-pubsub" },
+    { "shape": "form/change tracking · to_form · phx-change / phx-submit", "reason": "hub-elixir:liveview-forms" },
+    { "shape": "Hooks JS (phx-hook) / colocated JS / LiveView.JS", "reason": "hub-elixir:liveview-js" },
+    { "shape": "Uploads allow_upload / consume_uploaded_entries", "reason": "hub-elixir:liveview-uploads" }
+  ],
+  "absentOrigins": [
+    "No fixtures/hub-gold-phoenix-liveview claiming hole-free LiveView runtime",
+    "Controller gold (hub-gold-phoenix-controllers) must not ship live \"/…\" invent"
+  ],
+  "revisitWhen": "Explicit charter lands a real LiveView/HEEx origin corpus with a peel that does not invent sockets/channels — until then keep G10126 controllers as the only Phoenix secondary route-surface close.",
+  "nextTargets": [
+    "Maintain LIVEVIEW_HONESTY_OK — refuse LiveView runtime 20/20 force-close",
+    "Flutter honesty G10129 / FLUTTER_HONESTY_OK — refuse runtime 20/20; Rails filters honesty G10130",
+    "EXTFMAP operator hunt / ABSENT only — do not set from this lane"
+  ]
+}

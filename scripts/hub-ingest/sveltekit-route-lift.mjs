@@ -253,6 +253,27 @@ export async function liftSvelteKitProjectToWebir(opts) {
         const serverSource = serverFile != null ? await readFile(serverFile, "utf8") : "";
         const loadBools = serverFile != null ? extractLoadLiteralBools(serverSource, serverFile) : {};
         let html = liftStaticSveltePageHtml(source, loadBools);
+        if (loaded.ok && (loaded.kind === "redirect" || loaded.kind === "error") && loaded.bodyId) {
+          emitHubRoute({
+            webir,
+            builder,
+            wr: wrBuilders,
+            language,
+            file: spec.file,
+            route: {
+              method: "GET",
+              path: spec.path,
+              name: spec.name,
+              line: 1,
+              pathParams,
+            },
+            bodyId: loaded.bodyId,
+            handlerEffects: [],
+          });
+          routeCount += 1;
+          astLiftCount += 1;
+          continue;
+        }
         if (loaded.ok && html) {
           const htmlBindings = {
             path: pathParams,

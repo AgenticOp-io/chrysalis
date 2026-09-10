@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 import { access, constants, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWptpPackageEntry, resolveWptpSiblingsRoot } from "./lib/wptp-siblings.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const strict = process.env.CHRYSALIS_DEPLOY_STRICT !== "0";
@@ -105,8 +106,10 @@ async function main() {
   const fastifyDist = join(root, "packages/emit-fastify/dist/index.js");
   const operatorWeb = join(root, "scripts/chrysalis-operator-web.mjs");
   const parserVendor = join(root, "packages/parser-bridge/vendor/autoload.php");
-  const siblingsRoot = process.env.WPTP_SIBLINGS_ROOT ?? join(root, "..");
-  const wptpNext = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(siblingsRoot, "wptp-emit-nextjs", "dist", "index.js"));
+  const siblingsRoot = resolveWptpSiblingsRoot(root);
+  const wptpNext =
+    resolveWptpPackageEntry(root, "wptp-emit-nextjs") ??
+    join(siblingsRoot, "wptp-emit-nextjs", "dist", "index.js");
   const hubRoot = process.env.CHRYSALIS_HUB_ROOT ?? join(process.env.HOME ?? root, ".chrysalis-hub");
 
   const port = Number(process.env.CHRYSALIS_STATUS_PORT ?? "19090");

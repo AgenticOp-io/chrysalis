@@ -3,11 +3,12 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test } from "vitest";
+import { resolveWptpRepoRoot } from "../../../scripts/lib/wptp-siblings.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
-const matrixRoot = process.env.WPTP_MATRIX_ROOT ?? resolve(ROOT, "..", "wptp-matrix");
-const emitNextJsRoot = process.env.WPTP_EMIT_NEXTJS_ROOT ?? resolve(ROOT, "..", "wptp-emit-nextjs");
+const matrixRoot = resolveWptpRepoRoot(ROOT, "wptp-matrix");
+const emitNextJsRoot = resolveWptpRepoRoot(ROOT, "wptp-emit-nextjs");
 
 test("hub gold: WPTP contract-first hono and nextjs (G58)", () => {
   if (!existsSync(matrixRoot)) {

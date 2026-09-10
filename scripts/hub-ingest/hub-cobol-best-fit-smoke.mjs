@@ -2380,6 +2380,51 @@ export async function runCobolBestFitSmoke() {
     reason: `redefRen=${renRedefAttrs?.renames} names=${(renRedefAttrs?.renamesNames || []).join(",")} redef=${renRedefAttrs?.redefines} odoRen=${renOdoAttrs?.renames} odoNames=${(renOdoAttrs?.renamesNames || []).join(",")} odo=${renOdoAttrs?.odo} deps=${(renOdoAttrs?.dependingOnNames || []).join(",")}`,
   });
 
+  // G10124 — COPY … REPLACING layout catalog (does not reopen G10106 exhaust).
+  const crFixDir = join(ROOT, "fixtures/hub-cobol-layout-copy-replacing");
+  const crLeadPath = join(crFixDir, "copy-replacing-leading.cbl");
+  const crPseudoPath = join(crFixDir, "copy-replacing-pseudotext.cbl");
+  const crNestPath = join(crFixDir, "dd-inventory-slot-replacing.cpy");
+  const crLeadSrc = existsSync(crLeadPath) ? readFileSync(crLeadPath, "utf8") : "";
+  const crPseudoSrc = existsSync(crPseudoPath) ? readFileSync(crPseudoPath, "utf8") : "";
+  const crNestSrc = existsSync(crNestPath) ? readFileSync(crNestPath, "utf8") : "";
+  const crLeadInv = crLeadSrc
+    ? inventoryCobolSource(crLeadSrc, "copy-replacing-leading.cbl")
+    : null;
+  const crPseudoInv = crPseudoSrc
+    ? inventoryCobolSource(crPseudoSrc, "copy-replacing-pseudotext.cbl")
+    : null;
+  const crNestInv = crNestSrc
+    ? inventoryCobolSource(crNestSrc, "dd-inventory-slot-replacing.cpy")
+    : null;
+  const crLeadAttrs = crLeadInv ? buildCobolWebIrHoleAttrs(crLeadInv) : null;
+  const crPseudoAttrs = crPseudoInv ? buildCobolWebIrHoleAttrs(crPseudoInv) : null;
+  const crNestAttrs = crNestInv ? buildCobolWebIrHoleAttrs(crNestInv) : null;
+  results.push({
+    id: "webir-hole-attrs-copy-replacing",
+    ok:
+      !!crLeadAttrs &&
+      Number(crLeadAttrs.copyReplacing) >= 1 &&
+      Array.isArray(crLeadAttrs.copyReplacingBooks) &&
+      crLeadAttrs.copyReplacingBooks.includes("DD-ENTITY") &&
+      Array.isArray(crLeadAttrs.copyReplacingModes) &&
+      crLeadAttrs.copyReplacingModes.includes("leading") &&
+      Array.isArray(crLeadAttrs.copyReplacingPairs) &&
+      crLeadAttrs.copyReplacingPairs.some((p) => String(p).includes("ENTITY=>LK-ENTITY")) &&
+      Array.isArray(crLeadAttrs.copybooks) &&
+      crLeadAttrs.copybooks.includes("DD-ENTITY") &&
+      !!crPseudoAttrs &&
+      Number(crPseudoAttrs.copyReplacing) >= 1 &&
+      crPseudoAttrs.copyReplacingBooks.includes("CUSTREC") &&
+      (crPseudoAttrs.copyReplacingPairs || []).includes("CUST-=>WS-CUST-") &&
+      (crPseudoAttrs.copyReplacingPairs || []).includes("ACCT-=>WS-ACCT-") &&
+      !!crNestAttrs &&
+      Number(crNestAttrs.copyReplacing) >= 1 &&
+      crNestAttrs.copyReplacingBooks.includes("DD-INVENTORY-SLOT") &&
+      crNestAttrs.copyReplacingModes.includes("leading"),
+    reason: `leadBooks=${(crLeadAttrs?.copyReplacingBooks || []).join(",")} leadPairs=${(crLeadAttrs?.copyReplacingPairs || []).join(",")} pseudo=${(crPseudoAttrs?.copyReplacingPairs || []).join(",")} nest=${(crNestAttrs?.copyReplacingBooks || []).join(",")}`,
+  });
+
   /** Required exhaust surface keys on a rich online hole-attr object. */
   const exhaustKeys = [
     "execCicsOps",

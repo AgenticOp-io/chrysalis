@@ -68,9 +68,11 @@ run_phase hub-cwl-authoring-v91-v110 bash scripts/gce-hub-authoring-vitest-one.s
 
 log "phase: ensure wptp-matrix (contract-first gold)"
 run_phase wptp-matrix bash scripts/gce-ensure-wptp-matrix.sh
-SIBLINGS_ROOT="$(dirname "${REPO}")"
-export WPTP_MATRIX_ROOT="${WPTP_MATRIX_ROOT:-${SIBLINGS_ROOT}/wptp-matrix}"
-export WPTP_EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT:-${SIBLINGS_ROOT}/wptp-emit-nextjs}"
+# shellcheck disable=SC1091
+source "${REPO}/scripts/lib/gce-wptp-siblings.sh"
+chrysalis_export_wptp_roots "${REPO}"
+SIBLINGS_ROOT="${WPTP_SIBLINGS_ROOT}"
+export WPTP_MATRIX_ROOT WPTP_EMIT_NEXTJS_ROOT WPTP_IR_ROOT WPTP_SIBLINGS_ROOT
 
 log "phase: hub gold verify (structural)"
 run_phase hub-gold-verify bash scripts/gce-hub-gold-verify.sh

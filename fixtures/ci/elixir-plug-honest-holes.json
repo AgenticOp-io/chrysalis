@@ -13,7 +13,7 @@
     ":id path templates → {id}"
   ],
   "honestHoles": [
-    { "shape": "Phoenix LiveView / live \"/…\"", "reason": "hub-elixir:liveview" },
+    { "shape": "Phoenix LiveView / live \"/…\" / HEEx / sockets", "reason": "hub-elixir:liveview", "expandedCatalog": "fixtures/ci/phoenix-liveview-honest-holes.json", "gate": "G10128" },
     { "shape": "plug MyPlug pipelines beyond :match/:dispatch", "reason": "hub-elixir:pipeline-plug" },
     { "shape": "Nested case/with/fn/do inside route bodies", "reason": "hub-elixir:nested-do" },
     { "shape": "forward / match catch-alls / non-literal paths", "reason": "hub-elixir:forward-match" }
@@ -27,7 +27,7 @@
   ],
   "absentOrigins": [],
   "nextTargets": [
-    "LiveView remains charter-only — no invent (D6447)",
+    "LiveView honesty G10128 / LIVEVIEW_HONESTY_OK — refuse runtime 20/20 force-close",
     "Flutter / COBOL EXTFMAP operator hunt / no Dependabot"
   ]
 }

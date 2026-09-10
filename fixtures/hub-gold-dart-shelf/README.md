@@ -19,6 +19,6 @@ Dart **Shelf** + **shelf_router** origin fixture: `router.get|post|put|patch|del
 | `Pipeline()` / middleware cascades | not lowered |
 | Cross-file named handler refs | not lowered |
 | `Router.mount` / nested routers | not lowered |
-| Flutter widgets / Dart Frog `Route` | not lowered |
+| Flutter widgets / engine / Material / Dart Frog `Route` | not lowered — honesty catalog G10129 (`hub:flutter-honesty-smoke` → `FLUTTER_HONESTY_OK`) |
 | Non-literal path templates / `router.all` | not lowered |
 | Streaming / `HijackCallback` bodies | not lowered |

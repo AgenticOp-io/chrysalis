@@ -7,6 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadTranslatorComposerCharter } from "./hub-cwl-translator-composer-charter.mjs";
 import { composerCrossEdgeJobs } from "./hub-cwl-translator-composer-cross-edge.mjs";
+import { resolveWptpRepoRoot } from "../lib/wptp-siblings.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const outPath = join(
@@ -21,7 +22,7 @@ const refusePath = join(
 export const UT_WAVE_B_CHARTER_AUDIT_KIND = "chrysalis.ut.wave-b-charter-audit-smoke";
 
 function wptpEmitNextjsAvailable() {
-  const sibling = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(root, "..", "wptp-emit-nextjs"));
+  const sibling = resolveWptpRepoRoot(root, "wptp-emit-nextjs");
   return existsSync(join(sibling, "package.json"));
 }
 

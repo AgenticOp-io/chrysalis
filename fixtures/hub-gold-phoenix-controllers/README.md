@@ -16,7 +16,7 @@ Elixir **Phoenix** route-table fixture: `lib/.../router.ex` with flat
 
 | Shape | Hole / status |
 | --- | --- |
-| `live "/…"` / LiveView / HEEx / sockets | not lowered |
+| `live "/…"` / LiveView / HEEx / sockets | not lowered — honesty catalog G10128 (`hub:phoenix-liveview-honesty-smoke` → `LIVEVIEW_HONESTY_OK`) |
 | `pipeline` / `scope` / custom plugs | not lowered |
 | `resources` / `forward` / `match` catch-alls | not lowered |
 | Views / `render/3` / filters / Ecto | not lowered |

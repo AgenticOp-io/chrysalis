@@ -3288,6 +3288,12 @@ export function liftSvelteKitPageLoadFunction(opts) {
   if (!loadFn) return { ok: false, reason: "missing-load-export" };
   const origin = originAt(loadFn.loc?.start ?? { line: 1, column: 0 }, file);
   const ctx = { data, effect, webir, file, origin };
+
+  // RFC-0013 v2 / tip 1.0.25: SvelteKit `redirect`/`error` and Next `redirect`/`notFound`
+  // land as effect.redirect / effect.http.error (emit reverse → load { redirect|error }).
+  const special = extractPageLoadRedirectOrError(loadFn, ctx);
+  if (special) return special;
+
   const expr = extractHandlerExpression(loadFn);
   if (!expr || expr.type !== "ObjectExpression") {
     return { ok: false, reason: "unsupported-load-return" };
@@ -3300,7 +3306,114 @@ export function liftSvelteKitPageLoadFunction(opts) {
     }
   }
   const loadValueId = lowerExpression(ctx, expr);
-  return { ok: true, loadValueId, loadFieldNames };
+  return { ok: true, kind: "object", loadValueId, loadFieldNames };
+}
+
+/**
+ * Detect page-load redirect / error early-exit shapes (SvelteKit + Next App Router).
+ * @param {import('estree').Function} loadFn
+ * @param {object} ctx
+ * @returns {{ ok: true, kind: "redirect"|"error", bodyId: string, loadFieldNames: string[] } | null}
+ */
+function extractPageLoadRedirectOrError(loadFn, ctx) {
+  const { data, effect, webir, file, origin } = ctx;
+  /** @type {import('estree').CallExpression | null} */
+  let call = null;
+  const consider = (node) => {
+    if (!node || node.type !== "CallExpression" || call) return;
+    const name =
+      node.callee?.type === "Identifier"
+        ? node.callee.name
+        : node.callee?.type === "MemberExpression" &&
+            !node.callee.computed &&
+            node.callee.property?.type === "Identifier"
+          ? node.callee.property.name
+          : null;
+    if (name === "redirect" || name === "error" || name === "notFound") call = node;
+  };
+  const body = loadFn.body;
+  if (body?.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ThrowStatement") consider(s.argument);
+      else if (s.type === "ExpressionStatement") consider(s.expression);
+      else if (s.type === "ReturnStatement") consider(s.argument);
+    }
+  } else {
+    consider(body);
+  }
+  if (!call) return null;
+  const calleeName =
+    call.callee?.type === "Identifier"
+      ? call.callee.name
+      : call.callee?.type === "MemberExpression" &&
+          !call.callee.computed &&
+          call.callee.property?.type === "Identifier"
+        ? call.callee.property.name
+        : null;
+  const callOrigin = call.loc?.start ? originAt(call.loc.start, file) : origin;
+
+  if (calleeName === "redirect") {
+    // SvelteKit: redirect(status, location) · Next: redirect(location)
+    let locationNode = null;
+    if (call.arguments.length >= 2) locationNode = call.arguments[1];
+    else if (call.arguments.length === 1) locationNode = call.arguments[0];
+    if (!locationNode || locationNode.type !== "Literal" || typeof locationNode.value !== "string") {
+      return null;
+    }
+    const locId = data.literal({
+      value: locationNode.value,
+      type: T.string,
+      origin: callOrigin,
+      provenance: [webir.provenance("hub-ingest", "page-load-redirect")],
+    });
+    const bodyId = effect.redirect({
+      location: locId,
+      origin: callOrigin,
+      provenance: [webir.provenance("hub-ingest", "page-load-redirect")],
+    });
+    return { ok: true, kind: "redirect", bodyId, loadFieldNames: [] };
+  }
+
+  if (calleeName === "error") {
+    const statusArg = call.arguments[0];
+    if (!statusArg || statusArg.type !== "Literal" || typeof statusArg.value !== "number") {
+      return null;
+    }
+    const msgArg = call.arguments[1];
+    const msgId =
+      msgArg && msgArg.type === "Literal" && typeof msgArg.value === "string"
+        ? data.literal({
+            value: msgArg.value,
+            type: T.string,
+            origin: callOrigin,
+            provenance: [webir.provenance("hub-ingest", "page-load-error")],
+          })
+        : null;
+    const bodyId = effect.httpError({
+      status: statusArg.value,
+      message: msgId,
+      origin: callOrigin,
+      provenance: [webir.provenance("hub-ingest", "page-load-error")],
+    });
+    return { ok: true, kind: "error", bodyId, loadFieldNames: [] };
+  }
+
+  if (calleeName === "notFound") {
+    const bodyId = effect.httpError({
+      status: 404,
+      message: data.literal({
+        value: "Not Found",
+        type: T.string,
+        origin: callOrigin,
+        provenance: [webir.provenance("hub-ingest", "page-load-error")],
+      }),
+      origin: callOrigin,
+      provenance: [webir.provenance("hub-ingest", "page-load-error")],
+    });
+    return { ok: true, kind: "error", bodyId, loadFieldNames: [] };
+  }
+
+  return null;
 }
 
 /**

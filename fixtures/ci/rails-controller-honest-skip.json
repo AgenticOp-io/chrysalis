@@ -30,11 +30,17 @@
     "note": "Inline rack lambdas remain honest holes — gold uses controller#action + render json only."
   },
   "honestHoles": [
-    { "shape": "resources / namespace / scope route macros", "reason": "hub-ruby:rails-route-macro" },
-    { "shape": "before/after filters / respond_to / views", "reason": "hub-ruby:action-controller-filters" },
+    { "shape": "resources / namespace / scope route macros", "reason": "hub-ruby:rails-route-macro", "expandedCatalog": "fixtures/ci/rails-filters-honest-holes.json", "gate": "G10130" },
+    { "shape": "before/after filters / respond_to / views", "reason": "hub-ruby:action-controller-filters", "expandedCatalog": "fixtures/ci/rails-filters-honest-holes.json", "gate": "G10130" },
     { "shape": "Inline rack lambda bodies without dedicated peel", "reason": "hub-ruby:rails-rack-lambda" },
-    { "shape": "Strong params / ActiveRecord / ActiveJob / ActionCable", "reason": "hub-ruby:rails-runtime" },
+    { "shape": "Strong params / ActiveRecord / ActiveJob / ActionCable", "reason": "hub-ruby:rails-runtime", "expandedCatalog": "fixtures/ci/rails-filters-honest-holes.json", "gate": "G10130" },
     { "shape": "ViewComponent / LiveView-like UI", "reason": "hub-ruby:rails-ui-runtime" }
   ],
-  "revisitWhen": "Chartered origin needs resources/namespace macros or deeper ActionController peels without inventing filters/AR/LiveView — keep Sinatra as Ruby ST."
+  "filtersHonesty": {
+    "gate": "G10130",
+    "catalog": "fixtures/ci/rails-filters-honest-holes.json",
+    "smoke": "pnpm run hub:rails-filters-honesty-smoke",
+    "token": "RAILS_FILTERS_HONESTY_OK"
+  },
+  "revisitWhen": "Chartered origin needs resources/namespace macros or deeper ActionController peels without inventing filters/AR/LiveView — keep Sinatra as Ruby ST. Filters/resources residual expanded G10130 (`rails-filters-honest-holes.json` / `RAILS_FILTERS_HONESTY_OK`)."
 }
