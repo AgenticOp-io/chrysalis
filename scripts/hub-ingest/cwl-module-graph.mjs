@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parseCwlModule } from "./cwl-parser.mjs";
+import { applyLayoutsToParsedModule } from "./cwl-layout.mjs";
 
 /**
  * @param {string} method
@@ -27,6 +28,10 @@ function mergeCwlModuleFragment(target, fragment) {
   target.components = target.components ?? [];
   for (const comp of fragment.components ?? []) {
     if (!target.components.some((c) => c.name === comp.name)) target.components.push(comp);
+  }
+  target.layouts = target.layouts ?? [];
+  for (const L of fragment.layouts ?? []) {
+    if (!target.layouts.some((x) => x.name === L.name)) target.layouts.push(L);
   }
   target.routes.push(...(fragment.routes ?? []));
 }
@@ -99,6 +104,7 @@ export function resolveCwlModuleFromPath(entryPath, readFile = (p) => readFileSy
     mergeCwlModuleFragment(parsed, child);
   }
   markDuplicateCwlRoutes(parsed);
+  applyLayoutsToParsedModule(parsed);
   return parsed;
 }
 
@@ -123,5 +129,6 @@ export function parseCwlModuleResolved(source, file, opts = {}) {
   }
   const parsed = parseCwlModule(source, file);
   markDuplicateCwlRoutes(parsed);
+  applyLayoutsToParsedModule(parsed);
   return parsed;
 }

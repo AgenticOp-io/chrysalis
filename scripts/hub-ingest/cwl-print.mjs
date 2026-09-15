@@ -211,6 +211,9 @@ function printUiNode(node, indent, lines) {
   if (node.kind === "island") {
     if (node.name) lines.push(`${indent}client ui ${JSON.stringify(String(node.name))} {`);
     else lines.push(`${indent}client ui {`);
+    for (const ev of node.events ?? []) {
+      lines.push(`${indent}  on ${ev.name} { action ${JSON.stringify(ev.action)}; }`);
+    }
     for (const child of node.children ?? []) printUiNode(child, `${indent}  `, lines);
     lines.push(`${indent}}`);
     return;
@@ -296,8 +299,28 @@ export function printCwlModule(mod, opts = {}) {
     lines.push(`import "${imp}";`);
   }
 
+  for (const L of mod.layouts ?? []) {
+    lines.push("");
+    lines.push(`layout ${L.name} {`);
+    for (const h of L.headers ?? []) lines.push(`  header ${h};`);
+    for (const c of L.cookies ?? []) lines.push(`  cookie ${c};`);
+    for (const hole of L.holes ?? []) {
+      const r = String(hole ?? "cwl:hole");
+      lines.push(
+        /^[A-Za-z0-9_:.-]+$/.test(r) ? `  hole ${r};` : `  hole legacy ${JSON.stringify(r)};`,
+      );
+    }
+    for (const island of L.pageIslands ?? []) {
+      printUiNode(island, "  ", lines);
+    }
+    if (typeof L.chromeHtml === "string") {
+      lines.push(`  chrome html ${JSON.stringify(L.chromeHtml)};`);
+    }
+    lines.push("}");
+  }
+
   if (
-    (mod.moduleUses?.length || mod.moduleAuthUses?.length || mod.imports?.length) &&
+    (mod.moduleUses?.length || mod.moduleAuthUses?.length || mod.imports?.length || mod.layouts?.length) &&
     (mod.routes?.length || mod.components?.length)
   ) {
     lines.push("");
@@ -320,6 +343,10 @@ export function printCwlModule(mod, opts = {}) {
     lines.push(`${isPage ? "page" : "handler"} ${route.name} {`);
     const effects = Array.isArray(route.effects) && route.effects.length > 0 ? route.effects : [];
     lines.push(`  effects: ${effects.length ? effects.join(", ") : "none"};`);
+
+    if (route.layoutName) {
+      lines.push(`  layout ${route.layoutName};`);
+    }
 
     if (typeof route.responseStatus === "number") {
       lines.push(`  status ${route.responseStatus};`);
@@ -389,6 +416,10 @@ export function printCwlModule(mod, opts = {}) {
       }
     }
 
+    for (const island of route.pageIslands ?? []) {
+      printUiNode(island, "  ", lines);
+    }
+
     const body = route.body;
     const attachmentHoles = Array.isArray(route.attachmentHoles)
       ? route.attachmentHoles
@@ -444,6 +475,14 @@ export function canonicalizeCwlModule(mod) {
     moduleUses: [...(mod.moduleUses ?? [])],
     moduleAuthUses: [...(mod.moduleAuthUses ?? [])],
     imports: [...(mod.imports ?? [])],
+    layouts: (mod.layouts ?? []).map((L) => ({
+      name: L.name,
+      headers: [...(L.headers ?? [])],
+      cookies: [...(L.cookies ?? [])],
+      holes: [...(L.holes ?? [])],
+      chromeHtml: L.chromeHtml ?? null,
+      pageIslands: (L.pageIslands ?? []).map(canonicalizeUiNode),
+    })),
     components: (mod.components ?? []).map((c) => ({
       name: c.name,
       props: [...(c.props ?? [])],
@@ -456,6 +495,8 @@ export function canonicalizeCwlModule(mod) {
       name: r.name,
       surfaceKind: r.surfaceKind ?? "api",
       effects: [...(r.effects ?? [])],
+      layoutName: r.layoutName ?? null,
+      pageIslands: (r.pageIslands ?? []).map(canonicalizeUiNode),
       handlerPathParams: [...(r.handlerPathParams ?? [])],
       handlerPathDefaults: { ...(r.handlerPathDefaults ?? {}) },
       handlerQueryParams: [...(r.handlerQueryParams ?? [])],
@@ -560,13 +601,16 @@ function canonicalizeUiNode(node) {
     return { kind: "fragment", children: (node.children ?? []).map(canonicalizeUiNode) };
   }
   if (node.kind === "island") {
-    /** @type {{ kind: string, client: boolean, name?: string | null, children: unknown[] }} */
+    /** @type {{ kind: string, client: boolean, name?: string | null, children: unknown[], events?: object[] }} */
     const out = {
       kind: "island",
       client: true,
       children: (node.children ?? []).map(canonicalizeUiNode),
     };
     if (node.name) out.name = String(node.name);
+    if (node.events?.length) {
+      out.events = node.events.map((e) => ({ name: e.name, action: e.action }));
+    }
     return out;
   }
   if (node.kind === "element") {

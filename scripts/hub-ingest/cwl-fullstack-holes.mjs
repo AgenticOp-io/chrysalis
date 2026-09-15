@@ -68,6 +68,18 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     surface: "api",
     summary: "Handler body intentionally empty / not yet authored; placeholder hole.",
   },
+  "cwl:unknown-layout": {
+    rfc: "0029",
+    origin: "cwl",
+    surface: "page",
+    summary: "Page references `layout name;` but no matching `layout name { … }` decl was found after resolve.",
+  },
+  "cwl:unknown-layout-statement": {
+    rfc: "0029",
+    origin: "cwl",
+    surface: "page",
+    summary: "Statement inside a layout block is not chrome/header/cookie/hole/client-island — kept as an honest hole.",
+  },
   "unsupported:php-session": {
     rfc: "0012",
     origin: "php",

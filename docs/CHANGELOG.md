@@ -1,3 +1,4 @@
+2026-09-14 | Convert | Tip pin 1.0.27 (CONVERT_TIP_1_0_27_OK) + G10139 layout/page-island peel (LAYOUT_PAGE_ISLAND_PEEL_OK); cwl-layout consume; golds 37–38 language-pillar; EXTFMAP untouched | local | N
 2026-08-21 | Convert | G10138 urlencoded form POST peel demand (hub:urlencoded-form-post-peel-demand-smoke → URLENCODED_FORM_POST_PEEL_DEMAND_OK); fat emit use urlencoded; CWL gold demand signal; EXTFMAP untouched | local | N
 2026-08-21 | Convert | G10137 load redirect/error peel honesty (hub:load-redirect-error-peel-smoke → LOAD_REDIRECT_ERROR_PEEL_OK); fat emit reverse + SvelteKit/Next peels land CWL load { redirect|error }; tip 1.0.25 consume; EXTFMAP untouched | local | N
 2026-08-11 | Convert | G10108 public-claim harden: hub:public-engine-claim-smoke → PUBLIC_CLAIM_OK/CONVERT_PUBLIC_CLAIM; honestGaps (visibility/history/brand CTA/EXTFMAP/counsel); no invent | local | N

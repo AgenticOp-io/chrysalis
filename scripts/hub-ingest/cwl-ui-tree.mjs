@@ -6,8 +6,8 @@
  * @typedef {{ kind: "element", tag: string, attrs: Array<{ key: string, value: string, isBinding: boolean }>, children: CwlUiNode[], events?: Array<{ name: string, action: string }> }} CwlUiElementNode
  * @typedef {{ kind: "text", text: string | null, binding: string | null }} CwlUiTextNode
  * @typedef {{ kind: "fragment", children: CwlUiNode[] }} CwlUiFragmentNode
- * @typedef {{ kind: "island", client: true, name?: string | null, children: CwlUiNode[] }} CwlUiIslandNode
- * @typedef {CwlUiElementNode | CwlUiTextNode | CwlUiFragmentNode} CwlUiNode
+ * @typedef {{ kind: "island", client: true, name?: string | null, children: CwlUiNode[], events?: Array<{ name: string, action: string }> }} CwlUiIslandNode
+ * @typedef {CwlUiElementNode | CwlUiTextNode | CwlUiFragmentNode | CwlUiIslandNode} CwlUiNode
  */
 
 const HUB_T = { string: { kind: "string" } };
@@ -193,7 +193,12 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
       const owner = owners[owners.length - 1];
       const parent = stack[stack.length - 1];
       const last = parent[parent.length - 1];
-      const target = owner?.kind === "element" ? owner : last?.kind === "element" ? last : null;
+      const target =
+        owner?.kind === "element" || owner?.kind === "island"
+          ? owner
+          : last?.kind === "element" || last?.kind === "island"
+            ? last
+            : null;
       if (target) {
         if (!target.events) target.events = [];
         target.events.push({ name: parsed.name, action: parsed.action });
@@ -214,7 +219,7 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
       stack[stack.length - 1].push(island);
       depth += 1;
       stack.push(island.children);
-      owners.push(null);
+      owners.push(island);
       const braceIdx = line.indexOf("{");
       if (braceIdx >= 0 && line.includes("}") && line.indexOf("}") > braceIdx) {
         depth -= 1;
@@ -386,6 +391,7 @@ function substituteUiComponentProps(node, propMap, componentProps) {
       client: true,
       name: node.name ?? null,
       children: (node.children ?? []).map((c) => substituteUiComponentProps(c, propMap, componentProps)),
+      ...(node.events?.length ? { events: node.events.map((e) => ({ name: e.name, action: e.action })) } : {}),
     };
   }
   if (node.kind === "text") {
@@ -544,4 +550,105 @@ export function lowerCwlUiTreeBody(ctx, tree, loc, bindings = {}) {
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl:ui-tree")],
   });
+}
+
+/**
+ * Parse a page-level / layout-level standalone island starting at `client ui … {`.
+ * @param {string[]} lines
+ * @param {number} startIdx
+ * @returns {{ ok: true, island: CwlUiIslandNode, consumed: number } | { ok: false, error: string, consumed: number }}
+ */
+export function parseCwlStandaloneIslandBlock(lines, startIdx) {
+  const open = lines[startIdx].trim();
+  const named = CLIENT_UI_NAMED_RE.exec(open);
+  if (!named && !CLIENT_UI_RE.test(open)) {
+    return { ok: false, error: "not-client-ui", consumed: startIdx + 1 };
+  }
+  /** @type {CwlUiIslandNode} */
+  const island = {
+    kind: "island",
+    client: true,
+    name: named ? named[1] : null,
+    children: [],
+  };
+  // Inline empty: client ui "x" { }
+  const braceIdx = open.indexOf("{");
+  if (braceIdx >= 0) {
+    const closeIdx = open.lastIndexOf("}");
+    if (closeIdx > braceIdx) {
+      const inner = open.slice(braceIdx + 1, closeIdx).trim();
+      if (inner) {
+        const onM = ON_EVENT_RE.exec(inner);
+        if (onM) {
+          const actionM = ACTION_RE.exec(inner.slice(onM[0].length).trim());
+          if (actionM) island.events = [{ name: onM[1], action: actionM[1] }];
+        }
+      }
+      return { ok: true, island, consumed: startIdx + 1 };
+    }
+  }
+  let depth = 1;
+  /** @type {CwlUiNode[][]} */
+  const stack = [island.children];
+  /** @type {Array<CwlUiElementNode | CwlUiIslandNode | null>} */
+  const owners = [island];
+  for (let i = startIdx + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line || line.startsWith("#") || line.startsWith("//")) continue;
+    if (line === "}" || line === "};") {
+      depth -= 1;
+      if (depth === 0) return { ok: true, island, consumed: i + 1 };
+      if (stack.length > 1) {
+        stack.pop();
+        owners.pop();
+      }
+      continue;
+    }
+    const onEv = ON_EVENT_RE.exec(line);
+    if (onEv) {
+      const parsed = parseCwlUiOnEventBlock(lines, i, onEv[1]);
+      if (!parsed.ok) return { ok: false, error: parsed.error, consumed: parsed.consumed };
+      const owner = owners[owners.length - 1];
+      const parent = stack[stack.length - 1];
+      const last = parent[parent.length - 1];
+      const target =
+        owner?.kind === "element" || owner?.kind === "island"
+          ? owner
+          : last?.kind === "element" || last?.kind === "island"
+            ? last
+            : island;
+      if (!target.events) target.events = [];
+      target.events.push({ name: parsed.name, action: parsed.action });
+      i = parsed.consumed - 1;
+      continue;
+    }
+    const el = ELEMENT_RE.exec(line);
+    if (el) {
+      const tag = el[1];
+      const brace = line.indexOf("{");
+      const restAfterTag = el[2] ?? "";
+      const braceInRest = restAfterTag.indexOf("{");
+      const attrTail = braceInRest >= 0 ? restAfterTag.slice(0, braceInRest) : restAfterTag;
+      const attrs = parseElementAttrs(attrTail);
+      /** @type {CwlUiElementNode} */
+      const node = { kind: "element", tag, attrs, children: [] };
+      stack[stack.length - 1].push(node);
+      if (brace >= 0) {
+        const closeIdx = line.lastIndexOf("}");
+        const inlineBody = closeIdx > brace ? line.slice(brace + 1, closeIdx).trim() : "";
+        if (inlineBody && closeIdx > brace) {
+          const parsed = parseInlineUiStatements(inlineBody);
+          node.children.push(...parsed.children);
+          if (parsed.events.length) node.events = parsed.events;
+        } else {
+          depth += 1;
+          stack.push(node.children);
+          owners.push(node);
+        }
+      }
+      continue;
+    }
+    return { ok: false, error: `unknown-island-line:${line}`, consumed: i + 1 };
+  }
+  return { ok: false, error: "unclosed-island", consumed: lines.length };
 }

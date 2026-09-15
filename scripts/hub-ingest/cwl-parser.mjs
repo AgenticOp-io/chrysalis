@@ -3,7 +3,7 @@
  * @see docs/CWL.md
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
-import { parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
+import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -39,6 +39,11 @@ const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
 const ELSE_RE = /^else\s*\{$/;
 const FOREACH_RE = /^foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as(?:\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=>)?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{$/;
+/** RFC-0029: shared chrome layout */
+const LAYOUT_DECL_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
+const LAYOUT_USE_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const CLIENT_UI_START_RE = /^client\s+ui\b/;
+const CHROME_HTML_PREFIX_RE = /^chrome\s+html\s+/i;
 
 /**
  * 0-based column of the first non-whitespace on a raw source line.
@@ -106,6 +111,83 @@ export function extractCwlHtmlReturnLiteral(inner) {
   }
   const m = HTML_RETURN_RE.exec(t);
   return m?.[1]?.trim() ?? null;
+}
+
+/**
+ * Extract `chrome html "…";` literal including quotes (RFC-0029).
+ * @param {string} inner
+ * @returns {string | null}
+ */
+export function extractCwlChromeHtmlLiteral(inner) {
+  const t = String(inner ?? "").trim();
+  if (!CHROME_HTML_PREFIX_RE.test(t)) return null;
+  return extractCwlHtmlReturnLiteral(t.replace(CHROME_HTML_PREFIX_RE, "return html "));
+}
+
+/**
+ * @param {string[]} lines
+ * @param {number} startIdx
+ * @param {number} lineNo
+ */
+function parseLayoutDeclBlock(lines, startIdx, lineNo) {
+  const open = lines[startIdx].trim();
+  const m = LAYOUT_DECL_RE.exec(open);
+  if (!m) return { ok: false, error: "not-layout", consumed: startIdx + 1 };
+  const name = m[1];
+  /** @type {string[]} */
+  const headers = [];
+  /** @type {string[]} */
+  const cookies = [];
+  /** @type {string[]} */
+  const holes = [];
+  /** @type {string | null} */
+  let chromeHtml = null;
+  /** @type {object[]} */
+  const pageIslands = [];
+  let i = startIdx + 1;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    i += 1;
+    if (!line || line.startsWith("#") || line.startsWith("//")) continue;
+    if (line === "}") {
+      return {
+        ok: true,
+        layout: { name, line: lineNo, headers, cookies, holes, chromeHtml, pageIslands },
+        consumed: i,
+      };
+    }
+    const hm = HEADER_RE.exec(line);
+    if (hm) {
+      if (!headers.includes(hm[1])) headers.push(hm[1]);
+      continue;
+    }
+    const cm = COOKIE_RE.exec(line);
+    if (cm) {
+      if (!cookies.includes(cm[1])) cookies.push(cm[1]);
+      continue;
+    }
+    const hol = HOLE_RE.exec(line);
+    if (hol) {
+      holes.push(hol[1]);
+      continue;
+    }
+    const chromeLit = extractCwlChromeHtmlLiteral(line);
+    if (chromeLit !== null) {
+      const lit = parseCwlLiteral(chromeLit);
+      if (lit.ok && typeof lit.value === "string") chromeHtml = lit.value;
+      continue;
+    }
+    if (CLIENT_UI_START_RE.test(line)) {
+      const islandParsed = parseCwlStandaloneIslandBlock(lines, i - 1);
+      if (islandParsed.ok) {
+        pageIslands.push(islandParsed.island);
+        i = islandParsed.consumed;
+        continue;
+      }
+    }
+    holes.push("cwl:unknown-layout-statement");
+  }
+  return { ok: false, error: "unclosed-layout", consumed: lines.length };
 }
 
 /**
@@ -528,6 +610,8 @@ export function parseCwlModule(source, file) {
   const importLines = [];
   /** @type {Array<{ name: string, props: string[], tree: object, line: number }>} */
   const components = [];
+  /** @type {Array<{ name: string, line: number, headers: string[], cookies: string[], holes: string[], chromeHtml: string | null, pageIslands: object[] }>} */
+  const layouts = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, character?: number, endCharacter?: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -561,6 +645,14 @@ export function parseCwlModule(source, file) {
     if (impM) {
       imports.push(impM[1]);
       importLines.push(lineNo);
+      continue;
+    }
+    if (LAYOUT_DECL_RE.test(line)) {
+      const layoutParsed = parseLayoutDeclBlock(lines, i - 1, lineNo);
+      if (layoutParsed.ok) {
+        layouts.push(layoutParsed.layout);
+        i = layoutParsed.consumed;
+      }
       continue;
     }
     const compDecl = COMPONENT_DECL_RE.exec(line);
@@ -654,6 +746,10 @@ export function parseCwlModule(source, file) {
     const attachmentHoleCharacters = [];
     /** @type {number[]} 0-based exclusive end columns of `hole` keyword, parallel to `attachmentHoles`. */
     const attachmentHoleEndCharacters = [];
+    /** @type {string | null} RFC-0029 layout name */
+    let layoutName = null;
+    /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
+    const pageIslands = [];
     let body = {
       kind: "hole",
       reason: "cwl:empty-handler",
@@ -676,6 +772,19 @@ export function parseCwlModule(source, file) {
       i += 1;
       if (inner === "}") break;
       if (!inner || inner.startsWith("#") || inner.startsWith("//")) continue;
+      const layoutUse = LAYOUT_USE_RE.exec(inner);
+      if (layoutUse) {
+        layoutName = layoutUse[1];
+        continue;
+      }
+      if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {
+        const islandParsed = parseCwlStandaloneIslandBlock(lines, i - 1);
+        if (islandParsed.ok) {
+          pageIslands.push(islandParsed.island);
+          i = islandParsed.consumed;
+          continue;
+        }
+      }
       const pm = PARAM_RE.exec(inner);
       if (pm) {
         if (!handlerPathParams.includes(pm[1])) handlerPathParams.push(pm[1]);
@@ -918,6 +1027,8 @@ export function parseCwlModule(source, file) {
       attachmentHoleLines,
       attachmentHoleCharacters,
       attachmentHoleEndCharacters,
+      layoutName,
+      pageIslands,
       body,
     });
   }
@@ -928,6 +1039,7 @@ export function parseCwlModule(source, file) {
     moduleEndCharacter,
     file,
     routes,
+    layouts,
     moduleUses,
     moduleAuthUses,
     imports,

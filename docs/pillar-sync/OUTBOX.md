@@ -8,6 +8,46 @@
 
 ---
 
+## 2026-09-14 - convert-tip-1.0.27
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.27-expand (pin + layout chrome / cookie HTML / page-island peels)  
+**CWL tip:** **1.0.27** (RFC-0029 / 0014 deepen / 0030; golds 36–38)  
+**CWL SHA:** `2cb6d3a` (BOARD) · local tip `5e0b7c3`
+
+```text
+CONVERT_TIP_1_0_27_OK: ok
+LAYOUT_PAGE_ISLAND_PEEL_OK: ok
+SHA: PENDING
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.27
+CWL_SHA: 2cb6d3a
+CWL_PIN: file:1.0.27
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.27-tip-floor) · hub:cwl-language-pillar-smoke (golds 37–38) · hub:layout-page-island-peel-smoke (G10139)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors synced from CWL tip; copied `cwl-layout.mjs` (RFC-0029 apply — not yet on CWL ALWAYS list)
+- Junction `@chrysalis/cwl` VERSION **1.0.27**; `hub:cwl-pin-smoke` tip floor >= **1.0.27**
+- Language-pillar WebIR round-trip includes `37-html-cookie-device` + `38-html-page-island` (gold `36` keeps honest `unsupported:opaque-script`)
+- G10139 peel consume smoke for layout chrome compose + cookie HTML + page islands
+- Consumer docs + DESIGN D6572
+- No Nest/LiveView/Flutter/UA-regex invent; no CWL language gene edits; no Secure edits
+
+### Next
+
+| Pri | Work |
+| --- | --- |
+| P1 | Keep `TRAFFIC_DECIDES_CONVERT_OK` |
+| CWL | Optional: add `cwl-layout.mjs` to ALWAYS sync list |
+| ops | EXTFMAP — operator only |
+
+---
+
 ## 2026-08-21 - convert-tip-1.0.26
 
 **To:** cwl  

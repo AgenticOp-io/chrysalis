@@ -34,6 +34,8 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "33-ui-island-contracts",
   "34-dna-bridge-surfaces",
   "35-form-urlencoded",
+  "37-html-cookie-device",
+  "38-html-page-island",
 ];
 
 /**
