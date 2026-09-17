@@ -641,7 +641,14 @@ export function lowerHubStatusOnly(ctx, status, loc) {
  * @param {object} wr — web.request builders
  */
 export function lowerHubHtmlPageBody(ctx, html, loc, wr, bindings = null) {
-  if (bindings && (bindings.path?.length || bindings.query?.length || bindings.load?.length)) {
+  if (
+    bindings &&
+    (bindings.path?.length ||
+      bindings.query?.length ||
+      bindings.load?.length ||
+      bindings.cookie?.length ||
+      bindings.repeat?.length)
+  ) {
     return lowerCwlHtmlTemplateBody(ctx, html, loc, wr, bindings);
   }
   const { data, webir } = ctx;

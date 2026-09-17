@@ -487,13 +487,14 @@ function serialiseUiNode(ctx, node, bindings, loc, operands) {
     return { kind: "text", text: node.text ?? "", escape: true };
   }
   if (node.kind === "island") {
-    /** @type {{ kind: string, client: boolean, name?: string, children: unknown[] }} */
+    /** @type {{ kind: string, client: boolean, name?: string, children: unknown[], events?: Array<{ name: string, action: string }> }} */
     const out = {
       kind: "island",
       client: true,
       children: (node.children ?? []).map((c) => serialiseUiNode(ctx, c, bindings, loc, operands)),
     };
     if (node.name) out.name = String(node.name);
+    if (node.events?.length) out.events = node.events.map((e) => ({ name: e.name, action: e.action }));
     return out;
   }
   if (node.kind === "element") {

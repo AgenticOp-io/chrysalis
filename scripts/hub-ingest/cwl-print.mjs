@@ -176,6 +176,8 @@ export function printCwlBodyExpr(body) {
       return body.name ?? "null";
     case "hole":
     case "ui":
+    // RFC-0033: printed as its own `proxy upstream` statement, not a `return`.
+    case "proxy":
       return null;
     default:
       return printCwlLiteral(body.value ?? null);
@@ -416,6 +418,12 @@ export function printCwlModule(mod, opts = {}) {
       }
     }
 
+    for (const rep of route.htmlRepeats ?? []) {
+      lines.push(
+        `  repeat ${rep.collection} as ${rep.item} html ${printCwlLiteral(rep.template)};`,
+      );
+    }
+
     for (const island of route.pageIslands ?? []) {
       printUiNode(island, "  ", lines);
     }
@@ -433,7 +441,10 @@ export function printCwlModule(mod, opts = {}) {
           : `  hole legacy ${JSON.stringify(r)};`,
       );
     };
-    if (body?.kind === "hole") {
+    if (body?.kind === "proxy") {
+      for (const reason of attachmentHoles) printHoleLine(reason);
+      lines.push(`  proxy upstream ${printCwlLiteral(body.target)};`);
+    } else if (body?.kind === "hole") {
       // Body-as-hole: print each attachment (or the body reason once).
       if (attachmentHoles.length > 0) {
         for (const reason of attachmentHoles) printHoleLine(reason);
@@ -497,6 +508,11 @@ export function canonicalizeCwlModule(mod) {
       effects: [...(r.effects ?? [])],
       layoutName: r.layoutName ?? null,
       pageIslands: (r.pageIslands ?? []).map(canonicalizeUiNode),
+      htmlRepeats: (r.htmlRepeats ?? []).map((rep) => ({
+        collection: rep.collection,
+        item: rep.item,
+        template: rep.template,
+      })),
       handlerPathParams: [...(r.handlerPathParams ?? [])],
       handlerPathDefaults: { ...(r.handlerPathDefaults ?? {}) },
       handlerQueryParams: [...(r.handlerQueryParams ?? [])],
@@ -573,6 +589,9 @@ function canonicalizeBody(body) {
   }
   if (body.kind === "literal" || body.kind === "html") {
     return { kind: body.kind, value: body.value };
+  }
+  if (body.kind === "proxy") {
+    return { kind: "proxy", target: body.target };
   }
   if (body.kind === "hole") {
     return { kind: "hole", reason: body.reason ?? "cwl:hole" };

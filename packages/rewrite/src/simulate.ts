@@ -70,6 +70,40 @@ export interface SessionWriteEvent {
   readonly value: SimValue;
 }
 
+/**
+ * RFC-0033: a handler that declares `proxy upstream "<url>"` forwards to that
+ * target. CWL can only declare the destination — the transfer (TLS, hop headers,
+ * retries, tunnels) is host-owned, so simulation dispatches through an injected
+ * transport and records what was sent.
+ */
+export interface UpstreamForwardEvent {
+  /** Declared target with the route's own path params substituted. */
+  readonly target: string;
+  readonly method: string;
+  /** False when no transport was supplied — the forward stayed a declaration. */
+  readonly performed: boolean;
+  readonly status: number | null;
+}
+
+/**
+ * Host-supplied upstream transport. Return `null` to leave the forward
+ * unperformed (the default): simulation then reports it as inconclusive rather
+ * than inventing an upstream response.
+ */
+export interface StubUpstream {
+  forward(event: {
+    target: string;
+    method: string;
+    query: Readonly<Record<string, string>>;
+    headers: Readonly<Record<string, string>>;
+  }): { status: number; body: string } | null;
+}
+
+/** No transport configured: declare the forward, perform nothing. */
+export const DEFAULT_STUB_UPSTREAM: StubUpstream = {
+  forward: () => null,
+};
+
 export interface SimError {
   readonly reason: string;
   readonly nodeId: NodeId;
@@ -83,6 +117,8 @@ export interface SimResponse {
   readonly dbReads: ReadonlyArray<DbReadEvent>;
   readonly dbWrites: ReadonlyArray<DbWriteEvent>;
   readonly sessionWrites: ReadonlyArray<SessionWriteEvent>;
+  /** Upstream forwards declared by the handler (RFC-0033), in dispatch order. */
+  readonly upstreamForwards: ReadonlyArray<UpstreamForwardEvent>;
   /**
    * Non-empty when the simulator hit an op it couldn't evaluate.
    * The verify gate treats a non-empty `errors` array as
@@ -232,6 +268,8 @@ interface SimCtx {
   readonly m: Module;
   readonly input: RequestInput;
   readonly db: StubDb;
+  readonly upstream: StubUpstream;
+  readonly upstreamForwards: UpstreamForwardEvent[];
   readonly env: Map<string, SimValue>;
   readonly echo: string[];
   readonly dbReads: DbReadEvent[];
@@ -260,11 +298,14 @@ export function simulateHandler(
   routeNodeId: NodeId,
   input: RequestInput,
   db: StubDb = DEFAULT_STUB_DB,
+  upstream: StubUpstream = DEFAULT_STUB_UPSTREAM,
 ): SimResponse {
   const ctx: SimCtx = {
     m,
     input,
     db,
+    upstream,
+    upstreamForwards: [],
     env: new Map(),
     echo: [],
     dbReads: [],
@@ -304,6 +345,7 @@ export function simulateHandler(
     dbReads: ctx.dbReads,
     dbWrites: ctx.dbWrites,
     sessionWrites: ctx.sessionWrites,
+    upstreamForwards: ctx.upstreamForwards,
     errors: ctx.errors,
     phpAttributedCalls: ctx.phpAttributedCalls,
   };
@@ -574,6 +616,56 @@ function evalMember(ctx: SimCtx, n: NodeBase): SimValue {
   return entry ? entry.value : { kind: "null" };
 }
 
+/**
+ * RFC-0033 `proxy upstream "<url>"`. Args are the declared target literal
+ * followed by the route's path-param reads, in the order they appear in the
+ * target, so `:id` segments resolve from the actual request.
+ */
+function evalUpstreamProxy(
+  ctx: SimCtx,
+  n: NodeBase,
+  args: ReadonlyArray<SimValue>,
+): SimValue {
+  const declared = args[0];
+  if (declared?.kind !== "str") {
+    ctx.errors.push({ reason: "upstream proxy target is not a literal", nodeId: n.id, op: "data.call" });
+    return { kind: "null" };
+  }
+  let paramIndex = 0;
+  // `https://` and `:8080` never match: a param segment starts with a letter.
+  const target = declared.value.replace(/:[A-Za-z_][A-Za-z0-9_]*/g, (whole) => {
+    const arg = args[1 + paramIndex];
+    paramIndex += 1;
+    if (!arg || arg.kind === "null") return whole;
+    return encodeURIComponent(stringify(arg));
+  });
+  const performed = ctx.upstream.forward({
+    target,
+    method: ctx.input.method,
+    query: ctx.input.query,
+    headers: ctx.input.headers ?? {},
+  });
+  ctx.upstreamForwards.push({
+    target,
+    method: ctx.input.method,
+    performed: performed !== null,
+    status: performed?.status ?? null,
+  });
+  if (performed === null) {
+    // The transfer is host-owned; without a transport the response is unknown.
+    // Report inconclusive rather than inventing an upstream body or status.
+    ctx.errors.push({
+      reason: `upstream forward not performed: ${target}`,
+      nodeId: n.id,
+      op: "data.call",
+    });
+    return { kind: "null" };
+  }
+  ctx.status = performed.status;
+  ctx.halted = true;
+  return { kind: "str", value: performed.body };
+}
+
 function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
   const callee = (n.attrs as { callee?: string }).callee ?? "";
   const phpAttributes = (
@@ -685,6 +777,8 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
     case "__cwl_effect_db_write":
     case "__cwl_effect_io":
       return { kind: "null" };
+    case "__cwl_effect_upstream_proxy":
+      return evalUpstreamProxy(ctx, n, args);
     case "json_encode":
       return { kind: "str", value: jsonEncodeSimValue(args[0] ?? { kind: "null" }) };
     case "htmlspecialchars":

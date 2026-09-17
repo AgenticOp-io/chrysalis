@@ -3,7 +3,11 @@
  * Honest holes for UI/component semantics not yet lowered to WebIR.
  */
 
-/** @typedef {{ rfc: string, origin: string, surface: string, summary: string }} CwlFullstackHoleEntry */
+/**
+ * `param` marks a reason that carries a `:<argument>` suffix at the hole site
+ * (e.g. `cwl:unknown-proxy-param:region`); only those resolve by prefix.
+ * @typedef {{ rfc: string, origin: string, surface: string, summary: string, param?: string }} CwlFullstackHoleEntry
+ */
 
 /** @type {Record<string, CwlFullstackHoleEntry>} */
 export const CWL_FULLSTACK_HOLE_CATALOG = {
@@ -60,13 +64,95 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     rfc: "0012",
     origin: "cwl",
     surface: "api",
-    summary: "HTTP upstream proxy to existing WISP backend-services (operator-owned; Mongo unchanged).",
+    summary:
+      "Host-owned forward mechanics. The destination is expressible as `proxy upstream \"…\"` (RFC-0033); keep this hole only for the transfer itself — TLS, hop-by-hop headers, retries, timeouts, tunnels.",
+  },
+  "hub-cwl:html-fragment": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "Live HTML fragment bytes the host still owns. Repeated markup over a collection is now expressible as `repeat … as … html` (RFC-0031) — keep this hole only for fragments CWL cannot name yet.",
+  },
+  "hub-cwl:credential-store": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "Host-owned credential store beyond declared intent. Verify / mint / revoke are expressible as effects (RFC-0032); keep this hole only for the store itself — hashing, token format, and expiry stay with the host.",
+  },
+  "hub-cwl:keypair-gen": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "Host generates an asymmetric keypair (WireGuard / X25519 / SSH). Private material never enters the genome; CWL names the route and its media type only.",
+  },
+  "hub-cwl:binary-render": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "Host renders non-text bytes (QR PNG, PDF, archive, config blob). The declared `content-type` stays in CWL — only the byte production is host-owned.",
   },
   "cwl:empty-handler": {
     rfc: "0012",
     origin: "cwl",
     surface: "api",
     summary: "Handler body intentionally empty / not yet authored; placeholder hole.",
+  },
+  "cwl:invalid-html-repeat": {
+    rfc: "0031",
+    origin: "cwl",
+    surface: "page",
+    summary: "`repeat … as … html` statement template is not a string literal — kept as an honest hole.",
+  },
+  "cwl:emit:html-repeat": {
+    rfc: "0031",
+    origin: "cwl",
+    surface: "emit",
+    summary: "Thin emit: repeat node lost its iterable or item template — do not guess the markup.",
+  },
+  "cwl:invalid-proxy-upstream": {
+    rfc: "0033",
+    origin: "cwl",
+    surface: "api",
+    summary: "`proxy upstream` target is not a string literal — kept as an honest hole.",
+  },
+  "cwl:unknown-proxy-param": {
+    rfc: "0033",
+    origin: "cwl",
+    surface: "api",
+    param: "param name",
+    summary:
+      "`proxy upstream` target references a `:name` the route's path does not declare — the destination is not guessed.",
+  },
+  "cwl:param-not-in-path": {
+    rfc: "0002",
+    origin: "cwl",
+    surface: "api",
+    param: "param name",
+    summary: "Handler declares `param <name>;` but the route path has no `:<name>` segment.",
+  },
+  "cwl:unknown-component": {
+    rfc: "0028",
+    origin: "cwl",
+    surface: "page",
+    param: "component name",
+    summary: "Route uses a `component` that no `component <name> { … }` decl defines after resolve.",
+  },
+  "cwl:emit:unsupported-call": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "emit",
+    param: "callee",
+    summary: "Thin emit met a call it has no CWL surface for — kept as a hole instead of guessed syntax.",
+  },
+  "cwl:emit:proxy-target": {
+    rfc: "0033",
+    origin: "cwl",
+    surface: "emit",
+    summary: "Thin emit: proxy node lost its target literal — do not guess a destination.",
   },
   "cwl:unknown-layout": {
     rfc: "0029",
@@ -208,12 +294,21 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
  * @returns {CwlFullstackHoleEntry | null}
  */
 export function lookupFullstackHole(reason) {
-  return CWL_FULLSTACK_HOLE_CATALOG[reason] ?? null;
+  const exact = CWL_FULLSTACK_HOLE_CATALOG[reason];
+  if (exact) return exact;
+  // Parameterized reasons carry their argument as a trailing `:<value>`.
+  let base = String(reason ?? "");
+  while (base.includes(":")) {
+    base = base.slice(0, base.lastIndexOf(":"));
+    const entry = CWL_FULLSTACK_HOLE_CATALOG[base];
+    if (entry?.param) return entry;
+  }
+  return null;
 }
 
 /**
  * @param {string} reason
  */
 export function isCataloguedFullstackHole(reason) {
-  return reason in CWL_FULLSTACK_HOLE_CATALOG;
+  return lookupFullstackHole(reason) !== null;
 }

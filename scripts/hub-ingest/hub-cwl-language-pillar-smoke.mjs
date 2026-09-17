@@ -36,6 +36,10 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "35-form-urlencoded",
   "37-html-cookie-device",
   "38-html-page-island",
+  "40-html-repeat",
+  "41-html-repeat-fields",
+  "42-auth-effects-v2",
+  "43-proxy-upstream",
 ];
 
 /**

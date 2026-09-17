@@ -195,6 +195,7 @@
     "hub:load-redirect-error-peel-smoke": "node scripts/hub-ingest/hub-load-redirect-error-peel-smoke.mjs",
     "hub:urlencoded-form-post-peel-demand-smoke": "node scripts/hub-ingest/hub-urlencoded-form-post-peel-demand-smoke.mjs",
     "hub:layout-page-island-peel-smoke": "node scripts/hub-ingest/hub-layout-page-island-peel-smoke.mjs",
+    "hub:genome-deepen-peel-smoke": "node scripts/hub-ingest/hub-genome-deepen-peel-smoke.mjs",
     "hub:cwl-phase20-close-smoke": "node scripts/hub-ingest/hub-cwl-phase20-close-smoke.mjs",
     "hub:cwl-effects-middleware-smoke": "node scripts/hub-ingest/hub-cwl-effects-middleware-smoke.mjs",
     "hub:cwl-phase21-close-smoke": "node scripts/hub-ingest/hub-cwl-phase21-close-smoke.mjs",

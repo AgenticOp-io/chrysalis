@@ -86,11 +86,19 @@ export function listCwlImportGraph(entryPath, readFile = (p) => readFileSync(p, 
 
 /**
  * Resolve a CWL entry file and its `import "…";` graph into one module.
+ * Layout chrome is applied once on the finished graph (not on each fragment).
  * @param {string} entryPath
  * @param {(path: string) => string} [readFile]
  * @param {string[]} [stack]
+ * @param {{ applyLayouts?: boolean }} [opts]
  */
-export function resolveCwlModuleFromPath(entryPath, readFile = (p) => readFileSync(p, "utf8"), stack = []) {
+export function resolveCwlModuleFromPath(
+  entryPath,
+  readFile = (p) => readFileSync(p, "utf8"),
+  stack = [],
+  opts = {},
+) {
+  const applyLayouts = opts.applyLayouts !== false;
   const abs = resolve(entryPath);
   if (stack.includes(abs)) {
     throw new Error(`cwl:import-cycle:${abs}`);
@@ -100,11 +108,11 @@ export function resolveCwlModuleFromPath(entryPath, readFile = (p) => readFileSy
   const nextStack = [...stack, abs];
   for (const imp of parsed.imports ?? []) {
     const childPath = resolve(dirname(abs), imp);
-    const child = resolveCwlModuleFromPath(childPath, readFile, nextStack);
+    const child = resolveCwlModuleFromPath(childPath, readFile, nextStack, { applyLayouts: false });
     mergeCwlModuleFragment(parsed, child);
   }
   markDuplicateCwlRoutes(parsed);
-  applyLayoutsToParsedModule(parsed);
+  if (applyLayouts) applyLayoutsToParsedModule(parsed);
   return parsed;
 }
 

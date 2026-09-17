@@ -4,11 +4,12 @@
 import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody, lowerHubPageWithLoadAndUiBody } from "./hub-lift-webir-route.mjs";
 import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
 import { lowerCwlUiTreeBody, resolveCwlUiComponent } from "./cwl-ui-tree.mjs";
+import { composeLayoutChromeHtml } from "./cwl-layout.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
 import { cwlEffectsToWebir, wrapCwlExecutableEffects } from "./hub-cwl-effects.mjs";
-import { cwlPathParamsForWebir } from "./hub-cwl-path-params.mjs";
+import { cwlPathParamsForWebir, extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { appendForeachBindings, wrapWithEarlyGuards } from "./cwl-control-lower.mjs";
 
 /**
@@ -214,14 +215,22 @@ export function liftCwlFileToWebir(opts) {
     const loc = { file, line: r.line };
     ctx.multipartFields = r.handlerMultipartFields ?? [];
     ctx.multipartFiles = r.handlerMultipartFiles ?? [];
+    const htmlRepeats = Array.isArray(r.htmlRepeats) ? r.htmlRepeats : [];
     const htmlBindings = {
       path: r.handlerPathParams ?? [],
       query: r.handlerQueryParams ?? [],
+      cookie: r.handlerCookies ?? [],
       load:
         r.loadBody?.kind === "object" && r.loadBody.entries
           ? r.loadBody.entries.map((e) => e.key)
           : [],
+      // RFC-0031: a repeated collection renders markup per item, not a scalar.
+      repeat: htmlRepeats.map((rep) => rep.collection),
+      repeats: htmlRepeats,
     };
+    // RFC-0029: a page that names a layout renders the shared chrome around its body.
+    const pageHtml =
+      r.body.kind === "html" ? composeLayoutChromeHtml(r.layoutChromeHtml, r.body.value) : null;
     if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {
       const redirectEntry = r.loadBody.entries.find((e) => e.key === "redirect");
       const errorEntry = r.loadBody.entries.find((e) => e.key === "error");
@@ -244,7 +253,7 @@ export function liftCwlFileToWebir(opts) {
         });
       } else {
         const loadValueId = lowerObjectEntriesBody(ctx, r.loadBody.entries, loc);
-        valueId = lowerHubPageWithLoadBody(ctx, loadValueId, r.body.value, loc, wrBuilders, htmlBindings);
+        valueId = lowerHubPageWithLoadBody(ctx, loadValueId, pageHtml, loc, wrBuilders, htmlBindings);
       }
     } else if (
       r.loadBody &&
@@ -276,8 +285,33 @@ export function liftCwlFileToWebir(opts) {
         r.body,
         { file, line: r.line ?? 1, column: 1 },
       );
+    } else if (r.body.kind === "proxy") {
+      // RFC-0033: declare the upstream target; the host performs the forward.
+      const targetId = data.literal({
+        value: r.body.target,
+        type: HUB_T.string,
+        origin: hubOrigin(file, r.line ?? 1),
+        provenance: [webir.provenance("hub-ingest", "cwl:proxy-target")],
+      });
+      // Params reused by the target are real data dependencies, not text.
+      const proxyParamFields = extractPathParamsFromCwlPath(r.body.target).map((name) =>
+        data.requestField({
+          source: "path",
+          name,
+          type: HUB_T.string,
+          origin: hubOrigin(file, r.line ?? 1),
+          provenance: [webir.provenance("hub-ingest", "cwl:proxy-path-param")],
+        }),
+      );
+      valueId = data.call({
+        callee: "__cwl_effect_upstream_proxy",
+        args: [targetId, ...proxyParamFields],
+        type: HUB_T.unknown,
+        origin: hubOrigin(file, r.line ?? 1),
+        provenance: [webir.provenance("hub-ingest", "cwl:proxy-upstream")],
+      });
     } else if (r.body.kind === "html") {
-      valueId = lowerCwlHtmlTemplateBody(ctx, r.body.value, loc, wrBuilders, htmlBindings);
+      valueId = lowerCwlHtmlTemplateBody(ctx, pageHtml, loc, wrBuilders, htmlBindings);
     } else if (r.body.kind === "ui") {
       let tree = r.body.tree;
       if (r.body.componentRef) {
@@ -304,6 +338,17 @@ export function liftCwlFileToWebir(opts) {
         type: HUB_T.unknown,
         origin: hubOrigin(file, r.line ?? 1),
         provenance: [webir.provenance("hub-ingest", "cwl:attachment-holes")],
+      });
+    }
+    // RFC-0030: page-level client islands alongside HTML — attach as UI metadata blocks.
+    const pageIslands = Array.isArray(r.pageIslands) ? r.pageIslands : [];
+    if (pageIslands.length > 0 && valueId) {
+      const islandIds = pageIslands.map((island) => lowerCwlUiTreeBody(ctx, island, loc, htmlBindings));
+      valueId = data.block({
+        statements: [...islandIds, valueId],
+        type: HUB_T.unknown,
+        origin: hubOrigin(file, r.line ?? 1),
+        provenance: [webir.provenance("hub-ingest", "cwl:page-islands")],
       });
     }
     valueId = wrapCwlExecutableEffects({ data, webir, builder, file }, valueId, r.effects ?? [], loc);

@@ -36,6 +36,15 @@ export function cwlEffectsToWebir(declared) {
       out.push({ kind: "session.read" });
       continue;
     }
+    // RFC-0032: credential/session intent declared in CWL; host owns hashing + store.
+    if (t === "auth.verify") {
+      out.push({ kind: "db.read", table: "*" });
+      continue;
+    }
+    if (t === "session.mint" || t === "session.revoke") {
+      out.push({ kind: "session.write" });
+      continue;
+    }
     if (t === "cors.allow" || t === "csrf.verify" || t === "rate.limit") {
       out.push({ kind: "http.fetch" });
     }
@@ -94,6 +103,36 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           type: HUB_T.string,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require")],
+        }),
+      );
+    } else if (t === "auth.verify") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_auth_verify",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-verify")],
+        }),
+      );
+    } else if (t === "session.mint") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_session_mint",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-session-mint")],
+        }),
+      );
+    } else if (t === "session.revoke") {
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_session_revoke",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-session-revoke")],
         }),
       );
     } else if (t === "cors.allow") {

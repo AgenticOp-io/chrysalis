@@ -39,6 +39,10 @@ const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
 const ELSE_RE = /^else\s*\{$/;
 const FOREACH_RE = /^foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as(?:\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=>)?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{$/;
+/** RFC-0031: repeat a markup fragment per item of a load collection. */
+const HTML_REPEAT_RE = /^repeat\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+html\s+(.+);$/i;
+/** RFC-0033: route forwards to a named upstream (host owns the bytes). */
+const PROXY_UPSTREAM_RE = /^proxy\s+upstream\s+(.+);$/i;
 /** RFC-0029: shared chrome layout */
 const LAYOUT_DECL_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const LAYOUT_USE_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -266,7 +270,9 @@ export function parseCwlReturnValue(expr, bindings = {}) {
 }
 
 /**
- * Split comma-separated object fields respecting nested `{` `[` brackets.
+ * Split comma-separated object fields respecting nested `{` `[` brackets and
+ * string literals — prose values carry commas, and splitting inside a quoted
+ * string produced pairs with no `:` and a bogus `invalid-object-pair`.
  * @param {string} inner
  */
 function splitTopLevelObjectPairs(inner) {
@@ -274,9 +280,16 @@ function splitTopLevelObjectPairs(inner) {
   const pairs = [];
   let depth = 0;
   let start = 0;
+  let quote = "";
   for (let i = 0; i < inner.length; i++) {
     const c = inner[i];
-    if (c === "{" || c === "[") depth += 1;
+    if (quote) {
+      if (c === "\\") i += 1;
+      else if (c === quote) quote = "";
+      continue;
+    }
+    if (c === '"' || c === "'") quote = c;
+    else if (c === "{" || c === "[") depth += 1;
     else if (c === "}" || c === "]") depth -= 1;
     else if (c === "," && depth === 0) {
       const part = inner.slice(start, i).trim();
@@ -746,6 +759,8 @@ export function parseCwlModule(source, file) {
     const attachmentHoleCharacters = [];
     /** @type {number[]} 0-based exclusive end columns of `hole` keyword, parallel to `attachmentHoles`. */
     const attachmentHoleEndCharacters = [];
+    /** @type {Array<{ collection: string, item: string, template: string, line: number }>} RFC-0031 repeated markup */
+    const htmlRepeats = [];
     /** @type {string | null} RFC-0029 layout name */
     let layoutName = null;
     /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
@@ -905,6 +920,60 @@ export function parseCwlModule(source, file) {
         else loadBody = { kind: "hole", reason: `cwl:${parsed.error}` };
         continue;
       }
+      // RFC-0033: declared upstream forward — the target is meaning, the bytes are the host's.
+      const proxyM = PROXY_UPSTREAM_RE.exec(inner);
+      if (proxyM) {
+        const proxyRaw = lines[i - 1] ?? "";
+        const targetLit = parseCwlLiteral(proxyM[1]);
+        // A target may reuse the route's own path params — nothing else.
+        const unknownParam = targetLit.ok
+          ? extractPathParamsFromCwlPath(String(targetLit.value)).find(
+              (p) => !extractPathParamsFromCwlPath(path).includes(p),
+            )
+          : null;
+        const proxyHole = !targetLit.ok || typeof targetLit.value !== "string"
+          ? "cwl:invalid-proxy-upstream"
+          : unknownParam
+            ? `cwl:unknown-proxy-param:${unknownParam}`
+            : null;
+        if (proxyHole) {
+          attachmentHoles.push(proxyHole);
+          attachmentHoleLines.push(i);
+          attachmentHoleCharacters.push(keywordStartCharacter0(proxyRaw));
+          attachmentHoleEndCharacters.push(keywordEndCharacter0(proxyRaw, "proxy"));
+          body = {
+            kind: "hole",
+            reason: proxyHole,
+            line: i,
+            character: keywordStartCharacter0(proxyRaw),
+            endCharacter: keywordEndCharacter0(proxyRaw, "proxy"),
+          };
+        } else {
+          body = { kind: "proxy", target: String(targetLit.value) };
+          sawReturn = true;
+        }
+        continue;
+      }
+      // RFC-0031: repeat markup per item of a collection binding (list fragments).
+      const repeatM = HTML_REPEAT_RE.exec(inner);
+      if (repeatM) {
+        const tplLit = parseCwlLiteral(repeatM[3]);
+        if (tplLit.ok && typeof tplLit.value === "string") {
+          htmlRepeats.push({
+            collection: repeatM[1],
+            item: repeatM[2],
+            template: tplLit.value,
+            line: i,
+          });
+        } else {
+          const repeatRaw = lines[i - 1] ?? "";
+          attachmentHoles.push("cwl:invalid-html-repeat");
+          attachmentHoleLines.push(i);
+          attachmentHoleCharacters.push(keywordStartCharacter0(repeatRaw));
+          attachmentHoleEndCharacters.push(keywordEndCharacter0(repeatRaw, "repeat"));
+        }
+        continue;
+      }
       // Early-exit guards (RFC-0021): cond + stmt-list body (nested if/foreach / else ok).
       const ifGuard = IF_GUARD_RE.exec(inner);
       if (ifGuard) {
@@ -1029,6 +1098,7 @@ export function parseCwlModule(source, file) {
       attachmentHoleEndCharacters,
       layoutName,
       pageIslands,
+      htmlRepeats,
       body,
     });
   }
