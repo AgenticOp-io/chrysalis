@@ -34,7 +34,11 @@ jobs:
           cache: pnpm
 
       - name: Build Chrysalis
-        run: pnpm install --frozen-lockfile && pnpm -r build
+        run: |
+          node scripts/ci-link-cwl-sibling.mjs --stage=sibling
+          pnpm install --frozen-lockfile
+          node scripts/ci-link-cwl-sibling.mjs --stage=links
+          pnpm -r build
 
       - uses: actions/checkout@v4
         with:
