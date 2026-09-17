@@ -28,7 +28,7 @@
  *   CHRYSALIS_CWL_REF       override the pinned ref from fixtures/ci/cwl-sibling.json
  *   CHRYSALIS_CWL_NO_CLONE  set to 1 to fail instead of cloning a missing sibling
  */
-import { existsSync, lstatSync, mkdirSync, readFileSync, symlinkSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -158,9 +158,73 @@ export function linkCwlSibling(opts = {}) {
     }
   }
 
+  repointBuiltPins(root, manifest.packages, steps);
   linkWorkspaceDeps(root, steps);
 
   return finish(root, sibling, ref, stage, steps);
+}
+
+/**
+ * pnpm materializes a `file:` directory dependency as a **copy** taken at install time,
+ * not a live link. `@chrysalis/webir` resolves its `main` to `dist/index.js`, which a
+ * freshly cloned pillar has not built yet — so the copy holds `src` only and every
+ * `import "@chrysalis/webir"` fails at runtime no matter what `pnpm -r build` produces
+ * afterwards. A developer never sees this because their sibling was already built when
+ * they installed. Repoint the copy at the live package so the build output is visible.
+ *
+ * Narrow on purpose: only packages whose entry point lives under `dist/` and whose
+ * installed copy lacks one. `@chrysalis/cwl` ships `index.mjs` directly and is untouched,
+ * as is any already-built tree.
+ *
+ * @param {string} root
+ * @param {string[]} packages
+ * @param {Array<{ id: string, ok: boolean, action: string, detail?: string }>} steps
+ */
+function repointBuiltPins(root, packages, steps) {
+  for (const name of packages) {
+    const installed = join(root, "node_modules", "@chrysalis", name);
+    const live = join(root, "packages", name);
+    if (!existsSync(installed) || !existsSync(live)) continue;
+
+    let entry = "";
+    try {
+      entry = String(JSON.parse(readFileSync(join(live, "package.json"), "utf8")).main ?? "");
+    } catch {
+      continue;
+    }
+    if (!entry.includes("dist/")) continue;
+    if (existsSync(join(installed, "dist"))) continue;
+
+    try {
+      unlinkOrRemoveDirLink(installed);
+      linkDirectory(installed, live);
+      steps.push({
+        id: `pin:${name}`,
+        ok: true,
+        action: "repointed",
+        detail: `${installed} -> ${live} (copy had no dist/)`,
+      });
+    } catch (e) {
+      steps.push({
+        id: `pin:${name}`,
+        ok: false,
+        action: "error",
+        detail: String(e instanceof Error ? e.message : e).slice(0, 300),
+      });
+    }
+  }
+}
+
+/**
+ * Remove a directory link (junction or symlink) without following it into the target.
+ * @param {string} path
+ */
+function unlinkOrRemoveDirLink(path) {
+  if (process.platform === "win32") {
+    const r = spawnSync("cmd", ["/c", "rmdir", path], { encoding: "utf8" });
+    if (r.status === 0) return;
+  }
+  rmSync(path, { recursive: true, force: true });
 }
 
 /**
