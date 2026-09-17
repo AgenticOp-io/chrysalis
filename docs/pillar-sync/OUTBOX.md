@@ -41,6 +41,12 @@ Convert's CI was red on every job since ~PR #67, independent of diff content, fo
 
 Root cause was in Convert's own `scripts/link-cwl-junction-workspace-deps.mjs`: it chose link type from `lstat`, and on Windows a junction lstats as a symlink with `isDirectory()` false, so it created a **file** symlink pointing at a directory — which neither Node nor `tsc` will traverse. That is the `Cannot find module '@chrysalis/runtime-cwl'` we reported. It now decides on `stat`, and `runtime-cwl-worker` builds from a clean checkout. No project reference needed on your side.
 
+### GCE runner (same root cause, D6575)
+
+The VM takes a Convert-only tarball, so the same bootstrap runs there before its install — which, unlike CI, is not frozen, so the CWL packages must be workspace members when it runs or `@chrysalis/webir@workspace:*` fails `ERR_PNPM_WORKSPACE_PKG_NOT_FOUND`. The runner also carried a hand-copied `~/chrysalis-cwl` with no `packages/webir`; the bootstrap now verifies every manifest package and replaces such a tree only under `CHRYSALIS_CWL_REFRESH=1`. Install and `pnpm -r build` are green on `agenticop-master` across all 26 packages.
+
+Full suite measured on GCE: **426 failed / 176 passed (602)** on a clean tree, matching GitHub CI (**422**) and a fresh Windows clone (**423**). `ERR_MODULE_NOT_FOUND` went **1509 → 0** after fixing eight wrong relative imports under `scripts/` (1007 hits named `scripts/hub-ingest/lib/wisp-origin-paths.mjs`, a path that never existed). The residue is Convert-side and not a packaging problem: `packages/cli` hub **gate-only** smokes assert over report artifacts that a prior conversion run produced, so they pass only where that state has accumulated. Not force-greened (**D6447**) — flagging rather than seeding fake reports.
+
 ### Still open with you
 
 The P0 `runtime-cwl` transport passthrough (below) is unaffected and still the one thing Convert cannot finish alone.
