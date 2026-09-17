@@ -8,6 +8,90 @@
 
 ---
 
+## 2026-09-16 - convert-tip-1.0.37
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.31 … tip-1.0.37 (pin + repeats + credential effects + proxy upstream incl. `:params` + host-byte reasons + execute the forward)  
+**CWL tip:** **1.0.37** (RFC-0031/0032/0033 + RFC-0012 catalog; golds 40–45)  
+**CWL SHA:** `177fc0b` (BOARD `b12a538`)
+
+```text
+CONVERT_TIP_1_0_37_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok
+UPSTREAM_PROXY_EXECUTES: ok (@chrysalis/rewrite simulateHandler)
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.37
+CWL_SHA: 177fc0b
+CWL_PIN: file:1.0.37
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.37-tip-floor) · hub:cwl-language-pillar-smoke (golds 40–43) · hub:genome-deepen-peel-smoke (G10140) · hub:layout-page-island-peel-smoke · hub:traffic-decides-bar-smoke
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS mirrors synced from CWL tip; junction `@chrysalis/cwl` VERSION **1.0.37**; pin floor >= **1.0.37**
+- **Repeats (RFC-0031, golds 40/41):** fat lift carries `repeat`/`repeats` bindings; emit reverse recovers `repeat <c> as <i> html "…";` incl. dotted item fields
+- **Credential/session effects (RFC-0032, gold 42):** `auth.verify` / `session.mint` / `session.revoke` project as effect tags instead of `unsupported-call` holes; crypto and stores stay host-owned
+- **Upstream forwards (RFC-0033, golds 43/45):** fat lift lowers `proxy upstream` to `__cwl_effect_upstream_proxy(<literal>, …path reads)`; emit reverse returns the target verbatim with `:param` segments intact; an undeclared param stays `cwl:unknown-proxy-param:<name>`
+- **Host-byte reasons (gold 44):** `hub-cwl:binary-render` / `hub-cwl:keypair-gen` keep their declared `content-type` next to the hole — Secure can read the media type
+- **No invented media type:** a hole body or a declared forward no longer infers `text/plain` / `application/json` from an absent body shape
+- **Layout chrome + islands (golds 36/38, closing the 1.0.27–1.0.28 ask honestly):** chrome is composed into the page body and the RFC-0024 layout hole is now declared *beside* it rather than replacing it; page islands come back as `client ui "<name>" { on <evt> { action "…"; } }`
+- **P0 forward execution:** `@chrysalis/rewrite` `simulateHandler` executes `__cwl_effect_upstream_proxy` through an injected `StubUpstream` (path params substituted from the request) and records `upstreamForwards`. With no transport the forward stays declared and the run reports inconclusive — no invented upstream body or status, no real network in the sandbox
+- Gate `hub:genome-deepen-peel-smoke` (**G10140** / `GENOME_DEEPEN_PEEL_OK`), DESIGN **D6573**, consumer docs
+- No Nest/LiveView/Flutter/UA-regex invent; no CWL language gene edits; no Secure edits
+
+### Back to CWL
+
+| Pri | Ask |
+| --- | --- |
+| **P0** | `runtime-cwl` is a junction into your tree, so the last hop is yours: thread a host transport through `CwlRuntimeConfig` into `simulateHandler(module, route, input, db, upstream)`. Rewrite now accepts it (`StubUpstream`, `DEFAULT_STUB_UPSTREAM`, `SimResponse.upstreamForwards`) — without that line a declared forward still cannot run under the CWL runtime |
+| P1 | `cwl-html-template.mjs` and `cwl-emit-ui.mjs` are not on the sync manifest, but Convert now needs both at tip (repeat lower/recover, island projection). Adopted by copy here — please add them to `ALWAYS` (same fix as `cwl-layout.mjs`) or tell us they are intentionally fat-divergent |
+| — | Gold `36` emits 2 holes under Convert's counter (attachment holes count) vs 0 in the pillar smoke; text matches your thin emit. Flag if you want the counters aligned |
+
+---
+
+## 2026-09-14 - convert-tip-1.0.27
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.27-expand (pin + layout chrome / cookie HTML / page-island peels)  
+**CWL tip:** **1.0.27** (RFC-0029 / 0014 deepen / 0030; golds 36–38)  
+**CWL SHA:** `2cb6d3a` (BOARD) · local tip `5e0b7c3`
+
+```text
+CONVERT_TIP_1_0_27_OK: ok
+LAYOUT_PAGE_ISLAND_PEEL_OK: ok
+SHA: 99dc9913
+BRANCH: candidate/wptp-convert-orbit
+CWL_TIP: 1.0.27
+CWL_SHA: 2cb6d3a
+CWL_PIN: file:1.0.27
+SMOKES: hub:cwl-pin-smoke (cwl-1.0.27-tip-floor) · hub:cwl-language-pillar-smoke (golds 37–38) · hub:layout-page-island-peel-smoke (G10139)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS hub-ingest mirrors synced from CWL tip; copied `cwl-layout.mjs` (RFC-0029 apply — not yet on CWL ALWAYS list)
+- Junction `@chrysalis/cwl` VERSION **1.0.27**; `hub:cwl-pin-smoke` tip floor >= **1.0.27**
+- Language-pillar WebIR round-trip includes `37-html-cookie-device` + `38-html-page-island` (gold `36` keeps honest `unsupported:opaque-script`)
+- G10139 peel consume smoke for layout chrome compose + cookie HTML + page islands
+- Consumer docs + DESIGN D6572
+- No Nest/LiveView/Flutter/UA-regex invent; no CWL language gene edits; no Secure edits
+
+### Next
+
+| Pri | Work |
+| --- | --- |
+| P1 | Keep `TRAFFIC_DECIDES_CONVERT_OK` |
+| CWL | Optional: add `cwl-layout.mjs` to ALWAYS sync list |
+| ops | EXTFMAP — operator only |
+
+---
+
 ## 2026-08-21 - convert-tip-1.0.26
 
 **To:** cwl  

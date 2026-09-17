@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parseCwlModule } from "./cwl-parser.mjs";
+import { applyLayoutsToParsedModule } from "./cwl-layout.mjs";
 
 /**
  * @param {string} method
@@ -27,6 +28,10 @@ function mergeCwlModuleFragment(target, fragment) {
   target.components = target.components ?? [];
   for (const comp of fragment.components ?? []) {
     if (!target.components.some((c) => c.name === comp.name)) target.components.push(comp);
+  }
+  target.layouts = target.layouts ?? [];
+  for (const L of fragment.layouts ?? []) {
+    if (!target.layouts.some((x) => x.name === L.name)) target.layouts.push(L);
   }
   target.routes.push(...(fragment.routes ?? []));
 }
@@ -81,11 +86,19 @@ export function listCwlImportGraph(entryPath, readFile = (p) => readFileSync(p, 
 
 /**
  * Resolve a CWL entry file and its `import "…";` graph into one module.
+ * Layout chrome is applied once on the finished graph (not on each fragment).
  * @param {string} entryPath
  * @param {(path: string) => string} [readFile]
  * @param {string[]} [stack]
+ * @param {{ applyLayouts?: boolean }} [opts]
  */
-export function resolveCwlModuleFromPath(entryPath, readFile = (p) => readFileSync(p, "utf8"), stack = []) {
+export function resolveCwlModuleFromPath(
+  entryPath,
+  readFile = (p) => readFileSync(p, "utf8"),
+  stack = [],
+  opts = {},
+) {
+  const applyLayouts = opts.applyLayouts !== false;
   const abs = resolve(entryPath);
   if (stack.includes(abs)) {
     throw new Error(`cwl:import-cycle:${abs}`);
@@ -95,10 +108,11 @@ export function resolveCwlModuleFromPath(entryPath, readFile = (p) => readFileSy
   const nextStack = [...stack, abs];
   for (const imp of parsed.imports ?? []) {
     const childPath = resolve(dirname(abs), imp);
-    const child = resolveCwlModuleFromPath(childPath, readFile, nextStack);
+    const child = resolveCwlModuleFromPath(childPath, readFile, nextStack, { applyLayouts: false });
     mergeCwlModuleFragment(parsed, child);
   }
   markDuplicateCwlRoutes(parsed);
+  if (applyLayouts) applyLayoutsToParsedModule(parsed);
   return parsed;
 }
 
@@ -123,5 +137,6 @@ export function parseCwlModuleResolved(source, file, opts = {}) {
   }
   const parsed = parseCwlModule(source, file);
   markDuplicateCwlRoutes(parsed);
+  applyLayoutsToParsedModule(parsed);
   return parsed;
 }

@@ -51,6 +51,7 @@ export {
   simValueEquals,
   normalizeSimValue,
   DEFAULT_STUB_DB,
+  DEFAULT_STUB_UPSTREAM,
   type DbReadEvent,
   type DbWriteEvent,
   type RequestInput,
@@ -59,6 +60,8 @@ export {
   type SimResponse,
   type SimValue,
   type StubDb,
+  type StubUpstream,
+  type UpstreamForwardEvent,
 } from "./simulate.js";
 import { sanitizeOutputPass } from "./passes/sanitize-output.js";
 import { parameterizeSqlPass } from "./passes/parameterize-sql.js";

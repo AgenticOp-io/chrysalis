@@ -3,7 +3,7 @@
  * @see docs/CWL.md
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
-import { parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
+import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -39,6 +39,15 @@ const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
 const ELSE_RE = /^else\s*\{$/;
 const FOREACH_RE = /^foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as(?:\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=>)?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{$/;
+/** RFC-0031: repeat a markup fragment per item of a load collection. */
+const HTML_REPEAT_RE = /^repeat\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+html\s+(.+);$/i;
+/** RFC-0033: route forwards to a named upstream (host owns the bytes). */
+const PROXY_UPSTREAM_RE = /^proxy\s+upstream\s+(.+);$/i;
+/** RFC-0029: shared chrome layout */
+const LAYOUT_DECL_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
+const LAYOUT_USE_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const CLIENT_UI_START_RE = /^client\s+ui\b/;
+const CHROME_HTML_PREFIX_RE = /^chrome\s+html\s+/i;
 
 /**
  * 0-based column of the first non-whitespace on a raw source line.
@@ -106,6 +115,83 @@ export function extractCwlHtmlReturnLiteral(inner) {
   }
   const m = HTML_RETURN_RE.exec(t);
   return m?.[1]?.trim() ?? null;
+}
+
+/**
+ * Extract `chrome html "…";` literal including quotes (RFC-0029).
+ * @param {string} inner
+ * @returns {string | null}
+ */
+export function extractCwlChromeHtmlLiteral(inner) {
+  const t = String(inner ?? "").trim();
+  if (!CHROME_HTML_PREFIX_RE.test(t)) return null;
+  return extractCwlHtmlReturnLiteral(t.replace(CHROME_HTML_PREFIX_RE, "return html "));
+}
+
+/**
+ * @param {string[]} lines
+ * @param {number} startIdx
+ * @param {number} lineNo
+ */
+function parseLayoutDeclBlock(lines, startIdx, lineNo) {
+  const open = lines[startIdx].trim();
+  const m = LAYOUT_DECL_RE.exec(open);
+  if (!m) return { ok: false, error: "not-layout", consumed: startIdx + 1 };
+  const name = m[1];
+  /** @type {string[]} */
+  const headers = [];
+  /** @type {string[]} */
+  const cookies = [];
+  /** @type {string[]} */
+  const holes = [];
+  /** @type {string | null} */
+  let chromeHtml = null;
+  /** @type {object[]} */
+  const pageIslands = [];
+  let i = startIdx + 1;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    i += 1;
+    if (!line || line.startsWith("#") || line.startsWith("//")) continue;
+    if (line === "}") {
+      return {
+        ok: true,
+        layout: { name, line: lineNo, headers, cookies, holes, chromeHtml, pageIslands },
+        consumed: i,
+      };
+    }
+    const hm = HEADER_RE.exec(line);
+    if (hm) {
+      if (!headers.includes(hm[1])) headers.push(hm[1]);
+      continue;
+    }
+    const cm = COOKIE_RE.exec(line);
+    if (cm) {
+      if (!cookies.includes(cm[1])) cookies.push(cm[1]);
+      continue;
+    }
+    const hol = HOLE_RE.exec(line);
+    if (hol) {
+      holes.push(hol[1]);
+      continue;
+    }
+    const chromeLit = extractCwlChromeHtmlLiteral(line);
+    if (chromeLit !== null) {
+      const lit = parseCwlLiteral(chromeLit);
+      if (lit.ok && typeof lit.value === "string") chromeHtml = lit.value;
+      continue;
+    }
+    if (CLIENT_UI_START_RE.test(line)) {
+      const islandParsed = parseCwlStandaloneIslandBlock(lines, i - 1);
+      if (islandParsed.ok) {
+        pageIslands.push(islandParsed.island);
+        i = islandParsed.consumed;
+        continue;
+      }
+    }
+    holes.push("cwl:unknown-layout-statement");
+  }
+  return { ok: false, error: "unclosed-layout", consumed: lines.length };
 }
 
 /**
@@ -184,7 +270,9 @@ export function parseCwlReturnValue(expr, bindings = {}) {
 }
 
 /**
- * Split comma-separated object fields respecting nested `{` `[` brackets.
+ * Split comma-separated object fields respecting nested `{` `[` brackets and
+ * string literals — prose values carry commas, and splitting inside a quoted
+ * string produced pairs with no `:` and a bogus `invalid-object-pair`.
  * @param {string} inner
  */
 function splitTopLevelObjectPairs(inner) {
@@ -192,9 +280,16 @@ function splitTopLevelObjectPairs(inner) {
   const pairs = [];
   let depth = 0;
   let start = 0;
+  let quote = "";
   for (let i = 0; i < inner.length; i++) {
     const c = inner[i];
-    if (c === "{" || c === "[") depth += 1;
+    if (quote) {
+      if (c === "\\") i += 1;
+      else if (c === quote) quote = "";
+      continue;
+    }
+    if (c === '"' || c === "'") quote = c;
+    else if (c === "{" || c === "[") depth += 1;
     else if (c === "}" || c === "]") depth -= 1;
     else if (c === "," && depth === 0) {
       const part = inner.slice(start, i).trim();
@@ -528,6 +623,8 @@ export function parseCwlModule(source, file) {
   const importLines = [];
   /** @type {Array<{ name: string, props: string[], tree: object, line: number }>} */
   const components = [];
+  /** @type {Array<{ name: string, line: number, headers: string[], cookies: string[], holes: string[], chromeHtml: string | null, pageIslands: object[] }>} */
+  const layouts = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, character?: number, endCharacter?: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -561,6 +658,14 @@ export function parseCwlModule(source, file) {
     if (impM) {
       imports.push(impM[1]);
       importLines.push(lineNo);
+      continue;
+    }
+    if (LAYOUT_DECL_RE.test(line)) {
+      const layoutParsed = parseLayoutDeclBlock(lines, i - 1, lineNo);
+      if (layoutParsed.ok) {
+        layouts.push(layoutParsed.layout);
+        i = layoutParsed.consumed;
+      }
       continue;
     }
     const compDecl = COMPONENT_DECL_RE.exec(line);
@@ -654,6 +759,12 @@ export function parseCwlModule(source, file) {
     const attachmentHoleCharacters = [];
     /** @type {number[]} 0-based exclusive end columns of `hole` keyword, parallel to `attachmentHoles`. */
     const attachmentHoleEndCharacters = [];
+    /** @type {Array<{ collection: string, item: string, template: string, line: number }>} RFC-0031 repeated markup */
+    const htmlRepeats = [];
+    /** @type {string | null} RFC-0029 layout name */
+    let layoutName = null;
+    /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
+    const pageIslands = [];
     let body = {
       kind: "hole",
       reason: "cwl:empty-handler",
@@ -676,6 +787,19 @@ export function parseCwlModule(source, file) {
       i += 1;
       if (inner === "}") break;
       if (!inner || inner.startsWith("#") || inner.startsWith("//")) continue;
+      const layoutUse = LAYOUT_USE_RE.exec(inner);
+      if (layoutUse) {
+        layoutName = layoutUse[1];
+        continue;
+      }
+      if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {
+        const islandParsed = parseCwlStandaloneIslandBlock(lines, i - 1);
+        if (islandParsed.ok) {
+          pageIslands.push(islandParsed.island);
+          i = islandParsed.consumed;
+          continue;
+        }
+      }
       const pm = PARAM_RE.exec(inner);
       if (pm) {
         if (!handlerPathParams.includes(pm[1])) handlerPathParams.push(pm[1]);
@@ -794,6 +918,60 @@ export function parseCwlModule(source, file) {
         });
         if (parsed.ok) loadBody = parsed.body;
         else loadBody = { kind: "hole", reason: `cwl:${parsed.error}` };
+        continue;
+      }
+      // RFC-0033: declared upstream forward — the target is meaning, the bytes are the host's.
+      const proxyM = PROXY_UPSTREAM_RE.exec(inner);
+      if (proxyM) {
+        const proxyRaw = lines[i - 1] ?? "";
+        const targetLit = parseCwlLiteral(proxyM[1]);
+        // A target may reuse the route's own path params — nothing else.
+        const unknownParam = targetLit.ok
+          ? extractPathParamsFromCwlPath(String(targetLit.value)).find(
+              (p) => !extractPathParamsFromCwlPath(path).includes(p),
+            )
+          : null;
+        const proxyHole = !targetLit.ok || typeof targetLit.value !== "string"
+          ? "cwl:invalid-proxy-upstream"
+          : unknownParam
+            ? `cwl:unknown-proxy-param:${unknownParam}`
+            : null;
+        if (proxyHole) {
+          attachmentHoles.push(proxyHole);
+          attachmentHoleLines.push(i);
+          attachmentHoleCharacters.push(keywordStartCharacter0(proxyRaw));
+          attachmentHoleEndCharacters.push(keywordEndCharacter0(proxyRaw, "proxy"));
+          body = {
+            kind: "hole",
+            reason: proxyHole,
+            line: i,
+            character: keywordStartCharacter0(proxyRaw),
+            endCharacter: keywordEndCharacter0(proxyRaw, "proxy"),
+          };
+        } else {
+          body = { kind: "proxy", target: String(targetLit.value) };
+          sawReturn = true;
+        }
+        continue;
+      }
+      // RFC-0031: repeat markup per item of a collection binding (list fragments).
+      const repeatM = HTML_REPEAT_RE.exec(inner);
+      if (repeatM) {
+        const tplLit = parseCwlLiteral(repeatM[3]);
+        if (tplLit.ok && typeof tplLit.value === "string") {
+          htmlRepeats.push({
+            collection: repeatM[1],
+            item: repeatM[2],
+            template: tplLit.value,
+            line: i,
+          });
+        } else {
+          const repeatRaw = lines[i - 1] ?? "";
+          attachmentHoles.push("cwl:invalid-html-repeat");
+          attachmentHoleLines.push(i);
+          attachmentHoleCharacters.push(keywordStartCharacter0(repeatRaw));
+          attachmentHoleEndCharacters.push(keywordEndCharacter0(repeatRaw, "repeat"));
+        }
         continue;
       }
       // Early-exit guards (RFC-0021): cond + stmt-list body (nested if/foreach / else ok).
@@ -918,6 +1096,9 @@ export function parseCwlModule(source, file) {
       attachmentHoleLines,
       attachmentHoleCharacters,
       attachmentHoleEndCharacters,
+      layoutName,
+      pageIslands,
+      htmlRepeats,
       body,
     });
   }
@@ -928,6 +1109,7 @@ export function parseCwlModule(source, file) {
     moduleEndCharacter,
     file,
     routes,
+    layouts,
     moduleUses,
     moduleAuthUses,
     imports,

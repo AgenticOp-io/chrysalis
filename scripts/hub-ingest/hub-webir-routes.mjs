@@ -44,7 +44,14 @@ const CWL_EXECUTABLE_EFFECT_CALLS = new Map([
   ["__cwl_effect_db_read", "db.read"],
   ["__cwl_effect_db_write", "db.write"],
   ["__cwl_effect_io", "io"],
+  // RFC-0032 credential / session intent — the tag is CWL, the crypto stays host-owned.
+  ["__cwl_effect_auth_verify", "auth.verify"],
+  ["__cwl_effect_session_mint", "session.mint"],
+  ["__cwl_effect_session_revoke", "session.revoke"],
 ]);
+
+/** RFC-0033: the declared upstream target is a handler body, not an effect tag. */
+const CWL_UPSTREAM_PROXY_CALLEE = "__cwl_effect_upstream_proxy";
 
 /** Effect-dialect ops lowered from declared effects (time.now / random). */
 const CWL_EXECUTABLE_EFFECT_OPS = new Map([
@@ -336,6 +343,7 @@ function cwlClassifyEchoPayload(get, id) {
 }
 
 import { cwlHtmlTemplateToLit } from "./cwl-html-template.mjs";
+import { printEmitStandaloneIsland, projectUiTreeValue } from "./cwl-emit-ui.mjs";
 import { isLowerableStructuredValue } from "./hub-native-body-emit.mjs";
 function stripBom(s) {
   return typeof s === "string" ? s.replace(/^\uFEFF/, "") : s;
@@ -425,6 +433,14 @@ export function cwlValueOf(get, id) {
       if (ops.length === 1) return cwlValueOf(get, ops[0]);
       return { t: "hole", reason: `hub:cwl:call-arity:${callee}` };
     }
+    // RFC-0033: recover the declared upstream target verbatim; never guess a destination.
+    if (callee === CWL_UPSTREAM_PROXY_CALLEE) {
+      const target = get(n.operands?.[0] ?? "");
+      if (target?.op === "literal" && typeof target.attrs?.value === "string") {
+        return { t: "proxy", target: target.attrs.value };
+      }
+      return { t: "hole", reason: "cwl:emit:proxy-target" };
+    }
     return { t: "hole", reason: `hub:cwl:unsupported-call:${callee}` };
   }
   return { t: "hole", reason: `hub:cwl:unsupported-value:${n.dialect}.${n.op}` };
@@ -456,6 +472,15 @@ export function walkCwlHandlerBody(get, bodyId) {
   let responseKind = null;
   /** @type {string[]} */
   const htmlParts = [];
+  /** RFC-0031 repeat statements recovered from the return template. */
+  /** @type {Array<{ collection: string, item: string, template: string }>} */
+  const htmlRepeats = [];
+  /** RFC-0024 holes declared beside the body rather than replacing it. */
+  /** @type {string[]} */
+  const attachmentHoles = [];
+  /** RFC-0030 client islands declared alongside the page body. */
+  /** @type {object[]} */
+  const pageIslands = [];
   let htmlChrome = false;
   /** @type {Array<{ condName: string, condExpr: string | null, opaqueReason: string | null, status: number | null, value: object | null }>} */
   const earlyGuards = [];
@@ -507,6 +532,41 @@ export function walkCwlHandlerBody(get, bodyId) {
     const n = get(id);
     if (!n) {
       holeReason = "hub:cwl:missing-body";
+      return;
+    }
+    // RFC-0030: client islands sit beside the page body; the HTML is still the return.
+    if (
+      n.dialect === "data" &&
+      Array.isArray(n.provenance) &&
+      n.provenance.some((p) => String(p?.locator ?? "") === "cwl:page-islands")
+    ) {
+      for (const op of n.operands ?? []) {
+        const stmt = get(op);
+        if (stmt?.dialect === "data" && stmt.op === "ui.tree") {
+          const ui = projectUiTreeValue(get, stmt);
+          if (ui.t === "ui" && ui.tree) pageIslands.push(ui.tree);
+          continue;
+        }
+        visit(op);
+      }
+      return;
+    }
+    // RFC-0024: attachment holes (layout / statement residuals) declare an honest
+    // gap *beside* the body — projecting them as the body would drop origin markup.
+    if (
+      n.dialect === "data" &&
+      Array.isArray(n.provenance) &&
+      n.provenance.some((p) => String(p?.locator ?? "") === "cwl:attachment-holes")
+    ) {
+      for (const op of n.operands ?? []) {
+        const stmt = get(op);
+        if (stmt && (stmt.dialect === "legacy" || stmt.dialect === "data") && stmt.op === "hole") {
+          const reason = String(stmt.attrs?.reason ?? "hub:cwl:hole");
+          if (!attachmentHoles.includes(reason)) attachmentHoles.push(reason);
+          continue;
+        }
+        visit(op);
+      }
       return;
     }
     if ((n.dialect === "legacy" || n.dialect === "data") && n.op === "hole") {
@@ -809,6 +869,7 @@ export function walkCwlHandlerBody(get, bodyId) {
       if (v.t === "lit" && looksHtmlLit(v.value)) {
         htmlChrome = true;
         htmlParts.push(String(v.value));
+        for (const rep of v.repeats ?? []) htmlRepeats.push(rep);
         value = { t: "lit", value: htmlParts.join("") };
       } else {
         value = v;
@@ -822,6 +883,9 @@ export function walkCwlHandlerBody(get, bodyId) {
   visit(bodyId);
   if (htmlParts.length > 0) {
     value = { t: "lit", value: htmlParts.join("") };
+  }
+  if (htmlRepeats.length > 0 && value?.t === "lit") {
+    value = { ...value, repeats: htmlRepeats };
   }
 
   /** @type {Array<{ source: string, name: string, default?: unknown }>} */
@@ -846,8 +910,11 @@ export function walkCwlHandlerBody(get, bodyId) {
   const isJson =
     json || value?.t === "obj" || (value?.t === "lit" && Array.isArray(value.value));
   const noContent = status === 204 || status === 304;
+  // A hole body has no shape to infer from, and a declared upstream forward lets
+  // the upstream decide: only a media type the origin actually declared survives.
+  const bodyShapeUnknown = holeReason !== null || value?.t === "proxy";
   let contentType = responseContentType;
-  if (!contentType && !noContent) {
+  if (!contentType && !noContent && !bodyShapeUnknown) {
     contentType = isJson ? CWL_JSON_CONTENT_TYPE : CWL_TEXT_CONTENT_TYPE;
   }
   const isPage =
@@ -875,6 +942,8 @@ export function walkCwlHandlerBody(get, bodyId) {
     earlyGuards,
     foreachBindings,
     effects,
+    attachmentHoles,
+    pageIslands,
     contentType: noContent ? null : contentType,
     surfaceKind: isPage ? "page" : "api",
   };
@@ -1102,6 +1171,11 @@ export function renderCwlRoutes(routes, opts = {}) {
       // honest body hole; the default (round-trip emit) keeps the legacy
       // hole-only shape so existing golden snapshots are byte-identical.
       if (opts.surfaceOnHole) renderSurface();
+      else if (r.contentType) {
+        // Host-byte residuals (QR / config blob / keypair) still declare their
+        // media type: the bytes are host-owned, the content type is genome data.
+        lines.push(`  content-type ${JSON.stringify(r.contentType)};`);
+      }
       // The CWL `hole` statement takes a bare token reason (`hole foo:bar;`);
       // a free-text reason falls back to the `hole <name> "<message>";` form.
       const reason = String(r.holeReason);
@@ -1115,6 +1189,19 @@ export function renderCwlRoutes(routes, opts = {}) {
       continue;
     }
     renderSurface();
+    for (const island of r.pageIslands ?? []) {
+      printEmitStandaloneIsland(island, "  ", lines);
+    }
+    // RFC-0024: the gap is declared next to the surface it belongs to, and still
+    // counts as a hole — the body below is origin markup, not a substitute.
+    for (const reason of r.attachmentHoles ?? []) {
+      holeCount += 1;
+      lines.push(
+        /^[A-Za-z0-9_:.-]+$/.test(reason)
+          ? `  hole ${reason};`
+          : `  hole legacy ${JSON.stringify(reason)};`,
+      );
+    }
     // Early-exit guards (RFC-0021): projectable cond expr, else opaque residual
     // (`g_<callee>` / `gN`). Complex calls/members stay in WebIR/Hono.
     for (const g of r.earlyGuards ?? []) {
@@ -1129,7 +1216,17 @@ export function renderCwlRoutes(routes, opts = {}) {
     if (r.loadData && !r.holeReason) {
       lines.push(`  load ${cwlRenderValue(r.loadData)};`);
     }
-    if (
+    // RFC-0031: repeated markup is recovered as its own statement; the return
+    // template keeps the bare collection identifier where the list renders.
+    for (const rep of r.value?.repeats ?? []) {
+      lines.push(
+        `  repeat ${rep.collection} as ${rep.item} html ${JSON.stringify(rep.template)};`,
+      );
+    }
+    if (r.value?.t === "proxy") {
+      // RFC-0033: the forward itself is host-owned; CWL declares the destination.
+      lines.push(`  proxy upstream ${JSON.stringify(r.value.target)};`);
+    } else if (
       isPage &&
       r.value?.t === "lit" &&
       typeof r.value.value === "string" &&
