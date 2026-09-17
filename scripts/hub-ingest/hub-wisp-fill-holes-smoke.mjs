@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { runWispCwlStaticExport } from "../wisp-cwl-static-export.mjs";
 import { countWispMarkupHoles } from "../wisp-hole-metrics-lib.mjs";
 import { enrichWispPilotTraces } from "../wisp-enrich-pilot-traces.mjs";
-import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_FILL_HOLES_KIND = "chrysalis.hub.wisp-fill-holes";
 export const WISP_FILL_HOLES_SCHEMA_VERSION = 2;

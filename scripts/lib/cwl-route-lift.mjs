@@ -163,7 +163,7 @@ export function buildLiftSpecsFromRoutesCwl(source, opts = {}) {
   if (!existsSync(routesPath)) return [];
   const text = readFileSync(routesPath, "utf8");
   const skip = new Set(opts.skipPaths ?? ["/login"]);
-  /** @type {import("./wisp-cwl-apply-module-routes-lib.mjs").LiftRouteSpec[]} */
+  /** @type {import("../wisp-cwl-apply-module-routes-lib.mjs").LiftRouteSpec[]} */
   const specs = [];
   const re = /@route GET "([^"]+)"[\s\S]*?handler (\w+)[\s\S]*?hole hub-svelte:[^;]+;/g;
   let m;

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { buildWispScenarioInventory } from "../wisp-cwl-scenario-inventory.mjs";
 import { generateWispApiProxyCwl } from "../wisp-cwl-generate-api-proxy-cwl.mjs";
 import { runWispChimeraGatewaySmoke } from "./hub-wisp-cwl-chimera-gateway-smoke.mjs";
-import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export const WISP_CWL_PHASE12_PHASE0_ENTRY_SMOKE_KIND = "chrysalis.wisp-cwl-phase12-phase0-entry-smoke";
 export const WISP_CWL_PHASE12_PHASE0_ENTRY_SMOKE_SCHEMA_VERSION = 1;
