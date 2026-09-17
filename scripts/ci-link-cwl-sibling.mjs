@@ -27,8 +27,17 @@
  *   CHRYSALIS_CWL_PATH      explicit sibling path (default `../chrysalis-cwl`)
  *   CHRYSALIS_CWL_REF       override the pinned ref from fixtures/ci/cwl-sibling.json
  *   CHRYSALIS_CWL_NO_CLONE  set to 1 to fail instead of cloning a missing sibling
+ *   CHRYSALIS_CWL_REFRESH   set to 1 to replace an incomplete sibling (runners)
  */
-import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -84,26 +93,7 @@ export function linkCwlSibling(opts = {}) {
   /** @type {Array<{ id: string, ok: boolean, action: string, detail?: string }>} */
   const steps = [];
 
-  if (existsSync(sibling)) {
-    steps.push({ id: "sibling", ok: true, action: "present", detail: sibling });
-  } else if (process.env.CHRYSALIS_CWL_NO_CLONE === "1") {
-    steps.push({ id: "sibling", ok: false, action: "absent", detail: sibling });
-  } else {
-    const clone = spawnSync(
-      "git",
-      ["clone", "--depth", "1", "--branch", ref, manifest.repo, sibling],
-      { encoding: "utf8" },
-    );
-    steps.push({
-      id: "sibling",
-      ok: clone.status === 0,
-      action: "cloned",
-      detail:
-        clone.status === 0
-          ? `${manifest.repo}@${ref} -> ${sibling}`
-          : (clone.stderr || clone.stdout || `git clone exit ${clone.status}`).trim().slice(0, 400),
-    });
-  }
+  ensureSibling(sibling, ref, manifest, steps);
 
   if (steps.some((s) => !s.ok) || stage === "sibling") {
     return finish(root, sibling, ref, stage, steps);
@@ -162,6 +152,78 @@ export function linkCwlSibling(opts = {}) {
   linkWorkspaceDeps(root, steps);
 
   return finish(root, sibling, ref, stage, steps);
+}
+
+/**
+ * Put a complete pillar checkout at `sibling`, cloning it when absent.
+ *
+ * A tree that exists but lacks `packages/webir` is worse than no tree at all: the links
+ * would quietly skip it and the failure would resurface much later as an unresolvable
+ * workspace package. Runners opt into replacing such a tree with
+ * `CHRYSALIS_CWL_REFRESH=1`; a developer checkout is never replaced silently.
+ *
+ * @param {string} sibling
+ * @param {string} ref
+ * @param {{ repo: string, packages: string[] }} manifest
+ * @param {Array<{ id: string, ok: boolean, action: string, detail?: string }>} steps
+ */
+function ensureSibling(sibling, ref, manifest, steps) {
+  if (existsSync(sibling)) {
+    const missing = manifest.packages.filter((n) => !existsSync(join(sibling, "packages", n)));
+    if (missing.length === 0) {
+      steps.push({ id: "sibling", ok: true, action: "present", detail: sibling });
+      return;
+    }
+    if (process.env.CHRYSALIS_CWL_REFRESH !== "1") {
+      steps.push({
+        id: "sibling",
+        ok: false,
+        action: "incomplete",
+        detail: `${sibling} is missing packages/{${missing.join(",")}} — set CHRYSALIS_CWL_REFRESH=1 to replace it with a fresh ${ref} clone`,
+      });
+      return;
+    }
+    // Move aside rather than delete, and keep only one stale copy.
+    const stale = `${sibling}.stale`;
+    try {
+      rmSync(stale, { recursive: true, force: true });
+      renameSync(sibling, stale);
+      steps.push({
+        id: "sibling-stale",
+        ok: true,
+        action: "moved-aside",
+        detail: `${sibling} (missing ${missing.join(",")}) -> ${stale}`,
+      });
+    } catch (e) {
+      steps.push({
+        id: "sibling-stale",
+        ok: false,
+        action: "error",
+        detail: String(e instanceof Error ? e.message : e).slice(0, 300),
+      });
+      return;
+    }
+  }
+
+  if (process.env.CHRYSALIS_CWL_NO_CLONE === "1") {
+    steps.push({ id: "sibling", ok: false, action: "absent", detail: sibling });
+    return;
+  }
+
+  const clone = spawnSync(
+    "git",
+    ["clone", "--depth", "1", "--branch", ref, manifest.repo, sibling],
+    { encoding: "utf8" },
+  );
+  steps.push({
+    id: "sibling",
+    ok: clone.status === 0,
+    action: "cloned",
+    detail:
+      clone.status === 0
+        ? `${manifest.repo}@${ref} -> ${sibling}`
+        : (clone.stderr || clone.stdout || `git clone exit ${clone.status}`).trim().slice(0, 400),
+  });
 }
 
 /**

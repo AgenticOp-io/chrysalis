@@ -113,7 +113,9 @@ source_gce_hub_env
 # has no workspace member to resolve against and install dies with
 # ERR_PNPM_WORKSPACE_PKG_NOT_FOUND. Link them first: unlike CI this install is
 # not frozen, so the packages must be workspace members before it runs.
-node scripts/ci-link-cwl-sibling.mjs
+# CHRYSALIS_CWL_REFRESH: this runner's sibling is scratch, and an earlier partial copy
+# without packages/webir would otherwise be trusted and fail install.
+CHRYSALIS_CWL_REFRESH=1 node scripts/ci-link-cwl-sibling.mjs
 
 pnpm install
 
