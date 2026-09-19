@@ -8,6 +8,43 @@
 
 ---
 
+## 2026-09-19 - convert-tip-1.0.39
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.38-session-cookie-name + tip-1.0.39-html-repeat-if
+**CWL tip:** **1.0.39** (RFC-0032 deepen + RFC-0031 deepen; golds 46–47)
+**CWL SHA:** `3c608e9` (BOARD) · local tip `f1303fd`
+
+```text
+CONVERT_TIP_1_0_39_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 46–47 + prior 40–45)
+SESSION_COOKIE_NAME_PEEL_OK: ok
+HTML_REPEAT_IF_PEEL_OK: ok
+SYNC_ALWAYS: ok (hub-cwl-effects updated; others unchanged)
+BUILD_ALL: ok (pnpm -r typecheck + pnpm -r build)
+CWL_TIP: 1.0.39
+CWL_PIN: file:1.0.39
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.39**; `fixtures/ci/cwl-sibling.json` → `cwl-v1.0.39`
+- **session.mint|revoke cookie `<name>`:** fat emit recovers the cookie phrase from the literal arg on `__cwl_effect_session_mint` / `_revoke` (gold `46`)
+- **`repeat … if item.field`:** emit reverse prints `if <when>` from recovered `repeats[].when` (gold `47`); parser/template already synced
+- Language-pillar round-trip dirs add `46`/`47`; genome-deepen peel asserts both
+- DESIGN **D6576**; consumer docs bumped
+- No Nest/LiveView/Flutter invent; cookie **values** never enter CWL
+
+### Still open with you
+
+Wire host transport via `createCwlRuntime({ upstream })` when serving under the junctioned runtime (your `runtime-upstream-passthrough` ask) — rewrite already executes the forward.
+
+---
+
 ## 2026-09-19 - convert-tip-1.0.37-resync
 
 **To:** cwl

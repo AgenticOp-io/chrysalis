@@ -3,6 +3,20 @@
  */
 import { HUB_T } from "./hub-t.mjs";
 
+/**
+ * @param {string} raw
+ * @returns {{ kind: "session.mint" | "session.revoke", cookie: string | null } | null}
+ */
+export function parseSessionCookieEffect(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  const m = /^(session\.(?:mint|revoke))(?:\s+cookie\s+([a-zA-Z_][a-zA-Z0-9_]*))?$/.exec(t);
+  if (!m) return null;
+  return {
+    kind: /** @type {"session.mint" | "session.revoke"} */ (m[1]),
+    cookie: m[2] ?? null,
+  };
+}
+
 /** @param {string[]} declared */
 export function cwlEffectsToWebir(declared) {
   /** @type {import('@chrysalis/webir').Effect[]} */
@@ -41,7 +55,8 @@ export function cwlEffectsToWebir(declared) {
       out.push({ kind: "db.read", table: "*" });
       continue;
     }
-    if (t === "session.mint" || t === "session.revoke") {
+    const sessionCookie = parseSessionCookieEffect(t);
+    if (sessionCookie) {
       out.push({ kind: "session.write" });
       continue;
     }
@@ -81,7 +96,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-session-read")],
         }),
       );
-    } else if (t === "session.write") {
+      continue;
+    }
+    if (t === "session.write") {
       const touch = data.literal({
         value: true,
         type: HUB_T.bool,
@@ -96,7 +113,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-session-write")],
         }),
       );
-    } else if (t === "auth.require") {
+      continue;
+    }
+    if (t === "auth.require") {
       statements.push(
         effect.sessionRead({
           key: "user_id",
@@ -105,7 +124,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require")],
         }),
       );
-    } else if (t === "auth.verify") {
+      continue;
+    }
+    if (t === "auth.verify") {
       statements.push(
         data.call({
           callee: "__cwl_effect_auth_verify",
@@ -115,27 +136,54 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-verify")],
         }),
       );
-    } else if (t === "session.mint") {
+      continue;
+    }
+    const sessionCookie = parseSessionCookieEffect(t);
+    if (sessionCookie?.kind === "session.mint") {
+      const args = sessionCookie.cookie
+        ? [
+            data.literal({
+              value: sessionCookie.cookie,
+              type: HUB_T.string,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "cwl:executable-session-mint-cookie")],
+            }),
+          ]
+        : [];
       statements.push(
         data.call({
           callee: "__cwl_effect_session_mint",
-          args: [],
+          args,
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-session-mint")],
         }),
       );
-    } else if (t === "session.revoke") {
+      continue;
+    }
+    if (sessionCookie?.kind === "session.revoke") {
+      const args = sessionCookie.cookie
+        ? [
+            data.literal({
+              value: sessionCookie.cookie,
+              type: HUB_T.string,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "cwl:executable-session-revoke-cookie")],
+            }),
+          ]
+        : [];
       statements.push(
         data.call({
           callee: "__cwl_effect_session_revoke",
-          args: [],
+          args,
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-session-revoke")],
         }),
       );
-    } else if (t === "cors.allow") {
+      continue;
+    }
+    if (t === "cors.allow") {
       const allow = data.literal({
         value: "*",
         type: HUB_T.string,
@@ -151,7 +199,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow")],
         }),
       );
-    } else if (t === "csrf.verify") {
+      continue;
+    }
+    if (t === "csrf.verify") {
       statements.push(
         data.call({
           callee: "__cwl_middleware_csrf",
@@ -161,7 +211,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-csrf-verify")],
         }),
       );
-    } else if (t === "rate.limit") {
+      continue;
+    }
+    if (t === "rate.limit") {
       statements.push(
         data.call({
           callee: "__cwl_middleware_rate_limit",
@@ -171,14 +223,18 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-rate-limit")],
         }),
       );
-    } else if (t === "time.now") {
+      continue;
+    }
+    if (t === "time.now") {
       statements.push(
         effect.timeNow({
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-time-now")],
         }),
       );
-    } else if (t === "random") {
+      continue;
+    }
+    if (t === "random") {
       const min = data.literal({
         value: 0,
         type: HUB_T.int,
@@ -199,7 +255,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-random")],
         }),
       );
-    } else if (t === "mail.send") {
+      continue;
+    }
+    if (t === "mail.send") {
       statements.push(
         data.call({
           callee: "__cwl_effect_mail_send",
@@ -209,7 +267,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-mail-send")],
         }),
       );
-    } else if (t === "db.read") {
+      continue;
+    }
+    if (t === "db.read") {
       statements.push(
         data.call({
           callee: "__cwl_effect_db_read",
@@ -219,7 +279,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-db-read")],
         }),
       );
-    } else if (t === "db.write") {
+      continue;
+    }
+    if (t === "db.write") {
       statements.push(
         data.call({
           callee: "__cwl_effect_db_write",
@@ -229,7 +291,9 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           provenance: [webir.provenance("hub-ingest", "cwl:executable-db-write")],
         }),
       );
-    } else if (t === "io") {
+      continue;
+    }
+    if (t === "io") {
       statements.push(
         data.call({
           callee: "__cwl_effect_io",

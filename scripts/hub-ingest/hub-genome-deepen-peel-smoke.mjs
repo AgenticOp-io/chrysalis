@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * G10140 — Tip 1.0.37 peel consume: repeats, credential effects, declared
- * upstream forwards (with path params), and narrow host-byte reasons.
+ * G10140 / G10141 — Tip 1.0.39 peel consume: repeats (+ `if` filter), credential
+ * effects (+ session cookie name), declared upstream forwards (with path params),
+ * and narrow host-byte reasons.
  *
- * Proves Convert lifts CWL golds `40`–`45` into WebIR and projects them back
- * without inventing markup, loop runtimes, credential crypto, proxy targets, or
- * a media type the origin never declared. Also proves `@chrysalis/rewrite`
- * executes a declared forward through an injected transport instead of leaving
- * it inert — and that with no transport it reports inconclusive rather than
- * inventing an upstream response.
+ * Proves Convert lifts CWL golds `40`–`47` into WebIR and projects them back
+ * without inventing markup, loop runtimes, credential crypto, cookie values,
+ * proxy targets, or a media type the origin never declared. Also proves
+ * `@chrysalis/rewrite` executes a declared forward through an injected transport
+ * instead of leaving it inert — and that with no transport it reports
+ * inconclusive rather than inventing an upstream response.
  *
  * Gate: hub:genome-deepen-peel-smoke
  * Token: GENOME_DEEPEN_PEEL_OK
@@ -98,6 +99,19 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     /effects: session\.revoke;/.test(text) &&
     /use urlencoded;/.test(text) &&
     !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0032 deepen (1.0.38): mint/revoke may name the cookie — never a value.
+  await checkGold("session-cookie-name", "46-session-cookie-name", (text) =>
+    /effects: auth\.verify, session\.mint cookie sid;/.test(text) &&
+    /effects: session\.revoke cookie sid;/.test(text) &&
+    !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0031 deepen (1.0.39): optional `if item.field` is a truthy filter only.
+  await checkGold("html-repeat-if", "47-html-repeat-if", (text) =>
+    /repeat sessions as s if s\.active html "<tr><td>s\.user<\/td><\/tr>";/.test(text) &&
+    /return html "<table>sessions<\/table>";/.test(text) &&
     !/hole/.test(text));
 
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
@@ -208,7 +222,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.37",
+    cwlTip: "1.0.39",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

@@ -40,6 +40,8 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "41-html-repeat-fields",
   "42-auth-effects-v2",
   "43-proxy-upstream",
+  "46-session-cookie-name",
+  "47-html-repeat-if",
 ];
 
 /**

@@ -751,7 +751,23 @@ export function walkCwlHandlerBody(get, bodyId) {
     if (n.dialect === "data" && n.op === "call") {
       const callee = String(n.attrs?.callee ?? "");
       if (CWL_EXECUTABLE_EFFECT_CALLS.has(callee)) {
-        const tag = CWL_EXECUTABLE_EFFECT_CALLS.get(callee);
+        // RFC-0032 deepen (1.0.38): session.mint/revoke may name the cookie;
+        // recover `session.mint cookie <name>` when the call carries a literal arg.
+        let tag = CWL_EXECUTABLE_EFFECT_CALLS.get(callee);
+        if (
+          (callee === "__cwl_effect_session_mint" || callee === "__cwl_effect_session_revoke") &&
+          tag
+        ) {
+          const argId = n.operands?.[0];
+          const lit = argId ? get(argId) : null;
+          const cookie =
+            lit?.op === "literal" && typeof lit.attrs?.value === "string"
+              ? lit.attrs.value
+              : null;
+          if (cookie && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cookie)) {
+            tag = `${tag} cookie ${cookie}`;
+          }
+        }
         if (tag && !declaredEffects.includes(tag)) declaredEffects.push(tag);
         return;
       }
@@ -1216,11 +1232,12 @@ export function renderCwlRoutes(routes, opts = {}) {
     if (r.loadData && !r.holeReason) {
       lines.push(`  load ${cwlRenderValue(r.loadData)};`);
     }
-    // RFC-0031: repeated markup is recovered as its own statement; the return
-    // template keeps the bare collection identifier where the list renders.
+    // RFC-0031 (+ 1.0.39 deepen): repeated markup is recovered as its own
+    // statement; optional `if <item[.field…]>` is the truthy when-filter only.
     for (const rep of r.value?.repeats ?? []) {
+      const whenPart = rep.when ? ` if ${rep.when}` : "";
       lines.push(
-        `  repeat ${rep.collection} as ${rep.item} html ${JSON.stringify(rep.template)};`,
+        `  repeat ${rep.collection} as ${rep.item}${whenPart} html ${JSON.stringify(rep.template)};`,
       );
     }
     if (r.value?.t === "proxy") {
