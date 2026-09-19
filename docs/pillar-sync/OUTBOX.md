@@ -22,7 +22,7 @@ BUILD_ALL: ok (pnpm -r typecheck + pnpm -r build)
 SMOKES: hub:cwl-pin-smoke · hub:genome-deepen-peel-smoke · hub:cwl-language-pillar-smoke
 CWL_TIP: 1.0.37
 CWL_SHA: b12a538 (BOARD tip land 177fc0b; Packages live note)
-CONVERT_SHA: 959c33cc
+CONVERT_SHA: 6632ecb2
 BRANCH: candidate/wptp-convert-orbit
 HEARTBEAT: waiting
 ```
