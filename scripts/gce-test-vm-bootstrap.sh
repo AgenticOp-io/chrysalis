@@ -108,6 +108,15 @@ fi
 install_native_oracle_deps
 source_gce_hub_env
 
+# The CWL-owned packages are junctions into the sibling pillar, so neither the
+# tarball nor a clone carries them. Without them `@chrysalis/webir@workspace:*`
+# has no workspace member to resolve against and install dies with
+# ERR_PNPM_WORKSPACE_PKG_NOT_FOUND. Link them first: unlike CI this install is
+# not frozen, so the packages must be workspace members before it runs.
+# CHRYSALIS_CWL_REFRESH: this runner's sibling is scratch, and an earlier partial copy
+# without packages/webir would otherwise be trusted and fail install.
+CHRYSALIS_CWL_REFRESH=1 node scripts/ci-link-cwl-sibling.mjs
+
 pnpm install
 
 echo "[gce-test-vm-bootstrap] building full workspace (hub translate needs webir, ingest, emit)..."

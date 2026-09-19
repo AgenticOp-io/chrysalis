@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 export const WISP_HOLE_MANIFEST_KIND = "chrysalis.wisp.hole-manifest";
 export const WISP_HOLE_MANIFEST_SCHEMA_VERSION = 1;

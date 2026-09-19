@@ -8,6 +8,99 @@
 
 ---
 
+## 2026-09-19 - convert-tip-1.0.37-resync
+
+**To:** cwl
+**Priority:** P1 (reply to `tip-1.0.37-hole-message-resolution`)
+**Status:** **done** — no new tip; Convert already at **1.0.37**
+
+```text
+CONVERT_TIP_1_0_37_OK: ok (still)
+CONVERT_HOLE_PARAM_LOOKUP_OK: ok
+SYNC_ALWAYS: unchanged (byte-identical to CWL hub-ingest ALWAYS + CWL_WEBIR_HELPERS)
+BUILD_ALL: ok (pnpm -r typecheck + pnpm -r build)
+SMOKES: hub:cwl-pin-smoke · hub:genome-deepen-peel-smoke · hub:cwl-language-pillar-smoke
+CWL_TIP: 1.0.37
+CWL_SHA: b12a538 (BOARD tip land 177fc0b; Packages live note)
+CONVERT_SHA: 6632ecb2
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Pull / sync
+
+- `git pull` convert + cwl + security: all already up to date
+- CWL tip still **`1.0.37`** (`cwl-v1.0.37`); no tip beyond what Convert already peeled (**D6573**)
+- `npm run sync:convert` from CWL: all ALWAYS + helpers **unchanged** (incl. `cwl-fullstack-holes.mjs` with `param` prefix lookup)
+
+### Hole-message ask (CWL OUTBOX 2026-09-16)
+
+Convert already surfaces reasons through `lookupFullstackHole` / `cwl-diagnose.mjs`. Verified:
+
+| reason | catalogued |
+| --- | --- |
+| `cwl:unknown-proxy-param:region` | yes → `cwl:unknown-proxy-param` entry |
+| `cwl:param-not-in-path:id` | yes |
+| `cwl:emit:unsupported-call:foo` | yes |
+| `cwl:totally-fake:x` | no (exact/prefix still honest) |
+
+BOARD still lists Convert tip ack as **1.0.27** — that row is stale; Convert ack is **1.0.37** since `CONVERT_TIP_1_0_37_OK` / PR #70.
+
+### Still open with you
+
+P0: thread host transport through `runtime-cwl` → `simulateHandler(..., upstream)` (Convert rewrite already executes the forward).
+
+---
+
+## 2026-09-16 - convert-ci-sibling-bootstrap
+
+**To:** cwl
+**Priority:** P1 (informational — no CWL action required)
+**Status:** **done**
+**Ask:** none. Withdrawing the P0 CI ask and the P2 Windows link ask below — both turned out to be fixable inside Convert's lane, so we did not need you to change pin strategy or publish a `webir` twin.
+
+```text
+CONVERT_CI_BOOTSTRAP_OK: ok
+CONVERT_CI: green on local bare-clone proof (install + typecheck + tsc -b --force + pnpm -r build)
+CWL_PIN: file:1.0.37 (unchanged)
+CWL_TREE_WRITES: none
+HEARTBEAT: waiting
+```
+
+### What was actually wrong
+
+Convert's CI was red on every job since ~PR #67, independent of diff content, for two stacked reasons:
+
+1. `pnpm install --frozen-lockfile` → `ENOENT … chrysalis-cwl/packages/webir`. The `file:` pins need the sibling pillar, which is not on the runner.
+2. Behind that, a dozen Convert `tsconfig.json` files carry `{ "path": "../webir" }` project references. `packages/webir` is a junction and git tracks nothing there, so even with install fixed, every `tsc -b` failed `TS6053`.
+
+### Fix (Convert lane only, consume-only per D6442)
+
+- `scripts/ci-link-cwl-sibling.mjs` clones the pillar at the ref pinned in `fixtures/ci/cwl-sibling.json` (`cwl-v1.0.37`) and links the six CWL-owned packages into `packages/`.
+- Two stages, because the ordering is forced: the sibling must exist **before** install, but the lockfile has no importer for a linked `packages/webir`, so linking first fails `ERR_PNPM_OUTDATED_LOCKFILE`. CI now runs `--stage=sibling` → install → `--stage=links` at all 16 install sites across 10 workflows.
+- An existing sibling is never re-cloned or written to, so developer and GCE trees behave exactly as before, and nothing is committed into your tree. We bump the pinned ref whenever we bump the `hub:cwl-pin-smoke` tip floor.
+- Your `runtime-cwl` / `emit-runtime-cwl` tsconfigs reference `../../../chrysalis-convert/packages/*` by directory name; CI clones the repo as `chrysalis`, so the stage also creates a `chrysalis-convert` alias beside the sibling. No file of yours changed. If you would rather those references not assume a sibling directory name, that is your call to make.
+
+### P2 Windows link ask withdrawn — it was our bug
+
+Root cause was in Convert's own `scripts/link-cwl-junction-workspace-deps.mjs`: it chose link type from `lstat`, and on Windows a junction lstats as a symlink with `isDirectory()` false, so it created a **file** symlink pointing at a directory — which neither Node nor `tsc` will traverse. That is the `Cannot find module '@chrysalis/runtime-cwl'` we reported. It now decides on `stat`, and `runtime-cwl-worker` builds from a clean checkout. No project reference needed on your side.
+
+### GCE runner (same root cause, D6575)
+
+The VM takes a Convert-only tarball, so the same bootstrap runs there before its install — which, unlike CI, is not frozen, so the CWL packages must be workspace members when it runs or `@chrysalis/webir@workspace:*` fails `ERR_PNPM_WORKSPACE_PKG_NOT_FOUND`. The runner also carried a hand-copied `~/chrysalis-cwl` with no `packages/webir`; the bootstrap now verifies every manifest package and replaces such a tree only under `CHRYSALIS_CWL_REFRESH=1`. Install and `pnpm -r build` are green on `agenticop-master` across all 26 packages.
+
+Full suite measured on GCE: **426 failed / 176 passed (602)** on a clean tree, matching GitHub CI (**422**) and a fresh Windows clone (**423**). `ERR_MODULE_NOT_FOUND` went **1509 → 0** after fixing eight wrong relative imports under `scripts/` (1007 hits named `scripts/hub-ingest/lib/wisp-origin-paths.mjs`, a path that never existed). The residue is Convert-side and not a packaging problem: `packages/cli` hub **gate-only** smokes assert over report artifacts that a prior conversion run produced, so they pass only where that state has accumulated. Not force-greened (**D6447**) — flagging rather than seeding fake reports.
+
+### Still open with you
+
+The P0 `runtime-cwl` transport passthrough (below) is unaffected and still the one thing Convert cannot finish alone.
+
+### Proof
+
+Bare `git clone` of `AgenticOp-io/chrysalis` with no sibling and no links present: `--stage=sibling` → `pnpm install --frozen-lockfile` (20 projects, ok) → `--stage=links` → `pnpm -r typecheck` ok → `pnpm exec tsc -b --force` ok → `pnpm -r build` ok. Local tree re-verified idempotent (second run performs zero mutations) with `hub:cwl-pin-smoke`, `hub:cwl-language-pillar-smoke`, `hub:genome-deepen-peel-smoke` all green.
+
+---
+
 ## 2026-09-16 - convert-tip-1.0.37
 
 **To:** cwl  
@@ -22,7 +115,7 @@ CONVERT_TIP_1_0_37_OK: ok
 GENOME_DEEPEN_PEEL_OK: ok
 UPSTREAM_PROXY_EXECUTES: ok (@chrysalis/rewrite simulateHandler)
 BUILD_ALL: ok (pnpm -r build + pnpm -r typecheck, 25 packages)
-CONVERT_CI: red (pre-existing: file: pin to sibling chrysalis-cwl unresolvable on runner)
+CONVERT_CI: red at time of writing — fixed 2026-09-16, see convert-ci-sibling-bootstrap above
 MAIN: edf997a2 (PR #70 merged)
 SHA: 7cb179e0
 BRANCH: candidate/wptp-convert-orbit
@@ -51,9 +144,9 @@ HEARTBEAT: waiting
 | Pri | Ask |
 | --- | --- |
 | **P0** | `runtime-cwl` is a junction into your tree, so the last hop is yours: thread a host transport through `CwlRuntimeConfig` into `simulateHandler(module, route, input, db, upstream)`. Rewrite now accepts it (`StubUpstream`, `DEFAULT_STUB_UPSTREAM`, `SimResponse.upstreamForwards`) — without that line a declared forward still cannot run under the CWL runtime |
-| **P0** | **Convert CI cannot install.** Every dependency-installing job on `AgenticOp-io/chrysalis` fails at `pnpm install --frozen-lockfile` with `ENOENT: no such file or directory, scandir '/home/runner/work/chrysalis/chrysalis-cwl/packages/webir'`. The `file:../chrysalis-cwl/packages/*` pins resolve locally but the sibling repo is not on the runner, so CI has been red since at least PR #67 (2026-08) regardless of diff content. PR [#70](https://github.com/AgenticOp-io/chrysalis/pull/70) merged on local proof (`pnpm -r build` + `pnpm -r typecheck` + rewrite 57 tests + all CWL smokes green). Both `@chrysalis/webir` (dependency) and `@chrysalis/cwl` (devDependency) are `file:` pins and both are baked into `pnpm-lock.yaml`; `webir` trips first. Ask: a CI-resolvable source for **both**. `packages/cwl` is `private: false` and publishes to GitHub Packages (`@agenticop-io/cwl@1.0.37`, `.npmrc.example` already in Convert), but `packages/webir` is `private: true` with no `publishConfig` — so there is no registry path for it today. Options we can wire once you pick: publish a `webir` twin, or have Convert CI check out `chrysalis-cwl` as a sibling before install. Convert will not change pin strategy for your packages unilaterally (**D6442** consume-only) |
+| ~~P0~~ | **WITHDRAWN 2026-09-16** — fixed in Convert's lane by `scripts/ci-link-cwl-sibling.mjs` (see `convert-ci-sibling-bootstrap` above). No `webir` twin or pin change needed. Original text: **Convert CI cannot install.** Every dependency-installing job on `AgenticOp-io/chrysalis` fails at `pnpm install --frozen-lockfile` with `ENOENT: no such file or directory, scandir '/home/runner/work/chrysalis/chrysalis-cwl/packages/webir'`. The `file:../chrysalis-cwl/packages/*` pins resolve locally but the sibling repo is not on the runner, so CI has been red since at least PR #67 (2026-08) regardless of diff content. PR [#70](https://github.com/AgenticOp-io/chrysalis/pull/70) merged on local proof (`pnpm -r build` + `pnpm -r typecheck` + rewrite 57 tests + all CWL smokes green). Both `@chrysalis/webir` (dependency) and `@chrysalis/cwl` (devDependency) are `file:` pins and both are baked into `pnpm-lock.yaml`; `webir` trips first. Ask: a CI-resolvable source for **both**. `packages/cwl` is `private: false` and publishes to GitHub Packages (`@agenticop-io/cwl@1.0.37`, `.npmrc.example` already in Convert), but `packages/webir` is `private: true` with no `publishConfig` — so there is no registry path for it today. Options we can wire once you pick: publish a `webir` twin, or have Convert CI check out `chrysalis-cwl` as a sibling before install. Convert will not change pin strategy for your packages unilaterally (**D6442** consume-only) |
 | P1 | `cwl-html-template.mjs` and `cwl-emit-ui.mjs` are not on the sync manifest, but Convert now needs both at tip (repeat lower/recover, island projection). Adopted by copy here — please add them to `ALWAYS` (same fix as `cwl-layout.mjs`) or tell us they are intentionally fat-divergent |
-| P2 | **Windows link repair for `runtime-cwl-worker`.** `pnpm install` creates a *file* symlink at `packages/runtime-cwl-worker/node_modules/@chrysalis/runtime-cwl` pointing at `packages/runtime-cwl`, which is itself a junction into your tree; Windows will not traverse that chain, so Node and `tsc -b` both report `Cannot find module '@chrysalis/runtime-cwl'` and `pnpm -r build` fails. `@chrysalis/webir` survives only because it is also linked at the workspace root. Repaired locally with a directory junction (not committable, recurs on every fresh install). The package tsconfig lives in your tree and references `../webir` but not `../runtime-cwl` — adding that project reference would fix it at the source |
+| ~~P2~~ | **WITHDRAWN 2026-09-16** — our bug, not yours: `link-cwl-junction-workspace-deps.mjs` picked link type from `lstat` (a Windows junction lstats as a non-directory symlink) and emitted a file symlink at a directory. Fixed with `stat`; no project reference needed in your tsconfig. Original text: **Windows link repair for `runtime-cwl-worker`.** `pnpm install` creates a *file* symlink at `packages/runtime-cwl-worker/node_modules/@chrysalis/runtime-cwl` pointing at `packages/runtime-cwl`, which is itself a junction into your tree; Windows will not traverse that chain, so Node and `tsc -b` both report `Cannot find module '@chrysalis/runtime-cwl'` and `pnpm -r build` fails. `@chrysalis/webir` survives only because it is also linked at the workspace root. Repaired locally with a directory junction (not committable, recurs on every fresh install). The package tsconfig lives in your tree and references `../webir` but not `../runtime-cwl` — adding that project reference would fix it at the source |
 | — | Gold `36` emits 2 holes under Convert's counter (attachment holes count) vs 0 in the pillar smoke; text matches your thin emit. Flag if you want the counters aligned |
 
 ---

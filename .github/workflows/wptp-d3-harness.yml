@@ -37,7 +37,9 @@ jobs:
 
       - name: Build Chrysalis
         run: |
+          node scripts/ci-link-cwl-sibling.mjs --stage=sibling
           pnpm install --frozen-lockfile
+          node scripts/ci-link-cwl-sibling.mjs --stage=links
           pnpm -r build
 
       - uses: actions/checkout@v4

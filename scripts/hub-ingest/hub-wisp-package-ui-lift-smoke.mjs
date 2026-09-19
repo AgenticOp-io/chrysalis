@@ -2,7 +2,7 @@
 /** WISP package UI lift smoke (G9410, D6366). */
 import { existsSync } from "node:fs";
 import { applyWispPackageUiLift } from "../wisp-cwl-package-ui-lift.mjs";
-import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
+import { resolveWispModuleRoot } from "../lib/wisp-origin-paths.mjs";
 
 export async function runWispPackageUiLiftSmoke() {
   const wispRoot =

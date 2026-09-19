@@ -16,6 +16,7 @@ import {
   symlinkSync,
   readFileSync,
   lstatSync,
+  statSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,8 +45,10 @@ function linkPath(link, target) {
     }
   }
   if (process.platform === "win32") {
-    // Prefer junction for directories; symlink for files.
-    const st = lstatSync(target);
+    // Prefer junction for directories; symlink for files. `stat`, not `lstat`: a
+    // junction lstats as a symlink with isDirectory() false, which would produce a
+    // *file* symlink aimed at a directory — a link Node and tsc both refuse to follow.
+    const st = statSync(target);
     if (st.isDirectory()) {
       const r = spawnSync("cmd", ["/c", "mklink", "/J", link, target], { encoding: "utf8" });
       if (r.status !== 0) {

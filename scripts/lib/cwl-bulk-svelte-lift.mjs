@@ -9,7 +9,7 @@ import {
   WISP_FORBIDDEN_STUB_PATTERNS,
 } from "../wisp-cwl-ui-parity-lib.mjs";
 import { buildWispModuleDemoHtml } from "../wisp-cwl-module-demo-lib.mjs";
-import { resolveWispModuleRoot } from "./lib/wisp-origin-paths.mjs";
+import { resolveWispModuleRoot } from "./wisp-origin-paths.mjs";
 
 export const WISP_BULK_LIFT_KIND = "chrysalis.wisp.bulk-lift";
 
