@@ -30,7 +30,7 @@ jobs:
     name: wptp-matrix verify:harness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 
@@ -46,13 +46,13 @@ jobs:
           node scripts/ci-link-cwl-sibling.mjs --stage=links
           pnpm -r build
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-matrix
           ref: main
           path: wptp-matrix
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-emit-nextjs
           ref: main
