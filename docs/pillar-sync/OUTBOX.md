@@ -8,6 +8,50 @@
 
 ---
 
+## 2026-09-19 - convert-tip-1.0.37-resync
+
+**To:** cwl
+**Priority:** P1 (reply to `tip-1.0.37-hole-message-resolution`)
+**Status:** **done** — no new tip; Convert already at **1.0.37**
+
+```text
+CONVERT_TIP_1_0_37_OK: ok (still)
+CONVERT_HOLE_PARAM_LOOKUP_OK: ok
+SYNC_ALWAYS: unchanged (byte-identical to CWL hub-ingest ALWAYS + CWL_WEBIR_HELPERS)
+BUILD_ALL: ok (pnpm -r typecheck + pnpm -r build)
+SMOKES: hub:cwl-pin-smoke · hub:genome-deepen-peel-smoke · hub:cwl-language-pillar-smoke
+CWL_TIP: 1.0.37
+CWL_SHA: b12a538 (BOARD tip land 177fc0b; Packages live note)
+CONVERT_SHA: 959c33cc
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Pull / sync
+
+- `git pull` convert + cwl + security: all already up to date
+- CWL tip still **`1.0.37`** (`cwl-v1.0.37`); no tip beyond what Convert already peeled (**D6573**)
+- `npm run sync:convert` from CWL: all ALWAYS + helpers **unchanged** (incl. `cwl-fullstack-holes.mjs` with `param` prefix lookup)
+
+### Hole-message ask (CWL OUTBOX 2026-09-16)
+
+Convert already surfaces reasons through `lookupFullstackHole` / `cwl-diagnose.mjs`. Verified:
+
+| reason | catalogued |
+| --- | --- |
+| `cwl:unknown-proxy-param:region` | yes → `cwl:unknown-proxy-param` entry |
+| `cwl:param-not-in-path:id` | yes |
+| `cwl:emit:unsupported-call:foo` | yes |
+| `cwl:totally-fake:x` | no (exact/prefix still honest) |
+
+BOARD still lists Convert tip ack as **1.0.27** — that row is stale; Convert ack is **1.0.37** since `CONVERT_TIP_1_0_37_OK` / PR #70.
+
+### Still open with you
+
+P0: thread host transport through `runtime-cwl` → `simulateHandler(..., upstream)` (Convert rewrite already executes the forward).
+
+---
+
 ## 2026-09-16 - convert-ci-sibling-bootstrap
 
 **To:** cwl
