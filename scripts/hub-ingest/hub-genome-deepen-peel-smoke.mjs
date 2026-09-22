@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * G10140 / G10141 / G10142 — Tip 1.0.46 peel consume: repeats (if/else/nested),
- * credential effects (cookie name + policy attrs), CORS origin, rate rpm, CSRF
- * cookie name, declared upstream forwards, and narrow host-byte reasons.
+ * G10140 / G10141 / G10142 — Tip 1.0.51 peel consume: repeats (if/else/nested),
+ * credential effects (cookie name + policy attrs), CORS origin/methods, rate rpm,
+ * CSRF cookie name, auth.require cookie, db table, mail template, cache.max-age,
+ * declared upstream forwards, and narrow host-byte reasons.
  *
- * Proves Convert lifts CWL golds `40`–`54` into WebIR and projects them back
- * without inventing markup, limiter/CORS/CSRF engines, cookie/token values, or
- * proxy targets. Also proves `@chrysalis/rewrite` executes a declared forward
+ * Proves Convert lifts CWL golds `40`–`59` into WebIR and projects them back
+ * without inventing markup, limiter/CORS/CSRF/cache engines, cookie/token values,
+ * or proxy targets. Also proves `@chrysalis/rewrite` executes a declared forward
  * through an injected transport.
  *
  * Gate: hub:genome-deepen-peel-smoke
@@ -156,6 +157,39 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     /effects: csrf\.verify;/.test(text) &&
     !/hole/.test(text));
 
+  // RFC-0007 / RFC-0020 deepen (1.0.47): auth.require cookie name — never a value.
+  await checkGold("auth-require-cookie", "55-auth-require-cookie", (text) =>
+    /effects: auth\.require cookie sid;/.test(text) &&
+    /effects: auth\.require;/.test(text) &&
+    !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.48): named db.read / db.write table.
+  await checkGold("db-table-name", "56-db-table-name", (text) =>
+    /effects: db\.read table users;/.test(text) &&
+    /effects: auth\.require, db\.write table users;/.test(text) &&
+    /effects: db\.read;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.49): named mail.send template.
+  await checkGold("mail-send-template", "57-mail-send-template", (text) =>
+    /effects: mail\.send template welcome;/.test(text) &&
+    /effects: mail\.send;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.50): named CORS methods (+ origin).
+  await checkGold("cors-allow-methods", "58-cors-allow-methods", (text) =>
+    /effects: cors\.allow methods GET POST;/.test(text) &&
+    /effects: cors\.allow origin https:\/\/app\.example\.com methods GET POST PUT;/.test(text) &&
+    /effects: cors\.allow;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.51): cache.max-age (binary hole stays beside the declare).
+  await checkGold("cache-max-age", "59-cache-max-age", (text) =>
+    /effects: cache\.max-age 86400;/.test(text) &&
+    /effects: cache\.max-age 0;/.test(text) &&
+    /hole hub-cwl:binary-render;/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -264,7 +298,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.46",
+    cwlTip: "1.0.51",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

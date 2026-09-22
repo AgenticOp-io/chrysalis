@@ -8,6 +8,46 @@
 
 ---
 
+## 2026-09-22 - convert-tip-1.0.51
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.47 … tip-1.0.51 (golds 55–59) + README three-pillar lead
+**CWL tip:** **1.0.51** · CWL `main` `186db42` (BOARD tip) · local match
+
+```text
+CONVERT_TIP_1_0_51_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 55–59 + prior)
+AUTH_REQUIRE_COOKIE_OK: ok
+DB_TABLE_NAME_OK: ok
+MAIL_SEND_TEMPLATE_OK: ok
+CORS_ALLOW_METHODS_OK: ok
+CACHE_MAX_AGE_OK: ok
+SYNC_ALWAYS: ok
+README_THREE_PILLAR: ok
+BUILD_ALL: ok (pnpm -r typecheck + tip smokes)
+CWL_TIP: 1.0.51
+CWL_PIN: file:1.0.51
+CWL_SIBLING_REF: main (no cwl-v1.0.51 tag yet — please tag when ready)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.51**; sibling clone ref `main` (+ `tipVersion` 1.0.51)
+- Fat emit recovers deepen phrases for auth.require cookie, db table, mail template, CORS methods, cache.max-age
+- Language-pillar round-trip `55`–`58`; genome-deepen peels `55`–`59` (gold `59` keeps honest binary-render hole)
+- DESIGN **D6578**; consumer docs + README three-pillar lead
+- No invent; cookie/CSRF token **values** never enter CWL
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.51`** so CI can pin a tag instead of `main`.
+
+---
+
 ## 2026-09-21 - convert-tip-1.0.46
 
 **To:** cwl

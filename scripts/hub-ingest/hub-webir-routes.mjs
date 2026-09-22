@@ -40,12 +40,14 @@ const CWL_EXECUTABLE_EFFECT_CALLS = new Map([
   ["__cwl_middleware_cors", "cors.allow"],
   ["__cwl_middleware_csrf", "csrf.verify"],
   ["__cwl_middleware_rate_limit", "rate.limit"],
+  ["__cwl_middleware_cache", "cache.max-age"],
   ["__cwl_effect_mail_send", "mail.send"],
   ["__cwl_effect_db_read", "db.read"],
   ["__cwl_effect_db_write", "db.write"],
   ["__cwl_effect_io", "io"],
   // RFC-0032 credential / session intent — the tag is CWL, the crypto stays host-owned.
   ["__cwl_effect_auth_verify", "auth.verify"],
+  ["__cwl_effect_auth_require", "auth.require"],
   ["__cwl_effect_session_mint", "session.mint"],
   ["__cwl_effect_session_revoke", "session.revoke"],
 ]);
@@ -61,8 +63,9 @@ const CWL_EXECUTABLE_EFFECT_OPS = new Map([
 
 /**
  * Recover the CWL `effects:` tag for an executable effect/middleware call,
- * including tip 1.0.38–1.0.46 deepen phrases (cookie name/attrs, CORS origin,
- * rate rpm, CSRF cookie). Names/policy only — never token values.
+ * including tip 1.0.38–1.0.51 deepen phrases (cookie name/attrs, CORS origin/
+ * methods, rate rpm, CSRF cookie, auth.require cookie, db table, mail template,
+ * cache.max-age). Names/policy only — never token values.
  * @param {(id: string) => object | undefined} get
  * @param {object} call
  * @returns {string | null}
@@ -133,12 +136,26 @@ function cwlExecutableEffectTagFromCall(get, call) {
       : `${base} cookie ${cookie}`;
   }
 
+  if (callee === "__cwl_effect_auth_require") {
+    const cookieVal = namedLit("cookie", 0);
+    if (typeof cookieVal === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cookieVal)) {
+      return `auth.require cookie ${cookieVal}`;
+    }
+    return "auth.require";
+  }
+
   if (callee === "__cwl_middleware_cors") {
     const origin = namedLit("origin", 0);
+    const methodsVal = namedLit("methods", 1);
+    /** @type {string[]} */
+    const parts = ["cors.allow"];
     if (typeof origin === "string" && origin && origin !== "*") {
-      return `cors.allow origin ${origin}`;
+      parts.push(`origin ${origin}`);
     }
-    return "cors.allow";
+    if (typeof methodsVal === "string" && methodsVal.trim()) {
+      parts.push(`methods ${methodsVal.trim()}`);
+    }
+    return parts.join(" ");
   }
 
   if (callee === "__cwl_middleware_rate_limit") {
@@ -155,6 +172,33 @@ function cwlExecutableEffectTagFromCall(get, call) {
       return `csrf.verify cookie ${cookieVal}`;
     }
     return "csrf.verify";
+  }
+
+  if (callee === "__cwl_effect_mail_send") {
+    const templateVal = namedLit("template", 0);
+    if (
+      typeof templateVal === "string" &&
+      /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(templateVal)
+    ) {
+      return `mail.send template ${templateVal}`;
+    }
+    return "mail.send";
+  }
+
+  if (callee === "__cwl_effect_db_read" || callee === "__cwl_effect_db_write") {
+    const tableVal = namedLit("table", 0);
+    if (typeof tableVal === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableVal)) {
+      return `${base} table ${tableVal}`;
+    }
+    return base;
+  }
+
+  if (callee === "__cwl_middleware_cache") {
+    const maxAge = namedLit("maxAge", 0);
+    if (typeof maxAge === "number" && Number.isInteger(maxAge) && maxAge >= 0) {
+      return `cache.max-age ${maxAge}`;
+    }
+    return null;
   }
 
   return base;

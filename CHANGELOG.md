@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CWL tip 1.0.51 (D6578):** tip floor + sibling pin; fat emit reverse for `auth.require cookie`, `db.* table`, `mail.send template`, `cors.allow methods`, `cache.max-age` (golds `55`–`59`); language-pillar + genome-deepen peels; README three-pillar lead.
+
 ### Fixed
 
 - **Flagship verify:** register **`GET /chrysalis-pdo-count`** in Laravel **`chrysalis.stub.php`** (oracle was 404; replay 117/119).

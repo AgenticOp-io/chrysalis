@@ -90,20 +90,79 @@ export function formatSessionCookieAttrs(attrs) {
   return parts.join(" ");
 }
 
+const CORS_METHOD_RE = /^(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/i;
+
 /**
- * RFC-0020 deepen (tip 1.0.44): `cors.allow` or `cors.allow origin <url|* >`.
- * Bare form still means `*` — no invented host list.
+ * RFC-0020 deepen (tip 1.0.44 / 1.0.50): `cors.allow` with optional
+ * `origin <url|*>` and/or `methods GET POST …`.
+ * Bare form still means origin `*` — no invented host list or CORS engine.
  * @param {string} raw
- * @returns {{ origin: string } | null}
+ * @returns {{ origin: string, methods: string[] | null } | null}
  */
 export function parseCorsAllowEffect(raw) {
+  const src = String(raw ?? "").trim();
+  const t = src.toLowerCase();
+  if (t === "cors.allow") return { origin: "*", methods: null };
+  if (!t.startsWith("cors.allow")) return null;
+  let rest = src.slice("cors.allow".length).trim();
+  if (!rest) return { origin: "*", methods: null };
+  let origin = "*";
+  /** @type {string[] | null} */
+  let methods = null;
+  while (rest) {
+    const originM = /^origin\s+(\*|[a-z][a-z0-9+.-]*:\/\/[^\s]+)\s*/i.exec(rest);
+    if (originM) {
+      origin = originM[1] === "*" ? "*" : originM[1];
+      rest = rest.slice(originM[0].length).trim();
+      continue;
+    }
+    const methodsM = /^methods\s+(.+)$/i.exec(rest);
+    if (methodsM) {
+      const parts = methodsM[1].trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return null;
+      const normalized = [];
+      for (const p of parts) {
+        if (!CORS_METHOD_RE.test(p)) return null;
+        normalized.push(p.toUpperCase());
+      }
+      methods = normalized;
+      rest = "";
+      continue;
+    }
+    return null;
+  }
+  return { origin, methods };
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.49): `mail.send` or `mail.send template <name>`.
+ * Names a host-owned template — never invents SMTP / message bodies.
+ * @param {string} raw
+ * @returns {{ template: string | null } | null}
+ */
+export function parseMailSendEffect(raw) {
   const t = String(raw ?? "").trim().toLowerCase();
-  if (t === "cors.allow") return { origin: "*" };
-  const m = /^cors\.allow\s+origin\s+(\*|[a-z][a-z0-9+.-]*:\/\/[^\s]+)$/i.exec(
+  if (t === "mail.send") return { template: null };
+  const m = /^mail\.send\s+template\s+([a-zA-Z_][a-zA-Z0-9_-]*)$/.exec(
     String(raw ?? "").trim(),
   );
   if (!m) return null;
-  return { origin: m[1] === "*" ? "*" : m[1] };
+  return { template: m[1] };
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.51): `cache.max-age <seconds>`.
+ * Declares Cache-Control max-age intent — host sets headers; CWL does not invent a CDN.
+ * @param {string} raw
+ * @returns {{ seconds: number } | null}
+ */
+export function parseCacheMaxAgeEffect(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  const m = /^cache\.max-age\s+(\d+)$/.exec(t);
+  if (!m) return null;
+  const seconds = Number(m[1]);
+  if (!Number.isInteger(seconds) || seconds < 0 || seconds > 31_536_000) return null;
+  return { seconds };
 }
 
 /**
@@ -136,6 +195,36 @@ export function parseCsrfVerifyEffect(raw) {
   return { cookie: m[1] };
 }
 
+/**
+ * RFC-0007 / RFC-0020 deepen (tip 1.0.47): `auth.require` or `auth.require cookie <name>`.
+ * Names the session cookie the host must see — never a token value.
+ * @param {string} raw
+ * @returns {{ cookie: string | null } | null}
+ */
+export function parseAuthRequireEffect(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  if (t === "auth.require") return { cookie: null };
+  const m = /^auth\.require\s+cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(t);
+  if (!m) return null;
+  return { cookie: m[1] };
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.48): `db.read` / `db.write` or `db.read table <name>`.
+ * Names the logical table — no SQL invented in CWL.
+ * @param {string} raw
+ * @returns {{ kind: "db.read" | "db.write", table: string | null } | null}
+ */
+export function parseDbEffect(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  const m = /^(db\.(?:read|write))(?:\s+table\s+([a-zA-Z_][a-zA-Z0-9_]*))?$/.exec(t);
+  if (!m) return null;
+  return {
+    kind: /** @type {"db.read" | "db.write"} */ (m[1]),
+    table: m[2] ?? null,
+  };
+}
+
 /** @param {string[]} declared */
 export function cwlEffectsToWebir(declared) {
   /** @type {import('@chrysalis/webir').Effect[]} */
@@ -155,17 +244,26 @@ export function cwlEffectsToWebir(declared) {
       out.push({ kind: "db.write", table: "*" });
       continue;
     }
-    if (
-      t === "session.read" ||
-      t === "session.write" ||
-      t === "time.now" ||
-      t === "random" ||
-      t === "mail.send"
-    ) {
+    const dbFx = parseDbEffect(t);
+    if (dbFx) {
+      out.push({ kind: dbFx.kind, table: dbFx.table ?? "*" });
+      continue;
+    }
+    if (t === "session.read" || t === "session.write" || t === "time.now" || t === "random") {
       out.push({ kind: t });
       continue;
     }
+    const mailFx = parseMailSendEffect(t);
+    if (mailFx) {
+      out.push({ kind: "mail.send" });
+      continue;
+    }
     if (t === "auth.require") {
+      out.push({ kind: "session.read" });
+      continue;
+    }
+    const authReq = parseAuthRequireEffect(t);
+    if (authReq) {
       out.push({ kind: "session.read" });
       continue;
     }
@@ -182,7 +280,8 @@ export function cwlEffectsToWebir(declared) {
     const corsFx = parseCorsAllowEffect(t);
     const rateFx = parseRateLimitEffect(t);
     const csrfFx = parseCsrfVerifyEffect(t);
-    if (corsFx || csrfFx || rateFx) {
+    const cacheFx = parseCacheMaxAgeEffect(t);
+    if (corsFx || csrfFx || rateFx || cacheFx) {
       out.push({ kind: "http.fetch" });
     }
   }
@@ -279,15 +378,36 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
       );
       continue;
     }
-    if (t === "auth.require") {
-      statements.push(
-        effect.sessionRead({
-          key: "user_id",
-          type: HUB_T.string,
-          origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require")],
-        }),
-      );
+    const authReq = parseAuthRequireEffect(t);
+    if (authReq) {
+      if (authReq.cookie) {
+        statements.push(
+          data.call({
+            callee: "__cwl_effect_auth_require",
+            args: [
+              data.literal({
+                value: authReq.cookie,
+                type: HUB_T.string,
+                origin,
+                provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require-cookie")],
+              }),
+            ],
+            argNames: ["cookie"],
+            type: HUB_T.unknown,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require")],
+          }),
+        );
+      } else {
+        statements.push(
+          effect.sessionRead({
+            key: "user_id",
+            type: HUB_T.string,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require")],
+          }),
+        );
+      }
       continue;
     }
     if (t === "auth.verify") {
@@ -369,17 +489,35 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
     }
     const cors = parseCorsAllowEffect(t);
     if (cors) {
-      const allow = data.literal({
-        value: cors.origin,
-        type: HUB_T.string,
-        origin,
-        provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow")],
-      });
+      /** @type {string[]} */
+      const corsArgs = [];
+      /** @type {string[]} */
+      const corsArgNames = [];
+      corsArgs.push(
+        data.literal({
+          value: cors.origin,
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow")],
+        }),
+      );
+      corsArgNames.push("origin");
+      if (cors.methods && cors.methods.length) {
+        corsArgs.push(
+          data.literal({
+            value: cors.methods.join(" "),
+            type: HUB_T.string,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow-methods")],
+          }),
+        );
+        corsArgNames.push("methods");
+      }
       statements.push(
         data.call({
           callee: "__cwl_middleware_cors",
-          args: [allow],
-          argNames: ["origin"],
+          args: corsArgs,
+          argNames: corsArgNames,
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow")],
@@ -469,11 +607,24 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
       );
       continue;
     }
-    if (t === "mail.send") {
+    const mailFx = parseMailSendEffect(t);
+    if (mailFx) {
+      const args =
+        mailFx.template == null
+          ? []
+          : [
+              data.literal({
+                value: mailFx.template,
+                type: HUB_T.string,
+                origin,
+                provenance: [webir.provenance("hub-ingest", "cwl:executable-mail-send-template")],
+              }),
+            ];
       statements.push(
         data.call({
           callee: "__cwl_effect_mail_send",
-          args: [],
+          args,
+          argNames: mailFx.template == null ? undefined : ["template"],
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-mail-send")],
@@ -481,26 +632,50 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
       );
       continue;
     }
-    if (t === "db.read") {
+    const cacheFx = parseCacheMaxAgeEffect(t);
+    if (cacheFx) {
       statements.push(
         data.call({
-          callee: "__cwl_effect_db_read",
-          args: [],
+          callee: "__cwl_middleware_cache",
+          args: [
+            data.literal({
+              value: cacheFx.seconds,
+              type: HUB_T.int,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-max-age")],
+            }),
+          ],
+          argNames: ["maxAge"],
           type: HUB_T.unknown,
           origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:executable-db-read")],
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-max-age")],
         }),
       );
       continue;
     }
-    if (t === "db.write") {
+    const dbFx = parseDbEffect(t);
+    if (dbFx) {
+      const callee = dbFx.kind === "db.read" ? "__cwl_effect_db_read" : "__cwl_effect_db_write";
+      const loc = dbFx.kind === "db.read" ? "cwl:executable-db-read" : "cwl:executable-db-write";
+      const args =
+        dbFx.table == null
+          ? []
+          : [
+              data.literal({
+                value: dbFx.table,
+                type: HUB_T.string,
+                origin,
+                provenance: [webir.provenance("hub-ingest", `${loc}-table`)],
+              }),
+            ];
       statements.push(
         data.call({
-          callee: "__cwl_effect_db_write",
-          args: [],
+          callee,
+          args,
+          argNames: dbFx.table == null ? undefined : ["table"],
           type: HUB_T.unknown,
           origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:executable-db-write")],
+          provenance: [webir.provenance("hub-ingest", loc)],
         }),
       );
       continue;
