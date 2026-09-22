@@ -49,6 +49,10 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "52-cors-allow-origin",
   "53-rate-limit-rpm",
   "54-csrf-verify-cookie",
+  "55-auth-require-cookie",
+  "56-db-table-name",
+  "57-mail-send-template",
+  "58-cors-allow-methods",
 ];
 
 /**

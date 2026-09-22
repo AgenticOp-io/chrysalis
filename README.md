@@ -1,9 +1,19 @@
-# Chrysalis
+# Chrysalis — Universal Translator (Convert)
 
-> **Portfolio path:** `engines/chrysalis-convert` (formerly `PHP_converter`; that name is now a junction here).  
-> **Security sibling:** `engines/chrysalis-security` (Helix). Fork notes: [`docs/fork/README.md`](./docs/fork/README.md) · [`CONVERT_FORK.md`](./CONVERT_FORK.md).
+**Portfolio path:** `engines/chrysalis-convert` (formerly `PHP_converter`; that name is now a junction here).  
+**Fork notes:** [`docs/fork/README.md`](./docs/fork/README.md) · [`CONVERT_FORK.md`](./CONVERT_FORK.md).
 
-> A web framework you can grow *inside* a legacy PHP app until it consumes it.
+This repo is the **Universal Translator**: origin stacks → WebIR/CWL → emit. It does **not** own the language genome — that is **CWL**.
+
+## Chrysalis (open source)
+
+| Pillar | Repository | Role |
+|--------|------------|------|
+| **CWL** | [**chrysalis-cwl**](https://github.com/AgenticOp-io/chrysalis-cwl) | Chrysalis Web Language — DNA of the web |
+| **Convert** | [**chrysalis**](https://github.com/AgenticOp-io/chrysalis) | Universal Translator — origin → WebIR/CWL → emit |
+| **Secure** | [**chrysalis-security**](https://github.com/AgenticOp-io/chrysalis-security) | Helix DNA firewall — allow only what certified traffic proves |
+
+**Tip pin:** `@chrysalis/cwl` `file:` ≡ sibling **1.0.51** (`hub:cwl-pin-smoke`). Language golds through `59`.
 
 Chrysalis turns legacy modernization from a **translation problem** into a
 **specification problem**: your running app becomes the spec, and translated
@@ -14,16 +24,16 @@ propose; WebIR + oracle + verify dispose. See [`docs/AI-ASSIST.md`](./docs/AI-AS
 and the buyer-facing [`docs/CURSOR-PILOT-KIT.md`](./docs/CURSOR-PILOT-KIT.md)
 (`pnpm run pilot:laravel-min` · `pnpm run pilot:cobol-clbs`). LiteRT.js is **not** part of the convert path.
 
-It converts PHP to modern TypeScript, but that's only one of its three legs:
+Convert’s engine legs (inside this pillar):
 
 1. **WebIR** — a multi-dialect, typed, effect-aware intermediate representation
    for web applications. Frontends ingest any legacy language; backends emit
-   any modern stack.
-2. **Oracle** — a record/replay system. A sidecar captures your PHP app's
+   any modern stack. Meaning lives in **CWL**; WebIR is the machine IR.
+2. **Oracle** — a record/replay system. A sidecar captures your app’s
    real traffic, SQL, and side effects; the replay engine verifies every
    translated endpoint against those captures.
-3. **Chimera runtime** — a dual-stack coexistence layer. PHP and the new
-   TypeScript stack run side-by-side behind one router, sharing sessions and
+3. **Chimera runtime** — a dual-stack coexistence layer. Legacy and the new
+   stack run side-by-side behind one router, sharing sessions and
    the database, so you migrate one endpoint at a time with live production
    traffic as your test suite.
 
