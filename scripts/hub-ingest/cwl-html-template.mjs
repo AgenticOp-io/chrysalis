@@ -99,57 +99,135 @@ export function splitCwlHtmlTemplate(html, bindings = {}) {
 
 /**
  * Split a repeat item template on the loop variable, allowing dotted field chains
- * (`item.name`, `item.site.city`). Field access is the shape real list fragments need;
- * anything else stays literal text.
+ * (`item.name`, `item.site.city`). Optional nested leaf names (`towers` for
+ * `item.towers`) become nested-repeat slots — tip 1.0.41, one level only.
  * @param {string} template
  * @param {string} itemName
- * @returns {Array<{ kind: "literal", text: string } | { kind: "expr", fields: string[] }>}
+ * @param {string[]} [nestedLeaves]
+ * @returns {Array<{ kind: "literal", text: string } | { kind: "expr", fields: string[] } | { kind: "nested", leaf: string }>}
  */
-export function splitCwlRepeatItemTemplate(template, itemName) {
+export function splitCwlRepeatItemTemplate(template, itemName, nestedLeaves = []) {
   const html = String(template ?? "");
-  /** @type {Array<{ kind: "literal", text: string } | { kind: "expr", fields: string[] }>} */
+  const leafSet = new Set(nestedLeaves.filter(Boolean));
+  /** @type {Array<{ kind: "literal", text: string } | { kind: "expr", fields: string[] } | { kind: "nested", leaf: string }>} */
   const parts = [];
-  const idRe = new RegExp(`\\b${itemName}\\b`, "g");
-  let cursor = 0;
-  for (let m = idRe.exec(html); m; m = idRe.exec(html)) {
-    const start = m.index;
-    const before = start > 0 ? html[start - 1] : "";
-    let end = start + itemName.length;
-    // Hyphenated words (`item-list`) and dashed prefixes are markup, not bindings.
-    if (before === "-" || html[end] === "-" || before === ".") continue;
-    /** @type {string[]} */
-    const fields = [];
-    while (html[end] === ".") {
-      const field = /^[a-zA-Z_][a-zA-Z0-9_]*/.exec(html.slice(end + 1));
-      if (!field) break;
-      fields.push(field[0]);
-      end += 1 + field[0].length;
+  let i = 0;
+  while (i < html.length) {
+    const rest = html.slice(i);
+    const idMatch = /^[a-zA-Z_][a-zA-Z0-9_]*/.exec(rest);
+    if (idMatch) {
+      const name = idMatch[0];
+      const before = i > 0 ? html[i - 1] : "";
+      let end = i + name.length;
+      const after = html[end];
+      // Hyphenated words stay markup.
+      if (before === "-" || after === "-") {
+        while (end < html.length && /[a-zA-Z0-9_-]/.test(html[end])) end++;
+        parts.push({ kind: "literal", text: html.slice(i, end) });
+        i = end;
+        continue;
+      }
+      if (name === itemName && before !== ".") {
+        /** @type {string[]} */
+        const fields = [];
+        while (html[end] === ".") {
+          const field = /^[a-zA-Z_][a-zA-Z0-9_]*/.exec(html.slice(end + 1));
+          if (!field) break;
+          fields.push(field[0]);
+          end += 1 + field[0].length;
+        }
+        parts.push({ kind: "expr", fields });
+        i = end;
+        continue;
+      }
+      if (leafSet.has(name) && before !== ".") {
+        parts.push({ kind: "nested", leaf: name });
+        i = end;
+        continue;
+      }
     }
-    if (start > cursor) parts.push({ kind: "literal", text: html.slice(cursor, start) });
-    parts.push({ kind: "expr", fields });
-    cursor = end;
-    idRe.lastIndex = end;
+    let j = i + 1;
+    while (j < html.length) {
+      const next = /^[a-zA-Z_][a-zA-Z0-9_]*/.exec(html.slice(j));
+      if (next) {
+        const name = next[0];
+        const before = j > 0 ? html[j - 1] : "";
+        const after = html[j + name.length];
+        if (before === "-" || after === "-") {
+          j++;
+          continue;
+        }
+        if ((name === itemName && before !== ".") || (leafSet.has(name) && before !== ".")) {
+          break;
+        }
+      }
+      j++;
+    }
+    parts.push({ kind: "literal", text: html.slice(i, j) });
+    i = j;
   }
-  if (cursor < html.length) parts.push({ kind: "literal", text: html.slice(cursor) });
   return parts;
+}
+
+/**
+ * Child repeats of `outerItem.field` (one level) keyed by leaf name.
+ * @param {{ collection: string, item: string, template: string, when?: string, empty?: string }} repeat
+ * @param {Array<{ collection: string, item: string, template: string, when?: string, empty?: string }>} siblingRepeats
+ */
+function nestedRepeatsForOuter(repeat, siblingRepeats) {
+  /** @type {Map<string, { collection: string, item: string, template: string, when?: string, empty?: string }>} */
+  const byLeaf = new Map();
+  const prefix = `${repeat.item}.`;
+  for (const sib of siblingRepeats) {
+    if (sib === repeat) continue;
+    const coll = String(sib.collection || "");
+    if (!coll.startsWith(prefix)) continue;
+    const segs = coll.split(".");
+    if (segs.length !== 2) continue;
+    byLeaf.set(segs[1], sib);
+  }
+  return byLeaf;
 }
 
 /**
  * RFC-0031: lower one `repeat <collection> as <item> html "…";` to a repeat node.
  * Item markup is a nested `html.template`; the repeat itself is a named CWL call
  * so WebIR keeps both the iterable and the per-item template (no invented loop runtime).
+ * Optional `when` (item field chain) becomes a named arg — truthy filter, no invented sorter.
+ * Optional `empty` (else markup) becomes a named arg — rendered when the filtered list is empty.
+ * Sibling repeats whose collection is `item.field` splice into the item template (tip 1.0.41).
  * @param {object} ctx — { data, webir }
- * @param {{ collection: string, item: string, template: string }} repeat
+ * @param {{ collection: string, item: string, template: string, when?: string, empty?: string }} repeat
  * @param {{ file: string, line?: number, column?: number }} origin
+ * @param {Array<{ collection: string, item: string, template: string, when?: string, empty?: string }>} [siblingRepeats]
  */
-export function lowerCwlHtmlRepeat(ctx, repeat, origin) {
+export function lowerCwlHtmlRepeat(ctx, repeat, origin, siblingRepeats = []) {
   const { data, webir } = ctx;
-  const itemSplit = splitCwlRepeatItemTemplate(repeat.template, repeat.item);
+  const nestedByLeaf = nestedRepeatsForOuter(repeat, siblingRepeats);
+  const itemSplit = splitCwlRepeatItemTemplate(
+    repeat.template,
+    repeat.item,
+    [...nestedByLeaf.keys()],
+  );
   /** @type {Array<{ kind: "literal", text: string } | { kind: "expr", node: string, escape: boolean }>} */
   const itemParts = [];
   for (const part of itemSplit) {
     if (part.kind === "literal") {
       itemParts.push({ kind: "literal", text: part.text });
+      continue;
+    }
+    if (part.kind === "nested") {
+      const nested = nestedByLeaf.get(part.leaf);
+      if (nested) {
+        itemParts.push({
+          kind: "expr",
+          // Nested repeats do not nest further in tip 1.0.41 — empty sibling list.
+          node: lowerCwlHtmlRepeat(ctx, nested, origin, []),
+          escape: false,
+        });
+        continue;
+      }
+      itemParts.push({ kind: "literal", text: part.leaf });
       continue;
     }
     let nodeId = data.param({
@@ -174,16 +252,85 @@ export function lowerCwlHtmlRepeat(ctx, repeat, origin) {
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-item-template")],
   });
-  const iterableId = data.param({
-    name: repeat.collection,
-    type: { kind: "unknown" },
-    origin,
-    provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-iterable")],
-  });
+  const iterableSegs = String(repeat.collection || "").split(".").filter(Boolean);
+  /** @type {string} */
+  let iterableId;
+  if (iterableSegs.length === 1) {
+    iterableId = data.param({
+      name: iterableSegs[0],
+      type: { kind: "unknown" },
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-iterable")],
+    });
+  } else if (iterableSegs.length === 2) {
+    // One-level nest: outer item param → member field (tip 1.0.41).
+    let nest = data.param({
+      name: iterableSegs[0],
+      type: { kind: "unknown" },
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-iterable-outer")],
+    });
+    nest = data.member({
+      obj: nest,
+      key: iterableSegs[1],
+      type: { kind: "unknown" },
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-iterable-field")],
+    });
+    iterableId = nest;
+  } else {
+    // Parser should have holed deeper nests; keep an honest empty iterable param.
+    iterableId = data.param({
+      name: repeat.collection,
+      type: { kind: "unknown" },
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-iterable")],
+    });
+  }
+  /** @type {string[]} */
+  const args = [iterableId, itemTemplateId];
+  /** @type {string[]} */
+  const argNames = ["items", repeat.item];
+  if (repeat.when) {
+    const whenFields =
+      repeat.when === repeat.item
+        ? []
+        : String(repeat.when)
+            .slice(repeat.item.length + 1)
+            .split(".")
+            .filter(Boolean);
+    let whenNode = data.param({
+      name: repeat.item,
+      type: whenFields.length > 0 ? { kind: "unknown" } : { kind: "boolean" },
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-when")],
+    });
+    for (const field of whenFields) {
+      whenNode = data.member({
+        obj: whenNode,
+        key: field,
+        type: { kind: "unknown" },
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-when-field")],
+      });
+    }
+    args.push(whenNode);
+    argNames.push("when");
+  }
+  if (typeof repeat.empty === "string") {
+    // Empty markup is a literal html.template — no item binding (collection had nothing to bind).
+    const emptyTemplateId = data.htmlTemplate({
+      parts: [{ kind: "literal", text: repeat.empty }],
+      origin,
+      provenance: [webir.provenance("hub-ingest", "cwl-html-repeat-empty")],
+    });
+    args.push(emptyTemplateId);
+    argNames.push("empty");
+  }
   return data.call({
     callee: CWL_HTML_REPEAT_CALLEE,
-    args: [iterableId, itemTemplateId],
-    argNames: ["items", repeat.item],
+    args,
+    argNames,
     type: { kind: "string" },
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl-html-repeat")],
@@ -203,9 +350,15 @@ export function lowerCwlHtmlTemplateBody(ctx, html, loc, wr, bindings = {}) {
 
   const { data, webir } = ctx;
   const origin = { file: loc.file, line: loc.line ?? 1, column: 1 };
-  const repeatsByCollection = new Map(
-    (bindings.repeats ?? []).map((rep) => [rep.collection, rep]),
-  );
+  const repeatsByCollection = new Map();
+  for (const rep of bindings.repeats ?? []) {
+    repeatsByCollection.set(rep.collection, rep);
+    // Nested `site.towers` also interpolates as the leaf name `towers` in the outer template.
+    const leaf = String(rep.collection).split(".").pop();
+    if (leaf && leaf !== rep.collection && !repeatsByCollection.has(leaf)) {
+      repeatsByCollection.set(leaf, rep);
+    }
+  }
   /** @type {Array<{ kind: "literal", text: string } | { kind: "expr", node: string, escape: boolean }>} */
   const templateParts = [];
   for (const part of split) {
@@ -218,7 +371,7 @@ export function lowerCwlHtmlTemplateBody(ctx, html, loc, wr, bindings = {}) {
       if (repeat) {
         templateParts.push({
           kind: "expr",
-          node: lowerCwlHtmlRepeat(ctx, repeat, origin),
+          node: lowerCwlHtmlRepeat(ctx, repeat, origin, bindings.repeats ?? []),
           escape: false,
         });
         continue;
@@ -269,7 +422,7 @@ export function lowerCwlHtmlTemplateBody(ctx, html, loc, wr, bindings = {}) {
 export function cwlHtmlTemplateToLit(get, n) {
   const parts = n.attrs?.parts ?? [];
   let html = "";
-  /** @type {Array<{ collection: string, item: string, template: string }>} */
+  /** @type {Array<{ collection: string, item: string, template: string, when?: string, empty?: string }>} */
   const repeats = [];
   for (const p of parts) {
     if (p.kind === "literal") {
@@ -282,8 +435,14 @@ export function cwlHtmlTemplateToLit(get, n) {
     if (expr?.op === "call" && expr.attrs?.callee === CWL_HTML_REPEAT_CALLEE) {
       const recovered = cwlHtmlRepeatToStatement(get, expr);
       if (!recovered) return { t: "hole", reason: "cwl:emit:html-repeat" };
-      repeats.push(recovered);
-      html += recovered.collection;
+      const { nested = [], ...stmt } = recovered;
+      repeats.push(stmt);
+      // Nested children recovered from the outer item template follow the outer statement.
+      for (const child of nested) repeats.push(child);
+      // Page-level interpolation uses the collection id; nested leaves stay inside outer markup.
+      html += stmt.collection.includes(".")
+        ? String(stmt.collection).split(".").pop()
+        : stmt.collection;
       continue;
     }
     if (expr?.op === "request.field") html += String(expr.attrs?.name ?? "");
@@ -298,18 +457,26 @@ export function cwlHtmlTemplateToLit(get, n) {
 /**
  * Reverse one RFC-0031 repeat call to its CWL statement fields.
  * Returns null when the item template is not reconstructable (keep an honest hole).
+ * Nested `__cwl_html_repeat` exprs inside the item template become sibling statements
+ * (leaf name stays in the outer markup; full `item.field` on the nested statement).
  * @param {(id: string) => object | undefined} get
  * @param {object} call
+ * @returns {{ collection: string, item: string, template: string, when?: string, empty?: string, nested?: object[] } | null}
  */
 export function cwlHtmlRepeatToStatement(get, call) {
   const iterable = get(call.operands?.[0] ?? "");
   const itemTemplate = get(call.operands?.[1] ?? "");
-  if (iterable?.op !== "param" || itemTemplate?.op !== "html.template") return null;
-  const collection = String(iterable.attrs?.name ?? "");
+  if (itemTemplate?.op !== "html.template") return null;
+  const collRef = cwlRepeatItemRefToText(get, iterable);
+  const collection =
+    collRef?.text ||
+    (iterable?.op === "param" ? String(iterable.attrs?.name ?? "") : "");
   if (!collection) return null;
   const argNames = call.attrs?.argNames ?? [];
   let item = typeof argNames[1] === "string" ? argNames[1] : "";
   let template = "";
+  /** @type {Array<{ collection: string, item: string, template: string, when?: string, empty?: string }>} */
+  const nested = [];
   for (const p of itemTemplate.attrs?.parts ?? []) {
     if (p.kind === "literal") {
       template += String(p.text ?? "");
@@ -317,13 +484,49 @@ export function cwlHtmlRepeatToStatement(get, call) {
     }
     const idx = p.operandIndex ?? p.idx;
     const opId = itemTemplate.operands?.[idx];
-    const ref = cwlRepeatItemRefToText(get, opId ? get(opId) : null);
+    const expr = opId ? get(opId) : null;
+    if (expr?.op === "call" && expr.attrs?.callee === CWL_HTML_REPEAT_CALLEE) {
+      const child = cwlHtmlRepeatToStatement(get, expr);
+      if (!child) return null;
+      const { nested: deeper = [], ...childStmt } = child;
+      if (deeper.length > 0) return null; // tip 1.0.41: one nest only
+      nested.push(childStmt);
+      const leaf = String(childStmt.collection).split(".").pop();
+      template += leaf || childStmt.collection;
+      continue;
+    }
+    const ref = cwlRepeatItemRefToText(get, expr);
     if (!ref) return null;
     if (!item) item = ref.item;
     template += ref.text;
   }
   if (!item) return null;
-  return { collection, item, template };
+  /** @type {{ collection: string, item: string, template: string, when?: string, empty?: string, nested?: object[] }} */
+  const out = { collection, item, template };
+  const whenIdx = argNames.indexOf("when");
+  if (whenIdx >= 0) {
+    const whenOpId = call.operands?.[whenIdx];
+    const whenRef = cwlRepeatItemRefToText(get, get(whenOpId));
+    if (!whenRef) return null;
+    out.when = whenRef.text;
+  } else if (call.operands?.[2] && argNames[2] !== "empty") {
+    // Legacy tip 1.0.39: third arg is when without relying on argNames alone
+    const whenRef = cwlRepeatItemRefToText(get, get(call.operands[2]));
+    if (whenRef) out.when = whenRef.text;
+  }
+  const emptyIdx = argNames.indexOf("empty");
+  if (emptyIdx >= 0) {
+    const emptyTemplate = get(call.operands?.[emptyIdx] ?? "");
+    if (emptyTemplate?.op !== "html.template") return null;
+    let empty = "";
+    for (const p of emptyTemplate.attrs?.parts ?? []) {
+      if (p.kind !== "literal") return null;
+      empty += String(p.text ?? "");
+    }
+    out.empty = empty;
+  }
+  if (nested.length > 0) out.nested = nested;
+  return out;
 }
 
 /**

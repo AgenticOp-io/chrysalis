@@ -107,11 +107,25 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     surface: "page",
     summary: "`repeat … as … html` statement template is not a string literal — kept as an honest hole.",
   },
+  "cwl:invalid-html-repeat-if": {
+    rfc: "0031",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`repeat … if …` filter must be a field chain rooted on the item — free names are not guessed.",
+  },
+  "cwl:invalid-html-repeat-nested": {
+    rfc: "0031",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`repeat` collection nests deeper than one level (`a.b.c`) — only `outerItem.field` is in the genome; deeper nests stay holes.",
+  },
   "cwl:emit:html-repeat": {
     rfc: "0031",
     origin: "cwl",
     surface: "emit",
-    summary: "Thin emit: repeat node lost its iterable or item template — do not guess the markup.",
+    summary: "Thin emit: repeat node lost its iterable, item template, or when filter — do not guess the markup.",
   },
   "cwl:invalid-proxy-upstream": {
     rfc: "0033",

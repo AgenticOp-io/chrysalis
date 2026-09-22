@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 /**
- * G10140 — Tip 1.0.37 peel consume: repeats, credential effects, declared
- * upstream forwards (with path params), and narrow host-byte reasons.
+ * G10140 / G10141 / G10142 — Tip 1.0.46 peel consume: repeats (if/else/nested),
+ * credential effects (cookie name + policy attrs), CORS origin, rate rpm, CSRF
+ * cookie name, declared upstream forwards, and narrow host-byte reasons.
  *
- * Proves Convert lifts CWL golds `40`–`45` into WebIR and projects them back
- * without inventing markup, loop runtimes, credential crypto, proxy targets, or
- * a media type the origin never declared. Also proves `@chrysalis/rewrite`
- * executes a declared forward through an injected transport instead of leaving
- * it inert — and that with no transport it reports inconclusive rather than
- * inventing an upstream response.
+ * Proves Convert lifts CWL golds `40`–`54` into WebIR and projects them back
+ * without inventing markup, limiter/CORS/CSRF engines, cookie/token values, or
+ * proxy targets. Also proves `@chrysalis/rewrite` executes a declared forward
+ * through an injected transport.
  *
  * Gate: hub:genome-deepen-peel-smoke
  * Token: GENOME_DEEPEN_PEEL_OK
@@ -98,6 +97,63 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     /effects: session\.revoke;/.test(text) &&
     /use urlencoded;/.test(text) &&
     !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0032 deepen (1.0.38): mint/revoke may name the cookie — never a value.
+  await checkGold("session-cookie-name", "46-session-cookie-name", (text) =>
+    /effects: auth\.verify, session\.mint cookie sid;/.test(text) &&
+    /effects: session\.revoke cookie sid;/.test(text) &&
+    !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0031 deepen (1.0.39): optional `if item.field` is a truthy filter only.
+  await checkGold("html-repeat-if", "47-html-repeat-if", (text) =>
+    /repeat sessions as s if s\.active html "<tr><td>s\.user<\/td><\/tr>";/.test(text) &&
+    /return html "<table>sessions<\/table>";/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0031 deepen (1.0.40): empty-collection markup.
+  await checkGold("html-repeat-else", "48-html-repeat-else", (text) =>
+    /repeat sessions as s if s\.active html "<tr><td>s\.user<\/td><\/tr>" else html "<tr><td>none<\/td><\/tr>";/.test(
+      text,
+    ) && !/hole/.test(text));
+
+  // RFC-0031 deepen (1.0.41): one-level nested `outer.field`.
+  await checkGold("html-repeat-nested", "49-html-repeat-nested", (text) =>
+    /repeat regions as region html/.test(text) &&
+    /repeat region\.towers as tower html "<li>tower\.id<\/li>";/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0031 composition (1.0.42): nest + if/else.
+  await checkGold("html-repeat-nested-filter", "50-html-repeat-nested-filter", (text) =>
+    /else html "<p>no regions<\/p>";/.test(text) &&
+    /repeat region\.towers as tower if tower\.up html "<li>tower\.id<\/li>" else html "<li>offline<\/li>";/.test(
+      text,
+    ) && !/hole/.test(text));
+
+  // RFC-0032 deepen (1.0.43): cookie policy attrs — never a token value.
+  await checkGold("session-cookie-attrs", "51-session-cookie-attrs", (text) =>
+    /effects: auth\.verify, session\.mint cookie sid httponly secure path \/ samesite lax;/.test(text) &&
+    /effects: session\.revoke cookie sid path \/;/.test(text) &&
+    !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.44): named CORS origin; bare remains *.
+  await checkGold("cors-allow-origin", "52-cors-allow-origin", (text) =>
+    /effects: cors\.allow origin https:\/\/app\.example\.com;/.test(text) &&
+    /effects: cors\.allow;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.45): rate.limit rpm.
+  await checkGold("rate-limit-rpm", "53-rate-limit-rpm", (text) =>
+    /effects: rate\.limit rpm 60;/.test(text) &&
+    /effects: rate\.limit;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.46): csrf cookie name — never the token.
+  await checkGold("csrf-verify-cookie", "54-csrf-verify-cookie", (text) =>
+    /effects: csrf\.verify cookie csrf;/.test(text) &&
+    /effects: csrf\.verify;/.test(text) &&
     !/hole/.test(text));
 
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
@@ -208,7 +264,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.37",
+    cwlTip: "1.0.46",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

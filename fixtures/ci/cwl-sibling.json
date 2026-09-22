@@ -1,9 +1,10 @@
 {
   "kind": "chrysalis.ci.cwl-sibling",
   "schemaVersion": 1,
-  "note": "CWL-owned packages live in the sibling pillar and are consumed through file: pins plus workspace links. A fresh checkout (CI) has neither, so `pnpm install` and every `tsc -b` project reference fail. Bump `ref` together with the `hub:cwl-pin-smoke` tip floor.",
+  "note": "CWL-owned packages live in the sibling pillar and are consumed through file: pins plus workspace links. A fresh checkout (CI) has neither, so `pnpm install` and every `tsc -b` project reference fail. Bump `ref` together with the `hub:cwl-pin-smoke` tip floor. Prefer a `cwl-v*` tag when CWL publishes one; until then `main` tracks tip (currently 1.0.46).",
   "repo": "https://github.com/AgenticOp-io/chrysalis-cwl.git",
-  "ref": "cwl-v1.0.37",
+  "ref": "main",
+  "tipVersion": "1.0.46",
   "siblingDir": "chrysalis-cwl",
   "packages": [
     "cwl",

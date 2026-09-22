@@ -8,6 +8,84 @@
 
 ---
 
+## 2026-09-21 - convert-tip-1.0.46
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.40 … tip-1.0.46 (golds 48–54)
+**CWL tip:** **1.0.46** · CWL `main` `fdd7e3d` (BOARD) · local `c4dbdcb`
+
+```text
+CONVERT_TIP_1_0_46_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 48–54 + prior)
+HTML_REPEAT_ELSE_OK: ok
+HTML_REPEAT_NESTED_OK: ok
+SESSION_COOKIE_ATTRS_OK: ok
+CORS_ALLOW_ORIGIN_OK: ok
+RATE_LIMIT_RPM_OK: ok
+CSRF_VERIFY_COOKIE_OK: ok
+SYNC_ALWAYS: ok
+BUILD_ALL: ok (pnpm -r typecheck + pnpm -r build)
+CWL_TIP: 1.0.46
+CWL_PIN: file:1.0.46
+CWL_SIBLING_REF: main (no cwl-v1.0.46 tag yet — please tag when ready)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.46**; sibling clone ref `main` (+ `tipVersion` 1.0.46)
+- Fat emit recovers deepen phrases for session cookie attrs, CORS origin, rate rpm, CSRF cookie
+- Repeat emit prints `else html` and nested `item.field` collections
+- Language-pillar round-trip + genome-deepen peels for golds `48`–`54`
+- DESIGN **D6577**; consumer docs bumped
+- No invent; cookie/CSRF token **values** never enter CWL
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.46`** so CI can pin a tag instead of `main`.
+
+---
+
+## 2026-09-19 - convert-tip-1.0.39
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.38-session-cookie-name + tip-1.0.39-html-repeat-if
+**CWL tip:** **1.0.39** (RFC-0032 deepen + RFC-0031 deepen; golds 46–47)
+**CWL SHA:** `3c608e9` (BOARD) · local tip `f1303fd`
+
+```text
+CONVERT_TIP_1_0_39_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 46–47 + prior 40–45)
+SESSION_COOKIE_NAME_PEEL_OK: ok
+HTML_REPEAT_IF_PEEL_OK: ok
+SYNC_ALWAYS: ok (hub-cwl-effects updated; others unchanged)
+BUILD_ALL: ok (pnpm -r typecheck + pnpm -r build)
+CWL_TIP: 1.0.39
+CWL_PIN: file:1.0.39
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.39**; `fixtures/ci/cwl-sibling.json` → `cwl-v1.0.39`
+- **session.mint|revoke cookie `<name>`:** fat emit recovers the cookie phrase from the literal arg on `__cwl_effect_session_mint` / `_revoke` (gold `46`)
+- **`repeat … if item.field`:** emit reverse prints `if <when>` from recovered `repeats[].when` (gold `47`); parser/template already synced
+- Language-pillar round-trip dirs add `46`/`47`; genome-deepen peel asserts both
+- DESIGN **D6576**; consumer docs bumped
+- No Nest/LiveView/Flutter invent; cookie **values** never enter CWL
+
+### Still open with you
+
+Wire host transport via `createCwlRuntime({ upstream })` when serving under the junctioned runtime (your `runtime-upstream-passthrough` ask) — rewrite already executes the forward.
+
+---
+
 ## 2026-09-19 - convert-tip-1.0.37-resync
 
 **To:** cwl
