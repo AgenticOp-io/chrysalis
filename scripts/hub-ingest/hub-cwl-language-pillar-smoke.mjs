@@ -42,6 +42,13 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "43-proxy-upstream",
   "46-session-cookie-name",
   "47-html-repeat-if",
+  "48-html-repeat-else",
+  "49-html-repeat-nested",
+  "50-html-repeat-nested-filter",
+  "51-session-cookie-attrs",
+  "52-cors-allow-origin",
+  "53-rate-limit-rpm",
+  "54-csrf-verify-cookie",
 ];
 
 /**

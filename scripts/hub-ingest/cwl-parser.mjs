@@ -4,6 +4,7 @@
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
+import { formatSessionCookieAttrs, parseCorsAllowEffect, parseCsrfVerifyEffect, parseRateLimitEffect, parseSessionCookieEffect } from "./hub-cwl-effects.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -39,8 +40,11 @@ const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
 const ELSE_RE = /^else\s*\{$/;
 const FOREACH_RE = /^foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as(?:\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=>)?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{$/;
-/** RFC-0031: repeat a markup fragment per item of a load collection. */
-const HTML_REPEAT_RE = /^repeat\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+html\s+(.+);$/i;
+/** RFC-0031: repeat a markup fragment per item of a load collection (optional `if` filter). */
+const HTML_REPEAT_RE =
+  /^repeat\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\s+if\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*))?\s+html\s+(.+);$/i;
+/** Split `html "…" else html "…"` — first literal may not contain the else keyword as markup. */
+const HTML_REPEAT_ELSE_SPLIT_RE = /^(.+?)\s+else\s+html\s+(.+)$/i;
 /** RFC-0033: route forwards to a named upstream (host owns the bytes). */
 const PROXY_UPSTREAM_RE = /^proxy\s+upstream\s+(.+);$/i;
 /** RFC-0029: shared chrome layout */
@@ -443,11 +447,50 @@ function parseCwlObjectEntries(objectExpr, bindings) {
 
 /**
  * @param {string} effectsRaw
+ * @returns {string[]}
  */
 function parseEffects(effectsRaw) {
   const t = effectsRaw.trim().toLowerCase();
   if (t === "none" || t === "") return [];
-  return t.split(",").map((s) => s.trim()).filter(Boolean);
+  return t
+    .split(",")
+    .map((s) => normalizeEffectTag(s.trim()))
+    .filter(Boolean);
+}
+
+/**
+ * Normalize effect tags. RFC-0032 deepen: `session.mint cookie sid` keeps the
+ * cookie **name** (never a value) so Secure can cross-check response surfaces.
+ * Tip 1.0.43: optional policy attrs (`httponly`, `secure`, `path /`, `samesite lax`).
+ * @param {string} raw
+ */
+function normalizeEffectTag(raw) {
+  if (!raw) return "";
+  const session = parseSessionCookieEffect(raw);
+  if (session) {
+    if (!session.cookie) return session.kind;
+    const attrPart = session.attrs ? ` ${formatSessionCookieAttrs(session.attrs)}` : "";
+    return `${session.kind} cookie ${session.cookie}${attrPart}`;
+  }
+  // Invalid cookie-attr tail on mint/revoke — drop rather than invent policy.
+  const broken = /^session\.(?:mint|revoke)\s+cookie\s+/i.test(raw);
+  if (broken) return "";
+  const cors = parseCorsAllowEffect(raw);
+  if (cors) {
+    return cors.origin === "*" ? "cors.allow" : `cors.allow origin ${cors.origin}`;
+  }
+  if (/^cors\.allow\b/i.test(raw)) return ""; // invalid origin form — drop
+  const rate = parseRateLimitEffect(raw);
+  if (rate) {
+    return rate.rpm == null ? "rate.limit" : `rate.limit rpm ${rate.rpm}`;
+  }
+  if (/^rate\.limit\b/i.test(raw)) return ""; // invalid budget form — drop
+  const csrf = parseCsrfVerifyEffect(raw);
+  if (csrf) {
+    return csrf.cookie == null ? "csrf.verify" : `csrf.verify cookie ${csrf.cookie}`;
+  }
+  if (/^csrf\.verify\b/i.test(raw)) return ""; // invalid cookie form — drop
+  return raw;
 }
 
 /**
@@ -957,17 +1000,47 @@ export function parseCwlModule(source, file) {
       // RFC-0031: repeat markup per item of a collection binding (list fragments).
       const repeatM = HTML_REPEAT_RE.exec(inner);
       if (repeatM) {
-        const tplLit = parseCwlLiteral(repeatM[3]);
-        if (tplLit.ok && typeof tplLit.value === "string") {
-          htmlRepeats.push({
-            collection: repeatM[1],
-            item: repeatM[2],
+        const collection = repeatM[1];
+        const item = repeatM[2];
+        const whenRaw = repeatM[3] ?? null;
+        const tplRaw = repeatM[4];
+        const elseSplit = HTML_REPEAT_ELSE_SPLIT_RE.exec(tplRaw);
+        const mainTplRaw = elseSplit ? elseSplit[1] : tplRaw;
+        const elseTplRaw = elseSplit ? elseSplit[2] : null;
+        const tplLit = parseCwlLiteral(mainTplRaw);
+        const elseLit = elseTplRaw ? parseCwlLiteral(elseTplRaw) : { ok: true, value: null };
+        // Nested collections are one level only: `outerItem.field` (tip 1.0.41).
+        const collectionDepth = collection.split(".").length;
+        const collectionOk = collectionDepth >= 1 && collectionDepth <= 2;
+        // `if` filter must be a field chain rooted on the item (`s.active`), never a free name.
+        const whenOk =
+          !whenRaw ||
+          whenRaw === item ||
+          whenRaw.startsWith(`${item}.`);
+        if (
+          tplLit.ok &&
+          typeof tplLit.value === "string" &&
+          whenOk &&
+          collectionOk &&
+          elseLit.ok &&
+          (elseTplRaw == null || typeof elseLit.value === "string")
+        ) {
+          /** @type {{ collection: string, item: string, template: string, line: number, when?: string, empty?: string }} */
+          const rep = {
+            collection,
+            item,
             template: tplLit.value,
             line: i,
-          });
+          };
+          if (whenRaw) rep.when = whenRaw;
+          if (typeof elseLit.value === "string") rep.empty = elseLit.value;
+          htmlRepeats.push(rep);
         } else {
           const repeatRaw = lines[i - 1] ?? "";
-          attachmentHoles.push("cwl:invalid-html-repeat");
+          let reason = "cwl:invalid-html-repeat";
+          if (whenRaw && !whenOk) reason = "cwl:invalid-html-repeat-if";
+          else if (!collectionOk) reason = "cwl:invalid-html-repeat-nested";
+          attachmentHoles.push(reason);
           attachmentHoleLines.push(i);
           attachmentHoleCharacters.push(keywordStartCharacter0(repeatRaw));
           attachmentHoleEndCharacters.push(keywordEndCharacter0(repeatRaw, "repeat"));

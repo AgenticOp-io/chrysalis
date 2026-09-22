@@ -59,6 +59,107 @@ const CWL_EXECUTABLE_EFFECT_OPS = new Map([
   ["random", "random"],
 ]);
 
+/**
+ * Recover the CWL `effects:` tag for an executable effect/middleware call,
+ * including tip 1.0.38–1.0.46 deepen phrases (cookie name/attrs, CORS origin,
+ * rate rpm, CSRF cookie). Names/policy only — never token values.
+ * @param {(id: string) => object | undefined} get
+ * @param {object} call
+ * @returns {string | null}
+ */
+function cwlExecutableEffectTagFromCall(get, call) {
+  const callee = String(call.attrs?.callee ?? "");
+  const base = CWL_EXECUTABLE_EFFECT_CALLS.get(callee);
+  if (!base) return null;
+  const argNames = call.attrs?.argNames ?? [];
+
+  const namedLit = (name, fallbackIdx) => {
+    const idx = argNames.indexOf(name);
+    const argId = idx >= 0 ? call.operands?.[idx] : call.operands?.[fallbackIdx];
+    if (!argId) return null;
+    const lit = get(argId);
+    if (lit?.op !== "literal") return null;
+    return lit.attrs?.value;
+  };
+
+  if (callee === "__cwl_effect_session_mint" || callee === "__cwl_effect_session_revoke") {
+    const cookieVal = namedLit("cookie", 0);
+    const cookie =
+      typeof cookieVal === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cookieVal)
+        ? cookieVal
+        : null;
+    if (!cookie) return base;
+    const attrsIdx = argNames.indexOf("attrs");
+    const attrsId = attrsIdx >= 0 ? call.operands?.[attrsIdx] : call.operands?.[1];
+    let attrsPart = "";
+    if (attrsId) {
+      const obj = get(attrsId);
+      if (obj?.op === "call" && obj.attrs?.callee === "__object_literal") {
+        /** @type {{ httponly?: boolean, secure?: boolean, path?: string, samesite?: string }} */
+        const attrs = {};
+        const ops = obj.operands ?? [];
+        let ok = true;
+        for (let i = 0; i + 1 < ops.length; i += 2) {
+          const keyLit = get(ops[i]);
+          const valLit = get(ops[i + 1]);
+          if (keyLit?.op !== "literal" || valLit?.op !== "literal") {
+            ok = false;
+            break;
+          }
+          const key = String(keyLit.attrs?.value ?? "");
+          const val = valLit.attrs?.value;
+          if (key === "httponly" && val === true) attrs.httponly = true;
+          else if (key === "secure" && val === true) attrs.secure = true;
+          else if (key === "path" && typeof val === "string") attrs.path = val;
+          else if (key === "samesite" && typeof val === "string") attrs.samesite = val;
+          else {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) {
+          /** @type {string[]} */
+          const parts = [];
+          if (attrs.httponly) parts.push("httponly");
+          if (attrs.secure) parts.push("secure");
+          if (typeof attrs.path === "string") parts.push(`path ${attrs.path}`);
+          if (typeof attrs.samesite === "string") parts.push(`samesite ${attrs.samesite}`);
+          attrsPart = parts.join(" ");
+        }
+      }
+    }
+    return attrsPart
+      ? `${base} cookie ${cookie} ${attrsPart}`
+      : `${base} cookie ${cookie}`;
+  }
+
+  if (callee === "__cwl_middleware_cors") {
+    const origin = namedLit("origin", 0);
+    if (typeof origin === "string" && origin && origin !== "*") {
+      return `cors.allow origin ${origin}`;
+    }
+    return "cors.allow";
+  }
+
+  if (callee === "__cwl_middleware_rate_limit") {
+    const rpm = namedLit("rpm", 0);
+    if (typeof rpm === "number" && Number.isInteger(rpm) && rpm >= 1) {
+      return `rate.limit rpm ${rpm}`;
+    }
+    return "rate.limit";
+  }
+
+  if (callee === "__cwl_middleware_csrf") {
+    const cookieVal = namedLit("cookie", 0);
+    if (typeof cookieVal === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cookieVal)) {
+      return `csrf.verify cookie ${cookieVal}`;
+    }
+    return "csrf.verify";
+  }
+
+  return base;
+}
+
 /** Callees that end a handler branch (PHP exit/return) — early-exit guard marker. */
 const CWL_EARLY_EXIT_CALLEES = new Set(["__exit", "__return"]);
 
@@ -751,23 +852,7 @@ export function walkCwlHandlerBody(get, bodyId) {
     if (n.dialect === "data" && n.op === "call") {
       const callee = String(n.attrs?.callee ?? "");
       if (CWL_EXECUTABLE_EFFECT_CALLS.has(callee)) {
-        // RFC-0032 deepen (1.0.38): session.mint/revoke may name the cookie;
-        // recover `session.mint cookie <name>` when the call carries a literal arg.
-        let tag = CWL_EXECUTABLE_EFFECT_CALLS.get(callee);
-        if (
-          (callee === "__cwl_effect_session_mint" || callee === "__cwl_effect_session_revoke") &&
-          tag
-        ) {
-          const argId = n.operands?.[0];
-          const lit = argId ? get(argId) : null;
-          const cookie =
-            lit?.op === "literal" && typeof lit.attrs?.value === "string"
-              ? lit.attrs.value
-              : null;
-          if (cookie && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cookie)) {
-            tag = `${tag} cookie ${cookie}`;
-          }
-        }
+        const tag = cwlExecutableEffectTagFromCall(get, n);
         if (tag && !declaredEffects.includes(tag)) declaredEffects.push(tag);
         return;
       }
@@ -1232,12 +1317,14 @@ export function renderCwlRoutes(routes, opts = {}) {
     if (r.loadData && !r.holeReason) {
       lines.push(`  load ${cwlRenderValue(r.loadData)};`);
     }
-    // RFC-0031 (+ 1.0.39 deepen): repeated markup is recovered as its own
-    // statement; optional `if <item[.field…]>` is the truthy when-filter only.
+    // RFC-0031 deepen (1.0.39–1.0.42): when-filter, else empty markup, nested
+    // `item.field` collections — recovered verbatim; no invented sorter/pages.
     for (const rep of r.value?.repeats ?? []) {
       const whenPart = rep.when ? ` if ${rep.when}` : "";
+      const elsePart =
+        typeof rep.empty === "string" ? ` else html ${JSON.stringify(rep.empty)}` : "";
       lines.push(
-        `  repeat ${rep.collection} as ${rep.item}${whenPart} html ${JSON.stringify(rep.template)};`,
+        `  repeat ${rep.collection} as ${rep.item}${whenPart} html ${JSON.stringify(rep.template)}${elsePart};`,
       );
     }
     if (r.value?.t === "proxy") {
