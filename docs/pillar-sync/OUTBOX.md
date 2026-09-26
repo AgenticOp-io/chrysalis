@@ -8,6 +8,41 @@
 
 ---
 
+## 2026-09-26 - convert-tip-1.0.53
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.52 … tip-1.0.53 (golds 60–61)
+**CWL tip:** **1.0.53** · CWL `main` `078a26c`
+
+```text
+CONVERT_TIP_1_0_53_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok
+IO_HOST_OK: ok
+CORS_ALLOW_CREDENTIALS_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.53
+CWL_PIN: file:1.0.53
+CWL_SIBLING_REF: main (no cwl-v1.0.53 tag yet — please tag when ready)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.53**; sibling clone ref `main` (+ `tipVersion` 1.0.53)
+- Fat emit recovers `io host <name>` and `cors.allow … credentials`; bare forms stay bare
+- Language-pillar round-trip + genome-deepen peels for golds `60`–`61`
+- DESIGN **D6579**; consumer docs bumped
+- No invent; no HTTP client or CORS engine; cookie/CSRF token **values** never enter CWL
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.53`** so CI can pin a tag instead of `main`.
+
+---
+
 ## 2026-09-22 - convert-tip-1.0.51
 
 **To:** cwl

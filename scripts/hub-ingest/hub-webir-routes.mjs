@@ -63,9 +63,9 @@ const CWL_EXECUTABLE_EFFECT_OPS = new Map([
 
 /**
  * Recover the CWL `effects:` tag for an executable effect/middleware call,
- * including tip 1.0.38–1.0.51 deepen phrases (cookie name/attrs, CORS origin/
- * methods, rate rpm, CSRF cookie, auth.require cookie, db table, mail template,
- * cache.max-age). Names/policy only — never token values.
+ * including tip 1.0.38–1.0.53 deepen phrases (cookie name/attrs, CORS origin/
+ * methods/credentials, rate rpm, CSRF cookie, auth.require cookie, db table,
+ * mail template, cache.max-age, io host). Names/policy only — never token values.
  * @param {(id: string) => object | undefined} get
  * @param {object} call
  * @returns {string | null}
@@ -147,6 +147,9 @@ function cwlExecutableEffectTagFromCall(get, call) {
   if (callee === "__cwl_middleware_cors") {
     const origin = namedLit("origin", 0);
     const methodsVal = namedLit("methods", 1);
+    const credIdx = argNames.indexOf("credentials");
+    const credLit = credIdx >= 0 ? get(call.operands?.[credIdx]) : null;
+    const credentials = credLit?.op === "literal" && credLit.attrs?.value === true;
     /** @type {string[]} */
     const parts = ["cors.allow"];
     if (typeof origin === "string" && origin && origin !== "*") {
@@ -155,6 +158,7 @@ function cwlExecutableEffectTagFromCall(get, call) {
     if (typeof methodsVal === "string" && methodsVal.trim()) {
       parts.push(`methods ${methodsVal.trim()}`);
     }
+    if (credentials) parts.push("credentials");
     return parts.join(" ");
   }
 
@@ -199,6 +203,24 @@ function cwlExecutableEffectTagFromCall(get, call) {
       return `cache.max-age ${maxAge}`;
     }
     return null;
+  }
+
+  if (callee === "__cwl_effect_io") {
+    const hostIdx = argNames.indexOf("host");
+    const hostLit = hostIdx >= 0 ? get(call.operands?.[hostIdx]) : null;
+    const host =
+      hostLit?.op === "literal" && typeof hostLit.attrs?.value === "string"
+        ? hostLit.attrs.value
+        : null;
+    if (
+      host &&
+      /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
+        host,
+      )
+    ) {
+      return `io host ${host}`;
+    }
+    return "io";
   }
 
   return base;

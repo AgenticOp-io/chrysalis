@@ -4,7 +4,7 @@
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
-import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionCookieEffect } from "./hub-cwl-effects.mjs";
+import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseIoEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionCookieEffect } from "./hub-cwl-effects.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -481,6 +481,7 @@ function normalizeEffectTag(raw) {
     const parts = ["cors.allow"];
     if (cors.origin !== "*") parts.push(`origin ${cors.origin}`);
     if (cors.methods && cors.methods.length) parts.push(`methods ${cors.methods.join(" ")}`);
+    if (cors.credentials) parts.push("credentials");
     return parts.join(" ");
   }
   if (/^cors\.allow\b/i.test(raw)) return ""; // invalid origin/methods form — drop
@@ -514,6 +515,11 @@ function normalizeEffectTag(raw) {
     return `cache.max-age ${cacheFx.seconds}`;
   }
   if (/^cache\.max-age\b/i.test(raw)) return ""; // invalid budget form — drop
+  const ioFx = parseIoEffect(raw);
+  if (ioFx) {
+    return ioFx.host == null ? "io" : `io host ${ioFx.host}`;
+  }
+  if (/^io\b/i.test(raw)) return ""; // invalid host form — drop
   return raw;
 }
 

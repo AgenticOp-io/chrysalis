@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * G10140 / G10141 / G10142 — Tip 1.0.51 peel consume: repeats (if/else/nested),
- * credential effects (cookie name + policy attrs), CORS origin/methods, rate rpm,
- * CSRF cookie name, auth.require cookie, db table, mail template, cache.max-age,
- * declared upstream forwards, and narrow host-byte reasons.
+ * G10140 / G10141 / G10142 — Tip 1.0.53 peel consume: repeats (if/else/nested),
+ * credential effects (cookie name + policy attrs), CORS origin/methods/credentials,
+ * rate rpm, CSRF cookie name, auth.require cookie, db table, mail template,
+ * cache.max-age, io host, declared upstream forwards, and narrow host-byte reasons.
  *
- * Proves Convert lifts CWL golds `40`–`59` into WebIR and projects them back
- * without inventing markup, limiter/CORS/CSRF/cache engines, cookie/token values,
- * or proxy targets. Also proves `@chrysalis/rewrite` executes a declared forward
- * through an injected transport.
+ * Proves Convert lifts CWL golds `40`–`61` into WebIR and projects them back
+ * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
+ * cookie/token values, or proxy targets. Also proves `@chrysalis/rewrite`
+ * executes a declared forward through an injected transport.
  *
  * Gate: hub:genome-deepen-peel-smoke
  * Token: GENOME_DEEPEN_PEEL_OK
@@ -190,6 +190,19 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     /effects: cache\.max-age 0;/.test(text) &&
     /hole hub-cwl:binary-render;/.test(text));
 
+  // RFC-0020 deepen (1.0.52): named io host — logical name only, no HTTP client.
+  await checkGold("io-host", "60-io-host", (text) =>
+    /effects: io host api\.example\.com;/.test(text) &&
+    /effects: io;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.53): cors.allow credentials flag — host sets the header.
+  await checkGold("cors-allow-credentials", "61-cors-allow-credentials", (text) =>
+    /effects: cors\.allow origin https:\/\/app\.example\.com credentials;/.test(text) &&
+    /effects: cors\.allow methods GET POST credentials;/.test(text) &&
+    /effects: cors\.allow;/.test(text) &&
+    !/hole/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -298,7 +311,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.51",
+    cwlTip: "1.0.53",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

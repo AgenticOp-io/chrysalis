@@ -93,22 +93,23 @@ export function formatSessionCookieAttrs(attrs) {
 const CORS_METHOD_RE = /^(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/i;
 
 /**
- * RFC-0020 deepen (tip 1.0.44 / 1.0.50): `cors.allow` with optional
- * `origin <url|*>` and/or `methods GET POST …`.
+ * RFC-0020 deepen (tip 1.0.44 / 1.0.50 / 1.0.53): `cors.allow` with optional
+ * `origin <url|*>`, `methods GET POST …`, and/or `credentials`.
  * Bare form still means origin `*` — no invented host list or CORS engine.
  * @param {string} raw
- * @returns {{ origin: string, methods: string[] | null } | null}
+ * @returns {{ origin: string, methods: string[] | null, credentials: boolean } | null}
  */
 export function parseCorsAllowEffect(raw) {
   const src = String(raw ?? "").trim();
   const t = src.toLowerCase();
-  if (t === "cors.allow") return { origin: "*", methods: null };
+  if (t === "cors.allow") return { origin: "*", methods: null, credentials: false };
   if (!t.startsWith("cors.allow")) return null;
   let rest = src.slice("cors.allow".length).trim();
-  if (!rest) return { origin: "*", methods: null };
+  if (!rest) return { origin: "*", methods: null, credentials: false };
   let origin = "*";
   /** @type {string[] | null} */
   let methods = null;
+  let credentials = false;
   while (rest) {
     const originM = /^origin\s+(\*|[a-z][a-z0-9+.-]*:\/\/[^\s]+)\s*/i.exec(rest);
     if (originM) {
@@ -116,22 +117,43 @@ export function parseCorsAllowEffect(raw) {
       rest = rest.slice(originM[0].length).trim();
       continue;
     }
-    const methodsM = /^methods\s+(.+)$/i.exec(rest);
-    if (methodsM) {
-      const parts = methodsM[1].trim().split(/\s+/).filter(Boolean);
-      if (parts.length === 0) return null;
+    if (/^credentials\b/i.test(rest)) {
+      credentials = true;
+      rest = rest.replace(/^credentials\s*/i, "").trim();
+      continue;
+    }
+    if (/^methods\b/i.test(rest)) {
+      rest = rest.replace(/^methods\s+/i, "");
       const normalized = [];
-      for (const p of parts) {
-        if (!CORS_METHOD_RE.test(p)) return null;
-        normalized.push(p.toUpperCase());
+      while (rest) {
+        const tok = /^([A-Za-z]+)\s*/.exec(rest);
+        if (!tok || !CORS_METHOD_RE.test(tok[1])) break;
+        normalized.push(tok[1].toUpperCase());
+        rest = rest.slice(tok[0].length).trim();
       }
+      if (normalized.length === 0) return null;
       methods = normalized;
-      rest = "";
       continue;
     }
     return null;
   }
-  return { origin, methods };
+  return { origin, methods, credentials };
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.52): `io` or `io host <name>`.
+ * Names the logical host — transfer stays host-side; no HTTP client invented.
+ * @param {string} raw
+ * @returns {{ host: string | null } | null}
+ */
+export function parseIoEffect(raw) {
+  const src = String(raw ?? "").trim();
+  if (src.toLowerCase() === "io") return { host: null };
+  const m = /^io\s+host\s+([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$/.exec(
+    src,
+  );
+  if (!m) return null;
+  return { host: m[1] };
 }
 
 /**
@@ -232,7 +254,8 @@ export function cwlEffectsToWebir(declared) {
   for (const raw of declared) {
     const t = raw.trim().toLowerCase();
     if (!t || t === "none") continue;
-    if (t === "io") {
+    const ioFx = parseIoEffect(t);
+    if (ioFx) {
       out.push({ kind: "http.fetch" });
       continue;
     }
@@ -513,6 +536,17 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
         );
         corsArgNames.push("methods");
       }
+      if (cors.credentials) {
+        corsArgs.push(
+          data.literal({
+            value: true,
+            type: HUB_T.bool,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow-credentials")],
+          }),
+        );
+        corsArgNames.push("credentials");
+      }
       statements.push(
         data.call({
           callee: "__cwl_middleware_cors",
@@ -680,11 +714,24 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
       );
       continue;
     }
-    if (t === "io") {
+    const ioFx = parseIoEffect(t);
+    if (ioFx) {
+      const args =
+        ioFx.host == null
+          ? []
+          : [
+              data.literal({
+                value: ioFx.host,
+                type: HUB_T.string,
+                origin,
+                provenance: [webir.provenance("hub-ingest", "cwl:executable-io-host")],
+              }),
+            ];
       statements.push(
         data.call({
           callee: "__cwl_effect_io",
-          args: [],
+          args,
+          argNames: ioFx.host == null ? undefined : ["host"],
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-io")],

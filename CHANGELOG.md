@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.53 (D6579):** tip floor + sibling pin; fat emit reverse for `io host` and `cors.allow credentials` (golds `60`–`61`); language-pillar + genome-deepen peels.
+
 - **CWL tip 1.0.51 (D6578):** tip floor + sibling pin; fat emit reverse for `auth.require cookie`, `db.* table`, `mail.send template`, `cors.allow methods`, `cache.max-age` (golds `55`–`59`); language-pillar + genome-deepen peels; README three-pillar lead.
 
 ### Fixed

@@ -53,6 +53,8 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "56-db-table-name",
   "57-mail-send-template",
   "58-cors-allow-methods",
+  "60-io-host",
+  "61-cors-allow-credentials",
 ];
 
 /**
