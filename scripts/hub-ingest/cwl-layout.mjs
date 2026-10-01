@@ -7,18 +7,20 @@
 const CWL_HTML_BODY_SLOT = "<!-- cwl:body -->";
 /** Per-page head fragment (title, meta). Replaced once. */
 const CWL_HTML_HEAD_SLOT = "<!-- cwl:head -->";
-/** Page decl name, for attributes such as data-ao-page. */
+/** Nav id when `nav` is set, otherwise the page decl name. */
 const CWL_HTML_PAGE_SLOT = "<!-- cwl:page -->";
-/** `<!-- cwl:active <pageName> <classToken> -->` becomes ` <classToken>` on that page only. */
+/** `<!-- cwl:active <navId> <classToken> -->` becomes ` <classToken>` on that nav id only. */
 const CWL_HTML_ACTIVE_RE = /<!-- cwl:active\s+([A-Za-z][A-Za-z0-9_-]*)\s+([A-Za-z][A-Za-z0-9_-]*)\s*-->/g;
 
 /**
  * Markers are resolved in the shell before head and body are inserted.
+ * A declared nav id is shared by header and footer. Absent nav id uses the page name.
  * @param {string} chrome
  * @param {string} pageName
+ * @param {string} [navId]
  */
-function applyCwlPageMarkers(chrome, pageName) {
-  const name = String(pageName ?? "");
+function applyCwlPageMarkers(chrome, pageName, navId) {
+  const name = String(navId || pageName || "");
   const withPage = chrome.split(CWL_HTML_PAGE_SLOT).join(name);
   return withPage.replace(CWL_HTML_ACTIVE_RE, (_m, page, token) => (page === name ? ` ${token}` : ""));
 }
@@ -26,12 +28,12 @@ function applyCwlPageMarkers(chrome, pageName) {
 /**
  * @param {string | null | undefined} chrome
  * @param {string} body
- * @param {{ head?: string, pageName?: string }} [opts]
+ * @param {{ head?: string, pageName?: string, navId?: string }} [opts]
  */
 export function composeLayoutChromeHtml(chrome, body, opts = {}) {
   if (!chrome) return body;
   const head = String(opts.head ?? "");
-  let shell = applyCwlPageMarkers(chrome, opts.pageName ?? "");
+  let shell = applyCwlPageMarkers(chrome, opts.pageName ?? "", opts.navId ?? "");
   if (shell.includes(CWL_HTML_HEAD_SLOT)) shell = shell.replace(CWL_HTML_HEAD_SLOT, head);
   if (shell.includes(CWL_HTML_BODY_SLOT)) return shell.replace(CWL_HTML_BODY_SLOT, body);
   return `${shell}${body}`;

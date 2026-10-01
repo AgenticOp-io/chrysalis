@@ -243,6 +243,7 @@ export function liftCwlFileToWebir(opts) {
         ? composeLayoutChromeHtml(r.layoutChromeHtml, r.body.value, {
             head: headHtml,
             pageName: r.name,
+            navId: r.navId,
           })
         : null;
     if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {

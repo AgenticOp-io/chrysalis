@@ -50,6 +50,7 @@ const PROXY_UPSTREAM_RE = /^proxy\s+upstream\s+(.+);$/i;
 /** RFC-0029: shared chrome layout */
 const LAYOUT_DECL_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const LAYOUT_USE_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const NAV_ID_RE = /^nav\s+([A-Za-z_][A-Za-z0-9_]*)\s*;$/;
 const CLIENT_UI_START_RE = /^client\s+ui\b/;
 const CHROME_HTML_PREFIX_RE = /^chrome\s+html\s+/i;
 
@@ -912,6 +913,8 @@ export function parseCwlModule(source, file) {
     const htmlRepeats = [];
     /** @type {string | null} RFC-0029 layout name */
     let layoutName = null;
+    /** @type {string | null} Shared nav id (RFC-0029 deepen). Absent ⇒ page name. */
+    let navId = null;
     /** @type {string | null} Per-page head fragment (RFC-0029 deepen) */
     let headHtml = null;
     /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
@@ -941,6 +944,11 @@ export function parseCwlModule(source, file) {
       const layoutUse = LAYOUT_USE_RE.exec(inner);
       if (layoutUse) {
         layoutName = layoutUse[1];
+        continue;
+      }
+      const navUse = NAV_ID_RE.exec(inner);
+      if (navUse) {
+        navId = navUse[1];
         continue;
       }
       if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {
@@ -1352,6 +1360,7 @@ export function parseCwlModule(source, file) {
       attachmentHoleCharacters,
       attachmentHoleEndCharacters,
       layoutName,
+      ...(navId ? { navId } : {}),
       ...(typeof headHtml === "string" ? { headHtml } : {}),
       pageIslands,
       htmlRepeats,

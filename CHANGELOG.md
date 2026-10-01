@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.62 (D6582):** tip floor + sibling pin; shared nav id fills `<!-- cwl:page -->` and `<!-- cwl:active -->` (gold `70`). A page with no `nav` still uses its decl name. The menu script stays outside the language.
+
 - **CWL tip 1.0.61 (D6581):** tip floor + sibling pin; fat emit reverse for same-site redirect, `cache.no-store` / `cache.no-cache`, and the shared document shell (golds `65`–`69`). Off-site redirects stay `unsupported:open-redirect`. A head with no slot stays `cwl:missing-head-slot`.
 
 - **CWL tip 1.0.56 (D6580):** tip floor + sibling pin; fat emit reverse for `session.read|write cookie`, `cache.private`, and cookie purpose (golds `62`–`64`); bare names and `samesite none` stay `unsupported:tracking-cookie`.

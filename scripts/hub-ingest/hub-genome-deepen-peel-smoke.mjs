@@ -5,7 +5,7 @@
  * io host, session cookies, cookie purpose, same-site redirect, and the site
  * document shell.
  *
- * Proves Convert lifts CWL golds `40`–`69` into WebIR and projects them back
+ * Proves Convert lifts CWL golds `40`–`70` into WebIR and projects them back
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
  * cookie/token values, or proxy targets. Also proves `@chrysalis/rewrite`
  * executes a declared forward through an injected transport.
@@ -264,6 +264,17 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     /hole cwl:missing-head-slot;/.test(text) &&
     !/ao-layout\.js/.test(text));
 
+  // RFC-0029 deepen (1.0.62 / gold 70): nav id is shared; the page decl name stays.
+  await checkGold("site-nav-id", "70-site-nav-id", (text) =>
+    /data-ao-page=\\"home\\"/.test(text) &&
+    /data-ao-page=\\"docs\\"/.test(text) &&
+    /data-ao-page=\\"about\\"/.test(text) &&
+    /ao-nav-link ao-nav-link-active/.test(text) &&
+    /ao-footer-link ao-footer-link-active/.test(text) &&
+    !/data-ao-page=\\"paper_cwl\\"/.test(text) &&
+    !/data-ao-page=\\"whitepaper\\"/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -372,7 +383,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.61",
+    cwlTip: "1.0.62",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

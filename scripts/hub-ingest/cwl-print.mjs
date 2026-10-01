@@ -373,6 +373,9 @@ export function printCwlModule(mod, opts = {}) {
     if (route.layoutName) {
       lines.push(`  layout ${route.layoutName};`);
     }
+    if (route.navId) {
+      lines.push(`  nav ${route.navId};`);
+    }
 
     if (route.redirect?.path) {
       lines.push(`  ${formatRedirectStatement(route.redirect)};`);

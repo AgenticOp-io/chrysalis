@@ -8,6 +8,40 @@
 
 ---
 
+## 2026-10-01 - convert-tip-1.0.62
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.62 (gold 70)
+**CWL tip:** **1.0.62** · CWL `main` `1d76316`
+
+```text
+CONVERT_TIP_1_0_62_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (gold 70 + prior)
+SITE_NAV_ID_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.62
+CWL_PIN: file:1.0.62
+CWL_SIBLING_REF: main (cwl-v1.0.61 exists; tip 1.0.62 is not tagged yet)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.62**; sibling clone ref `main`
+- Fat ingest passes `navId` into the shared shell (`paper_cwl` marks Docs in the header and the footer)
+- A page with no `nav` still uses its decl name
+- DESIGN **D6582**; consumer docs bumped
+- No menu script, CSS, image, or hosting invent
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.62`** so CI can pin a tag instead of `main`.
+
+---
+
 ## 2026-10-01 - convert-tip-1.0.61
 
 **To:** cwl
