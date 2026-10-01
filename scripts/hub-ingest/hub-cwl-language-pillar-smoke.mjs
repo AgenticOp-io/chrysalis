@@ -55,6 +55,10 @@ const WEBIR_ROUNDTRIP_DIRS = [
   "58-cors-allow-methods",
   "60-io-host",
   "61-cors-allow-credentials",
+  "62-session-access-cookie",
+  "63-cache-private",
+  "66-cache-no-store",
+  "67-cache-no-cache",
 ];
 
 /**

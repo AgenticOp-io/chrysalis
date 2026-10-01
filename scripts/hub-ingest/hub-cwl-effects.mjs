@@ -38,6 +38,7 @@ export function parseSessionCookieEffect(raw) {
 
 /**
  * Cookie **policy** attrs only — never a token value (tip 1.0.43).
+ * `samesite` is `lax` or `strict`. `none` is refused (RFC-0034).
  * @param {string} rest
  * @returns {{ httponly?: boolean, secure?: boolean, path?: string, samesite?: string } | null}
  */
@@ -66,7 +67,8 @@ export function parseSessionCookieAttrs(rest) {
     }
     if (tok === "samesite") {
       const ss = tokens[++i];
-      if (!ss || !/^(lax|strict|none)$/.test(ss)) return null;
+      // `none` is a cross-site identity cookie — refused (tip 1.0.56).
+      if (!ss || !/^(lax|strict)$/.test(ss)) return null;
       attrs.samesite = ss;
       continue;
     }
@@ -86,8 +88,123 @@ export function formatSessionCookieAttrs(attrs) {
   if (attrs.httponly) parts.push("httponly");
   if (attrs.secure) parts.push("secure");
   if (typeof attrs.path === "string") parts.push(`path ${attrs.path}`);
-  if (typeof attrs.samesite === "string") parts.push(`samesite ${attrs.samesite}`);
+  if (typeof attrs.samesite === "string" && attrs.samesite !== "none") {
+    parts.push(`samesite ${attrs.samesite}`);
+  }
   return parts.join(" ");
+}
+
+const COOKIE_CLASS_RE = /^[a-z][a-z0-9-]{0,15}$/;
+
+/**
+ * `samesite none` on mint/revoke is a cross-site identity cookie (tip 1.0.56).
+ * @param {string} raw
+ */
+export function sessionCookieTrackingAbuse(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  if (!/^session\.(?:mint|revoke)\b/.test(t)) return false;
+  return /\bsamesite\s+none\b/.test(t);
+}
+
+/**
+ * Cookie declaration. Closed purposes only (tip 1.0.56 / RFC-0034).
+ * Bare `cookie <name>;` and any profile-shaped tail are tracking.
+ * @param {string} line
+ * @returns {{ name: string, purpose: "session" | "csrf" | "preference" | null, values: string[] | null, tracking: boolean } | null}
+ */
+export function parseCookieDecl(line) {
+  const t = String(line ?? "").trim();
+  if (!/^cookie\b/i.test(t) || !t.endsWith(";")) return null;
+  const bare = /^cookie\s+([A-Za-z_][A-Za-z0-9_]*)\s*;$/.exec(t);
+  if (bare) return { name: bare[1], purpose: null, values: null, tracking: true };
+  const purp = /^cookie\s+([A-Za-z_][A-Za-z0-9_]*)\s+purpose\s+(session|csrf|preference)\b([\s\S]*);$/i.exec(t);
+  if (!purp) return { name: "", purpose: null, values: null, tracking: true };
+  const name = purp[1];
+  const purpose = /** @type {"session" | "csrf" | "preference"} */ (purp[2].toLowerCase());
+  const rest = purp[3].trim();
+  if (purpose === "session" || purpose === "csrf") {
+    if (rest) return { name, purpose, values: null, tracking: true };
+    return { name, purpose, values: null, tracking: false };
+  }
+  const vm = /^values\s+(\S+(?:\s+\S+)+)$/i.exec(rest);
+  if (!vm) return { name, purpose, values: null, tracking: true };
+  const values = vm[1].toLowerCase().split(/\s+/);
+  const closed =
+    values.length >= 2 &&
+    values.length <= 8 &&
+    new Set(values).size === values.length &&
+    values.every((v) => COOKIE_CLASS_RE.test(v));
+  if (!closed) return { name, purpose, values, tracking: true };
+  return { name, purpose, values, tracking: false };
+}
+
+/**
+ * @param {string} name
+ * @param {{ purpose?: string | null, values?: string[] | null } | null | undefined} purpose
+ */
+export function formatCookieDecl(name, purpose) {
+  if (!purpose?.purpose) return `cookie ${name}`;
+  if (purpose.purpose === "preference" && purpose.values?.length) {
+    return `cookie ${name} purpose preference values ${purpose.values.join(" ")}`;
+  }
+  return `cookie ${name} purpose ${purpose.purpose}`;
+}
+
+/**
+ * Prepend purpose calls so emit can recover the declaration without a cookie value.
+ * @param {{ data: any, webir: any, file: string }} ctx
+ * @param {string} bodyId
+ * @param {Array<{ name: string, purpose: string, values: string[] | null }>} purposes
+ * @param {{ file: string, line?: number }} loc
+ */
+export function wrapCwlCookiePurposes(ctx, bodyId, purposes, loc) {
+  const list = Array.isArray(purposes) ? purposes : [];
+  if (!bodyId || list.length === 0) return bodyId;
+  const { data, webir } = ctx;
+  const origin = { file: loc.file, line: loc.line ?? 1, column: 1 };
+  /** @type {string[]} */
+  const statements = [];
+  for (const p of list) {
+    if (!p?.name || !p.purpose) continue;
+    const values = p.purpose === "preference" && p.values?.length ? p.values.join(" ") : "";
+    statements.push(
+      data.call({
+        callee: "__cwl_cookie_purpose",
+        args: [
+          data.literal({
+            value: p.name,
+            type: HUB_T.string,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:cookie-purpose-name")],
+          }),
+          data.literal({
+            value: p.purpose,
+            type: HUB_T.string,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:cookie-purpose-kind")],
+          }),
+          data.literal({
+            value: values,
+            type: HUB_T.string,
+            origin,
+            provenance: [webir.provenance("hub-ingest", "cwl:cookie-purpose-values")],
+          }),
+        ],
+        argNames: ["cookie", "purpose", "values"],
+        type: HUB_T.unknown,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl:executable-cookie-purpose")],
+      }),
+    );
+  }
+  if (statements.length === 0) return bodyId;
+  statements.push(bodyId);
+  return data.block({
+    statements,
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl:cookie-purpose-block")],
+  });
 }
 
 const CORS_METHOD_RE = /^(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/i;
@@ -173,11 +290,87 @@ export function parseMailSendEffect(raw) {
 }
 
 /**
+ * RFC-0020 deepen (tip 1.0.54): `session.read` / `session.write` or `… cookie <name>`.
+ * Names the session cookie — never a token value.
+ * @param {string} raw
+ * @returns {{ kind: "session.read" | "session.write", cookie: string | null } | null}
+ */
+export function parseSessionAccessEffect(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  const m = /^(session\.(?:read|write))(?:\s+cookie\s+([a-zA-Z_][a-zA-Z0-9_]*))?$/.exec(t);
+  if (!m) return null;
+  return {
+    kind: /** @type {"session.read" | "session.write"} */ (m[1]),
+    cookie: m[2] ?? null,
+  };
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.55): `cache.private`.
+ * Declares Cache-Control private intent — host sets the header; no CDN invent.
+ * @param {string} raw
+ * @returns {{ private: true } | null}
+ */
+export function parseCachePrivateEffect(raw) {
+  return String(raw ?? "").trim().toLowerCase() === "cache.private" ? { private: true } : null;
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.58): `cache.no-store`.
+ * Declares that no cache may store the response — host sets the header; no CDN invent.
+ * @param {string} raw
+ * @returns {{ noStore: true } | null}
+ */
+export function parseCacheNoStoreEffect(raw) {
+  return String(raw ?? "").trim().toLowerCase() === "cache.no-store" ? { noStore: true } : null;
+}
+
+/**
+ * RFC-0020 deepen (tip 1.0.59): `cache.no-cache`.
+ * A cache may store the response but must revalidate before reuse.
+ * Host sets the header; no CDN invent.
+ * @param {string} raw
+ * @returns {{ noCache: true } | null}
+ */
+export function parseCacheNoCacheEffect(raw) {
+  return String(raw ?? "").trim().toLowerCase() === "cache.no-cache" ? { noCache: true } : null;
+}
+
+/**
  * RFC-0020 deepen (tip 1.0.51): `cache.max-age <seconds>`.
  * Declares Cache-Control max-age intent — host sets headers; CWL does not invent a CDN.
  * @param {string} raw
  * @returns {{ seconds: number } | null}
  */
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
+/**
+ * Same-site path only. Refuses scheme, protocol-relative, and `..` targets (tip 1.0.57).
+ * @param {string} path
+ */
+export function sameOriginRedirectPath(path) {
+  if (typeof path !== "string" || path.length < 1 || path.length > 512) return false;
+  if (!path.startsWith("/") || path.startsWith("//")) return false;
+  if (path.includes("..") || path.includes("\\") || /[\u0000-\u001f\s]/.test(path)) return false;
+  return /^\/[A-Za-z0-9._~/-]*(?:\?[A-Za-z0-9._~%=&+-]*)?$/.test(path);
+}
+
+/**
+ * @param {number} status
+ */
+export function redirectStatusAllowed(status) {
+  return REDIRECT_STATUSES.has(status);
+}
+
+/**
+ * @param {{ path: string, status?: number }} redirect
+ */
+export function formatRedirectStatement(redirect) {
+  const path = JSON.stringify(redirect.path);
+  if (!redirect.status || redirect.status === 302) return `redirect ${path}`;
+  return `redirect ${path} status ${redirect.status}`;
+}
+
 export function parseCacheMaxAgeEffect(raw) {
   const t = String(raw ?? "").trim().toLowerCase();
   const m = /^cache\.max-age\s+(\d+)$/.exec(t);
@@ -272,7 +465,12 @@ export function cwlEffectsToWebir(declared) {
       out.push({ kind: dbFx.kind, table: dbFx.table ?? "*" });
       continue;
     }
-    if (t === "session.read" || t === "session.write" || t === "time.now" || t === "random") {
+    const access = parseSessionAccessEffect(t);
+    if (access) {
+      out.push({ kind: access.kind });
+      continue;
+    }
+    if (t === "time.now" || t === "random") {
       out.push({ kind: t });
       continue;
     }
@@ -304,7 +502,8 @@ export function cwlEffectsToWebir(declared) {
     const rateFx = parseRateLimitEffect(t);
     const csrfFx = parseCsrfVerifyEffect(t);
     const cacheFx = parseCacheMaxAgeEffect(t);
-    if (corsFx || csrfFx || rateFx || cacheFx) {
+    const cachePrivate = parseCachePrivateEffect(t);
+    if (corsFx || csrfFx || rateFx || cacheFx || cachePrivate) {
       out.push({ kind: "http.fetch" });
     }
   }
@@ -373,6 +572,34 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
   const statements = [];
   for (const raw of declared) {
     const t = raw.trim().toLowerCase();
+    const access = parseSessionAccessEffect(t);
+    if (access?.cookie) {
+      const loc =
+        access.kind === "session.read"
+          ? "cwl:executable-session-read"
+          : "cwl:executable-session-write";
+      statements.push(
+        data.call({
+          callee:
+            access.kind === "session.read"
+              ? "__cwl_effect_session_read"
+              : "__cwl_effect_session_write",
+          args: [
+            data.literal({
+              value: access.cookie,
+              type: HUB_T.string,
+              origin,
+              provenance: [webir.provenance("hub-ingest", `${loc}-cookie`)],
+            }),
+          ],
+          argNames: ["cookie"],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", loc)],
+        }),
+      );
+      continue;
+    }
     if (t === "session.read") {
       statements.push(
         effect.sessionRead({
@@ -683,6 +910,69 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-max-age")],
+        }),
+      );
+      continue;
+    }
+    const cachePrivate = parseCachePrivateEffect(t);
+    if (cachePrivate) {
+      statements.push(
+        data.call({
+          callee: "__cwl_middleware_cache",
+          args: [
+            data.literal({
+              value: true,
+              type: HUB_T.bool,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-private")],
+            }),
+          ],
+          argNames: ["private"],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-private")],
+        }),
+      );
+      continue;
+    }
+    const cacheNoStore = parseCacheNoStoreEffect(t);
+    if (cacheNoStore) {
+      statements.push(
+        data.call({
+          callee: "__cwl_middleware_cache",
+          args: [
+            data.literal({
+              value: true,
+              type: HUB_T.bool,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-no-store")],
+            }),
+          ],
+          argNames: ["noStore"],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-no-store")],
+        }),
+      );
+      continue;
+    }
+    const cacheNoCache = parseCacheNoCacheEffect(t);
+    if (cacheNoCache) {
+      statements.push(
+        data.call({
+          callee: "__cwl_middleware_cache",
+          args: [
+            data.literal({
+              value: true,
+              type: HUB_T.bool,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-no-cache")],
+            }),
+          ],
+          argNames: ["noCache"],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-cache-no-cache")],
         }),
       );
       continue;

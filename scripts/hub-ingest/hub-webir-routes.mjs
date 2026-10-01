@@ -45,6 +45,8 @@ const CWL_EXECUTABLE_EFFECT_CALLS = new Map([
   ["__cwl_effect_db_read", "db.read"],
   ["__cwl_effect_db_write", "db.write"],
   ["__cwl_effect_io", "io"],
+  ["__cwl_effect_session_read", "session.read"],
+  ["__cwl_effect_session_write", "session.write"],
   // RFC-0032 credential / session intent — the tag is CWL, the crypto stays host-owned.
   ["__cwl_effect_auth_verify", "auth.verify"],
   ["__cwl_effect_auth_require", "auth.require"],
@@ -63,9 +65,10 @@ const CWL_EXECUTABLE_EFFECT_OPS = new Map([
 
 /**
  * Recover the CWL `effects:` tag for an executable effect/middleware call,
- * including tip 1.0.38–1.0.53 deepen phrases (cookie name/attrs, CORS origin/
+ * including tip 1.0.38–1.0.56 deepen phrases (cookie name/attrs, CORS origin/
  * methods/credentials, rate rpm, CSRF cookie, auth.require cookie, db table,
- * mail template, cache.max-age, io host). Names/policy only — never token values.
+ * mail template, cache.max-age/private, io host, session.read|write cookie).
+ * Names/policy only — never token values.
  * @param {(id: string) => object | undefined} get
  * @param {object} call
  * @returns {string | null}
@@ -197,7 +200,30 @@ function cwlExecutableEffectTagFromCall(get, call) {
     return base;
   }
 
+  if (callee === "__cwl_effect_session_read" || callee === "__cwl_effect_session_write") {
+    const cookieVal = namedLit("cookie", 0);
+    if (typeof cookieVal === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cookieVal)) {
+      return `${base} cookie ${cookieVal}`;
+    }
+    return base;
+  }
+
   if (callee === "__cwl_middleware_cache") {
+    const privIdx = argNames.indexOf("private");
+    if (privIdx >= 0) {
+      const privLit = get(call.operands?.[privIdx]);
+      if (privLit?.op === "literal" && privLit.attrs?.value === true) return "cache.private";
+    }
+    const noStoreIdx = argNames.indexOf("noStore");
+    if (noStoreIdx >= 0) {
+      const lit = get(call.operands?.[noStoreIdx]);
+      if (lit?.op === "literal" && lit.attrs?.value === true) return "cache.no-store";
+    }
+    const noCacheIdx = argNames.indexOf("noCache");
+    if (noCacheIdx >= 0) {
+      const lit = get(call.operands?.[noCacheIdx]);
+      if (lit?.op === "literal" && lit.attrs?.value === true) return "cache.no-cache";
+    }
     const maxAge = namedLit("maxAge", 0);
     if (typeof maxAge === "number" && Number.isInteger(maxAge) && maxAge >= 0) {
       return `cache.max-age ${maxAge}`;
@@ -512,6 +538,7 @@ function cwlClassifyEchoPayload(get, id) {
 import { cwlHtmlTemplateToLit } from "./cwl-html-template.mjs";
 import { printEmitStandaloneIsland, projectUiTreeValue } from "./cwl-emit-ui.mjs";
 import { isLowerableStructuredValue } from "./hub-native-body-emit.mjs";
+import { formatCookieDecl, formatRedirectStatement } from "./hub-cwl-effects.mjs";
 function stripBom(s) {
   return typeof s === "string" ? s.replace(/^\uFEFF/, "") : s;
 }
@@ -660,6 +687,33 @@ export function walkCwlHandlerBody(get, bodyId) {
   let sessionWrite = false;
   /** @type {string[]} */
   const declaredEffects = [];
+  /** @type {Array<{ name: string, purpose: string, values: string[] | null }>} */
+  const cookiePurposes = [];
+  /** @type {{ path: string, status: number } | null} */
+  let redirectStmt = null;
+
+  /**
+   * Reverse `__cwl_cookie_purpose` (tip 1.0.56). Name and closed class list only.
+   * @param {object | undefined} call
+   */
+  const cookiePurposeFromCall = (call) => {
+    if (call?.op !== "call" || call.attrs?.callee !== "__cwl_cookie_purpose") return null;
+    const argNames = call.attrs?.argNames ?? [];
+    const operand = (name, fallback) => {
+      const idx = argNames.indexOf(name);
+      const id = idx >= 0 ? call.operands?.[idx] : call.operands?.[fallback];
+      return id ? get(id) : null;
+    };
+    const name = operand("cookie", 0)?.attrs?.value;
+    const purpose = operand("purpose", 1)?.attrs?.value;
+    const valuesRaw = operand("values", 2)?.attrs?.value;
+    if (typeof name !== "string" || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) return null;
+    if (purpose !== "session" && purpose !== "csrf" && purpose !== "preference") return null;
+    if (purpose !== "preference") return { name, purpose, values: null };
+    const values = typeof valuesRaw === "string" ? valuesRaw.split(/\s+/).filter(Boolean) : [];
+    if (values.length < 2) return null;
+    return { name, purpose, values };
+  };
 
   const looksHtmlLit = (v) =>
     typeof v === "string" && (/^\s*</.test(v) || /<!doctype/i.test(v) || htmlChrome || htmlParts.length > 0);
@@ -736,6 +790,22 @@ export function walkCwlHandlerBody(get, bodyId) {
       }
       return;
     }
+    if (
+      n.dialect === "data" &&
+      n.op === "block" &&
+      Array.isArray(n.provenance) &&
+      n.provenance.some((p) => String(p?.locator ?? "") === "cwl:cookie-purpose-block")
+    ) {
+      const ops = n.operands ?? [];
+      for (let i = 0; i < ops.length - 1; i++) {
+        const purpose = cookiePurposeFromCall(get(ops[i]));
+        if (purpose && !cookiePurposes.some((p) => p.name === purpose.name)) {
+          cookiePurposes.push(purpose);
+        }
+      }
+      if (ops.length) visit(ops[ops.length - 1]);
+      return;
+    }
     if ((n.dialect === "legacy" || n.dialect === "data") && n.op === "hole") {
       holeReason = String(n.attrs?.reason ?? "hub:cwl:hole");
       return;
@@ -753,6 +823,20 @@ export function walkCwlHandlerBody(get, bodyId) {
       return;
     }
     if (n.dialect === "web.request" && n.op === "response") {
+      const isRedirect =
+        Array.isArray(n.provenance) &&
+        n.provenance.some((p) => String(p?.locator ?? "") === "cwl:redirect");
+      if (isRedirect) {
+        const headers =
+          n.attrs?.headers && typeof n.attrs.headers === "object" ? n.attrs.headers : {};
+        const location = headers.location ?? headers.Location;
+        const st = Number(n.attrs?.status);
+        if (typeof location === "string") {
+          redirectStmt = { path: location, status: Number.isFinite(st) ? st : 302 };
+        }
+        for (const op of n.operands ?? []) visit(op);
+        return;
+      }
       if (n.attrs?.contentType) responseContentType = String(n.attrs.contentType);
       if (n.attrs?.kind) responseKind = String(n.attrs.kind);
       // CWL-ingested routes carry the response status on the response node
@@ -1111,6 +1195,8 @@ export function walkCwlHandlerBody(get, bodyId) {
     effects,
     attachmentHoles,
     pageIslands,
+    cookiePurposes,
+    redirect: redirectStmt,
     contentType: noContent ? null : contentType,
     surfaceKind: isPage ? "page" : "api",
   };
@@ -1309,6 +1395,7 @@ export function renderCwlRoutes(routes, opts = {}) {
         lines.push(`  content-type ${JSON.stringify(r.contentType)};`);
       }
       for (const p of r.params ?? []) {
+        if (p.source === "cookie") continue;
         const kw =
           p.source === "query"
             ? "query"
@@ -1316,11 +1403,21 @@ export function renderCwlRoutes(routes, opts = {}) {
               ? "body"
               : p.source === "header"
                 ? "header"
-                : p.source === "cookie"
-                  ? "cookie"
-                  : "param";
+                : "param";
         const hasDefault = Object.prototype.hasOwnProperty.call(p, "default");
         lines.push(hasDefault ? `  ${kw} ${p.name} = ${cwlRenderLiteral(p.default)};` : `  ${kw} ${p.name};`);
+      }
+      const purposeByName = new Map((r.cookiePurposes ?? []).map((p) => [p.name, p]));
+      const printedCookies = new Set();
+      for (const purpose of r.cookiePurposes ?? []) {
+        if (!purpose?.name || printedCookies.has(purpose.name)) continue;
+        printedCookies.add(purpose.name);
+        lines.push(`  ${formatCookieDecl(purpose.name, purpose)};`);
+      }
+      for (const p of r.params ?? []) {
+        if (p.source !== "cookie" || printedCookies.has(p.name)) continue;
+        printedCookies.add(p.name);
+        lines.push(`  ${formatCookieDecl(p.name, purposeByName.get(p.name))};`);
       }
       for (const h of r.responseHeaders ?? []) {
         const name = String(h?.name ?? "");
@@ -1392,6 +1489,9 @@ export function renderCwlRoutes(routes, opts = {}) {
       lines.push(
         `  repeat ${rep.collection} as ${rep.item}${whenPart} html ${JSON.stringify(rep.template)}${elsePart};`,
       );
+    }
+    if (r.redirect?.path) {
+      lines.push(`  ${formatRedirectStatement(r.redirect)};`);
     }
     if (r.value?.t === "proxy") {
       // RFC-0033: the forward itself is host-owned; CWL declares the destination.

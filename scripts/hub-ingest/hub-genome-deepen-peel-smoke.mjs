@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * G10140 / G10141 / G10142 — Tip 1.0.53 peel consume: repeats (if/else/nested),
- * credential effects (cookie name + policy attrs), CORS origin/methods/credentials,
- * rate rpm, CSRF cookie name, auth.require cookie, db table, mail template,
- * cache.max-age, io host, declared upstream forwards, and narrow host-byte reasons.
+ * G10140 / G10141 / G10142 — Tip 1.0.61 peel consume: repeats, credential effects,
+ * CORS, rate, CSRF, auth, db, mail, cache (max-age/private/no-store/no-cache),
+ * io host, session cookies, cookie purpose, same-site redirect, and the site
+ * document shell.
  *
- * Proves Convert lifts CWL golds `40`–`61` into WebIR and projects them back
+ * Proves Convert lifts CWL golds `40`–`69` into WebIR and projects them back
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
  * cookie/token values, or proxy targets. Also proves `@chrysalis/rewrite`
  * executes a declared forward through an injected transport.
@@ -203,6 +203,67 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     /effects: cors\.allow;/.test(text) &&
     !/hole/.test(text));
 
+  // RFC-0020 deepen (1.0.54): session.read|write cookie name — never a token.
+  await checkGold("session-access-cookie", "62-session-access-cookie", (text) =>
+    /effects: session\.read cookie sid;/.test(text) &&
+    /effects: session\.write cookie sid;/.test(text) &&
+    /effects: session\.read;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.55): cache.private composes with cache.max-age.
+  await checkGold("cache-private", "63-cache-private", (text) =>
+    /effects: cache\.max-age 0, cache\.private;/.test(text) &&
+    /effects: cache\.max-age 3600;/.test(text) &&
+    !/cache\.private/.test(text.split("public")[1] ?? "") &&
+    !/hole/.test(text));
+
+  // RFC-0034 (1.0.56): closed cookie purposes; bare name and samesite none stay holes.
+  await checkGold("cookie-purpose", "64-cookie-purpose", (text) =>
+    /cookie theme purpose preference values light dark;/.test(text) &&
+    /cookie sid purpose session;/.test(text) &&
+    /effects: auth\.require cookie sid;/.test(text) &&
+    /hole unsupported:tracking-cookie;/.test(text) &&
+    !/samesite none/.test(text) &&
+    !/cookie _ga;/.test(text));
+
+  // RFC-0006 deepen (1.0.57): same-site redirect; off-site stays an open-redirect hole.
+  await checkGold("redirect-same-origin", "65-redirect-same-origin", (text) =>
+    /redirect "\/account";/.test(text) &&
+    /redirect "\/home" status 301;/.test(text) &&
+    /hole unsupported:open-redirect;/.test(text) &&
+    !/evil\.example/.test(text));
+
+  // RFC-0020 deepen (1.0.58): cache.no-store, including with cache.private.
+  await checkGold("cache-no-store", "66-cache-no-store", (text) =>
+    /effects: cache\.no-store, cache\.private;/.test(text) &&
+    /effects: cache\.no-store;/.test(text) &&
+    /effects: cache\.max-age 86400;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0020 deepen (1.0.59): cache.no-cache, including with cache.private.
+  await checkGold("cache-no-cache", "67-cache-no-cache", (text) =>
+    /effects: cache\.no-cache;/.test(text) &&
+    /effects: cache\.no-cache, cache\.private;/.test(text) &&
+    /effects: cache\.no-store;/.test(text) &&
+    !/hole/.test(text));
+
+  // RFC-0029 deepen (1.0.60): shared document shell fills the body slot.
+  await checkGold("site-document", "68-site-document", (text) =>
+    /hole unsupported:opaque-script;/.test(text) &&
+    /header class=\\"top\\"/.test(text) &&
+    /section class=\\"hero\\"/.test(text) &&
+    /application\/ld\+json/.test(text));
+
+  // RFC-0029 deepen (1.0.61): per-page head, page id, and active class.
+  await checkGold("site-shell", "69-site-shell", (text) =>
+    /<title>Home<\/title>/.test(text) &&
+    /data-ao-page=\\"home\\"/.test(text) &&
+    /ao-nav-link ao-nav-link-active/.test(text) &&
+    /<title>Docs<\/title>/.test(text) &&
+    /data-ao-page=\\"docs\\"/.test(text) &&
+    /hole cwl:missing-head-slot;/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -311,7 +372,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.53",
+    cwlTip: "1.0.61",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
