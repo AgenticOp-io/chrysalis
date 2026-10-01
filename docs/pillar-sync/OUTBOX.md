@@ -8,6 +8,151 @@
 
 ---
 
+## 2026-10-01 - convert-tip-1.0.62
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.62 (gold 70)
+**CWL tip:** **1.0.62** · CWL `main` `1d76316`
+
+```text
+CONVERT_TIP_1_0_62_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (gold 70 + prior)
+SITE_NAV_ID_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.62
+CWL_PIN: file:1.0.62
+CWL_SIBLING_REF: main (cwl-v1.0.61 exists; tip 1.0.62 is not tagged yet)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.62**; sibling clone ref `main`
+- Fat ingest passes `navId` into the shared shell (`paper_cwl` marks Docs in the header and the footer)
+- A page with no `nav` still uses its decl name
+- DESIGN **D6582**; consumer docs bumped
+- No menu script, CSS, image, or hosting invent
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.62`** so CI can pin a tag instead of `main`.
+
+---
+
+## 2026-10-01 - convert-tip-1.0.61
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.57 … tip-1.0.61 (golds 65–69), includes 1.0.54–1.0.56
+**CWL tip:** **1.0.61** · CWL `main` `0e35dc4`
+
+```text
+CONVERT_TIP_1_0_61_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 65–69 + prior)
+REDIRECT_SAME_ORIGIN_OK: ok
+CACHE_NO_STORE_OK: ok
+CACHE_NO_CACHE_OK: ok
+SITE_DOCUMENT_OK: ok
+SITE_SHELL_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.61
+CWL_PIN: file:1.0.61
+CWL_SIBLING_REF: main (cwl-v1.0.56 exists; tip 1.0.61 is not tagged yet)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.61**; sibling clone ref `main`
+- Fat emit recovers same-site redirect, cache.no-store, cache.no-cache, and the shared shell slots
+- Off-site redirect stays `unsupported:open-redirect`; a head with no slot stays `cwl:missing-head-slot`
+- Cookie purpose and cache/session effect calls are simulate no-ops
+- DESIGN **D6581**; consumer docs bumped
+- No menu script, CSS, image, or hosting invent
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.61`** so CI can pin a tag instead of `main`.
+
+---
+
+## 2026-09-26 - convert-tip-1.0.56
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.54 … tip-1.0.56 (golds 62–64)
+**CWL tip:** **1.0.56** · CWL `main` `1d00a5e`
+
+```text
+CONVERT_TIP_1_0_56_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok
+SESSION_ACCESS_COOKIE_OK: ok
+CACHE_PRIVATE_OK: ok
+COOKIE_PURPOSE_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.56
+CWL_PIN: file:1.0.56
+CWL_SIBLING_REF: main (no cwl-v1.0.56 tag yet — please tag when ready)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.56**; sibling clone ref `main` (+ `tipVersion` 1.0.56)
+- Fat emit recovers `session.read|write cookie`, `cache.private`, and `cookie <name> purpose session|csrf|preference`
+- Bare cookie names and `samesite none` stay `unsupported:tracking-cookie`
+- Language-pillar round-trip `62`–`63`; genome-deepen peels `62`–`64`
+- DESIGN **D6580**; consumer docs bumped
+- No invent; cookie **token values** never enter CWL
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.56`** so CI can pin a tag instead of `main`.
+
+---
+
+## 2026-09-26 - convert-tip-1.0.53
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.52 … tip-1.0.53 (golds 60–61)
+**CWL tip:** **1.0.53** · CWL `main` `078a26c`
+
+```text
+CONVERT_TIP_1_0_53_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok
+IO_HOST_OK: ok
+CORS_ALLOW_CREDENTIALS_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.53
+CWL_PIN: file:1.0.53
+CWL_SIBLING_REF: main (no cwl-v1.0.53 tag yet — please tag when ready)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.53**; sibling clone ref `main` (+ `tipVersion` 1.0.53)
+- Fat emit recovers `io host <name>` and `cors.allow … credentials`; bare forms stay bare
+- Language-pillar round-trip + genome-deepen peels for golds `60`–`61`
+- DESIGN **D6579**; consumer docs bumped
+- No invent; no HTTP client or CORS engine; cookie/CSRF token **values** never enter CWL
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.53`** so CI can pin a tag instead of `main`.
+
+---
+
 ## 2026-09-22 - convert-tip-1.0.51
 
 **To:** cwl

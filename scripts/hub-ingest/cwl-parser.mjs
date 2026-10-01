@@ -4,7 +4,7 @@
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
-import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionCookieEffect } from "./hub-cwl-effects.mjs";
+import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCacheNoCacheEffect, parseCacheNoStoreEffect, parseCachePrivateEffect, parseCookieDecl, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseIoEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionAccessEffect, parseSessionCookieEffect, redirectStatusAllowed, sameOriginRedirectPath, sessionCookieTrackingAbuse } from "./hub-cwl-effects.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -50,6 +50,7 @@ const PROXY_UPSTREAM_RE = /^proxy\s+upstream\s+(.+);$/i;
 /** RFC-0029: shared chrome layout */
 const LAYOUT_DECL_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const LAYOUT_USE_RE = /^layout\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const NAV_ID_RE = /^nav\s+([A-Za-z_][A-Za-z0-9_]*)\s*;$/;
 const CLIENT_UI_START_RE = /^client\s+ui\b/;
 const CHROME_HTML_PREFIX_RE = /^chrome\s+html\s+/i;
 
@@ -132,6 +133,52 @@ export function extractCwlChromeHtmlLiteral(inner) {
   return extractCwlHtmlReturnLiteral(t.replace(CHROME_HTML_PREFIX_RE, "return html "));
 }
 
+/** Multi-line HTML opener. Content runs until a line that is only `""";`. */
+const HTML_BLOCK_CLOSE_RE = /^"""\s*;\s*$/;
+
+/**
+ * Extract `head html "…";` literal including quotes (RFC-0029 deepen).
+ * @param {string} inner
+ * @returns {string | null}
+ */
+export function extractCwlHeadHtmlLiteral(inner) {
+  const t = String(inner ?? "").trim();
+  if (!/^head\s+html\s+/i.test(t)) return null;
+  return extractCwlHtmlReturnLiteral(t.replace(/^head\s+html\s+/i, "return html "));
+}
+
+/**
+ * @param {string} line
+ * @returns {"return" | "chrome" | "head" | null}
+ */
+export function cwlHtmlBlockKind(line) {
+  const t = String(line ?? "").trim();
+  if (/^return\s+html\s+"""\s*$/i.test(t)) return "return";
+  if (/^chrome\s+html\s+"""\s*$/i.test(t)) return "chrome";
+  if (/^head\s+html\s+"""\s*$/i.test(t)) return "head";
+  return null;
+}
+
+/**
+ * Read raw HTML after an opener line. Newlines and quotes stay in the value.
+ * @param {string[]} lines
+ * @param {number} indexAfterOpen
+ * @returns {{ ok: true, value: string, next: number } | { ok: false, value: "", next: number }}
+ */
+export function readCwlHtmlBlock(lines, indexAfterOpen) {
+  /** @type {string[]} */
+  const parts = [];
+  let i = indexAfterOpen;
+  while (i < lines.length) {
+    if (HTML_BLOCK_CLOSE_RE.test(lines[i].trim())) {
+      return { ok: true, value: parts.join("\n"), next: i + 1 };
+    }
+    parts.push(lines[i]);
+    i += 1;
+  }
+  return { ok: false, value: "", next: lines.length };
+}
+
 /**
  * @param {string[]} lines
  * @param {number} startIdx
@@ -146,6 +193,8 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
   const headers = [];
   /** @type {string[]} */
   const cookies = [];
+  /** @type {Array<{ name: string, purpose: string, values: string[] | null }>} */
+  const cookiePurposes = [];
   /** @type {string[]} */
   const holes = [];
   /** @type {string | null} */
@@ -160,7 +209,7 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
     if (line === "}") {
       return {
         ok: true,
-        layout: { name, line: lineNo, headers, cookies, holes, chromeHtml, pageIslands },
+        layout: { name, line: lineNo, headers, cookies, cookiePurposes, holes, chromeHtml, pageIslands },
         consumed: i,
       };
     }
@@ -169,14 +218,27 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
       if (!headers.includes(hm[1])) headers.push(hm[1]);
       continue;
     }
-    const cm = COOKIE_RE.exec(line);
+    const cm = parseCookieDecl(line);
     if (cm) {
-      if (!cookies.includes(cm[1])) cookies.push(cm[1]);
+      if (cm.tracking || !cm.name) {
+        if (!holes.includes("unsupported:tracking-cookie")) holes.push("unsupported:tracking-cookie");
+        continue;
+      }
+      if (!cookies.includes(cm.name)) cookies.push(cm.name);
+      cookiePurposes.push({ name: cm.name, purpose: cm.purpose, values: cm.values });
       continue;
     }
     const hol = HOLE_RE.exec(line);
     if (hol) {
       holes.push(hol[1]);
+      continue;
+    }
+    const chromeKind = cwlHtmlBlockKind(line);
+    if (chromeKind === "chrome") {
+      const block = readCwlHtmlBlock(lines, i);
+      i = block.next;
+      if (block.ok) chromeHtml = block.value;
+      else if (!holes.includes("cwl:unclosed-html")) holes.push("cwl:unclosed-html");
       continue;
     }
     const chromeLit = extractCwlChromeHtmlLiteral(line);
@@ -461,7 +523,8 @@ function parseEffects(effectsRaw) {
 /**
  * Normalize effect tags. RFC-0032 deepen: `session.mint cookie sid` keeps the
  * cookie **name** (never a value) so Secure can cross-check response surfaces.
- * Tip 1.0.43: optional policy attrs (`httponly`, `secure`, `path /`, `samesite lax`).
+ * Tip 1.0.43: optional policy attrs (`httponly`, `secure`, `path /`, `samesite lax|strict`).
+ * Tip 1.0.56: `samesite none` is refused (`unsupported:tracking-cookie`).
  * @param {string} raw
  */
 function normalizeEffectTag(raw) {
@@ -481,6 +544,7 @@ function normalizeEffectTag(raw) {
     const parts = ["cors.allow"];
     if (cors.origin !== "*") parts.push(`origin ${cors.origin}`);
     if (cors.methods && cors.methods.length) parts.push(`methods ${cors.methods.join(" ")}`);
+    if (cors.credentials) parts.push("credentials");
     return parts.join(" ");
   }
   if (/^cors\.allow\b/i.test(raw)) return ""; // invalid origin/methods form — drop
@@ -514,6 +578,21 @@ function normalizeEffectTag(raw) {
     return `cache.max-age ${cacheFx.seconds}`;
   }
   if (/^cache\.max-age\b/i.test(raw)) return ""; // invalid budget form — drop
+  const ioFx = parseIoEffect(raw);
+  if (ioFx) {
+    return ioFx.host == null ? "io" : `io host ${ioFx.host}`;
+  }
+  if (/^io\b/i.test(raw)) return ""; // invalid host form — drop
+  const access = parseSessionAccessEffect(raw);
+  if (access) {
+    return access.cookie == null ? access.kind : `${access.kind} cookie ${access.cookie}`;
+  }
+  if (/^session\.(?:read|write)\b/i.test(raw)) return ""; // invalid cookie form — drop
+  if (parseCachePrivateEffect(raw)) return "cache.private";
+  if (parseCacheNoStoreEffect(raw)) return "cache.no-store";
+  if (/^cache\.no-store\b/i.test(raw)) return ""; // invalid form — drop
+  if (parseCacheNoCacheEffect(raw)) return "cache.no-cache";
+  if (/^cache\.no-cache\b/i.test(raw)) return ""; // invalid form — drop
   return raw;
 }
 
@@ -796,6 +875,8 @@ export function parseCwlModule(source, file) {
     const handlerQueryDefaults = {};
     const handlerHeaders = [];
     const handlerCookies = [];
+    /** @type {Array<{ name: string, purpose: string, values: string[] | null }>} */
+    const handlerCookiePurposes = [];
     const handlerBodyParams = [];
     /** @type {string[]} */
     const handlerMultipartFields = [];
@@ -809,6 +890,8 @@ export function parseCwlModule(source, file) {
     /** @type {Array<{ name: string, default?: unknown }>} */
     const responseHeaders = [];
     let responseStatus = null;
+    /** @type {{ path: string, status: number } | null} */
+    let redirect = null;
     let responseContentType = null;
     /** @type {string | null} */
     let streamKind = null;
@@ -830,6 +913,10 @@ export function parseCwlModule(source, file) {
     const htmlRepeats = [];
     /** @type {string | null} RFC-0029 layout name */
     let layoutName = null;
+    /** @type {string | null} Shared nav id (RFC-0029 deepen). Absent ⇒ page name. */
+    let navId = null;
+    /** @type {string | null} Per-page head fragment (RFC-0029 deepen) */
+    let headHtml = null;
     /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
     const pageIslands = [];
     let body = {
@@ -857,6 +944,11 @@ export function parseCwlModule(source, file) {
       const layoutUse = LAYOUT_USE_RE.exec(inner);
       if (layoutUse) {
         layoutName = layoutUse[1];
+        continue;
+      }
+      const navUse = NAV_ID_RE.exec(inner);
+      if (navUse) {
+        navId = navUse[1];
         continue;
       }
       if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {
@@ -890,9 +982,24 @@ export function parseCwlModule(source, file) {
         if (!handlerHeaders.includes(hmHeader[1])) handlerHeaders.push(hmHeader[1]);
         continue;
       }
-      const cm = COOKIE_RE.exec(inner);
+      const cm = parseCookieDecl(inner);
       if (cm) {
-        if (!handlerCookies.includes(cm[1])) handlerCookies.push(cm[1]);
+        if (cm.tracking || !cm.name || !cm.purpose) {
+          if (!attachmentHoles.includes("unsupported:tracking-cookie")) {
+            const holeRaw = lines[i - 1] ?? "";
+            attachmentHoles.push("unsupported:tracking-cookie");
+            attachmentHoleLines.push(i);
+            attachmentHoleCharacters.push(keywordStartCharacter0(holeRaw));
+            attachmentHoleEndCharacters.push(keywordEndCharacter0(holeRaw, "cookie"));
+          }
+          continue;
+        }
+        if (!handlerCookies.includes(cm.name)) handlerCookies.push(cm.name);
+        handlerCookiePurposes.push({
+          name: cm.name,
+          purpose: cm.purpose,
+          values: cm.values,
+        });
         continue;
       }
       const bm = BODY_RE.exec(inner);
@@ -913,6 +1020,22 @@ export function parseCwlModule(source, file) {
       const sm = STATUS_RE.exec(inner);
       if (sm) {
         responseStatus = Number(sm[1]);
+        continue;
+      }
+      if (/^redirect\b/i.test(inner)) {
+        const rd = /^redirect\s+(\S+)(?:\s+status\s+(\d{3}))?\s*;$/i.exec(inner);
+        const lit = rd ? parseCwlLiteral(rd[1]) : { ok: false, value: null };
+        const status = rd?.[2] ? Number(rd[2]) : 302;
+        const target = lit.ok && typeof lit.value === "string" ? lit.value : "";
+        if (rd && sameOriginRedirectPath(target) && redirectStatusAllowed(status)) {
+          redirect = { path: target, status };
+        } else if (!attachmentHoles.includes("unsupported:open-redirect")) {
+          const holeRaw = lines[i - 1] ?? "";
+          attachmentHoles.push("unsupported:open-redirect");
+          attachmentHoleLines.push(i);
+          attachmentHoleCharacters.push(keywordStartCharacter0(holeRaw));
+          attachmentHoleEndCharacters.push(keywordEndCharacter0(holeRaw, "redirect"));
+        }
         continue;
       }
       const ctm = CONTENT_TYPE_RE.exec(inner);
@@ -941,7 +1064,48 @@ export function parseCwlModule(source, file) {
       }
       const em = EFFECTS_RE.exec(inner);
       if (em) {
-        effects.push(...parseEffects(em[1]));
+        const kept = [];
+        for (const part of em[1].split(",")) {
+          if (sessionCookieTrackingAbuse(part)) {
+            if (!attachmentHoles.includes("unsupported:tracking-cookie")) {
+              const holeRaw = lines[i - 1] ?? "";
+              attachmentHoles.push("unsupported:tracking-cookie");
+              attachmentHoleLines.push(i);
+              attachmentHoleCharacters.push(keywordStartCharacter0(holeRaw));
+              attachmentHoleEndCharacters.push(keywordEndCharacter0(holeRaw, "effects:"));
+            }
+            continue;
+          }
+          kept.push(part);
+        }
+        effects.push(...parseEffects(kept.join(",")));
+        continue;
+      }
+      const htmlBlock = cwlHtmlBlockKind(inner);
+      if (htmlBlock === "head") {
+        const block = readCwlHtmlBlock(lines, i);
+        i = block.next;
+        if (block.ok) headHtml = block.value;
+        else if (!attachmentHoles.includes("cwl:unclosed-html")) attachmentHoles.push("cwl:unclosed-html");
+        continue;
+      }
+      const headLit = extractCwlHeadHtmlLiteral(inner);
+      if (headLit !== null) {
+        const lit = parseCwlLiteral(headLit);
+        if (lit.ok && typeof lit.value === "string") headHtml = lit.value;
+        else if (!attachmentHoles.includes("cwl:invalid-html-return")) attachmentHoles.push("cwl:invalid-html-return");
+        continue;
+      }
+      if (htmlBlock === "return") {
+        const block = readCwlHtmlBlock(lines, i);
+        i = block.next;
+        if (block.ok) {
+          body = { kind: "html", value: block.value };
+          if (!responseContentType) responseContentType = "text/html; charset=utf-8";
+        } else {
+          body = { kind: "hole", reason: "cwl:unclosed-html", line: i };
+        }
+        sawReturn = true;
         continue;
       }
       const htmlRetLit = extractCwlHtmlReturnLiteral(inner);
@@ -1179,10 +1343,12 @@ export function parseCwlModule(source, file) {
       handlerQueryDefaults,
       handlerHeaders,
       handlerCookies,
+      handlerCookiePurposes,
       handlerBodyParams,
       handlerMultipartFields,
       handlerMultipartFiles,
-      responseStatus,
+      responseStatus: redirect?.status ?? responseStatus,
+      redirect,
       responseContentType,
       streamKind,
       responseHeaders,
@@ -1194,6 +1360,8 @@ export function parseCwlModule(source, file) {
       attachmentHoleCharacters,
       attachmentHoleEndCharacters,
       layoutName,
+      ...(navId ? { navId } : {}),
+      ...(typeof headHtml === "string" ? { headHtml } : {}),
       pageIslands,
       htmlRepeats,
       body,

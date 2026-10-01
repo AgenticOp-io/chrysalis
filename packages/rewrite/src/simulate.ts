@@ -772,10 +772,18 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
     case "__cwl_middleware_cors":
     case "__cwl_middleware_csrf":
     case "__cwl_middleware_rate_limit":
+    case "__cwl_middleware_cache":
     case "__cwl_effect_mail_send":
     case "__cwl_effect_db_read":
     case "__cwl_effect_db_write":
     case "__cwl_effect_io":
+    case "__cwl_effect_auth_require":
+    case "__cwl_effect_auth_verify":
+    case "__cwl_effect_session_read":
+    case "__cwl_effect_session_write":
+    case "__cwl_effect_session_mint":
+    case "__cwl_effect_session_revoke":
+    case "__cwl_cookie_purpose":
       return { kind: "null" };
     case "__cwl_effect_upstream_proxy":
       return evalUpstreamProxy(ctx, n, args);

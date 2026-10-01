@@ -4,11 +4,11 @@
 import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody, lowerHubPageWithLoadAndUiBody } from "./hub-lift-webir-route.mjs";
 import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
 import { lowerCwlUiTreeBody, resolveCwlUiComponent } from "./cwl-ui-tree.mjs";
-import { composeLayoutChromeHtml } from "./cwl-layout.mjs";
+import { chromeHasHeadSlot, composeLayoutChromeHtml } from "./cwl-layout.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
-import { cwlEffectsToWebir, wrapCwlExecutableEffects } from "./hub-cwl-effects.mjs";
+import { cwlEffectsToWebir, wrapCwlCookiePurposes, wrapCwlExecutableEffects } from "./hub-cwl-effects.mjs";
 import { cwlPathParamsForWebir, extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { appendForeachBindings, wrapWithEarlyGuards } from "./cwl-control-lower.mjs";
 
@@ -219,7 +219,9 @@ export function liftCwlFileToWebir(opts) {
     const htmlBindings = {
       path: r.handlerPathParams ?? [],
       query: r.handlerQueryParams ?? [],
-      cookie: r.handlerCookies ?? [],
+      cookie: (r.handlerCookiePurposes ?? [])
+        .filter((p) => p.purpose === "preference")
+        .map((p) => p.name),
       load:
         r.loadBody?.kind === "object" && r.loadBody.entries
           ? r.loadBody.entries.map((e) => e.key)
@@ -229,8 +231,21 @@ export function liftCwlFileToWebir(opts) {
       repeats: htmlRepeats,
     };
     // RFC-0029: a page that names a layout renders the shared chrome around its body.
+    const headHtml = typeof r.headHtml === "string" ? r.headHtml : "";
+    if (headHtml && !chromeHasHeadSlot(r.layoutChromeHtml)) {
+      r.attachmentHoles = Array.isArray(r.attachmentHoles) ? r.attachmentHoles : [];
+      if (!r.attachmentHoles.includes("cwl:missing-head-slot")) {
+        r.attachmentHoles.push("cwl:missing-head-slot");
+      }
+    }
     const pageHtml =
-      r.body.kind === "html" ? composeLayoutChromeHtml(r.layoutChromeHtml, r.body.value) : null;
+      r.body.kind === "html"
+        ? composeLayoutChromeHtml(r.layoutChromeHtml, r.body.value, {
+            head: headHtml,
+            pageName: r.name,
+            navId: r.navId,
+          })
+        : null;
     if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {
       const redirectEntry = r.loadBody.entries.find((e) => e.key === "redirect");
       const errorEntry = r.loadBody.entries.find((e) => e.key === "error");
@@ -352,6 +367,12 @@ export function liftCwlFileToWebir(opts) {
       });
     }
     valueId = wrapCwlExecutableEffects({ data, webir, builder, file }, valueId, r.effects ?? [], loc);
+    valueId = wrapCwlCookiePurposes(
+      { data, webir, file },
+      valueId,
+      r.handlerCookiePurposes ?? [],
+      loc,
+    );
     // RFC-0021 / CWL 1.0.8–1.0.9: earlyGuards (+ else) then foreachBindings (opaque g_* skipped).
     valueId = wrapWithEarlyGuards(ctx, valueId, r.earlyGuards ?? [], r, wrBuilders, lowerObjectEntriesBody);
     valueId = appendForeachBindings(ctx, valueId, r.foreachBindings ?? [], r, wrBuilders, lowerObjectEntriesBody);
@@ -374,23 +395,23 @@ export function liftCwlFileToWebir(opts) {
       responseHeaderBag[String(h.name).toLowerCase()] =
         v === null || v === undefined ? "" : typeof v === "string" ? v : String(v);
     }
+    if (r.redirect?.path) responseHeaderBag.location = r.redirect.path;
     const hasResponseHeaders = Object.keys(responseHeaderBag).length > 0;
     let bodyId = valueId;
     const pageLoadHtml = Boolean(r.loadBody && r.body.kind === "html");
     const pageLoadUi = Boolean(r.loadBody && r.body.kind === "ui");
-    // `lowerCwlHtmlTemplateBody` / page-load HTML already emit `web.request.response` —
-    // do not wrap again (double echo). UI trees still need the outer response for CT.
-    // Parity with pillar thin ingest (CWL 1.0.5 response-header · 1.0.6 HTML wrap).
     const htmlAlreadyResponded = r.body.kind === "html" || pageLoadHtml;
+    const redirectStatus = r.redirect?.path ? (r.redirect.status ?? 302) : null;
+    const responseStatus = redirectStatus ?? status;
     if (
       !htmlAlreadyResponded &&
       !pageLoadUi &&
-      (status !== 200 || contentType || hasResponseHeaders)
+      (responseStatus !== 200 || contentType || hasResponseHeaders)
     ) {
       const streamSse = r.streamKind === "sse" || contentType === "text/event-stream";
       bodyId = wrBuilders.response({
         attrs: {
-          status,
+          status: responseStatus,
           kind,
           ...(contentType ? { contentType } : {}),
           ...(hasResponseHeaders ? { headers: responseHeaderBag } : {}),
@@ -400,7 +421,9 @@ export function liftCwlFileToWebir(opts) {
         provenance: [
           webir.provenance(
             "hub-ingest",
-            streamSse
+            r.redirect?.path
+              ? "cwl:redirect"
+              : streamSse
               ? "cwl:stream-sse"
               : contentType
                 ? "cwl:response-content-type"

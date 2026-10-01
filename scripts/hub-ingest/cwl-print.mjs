@@ -1,3 +1,24 @@
+import { formatCookieDecl, formatRedirectStatement } from "./hub-cwl-effects.mjs";
+
+/**
+ * Print `return html` / `chrome html`. Newlines stay a raw block, not a one-line escape.
+ * @param {string[]} lines
+ * @param {string} indent
+ * @param {string} head
+ * @param {unknown} value
+ */
+function appendCwlHtmlStmt(lines, indent, head, value) {
+  const s = String(value ?? "");
+  if (!s.includes("\n")) {
+    lines.push(`${indent}${head} ${JSON.stringify(s)};`);
+    return;
+  }
+  const body = s.endsWith("\n") ? s.slice(0, -1) : s;
+  lines.push(`${indent}${head} """`);
+  for (const line of body.split("\n")) lines.push(line);
+  lines.push(`${indent}""";`);
+}
+
 /**
  * Print `else if` / `else` tails for an if / earlyGuard node.
  * @param {object} s
@@ -18,7 +39,7 @@ function printElseTail(s, indent, lines) {
     lines.push(`${indent}else {`);
     if (typeof s.elseStatus === "number") lines.push(`${indent}  status ${s.elseStatus};`);
     if (s.elseBody?.kind === "html") {
-      lines.push(`${indent}  return html ${printCwlLiteral(s.elseBody.value)};`);
+      appendCwlHtmlStmt(lines, `${indent}  `, "return html", s.elseBody.value);
     } else {
       const expr = printCwlBodyExpr(s.elseBody);
       if (expr != null) lines.push(`${indent}  return ${expr};`);
@@ -42,7 +63,7 @@ function printControlStmts(stmts, indent, lines) {
     }
     if (s.kind === "return") {
       if (s.body?.kind === "html") {
-        lines.push(`${indent}return html ${printCwlLiteral(s.body.value)};`);
+        appendCwlHtmlStmt(lines, indent, "return html", s.body.value);
       } else if (s.body) {
         const expr = printCwlBodyExpr(s.body);
         if (expr != null) lines.push(`${indent}return ${expr};`);
@@ -305,7 +326,10 @@ export function printCwlModule(mod, opts = {}) {
     lines.push("");
     lines.push(`layout ${L.name} {`);
     for (const h of L.headers ?? []) lines.push(`  header ${h};`);
-    for (const c of L.cookies ?? []) lines.push(`  cookie ${c};`);
+    for (const c of L.cookies ?? []) {
+      const purpose = (L.cookiePurposes ?? []).find((p) => p.name === c);
+      lines.push(`  ${formatCookieDecl(c, purpose)};`);
+    }
     for (const hole of L.holes ?? []) {
       const r = String(hole ?? "cwl:hole");
       lines.push(
@@ -316,7 +340,7 @@ export function printCwlModule(mod, opts = {}) {
       printUiNode(island, "  ", lines);
     }
     if (typeof L.chromeHtml === "string") {
-      lines.push(`  chrome html ${JSON.stringify(L.chromeHtml)};`);
+      appendCwlHtmlStmt(lines, "  ", "chrome html", L.chromeHtml);
     }
     lines.push("}");
   }
@@ -349,8 +373,13 @@ export function printCwlModule(mod, opts = {}) {
     if (route.layoutName) {
       lines.push(`  layout ${route.layoutName};`);
     }
+    if (route.navId) {
+      lines.push(`  nav ${route.navId};`);
+    }
 
-    if (typeof route.responseStatus === "number") {
+    if (route.redirect?.path) {
+      lines.push(`  ${formatRedirectStatement(route.redirect)};`);
+    } else if (typeof route.responseStatus === "number") {
       lines.push(`  status ${route.responseStatus};`);
     }
     if (route.streamKind === "sse") {
@@ -384,7 +413,8 @@ export function printCwlModule(mod, opts = {}) {
       lines.push(`  header ${name};`);
     }
     for (const name of route.handlerCookies ?? []) {
-      lines.push(`  cookie ${name};`);
+      const purpose = (route.handlerCookiePurposes ?? []).find((p) => p.name === name);
+      lines.push(`  ${formatCookieDecl(name, purpose)};`);
     }
     for (const name of route.handlerMultipartFields ?? []) {
       lines.push(`  multipart field ${name};`);
@@ -430,6 +460,10 @@ export function printCwlModule(mod, opts = {}) {
       printUiNode(island, "  ", lines);
     }
 
+    if (typeof route.headHtml === "string") {
+      appendCwlHtmlStmt(lines, "  ", "head html", route.headHtml);
+    }
+
     const body = route.body;
     const attachmentHoles = Array.isArray(route.attachmentHoles)
       ? route.attachmentHoles
@@ -457,6 +491,8 @@ export function printCwlModule(mod, opts = {}) {
       for (const reason of attachmentHoles) printHoleLine(reason);
       if (body?.kind === "ui") {
         printCwlUiReturn(body, "  ", lines);
+      } else if (body?.kind === "html") {
+        appendCwlHtmlStmt(lines, "  ", "return html", body.value);
       } else {
         const expr = printCwlBodyExpr(body);
         if (expr != null) lines.push(`  return ${expr};`);
@@ -492,6 +528,11 @@ export function canonicalizeCwlModule(mod) {
       name: L.name,
       headers: [...(L.headers ?? [])],
       cookies: [...(L.cookies ?? [])],
+      cookiePurposes: (L.cookiePurposes ?? []).map((p) => ({
+        name: p.name,
+        purpose: p.purpose,
+        values: p.values ? [...p.values] : null,
+      })),
       holes: [...(L.holes ?? [])],
       chromeHtml: L.chromeHtml ?? null,
       pageIslands: (L.pageIslands ?? []).map(canonicalizeUiNode),
@@ -523,10 +564,18 @@ export function canonicalizeCwlModule(mod) {
       handlerQueryDefaults: { ...(r.handlerQueryDefaults ?? {}) },
       handlerHeaders: [...(r.handlerHeaders ?? [])],
       handlerCookies: [...(r.handlerCookies ?? [])],
+      handlerCookiePurposes: (r.handlerCookiePurposes ?? []).map((p) => ({
+        name: p.name,
+        purpose: p.purpose,
+        values: p.values ? [...p.values] : null,
+      })),
       handlerBodyParams: [...(r.handlerBodyParams ?? [])],
       handlerMultipartFields: [...(r.handlerMultipartFields ?? [])],
       handlerMultipartFiles: [...(r.handlerMultipartFiles ?? [])],
-      responseStatus: r.responseStatus ?? null,
+      responseStatus: r.redirect?.path ? null : (r.responseStatus ?? null),
+      redirect: r.redirect?.path
+        ? { path: r.redirect.path, status: r.redirect.status ?? 302 }
+        : null,
       responseContentType: r.responseContentType ?? null,
       streamKind: r.streamKind ?? null,
       responseHeaders: (r.responseHeaders ?? []).map((h) =>
