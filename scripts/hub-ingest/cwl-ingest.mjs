@@ -498,3 +498,37 @@ export function liftCwlFileToWebir(opts) {
     middlewareRootCount,
   };
 }
+
+const CWL_YEAR_SLOT = "<!-- cwl:year -->";
+const CWL_DEVICE_SLOT = "<!-- cwl:device -->";
+/** Same narrow-viewport cut the published stylesheet already uses. Not a user-agent read. */
+const CWL_HOST_DEVICE_QUERY = "(max-width: 820px)";
+
+/**
+ * Host document pass. The language leaves `<!-- cwl:year -->` and `<!-- cwl:device -->`.
+ * The year is the caller's injected calendar year. The device attribute becomes one of the
+ * declared classes in the browser. This does not load ao-layout.js and does not read the user agent.
+ * @param {string} html
+ * @param {{ year: number, devices?: string[] }} opts
+ */
+export function applyCwlHostDocumentTokens(html, opts) {
+  const year = opts?.year;
+  if (!Number.isInteger(year) || year < 1970 || year > 9999) {
+    throw new Error("host year must be an injected calendar year");
+  }
+  const devices = (opts?.devices ?? [])
+    .map((name) => String(name))
+    .filter((name) => /^[A-Za-z][A-Za-z0-9_-]*$/.test(name));
+  let out = String(html).split(CWL_YEAR_SLOT).join(String(year));
+  if (!out.includes(CWL_DEVICE_SLOT) || devices.length < 2) return out;
+  out = out.split(CWL_DEVICE_SLOT).join("");
+  if (out.includes("data-cwl-device=")) return out;
+  const mobile = JSON.stringify(devices[0]);
+  const desktop = JSON.stringify(devices[1]);
+  const query = JSON.stringify(CWL_HOST_DEVICE_QUERY);
+  const script =
+    `<script data-cwl-device="1">(function(){var q=window.matchMedia(${query});function apply(){document.documentElement.setAttribute("data-ao-device",q.matches?${mobile}:${desktop});}apply();if(q.addEventListener)q.addEventListener("change",apply);})();</script>`;
+  const idx = out.lastIndexOf("</body>");
+  if (idx >= 0) return `${out.slice(0, idx)}${script}${out.slice(idx)}`;
+  return `${out}${script}`;
+}
