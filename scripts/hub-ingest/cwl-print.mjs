@@ -7,6 +7,24 @@ import { formatCookieDecl, formatRedirectStatement } from "./hub-cwl-effects.mjs
  * @param {string} head
  * @param {unknown} value
  */
+/**
+ * @param {{ robots?: string, author?: string, theme?: string, og?: Record<string, string>, twitter?: Record<string, string> } | null | undefined} card
+ * @param {string} indent
+ * @param {string[]} lines
+ */
+function printMetaCard(card, indent, lines) {
+  if (!card) return;
+  if (typeof card.robots === "string") lines.push(`${indent}meta robots ${JSON.stringify(card.robots)};`);
+  if (typeof card.author === "string") lines.push(`${indent}meta author ${JSON.stringify(card.author)};`);
+  if (typeof card.theme === "string") lines.push(`${indent}meta theme ${JSON.stringify(card.theme)};`);
+  for (const key of ["type", "site", "locale", "url", "title", "description", "image"]) {
+    if (typeof card.og?.[key] === "string") lines.push(`${indent}meta og ${key} ${JSON.stringify(card.og[key])};`);
+  }
+  for (const key of ["card", "title", "description", "image"]) {
+    if (typeof card.twitter?.[key] === "string") lines.push(`${indent}meta twitter ${key} ${JSON.stringify(card.twitter[key])};`);
+  }
+}
+
 function appendCwlHtmlStmt(lines, indent, head, value) {
   const s = String(value ?? "");
   if (!s.includes("\n")) {
@@ -331,8 +349,12 @@ export function printCwlModule(mod, opts = {}) {
       lines.push(`  ${formatCookieDecl(c, purpose)};`);
     }
     if (L.yearHost) lines.push("  year host;");
+    if (L.charset === "utf-8") lines.push("  charset utf-8;");
+    if (L.viewportDevice) lines.push("  viewport device;");
+    printMetaCard(L.metaCard, "  ", lines);
     if (L.deviceHost?.values?.length === 2) {
-      lines.push(`  device host ${L.deviceHost.values[0]} ${L.deviceHost.values[1]};`);
+      const below = L.deviceHost.below ? ` below ${L.deviceHost.below}` : "";
+      lines.push(`  device host ${L.deviceHost.values[0]} ${L.deviceHost.values[1]}${below};`);
     }
     if (L.drawer) {
       const panel = L.drawer.panelId ? ` panel ${L.drawer.panelId}` : "";
@@ -412,6 +434,10 @@ export function printCwlModule(mod, opts = {}) {
     if (route.navId) {
       lines.push(`  nav ${route.navId};`);
     }
+    if (typeof route.title === "string") lines.push(`  title ${JSON.stringify(route.title)};`);
+    if (typeof route.description === "string") lines.push(`  description ${JSON.stringify(route.description)};`);
+    if (typeof route.canonical === "string") lines.push(`  canonical ${JSON.stringify(route.canonical)};`);
+    printMetaCard(route.metaCard, "  ", lines);
 
     if (route.redirect?.path) {
       lines.push(`  ${formatRedirectStatement(route.redirect)};`);

@@ -56,8 +56,9 @@ const LINK_RE =
   /^link\s+([A-Za-z_][A-Za-z0-9_]*)\s+"([^"]*)"\s+"([^"]*)"(?:\s+class\s+([A-Za-z][A-Za-z0-9_-]*))?(?:\s+target\s+(blank))?(?:\s+rel\s+([A-Za-z][A-Za-z0-9_-]*))?\s*;$/;
 /** Following `link` rows belong to this named list until the next `links` statement. */
 const LINKS_GROUP_RE = /^links\s+([A-Za-z_][A-Za-z0-9_]*)\s*;$/;
-/** Host device classes. CWL does not read the viewport or the user agent. */
-const DEVICE_HOST_RE = /^device\s+host\s+([A-Za-z][A-Za-z0-9_-]*)\s+([A-Za-z][A-Za-z0-9_-]*)\s*;$/;
+/** Host device classes. Optional `below <px>` names the viewport cut. CWL does not read it. */
+const DEVICE_HOST_RE =
+  /^device\s+host\s+([A-Za-z][A-Za-z0-9_-]*)\s+([A-Za-z][A-Za-z0-9_-]*)(?:\s+below\s+([1-9]\d{1,3}))?\s*;$/;
 /** Menu drawer. The host document gets the bounded toggle script. */
 const DRAWER_RE =
   /^drawer\s+([A-Za-z][A-Za-z0-9_-]*)\s+toggle\s+([A-Za-z][A-Za-z0-9_-]*)\s+class\s+([A-Za-z][A-Za-z0-9_-]*)(?:\s+panel\s+([A-Za-z][A-Za-z0-9_-]*))?\s*;$/;
@@ -76,6 +77,104 @@ const FORM_RE = /^form\s+([A-Za-z_][A-Za-z0-9_]*)\s+method\s+(get|post)\s+action
 const FIELD_RE = /^field\s+([A-Za-z_][A-Za-z0-9_]*)\s+"([^"]+)"\s*;$/;
 /** Submit label on the current form. */
 const SUBMIT_RE = /^submit\s+"([^"]+)"\s*;$/;
+/** Document charset. Only utf-8. The bytes stay a document fact. */
+const CHARSET_RE = /^charset\s+utf-8\s*;$/;
+/** HTML viewport meta. CWL writes the standard content and does not evaluate it. */
+const VIEWPORT_RE = /^viewport\s+device\s*;$/;
+const TITLE_RE = /^title\s+"((?:\\.|[^"\\])*)"\s*;$/;
+const DESCRIPTION_RE = /^description\s+"((?:\\.|[^"\\])*)"\s*;$/;
+const CANONICAL_RE = /^canonical\s+"((?:\\.|[^"\\])*)"\s*;$/;
+const META_QUOTE = '"((?:\\\\.|[^"\\\\])*)"';
+const META_ROBOTS_RE = new RegExp(`^meta\\s+robots\\s+${META_QUOTE}\\s*;$`);
+const META_AUTHOR_RE = new RegExp(`^meta\\s+author\\s+${META_QUOTE}\\s*;$`);
+const META_THEME_RE = new RegExp(`^meta\\s+theme\\s+${META_QUOTE}\\s*;$`);
+const META_OG_RE = new RegExp(`^meta\\s+og\\s+(type|site|locale|url|title|description|image)\\s+${META_QUOTE}\\s*;$`);
+const META_TWITTER_RE = new RegExp(`^meta\\s+twitter\\s+(card|title|description|image)\\s+${META_QUOTE}\\s*;$`);
+const OG_TYPES = new Set(["website", "article", "profile"]);
+const TWITTER_CARDS = new Set(["summary", "summary_large_image", "app", "player"]);
+
+/**
+ * @param {string} raw
+ */
+function cwlQuoted(raw) {
+  return JSON.parse(`"${raw}"`);
+}
+
+/**
+ * A canonical href is an absolute http(s) URL or a same-site path.
+ * @param {string} href
+ */
+function canonicalHrefOk(href) {
+  if (href.startsWith("/") && !href.startsWith("//")) return true;
+  return /^https?:\/\//.test(href);
+}
+
+/**
+ * @returns {{ robots?: string, author?: string, theme?: string, og: Record<string, string>, twitter: Record<string, string> }}
+ */
+function emptyMetaCard() {
+  return { og: {}, twitter: {} };
+}
+
+/**
+ * @param {ReturnType<typeof emptyMetaCard>} card
+ */
+function metaCardHasFacts(card) {
+  return Boolean(card?.robots || card?.author || card?.theme || Object.keys(card?.og ?? {}).length || Object.keys(card?.twitter ?? {}).length);
+}
+
+/**
+ * Closed social-card vocabulary. Invalid values become holes and are not stored.
+ * @param {string} line
+ * @param {ReturnType<typeof emptyMetaCard>} card
+ * @param {string[]} holes
+ */
+function applyMetaLine(line, card, holes) {
+  const robots = META_ROBOTS_RE.exec(line);
+  if (robots) {
+    card.robots = cwlQuoted(robots[1]);
+    return true;
+  }
+  const author = META_AUTHOR_RE.exec(line);
+  if (author) {
+    card.author = cwlQuoted(author[1]);
+    return true;
+  }
+  const theme = META_THEME_RE.exec(line);
+  if (theme) {
+    const value = cwlQuoted(theme[1]);
+    if (/^#[0-9A-Fa-f]{6}$/.test(value)) card.theme = value;
+    else if (!holes.includes("cwl:meta-theme")) holes.push("cwl:meta-theme");
+    return true;
+  }
+  const og = META_OG_RE.exec(line);
+  if (og) {
+    const key = og[1];
+    const value = cwlQuoted(og[2]);
+    if (key === "type" && !OG_TYPES.has(value)) {
+      if (!holes.includes("cwl:meta-og-type")) holes.push("cwl:meta-og-type");
+    } else if ((key === "url" || key === "image") && !canonicalHrefOk(value)) {
+      if (!holes.includes("cwl:meta-not-url")) holes.push("cwl:meta-not-url");
+    } else {
+      card.og[key] = value;
+    }
+    return true;
+  }
+  const twitter = META_TWITTER_RE.exec(line);
+  if (twitter) {
+    const key = twitter[1];
+    const value = cwlQuoted(twitter[2]);
+    if (key === "card" && !TWITTER_CARDS.has(value)) {
+      if (!holes.includes("cwl:meta-twitter-card")) holes.push("cwl:meta-twitter-card");
+    } else if (key === "image" && !canonicalHrefOk(value)) {
+      if (!holes.includes("cwl:meta-not-url")) holes.push("cwl:meta-not-url");
+    } else {
+      card.twitter[key] = value;
+    }
+    return true;
+  }
+  return false;
+}
 const FIELD_TYPES = new Set(["text", "email", "password", "hidden", "search", "url", "tel", "number"]);
 const CLIENT_UI_START_RE = /^client\s+ui\b/;
 const CHROME_HTML_PREFIX_RE = /^chrome\s+html\s+/i;
@@ -226,6 +325,9 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
   /** @type {string | null} */
   let chromeHtml = null;
   let yearHost = false;
+  let charset = null;
+  let viewportDevice = false;
+  const metaCard = emptyMetaCard();
   /** @type {{ values: string[] } | null} */
   let deviceHost = null;
   /** @type {{ navId: string, toggleClass: string, openClass: string, panelId?: string } | null} */
@@ -268,6 +370,9 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
           chromeHtml,
           pageIslands,
           ...(yearHost ? { yearHost: true } : {}),
+          ...(charset ? { charset } : {}),
+          ...(viewportDevice ? { viewportDevice: true } : {}),
+          ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
           ...(deviceHost ? { deviceHost } : {}),
           ...(drawer ? { drawer } : {}),
           ...(styles.length ? { styles } : {}),
@@ -300,9 +405,19 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
       yearHost = true;
       continue;
     }
+    if (CHARSET_RE.test(line)) {
+      charset = "utf-8";
+      continue;
+    }
+    if (VIEWPORT_RE.test(line)) {
+      viewportDevice = true;
+      continue;
+    }
+    if (applyMetaLine(line, metaCard, holes)) continue;
     const device = DEVICE_HOST_RE.exec(line);
     if (device) {
       deviceHost = { values: [device[1], device[2]] };
+      if (device[3]) deviceHost.below = Number(device[3]);
       continue;
     }
     const drawerLine = DRAWER_RE.exec(line);
@@ -1068,6 +1183,13 @@ export function parseCwlModule(source, file) {
     let navId = null;
     /** @type {string | null} Per-page head fragment (RFC-0029 deepen) */
     let headHtml = null;
+    /** @type {string | null} Document title. */
+    let title = null;
+    /** @type {string | null} Meta description. */
+    let description = null;
+    /** @type {string | null} Canonical href. Refused values are not stored. */
+    let canonical = null;
+    const metaCard = emptyMetaCard();
     /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
     const pageIslands = [];
     let body = {
@@ -1102,6 +1224,24 @@ export function parseCwlModule(source, file) {
         navId = navUse[1];
         continue;
       }
+      const titleUse = TITLE_RE.exec(inner);
+      if (titleUse) {
+        title = cwlQuoted(titleUse[1]);
+        continue;
+      }
+      const descriptionUse = DESCRIPTION_RE.exec(inner);
+      if (descriptionUse) {
+        description = cwlQuoted(descriptionUse[1]);
+        continue;
+      }
+      const canonicalUse = CANONICAL_RE.exec(inner);
+      if (canonicalUse) {
+        const href = cwlQuoted(canonicalUse[1]);
+        if (canonicalHrefOk(href)) canonical = href;
+        else if (!attachmentHoles.includes("cwl:canonical-not-url")) attachmentHoles.push("cwl:canonical-not-url");
+        continue;
+      }
+      if (applyMetaLine(inner, metaCard, attachmentHoles)) continue;
       if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {
         const islandParsed = parseCwlStandaloneIslandBlock(lines, i - 1);
         if (islandParsed.ok) {
@@ -1513,6 +1653,10 @@ export function parseCwlModule(source, file) {
       layoutName,
       ...(navId ? { navId } : {}),
       ...(typeof headHtml === "string" ? { headHtml } : {}),
+      ...(typeof title === "string" ? { title } : {}),
+      ...(typeof description === "string" ? { description } : {}),
+      ...(typeof canonical === "string" ? { canonical } : {}),
+      ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
       pageIslands,
       htmlRepeats,
       body,

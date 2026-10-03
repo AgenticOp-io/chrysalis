@@ -11,6 +11,8 @@ import {
   chromeHasLinkGroups,
   chromeHasYearSlot,
   composeLayoutChromeHtml,
+  cwlMetaCardHasFacts,
+  surfaceHasDocumentSlot,
   surfaceHasFormSlot,
   surfaceHasImageSlot,
   surfaceHasScriptSlot,
@@ -268,11 +270,36 @@ export function liftCwlFileToWebir(opts) {
     if (r.drawer && !chromeHasDrawerTargets(r.layoutChromeHtml, r.drawer)) {
       pushAttachmentHole("cwl:missing-drawer-target");
     }
+    const documentSurface = assetSurface;
+    if (r.charset && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:charset -->")) {
+      pushAttachmentHole("cwl:missing-charset-slot");
+    }
+    if (r.viewportDevice && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:viewport -->")) {
+      pushAttachmentHole("cwl:missing-viewport-slot");
+    }
+    if (typeof r.title === "string" && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:title -->")) {
+      pushAttachmentHole("cwl:missing-title-slot");
+    }
+    if (typeof r.description === "string" && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:description -->")) {
+      pushAttachmentHole("cwl:missing-description-slot");
+    }
+    if (cwlMetaCardHasFacts(r.metaCard) && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:meta -->")) {
+      pushAttachmentHole("cwl:missing-meta-slot");
+    }
+    if (typeof r.canonical === "string" && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:canonical -->")) {
+      pushAttachmentHole("cwl:missing-canonical-slot");
+    }
     if (headHtml && !chromeHasHeadSlot(r.layoutChromeHtml)) pushAttachmentHole("cwl:missing-head-slot");
     const pageHtml =
       r.body.kind === "html"
         ? composeLayoutChromeHtml(r.layoutChromeHtml, r.body.value, {
             head: headHtml,
+            charset: r.charset,
+            viewportDevice: r.viewportDevice,
+            title: r.title,
+            description: r.description,
+            canonical: r.canonical,
+            metaCard: r.metaCard,
             pageName: r.name,
             navId: r.navId,
             links: r.navLinks,
@@ -501,15 +528,13 @@ export function liftCwlFileToWebir(opts) {
 
 const CWL_YEAR_SLOT = "<!-- cwl:year -->";
 const CWL_DEVICE_SLOT = "<!-- cwl:device -->";
-/** Same narrow-viewport cut the published stylesheet already uses. Not a user-agent read. */
-const CWL_HOST_DEVICE_QUERY = "(max-width: 820px)";
 
 /**
  * Host document pass. The language leaves `<!-- cwl:year -->` and `<!-- cwl:device -->`.
- * The year is the caller's injected calendar year. The device attribute becomes one of the
- * declared classes in the browser. This does not load ao-layout.js and does not read the user agent.
+ * The year is the caller's injected calendar year. The device query is `deviceHost.below`.
+ * This does not load ao-layout.js and does not read the user agent.
  * @param {string} html
- * @param {{ year: number, devices?: string[] }} opts
+ * @param {{ year: number, devices?: string[], below?: number }} opts
  */
 export function applyCwlHostDocumentTokens(html, opts) {
   const year = opts?.year;
@@ -519,13 +544,15 @@ export function applyCwlHostDocumentTokens(html, opts) {
   const devices = (opts?.devices ?? [])
     .map((name) => String(name))
     .filter((name) => /^[A-Za-z][A-Za-z0-9_-]*$/.test(name));
+  const below = opts?.below;
   let out = String(html).split(CWL_YEAR_SLOT).join(String(year));
   if (!out.includes(CWL_DEVICE_SLOT) || devices.length < 2) return out;
+  if (!Number.isInteger(below) || below < 10 || below > 9999) return out;
   out = out.split(CWL_DEVICE_SLOT).join("");
   if (out.includes("data-cwl-device=")) return out;
   const mobile = JSON.stringify(devices[0]);
   const desktop = JSON.stringify(devices[1]);
-  const query = JSON.stringify(CWL_HOST_DEVICE_QUERY);
+  const query = JSON.stringify(`(max-width: ${below}px)`);
   const script =
     `<script data-cwl-device="1">(function(){var q=window.matchMedia(${query});function apply(){document.documentElement.setAttribute("data-ao-device",q.matches?${mobile}:${desktop});}apply();if(q.addEventListener)q.addEventListener("change",apply);})();</script>`;
   const idx = out.lastIndexOf("</body>");
