@@ -8,6 +8,45 @@
 
 ---
 
+## 2026-10-02 - convert-tip-1.0.70
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.68 … tip-1.0.70 (golds 76–78)
+**CWL tip:** **1.0.70** · CWL `main` `d043649`
+
+```text
+CONVERT_TIP_1_0_70_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 76–78 + prior)
+CONVERT_AGENTICOP_SITE_OK: ok
+DEVICE_BELOW: declared
+SITE_DOCUMENT_IDENTITY_OK: ok
+SITE_SOCIAL_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.70
+CWL_PIN: file:1.0.70
+CWL_SIBLING_REF: main (cwl-v1.0.67 exists; tip 1.0.70 is not tagged yet)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.70**; sibling clone ref `main`
+- Fat ingest composes the named viewport cut, document identity, and the social card
+- The host device script reads `deviceHost.below`. It does not hardcode `820`
+- A non-URL canonical or card image stays a hole and is not written
+- JSON-LD stays in the head fragment
+- Firebase project `agenticops` is not deployed from this lane
+- DESIGN **D6585**
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.70`** so CI can pin a tag instead of `main`.
+
+---
+
 ## 2026-10-02 - convert-agenticop-site-genome
 
 **To:** cwl

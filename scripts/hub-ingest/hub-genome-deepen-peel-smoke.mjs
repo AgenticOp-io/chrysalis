@@ -5,7 +5,7 @@
  * io host, session cookies, cookie purpose, same-site redirect, and the site
  * document shell.
  *
- * Proves Convert lifts CWL golds `40`–`75` into WebIR and projects them back
+ * Proves Convert lifts CWL golds `40`–`78` into WebIR and projects them back
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
  * cookie/token values, or proxy targets. Also proves `@chrysalis/rewrite`
  * executes a declared forward through an injected transport.
@@ -321,6 +321,43 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     !/evil\.example/.test(text) &&
     !/ao-layout\.js/.test(text));
 
+  // RFC-0029 deepen (1.0.68 / gold 76): the viewport cut is a declared fact. The language does not read it.
+  await checkGold("site-device-below", "76-site-device-below", (text) =>
+    /<!-- cwl:device -->/.test(text) &&
+    /hole cwl:missing-device-slot;/.test(text) &&
+    !/matchMedia/.test(text) &&
+    !/max-width: 820px/.test(text));
+
+  // RFC-0029 deepen (1.0.69 / gold 77): charset, viewport meta, title, description, canonical.
+  await checkGold("document-identity", "77-site-document", (text) =>
+    /meta charset=\\"utf-8\\"/.test(text) &&
+    /name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\"/.test(text) &&
+    /<title>Proof · AgenticOps<\/title>/.test(text) &&
+    /name=\\"description\\" content=\\"Recorded traffic decides\.\\"/.test(text) &&
+    /rel=\\"canonical\\" href=\\"https:\/\/agenticop\.io\/proof\.html\\"/.test(text) &&
+    /hole cwl:missing-charset-slot;/.test(text) &&
+    /hole cwl:missing-viewport-slot;/.test(text) &&
+    /hole cwl:missing-title-slot;/.test(text) &&
+    /hole cwl:missing-description-slot;/.test(text) &&
+    /hole cwl:canonical-not-url;/.test(text) &&
+    !/javascript:alert/.test(text));
+
+  // RFC-0029 deepen (1.0.70 / gold 78): social card. JSON-LD stays in the head fragment.
+  await checkGold("site-social", "78-site-social", (text) =>
+    /name=\\"robots\\" content=\\"index, follow\\"/.test(text) &&
+    /name=\\"author\\" content=\\"AgenticOps\\"/.test(text) &&
+    /name=\\"theme-color\\" content=\\"#020208\\"/.test(text) &&
+    /property=\\"og:image\\" content=\\"https:\/\/agenticop\.io\/logo\.svg\\"/.test(text) &&
+    /name=\\"twitter:card\\" content=\\"summary_large_image\\"/.test(text) &&
+    /application\/ld\+json/.test(text) &&
+    /hole cwl:missing-meta-slot;/.test(text) &&
+    /hole cwl:meta-theme;/.test(text) &&
+    /hole cwl:meta-not-url;/.test(text) &&
+    /hole cwl:meta-twitter-card;/.test(text) &&
+    !/javascript:alert/.test(text) &&
+    !/content=\\"red\\"/.test(text) &&
+    !/content=\\"tracker\\"/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -429,7 +466,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.67",
+    cwlTip: "1.0.70",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

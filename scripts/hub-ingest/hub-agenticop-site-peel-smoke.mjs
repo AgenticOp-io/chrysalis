@@ -30,6 +30,7 @@ const parsed = parseCwlModule(source, file);
 applyLayoutsToParsedModule(parsed);
 const byPath = new Map((parsed.routes ?? []).map((route) => [route.path, route]));
 const devices = parsed.routes?.find((route) => route.deviceHost)?.deviceHost?.values ?? [];
+const below = parsed.routes?.find((route) => Number.isInteger(route.deviceHost?.below))?.deviceHost?.below;
 
 const webir = await loadWebir();
 const snapshot = await exportCwlFileToWebirJson(file);
@@ -68,12 +69,12 @@ for (const route of routes) {
     if (!html.includes('href="/chrysalis.html"')) fail(`${route.path} missing CWL link`);
     const nav = decl.navId || decl.name;
     if (!html.includes(`data-ao-page="${nav}"`)) fail(`${route.path} page id is not ${nav}`);
-    const hosted = applyCwlHostDocumentTokens(html, { year: HOST_YEAR, devices });
+    const hosted = applyCwlHostDocumentTokens(html, { year: HOST_YEAR, devices, below });
     if (hosted.includes("<!-- cwl:year -->")) fail(`${route.path} host left the year token`);
     if (!hosted.includes(String(HOST_YEAR))) fail(`${route.path} host year missing`);
     if (hosted.includes("<!-- cwl:device -->")) fail(`${route.path} host left the device token`);
     if (!hosted.includes('data-cwl-device="1"')) fail(`${route.path} host device script missing`);
-    if (!hosted.includes("matchMedia")) fail(`${route.path} host device script missing`);
+    if (!hosted.includes(`max-width: ${below}px`)) fail(`${route.path} host cut is not the declared below`);
     if (hosted.includes("userAgent") || hosted.includes("/ao-layout.js")) fail(`${route.path} host sniff`);
     for (const name of devices) {
       if (!hosted.includes(JSON.stringify(name))) fail(`${route.path} host dropped device ${name}`);
