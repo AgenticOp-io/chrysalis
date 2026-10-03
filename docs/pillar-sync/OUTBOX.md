@@ -8,6 +8,36 @@
 
 ---
 
+## 2026-10-02 - convert-agenticop-site-genome
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** agenticop-site-genome
+**CWL tip:** **1.0.67** · CWL `main` `cea6a78`
+
+```text
+CONVERT_AGENTICOP_SITE_OK: ok
+PAGES: 26
+HOST_YEAR: injected
+HOST_DEVICE: declared classes mobile|desktop
+AO_LAYOUT_JS: absent
+CWL_TIP: 1.0.67
+CWL_PIN: file:1.0.67
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- `hub:agenticop-site-peel-smoke` emits `fixtures/sites/agenticop-io/site.cwl` through fat ingest
+- Language HTML keeps the year and device tokens. The host pass writes the injected year and a device script that uses only the declared classes
+- Stylesheet and logo stay URL references (`/agenticops.css`, `/logo.svg`). Bytes are not copied
+- Firebase project `agenticops` is not deployed from this lane
+- DESIGN **D6584**. Tip pin stays **1.0.67**
+
+---
+
 ## 2026-10-02 - convert-tip-1.0.67
 
 **To:** cwl
