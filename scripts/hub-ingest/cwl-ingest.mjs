@@ -4,7 +4,18 @@
 import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody, lowerHubPageWithLoadAndUiBody } from "./hub-lift-webir-route.mjs";
 import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
 import { lowerCwlUiTreeBody, resolveCwlUiComponent } from "./cwl-ui-tree.mjs";
-import { chromeHasHeadSlot, composeLayoutChromeHtml } from "./cwl-layout.mjs";
+import {
+  chromeHasDeviceSlot,
+  chromeHasDrawerTargets,
+  chromeHasHeadSlot,
+  chromeHasLinkGroups,
+  chromeHasYearSlot,
+  composeLayoutChromeHtml,
+  surfaceHasFormSlot,
+  surfaceHasImageSlot,
+  surfaceHasScriptSlot,
+  surfaceHasStyleSlot,
+} from "./cwl-layout.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
@@ -232,18 +243,45 @@ export function liftCwlFileToWebir(opts) {
     };
     // RFC-0029: a page that names a layout renders the shared chrome around its body.
     const headHtml = typeof r.headHtml === "string" ? r.headHtml : "";
-    if (headHtml && !chromeHasHeadSlot(r.layoutChromeHtml)) {
+    const pushAttachmentHole = (reason) => {
       r.attachmentHoles = Array.isArray(r.attachmentHoles) ? r.attachmentHoles : [];
-      if (!r.attachmentHoles.includes("cwl:missing-head-slot")) {
-        r.attachmentHoles.push("cwl:missing-head-slot");
-      }
+      if (!r.attachmentHoles.includes(reason)) r.attachmentHoles.push(reason);
+    };
+    if (r.yearHost && !chromeHasYearSlot(r.layoutChromeHtml)) pushAttachmentHole("cwl:missing-year-slot");
+    if (Array.isArray(r.navLinks) && r.navLinks.length && !chromeHasLinkGroups(r.layoutChromeHtml, r.navLinks)) {
+      pushAttachmentHole("cwl:missing-links-slot");
     }
+    if (r.deviceHost && !chromeHasDeviceSlot(r.layoutChromeHtml)) pushAttachmentHole("cwl:missing-device-slot");
+    const assetSurface = `${r.layoutChromeHtml ?? ""}${headHtml}${r.body?.kind === "html" ? r.body.value : ""}`;
+    if (Array.isArray(r.styles) && r.styles.length && !surfaceHasStyleSlot(assetSurface)) {
+      pushAttachmentHole("cwl:missing-style-slot");
+    }
+    for (const image of r.images ?? []) {
+      if (!surfaceHasImageSlot(assetSurface, image.id)) pushAttachmentHole("cwl:missing-image-slot");
+    }
+    if (Array.isArray(r.scripts) && r.scripts.length && !surfaceHasScriptSlot(assetSurface)) {
+      pushAttachmentHole("cwl:missing-script-slot");
+    }
+    for (const form of r.forms ?? []) {
+      if (!form.refused && !surfaceHasFormSlot(assetSurface, form.id)) pushAttachmentHole("cwl:missing-form-slot");
+    }
+    if (r.drawer && !chromeHasDrawerTargets(r.layoutChromeHtml, r.drawer)) {
+      pushAttachmentHole("cwl:missing-drawer-target");
+    }
+    if (headHtml && !chromeHasHeadSlot(r.layoutChromeHtml)) pushAttachmentHole("cwl:missing-head-slot");
     const pageHtml =
       r.body.kind === "html"
         ? composeLayoutChromeHtml(r.layoutChromeHtml, r.body.value, {
             head: headHtml,
             pageName: r.name,
             navId: r.navId,
+            links: r.navLinks,
+            drawer: r.drawer,
+            styles: r.styles,
+            images: r.images,
+            scripts: r.scripts,
+            forms: r.forms,
+            hostFirebase: r.hostFirebase,
           })
         : null;
     if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {

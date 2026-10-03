@@ -330,6 +330,42 @@ export function printCwlModule(mod, opts = {}) {
       const purpose = (L.cookiePurposes ?? []).find((p) => p.name === c);
       lines.push(`  ${formatCookieDecl(c, purpose)};`);
     }
+    if (L.yearHost) lines.push("  year host;");
+    if (L.deviceHost?.values?.length === 2) {
+      lines.push(`  device host ${L.deviceHost.values[0]} ${L.deviceHost.values[1]};`);
+    }
+    if (L.drawer) {
+      const panel = L.drawer.panelId ? ` panel ${L.drawer.panelId}` : "";
+      lines.push(
+        `  drawer ${L.drawer.navId} toggle ${L.drawer.toggleClass} class ${L.drawer.openClass}${panel};`,
+      );
+    }
+    for (const href of L.styles ?? []) lines.push(`  style ${JSON.stringify(href)};`);
+    for (const src of L.scripts ?? []) lines.push(`  script ${JSON.stringify(src)};`);
+    for (const form of L.forms ?? []) {
+      lines.push(`  form ${form.id} method ${form.method} action ${JSON.stringify(form.action)};`);
+      for (const field of form.fields ?? []) lines.push(`  field ${field.name} ${JSON.stringify(field.type)};`);
+      if (form.submit) lines.push(`  submit ${JSON.stringify(form.submit)};`);
+    }
+    for (const image of L.images ?? []) lines.push(`  image ${image.id} ${JSON.stringify(image.path)};`);
+    if (L.hostFirebase) {
+      const error = L.hostFirebase.errorDoc ? ` error ${JSON.stringify(L.hostFirebase.errorDoc)}` : "";
+      lines.push(
+        `  host firebase ${JSON.stringify(L.hostFirebase.target)} public ${JSON.stringify(L.hostFirebase.publicDir)}${error};`,
+      );
+    }
+    let printedGroup = "";
+    for (const link of L.links ?? []) {
+      const group = link.group || "";
+      if (group !== printedGroup) {
+        if (group) lines.push(`  links ${group};`);
+        printedGroup = group;
+      }
+      const cls = link.className ? ` class ${link.className}` : "";
+      const target = link.target === "blank" ? " target blank" : "";
+      const rel = link.rel ? ` rel ${link.rel}` : "";
+      lines.push(`  link ${link.id} ${JSON.stringify(link.href)} ${JSON.stringify(link.label)}${cls}${target}${rel};`);
+    }
     for (const hole of L.holes ?? []) {
       const r = String(hole ?? "cwl:hole");
       lines.push(

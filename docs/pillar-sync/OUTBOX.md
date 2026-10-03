@@ -8,6 +8,44 @@
 
 ---
 
+## 2026-10-02 - convert-tip-1.0.67
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.63 … tip-1.0.67 (golds 71–75)
+**CWL tip:** **1.0.67** · CWL `main` `62d2b81`
+
+```text
+CONVERT_TIP_1_0_67_OK: ok
+GENOME_DEEPEN_PEEL_OK: ok (golds 71–75 + prior)
+SITE_YEAR_OK: ok
+SITE_NAV_LINKS_OK: ok
+SITE_SHELL_BEHAVIOR_OK: ok
+SITE_ASSETS_OK: ok
+SITE_PAGE_OK: ok
+SYNC_ALWAYS: ok
+CWL_TIP: 1.0.67
+CWL_PIN: file:1.0.67
+CWL_SIBLING_REF: main (cwl-v1.0.62 exists; tip 1.0.67 is not tagged yet)
+BRANCH: candidate/wptp-convert-orbit
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` >= **1.0.67**; sibling clone ref `main`
+- Fat ingest composes the host year token, shared nav lists, device token, bounded drawer, named assets, named script, and same-site form
+- Off-site form actions stay `unsupported:offsite-form` and are not written
+- DESIGN **D6583**; consumer docs bumped
+- No clock read, menu script, CSS parse, image bytes, or Firebase deploy invent
+
+### Ask back
+
+Please publish tag **`cwl-v1.0.67`** so CI can pin a tag instead of `main`.
+
+---
+
 ## 2026-10-01 - convert-tip-1.0.62
 
 **To:** cwl

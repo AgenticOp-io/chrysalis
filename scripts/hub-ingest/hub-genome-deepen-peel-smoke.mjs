@@ -5,7 +5,7 @@
  * io host, session cookies, cookie purpose, same-site redirect, and the site
  * document shell.
  *
- * Proves Convert lifts CWL golds `40`–`70` into WebIR and projects them back
+ * Proves Convert lifts CWL golds `40`–`75` into WebIR and projects them back
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
  * cookie/token values, or proxy targets. Also proves `@chrysalis/rewrite`
  * executes a declared forward through an injected transport.
@@ -275,6 +275,52 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     !/data-ao-page=\\"whitepaper\\"/.test(text) &&
     !/ao-layout\.js/.test(text));
 
+  // RFC-0029 deepen (1.0.63 / gold 71): the host year stays a token. CWL does not read the clock.
+  await checkGold("site-year", "71-site-year", (text) =>
+    /<!-- cwl:year -->/.test(text) &&
+    /<section class=\\"hero\\"><h1>Home<\/h1><\/section>/.test(text) &&
+    /hole cwl:missing-year-slot;/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
+  // RFC-0029 deepen (1.0.64 / gold 72): one nav list fills every header slot.
+  await checkGold("site-nav-links", "72-site-nav-links", (text) =>
+    /ao-nav-link ao-nav-link-active/.test(text) &&
+    /href=\\"\/docs\.html\\"/.test(text) &&
+    /ao-nav-cta ao-nav-link-active/.test(text) &&
+    /hole cwl:missing-links-slot;/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
+  // RFC-0029 deepen (1.0.65 / gold 73): device token, bounded drawer, named lists.
+  await checkGold("site-shell-behavior", "73-site-shell-behavior", (text) =>
+    /<!-- cwl:device -->/.test(text) &&
+    /data-cwl-drawer=\\"1\\"/.test(text) &&
+    /href=\\"\/method\.html\\"/.test(text) &&
+    /ao-footer-link/.test(text) &&
+    /hole cwl:missing-device-slot;/.test(text) &&
+    /hole cwl:missing-drawer-target;/.test(text) &&
+    /hole cwl:missing-links-slot;/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
+  // RFC-0029 deepen (1.0.66 / gold 74): named stylesheet, image, and Firebase public root.
+  await checkGold("site-assets", "74-site-assets", (text) =>
+    /rel=\\"stylesheet\\" href=\\"\/agenticops\.css\\"/.test(text) &&
+    /src=\\"\/logo\.svg\\"/.test(text) &&
+    /cwl-host firebase=\\"agenticops\\" public=\\"\.\\" error=\\"\/404\.html\\"/.test(text) &&
+    /hole cwl:missing-style-slot;/.test(text) &&
+    /hole cwl:missing-image-slot;/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
+  // RFC-0029 deepen (1.0.67 / gold 75): named script, same-site form, off-site anchor.
+  await checkGold("site-page", "75-site-page", (text) =>
+    /src=\\"\/site\.js\\" defer/.test(text) &&
+    /method=\\"post\\" action=\\"\/contact\\"/.test(text) &&
+    /target=\\"_blank\\" rel=\\"noopener\\"/.test(text) &&
+    /href=\\"https:\/\/github\.com\/AgenticOp-io\\"/.test(text) &&
+    /hole unsupported:offsite-form;/.test(text) &&
+    /hole cwl:missing-script-slot;/.test(text) &&
+    !/evil\.example/.test(text) &&
+    !/ao-layout\.js/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -383,7 +429,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.62",
+    cwlTip: "1.0.67",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
