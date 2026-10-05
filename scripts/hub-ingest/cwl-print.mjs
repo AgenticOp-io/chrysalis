@@ -17,6 +17,7 @@ function printMetaCard(card, indent, lines) {
   if (typeof card.robots === "string") lines.push(`${indent}meta robots ${JSON.stringify(card.robots)};`);
   if (typeof card.author === "string") lines.push(`${indent}meta author ${JSON.stringify(card.author)};`);
   if (typeof card.theme === "string") lines.push(`${indent}meta theme ${JSON.stringify(card.theme)};`);
+  if (typeof card.keywords === "string") lines.push(`${indent}meta keywords ${JSON.stringify(card.keywords)};`);
   for (const key of ["type", "site", "locale", "url", "title", "description", "image"]) {
     if (typeof card.og?.[key] === "string") lines.push(`${indent}meta og ${key} ${JSON.stringify(card.og[key])};`);
   }
@@ -438,6 +439,15 @@ export function printCwlModule(mod, opts = {}) {
     if (typeof route.description === "string") lines.push(`  description ${JSON.stringify(route.description)};`);
     if (typeof route.canonical === "string") lines.push(`  canonical ${JSON.stringify(route.canonical)};`);
     printMetaCard(route.metaCard, "  ", lines);
+    for (const icon of route.icons ?? []) lines.push(`  icon ${icon.id}${icon.apple ? " apple" : ""};`);
+    for (const link of route.preconnects ?? []) {
+      lines.push(`  preconnect ${JSON.stringify(link.href)}${link.crossorigin ? " crossorigin" : ""};`);
+    }
+    for (const link of route.alternates ?? []) {
+      lines.push(`  alternate ${JSON.stringify(link.type)} ${JSON.stringify(link.href)} ${JSON.stringify(link.title)};`);
+    }
+    for (const href of route.pageStyles ?? []) lines.push(`  style ${JSON.stringify(href)};`);
+    for (const json of route.jsonlds ?? []) appendCwlHtmlStmt(lines, "  ", "jsonld", json);
 
     if (route.redirect?.path) {
       lines.push(`  ${formatRedirectStatement(route.redirect)};`);

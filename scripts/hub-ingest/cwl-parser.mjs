@@ -86,6 +86,11 @@ const DESCRIPTION_RE = /^description\s+"((?:\\.|[^"\\])*)"\s*;$/;
 const CANONICAL_RE = /^canonical\s+"((?:\\.|[^"\\])*)"\s*;$/;
 const META_QUOTE = '"((?:\\\\.|[^"\\\\])*)"';
 const META_ROBOTS_RE = new RegExp(`^meta\\s+robots\\s+${META_QUOTE}\\s*;$`);
+const META_KEYWORDS_RE = new RegExp(`^meta\\s+keywords\\s+${META_QUOTE}\\s*;$`);
+const ICON_RE = /^icon\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s+(apple))?\s*;$/;
+const PRECONNECT_RE = new RegExp(`^preconnect\\s+${META_QUOTE}(?:\\s+(crossorigin))?\\s*;$`);
+const ALTERNATE_RE = new RegExp(`^alternate\\s+${META_QUOTE}\\s+${META_QUOTE}\\s+${META_QUOTE}\\s*;$`);
+const JSONLD_LINE_RE = new RegExp(`^jsonld\\s+${META_QUOTE}\\s*;$`);
 const META_AUTHOR_RE = new RegExp(`^meta\\s+author\\s+${META_QUOTE}\\s*;$`);
 const META_THEME_RE = new RegExp(`^meta\\s+theme\\s+${META_QUOTE}\\s*;$`);
 const META_OG_RE = new RegExp(`^meta\\s+og\\s+(type|site|locale|url|title|description|image)\\s+${META_QUOTE}\\s*;$`);
@@ -120,7 +125,9 @@ function emptyMetaCard() {
  * @param {ReturnType<typeof emptyMetaCard>} card
  */
 function metaCardHasFacts(card) {
-  return Boolean(card?.robots || card?.author || card?.theme || Object.keys(card?.og ?? {}).length || Object.keys(card?.twitter ?? {}).length);
+  return Boolean(
+    card?.robots || card?.author || card?.theme || card?.keywords || Object.keys(card?.og ?? {}).length || Object.keys(card?.twitter ?? {}).length,
+  );
 }
 
 /**
@@ -133,6 +140,11 @@ function applyMetaLine(line, card, holes) {
   const robots = META_ROBOTS_RE.exec(line);
   if (robots) {
     card.robots = cwlQuoted(robots[1]);
+    return true;
+  }
+  const keywords = META_KEYWORDS_RE.exec(line);
+  if (keywords) {
+    card.keywords = cwlQuoted(keywords[1]);
     return true;
   }
   const author = META_AUTHOR_RE.exec(line);
@@ -274,13 +286,14 @@ export function extractCwlHeadHtmlLiteral(inner) {
 
 /**
  * @param {string} line
- * @returns {"return" | "chrome" | "head" | null}
+ * @returns {"return" | "chrome" | "head" | "jsonld" | null}
  */
 export function cwlHtmlBlockKind(line) {
   const t = String(line ?? "").trim();
   if (/^return\s+html\s+"""\s*$/i.test(t)) return "return";
   if (/^chrome\s+html\s+"""\s*$/i.test(t)) return "chrome";
   if (/^head\s+html\s+"""\s*$/i.test(t)) return "head";
+  if (/^jsonld\s+"""\s*$/i.test(t)) return "jsonld";
   return null;
 }
 
@@ -1190,6 +1203,16 @@ export function parseCwlModule(source, file) {
     /** @type {string | null} Canonical href. Refused values are not stored. */
     let canonical = null;
     const metaCard = emptyMetaCard();
+    /** @type {string[]} Page stylesheets, after the layout styles. */
+    const pageStyles = [];
+    /** @type {Array<{ id: string, apple?: boolean }>} */
+    const icons = [];
+    /** @type {Array<{ href: string, crossorigin?: boolean }>} */
+    const preconnects = [];
+    /** @type {Array<{ type: string, href: string, title: string }>} */
+    const alternates = [];
+    /** @type {string[]} JSON-LD document text. Schema.org is not interpreted. */
+    const jsonlds = [];
     /** @type {object[]} RFC-0030 page-level client islands (sibling to return html) */
     const pageIslands = [];
     let body = {
@@ -1242,6 +1265,32 @@ export function parseCwlModule(source, file) {
         continue;
       }
       if (applyMetaLine(inner, metaCard, attachmentHoles)) continue;
+      const iconUse = ICON_RE.exec(inner);
+      if (iconUse) {
+        icons.push(iconUse[2] ? { id: iconUse[1], apple: true } : { id: iconUse[1] });
+        continue;
+      }
+      const preconnectUse = PRECONNECT_RE.exec(inner);
+      if (preconnectUse) {
+        const href = cwlQuoted(preconnectUse[1]);
+        if (canonicalHrefOk(href)) preconnects.push(preconnectUse[2] ? { href, crossorigin: true } : { href });
+        else if (!attachmentHoles.includes("cwl:preconnect-not-url")) attachmentHoles.push("cwl:preconnect-not-url");
+        continue;
+      }
+      const alternateUse = ALTERNATE_RE.exec(inner);
+      if (alternateUse) {
+        const type = cwlQuoted(alternateUse[1]);
+        const href = cwlQuoted(alternateUse[2]);
+        const label = cwlQuoted(alternateUse[3]);
+        if (canonicalHrefOk(href)) alternates.push({ type, href, title: label });
+        else if (!attachmentHoles.includes("cwl:alternate-not-url")) attachmentHoles.push("cwl:alternate-not-url");
+        continue;
+      }
+      const pageStyle = STYLE_RE.exec(inner);
+      if (pageStyle) {
+        pageStyles.push(pageStyle[1]);
+        continue;
+      }
       if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {
         const islandParsed = parseCwlStandaloneIslandBlock(lines, i - 1);
         if (islandParsed.ok) {
@@ -1372,7 +1421,39 @@ export function parseCwlModule(source, file) {
         effects.push(...parseEffects(kept.join(",")));
         continue;
       }
+      const jsonldLine = JSONLD_LINE_RE.exec(inner);
+      if (jsonldLine) {
+        const value = cwlQuoted(jsonldLine[1]);
+        if (value.includes("</script>")) {
+          if (!attachmentHoles.includes("cwl:jsonld-closes-script")) attachmentHoles.push("cwl:jsonld-closes-script");
+        } else {
+          try {
+            JSON.parse(value);
+            jsonlds.push(value);
+          } catch {
+            if (!attachmentHoles.includes("cwl:jsonld-not-json")) attachmentHoles.push("cwl:jsonld-not-json");
+          }
+        }
+        continue;
+      }
       const htmlBlock = cwlHtmlBlockKind(inner);
+      if (htmlBlock === "jsonld") {
+        const block = readCwlHtmlBlock(lines, i);
+        i = block.next;
+        if (!block.ok) {
+          if (!attachmentHoles.includes("cwl:unclosed-html")) attachmentHoles.push("cwl:unclosed-html");
+        } else if (block.value.includes("</script>")) {
+          if (!attachmentHoles.includes("cwl:jsonld-closes-script")) attachmentHoles.push("cwl:jsonld-closes-script");
+        } else {
+          try {
+            JSON.parse(block.value);
+            jsonlds.push(block.value);
+          } catch {
+            if (!attachmentHoles.includes("cwl:jsonld-not-json")) attachmentHoles.push("cwl:jsonld-not-json");
+          }
+        }
+        continue;
+      }
       if (htmlBlock === "head") {
         const block = readCwlHtmlBlock(lines, i);
         i = block.next;
@@ -1657,6 +1738,11 @@ export function parseCwlModule(source, file) {
       ...(typeof description === "string" ? { description } : {}),
       ...(typeof canonical === "string" ? { canonical } : {}),
       ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
+      ...(pageStyles.length ? { pageStyles } : {}),
+      ...(icons.length ? { icons } : {}),
+      ...(preconnects.length ? { preconnects } : {}),
+      ...(alternates.length ? { alternates } : {}),
+      ...(jsonlds.length ? { jsonlds } : {}),
       pageIslands,
       htmlRepeats,
       body,

@@ -123,6 +123,7 @@ export function composeLayoutChromeHtml(chrome, body, opts = {}) {
   let html = shell.includes(CWL_HTML_BODY_SLOT) ? shell.replace(CWL_HTML_BODY_SLOT, body) : `${shell}${body}`;
   html = expandCwlDocument(html, opts);
   html = expandCwlMeta(html, opts.metaCard);
+  html = expandCwlHeadFacts(html, opts);
   html = expandCwlAssets(html, opts.styles, opts.images);
   html = expandCwlScripts(html, opts.scripts);
   html = expandCwlForms(html, opts.forms);
@@ -192,7 +193,7 @@ const CWL_HTML_META_SLOT = "<!-- cwl:meta -->";
  */
 export function cwlMetaCardHasFacts(card) {
   return Boolean(
-    card?.robots || card?.author || card?.theme || Object.keys(card?.og ?? {}).length || Object.keys(card?.twitter ?? {}).length,
+    card?.robots || card?.author || card?.theme || card?.keywords || Object.keys(card?.og ?? {}).length || Object.keys(card?.twitter ?? {}).length,
   );
 }
 
@@ -206,7 +207,7 @@ export function mergeCwlMetaCard(base, over) {
     og: { ...(base?.og ?? {}), ...(over?.og ?? {}) },
     twitter: { ...(base?.twitter ?? {}), ...(over?.twitter ?? {}) },
   };
-  for (const key of ["robots", "author", "theme"]) {
+  for (const key of ["robots", "author", "theme", "keywords"]) {
     if (typeof base?.[key] === "string") card[key] = base[key];
     if (typeof over?.[key] === "string") card[key] = over[key];
   }
@@ -228,6 +229,7 @@ function expandCwlMeta(html, card) {
   if (card.robots) tags.push(`<meta name="robots" content="${escapeCwlHtmlText(card.robots)}" />`);
   if (card.author) tags.push(`<meta name="author" content="${escapeCwlHtmlText(card.author)}" />`);
   if (card.theme) tags.push(`<meta name="theme-color" content="${escapeCwlHtmlText(card.theme)}" />`);
+  if (card.keywords) tags.push(`<meta name="keywords" content="${escapeCwlHtmlText(card.keywords)}" />`);
   const ogNames = {
     type: "og:type",
     site: "og:site_name",
@@ -254,6 +256,53 @@ function expandCwlMeta(html, card) {
     }
   }
   return out.split(CWL_HTML_META_SLOT).join(tags.join(""));
+}
+
+const CWL_HTML_ICON_SLOT = "<!-- cwl:icon -->";
+const CWL_HTML_ALTERNATE_SLOT = "<!-- cwl:alternate -->";
+const CWL_HTML_JSONLD_SLOT = "<!-- cwl:jsonld -->";
+const CWL_HTML_PRECONNECT_SLOT = "<!-- cwl:preconnect -->";
+
+/**
+ * Icon, alternate, JSON-LD, and preconnect. CWL does not interpret schema.org or fetch the font host.
+ * An unused marker is removed. Apple touch is written only when declared.
+ * @param {string} html
+ * @param {{ images?: Array<{ id: string, path: string }>, icons?: Array<{ id: string, apple?: boolean }>, alternates?: Array<{ type: string, href: string, title: string }>, jsonlds?: string[], preconnects?: Array<{ href: string, crossorigin?: boolean }> }} opts
+ */
+function expandCwlHeadFacts(html, opts) {
+  let out = String(html);
+  const images = new Map((opts.images ?? []).map((image) => [image.id, image.path]));
+  if (out.includes(CWL_HTML_ICON_SLOT)) {
+    const tags = [];
+    for (const icon of opts.icons ?? []) {
+      const path = images.get(icon.id);
+      if (!path) continue;
+      const href = escapeCwlHtmlText(path);
+      const type = path.endsWith(".svg") ? ` type="image/svg+xml"` : "";
+      tags.push(`<link rel="icon" href="${href}"${type} />`);
+      if (icon.apple) tags.push(`<link rel="apple-touch-icon" href="${href}" />`);
+    }
+    out = out.split(CWL_HTML_ICON_SLOT).join(tags.join(""));
+  }
+  if (out.includes(CWL_HTML_ALTERNATE_SLOT)) {
+    const tags = (opts.alternates ?? []).map(
+      (link) =>
+        `<link rel="alternate" type="${escapeCwlHtmlText(link.type)}" href="${escapeCwlHtmlText(link.href)}" title="${escapeCwlHtmlText(link.title)}" />`,
+    );
+    out = out.split(CWL_HTML_ALTERNATE_SLOT).join(tags.join(""));
+  }
+  if (out.includes(CWL_HTML_JSONLD_SLOT)) {
+    const tags = (opts.jsonlds ?? []).map((json) => `<script type="application/ld+json">${json}</script>`);
+    out = out.split(CWL_HTML_JSONLD_SLOT).join(tags.join(""));
+  }
+  if (out.includes(CWL_HTML_PRECONNECT_SLOT)) {
+    const tags = (opts.preconnects ?? []).map((link) => {
+      const cross = link.crossorigin ? " crossorigin" : "";
+      return `<link rel="preconnect" href="${escapeCwlHtmlText(link.href)}"${cross} />`;
+    });
+    out = out.split(CWL_HTML_PRECONNECT_SLOT).join(tags.join(""));
+  }
+  return out;
 }
 
 /**
@@ -434,13 +483,14 @@ export function mergeLayoutOntoRoute(route, layout) {
   if (layout.yearHost) route.yearHost = true;
   if (layout.charset) route.charset = layout.charset;
   if (layout.viewportDevice) route.viewportDevice = true;
+  const styles = [...(layout.styles ?? []), ...(route.pageStyles ?? [])];
+  if (styles.length) route.styles = styles;
   if (layout.metaCard || route.metaCard) {
     const merged = mergeCwlMetaCard(layout.metaCard, route.metaCard);
     if (merged) route.metaCard = merged;
   }
   if (layout.deviceHost) route.deviceHost = layout.deviceHost;
   if (layout.drawer) route.drawer = layout.drawer;
-  if (Array.isArray(layout.styles) && layout.styles.length) route.styles = layout.styles.slice();
   if (Array.isArray(layout.images) && layout.images.length) route.images = layout.images.slice();
   if (layout.hostFirebase) route.hostFirebase = layout.hostFirebase;
   if (Array.isArray(layout.scripts) && layout.scripts.length) route.scripts = layout.scripts.slice();
