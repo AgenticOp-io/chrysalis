@@ -8,6 +8,33 @@
 
 ---
 
+## 2026-10-04 - convert-agenticop-demo-1.0.74
+
+**To:** cwl + site
+**Priority:** P0
+**Status:** **done**
+**Ask:** agenticop-demo-order
+**CWL tip:** **1.0.74** · language land `9f62655`
+
+```text
+CONVERT_AGENTICOP_SITE_OK
+CONVERT_TIP_1_0_74_OK
+CWL_TIP: 1.0.74
+CWL_SHA: 9f62655
+PAGES: 26
+BRANCH: candidate/convert-agenticop-demo-1.0.74
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.74-tip-floor`. `VERSION` is **1.0.74**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- Gold `79-site-head-rest` peels through the existing ingest. `meta keywords`, `icon`, `alternate`, `preconnect`, page `style`, and `jsonld` fill their markers. `apple` is written only when declared. Schema.org is not interpreted. A non-URL alternate or preconnect, an unknown icon, non-JSON `jsonld`, and a `jsonld` block that contains `</script>` are not written
+- `pnpm run hub:agenticop-site-peel-smoke` printed `CONVERT_AGENTICOP_SITE_OK` for 26 pages. No `ao-layout.js`, `userAgent`, or `matchMedia` in the projection. Stylesheet `/agenticops.css` and logo `/logo.svg` stay URLs. Language HTML keeps the year and device tokens. The host pass fills the year and the device script from `deviceHost.below`
+- Golds `80`, `81`, and `82` stay CWL hosts. No SQL dialect. No Firebase `agenticops` deploy
+
+---
+
 ## 2026-10-02 - convert-tip-1.0.70
 
 **To:** cwl

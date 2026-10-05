@@ -283,6 +283,20 @@ export function liftCwlFileToWebir(opts) {
     if (typeof r.description === "string" && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:description -->")) {
       pushAttachmentHole("cwl:missing-description-slot");
     }
+    if (Array.isArray(r.icons) && r.icons.length) {
+      const imageIds = new Set((r.images ?? []).map((image) => image.id));
+      if (r.icons.some((icon) => !imageIds.has(icon.id))) pushAttachmentHole("cwl:unknown-icon");
+      if (!surfaceHasDocumentSlot(documentSurface, "<!-- cwl:icon -->")) pushAttachmentHole("cwl:missing-icon-slot");
+    }
+    if (Array.isArray(r.alternates) && r.alternates.length && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:alternate -->")) {
+      pushAttachmentHole("cwl:missing-alternate-slot");
+    }
+    if (Array.isArray(r.jsonlds) && r.jsonlds.length && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:jsonld -->")) {
+      pushAttachmentHole("cwl:missing-jsonld-slot");
+    }
+    if (Array.isArray(r.preconnects) && r.preconnects.length && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:preconnect -->")) {
+      pushAttachmentHole("cwl:missing-preconnect-slot");
+    }
     if (cwlMetaCardHasFacts(r.metaCard) && !surfaceHasDocumentSlot(documentSurface, "<!-- cwl:meta -->")) {
       pushAttachmentHole("cwl:missing-meta-slot");
     }
@@ -300,6 +314,10 @@ export function liftCwlFileToWebir(opts) {
             description: r.description,
             canonical: r.canonical,
             metaCard: r.metaCard,
+            icons: r.icons,
+            alternates: r.alternates,
+            jsonlds: r.jsonlds,
+            preconnects: r.preconnects,
             pageName: r.name,
             navId: r.navId,
             links: r.navLinks,

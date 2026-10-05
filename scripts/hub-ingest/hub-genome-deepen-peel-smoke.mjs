@@ -5,10 +5,10 @@
  * io host, session cookies, cookie purpose, same-site redirect, and the site
  * document shell.
  *
- * Proves Convert lifts CWL golds `40`–`78` into WebIR and projects them back
+ * Proves Convert lifts CWL golds `40`–`79` into WebIR and projects them back
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
- * cookie/token values, or proxy targets. Also proves `@chrysalis/rewrite`
- * executes a declared forward through an injected transport.
+ * cookie/token values, or proxy targets. Golds `40`–`79`. Also proves
+ * `@chrysalis/rewrite` executes a declared forward through an injected transport.
  *
  * Gate: hub:genome-deepen-peel-smoke
  * Token: GENOME_DEEPEN_PEEL_OK
@@ -358,6 +358,30 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     !/content=\\"red\\"/.test(text) &&
     !/content=\\"tracker\\"/.test(text));
 
+  // RFC-0029 deepen (1.0.71 / gold 79): remaining head facts. Schema.org is not interpreted.
+  await checkGold("site-head-rest", "79-site-head-rest", (text) =>
+    /name=\\"keywords\\" content=\\"CWL, WebIR\\"/.test(text) &&
+    /rel=\\"icon\\" href=\\"\/logo\.svg\\" type=\\"image\/svg\+xml\\"/.test(text) &&
+    /rel=\\"apple-touch-icon\\" href=\\"\/logo\.svg\\"/.test(text) &&
+    (text.match(/apple-touch-icon/g) || []).length === 1 &&
+    /rel=\\"alternate\\" type=\\"text\/plain\\" href=\\"https:\/\/agenticop\.io\/llms\.txt\\" title=\\"LLM digest\\"/.test(text) &&
+    /application\/ld\+json/.test(text) &&
+    /\{\\"@context\\":\\"https:\/\/schema\.org\\",\\"@type\\":\\"WebPage\\"\}/.test(text) &&
+    /rel=\\"preconnect\\" href=\\"https:\/\/fonts\.googleapis\.com\\" crossorigin/.test(text) &&
+    /family=Inter&amp;display=swap/.test(text) &&
+    /hole cwl:unknown-icon;/.test(text) &&
+    /hole cwl:missing-icon-slot;/.test(text) &&
+    /hole cwl:missing-alternate-slot;/.test(text) &&
+    /hole cwl:missing-jsonld-slot;/.test(text) &&
+    /hole cwl:missing-preconnect-slot;/.test(text) &&
+    /hole cwl:preconnect-not-url;/.test(text) &&
+    /hole cwl:alternate-not-url;/.test(text) &&
+    /hole cwl:jsonld-not-json;/.test(text) &&
+    /hole cwl:jsonld-closes-script;/.test(text) &&
+    !/javascript:alert/.test(text) &&
+    !/\nnot-json\n/.test(text) &&
+    !/<\/script><script>/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -466,7 +490,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.70",
+    cwlTip: "1.0.74",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
