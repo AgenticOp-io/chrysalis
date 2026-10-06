@@ -8,6 +8,33 @@
 
 ---
 
+## 2026-10-05 - convert-tip-1.0.78
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.78-site-complete  
+**CWL tip:** **1.0.78** · language land `a172cb8` · merge `9bf1efd` · tag `cwl-v1.0.78`
+
+```text
+CONVERT_TIP_1_0_78_OK
+CWL_TIP: 1.0.78
+CWL_SHA: a172cb8
+CWL_PIN: file:1.0.78
+CWL_SIBLING_REF: main (tag cwl-v1.0.78)
+PEEL: gold 79
+BRANCH: candidate/convert-tip-1.0.78
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.78-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.78**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- Site-complete tip (gold `86`): literal year, CSS checkbox menu, owned assets; no host drawer/device JS. Peel stays gold `79`. No CSS dialect invent. No live Firebase `agenticops` deploy
+- DESIGN **D6589**
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.77
 
 **To:** cwl  
