@@ -8,6 +8,30 @@
 
 ---
 
+## 2026-10-05 - convert-tip-1.0.75
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** tip-1.0.75-host-site-emit
+**CWL tip:** **1.0.75** · language land `c5d48cb`
+
+```text
+CONVERT_TIP_1_0_75_OK
+CWL_TIP: 1.0.75
+CWL_SHA: c5d48cb
+BRANCH: candidate/convert-tip-1.0.75
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.75-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.75**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- Host site emit (`emit:site` / `deploy:demo` / gold `83`) stays a CWL host. Convert does not invent a Cloud Function and does not deploy live Firebase `agenticops`
+- Peel stays gold `79-site-head-rest` through the existing ingest. No new Convert peel for gold `83`
+
+---
+
 ## 2026-10-04 - convert-agenticop-demo-1.0.74
 
 **To:** cwl + site

@@ -69,18 +69,18 @@ export async function runCwlPinSmoke(opts = {}) {
     ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
     detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
   });
-  // Tip floor for the AgenticOps demo (LANGUAGE_VERSION / 1.0.74).
+  // Tip floor for CWL host site emit (LANGUAGE_VERSION / 1.0.75). Peel stays gold 79.
   const parts = String(version ?? "").split(".").map((x) => Number.parseInt(x, 10));
   const tipOk =
     parts.length >= 3 &&
     !parts.some((n) => Number.isNaN(n)) &&
     (parts[0] > 1 ||
       (parts[0] === 1 && parts[1] > 0) ||
-      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 74));
+      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 75));
   checks.push({
-    id: "cwl-1.0.74-tip-floor",
+    id: "cwl-1.0.75-tip-floor",
     ok: tipOk,
-    detail: `VERSION=${version} (expect >= 1.0.74 head rest (gold 79))`,
+    detail: `VERSION=${version} (expect >= 1.0.75 host site emit (gold 83); peel stays gold 79)`,
   });
   for (const sub of ["parser", "print", "diagnose", "lsp-map", "dna-seed"]) {
     const subPath = join(root, "packages/cwl", `${sub}.mjs`);
