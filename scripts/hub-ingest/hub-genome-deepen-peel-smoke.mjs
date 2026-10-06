@@ -382,6 +382,15 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     !/\nnot-json\n/.test(text) &&
     !/<\/script><script>/.test(text));
 
+  // Tip 1.0.77 / gold 85: owned /fonts.css + agenticops.css. No Google Fonts CDN invent.
+  await checkGold("site-owned-fonts", "85-site-owned-fonts", (text) =>
+    /rel=\\"stylesheet\\" href=\\"\/fonts\.css\\"/.test(text) &&
+    /rel=\\"stylesheet\\" href=\\"\/agenticops\.css\\"/.test(text) &&
+    /<title>Owned fonts<\/title>/.test(text) &&
+    !/fonts\.googleapis\.com/.test(text) &&
+    !/fonts\.gstatic\.com/.test(text) &&
+    !/family=Inter/.test(text));
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>

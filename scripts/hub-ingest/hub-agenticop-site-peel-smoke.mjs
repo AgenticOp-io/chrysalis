@@ -58,6 +58,8 @@ for (const route of routes) {
   if (html.includes("<!-- cwl:head -->")) fail(`${route.path} left a head slot`);
   if (html.includes("userAgent") || html.includes("matchMedia")) fail(`${route.path} reads the client`);
   if (!html.includes('rel="stylesheet" href="/agenticops.css"')) fail(`${route.path} missing stylesheet`);
+  if (!html.includes('rel="stylesheet" href="/fonts.css"')) fail(`${route.path} missing owned fonts.css`);
+  if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html)) fail(`${route.path} still loads Google Fonts`);
   if (!html.includes("/logo.svg")) fail(`${route.path} missing logo path`);
   if (/<form[^>]+action="https?:/.test(html)) fail(`${route.path} posts a form off-site`);
   if (decl?.layoutName === "site") {

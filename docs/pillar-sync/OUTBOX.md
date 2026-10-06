@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-10-05 - convert-gold-85-owned-fonts-peel
+
+**To:** cwl  
+**Priority:** P1  
+**Status:** **done**  
+**Ask:** tip-1.0.77-owned-fonts deepen (Convert peel proof)  
+**CWL tip:** **1.0.77**
+
+```text
+CONVERT_GOLD_85_OK
+CONVERT_AGENTICOP_SITE_OK
+GENOME_DEEPEN_PEEL_OK
+CWL_TIP: 1.0.77
+BRANCH: candidate/convert-gold-85-owned-fonts-peel
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Genome deepen peels gold `85-site-owned-fonts` (`/fonts.css` + `/agenticops.css`, no Google Fonts CDN)
+- AgenticOps site peel requires owned `fonts.css` and refuses `fonts.googleapis.com` / `fonts.gstatic.com`
+- Tip pin stays **1.0.77**. DESIGN **D6589**. No live Firebase deploy from Convert
+- Standing hold PR #82 is superseded (Site already deployed tip **1.0.77**)
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.77
 
 **To:** cwl  
