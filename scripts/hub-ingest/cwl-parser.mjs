@@ -4,6 +4,7 @@
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
+import { CWL_DB_ENGINES, finalizeCwlDbModule, parseCwlDbStatement, parseCwlTableBlock } from "./cwl-db.mjs";
 import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCacheNoCacheEffect, parseCacheNoStoreEffect, parseCachePrivateEffect, parseCookieDecl, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseIoEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionAccessEffect, parseSessionCookieEffect, redirectStatusAllowed, sameOriginRedirectPath, sessionCookieTrackingAbuse } from "./hub-cwl-effects.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
@@ -286,7 +287,7 @@ export function extractCwlHeadHtmlLiteral(inner) {
 
 /**
  * @param {string} line
- * @returns {"return" | "chrome" | "head" | "jsonld" | null}
+ * @returns {"return" | "chrome" | "head" | null}
  */
 export function cwlHtmlBlockKind(line) {
   const t = String(line ?? "").trim();
@@ -1050,6 +1051,12 @@ export function parseCwlModule(source, file) {
   const components = [];
   /** @type {Array<{ name: string, line: number, headers: string[], cookies: string[], holes: string[], chromeHtml: string | null, pageIslands: object[] }>} */
   const layouts = [];
+  /** @type {Array<{ name: string, columns: { name: string, type: string, key: boolean }[], holes: string[] }>} */
+  const tables = [];
+  /** @type {string | null} */
+  let engine = null;
+  /** @type {string[]} */
+  const engineHoles = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, character?: number, endCharacter?: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -1083,6 +1090,25 @@ export function parseCwlModule(source, file) {
     if (impM) {
       imports.push(impM[1]);
       importLines.push(lineNo);
+      continue;
+    }
+    const engineM = /^engine\s+([A-Za-z_][A-Za-z0-9_]*)\s*;$/i.exec(line);
+    if (engineM) {
+      const name = engineM[1].toLowerCase();
+      if (!CWL_DB_ENGINES.includes(name)) engineHoles.push("cwl:unknown-db-engine");
+      else if (engine && engine !== name) engineHoles.push("cwl:db-engine");
+      else engine = name;
+      continue;
+    }
+    const moduleHole = /^hole\s+([A-Za-z0-9_:.-]+)\s*;$/.exec(line);
+    if (moduleHole) {
+      engineHoles.push(moduleHole[1]);
+      continue;
+    }
+    if (/^table\s+[A-Za-z_][A-Za-z0-9_]*\s*\{$/.test(line)) {
+      const tableParsed = parseCwlTableBlock(lines, i - 1);
+      if (tableParsed.table) tables.push(tableParsed.table);
+      i = tableParsed.consumed;
       continue;
     }
     if (LAYOUT_DECL_RE.test(line)) {
@@ -1190,6 +1216,8 @@ export function parseCwlModule(source, file) {
     const attachmentHoleEndCharacters = [];
     /** @type {Array<{ collection: string, item: string, template: string, line: number }>} RFC-0031 repeated markup */
     const htmlRepeats = [];
+    /** @type {object[]} Bound row operations. The host runs them. */
+    const dbOps = [];
     /** @type {string | null} RFC-0029 layout name */
     let layoutName = null;
     /** @type {string | null} Shared nav id (RFC-0029 deepen). Absent ⇒ page name. */
@@ -1442,14 +1470,16 @@ export function parseCwlModule(source, file) {
         i = block.next;
         if (!block.ok) {
           if (!attachmentHoles.includes("cwl:unclosed-html")) attachmentHoles.push("cwl:unclosed-html");
-        } else if (block.value.includes("</script>")) {
-          if (!attachmentHoles.includes("cwl:jsonld-closes-script")) attachmentHoles.push("cwl:jsonld-closes-script");
         } else {
-          try {
-            JSON.parse(block.value);
-            jsonlds.push(block.value);
-          } catch {
-            if (!attachmentHoles.includes("cwl:jsonld-not-json")) attachmentHoles.push("cwl:jsonld-not-json");
+          if (block.value.includes("</script>")) {
+            if (!attachmentHoles.includes("cwl:jsonld-closes-script")) attachmentHoles.push("cwl:jsonld-closes-script");
+          } else {
+            try {
+              JSON.parse(block.value);
+              jsonlds.push(block.value);
+            } catch {
+              if (!attachmentHoles.includes("cwl:jsonld-not-json")) attachmentHoles.push("cwl:jsonld-not-json");
+            }
           }
         }
         continue;
@@ -1506,6 +1536,21 @@ export function parseCwlModule(source, file) {
           body = { kind: "hole", reason: `cwl:${uiParsed.error ?? "invalid-ui-return"}`, line: i };
         }
         sawReturn = true;
+        continue;
+      }
+      const dbStmt = parseCwlDbStatement(inner, {
+        path: handlerPathParams,
+        query: handlerQueryParams,
+        body: bodyBindingsForReturn(),
+      });
+      if (dbStmt) {
+        if (dbStmt.ok) dbOps.push(dbStmt.op);
+        else {
+          attachmentHoles.push(dbStmt.reason);
+          attachmentHoleLines.push(i);
+          attachmentHoleCharacters.push(0);
+          attachmentHoleEndCharacters.push(4);
+        }
         continue;
       }
       const loadM = LOAD_RE.exec(inner);
@@ -1745,16 +1790,20 @@ export function parseCwlModule(source, file) {
       ...(jsonlds.length ? { jsonlds } : {}),
       pageIslands,
       htmlRepeats,
+      dbOps,
       body,
     });
   }
-  return {
+  const parsedModule = {
     moduleName,
     moduleLine,
     moduleCharacter,
     moduleEndCharacter,
     file,
     routes,
+    tables,
+    engine,
+    engineHoles,
     layouts,
     moduleUses,
     moduleAuthUses,
@@ -1762,4 +1811,6 @@ export function parseCwlModule(source, file) {
     importLines,
     components,
   };
+  finalizeCwlDbModule(parsedModule);
+  return parsedModule;
 }

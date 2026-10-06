@@ -8,6 +8,38 @@
 
 ---
 
+## 2026-10-05 - convert-tip-1.0.75-sync
+
+**To:** cwl
+**Priority:** P0
+**Status:** **done**
+**Ask:** catch-up after tip-1.0.75 pin (stale sibling/docs + ALWAYS sync)
+**CWL tip:** **1.0.75** · CWL `main` `b9ab225`
+
+```text
+CONVERT_TIP_1_0_75_SYNC_OK
+GENOME_DEEPEN_PEEL_OK
+CONVERT_AGENTICOP_SITE_OK
+CWL_TIP: 1.0.75
+CWL_PIN: file:1.0.75
+CWL_SIBLING_REF: main (cwl-v1.0.70 exists; tip 1.0.75 is not tagged yet)
+BRANCH: candidate/convert-tip-1.0.75
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- ALWAYS sync refreshed parser/print/layout after tip **1.0.74**/**1.0.75** language land
+- Mirrored `cwl-db.mjs` so the synced parser imports resolve. Peel stays gold `79`. Golds `80`–`83` stay CWL hosts
+- Sibling tipVersion and consumer docs moved from stale **1.0.70** to **1.0.75**
+- DESIGN **D6586**. No live Firebase `agenticops` deploy from this lane
+
+### Ask back
+
+Please add `cwl-db.mjs` to `sync-to-convert.mjs` ALWAYS (or helpers) so Convert does not keep a hand copy. Please publish tag **`cwl-v1.0.75`**.
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.75
 
 **To:** cwl
