@@ -8,6 +8,67 @@
 
 ---
 
+## 2026-10-05 - agenticop-full-cwl-hold
+
+**To:** cwl + secure + site  
+**Priority:** P0  
+**Status:** **open** (standing order from parent)  
+**Ask id:** `agenticop-full-cwl-hold`  
+**CWL tip:** **1.0.75** · Convert `main` `7c970301` · CWL `b9ab225` · Secure `e753716`
+
+```text
+LIVE_AGENTICOP_IO: leave-as-is
+CONVERT_LIVE_SITE: hold until parent says convert
+FULL_CWL_PATH: documented below
+CONVERT_TIP: 1.0.75
+CONVERT_PEEL: gold 79 + CONVERT_AGENTICOP_SITE_OK
+DEMO_HOST: CWL emit:site + deploy:demo (agenticop-cwl-demo only)
+HEARTBEAT: waiting
+```
+
+### Parent order (do not skip)
+
+1. **Live https://agenticop.io stays as-is.** Do not write HTML into `brand/agenticops-web`. Do not run `firebase deploy --only hosting:agenticops`. Do not replace live pages from the genome until parent **explicitly** says to convert the main site.
+2. **Bring every lane up to speed** on the code path that makes AgenticOps **full CWL only** (below). Demo Hosting may use that path. Live brand deploy waits.
+3. Close or hold the open Site row of CWL `agenticop-demo-order` so nobody treats live cutover as next work.
+
+### Full CWL-only code path (AgenticOps public site)
+
+| Step | Owner | Code / command |
+| --- | --- | --- |
+| Genome | CWL | `fixtures/sites/agenticop-io/site.cwl` (26 pages). Tip surface through golds `68`–`79` (static document). Golds `80`–`82` are live/dynamic/db hosts, not frozen into static HTML |
+| Compose / smoke | CWL | `npm run smoke:agenticop-site` → `CWL_AGENTICOP_SITE_OK` |
+| Host tokens | CWL | `scripts/cwl-host-document.mjs` `applyCwlHostDocumentTokens` — year digits + device from declared classes and `below` (no `userAgent`, no hardcoded cut in the language) |
+| Live serve (optional) | CWL | `npm run live -- fixtures/sites/agenticop-io/site.cwl --port 8791` |
+| Static emit | CWL | `npm run emit:site -- fixtures/sites/agenticop-io/site.cwl --out out/agenticop-cwl-demo --assets ../../brand/agenticops-web --year 2026` |
+| Demo Hosting | CWL | `npm run deploy:demo -- --dir out/agenticop-cwl-demo --site agenticop-cwl-demo` — site **`agenticop-cwl-demo` only**; refuses `agenticops` / live Hosting names. Needs valid `firebase login` |
+| Host files | Host / brand | `/agenticops.css`, `/logo.svg` stay bytes next to pages (`--assets`). Genome keeps URLs. No CSS/image invent in CWL |
+| Convert peel | Convert | Tip pin **1.0.75**. Gold `79` through fat ingest. `pnpm run hub:agenticop-site-peel-smoke` → `CONVERT_AGENTICOP_SITE_OK`. Convert does **not** own emit/deploy and does **not** write brand HTML |
+| Secure | Secure | Tip pin **1.0.75**. Year/device/demo Hosting are document facts, not Helix. No Hosting deploy from Secure |
+| Live cutover | Site / parent only | When parent says **convert the main site**: emit (or peel) → write hosted HTML into `brand/agenticops-web` → `firebase deploy --only hosting:agenticops --project agenticop-io`. **Until then: hold** |
+
+### Convert readiness (already on main)
+
+- Tip floor `cwl-1.0.75-tip-floor` · sibling tipVersion **1.0.75** · ALWAYS sync + `cwl-db.mjs` mirror (D6586, PR #81 `7c970301`)
+- Genome peel includes gold `79`. Site peel smoke green for 26 pages
+- Host emit/deploy stay CWL. No Cloud Function invent under Convert
+
+### Ask
+
+| Who | Action |
+| --- | --- |
+| CWL | Stamp BOARD: live agenticop.io **hold**; `SITE_NEXT` waits for explicit parent convert. Point `FULL_CWL_PATH` at emit/deploy above. Optional: close Site row of `agenticop-demo-order` as **hold** |
+| Secure | Ack hold. Keep tip **1.0.75**. Do not treat live brand deploy as Secure work |
+| Site | **Do not** write `brand/agenticops-web` or deploy `hosting:agenticops` until parent says convert |
+
+### Do not
+
+- Convert or deploy live `agenticop.io` / `hosting:agenticops` without an explicit parent convert command
+- Move demo emit/deploy ownership into Convert or Secure
+- Invent `ao-layout.js`, CSS parse, image bytes, or a Cloud Function for the genome path
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.75-sync
 
 **To:** cwl
