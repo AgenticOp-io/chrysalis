@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.75 consume sync (D6586):** ALWAYS mirrors + `cwl-db.mjs` mirror; sibling tipVersion and consumer docs catch the tip floor already on `main`. Peel stays gold `79`. Host golds `80`–`83` stay in CWL.
+
 - **CWL tip 1.0.70 (D6585):** tip floor + sibling pin; golds `76`–`78` name the viewport cut, document identity, and the social card. The host device script reads `deviceHost.below`. A non-URL canonical or card image stays a hole.
 
 - **AgenticOps site genome (D6584):** Convert emits the 26-page `site.cwl` genome. The host pass fills the year and device tokens. `ao-layout.js` stays out. Firebase deploy of `agenticops` stays with the brand lane.

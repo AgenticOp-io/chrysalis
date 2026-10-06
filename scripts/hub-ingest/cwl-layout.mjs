@@ -265,7 +265,7 @@ const CWL_HTML_PRECONNECT_SLOT = "<!-- cwl:preconnect -->";
 
 /**
  * Icon, alternate, JSON-LD, and preconnect. CWL does not interpret schema.org or fetch the font host.
- * An unused marker is removed. Apple touch is written only when declared.
+ * An unused marker is removed.
  * @param {string} html
  * @param {{ images?: Array<{ id: string, path: string }>, icons?: Array<{ id: string, apple?: boolean }>, alternates?: Array<{ type: string, href: string, title: string }>, jsonlds?: string[], preconnects?: Array<{ href: string, crossorigin?: boolean }> }} opts
  */

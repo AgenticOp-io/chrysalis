@@ -1,4 +1,5 @@
 import { formatCookieDecl, formatRedirectStatement } from "./hub-cwl-effects.mjs";
+import { printCwlDbStatement, printCwlTable } from "./cwl-db.mjs";
 
 /**
  * Print `return html` / `chrome html`. Newlines stay a raw block, not a one-line escape.
@@ -340,6 +341,13 @@ export function printCwlModule(mod, opts = {}) {
   for (const imp of mod.imports ?? []) {
     lines.push(`import "${imp}";`);
   }
+  if (mod.engine) lines.push(`engine ${mod.engine};`);
+  for (const hole of mod.engineHoles ?? []) lines.push(`hole ${hole};`);
+
+  for (const table of mod.tables ?? []) {
+    lines.push("");
+    lines.push(...printCwlTable(table));
+  }
 
   for (const L of mod.layouts ?? []) {
     lines.push("");
@@ -405,7 +413,7 @@ export function printCwlModule(mod, opts = {}) {
   }
 
   if (
-    (mod.moduleUses?.length || mod.moduleAuthUses?.length || mod.imports?.length || mod.layouts?.length) &&
+    (mod.moduleUses?.length || mod.moduleAuthUses?.length || mod.imports?.length || mod.layouts?.length || mod.tables?.length) &&
     (mod.routes?.length || mod.components?.length)
   ) {
     lines.push("");
@@ -520,6 +528,10 @@ export function printCwlModule(mod, opts = {}) {
       }
     }
 
+    for (const op of route.dbOps ?? []) {
+      lines.push(`  ${printCwlDbStatement(op)}`);
+    }
+
     for (const rep of route.htmlRepeats ?? []) {
       const whenPart = rep.when ? ` if ${rep.when}` : "";
       const elsePart = typeof rep.empty === "string" ? ` else html ${printCwlLiteral(rep.empty)}` : "";
@@ -596,6 +608,17 @@ export function canonicalizeCwlModule(mod) {
     moduleUses: [...(mod.moduleUses ?? [])],
     moduleAuthUses: [...(mod.moduleAuthUses ?? [])],
     imports: [...(mod.imports ?? [])],
+    engine: mod.engine ?? null,
+    engineHoles: [...(mod.engineHoles ?? [])],
+    tables: (mod.tables ?? []).map((table) => ({
+      name: table.name,
+      columns: (table.columns ?? []).map((col) => ({
+        name: col.name,
+        type: col.type,
+        key: Boolean(col.key),
+      })),
+      holes: [...(table.holes ?? [])],
+    })),
     layouts: (mod.layouts ?? []).map((L) => ({
       name: L.name,
       headers: [...(L.headers ?? [])],
@@ -656,6 +679,21 @@ export function canonicalizeCwlModule(mod) {
           : { name: h.name },
       ),
       loadBody: canonicalizeBody(r.loadBody),
+      dbOps: (r.dbOps ?? []).map((op) => ({
+        op: op.op,
+        one: Boolean(op.one),
+        table: op.table,
+        column: op.column ?? null,
+        where: (op.where ?? []).map((part) => ({
+          column: part.column,
+          cmp: part.cmp,
+          value: part.value,
+        })),
+        join: op.join ?? null,
+        as: op.as ?? null,
+        into: op.into ? { collection: op.into.collection, field: op.into.field } : null,
+        fields: (op.fields ?? []).map((field) => ({ column: field.column, value: field.value })),
+      })),
       earlyGuards: (r.earlyGuards ?? []).map((g) => ({
         condExpr: g.condExpr,
         status: g.status ?? null,
