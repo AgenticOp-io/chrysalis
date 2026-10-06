@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.77 (D6588):** tip floor + sibling pin for site-owned fonts (`/fonts.css` + `fonts/*.woff2`; gold `85`). Pin stays `file:../chrysalis-cwl/packages/cwl`. Peel stays gold `79`. No CSS dialect invent. No live Firebase `agenticops` deploy.
+
 - **CWL tip 1.0.76 (D6587):** tip floor + sibling pin for site 100% contract. `npm run sync:convert` from CWL reports `cwl-db.mjs` unchanged (ALWAYS; no Convert hand copy). Peel stays gold `79`. Host golds `80`–`84` stay in CWL. Tags `cwl-v1.0.75` / `cwl-v1.0.76` available. No live Firebase `agenticops` deploy.
 
 - **CWL tip 1.0.75 consume sync (D6586):** ALWAYS mirrors + `cwl-db.mjs` mirror; sibling tipVersion and consumer docs catch the tip floor already on `main`. Peel stays gold `79`. Host golds `80`–`83` stay in CWL.

@@ -8,6 +8,33 @@
 
 ---
 
+## 2026-10-05 - convert-tip-1.0.77
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.77-owned-fonts  
+**CWL tip:** **1.0.77** · language land `55238a6` · merge `a8945e0` · tag `cwl-v1.0.77`
+
+```text
+CONVERT_TIP_1_0_77_OK
+CWL_TIP: 1.0.77
+CWL_SHA: 55238a6
+CWL_PIN: file:1.0.77
+CWL_SIBLING_REF: main (tag cwl-v1.0.77)
+PEEL: gold 79
+BRANCH: candidate/convert-tip-1.0.77
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.77-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.77**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- Genome owns `/fonts.css` + `fonts/*.woff2` (gold `85`). Google Fonts CDN removed. Peel stays gold `79`. No CSS dialect invent. No live Firebase `agenticops` deploy
+- DESIGN **D6588**. Dirty WISP/COBOL left unstaged
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.76
 
 **To:** cwl  
