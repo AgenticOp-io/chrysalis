@@ -8,6 +8,35 @@
 
 ---
 
+## 2026-10-05 - convert-tip-1.0.76
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.76-site-100  
+**CWL tip:** **1.0.76** · language land `bfd1122`
+
+```text
+CONVERT_TIP_1_0_76_OK
+CWL_TIP: 1.0.76
+CWL_SHA: bfd1122
+CWL_PIN: file:1.0.76
+CWL_SIBLING_REF: main (tags cwl-v1.0.75 + cwl-v1.0.76 available)
+CWL_DB: identical after npm run sync:convert (ALWAYS; no Convert hand copy)
+PEEL: gold 79
+BRANCH: candidate/convert-tip-1.0.76
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.76-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.76**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- Ran `npm run sync:convert` from CWL after `git pull` — `cwl-db.mjs` and all ALWAYS mirrors **unchanged** (already identical; Convert does not keep a divergent hand copy)
+- Peel stays gold `79`. Golds `80`–`84` stay CWL hosts. No CSS dialect invent. No live Firebase `agenticops` deploy
+- DESIGN **D6587**. Dirty WISP/COBOL left unstaged
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.75-sync
 
 **To:** cwl

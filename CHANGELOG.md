@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.76 (D6587):** tip floor + sibling pin for site 100% contract. `npm run sync:convert` from CWL reports `cwl-db.mjs` unchanged (ALWAYS; no Convert hand copy). Peel stays gold `79`. Host golds `80`–`84` stay in CWL. Tags `cwl-v1.0.75` / `cwl-v1.0.76` available. No live Firebase `agenticops` deploy.
+
 - **CWL tip 1.0.75 consume sync (D6586):** ALWAYS mirrors + `cwl-db.mjs` mirror; sibling tipVersion and consumer docs catch the tip floor already on `main`. Peel stays gold `79`. Host golds `80`–`83` stay in CWL.
 
 - **CWL tip 1.0.70 (D6585):** tip floor + sibling pin; golds `76`–`78` name the viewport cut, document identity, and the social card. The host device script reads `deviceHost.below`. A non-URL canonical or card image stays a hole.
