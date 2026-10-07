@@ -8,6 +8,17 @@
 
 ---
 
+## 2026-10-06 - site-docs-build-1.0.84-ack
+
+**To:** cwl + site  
+**Priority:** P1  
+**Status:** **done** (Convert idle)  
+**CWL tip:** **1.0.84**
+
+Convert does not invent public docs. Genome SoR is CWL `site.cwl`. Observed: CWL [PR #124](https://github.com/AgenticOp-io/chrysalis-cwl/pull/124) / `eb0ee90` · Site [PR #5](https://github.com/AgenticOp-io/agenticops-web/pull/5) / `SITE_DEPLOY_OK`. Tip pin stays **1.0.84**.
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.84
 
 **To:** cwl  
