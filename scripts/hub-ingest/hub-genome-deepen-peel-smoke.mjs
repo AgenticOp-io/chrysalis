@@ -470,6 +470,71 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
+  // Tip 1.0.82 / RFC-0039: gold 91 DNA identity are document facts — parse + catalogue only.
+  // Do not invent capability / browser runtimes.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "91-dna-identity", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.82-parse:91-dna-identity", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const facts = [
+        'replaces "https://legacy.example/invoice.php"',
+        'from peel "php" at "legacy/invoice.php"',
+        "capability cookies",
+        "capability network-same-origin",
+        "works without client",
+      ];
+      const refuseHoles = [
+        "cwl:replaces-not-url",
+        "cwl:peel-not-identity",
+        "cwl:unknown-capability",
+      ];
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        (mod.routes?.length ?? 0) >= 5 &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const identityOk =
+        invoice?.replaces === "https://legacy.example/invoice.php" &&
+        invoice?.peel?.stack === "php" &&
+        invoice?.peel?.at === "legacy/invoice.php" &&
+        Array.isArray(invoice?.capabilities) &&
+        invoice.capabilities.includes("cookies") &&
+        invoice.capabilities.includes("network-same-origin") &&
+        invoice?.worksWithoutClient === true;
+      checks.push({
+        id: "tip-1.0.82-parse:91-dna-identity",
+        ok: parseOk && identityOk,
+        detail:
+          parseOk && identityOk
+            ? `module=${mod.moduleName};routes=${mod.routes.length};dna-facts`
+            : "parse/dna-identity facts failed",
+      });
+      const catalogOk = refuseHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.82-catalog:rfc-0039",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0039 DNA identity holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.82-dna-identity",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -578,7 +643,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.81",
+    cwlTip: "1.0.82",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

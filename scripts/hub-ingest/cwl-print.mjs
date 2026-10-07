@@ -447,6 +447,12 @@ export function printCwlModule(mod, opts = {}) {
     if (typeof route.title === "string") lines.push(`  title ${JSON.stringify(route.title)};`);
     if (typeof route.description === "string") lines.push(`  description ${JSON.stringify(route.description)};`);
     if (typeof route.canonical === "string") lines.push(`  canonical ${JSON.stringify(route.canonical)};`);
+    if (typeof route.replaces === "string") lines.push(`  replaces ${JSON.stringify(route.replaces)};`);
+    if (route.peel?.stack && route.peel?.at) {
+      lines.push(`  from peel ${JSON.stringify(route.peel.stack)} at ${JSON.stringify(route.peel.at)};`);
+    }
+    for (const cap of route.capabilities ?? []) lines.push(`  capability ${cap};`);
+    if (route.worksWithoutClient) lines.push(`  works without client;`);
     printMetaCard(route.metaCard, "  ", lines);
     for (const icon of route.icons ?? []) lines.push(`  icon ${icon.id}${icon.apple ? " apple" : ""};`);
     for (const link of route.preconnects ?? []) {
