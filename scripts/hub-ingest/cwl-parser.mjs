@@ -87,6 +87,22 @@ const VIEWPORT_RE = /^viewport\s+device\s*;$/;
 const TITLE_RE = /^title\s+"((?:\\.|[^"\\])*)"\s*;$/;
 const DESCRIPTION_RE = /^description\s+"((?:\\.|[^"\\])*)"\s*;$/;
 const CANONICAL_RE = /^canonical\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0039: this surface replaces a live URL (DNA identity). */
+const REPLACES_RE = /^replaces\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0039: Rosetta peel provenance — stack + origin path. */
+const FROM_PEEL_RE = /^from\s+peel\s+"((?:\\.|[^"\\])*)"\s+at\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0039: capability class (closed set; unknown → hole). */
+const CAPABILITY_RE = /^capability\s+([a-zA-Z][a-zA-Z0-9_-]*)\s*;$/;
+/** RFC-0039: progressive certificate — page is complete without a client island. */
+const WORKS_WITHOUT_CLIENT_RE = /^works\s+without\s+client\s*;$/i;
+const CWL_CAPABILITIES = new Set([
+  "cookies",
+  "network-same-origin",
+  "network-cross-origin",
+  "storage",
+  "client",
+]);
+const PEEL_STACK_RE = /^[a-z][a-z0-9-]{0,63}$/;
 const META_QUOTE = '"((?:\\\\.|[^"\\\\])*)"';
 const META_ROBOTS_RE = new RegExp(`^meta\\s+robots\\s+${META_QUOTE}\\s*;$`);
 const META_KEYWORDS_RE = new RegExp(`^meta\\s+keywords\\s+${META_QUOTE}\\s*;$`);
@@ -1250,6 +1266,14 @@ export function parseCwlModule(source, file) {
     let description = null;
     /** @type {string | null} Canonical href. Refused values are not stored. */
     let canonical = null;
+    /** @type {string | null} RFC-0039 live URL this surface replaces. */
+    let replaces = null;
+    /** @type {{ stack: string, at: string } | null} RFC-0039 peel provenance. */
+    let peel = null;
+    /** @type {string[]} RFC-0039 capability classes. */
+    const capabilities = [];
+    /** @type {boolean} RFC-0039 progressive certificate. */
+    let worksWithoutClient = false;
     const metaCard = emptyMetaCard();
     /** @type {string[]} Page stylesheets, after the layout styles. */
     const pageStyles = [];
@@ -1310,6 +1334,35 @@ export function parseCwlModule(source, file) {
         const href = cwlQuoted(canonicalUse[1]);
         if (canonicalHrefOk(href)) canonical = href;
         else if (!attachmentHoles.includes("cwl:canonical-not-url")) attachmentHoles.push("cwl:canonical-not-url");
+        continue;
+      }
+      const replacesUse = REPLACES_RE.exec(inner);
+      if (replacesUse) {
+        const href = cwlQuoted(replacesUse[1]);
+        if (canonicalHrefOk(href)) replaces = href;
+        else if (!attachmentHoles.includes("cwl:replaces-not-url")) attachmentHoles.push("cwl:replaces-not-url");
+        continue;
+      }
+      const peelUse = FROM_PEEL_RE.exec(inner);
+      if (peelUse) {
+        const stack = cwlQuoted(peelUse[1]);
+        const at = cwlQuoted(peelUse[2]);
+        if (PEEL_STACK_RE.test(stack) && at.length > 0) peel = { stack, at };
+        else if (!attachmentHoles.includes("cwl:peel-not-identity")) attachmentHoles.push("cwl:peel-not-identity");
+        continue;
+      }
+      const capabilityUse = CAPABILITY_RE.exec(inner);
+      if (capabilityUse) {
+        const cap = capabilityUse[1].toLowerCase();
+        if (CWL_CAPABILITIES.has(cap)) {
+          if (!capabilities.includes(cap)) capabilities.push(cap);
+        } else if (!attachmentHoles.includes("cwl:unknown-capability")) {
+          attachmentHoles.push("cwl:unknown-capability");
+        }
+        continue;
+      }
+      if (WORKS_WITHOUT_CLIENT_RE.test(inner)) {
+        worksWithoutClient = true;
         continue;
       }
       if (applyMetaLine(inner, metaCard, attachmentHoles)) continue;
@@ -1806,6 +1859,10 @@ export function parseCwlModule(source, file) {
       ...(typeof title === "string" ? { title } : {}),
       ...(typeof description === "string" ? { description } : {}),
       ...(typeof canonical === "string" ? { canonical } : {}),
+      ...(typeof replaces === "string" ? { replaces } : {}),
+      ...(peel ? { peel } : {}),
+      ...(capabilities.length ? { capabilities } : {}),
+      ...(worksWithoutClient ? { worksWithoutClient: true } : {}),
       ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
       ...(pageStyles.length ? { pageStyles } : {}),
       ...(icons.length ? { icons } : {}),

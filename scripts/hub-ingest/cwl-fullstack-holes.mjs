@@ -281,6 +281,27 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "Raw SQL text is not a CWL statement. Bound db select/insert/update/delete on a named engine stay; free SQL strings stay this hole.",
   },
+  "cwl:replaces-not-url": {
+    rfc: "0039",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`replaces` must be an absolute http(s) URL or a same-site path. javascript: and protocol-relative values are refused.",
+  },
+  "cwl:peel-not-identity": {
+    rfc: "0039",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`from peel` stack must be a lowercase id (`php`, `express`, …) and `at` a non-empty origin path. Bad identity is not stored.",
+  },
+  "cwl:unknown-capability": {
+    rfc: "0039",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`capability` must be one of cookies, network-same-origin, network-cross-origin, storage, client. Unknown classes are refused.",
+  },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)
   "cwl:emit:missing-value": {

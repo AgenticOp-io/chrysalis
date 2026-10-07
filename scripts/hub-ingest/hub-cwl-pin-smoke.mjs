@@ -69,18 +69,18 @@ export async function runCwlPinSmoke(opts = {}) {
     ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
     detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
   });
-  // Tip floor for CWL framework residuals (LANGUAGE_VERSION / 1.0.81). Peel golds 40–63; gold 90 document facts.
+  // Tip floor for CWL DNA identity (LANGUAGE_VERSION / 1.0.82). Peel golds 40–63; gold 91 document facts.
   const parts = String(version ?? "").split(".").map((x) => Number.parseInt(x, 10));
   const tipOk =
     parts.length >= 3 &&
     !parts.some((n) => Number.isNaN(n)) &&
     (parts[0] > 1 ||
       (parts[0] === 1 && parts[1] > 0) ||
-      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 81));
+      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 82));
   checks.push({
-    id: "cwl-1.0.81-tip-floor",
+    id: "cwl-1.0.82-tip-floor",
     ok: tipOk,
-    detail: `VERSION=${version} (expect >= 1.0.81 framework residuals / gold 90; peel golds 40-63)`,
+    detail: `VERSION=${version} (expect >= 1.0.82 DNA identity / gold 91; peel golds 40-63)`,
   });
   for (const sub of ["parser", "print", "diagnose", "lsp-map", "dna-seed"]) {
     const subPath = join(root, "packages/cwl", `${sub}.mjs`);
@@ -162,6 +162,6 @@ const isDirect =
 if (isDirect) {
   const report = await runCwlPinSmoke();
   console.log(JSON.stringify(report, null, 2));
-  if (report.ok) console.log("CONVERT_TIP_1_0_81_OK");
+  if (report.ok) console.log("CONVERT_TIP_1_0_82_OK");
   process.exit(report.ok ? 0 : 1);
 }

@@ -8,6 +8,34 @@
 
 ---
 
+## 2026-10-06 - convert-tip-1.0.82
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.82-dna-identity  
+**CWL tip:** **1.0.82** · language land `6ff748b` · merge `125f965` · tag `cwl-v1.0.82`
+
+```text
+CONVERT_TIP_1_0_82_OK
+CWL_TIP: 1.0.82
+CWL_SHA: 6ff748b
+CWL_PIN: file:1.0.82
+CWL_SIBLING_REF: main (tag cwl-v1.0.82)
+PEEL: golds 40–63 · gold 91 document facts
+BRANCH: candidate/convert-tip-1.0.82
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.82-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.82**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync parser/print/holes/layout/effects from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `91` parse + catalog document facts only (`replaces` / `from peel … at …` / `capability` / `works without client`)
+- No capability/browser runtime invent. Refuse holes `cwl:replaces-not-url` / `cwl:peel-not-identity` / `cwl:unknown-capability` stay catalogued
+- DESIGN **D6593**
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.81
 
 **To:** cwl  

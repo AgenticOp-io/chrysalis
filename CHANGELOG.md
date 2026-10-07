@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.82 (D6593):** tip floor + sibling pin for RFC-0039 DNA identity (gold `91`). ALWAYS sync parser/print/holes. Peel golds `40`–`63`. Gold `91` document facts only — `replaces`, `from peel … at …`, `capability`, `works without client`; no capability/browser runtime invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. No live Firebase `agenticops` deploy.
+
 - **CWL tip 1.0.81 (D6592):** tip floor + sibling pin for RFC-0038 framework residuals (gold `90`). ALWAYS sync hole catalog. Peel golds `40`–`63` (mail/CORS included). Gold `90` document facts only — `unsupported:nest-di` / `liveview` / `flutter` / `middleware-onion` / `raw-sql`; no Nest/LiveView/Flutter/onion façades. Pin stays `file:../chrysalis-cwl/packages/cwl`. No live Firebase `agenticops` deploy.
 
 - **CWL tip 1.0.80 (D6591):** tip floor + sibling pin for verify-dispose messaging (marketing genome; no hole slogans). Pin stays `file:../chrysalis-cwl/packages/cwl`. Peel stays gold `79`. Messaging-only — no runtime invent. No live Firebase `agenticops` deploy.
