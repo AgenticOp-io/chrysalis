@@ -27,6 +27,36 @@ function printMetaCard(card, indent, lines) {
   }
 }
 
+/**
+ * RFC-0040 style asset line (string or { href, integrity?, crossorigin? }).
+ * @param {string | { href: string, integrity?: string, crossorigin?: boolean }} entry
+ */
+function formatCwlStyleAsset(entry) {
+  const href = typeof entry === "string" ? entry : entry?.href;
+  const integrity = typeof entry === "object" && entry ? entry.integrity : undefined;
+  const crossorigin = typeof entry === "object" && entry ? entry.crossorigin : undefined;
+  let line = `style ${JSON.stringify(href ?? "")}`;
+  if (typeof integrity === "string") line += ` integrity ${JSON.stringify(integrity)}`;
+  if (crossorigin) line += ` crossorigin`;
+  return `${line};`;
+}
+
+/**
+ * RFC-0040 script asset line (string or { src, module?, integrity?, crossorigin? }).
+ * @param {string | { src: string, module?: boolean, integrity?: string, crossorigin?: boolean }} entry
+ */
+function formatCwlScriptAsset(entry) {
+  const src = typeof entry === "string" ? entry : entry?.src;
+  const isModule = typeof entry === "object" && entry ? entry.module : undefined;
+  const integrity = typeof entry === "object" && entry ? entry.integrity : undefined;
+  const crossorigin = typeof entry === "object" && entry ? entry.crossorigin : undefined;
+  let line = `script ${JSON.stringify(src ?? "")}`;
+  if (isModule) line += ` module`;
+  if (typeof integrity === "string") line += ` integrity ${JSON.stringify(integrity)}`;
+  if (crossorigin) line += ` crossorigin`;
+  return `${line};`;
+}
+
 function appendCwlHtmlStmt(lines, indent, head, value) {
   const s = String(value ?? "");
   if (!s.includes("\n")) {
@@ -372,8 +402,8 @@ export function printCwlModule(mod, opts = {}) {
         `  drawer ${L.drawer.navId} toggle ${L.drawer.toggleClass} class ${L.drawer.openClass}${panel};`,
       );
     }
-    for (const href of L.styles ?? []) lines.push(`  style ${JSON.stringify(href)};`);
-    for (const src of L.scripts ?? []) lines.push(`  script ${JSON.stringify(src)};`);
+    for (const style of L.styles ?? []) lines.push(`  ${formatCwlStyleAsset(style)}`);
+    for (const script of L.scripts ?? []) lines.push(`  ${formatCwlScriptAsset(script)}`);
     for (const form of L.forms ?? []) {
       lines.push(`  form ${form.id} method ${form.method} action ${JSON.stringify(form.action)};`);
       for (const field of form.fields ?? []) lines.push(`  field ${field.name} ${JSON.stringify(field.type)};`);
@@ -461,7 +491,7 @@ export function printCwlModule(mod, opts = {}) {
     for (const link of route.alternates ?? []) {
       lines.push(`  alternate ${JSON.stringify(link.type)} ${JSON.stringify(link.href)} ${JSON.stringify(link.title)};`);
     }
-    for (const href of route.pageStyles ?? []) lines.push(`  style ${JSON.stringify(href)};`);
+    for (const style of route.pageStyles ?? []) lines.push(`  ${formatCwlStyleAsset(style)}`);
     for (const json of route.jsonlds ?? []) appendCwlHtmlStmt(lines, "  ", "jsonld", json);
 
     if (route.redirect?.path) {

@@ -535,6 +535,69 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
+  // Tip 1.0.83 / RFC-0040: gold 92 progressive asset integrity are document facts — parse + catalogue only.
+  // Do not invent JS/CSS runtime or Nest/LiveView/Flutter façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "92-asset-integrity", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.83-parse:92-asset-integrity", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const facts = [
+        'style "/app.css" integrity "sha384-Abcdefghijklmnopqrstuvwxyz0123456789+/=" crossorigin;',
+        'script "/site.js" integrity "sha384-Abcdefghijklmnopqrstuvwxyz0123456789+/=" crossorigin;',
+        'script "/editor.mjs" module integrity "sha384-Abcdefghijklmnopqrstuvwxyz0123456789+/=";',
+        'style "/page.css" integrity "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";',
+      ];
+      const refuseHoles = ["cwl:bad-integrity", "cwl:bad-asset-url", "cwl:bad-asset-tail"];
+      const site = (mod.layouts ?? []).find((l) => l.name === "site");
+      const refuse = (mod.layouts ?? []).find((l) => l.name === "refuse");
+      const editor = (mod.routes ?? []).find((r) => r.name === "editor" || r.path === "/editor");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const assetsOk =
+        site?.styles?.[0]?.href === "/app.css" &&
+        typeof site?.styles?.[0]?.integrity === "string" &&
+        site?.styles?.[0]?.crossorigin === true &&
+        site?.scripts?.some((s) => s.src === "/site.js" && s.integrity && s.crossorigin === true) &&
+        site?.scripts?.some((s) => s.src === "/editor.mjs" && s.module === true && s.integrity) &&
+        editor?.pageStyles?.[0]?.href === "/page.css" &&
+        typeof editor?.pageStyles?.[0]?.integrity === "string" &&
+        Array.isArray(refuse?.holes) &&
+        refuseHoles.every((r) => refuse.holes.includes(r));
+      checks.push({
+        id: "tip-1.0.83-parse:92-asset-integrity",
+        ok: parseOk && assetsOk,
+        detail:
+          parseOk && assetsOk
+            ? `module=${mod.moduleName};layouts=${mod.layouts?.length};asset-facts`
+            : "parse/asset-integrity facts failed",
+      });
+      const catalogOk = refuseHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.83-catalog:rfc-0040",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0040 asset integrity holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.83-asset-integrity",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -643,7 +706,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.82",
+    cwlTip: "1.0.83",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
