@@ -212,10 +212,11 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
       "SSE residual beyond single-shot stream sse (RFC-0027) — keep hole; do not invent EventSource runtimes.",
   },
   "unsupported:websocket": {
-    rfc: "0012",
+    rfc: "0035",
     origin: "cwl",
     surface: "api",
-    summary: "WebSocket upgrade — declare hole until a duplex surface RFC exists; do not invent WS framework façades.",
+    summary:
+      "WebSocket residual beyond stream websocket (RFC-0035) — keep hole; do not invent channel/LiveView façades. Prefer stream websocket; when the peel can declare duplex.",
   },
   "unsupported:offsite-form": {
     rfc: "0029",

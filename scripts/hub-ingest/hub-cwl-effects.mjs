@@ -290,6 +290,22 @@ export function parseMailSendEffect(raw) {
 }
 
 /**
+ * RFC-0020 deepen (tip 1.0.79): `job.enqueue` or `job.enqueue name <id>`.
+ * Names background work intent — host owns the queue / worker. No Redis invent.
+ * @param {string} raw
+ * @returns {{ name: string | null } | null}
+ */
+export function parseJobEnqueueEffect(raw) {
+  const t = String(raw ?? "").trim().toLowerCase();
+  if (t === "job.enqueue") return { name: null };
+  const m = /^job\.enqueue\s+name\s+([a-zA-Z_][a-zA-Z0-9_-]*)$/.exec(
+    String(raw ?? "").trim(),
+  );
+  if (!m) return null;
+  return { name: m[1] };
+}
+
+/**
  * RFC-0020 deepen (tip 1.0.54): `session.read` / `session.write` or `… cookie <name>`.
  * Names the session cookie — never a token value.
  * @param {string} raw
@@ -477,6 +493,11 @@ export function cwlEffectsToWebir(declared) {
     const mailFx = parseMailSendEffect(t);
     if (mailFx) {
       out.push({ kind: "mail.send" });
+      continue;
+    }
+    const jobFx = parseJobEnqueueEffect(t);
+    if (jobFx) {
+      out.push({ kind: "job.enqueue" });
       continue;
     }
     if (t === "auth.require") {
@@ -889,6 +910,31 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           type: HUB_T.unknown,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-mail-send")],
+        }),
+      );
+      continue;
+    }
+    const jobFx = parseJobEnqueueEffect(t);
+    if (jobFx) {
+      const args =
+        jobFx.name == null
+          ? []
+          : [
+              data.literal({
+                value: jobFx.name,
+                type: HUB_T.string,
+                origin,
+                provenance: [webir.provenance("hub-ingest", "cwl:executable-job-enqueue-name")],
+              }),
+            ];
+      statements.push(
+        data.call({
+          callee: "__cwl_effect_job_enqueue",
+          args,
+          argNames: jobFx.name == null ? undefined : ["name"],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-job-enqueue")],
         }),
       );
       continue;

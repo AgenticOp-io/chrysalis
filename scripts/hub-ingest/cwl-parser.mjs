@@ -5,7 +5,7 @@
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { parseCwlStandaloneIslandBlock, parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
 import { CWL_DB_ENGINES, finalizeCwlDbModule, parseCwlDbStatement, parseCwlTableBlock } from "./cwl-db.mjs";
-import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCacheNoCacheEffect, parseCacheNoStoreEffect, parseCachePrivateEffect, parseCookieDecl, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseIoEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionAccessEffect, parseSessionCookieEffect, redirectStatusAllowed, sameOriginRedirectPath, sessionCookieTrackingAbuse } from "./hub-cwl-effects.mjs";
+import { formatSessionCookieAttrs, parseAuthRequireEffect, parseCacheMaxAgeEffect, parseCacheNoCacheEffect, parseCacheNoStoreEffect, parseCachePrivateEffect, parseCookieDecl, parseCorsAllowEffect, parseCsrfVerifyEffect, parseDbEffect, parseIoEffect, parseJobEnqueueEffect, parseMailSendEffect, parseRateLimitEffect, parseSessionAccessEffect, parseSessionCookieEffect, redirectStatusAllowed, sameOriginRedirectPath, sessionCookieTrackingAbuse } from "./hub-cwl-effects.mjs";
 
 const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
 const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
@@ -36,6 +36,8 @@ const STATUS_RE = /^status\s+(\d{3})\s*;$/;
 const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
 /** RFC-0027: single-shot SSE surface (not EventSource runtime invent). */
 const STREAM_SSE_RE = /^stream\s+sse\s*;$/i;
+/** RFC-0035: WebSocket duplex surface (host owns the upgrade bytes). */
+const STREAM_WEBSOCKET_RE = /^stream\s+websocket\s*;$/i;
 const RESPONSE_HEADER_RE = /^response-header\s+([A-Za-z][A-Za-z0-9_-]*)\s*(?:=\s*(.+?))?\s*;$/;
 const IF_GUARD_RE = /^if\s+(.+?)\s*\{$/;
 const ELSE_IF_RE = /^else\s+if\s+(.+?)\s*\{$/;
@@ -339,6 +341,8 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
   /** @type {string | null} */
   let chromeHtml = null;
   let yearHost = false;
+  /** @type {number | null} */
+  let yearLiteral = null;
   let charset = null;
   let viewportDevice = false;
   const metaCard = emptyMetaCard();
@@ -384,6 +388,7 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
           chromeHtml,
           pageIslands,
           ...(yearHost ? { yearHost: true } : {}),
+          ...(yearLiteral != null ? { yearLiteral } : {}),
           ...(charset ? { charset } : {}),
           ...(viewportDevice ? { viewportDevice: true } : {}),
           ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
@@ -417,6 +422,16 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
     }
     if (/^year\s+host\s*;$/.test(line)) {
       yearHost = true;
+      yearLiteral = null;
+      continue;
+    }
+    const yearLit = /^year\s+(\d{4})\s*;$/.exec(line);
+    if (yearLit) {
+      const n = Number(yearLit[1]);
+      if (n >= 1970 && n <= 9999) {
+        yearLiteral = n;
+        yearHost = false;
+      }
       continue;
     }
     if (CHARSET_RE.test(line)) {
@@ -853,6 +868,11 @@ function normalizeEffectTag(raw) {
     return mailFx.template == null ? "mail.send" : `mail.send template ${mailFx.template}`;
   }
   if (/^mail\.send\b/i.test(raw)) return ""; // invalid template form — drop
+  const jobFx = parseJobEnqueueEffect(raw);
+  if (jobFx) {
+    return jobFx.name == null ? "job.enqueue" : `job.enqueue name ${jobFx.name}`;
+  }
+  if (/^job\.enqueue\b/i.test(raw)) return ""; // invalid name form — drop
   const cacheFx = parseCacheMaxAgeEffect(raw);
   if (cacheFx) {
     return `cache.max-age ${cacheFx.seconds}`;
@@ -1414,6 +1434,10 @@ export function parseCwlModule(source, file) {
       if (STREAM_SSE_RE.test(inner)) {
         responseContentType = "text/event-stream";
         streamKind = "sse";
+        continue;
+      }
+      if (STREAM_WEBSOCKET_RE.test(inner)) {
+        streamKind = "websocket";
         continue;
       }
       const rhm = RESPONSE_HEADER_RE.exec(inner);
