@@ -7,7 +7,9 @@
  *
  * Proves Convert lifts CWL golds `40`–`79` into WebIR and projects them back
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
- * cookie/token values, or proxy targets. Golds `40`–`79`. Also proves
+ * cookie/token values, or proxy targets. Golds `40`–`79`. Tip `87`–`89`
+ * (stream websocket / job.enqueue / UI events) are document facts via the tip
+ * pin — host owns WS frames and job queues; no runtime invent. Also proves
  * `@chrysalis/rewrite` executes a declared forward through an injected transport.
  *
  * Gate: hub:genome-deepen-peel-smoke
@@ -382,6 +384,40 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     !/\nnot-json\n/.test(text) &&
     !/<\/script><script>/.test(text));
 
+  // RFC-0036 (1.0.79 / gold 88): job enqueue intent only — name is a document id.
+  // No queue engine invent. Golds 87/89 stay tip document facts (host owns WS/UI).
+  await checkGold("job-enqueue", "88-job-enqueue", (text) =>
+    /effects: job\.enqueue name nightly_digest;/.test(text) &&
+    /effects: job\.enqueue, rate\.limit;/.test(text) &&
+    !/unsupported-call/.test(text) &&
+    !/hole/.test(text));
+
+  // Tip 1.0.79 consume: golds 87–89 parse via ALWAYS-synced parser (no WS/queue invent).
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    for (const name of ["87-stream-websocket", "88-job-enqueue", "89-ui-event-contracts"]) {
+      const path = join(cwlRoot, "fixtures/language-gold", name, "routes.cwl");
+      if (!existsSync(path)) {
+        checks.push({ id: `tip-1.0.79-parse:${name}`, ok: false, detail: "missing" });
+        continue;
+      }
+      const { readFileSync } = await import("node:fs");
+      const mod = parseCwlModule(readFileSync(path, "utf8"), path);
+      const ok = Boolean(mod.moduleName) && (mod.routes?.length ?? 0) >= 1;
+      checks.push({
+        id: `tip-1.0.79-parse:${name}`,
+        ok,
+        detail: ok ? `module=${mod.moduleName};routes=${mod.routes.length}` : "parse failed",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.79-parse",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -490,7 +526,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.78",
+    cwlTip: "1.0.79",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

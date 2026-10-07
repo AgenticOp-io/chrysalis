@@ -129,6 +129,9 @@ export function composeLayoutChromeHtml(chrome, body, opts = {}) {
   html = expandCwlForms(html, opts.forms);
   if (opts.hostFirebase) html = insertHostNote(html, opts.hostFirebase);
   if (opts.drawer && chromeHasDrawerTargets(html, opts.drawer)) html = insertDrawerScript(html, opts.drawer);
+  if (Number.isInteger(opts.yearLiteral) && opts.yearLiteral >= 1970 && opts.yearLiteral <= 9999) {
+    html = html.split(CWL_HTML_YEAR_SLOT).join(String(opts.yearLiteral));
+  }
   return html;
 }
 
@@ -481,6 +484,7 @@ export function mergeLayoutOntoRoute(route, layout) {
   }
   if (layout.chromeHtml) route.layoutChromeHtml = layout.chromeHtml;
   if (layout.yearHost) route.yearHost = true;
+  if (Number.isInteger(layout.yearLiteral)) route.yearLiteral = layout.yearLiteral;
   if (layout.charset) route.charset = layout.charset;
   if (layout.viewportDevice) route.viewportDevice = true;
   const styles = [...(layout.styles ?? []), ...(route.pageStyles ?? [])];

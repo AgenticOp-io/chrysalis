@@ -42,6 +42,7 @@ const CWL_EXECUTABLE_EFFECT_CALLS = new Map([
   ["__cwl_middleware_rate_limit", "rate.limit"],
   ["__cwl_middleware_cache", "cache.max-age"],
   ["__cwl_effect_mail_send", "mail.send"],
+  ["__cwl_effect_job_enqueue", "job.enqueue"],
   ["__cwl_effect_db_read", "db.read"],
   ["__cwl_effect_db_write", "db.write"],
   ["__cwl_effect_io", "io"],
@@ -190,6 +191,18 @@ function cwlExecutableEffectTagFromCall(get, call) {
       return `mail.send template ${templateVal}`;
     }
     return "mail.send";
+  }
+
+  // RFC-0036: job enqueue intent only — name is a document id; no queue invent.
+  if (callee === "__cwl_effect_job_enqueue") {
+    const nameVal = namedLit("name", 0);
+    if (
+      typeof nameVal === "string" &&
+      /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(nameVal)
+    ) {
+      return `job.enqueue name ${nameVal}`;
+    }
+    return "job.enqueue";
   }
 
   if (callee === "__cwl_effect_db_read" || callee === "__cwl_effect_db_write") {

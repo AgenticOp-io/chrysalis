@@ -8,6 +8,35 @@
 
 ---
 
+## 2026-10-06 - convert-tip-1.0.79
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.79-transport-jobs-ui  
+**CWL tip:** **1.0.79** · language land `f67abb5` · merge `b75082f` · tag `cwl-v1.0.79`
+
+```text
+CONVERT_TIP_1_0_79_OK
+CWL_TIP: 1.0.79
+CWL_SHA: f67abb5
+CWL_PIN: file:1.0.79
+CWL_SIBLING_REF: main (tag cwl-v1.0.79)
+PEEL: gold 79 · consume golds 87–89
+BRANCH: candidate/convert-tip-1.0.79
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.79-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.79**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync from CWL (parser/print/effects/holes/layout/db). Fat emit recovers `job.enqueue` / `job.enqueue name <id>` tags. Golds `87`–`89` parse-consume; peel gold `88`; golds `87`/`89` stay tip document facts (WS frames + job queues stay host-owned; residual `unsupported:websocket` for undeclared peels)
+- Peel stays gold `79`. No WebSocket runtime or job-queue invent. No live Firebase `agenticops` deploy
+- Removed `.github/dependabot.yml`; closed Dependabot PRs `#53` `#52` `#51` `#50` `#49` `#47` `#44`
+- DESIGN **D6590**
+
+---
+
 ## 2026-10-05 - convert-tip-1.0.78
 
 **To:** cwl  

@@ -13,7 +13,7 @@ This repo is the **Universal Translator**: origin stacks → WebIR/CWL → emit.
 | **Convert** | [**chrysalis**](https://github.com/AgenticOp-io/chrysalis) | Universal Translator — origin → WebIR/CWL → emit |
 | **Secure** | [**chrysalis-security**](https://github.com/AgenticOp-io/chrysalis-security) | Helix DNA firewall — allow only what certified traffic proves |
 
-**Tip pin:** `@chrysalis/cwl` `file:` ≡ sibling **1.0.78** (`hub:cwl-pin-smoke`). Language golds through `79` (peel); host golds `80`–`86` stay CWL hosts.
+**Tip pin:** `@chrysalis/cwl` `file:` ≡ sibling **1.0.79** (`hub:cwl-pin-smoke`). Language golds through `79` (peel); host golds `80`–`89` stay CWL hosts (no WS/job-queue invent).
 
 Chrysalis turns legacy modernization from a **translation problem** into a
 **specification problem**: your running app becomes the spec, and translated
