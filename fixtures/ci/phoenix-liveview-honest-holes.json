@@ -9,7 +9,9 @@
     "elixirPlugSt": "G9955 / hub:complete-conversion-prove:elixir",
     "phoenixControllersRouteSurface": "G10126 / hub:phoenix-controllers-smoke"
   },
-  "note": "Phoenix LiveView honesty catalog (dual-primary language deepen). Expands residual shapes that must stay holes. Route-surface gold remains Phoenix controllers only (G10126). Do **not** invent live \"/…\", HEEx, sockets, channels, or LiveView callbacks as a full runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "note": "Phoenix LiveView honesty catalog (dual-primary language deepen). Expands residual shapes that must stay holes. Route-surface gold remains Phoenix controllers only (G10126). Do **not** invent live \"/…\", HEEx, sockets, channels, or LiveView callbacks as a full runtime 20/20 (**D6447**). CWL tip 1.0.81 / RFC-0038 catalogues the genome residual as `unsupported:liveview` (gold 90). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "cwlResidual": "unsupported:liveview",
+  "cwlRfc": "0038",
   "smoke": "pnpm run hub:phoenix-liveview-honesty-smoke",
   "token": "LIVEVIEW_HONESTY_OK",
   "refuseForceClose": {

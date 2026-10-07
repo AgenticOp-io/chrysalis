@@ -10,7 +10,9 @@
     "dartShelfNamedHandlers": "G10007 / hub:dart-smoke",
     "dartShelfHonestHoles": "fixtures/ci/dart-shelf-honest-holes.json"
   },
-  "note": "Flutter honesty catalog (dual-primary language deepen; parallel to LiveView G10128). Expands residual shapes that must stay holes. Route-surface gold remains Dart Shelf only (G9956/G10007). Do **not** invent Flutter widgets, engine, Material/Cupertino, Dart Frog, or Platform channels as a full runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "note": "Flutter honesty catalog (dual-primary language deepen; parallel to LiveView G10128). Expands residual shapes that must stay holes. Route-surface gold remains Dart Shelf only (G9956/G10007). Do **not** invent Flutter widgets, engine, Material/Cupertino, Dart Frog, or Platform channels as a full runtime 20/20 (**D6447**). CWL tip 1.0.81 / RFC-0038 catalogues the genome residual as `unsupported:flutter` (gold 90). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "cwlResidual": "unsupported:flutter",
+  "cwlRfc": "0038",
   "smoke": "pnpm run hub:flutter-honesty-smoke",
   "token": "FLUTTER_HONESTY_OK",
   "refuseForceClose": {

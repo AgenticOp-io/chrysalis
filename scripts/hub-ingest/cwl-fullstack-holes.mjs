@@ -246,6 +246,41 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "multipart/form-data residual beyond named field/file bindings (RFC-0026) — keep hole; do not invent upload middleware.",
   },
+  "unsupported:nest-di": {
+    rfc: "0038",
+    origin: "nest",
+    surface: "api",
+    summary:
+      "NestJS dependency-injection / module graph not lowered. Prefer peel into CWL effects or keep this hole — never invent a Nest façade.",
+  },
+  "unsupported:liveview": {
+    rfc: "0038",
+    origin: "phoenix",
+    surface: "page",
+    summary:
+      "Phoenix LiveView (or kin) duplex UI protocol not lowered. Prefer stream websocket; + islands when peel can declare them — never invent LiveView runtime.",
+  },
+  "unsupported:flutter": {
+    rfc: "0038",
+    origin: "flutter",
+    surface: "page",
+    summary:
+      "Flutter / Dart UI tree is not a web-page genome. Peel to routes/pages when possible; otherwise keep this hole — never invent Flutter-in-CWL.",
+  },
+  "unsupported:middleware-onion": {
+    rfc: "0038",
+    origin: "cwl",
+    surface: "middleware",
+    summary:
+      "Layered middleware onion not expressible as ordered CWL effects. Name discrete effects when peel can; otherwise keep this hole.",
+  },
+  "unsupported:raw-sql": {
+    rfc: "0038",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "Raw SQL text is not a CWL statement. Bound db select/insert/update/delete on a named engine stay; free SQL strings stay this hole.",
+  },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)
   "cwl:emit:missing-value": {

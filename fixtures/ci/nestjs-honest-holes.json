@@ -12,7 +12,9 @@
     "nestjsFieldPeels": "G10015 / @Headers/@Cookies/@Body field peels",
     "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#nestjs"
   },
-  "note": "Nest DI honesty catalog (L1 cheap honest-hole peel inside already-closed Nest route-surface ST). Expands residual shapes that must stay holes: @Module / providers / constructor DI / guards / pipes / interceptors / filters / NestFactory bootstrap / dynamic modules. Route-surface gold remains @Controller + HTTP decorators + @Param/@Query/@Body/@Headers/@Cookies/@HttpCode (G9950/G10015) via hub:nestjs-smoke / hub:nestjs-flagship. Do **not** invent Nest DI / modules / providers runtime as Nest DI 20/20 (**D6442** / **D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "note": "Nest DI honesty catalog (L1 cheap honest-hole peel inside already-closed Nest route-surface ST). Expands residual shapes that must stay holes: @Module / providers / constructor DI / guards / pipes / interceptors / filters / NestFactory bootstrap / dynamic modules. Route-surface gold remains @Controller + HTTP decorators + @Param/@Query/@Body/@Headers/@Cookies/@HttpCode (G9950/G10015) via hub:nestjs-smoke / hub:nestjs-flagship. Do **not** invent Nest DI / modules / providers runtime as Nest DI 20/20 (**D6442** / **D6447**). CWL tip 1.0.81 / RFC-0038 catalogues the genome residual as `unsupported:nest-di` (gold 90). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "cwlResidual": "unsupported:nest-di",
+  "cwlRfc": "0038",
   "smoke": "pnpm run hub:nestjs-honesty-smoke",
   "token": "NEST_DI_HONESTY_OK",
   "refuseForceClose": {
