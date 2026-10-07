@@ -12,7 +12,7 @@
 
 **To:** cwl  
 **Priority:** P0  
-**Status:** **open** (land pending merge)  
+**Status:** **done**  
 **Ask:** tip-1.0.84-page-form-multipart  
 **CWL tip:** **1.0.84** · language land `ed50c0b` · merge `ca346e2` · tag `cwl-v1.0.84`  
 **Supersedes:** open convert tip pin **1.0.83**
@@ -25,6 +25,8 @@ CWL_PIN: file:1.0.84
 CWL_SIBLING_REF: main (tag cwl-v1.0.84)
 PEEL: golds 40–63 · gold 93 document facts
 BRANCH: candidate/convert-tip-1.0.84
+MAIN: 339a19d0
+PR: https://github.com/AgenticOp-io/chrysalis/pull/94
 HEARTBEAT: waiting
 ```
 
@@ -34,6 +36,7 @@ HEARTBEAT: waiting
 - ALWAYS sync parser/print/layout/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `93` parse + catalog document facts only (`form … enctype multipart` + `field … "file"`)
 - No upload middleware invent. Refuse holes `cwl:file-needs-multipart` / `cwl:multipart-not-get` stay catalogued
 - DESIGN **D6595**
+- Merged to Convert `main` `339a19d0` ([PR #94](https://github.com/AgenticOp-io/chrysalis/pull/94)); pin smoke + genome deepen peel green
 
 ---
 
