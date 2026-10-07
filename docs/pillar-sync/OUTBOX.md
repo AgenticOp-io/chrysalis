@@ -8,6 +8,34 @@
 
 ---
 
+## 2026-10-06 - convert-tip-1.0.81
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.81-framework-residuals  
+**CWL tip:** **1.0.81** · language land `77e09bc` · merge `84aec5e` · tag `cwl-v1.0.81`
+
+```text
+CONVERT_TIP_1_0_81_OK
+CWL_TIP: 1.0.81
+CWL_SHA: 77e09bc
+CWL_PIN: file:1.0.81
+CWL_SIBLING_REF: main (tag cwl-v1.0.81)
+PEEL: golds 40–63 (mail/CORS) · gold 90 document facts
+BRANCH: candidate/convert-tip-1.0.81
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.81-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.81**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync `cwl-fullstack-holes.mjs` (RFC-0038 reasons). Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke` (mail/CORS included). Gold `90` parse + catalog document facts only
+- Honesty catalogs cite `unsupported:nest-di` / `liveview` / `flutter` / `middleware-onion`. No Nest/LiveView/Flutter/onion façades invented
+- DESIGN **D6592**
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.80
 
 **To:** cwl  

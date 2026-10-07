@@ -11,7 +11,9 @@
     "koaPassThroughMw": "G9959 / hub:koa-smoke v2",
     "jsSecondaryCatalog": "fixtures/ci/js-secondary-dialect-honest-holes.json#koa"
   },
-  "note": "Koa honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; pass-through ceiling G9959). Expands residual shapes that must stay holes. Route-surface gold remains Koa ORIGIN get|post + ctx.body/status/params/query + IDENT destructure (G10005) + empty/next-only app.use → js.passthrough (G9959). Do **not** invent complex middleware onion, koa-compose factories, ctx.throw/assert runtime, cookies/session/passport, nested Router mounts, bodyparser/static plugins, or generator middleware as a full Koa runtime 20/20 (**D6447**). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "note": "Koa honesty catalog (L1 cheap honest-hole peel inside already-closed secondary; pass-through ceiling G9959). Expands residual shapes that must stay holes. Route-surface gold remains Koa ORIGIN get|post + ctx.body/status/params/query + IDENT destructure (G10005) + empty/next-only app.use → js.passthrough (G9959). Do **not** invent complex middleware onion, koa-compose factories, ctx.throw/assert runtime, cookies/session/passport, nested Router mounts, bodyparser/static plugins, or generator middleware as a full Koa runtime 20/20 (**D6447**). CWL tip 1.0.81 / RFC-0038 catalogues the genome residual as `unsupported:middleware-onion` (gold 90). EXTFMAP stays operator-only — orthogonal COBOL P0.",
+  "cwlResidual": "unsupported:middleware-onion",
+  "cwlRfc": "0038",
   "smoke": "pnpm run hub:koa-honesty-smoke",
   "token": "KOA_HONESTY_OK",
   "refuseForceClose": {

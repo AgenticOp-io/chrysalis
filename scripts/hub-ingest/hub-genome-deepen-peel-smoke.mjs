@@ -9,8 +9,10 @@
  * without inventing markup, limiter/CORS/CSRF/cache/HTTP-client engines,
  * cookie/token values, or proxy targets. Golds `40`–`79`. Tip `87`–`89`
  * (stream websocket / job.enqueue / UI events) are document facts via the tip
- * pin — host owns WS frames and job queues; no runtime invent. Also proves
- * `@chrysalis/rewrite` executes a declared forward through an injected transport.
+ * pin — host owns WS frames and job queues; no runtime invent. Tip `90`
+ * (RFC-0038 Nest/LiveView/Flutter/onion/raw-SQL residuals) is document facts
+ * only — never invent those façades. Also proves `@chrysalis/rewrite` executes
+ * a declared forward through an injected transport.
  *
  * Gate: hub:genome-deepen-peel-smoke
  * Token: GENOME_DEEPEN_PEEL_OK
@@ -418,6 +420,56 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
+  // Tip 1.0.81 / RFC-0038: gold 90 framework residuals are document facts — catalogue only.
+  // Do not invent Nest / LiveView / Flutter / onion / raw-SQL façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "90-framework-residuals", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.81-parse:90-framework-residuals", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const reasons = [
+        "unsupported:nest-di",
+        "unsupported:liveview",
+        "unsupported:flutter",
+        "unsupported:middleware-onion",
+        "unsupported:raw-sql",
+        "unsupported:opaque-script",
+      ];
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        (mod.routes?.length ?? 0) >= reasons.length &&
+        reasons.every((r) => src.includes(`hole ${r};`));
+      checks.push({
+        id: "tip-1.0.81-parse:90-framework-residuals",
+        ok: parseOk,
+        detail: parseOk
+          ? `module=${mod.moduleName};routes=${mod.routes.length}`
+          : "parse/residual text failed",
+      });
+      const catalogOk = reasons.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.81-catalog:rfc-0038",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0038 residuals catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.81-framework-residuals",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -526,7 +578,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.80",
+    cwlTip: "1.0.81",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
