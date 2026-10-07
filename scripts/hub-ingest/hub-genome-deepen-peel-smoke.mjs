@@ -526,7 +526,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.79",
+    cwlTip: "1.0.80",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

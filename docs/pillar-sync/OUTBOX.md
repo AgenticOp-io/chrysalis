@@ -8,6 +8,33 @@
 
 ---
 
+## 2026-10-06 - convert-tip-1.0.80
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.80-verify-dispose-messaging  
+**CWL tip:** **1.0.80** · language land `15dd5f7` · merge `75ba56a` · tag `cwl-v1.0.80`
+
+```text
+CONVERT_TIP_1_0_80_OK
+CWL_TIP: 1.0.80
+CWL_SHA: 15dd5f7
+CWL_PIN: file:1.0.80
+CWL_SIBLING_REF: main (tag cwl-v1.0.80)
+PEEL: gold 79
+BRANCH: candidate/convert-tip-1.0.80
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.80-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.80**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- Messaging-only tip (verify dispose / no hole slogans). Peel stays gold `79`. No runtime invent. No live Firebase `agenticops` deploy
+- DESIGN **D6591**
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.79
 
 **To:** cwl  
