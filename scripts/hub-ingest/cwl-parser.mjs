@@ -65,15 +65,15 @@ const DEVICE_HOST_RE =
 /** Menu drawer. The host document gets the bounded toggle script. */
 const DRAWER_RE =
   /^drawer\s+([A-Za-z][A-Za-z0-9_-]*)\s+toggle\s+([A-Za-z][A-Za-z0-9_-]*)\s+class\s+([A-Za-z][A-Za-z0-9_-]*)(?:\s+panel\s+([A-Za-z][A-Za-z0-9_-]*))?\s*;$/;
-/** Stylesheet URL. The file stays on the host. */
-const STYLE_RE = /^style\s+"([^"]+)"\s*;$/;
 /** Image URL by id. The bytes stay on the host. */
 const IMAGE_RE = /^image\s+([A-Za-z_][A-Za-z0-9_]*)\s+"([^"]+)"\s*;$/;
 /** Firebase Hosting target. CWL does not deploy. */
 const HOST_FIREBASE_RE =
   /^host\s+firebase\s+"([^"]+)"\s+public\s+"([^"]+)"(?:\s+error\s+"([^"]*)")?\s*;$/;
-/** Script URL. The file stays on the host. CWL does not parse or run it. */
-const SCRIPT_RE = /^script\s+"([^"]+)"\s*;$/;
+/** RFC-0040: script / style asset heads (integrity / module / crossorigin are optional). */
+const SCRIPT_HEAD_RE = /^script\s+"((?:\\.|[^"\\])*)"(.*);$/;
+const STYLE_HEAD_RE = /^style\s+"((?:\\.|[^"\\])*)"(.*);$/;
+const SRI_RE = /^sha(256|384|512)-[A-Za-z0-9+/=]+$/;
 /** Same-site form. Off-site actions are refused. */
 const FORM_RE = /^form\s+([A-Za-z_][A-Za-z0-9_]*)\s+method\s+(get|post)\s+action\s+"([^"]+)"\s*;$/;
 /** Input on the current form. */
@@ -131,6 +131,81 @@ function cwlQuoted(raw) {
 function canonicalHrefOk(href) {
   if (href.startsWith("/") && !href.startsWith("//")) return true;
   return /^https?:\/\//.test(href);
+}
+
+/**
+ * Named asset URL: same-site path or absolute http(s). javascript: and protocol-relative refuse.
+ * @param {string} href
+ */
+function assetHrefOk(href) {
+  if (!href || typeof href !== "string") return false;
+  if (href.startsWith("/") && !href.startsWith("//")) return true;
+  return /^https?:\/\//i.test(href);
+}
+
+/**
+ * @param {string} rest trailing tokens after the quoted URL (no leading semicolon)
+ * @param {{ allowModule?: boolean }} opts
+ * @returns {{ ok: true, module?: boolean, integrity?: string, crossorigin?: boolean } | { ok: false, hole: string }}
+ */
+function parseAssetTail(rest, opts = {}) {
+  let s = String(rest ?? "").trim();
+  /** @type {{ ok: true, module?: boolean, integrity?: string, crossorigin?: boolean }} */
+  const out = { ok: true };
+  if (opts.allowModule && /^module(?:\s|$)/.test(s)) {
+    out.module = true;
+    s = s.slice("module".length).trim();
+  }
+  const integ = /^integrity\s+"((?:\\.|[^"\\])*)"(.*)$/.exec(s);
+  if (integ) {
+    const sri = cwlQuoted(integ[1]);
+    if (!SRI_RE.test(sri)) return { ok: false, hole: "cwl:bad-integrity" };
+    out.integrity = sri;
+    s = String(integ[2] ?? "").trim();
+  }
+  if (s === "crossorigin") {
+    out.crossorigin = true;
+    s = "";
+  }
+  if (s) return { ok: false, hole: "cwl:bad-asset-tail" };
+  return out;
+}
+
+/**
+ * @param {string} line
+ * @returns {{ ok: true, asset: { src: string, module?: boolean, integrity?: string, crossorigin?: boolean } } | { ok: false, hole: string } | null}
+ */
+function parseScriptAssetLine(line) {
+  const m = SCRIPT_HEAD_RE.exec(line);
+  if (!m) return null;
+  const src = cwlQuoted(m[1]);
+  if (!assetHrefOk(src)) return { ok: false, hole: "cwl:bad-asset-url" };
+  const tail = parseAssetTail(m[2], { allowModule: true });
+  if (!tail.ok) return { ok: false, hole: tail.hole };
+  /** @type {{ src: string, module?: boolean, integrity?: string, crossorigin?: boolean }} */
+  const asset = { src };
+  if (tail.module) asset.module = true;
+  if (tail.integrity) asset.integrity = tail.integrity;
+  if (tail.crossorigin) asset.crossorigin = true;
+  return { ok: true, asset };
+}
+
+/**
+ * @param {string} line
+ * @returns {{ ok: true, asset: { href: string, integrity?: string, crossorigin?: boolean } } | { ok: false, hole: string } | null}
+ */
+function parseStyleAssetLine(line) {
+  const m = STYLE_HEAD_RE.exec(line);
+  if (!m) return null;
+  const href = cwlQuoted(m[1]);
+  if (!assetHrefOk(href)) return { ok: false, hole: "cwl:bad-asset-url" };
+  const tail = parseAssetTail(m[2], { allowModule: false });
+  if (!tail.ok) return { ok: false, hole: tail.hole };
+  /** @type {{ href: string, integrity?: string, crossorigin?: boolean }} */
+  const asset = { href };
+  if (tail.integrity) asset.integrity = tail.integrity;
+  if (tail.crossorigin) asset.crossorigin = true;
+  return { ok: true, asset };
 }
 
 /**
@@ -368,7 +443,7 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
   let drawer = null;
   /** @type {string} */
   let linkGroup = "";
-  /** @type {string[]} */
+  /** @type {Array<{ href: string, integrity?: string, crossorigin?: boolean }>} */
   const styles = [];
   /** @type {Array<{ id: string, path: string }>} */
   const images = [];
@@ -376,7 +451,7 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
   let hostFirebase = null;
   /** @type {Array<{ id: string, href: string, label: string, className?: string, group?: string, target?: string, rel?: string }>} */
   const links = [];
-  /** @type {string[]} */
+  /** @type {Array<{ src: string, module?: boolean, integrity?: string, crossorigin?: boolean }>} */
   const scripts = [];
   /** @type {Array<{ id: string, method: string, action: string, fields: Array<{ name: string, type: string }>, submit?: string, refused?: boolean }>} */
   const forms = [];
@@ -471,9 +546,10 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
       if (drawerLine[4]) drawer.panelId = drawerLine[4];
       continue;
     }
-    const style = STYLE_RE.exec(line);
+    const style = parseStyleAssetLine(line);
     if (style) {
-      styles.push(style[1]);
+      if (style.ok) styles.push(style.asset);
+      else if (!holes.includes(style.hole)) holes.push(style.hole);
       continue;
     }
     const image = IMAGE_RE.exec(line);
@@ -487,9 +563,10 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
       if (host[3]) hostFirebase.errorDoc = host[3];
       continue;
     }
-    const script = SCRIPT_RE.exec(line);
+    const script = parseScriptAssetLine(line);
     if (script) {
-      scripts.push(script[1]);
+      if (script.ok) scripts.push(script.asset);
+      else if (!holes.includes(script.hole)) holes.push(script.hole);
       continue;
     }
     const formLine = FORM_RE.exec(line);
@@ -1275,7 +1352,7 @@ export function parseCwlModule(source, file) {
     /** @type {boolean} RFC-0039 progressive certificate. */
     let worksWithoutClient = false;
     const metaCard = emptyMetaCard();
-    /** @type {string[]} Page stylesheets, after the layout styles. */
+    /** @type {Array<{ href: string, integrity?: string, crossorigin?: boolean }>} Page stylesheets, after the layout styles. */
     const pageStyles = [];
     /** @type {Array<{ id: string, apple?: boolean }>} */
     const icons = [];
@@ -1387,9 +1464,10 @@ export function parseCwlModule(source, file) {
         else if (!attachmentHoles.includes("cwl:alternate-not-url")) attachmentHoles.push("cwl:alternate-not-url");
         continue;
       }
-      const pageStyle = STYLE_RE.exec(inner);
+      const pageStyle = parseStyleAssetLine(inner);
       if (pageStyle) {
-        pageStyles.push(pageStyle[1]);
+        if (pageStyle.ok) pageStyles.push(pageStyle.asset);
+        else if (!attachmentHoles.includes(pageStyle.hole)) attachmentHoles.push(pageStyle.hole);
         continue;
       }
       if (CLIENT_UI_START_RE.test(inner) && !UI_RETURN_RE.test(inner)) {

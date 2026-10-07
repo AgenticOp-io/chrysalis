@@ -309,9 +309,25 @@ function expandCwlHeadFacts(html, opts) {
 }
 
 /**
+ * @param {string | { href?: string, integrity?: string, crossorigin?: boolean }} entry
+ */
+function normalizeStyleAsset(entry) {
+  if (typeof entry === "string") return { href: entry };
+  return entry && typeof entry === "object" ? entry : { href: "" };
+}
+
+/**
+ * @param {string | { src?: string, module?: boolean, integrity?: string, crossorigin?: boolean }} entry
+ */
+function normalizeScriptAsset(entry) {
+  if (typeof entry === "string") return { src: entry };
+  return entry && typeof entry === "object" ? entry : { src: "" };
+}
+
+/**
  * Stylesheet and image markers. CWL names the files. It does not parse CSS or image bytes.
  * @param {string} html
- * @param {string[] | undefined} styles
+ * @param {Array<string | { href: string, integrity?: string, crossorigin?: boolean }> | undefined} styles
  * @param {Array<{ id: string, path: string }> | undefined} images
  */
 function expandCwlAssets(html, styles, images) {
@@ -319,7 +335,13 @@ function expandCwlAssets(html, styles, images) {
   const sheets = Array.isArray(styles) ? styles : [];
   if (sheets.length && out.includes("<!-- cwl:style -->")) {
     const tags = sheets
-      .map((href) => `<link rel="stylesheet" href="${escapeCwlHtmlText(href)}" />`)
+      .map((entry) => {
+        const s = normalizeStyleAsset(entry);
+        const href = escapeCwlHtmlText(s.href ?? "");
+        const integrity = typeof s.integrity === "string" ? ` integrity="${escapeCwlHtmlText(s.integrity)}"` : "";
+        const crossorigin = s.crossorigin || s.integrity ? ` crossorigin="anonymous"` : "";
+        return `<link rel="stylesheet" href="${href}"${integrity}${crossorigin} />`;
+      })
       .join("");
     out = out.split("<!-- cwl:style -->").join(tags);
   }
@@ -352,12 +374,23 @@ function insertHostNote(html, host) {
 /**
  * Script URL markers. CWL names the file. It does not parse or run it.
  * @param {string} html
- * @param {string[] | undefined} scripts
+ * @param {Array<string | { src: string, module?: boolean, integrity?: string, crossorigin?: boolean }> | undefined} scripts
  */
 function expandCwlScripts(html, scripts) {
   const files = Array.isArray(scripts) ? scripts : [];
   if (!files.length || !String(html).includes("<!-- cwl:script -->")) return html;
-  const tags = files.map((src) => `<script src="${escapeCwlHtmlText(src)}" defer></script>`).join("");
+  const tags = files
+    .map((entry) => {
+      const s = normalizeScriptAsset(entry);
+      const src = escapeCwlHtmlText(s.src ?? "");
+      const integrity = typeof s.integrity === "string" ? ` integrity="${escapeCwlHtmlText(s.integrity)}"` : "";
+      const crossorigin = s.crossorigin || s.integrity ? ` crossorigin="anonymous"` : "";
+      if (s.module) {
+        return `<script type="module" src="${src}"${integrity}${crossorigin}></script>`;
+      }
+      return `<script src="${src}"${integrity}${crossorigin} defer></script>`;
+    })
+    .join("");
   return String(html).split("<!-- cwl:script -->").join(tags);
 }
 

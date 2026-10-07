@@ -302,6 +302,27 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "`capability` must be one of cookies, network-same-origin, network-cross-origin, storage, client. Unknown classes are refused.",
   },
+  "cwl:bad-integrity": {
+    rfc: "0040",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`integrity` must be an SRI token (`sha256-` / `sha384-` / `sha512-` + base64). Empty or non-SRI values are refused — CWL does not invent hashes.",
+  },
+  "cwl:bad-asset-url": {
+    rfc: "0040",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`script` / `style` href must be a same-site path or absolute http(s) URL. javascript: and protocol-relative values are refused.",
+  },
+  "cwl:bad-asset-tail": {
+    rfc: "0040",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "Trailing tokens after `script` / `style` are only `module` (script), `integrity \"…\"`, and `crossorigin` in that order. Unknown tails are refused.",
+  },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)
   "cwl:emit:missing-value": {

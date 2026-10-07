@@ -8,6 +8,34 @@
 
 ---
 
+## 2026-10-06 - convert-tip-1.0.83
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **open** (land pending merge)  
+**Ask:** tip-1.0.83-asset-integrity  
+**CWL tip:** **1.0.83** · language land `ac8f7bf` · merge `5f4b571` · tag `cwl-v1.0.83`
+
+```text
+CONVERT_TIP_1_0_83_OK
+CWL_TIP: 1.0.83
+CWL_SHA: ac8f7bf
+CWL_PIN: file:1.0.83
+CWL_SIBLING_REF: main (tag cwl-v1.0.83)
+PEEL: golds 40–63 · gold 92 document facts
+BRANCH: candidate/convert-tip-1.0.83
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.83-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.83**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync parser/print/layout/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `92` parse + catalog document facts only (`script` / `style` + `integrity` / `module` / `crossorigin`)
+- No JS/CSS runtime invent. Refuse holes `cwl:bad-integrity` / `cwl:bad-asset-url` / `cwl:bad-asset-tail` stay catalogued
+- DESIGN **D6594**
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.82
 
 **To:** cwl  
