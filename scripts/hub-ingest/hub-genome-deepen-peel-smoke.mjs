@@ -598,6 +598,69 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
+  // Tip 1.0.84 / RFC-0041: gold 93 page form multipart are document facts — parse + catalogue only.
+  // Do not invent upload middleware or Nest/LiveView/Flutter façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "93-page-form-multipart", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.84-parse:93-page-form-multipart", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const facts = [
+        'form upload method post action "/upload" enctype multipart;',
+        'field resume "file";',
+        'field note "text";',
+        'multipart file resume;',
+        'multipart field note;',
+      ];
+      const refuseHoles = ["cwl:file-needs-multipart", "cwl:multipart-not-get"];
+      const site = (mod.layouts ?? []).find((l) => l.name === "site");
+      const refuse = (mod.layouts ?? []).find((l) => l.name === "refuse");
+      const uploadForm = site?.forms?.find((f) => f.id === "upload");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const formOk =
+        uploadForm?.method === "post" &&
+        uploadForm?.action === "/upload" &&
+        uploadForm?.enctype === "multipart" &&
+        Array.isArray(uploadForm?.fields) &&
+        uploadForm.fields.some((f) => f.name === "resume" && f.type === "file") &&
+        uploadForm.fields.some((f) => f.name === "note" && f.type === "text") &&
+        Array.isArray(refuse?.holes) &&
+        refuseHoles.every((r) => refuse.holes.includes(r));
+      checks.push({
+        id: "tip-1.0.84-parse:93-page-form-multipart",
+        ok: parseOk && formOk,
+        detail:
+          parseOk && formOk
+            ? `module=${mod.moduleName};layouts=${mod.layouts?.length};form-multipart-facts`
+            : "parse/page-form-multipart facts failed",
+      });
+      const catalogOk = refuseHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.84-catalog:rfc-0041",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0041 page form multipart holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.84-page-form-multipart",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -706,7 +769,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.83",
+    cwlTip: "1.0.84",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

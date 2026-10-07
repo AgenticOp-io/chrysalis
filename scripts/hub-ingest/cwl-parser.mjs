@@ -74,8 +74,9 @@ const HOST_FIREBASE_RE =
 const SCRIPT_HEAD_RE = /^script\s+"((?:\\.|[^"\\])*)"(.*);$/;
 const STYLE_HEAD_RE = /^style\s+"((?:\\.|[^"\\])*)"(.*);$/;
 const SRI_RE = /^sha(256|384|512)-[A-Za-z0-9+/=]+$/;
-/** Same-site form. Off-site actions are refused. */
-const FORM_RE = /^form\s+([A-Za-z_][A-Za-z0-9_]*)\s+method\s+(get|post)\s+action\s+"([^"]+)"\s*;$/;
+/** Same-site form. Off-site actions are refused. Optional `enctype multipart` (RFC-0041). */
+const FORM_RE =
+  /^form\s+([A-Za-z_][A-Za-z0-9_]*)\s+method\s+(get|post)\s+action\s+"([^"]+)"(?:\s+enctype\s+(multipart))?\s*;$/;
 /** Input on the current form. */
 const FIELD_RE = /^field\s+([A-Za-z_][A-Za-z0-9_]*)\s+"([^"]+)"\s*;$/;
 /** Submit label on the current form. */
@@ -281,7 +282,8 @@ function applyMetaLine(line, card, holes) {
   }
   return false;
 }
-const FIELD_TYPES = new Set(["text", "email", "password", "hidden", "search", "url", "tel", "number"]);
+/** RFC-0041: `file` requires `enctype multipart` on the current form. */
+const FIELD_TYPES = new Set(["text", "email", "password", "hidden", "search", "url", "tel", "number", "file"]);
 const CLIENT_UI_START_RE = /^client\s+ui\b/;
 const CHROME_HTML_PREFIX_RE = /^chrome\s+html\s+/i;
 
@@ -572,8 +574,17 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
     const formLine = FORM_RE.exec(line);
     if (formLine) {
       const action = formLine[3];
+      const method = formLine[2];
+      const enctype = formLine[4] || null;
       const refused = !sameOriginRedirectPath(action);
-      currentForm = { id: formLine[1], method: formLine[2], action, fields: [] };
+      currentForm = { id: formLine[1], method, action, fields: [] };
+      if (enctype === "multipart") {
+        if (method === "get") {
+          if (!formHoles.includes("cwl:multipart-not-get")) formHoles.push("cwl:multipart-not-get");
+        } else {
+          currentForm.enctype = "multipart";
+        }
+      }
       if (refused) {
         currentForm.refused = true;
         if (!formHoles.includes("unsupported:offsite-form")) formHoles.push("unsupported:offsite-form");
@@ -587,6 +598,8 @@ function parseLayoutDeclBlock(lines, startIdx, lineNo) {
         if (!formHoles.includes("cwl:orphan-field")) formHoles.push("cwl:orphan-field");
       } else if (!FIELD_TYPES.has(field[2])) {
         if (!formHoles.includes("cwl:unknown-field-type")) formHoles.push("cwl:unknown-field-type");
+      } else if (field[2] === "file" && currentForm.enctype !== "multipart") {
+        if (!formHoles.includes("cwl:file-needs-multipart")) formHoles.push("cwl:file-needs-multipart");
       } else {
         currentForm.fields.push({ name: field[1], type: field[2] });
       }

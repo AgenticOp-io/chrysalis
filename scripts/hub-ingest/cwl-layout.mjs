@@ -396,8 +396,9 @@ function expandCwlScripts(html, scripts) {
 
 /**
  * Same-site forms. Refused off-site actions are not written.
+ * RFC-0041: `enctype multipart` → `enctype="multipart/form-data"`; `field … "file"` needs that enctype.
  * @param {string} html
- * @param {Array<{ id: string, method: string, action: string, fields: Array<{ name: string, type: string }>, submit?: string, refused?: boolean }> | undefined} forms
+ * @param {Array<{ id: string, method: string, action: string, enctype?: string, fields: Array<{ name: string, type: string }>, submit?: string, refused?: boolean }> | undefined} forms
  */
 function expandCwlForms(html, forms) {
   let out = String(html);
@@ -409,7 +410,8 @@ function expandCwlForms(html, forms) {
       .map((field) => `<input name="${escapeCwlHtmlText(field.name)}" type="${escapeCwlHtmlText(field.type)}" />`)
       .join("");
     const submit = form.submit ? `<button type="submit">${escapeCwlHtmlText(form.submit)}</button>` : "";
-    const tag = `<form method="${form.method}" action="${escapeCwlHtmlText(form.action)}">${fields}${submit}</form>`;
+    const enctype = form.enctype === "multipart" ? ` enctype="multipart/form-data"` : "";
+    const tag = `<form method="${form.method}" action="${escapeCwlHtmlText(form.action)}"${enctype}>${fields}${submit}</form>`;
     out = out.split(token).join(tag);
   }
   return out;

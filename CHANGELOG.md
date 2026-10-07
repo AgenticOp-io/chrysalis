@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.84 (D6595):** tip floor + sibling pin for RFC-0041 page form multipart (gold `93`). ALWAYS sync parser/print/layout/holes. Peel golds `40`–`63`. Gold `93` document facts only — `form … enctype multipart` + `field … "file"`; refuse holes `cwl:file-needs-multipart` / `cwl:multipart-not-get`; no upload middleware invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.83 pin. No live Firebase `agenticops` deploy.
+
 - **CWL tip 1.0.83 (D6594):** tip floor + sibling pin for RFC-0040 progressive asset integrity (gold `92`). ALWAYS sync parser/print/layout/holes. Peel golds `40`–`63`. Gold `92` document facts only — `script` / `style` with `integrity`, optional `module`, optional `crossorigin`; refuse holes `cwl:bad-integrity` / `cwl:bad-asset-url` / `cwl:bad-asset-tail`; no JS/CSS runtime invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. No live Firebase `agenticops` deploy.
 
 - **CWL tip 1.0.82 (D6593):** tip floor + sibling pin for RFC-0039 DNA identity (gold `91`). ALWAYS sync parser/print/holes. Peel golds `40`–`63`. Gold `91` document facts only — `replaces`, `from peel … at …`, `capability`, `works without client`; no capability/browser runtime invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. No live Firebase `agenticops` deploy.
