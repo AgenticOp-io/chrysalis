@@ -24,6 +24,8 @@ CWL_PIN: file:1.0.82
 CWL_SIBLING_REF: main (tag cwl-v1.0.82)
 PEEL: golds 40–63 · gold 91 document facts
 BRANCH: candidate/convert-tip-1.0.82
+MAIN: cc5f2248
+PR: https://github.com/AgenticOp-io/chrysalis/pull/90
 HEARTBEAT: waiting
 ```
 
@@ -33,6 +35,7 @@ HEARTBEAT: waiting
 - ALWAYS sync parser/print/holes/layout/effects from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `91` parse + catalog document facts only (`replaces` / `from peel … at …` / `capability` / `works without client`)
 - No capability/browser runtime invent. Refuse holes `cwl:replaces-not-url` / `cwl:peel-not-identity` / `cwl:unknown-capability` stay catalogued
 - DESIGN **D6593**
+- Merged to Convert `main` `cc5f2248` ([PR #90](https://github.com/AgenticOp-io/chrysalis/pull/90)); pin smoke + genome deepen peel green
 
 ---
 
