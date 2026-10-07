@@ -323,6 +323,20 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "Trailing tokens after `script` / `style` are only `module` (script), `integrity \"…\"`, and `crossorigin` in that order. Unknown tails are refused.",
   },
+  "cwl:file-needs-multipart": {
+    rfc: "0041",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`field … \"file\"` requires `form … enctype multipart`. File inputs without multipart stay a hole — no upload middleware invent.",
+  },
+  "cwl:multipart-not-get": {
+    rfc: "0041",
+    origin: "cwl",
+    surface: "page",
+    summary:
+      "`enctype multipart` is refused on GET forms. Multipart bodies are POST (or kin) only.",
+  },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)
   "cwl:emit:missing-value": {

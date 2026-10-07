@@ -405,7 +405,8 @@ export function printCwlModule(mod, opts = {}) {
     for (const style of L.styles ?? []) lines.push(`  ${formatCwlStyleAsset(style)}`);
     for (const script of L.scripts ?? []) lines.push(`  ${formatCwlScriptAsset(script)}`);
     for (const form of L.forms ?? []) {
-      lines.push(`  form ${form.id} method ${form.method} action ${JSON.stringify(form.action)};`);
+      const enctype = form.enctype === "multipart" ? " enctype multipart" : "";
+      lines.push(`  form ${form.id} method ${form.method} action ${JSON.stringify(form.action)}${enctype};`);
       for (const field of form.fields ?? []) lines.push(`  field ${field.name} ${JSON.stringify(field.type)};`);
       if (form.submit) lines.push(`  submit ${JSON.stringify(form.submit)};`);
     }

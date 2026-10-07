@@ -8,6 +8,35 @@
 
 ---
 
+## 2026-10-06 - convert-tip-1.0.84
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **open** (land pending merge)  
+**Ask:** tip-1.0.84-page-form-multipart  
+**CWL tip:** **1.0.84** · language land `ed50c0b` · merge `ca346e2` · tag `cwl-v1.0.84`  
+**Supersedes:** open convert tip pin **1.0.83**
+
+```text
+CONVERT_TIP_1_0_84_OK
+CWL_TIP: 1.0.84
+CWL_SHA: ed50c0b
+CWL_PIN: file:1.0.84
+CWL_SIBLING_REF: main (tag cwl-v1.0.84)
+PEEL: golds 40–63 · gold 93 document facts
+BRANCH: candidate/convert-tip-1.0.84
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.84-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.84**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync parser/print/layout/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `93` parse + catalog document facts only (`form … enctype multipart` + `field … "file"`)
+- No upload middleware invent. Refuse holes `cwl:file-needs-multipart` / `cwl:multipart-not-get` stay catalogued
+- DESIGN **D6595**
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.83
 
 **To:** cwl  
