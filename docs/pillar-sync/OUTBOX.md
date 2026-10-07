@@ -12,7 +12,7 @@
 
 **To:** cwl  
 **Priority:** P0  
-**Status:** **open** (land pending merge)  
+**Status:** **done**  
 **Ask:** tip-1.0.83-asset-integrity  
 **CWL tip:** **1.0.83** · language land `ac8f7bf` · merge `5f4b571` · tag `cwl-v1.0.83`
 
@@ -24,6 +24,8 @@ CWL_PIN: file:1.0.83
 CWL_SIBLING_REF: main (tag cwl-v1.0.83)
 PEEL: golds 40–63 · gold 92 document facts
 BRANCH: candidate/convert-tip-1.0.83
+MAIN: 2dcc5758
+PR: https://github.com/AgenticOp-io/chrysalis/pull/92
 HEARTBEAT: waiting
 ```
 
@@ -33,6 +35,7 @@ HEARTBEAT: waiting
 - ALWAYS sync parser/print/layout/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `92` parse + catalog document facts only (`script` / `style` + `integrity` / `module` / `crossorigin`)
 - No JS/CSS runtime invent. Refuse holes `cwl:bad-integrity` / `cwl:bad-asset-url` / `cwl:bad-asset-tail` stay catalogued
 - DESIGN **D6594**
+- Merged to Convert `main` `2dcc5758` ([PR #92](https://github.com/AgenticOp-io/chrysalis/pull/92)); pin smoke + genome deepen peel green
 
 ---
 
