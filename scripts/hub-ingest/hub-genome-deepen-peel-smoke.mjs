@@ -661,7 +661,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
-  // Tip 1.0.85 / RFC-0042: gold 94 DNA certificate / fingerprint / bank / match live — document facts only.
+  // Tip 1.0.85–1.0.86 / RFC-0042+0043: gold 94 DNA binds at sha384 floor — document facts only.
   // Do not invent Helix, digests, or Nest/LiveView/Flutter façades.
   try {
     const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
@@ -670,19 +670,22 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     );
     const path = join(cwlRoot, "fixtures/language-gold", "94-dna-fingerprint", "routes.cwl");
     if (!existsSync(path)) {
-      checks.push({ id: "tip-1.0.85-parse:94-dna-fingerprint", ok: false, detail: "missing" });
+      checks.push({ id: "tip-1.0.86-parse:94-dna-fingerprint", ok: false, detail: "missing" });
     } else {
       const { readFileSync } = await import("node:fs");
       const src = readFileSync(path, "utf8");
       const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
       const facts = [
         'dna certificate "app.dna.json";',
-        'dna fingerprint "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";',
+        `dna fingerprint "${sha384}";`,
         'dna bank "dna/";',
         "match live;",
       ];
       const refuseHoles = [
         "cwl:bad-dna-fingerprint",
+        "cwl:dna-fingerprint-too-weak",
         "cwl:dna-certificate-not-url",
         "cwl:dna-bank-not-on-route",
       ];
@@ -693,32 +696,94 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
         refuseHoles.every((r) => src.includes(`hole ${r};`));
       const dnaOk =
         mod.dnaCertificate === "app.dna.json" &&
-        mod.dnaFingerprint === "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" &&
+        mod.dnaFingerprint === sha384 &&
         mod.dnaBank === "dna/" &&
         mod.matchLive === true &&
         invoice?.dnaCertificate === "app.dna.json" &&
-        invoice?.dnaFingerprint === "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" &&
+        invoice?.dnaFingerprint === sha384 &&
         invoice?.matchLive === true;
       checks.push({
-        id: "tip-1.0.85-parse:94-dna-fingerprint",
+        id: "tip-1.0.86-parse:94-dna-fingerprint",
         ok: parseOk && dnaOk,
         detail:
           parseOk && dnaOk
-            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-fingerprint-facts`
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-fingerprint-sha384-facts`
             : "parse/dna-fingerprint facts failed",
       });
       const catalogOk = refuseHoles.every(
         (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
       );
       checks.push({
-        id: "tip-1.0.85-catalog:rfc-0042",
+        id: "tip-1.0.86-catalog:rfc-0042",
         ok: catalogOk,
-        detail: catalogOk ? "RFC-0042 DNA fingerprint holes catalogued" : "missing catalog entries",
+        detail: catalogOk ? "RFC-0042/0043 DNA fingerprint holes catalogued" : "missing catalog entries",
       });
     }
   } catch (e) {
     checks.push({
-      id: "tip-1.0.85-dna-fingerprint",
+      id: "tip-1.0.86-dna-fingerprint",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
+  // Tip 1.0.86 / RFC-0043: gold 95 DNA fingerprint strength sha384/sha512 — document facts only.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "95-dna-fingerprint-strong", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.86-parse:95-dna-fingerprint-strong", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const sha512 =
+        "sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const facts = [
+        'dna certificate "app.dna.json";',
+        `dna fingerprint "${sha384}";`,
+        'dna bank "dna/";',
+        "match live;",
+      ];
+      const refuseHoles = ["cwl:dna-fingerprint-too-weak", "cwl:bad-dna-fingerprint"];
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const dnaOk =
+        mod.dnaCertificate === "app.dna.json" &&
+        mod.dnaFingerprint === sha384 &&
+        mod.dnaBank === "dna/" &&
+        mod.matchLive === true &&
+        invoice?.dnaCertificate === "app.dna.json" &&
+        invoice?.dnaFingerprint === sha512 &&
+        invoice?.matchLive === true;
+      checks.push({
+        id: "tip-1.0.86-parse:95-dna-fingerprint-strong",
+        ok: parseOk && dnaOk,
+        detail:
+          parseOk && dnaOk
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-fingerprint-strong-facts`
+            : "parse/dna-fingerprint-strong facts failed",
+      });
+      const catalogOk =
+        CWL_FULLSTACK_HOLE_CATALOG["cwl:dna-fingerprint-too-weak"] != null &&
+        lookupFullstackHole("cwl:dna-fingerprint-too-weak") != null;
+      checks.push({
+        id: "tip-1.0.86-catalog:rfc-0043",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0043 dna-fingerprint-too-weak catalogued" : "missing catalog entry",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.86-dna-fingerprint-strong",
       ok: false,
       detail: String(e?.message ?? e).slice(0, 300),
     });
@@ -832,7 +897,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.85",
+    cwlTip: "1.0.86",
     ok,
     checks,
     generatedAt: new Date().toISOString(),

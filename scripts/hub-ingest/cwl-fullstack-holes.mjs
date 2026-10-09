@@ -349,7 +349,14 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     origin: "cwl",
     surface: "api",
     summary:
-      "`dna fingerprint` must be an SRI token (`sha256-` / `sha384-` / `sha512-` + base64). CWL does not invent digests — host / Secure verify.",
+      "`dna fingerprint` must be an SRI token (`sha384-` / `sha512-` + base64). CWL does not invent digests — host / Secure verify.",
+  },
+  "cwl:dna-fingerprint-too-weak": {
+    rfc: "0043",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`dna fingerprint` refuses `sha256-` for DNA binds (Grover margin). Use `sha384-` or `sha512-`. Asset integrity (RFC-0040) may still use sha256.",
   },
   "cwl:dna-bank-not-path": {
     rfc: "0042",

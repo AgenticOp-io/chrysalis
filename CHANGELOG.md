@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.86 (D6597):** tip floor + sibling pin for RFC-0043 DNA fingerprint strength sha384+ (gold `95`; gold `94` floor raised). ALWAYS sync parser/holes. Peel golds `40`–`63`. Golds `94`–`95` document facts only — `dna fingerprint` requires `sha384`/`sha512`; `sha256` → `cwl:dna-fingerprint-too-weak`; no Helix/hash invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.85 pin. No live Firebase `agenticops` deploy.
+
 - **CWL tip 1.0.85 (D6596):** tip floor + sibling pin for RFC-0042 DNA certificate / fingerprint / bank / match live (gold `94`). ALWAYS sync parser/print/layout/holes. Peel golds `40`–`63`. Gold `94` document facts only — `dna certificate`, `dna fingerprint`, `dna bank`, `match live`; refuse holes `cwl:bad-dna-fingerprint` / `cwl:dna-certificate-not-url` / `cwl:dna-bank-not-on-route`; no Helix/hash invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.84 pin. No live Firebase `agenticops` deploy.
 
 - **CWL tip 1.0.84 (D6595):** tip floor + sibling pin for RFC-0041 page form multipart (gold `93`). ALWAYS sync parser/print/layout/holes. Peel golds `40`–`63`. Gold `93` document facts only — `form … enctype multipart` + `field … "file"`; refuse holes `cwl:file-needs-multipart` / `cwl:multipart-not-get`; no upload middleware invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.83 pin. No live Firebase `agenticops` deploy.

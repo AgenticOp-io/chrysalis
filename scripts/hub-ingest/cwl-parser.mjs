@@ -74,6 +74,9 @@ const HOST_FIREBASE_RE =
 const SCRIPT_HEAD_RE = /^script\s+"((?:\\.|[^"\\])*)"(.*);$/;
 const STYLE_HEAD_RE = /^style\s+"((?:\\.|[^"\\])*)"(.*);$/;
 const SRI_RE = /^sha(256|384|512)-[A-Za-z0-9+/=]+$/;
+/** RFC-0043: DNA bind digests — sha384/sha512 only (sha256 is too light for long-lived DNA). */
+const DNA_FINGERPRINT_SRI_RE = /^sha(384|512)-[A-Za-z0-9+/=]+$/;
+const DNA_FINGERPRINT_WEAK_RE = /^sha256-[A-Za-z0-9+/=]+$/;
 /** Same-site form. Off-site actions are refused. Optional `enctype multipart` (RFC-0041). */
 const FORM_RE =
   /^form\s+([A-Za-z_][A-Za-z0-9_]*)\s+method\s+(get|post)\s+action\s+"([^"]+)"(?:\s+enctype\s+(multipart))?\s*;$/;
@@ -178,8 +181,9 @@ function parseDnaBindingLine(line) {
   const fp = DNA_FINGERPRINT_RE.exec(line);
   if (fp) {
     const digest = cwlQuoted(fp[1]);
-    if (!SRI_RE.test(digest)) return { hole: "cwl:bad-dna-fingerprint" };
-    return { kind: "fingerprint", value: digest };
+    if (DNA_FINGERPRINT_SRI_RE.test(digest)) return { kind: "fingerprint", value: digest };
+    if (DNA_FINGERPRINT_WEAK_RE.test(digest)) return { hole: "cwl:dna-fingerprint-too-weak" };
+    return { hole: "cwl:bad-dna-fingerprint" };
   }
   const bank = DNA_BANK_RE.exec(line);
   if (bank) {
