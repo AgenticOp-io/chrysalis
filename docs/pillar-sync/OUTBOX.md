@@ -26,7 +26,8 @@ CWL_SIBLING_REF: candidate/cwl-1.0.85-dna-fingerprint
 PEEL: golds 40–63 · gold 94 document facts
 BRANCH: candidate/convert-tip-1.0.85
 MAIN: c39088c4
-PR: (pending)
+FEATURE: b19a0f21
+PR: https://github.com/AgenticOp-io/chrysalis/pull/97
 HEARTBEAT: waiting
 ```
 
@@ -37,6 +38,7 @@ HEARTBEAT: waiting
 - No Helix / digest invent. Refuse holes `cwl:bad-dna-fingerprint` / `cwl:dna-certificate-not-url` / `cwl:dna-bank-not-on-route` stay catalogued
 - DESIGN **D6596**
 - CI sibling `ref` tracks `candidate/cwl-1.0.85-dna-fingerprint` until CWL merge/tag `cwl-v1.0.85`
+- Candidate [PR #97](https://github.com/AgenticOp-io/chrysalis/pull/97) · feature `b19a0f21`
 
 ---
 
