@@ -26,8 +26,8 @@ CWL_SIBLING_REF: candidate/cwl-1.0.86-dna-fp-strong
 PEEL: golds 40–63 · golds 94–95 document facts
 BRANCH: candidate/convert-tip-1.0.86
 MAIN: c39088c4
-FEATURE: pending
-PR: pending
+FEATURE: f61dedda
+PR: https://github.com/AgenticOp-io/chrysalis/pull/98
 HEARTBEAT: waiting
 ```
 
@@ -38,6 +38,7 @@ HEARTBEAT: waiting
 - No Helix / digest invent. Refuse holes `cwl:dna-fingerprint-too-weak` / `cwl:bad-dna-fingerprint` stay catalogued
 - DESIGN **D6597**
 - CI sibling `ref` tracks `candidate/cwl-1.0.86-dna-fp-strong` until CWL merge/tag `cwl-v1.0.86`
+- Candidate [PR #98](https://github.com/AgenticOp-io/chrysalis/pull/98) · feature `f61dedda`
 - Stacks on tip **1.0.85** candidate; supersedes open [PR #97](https://github.com/AgenticOp-io/chrysalis/pull/97)
 
 ---
