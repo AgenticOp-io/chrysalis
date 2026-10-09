@@ -8,6 +8,38 @@
 
 ---
 
+## 2026-10-08 - convert-tip-1.0.85
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.85-dna-fingerprint  
+**CWL tip:** **1.0.85** · language land `5215e9c` · CWL PR [#125](https://github.com/AgenticOp-io/chrysalis-cwl/pull/125) (open candidate)  
+**Supersedes:** open convert tip pin **1.0.84**
+
+```text
+CONVERT_TIP_1_0_85_OK
+CWL_TIP: 1.0.85
+CWL_SHA: 5215e9c
+CWL_PIN: file:1.0.85
+CWL_SIBLING_REF: candidate/cwl-1.0.85-dna-fingerprint
+PEEL: golds 40–63 · gold 94 document facts
+BRANCH: candidate/convert-tip-1.0.85
+MAIN: c39088c4
+PR: (pending)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.85-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.85**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync parser/print/layout/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Gold `94` parse + catalog document facts only (`dna certificate` / `dna fingerprint` / `dna bank` / `match live`)
+- No Helix / digest invent. Refuse holes `cwl:bad-dna-fingerprint` / `cwl:dna-certificate-not-url` / `cwl:dna-bank-not-on-route` stay catalogued
+- DESIGN **D6596**
+- CI sibling `ref` tracks `candidate/cwl-1.0.85-dna-fingerprint` until CWL merge/tag `cwl-v1.0.85`
+
+---
+
 ## 2026-10-06 - convert-tip-1.0.84
 
 **To:** cwl  

@@ -96,6 +96,14 @@ const FROM_PEEL_RE = /^from\s+peel\s+"((?:\\.|[^"\\])*)"\s+at\s+"((?:\\.|[^"\\])
 const CAPABILITY_RE = /^capability\s+([a-zA-Z][a-zA-Z0-9_-]*)\s*;$/;
 /** RFC-0039: progressive certificate — page is complete without a client island. */
 const WORKS_WITHOUT_CLIENT_RE = /^works\s+without\s+client\s*;$/i;
+/** RFC-0042: bind a promoted traffic DNA certificate (document fact). */
+const DNA_CERTIFICATE_RE = /^dna\s+certificate\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0042: SRI digest of that certificate (host verifies; CWL does not invent hashes). */
+const DNA_FINGERPRINT_RE = /^dna\s+fingerprint\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0042: path to a bank of known DNA certificates for proof. */
+const DNA_BANK_RE = /^dna\s+bank\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0042: this genome expects Secure live-match against the bound DNA. */
+const MATCH_LIVE_RE = /^match\s+live\s*;$/i;
 const CWL_CAPABILITIES = new Set([
   "cookies",
   "network-same-origin",
@@ -142,6 +150,45 @@ function assetHrefOk(href) {
   if (!href || typeof href !== "string") return false;
   if (href.startsWith("/") && !href.startsWith("//")) return true;
   return /^https?:\/\//i.test(href);
+}
+
+/**
+ * DNA certificate / bank path: same-site path, relative path, or absolute http(s).
+ * @param {string} href
+ */
+function dnaArtifactPathOk(href) {
+  if (!href || typeof href !== "string") return false;
+  if (href.startsWith("/") && !href.startsWith("//")) return true;
+  if (/^https?:\/\//i.test(href)) return true;
+  if (href.includes("://") || href.startsWith("//")) return false;
+  return /^[A-Za-z0-9_./@+-]+$/.test(href);
+}
+
+/**
+ * @param {string} line
+ * @returns {{ kind: "certificate"|"fingerprint"|"bank"|"matchLive", value?: string } | { hole: string } | null}
+ */
+function parseDnaBindingLine(line) {
+  const cert = DNA_CERTIFICATE_RE.exec(line);
+  if (cert) {
+    const href = cwlQuoted(cert[1]);
+    if (!dnaArtifactPathOk(href)) return { hole: "cwl:dna-certificate-not-url" };
+    return { kind: "certificate", value: href };
+  }
+  const fp = DNA_FINGERPRINT_RE.exec(line);
+  if (fp) {
+    const digest = cwlQuoted(fp[1]);
+    if (!SRI_RE.test(digest)) return { hole: "cwl:bad-dna-fingerprint" };
+    return { kind: "fingerprint", value: digest };
+  }
+  const bank = DNA_BANK_RE.exec(line);
+  if (bank) {
+    const href = cwlQuoted(bank[1]);
+    if (!dnaArtifactPathOk(href)) return { hole: "cwl:dna-bank-not-path" };
+    return { kind: "bank", value: href };
+  }
+  if (MATCH_LIVE_RE.test(line)) return { kind: "matchLive" };
+  return null;
 }
 
 /**
@@ -1183,6 +1230,16 @@ export function parseCwlModule(source, file) {
   let engine = null;
   /** @type {string[]} */
   const engineHoles = [];
+  /** @type {string | null} RFC-0042 module DNA certificate path/URL. */
+  let dnaCertificate = null;
+  /** @type {string | null} RFC-0042 module DNA fingerprint (SRI). */
+  let dnaFingerprint = null;
+  /** @type {string | null} RFC-0042 module DNA bank path. */
+  let dnaBank = null;
+  /** @type {boolean} RFC-0042 module expects live-match. */
+  let matchLive = false;
+  /** @type {string[]} */
+  const dnaHoles = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, character?: number, endCharacter?: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -1198,6 +1255,16 @@ export function parseCwlModule(source, file) {
       moduleLine = lineNo;
       moduleCharacter = keywordStartCharacter0(rawLine);
       moduleEndCharacter = keywordEndCharacter0(rawLine, "module");
+      continue;
+    }
+    const dnaBind = parseDnaBindingLine(line);
+    if (dnaBind) {
+      if ("hole" in dnaBind) {
+        if (!dnaHoles.includes(dnaBind.hole)) dnaHoles.push(dnaBind.hole);
+      } else if (dnaBind.kind === "certificate") dnaCertificate = dnaBind.value ?? null;
+      else if (dnaBind.kind === "fingerprint") dnaFingerprint = dnaBind.value ?? null;
+      else if (dnaBind.kind === "bank") dnaBank = dnaBind.value ?? null;
+      else if (dnaBind.kind === "matchLive") matchLive = true;
       continue;
     }
     const useM = USE_PRESET_RE.exec(line);
@@ -1364,6 +1431,12 @@ export function parseCwlModule(source, file) {
     const capabilities = [];
     /** @type {boolean} RFC-0039 progressive certificate. */
     let worksWithoutClient = false;
+    /** @type {string | null} RFC-0042 per-surface DNA certificate. */
+    let routeDnaCertificate = null;
+    /** @type {string | null} RFC-0042 per-surface DNA fingerprint. */
+    let routeDnaFingerprint = null;
+    /** @type {boolean} RFC-0042 per-surface live-match intent. */
+    let routeMatchLive = false;
     const metaCard = emptyMetaCard();
     /** @type {Array<{ href: string, integrity?: string, crossorigin?: boolean }>} Page stylesheets, after the layout styles. */
     const pageStyles = [];
@@ -1453,6 +1526,19 @@ export function parseCwlModule(source, file) {
       }
       if (WORKS_WITHOUT_CLIENT_RE.test(inner)) {
         worksWithoutClient = true;
+        continue;
+      }
+      const routeDna = parseDnaBindingLine(inner);
+      if (routeDna) {
+        if ("hole" in routeDna) {
+          if (!attachmentHoles.includes(routeDna.hole)) attachmentHoles.push(routeDna.hole);
+        } else if (routeDna.kind === "certificate") routeDnaCertificate = routeDna.value ?? null;
+        else if (routeDna.kind === "fingerprint") routeDnaFingerprint = routeDna.value ?? null;
+        else if (routeDna.kind === "bank") {
+          if (!attachmentHoles.includes("cwl:dna-bank-not-on-route")) {
+            attachmentHoles.push("cwl:dna-bank-not-on-route");
+          }
+        } else if (routeDna.kind === "matchLive") routeMatchLive = true;
         continue;
       }
       if (applyMetaLine(inner, metaCard, attachmentHoles)) continue;
@@ -1954,6 +2040,9 @@ export function parseCwlModule(source, file) {
       ...(peel ? { peel } : {}),
       ...(capabilities.length ? { capabilities } : {}),
       ...(worksWithoutClient ? { worksWithoutClient: true } : {}),
+      ...(typeof routeDnaCertificate === "string" ? { dnaCertificate: routeDnaCertificate } : {}),
+      ...(typeof routeDnaFingerprint === "string" ? { dnaFingerprint: routeDnaFingerprint } : {}),
+      ...(routeMatchLive ? { matchLive: true } : {}),
       ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
       ...(pageStyles.length ? { pageStyles } : {}),
       ...(icons.length ? { icons } : {}),
@@ -1976,6 +2065,11 @@ export function parseCwlModule(source, file) {
     tables,
     engine,
     engineHoles,
+    ...(dnaHoles.length ? { dnaHoles } : {}),
+    ...(typeof dnaCertificate === "string" ? { dnaCertificate } : {}),
+    ...(typeof dnaFingerprint === "string" ? { dnaFingerprint } : {}),
+    ...(typeof dnaBank === "string" ? { dnaBank } : {}),
+    ...(matchLive ? { matchLive: true } : {}),
     layouts,
     moduleUses,
     moduleAuthUses,

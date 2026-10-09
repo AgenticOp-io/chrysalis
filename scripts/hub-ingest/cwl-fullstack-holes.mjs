@@ -337,6 +337,34 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "`enctype multipart` is refused on GET forms. Multipart bodies are POST (or kin) only.",
   },
+  "cwl:dna-certificate-not-url": {
+    rfc: "0042",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`dna certificate` must be a same-site path, relative artifact path, or absolute http(s) URL. javascript: and exotic schemes are refused.",
+  },
+  "cwl:bad-dna-fingerprint": {
+    rfc: "0042",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`dna fingerprint` must be an SRI token (`sha256-` / `sha384-` / `sha512-` + base64). CWL does not invent digests — host / Secure verify.",
+  },
+  "cwl:dna-bank-not-path": {
+    rfc: "0042",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`dna bank` must be a same-site path, relative directory/path, or absolute http(s) URL naming a bank of known certificates.",
+  },
+  "cwl:dna-bank-not-on-route": {
+    rfc: "0042",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`dna bank` is module-scope only. Per-route banks are refused so the genome has one proof corpus.",
+  },
 
   // Thin emit reverse residuals (WebIR → CWL; never invent semantics)
   "cwl:emit:missing-value": {

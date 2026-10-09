@@ -373,6 +373,15 @@ export function printCwlModule(mod, opts = {}) {
   }
   if (mod.engine) lines.push(`engine ${mod.engine};`);
   for (const hole of mod.engineHoles ?? []) lines.push(`hole ${hole};`);
+  if (typeof mod.dnaCertificate === "string") {
+    lines.push(`dna certificate ${JSON.stringify(mod.dnaCertificate)};`);
+  }
+  if (typeof mod.dnaFingerprint === "string") {
+    lines.push(`dna fingerprint ${JSON.stringify(mod.dnaFingerprint)};`);
+  }
+  if (typeof mod.dnaBank === "string") lines.push(`dna bank ${JSON.stringify(mod.dnaBank)};`);
+  if (mod.matchLive) lines.push("match live;");
+  for (const hole of mod.dnaHoles ?? []) lines.push(`hole ${hole};`);
 
   for (const table of mod.tables ?? []) {
     lines.push("");
@@ -484,6 +493,13 @@ export function printCwlModule(mod, opts = {}) {
     }
     for (const cap of route.capabilities ?? []) lines.push(`  capability ${cap};`);
     if (route.worksWithoutClient) lines.push(`  works without client;`);
+    if (typeof route.dnaCertificate === "string") {
+      lines.push(`  dna certificate ${JSON.stringify(route.dnaCertificate)};`);
+    }
+    if (typeof route.dnaFingerprint === "string") {
+      lines.push(`  dna fingerprint ${JSON.stringify(route.dnaFingerprint)};`);
+    }
+    if (route.matchLive) lines.push(`  match live;`);
     printMetaCard(route.metaCard, "  ", lines);
     for (const icon of route.icons ?? []) lines.push(`  icon ${icon.id}${icon.apple ? " apple" : ""};`);
     for (const link of route.preconnects ?? []) {
