@@ -118,11 +118,20 @@ function tryEmitLibHelperCallExpr(ctx: EmitCtx, callee: string, argExprs: readon
   return tryEmitInlineLibHelperCall(emitInlineCtx(ctx), callee, argExprs);
 }
 
+/** PHP helpers that already have HttpEmitProfile / runtime shims — do not lower via lib-helpers. */
+const RUNTIME_PROFILE_LIB_HELPERS = new Set(["current_user", "require_login"]);
+
 function recordLibHelperCallIfNeeded(ctx: EmitCtx, callee: string, argExprs: readonly string[]): string | undefined {
   const bodies = ctx.m.meta.helperBodies;
   if (!bodies) return undefined;
   const entry = resolveHelperBodyEntry(bodies, callee);
   if (entry === undefined) return undefined;
+  // Prefer profile builtins (`currentUser(c)` / `requireLogin(c)`). Lifted auth.php bodies
+  // cannot see handler `c` / session imports and previously emitted bare `empty(...)`.
+  const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  if (RUNTIME_PROFILE_LIB_HELPERS.has(tail) || RUNTIME_PROFILE_LIB_HELPERS.has(callee)) {
+    return undefined;
+  }
   const inline = tryEmitLibHelperCallExpr(ctx, callee, argExprs);
   if (inline !== undefined) return inline;
   const exportName = libHelperTsExportName(callee);

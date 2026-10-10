@@ -8,6 +8,34 @@
 
 ---
 
+## 2026-10-10 - convert-fix-lib-helpers-empty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **in-progress**  
+**Ask:** tip-1.0.88 main CI health (`ReferenceError: empty is not defined`)  
+**CWL tip:** **1.0.88** · sibling pin `cwl-v1.0.88` (unchanged)
+
+```text
+CONVERT_FIX_EMPTY_LIB_HELPERS
+CWL_TIP: 1.0.88
+CWL_SIBLING_REF: cwl-v1.0.88
+ROOT: auth.php current_user/require_login routed to lib-helpers without runtime profile / empty import
+BRANCH: candidate/convert-fix-lib-helpers-empty-import
+BASE: e7a34073
+LOCAL_PROVE: verify:e2e 100% hono+fastify; hub:cwl-pin-smoke CONVERT_TIP_1_0_88_OK; emit-hono + emit-fastify tests green
+HEARTBEAT: waiting
+```
+
+### Landed (local)
+
+- Prefer HttpEmitProfile builtins for `current_user` / `require_login` (do not emit broken lib-helpers bodies that call bare `empty(...)` / `getSession(c)` without `c`)
+- Broaden `emit-lib-helpers` runtime import scan for remaining helpers (`empty(`, `passwordVerify(`, …) — call-site match only
+- Refresh tiny-blog login golden; emit tests assert runtime `currentUser(c)` / `requireLogin(c)`
+- Sibling pin stays `fixtures/ci/cwl-sibling.json` → `cwl-v1.0.88` / tipVersion `1.0.88`
+
+---
+
 ## 2026-10-10 - convert-tip-1.0.88
 
 **To:** cwl  

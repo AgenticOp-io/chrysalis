@@ -1,10 +1,12 @@
 import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
 import type { User } from "../domain.js";
+import { verify_password } from "../lib-helpers.js";
 import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,
+  renderCwlUiTree,
   nl2br,
   currentUser,
   requireLogin,
@@ -44,7 +46,7 @@ export async function login(c: Context): Promise<Response> {
     return __respond(c, __html, __status);
   }
   let user = queryOne<User>("SELECT id, password FROM users WHERE username = ?", [username]);
-  if (((user === null) || (!(await passwordVerify(password, (user as any).password))))) {
+  if (((user === null) || (!await verify_password(password, (user as any).password)))) {
     __status = 401;
     __html += String("Invalid credentials");
     return __respond(c, __html, __status);
