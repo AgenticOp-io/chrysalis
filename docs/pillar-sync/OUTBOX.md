@@ -27,7 +27,7 @@ PEEL: golds 40–63 · golds 94–96 document facts
 BRANCH: candidate/convert-tip-1.0.87
 MAIN: c39088c4
 FEATURE: 77da5ae5
-PR: pending
+PR: https://github.com/AgenticOp-io/chrysalis/pull/99
 HEARTBEAT: waiting
 ```
 
@@ -38,7 +38,8 @@ HEARTBEAT: waiting
 - No Helix / digest invent. Refuse holes `cwl:match-without-certificate` / `cwl:match-bank-without-bank` / `cwl:dna-expect-unknown` stay catalogued
 - DESIGN **D6598**
 - CI sibling `ref` tracks `candidate/cwl-1.0.87-dna-proof` until CWL merge/tag `cwl-v1.0.87`
-- Candidate feature `77da5ae5`. Stacks on tip **1.0.86** candidate; supersedes open [PR #98](https://github.com/AgenticOp-io/chrysalis/pull/98)
+- Candidate [PR #99](https://github.com/AgenticOp-io/chrysalis/pull/99) · feature `77da5ae5`
+- Stacks on tip **1.0.86** candidate; supersedes open [PR #98](https://github.com/AgenticOp-io/chrysalis/pull/98)
 
 ---
 
