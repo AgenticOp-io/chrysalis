@@ -25,7 +25,10 @@ CONSUME: CONVERT-CWL-CONSUME DNA ladder RFC-0042..0045 / golds 94–97
 RFC_MIRROR: CWL-RFC.md + RFC-0013 non-SoR → chrysalis-cwl
 BRANCH: candidate/convert-doc-map-1.0.88
 BASE: e7a34073
-CI_DEBT_NAMED: PR #101 empty/lib-helpers · PR #102 exec-ceiling smoke · wptp-harness @wptp/ir
+FEATURE: d841d866
+PR: https://github.com/AgenticOp-io/chrysalis/pull/103
+MAIN: 5be0940a
+CI_DEBT_NAMED: PR #101 empty/lib-helpers · PR #102 exec-ceiling smoke · wptp-harness @wptp/ir (verify red pre-existing on main)
 HEARTBEAT: waiting
 ```
 
