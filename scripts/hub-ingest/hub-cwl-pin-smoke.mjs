@@ -69,18 +69,18 @@ export async function runCwlPinSmoke(opts = {}) {
     ok: typeof version === "string" && Number.parseInt(String(version).split(".")[0] ?? "0", 10) >= 1,
     detail: `VERSION=${version} (Exit 1.0+ file: pin)`,
   });
-  // Tip floor for CWL DNA fingerprint strength (LANGUAGE_VERSION / 1.0.86). Peel golds 40–63; golds 94–95 document facts.
+  // Tip floor for CWL DNA proof deepen (LANGUAGE_VERSION / 1.0.87). Peel golds 40–63; golds 94–96 document facts.
   const parts = String(version ?? "").split(".").map((x) => Number.parseInt(x, 10));
   const tipOk =
     parts.length >= 3 &&
     !parts.some((n) => Number.isNaN(n)) &&
     (parts[0] > 1 ||
       (parts[0] === 1 && parts[1] > 0) ||
-      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 86));
+      (parts[0] === 1 && parts[1] === 0 && parts[2] >= 87));
   checks.push({
-    id: "cwl-1.0.86-tip-floor",
+    id: "cwl-1.0.87-tip-floor",
     ok: tipOk,
-    detail: `VERSION=${version} (expect >= 1.0.86 DNA fingerprint sha384+ / golds 94-95; peel golds 40-63)`,
+    detail: `VERSION=${version} (expect >= 1.0.87 DNA proof multi-fp/match bank/expect / golds 94-96; peel golds 40-63)`,
   });
   for (const sub of ["parser", "print", "diagnose", "lsp-map", "dna-seed"]) {
     const subPath = join(root, "packages/cwl", `${sub}.mjs`);
@@ -162,6 +162,6 @@ const isDirect =
 if (isDirect) {
   const report = await runCwlPinSmoke();
   console.log(JSON.stringify(report, null, 2));
-  if (report.ok) console.log("CONVERT_TIP_1_0_86_OK");
+  if (report.ok) console.log("CONVERT_TIP_1_0_87_OK");
   process.exit(report.ok ? 0 : 1);
 }

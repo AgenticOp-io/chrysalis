@@ -358,6 +358,27 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "`dna fingerprint` refuses `sha256-` for DNA binds (Grover margin). Use `sha384-` or `sha512-`. Asset integrity (RFC-0040) may still use sha256.",
   },
+  "cwl:match-bank-without-bank": {
+    rfc: "0044",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`match bank` requires a module `dna bank`. Proof against an unnamed corpus is refused.",
+  },
+  "cwl:match-without-certificate": {
+    rfc: "0044",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`match live` / `match bank` require a `dna certificate` (module or surface). Secure cannot live-match an unbound genome.",
+  },
+  "cwl:dna-expect-unknown": {
+    rfc: "0044",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`dna expect` accepts only `promote`, `shadow`, or `enforce`. Helix owns the lifecycle; CWL names the expected mode.",
+  },
   "cwl:dna-bank-not-path": {
     rfc: "0042",
     origin: "cwl",

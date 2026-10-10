@@ -107,6 +107,11 @@ const DNA_FINGERPRINT_RE = /^dna\s+fingerprint\s+"((?:\\.|[^"\\])*)"\s*;$/;
 const DNA_BANK_RE = /^dna\s+bank\s+"((?:\\.|[^"\\])*)"\s*;$/;
 /** RFC-0042: this genome expects Secure live-match against the bound DNA. */
 const MATCH_LIVE_RE = /^match\s+live\s*;$/i;
+/** RFC-0044: expect Secure proof against the module DNA bank (not only live traffic). */
+const MATCH_BANK_RE = /^match\s+bank\s*;$/i;
+/** RFC-0044: expected Helix DNA lifecycle mode (document fact; Secure owns enforce). */
+const DNA_EXPECT_RE = /^dna\s+expect\s+(promote|shadow|enforce)\s*;$/i;
+const DNA_EXPECT_MODES = new Set(["promote", "shadow", "enforce"]);
 const CWL_CAPABILITIES = new Set([
   "cookies",
   "network-same-origin",
@@ -169,7 +174,7 @@ function dnaArtifactPathOk(href) {
 
 /**
  * @param {string} line
- * @returns {{ kind: "certificate"|"fingerprint"|"bank"|"matchLive", value?: string } | { hole: string } | null}
+ * @returns {{ kind: "certificate"|"fingerprint"|"bank"|"matchLive"|"matchBank"|"expect", value?: string } | { hole: string } | null}
  */
 function parseDnaBindingLine(line) {
   const cert = DNA_CERTIFICATE_RE.exec(line);
@@ -192,7 +197,40 @@ function parseDnaBindingLine(line) {
     return { kind: "bank", value: href };
   }
   if (MATCH_LIVE_RE.test(line)) return { kind: "matchLive" };
+  if (MATCH_BANK_RE.test(line)) return { kind: "matchBank" };
+  const expect = DNA_EXPECT_RE.exec(line);
+  if (expect) {
+    const mode = expect[1].toLowerCase();
+    if (!DNA_EXPECT_MODES.has(mode)) return { hole: "cwl:dna-expect-unknown" };
+    return { kind: "expect", value: mode };
+  }
   return null;
+}
+
+/**
+ * Push a strong DNA fingerprint; keep singular primary for Secure tip ≤1.0.86 consume.
+ * @param {string[]} list
+ * @param {string} digest
+ * @returns {string} primary fingerprint
+ */
+function pushDnaFingerprint(list, digest) {
+  if (!list.includes(digest)) list.push(digest);
+  return list[0];
+}
+
+/**
+ * RFC-0044 coherence: match intents need a certificate; match bank needs a bank.
+ * @param {{ certificate: string | null, bank: string | null, matchLive: boolean, matchBank: boolean, holes: string[] }} state
+ */
+function applyDnaProofCoherence(state) {
+  if (state.matchBank && !state.bank) {
+    if (!state.holes.includes("cwl:match-bank-without-bank")) state.holes.push("cwl:match-bank-without-bank");
+  }
+  if ((state.matchLive || state.matchBank) && !state.certificate) {
+    if (!state.holes.includes("cwl:match-without-certificate")) {
+      state.holes.push("cwl:match-without-certificate");
+    }
+  }
 }
 
 /**
@@ -1236,12 +1274,16 @@ export function parseCwlModule(source, file) {
   const engineHoles = [];
   /** @type {string | null} RFC-0042 module DNA certificate path/URL. */
   let dnaCertificate = null;
-  /** @type {string | null} RFC-0042 module DNA fingerprint (SRI). */
-  let dnaFingerprint = null;
+  /** @type {string[]} RFC-0042/0044 module DNA fingerprints (sha384/sha512). */
+  const dnaFingerprints = [];
   /** @type {string | null} RFC-0042 module DNA bank path. */
   let dnaBank = null;
   /** @type {boolean} RFC-0042 module expects live-match. */
   let matchLive = false;
+  /** @type {boolean} RFC-0044 module expects bank proof. */
+  let matchBank = false;
+  /** @type {string | null} RFC-0044 expected Helix mode. */
+  let dnaExpect = null;
   /** @type {string[]} */
   const dnaHoles = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, character?: number, endCharacter?: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
@@ -1266,9 +1308,12 @@ export function parseCwlModule(source, file) {
       if ("hole" in dnaBind) {
         if (!dnaHoles.includes(dnaBind.hole)) dnaHoles.push(dnaBind.hole);
       } else if (dnaBind.kind === "certificate") dnaCertificate = dnaBind.value ?? null;
-      else if (dnaBind.kind === "fingerprint") dnaFingerprint = dnaBind.value ?? null;
-      else if (dnaBind.kind === "bank") dnaBank = dnaBind.value ?? null;
+      else if (dnaBind.kind === "fingerprint" && typeof dnaBind.value === "string") {
+        pushDnaFingerprint(dnaFingerprints, dnaBind.value);
+      } else if (dnaBind.kind === "bank") dnaBank = dnaBind.value ?? null;
       else if (dnaBind.kind === "matchLive") matchLive = true;
+      else if (dnaBind.kind === "matchBank") matchBank = true;
+      else if (dnaBind.kind === "expect" && typeof dnaBind.value === "string") dnaExpect = dnaBind.value;
       continue;
     }
     const useM = USE_PRESET_RE.exec(line);
@@ -1437,10 +1482,14 @@ export function parseCwlModule(source, file) {
     let worksWithoutClient = false;
     /** @type {string | null} RFC-0042 per-surface DNA certificate. */
     let routeDnaCertificate = null;
-    /** @type {string | null} RFC-0042 per-surface DNA fingerprint. */
-    let routeDnaFingerprint = null;
+    /** @type {string[]} RFC-0042/0044 per-surface DNA fingerprints. */
+    const routeDnaFingerprints = [];
     /** @type {boolean} RFC-0042 per-surface live-match intent. */
     let routeMatchLive = false;
+    /** @type {boolean} RFC-0044 per-surface bank-proof intent. */
+    let routeMatchBank = false;
+    /** @type {string | null} RFC-0044 per-surface expected Helix mode. */
+    let routeDnaExpect = null;
     const metaCard = emptyMetaCard();
     /** @type {Array<{ href: string, integrity?: string, crossorigin?: boolean }>} Page stylesheets, after the layout styles. */
     const pageStyles = [];
@@ -1537,12 +1586,17 @@ export function parseCwlModule(source, file) {
         if ("hole" in routeDna) {
           if (!attachmentHoles.includes(routeDna.hole)) attachmentHoles.push(routeDna.hole);
         } else if (routeDna.kind === "certificate") routeDnaCertificate = routeDna.value ?? null;
-        else if (routeDna.kind === "fingerprint") routeDnaFingerprint = routeDna.value ?? null;
-        else if (routeDna.kind === "bank") {
+        else if (routeDna.kind === "fingerprint" && typeof routeDna.value === "string") {
+          pushDnaFingerprint(routeDnaFingerprints, routeDna.value);
+        } else if (routeDna.kind === "bank") {
           if (!attachmentHoles.includes("cwl:dna-bank-not-on-route")) {
             attachmentHoles.push("cwl:dna-bank-not-on-route");
           }
         } else if (routeDna.kind === "matchLive") routeMatchLive = true;
+        else if (routeDna.kind === "matchBank") routeMatchBank = true;
+        else if (routeDna.kind === "expect" && typeof routeDna.value === "string") {
+          routeDnaExpect = routeDna.value;
+        }
         continue;
       }
       if (applyMetaLine(inner, metaCard, attachmentHoles)) continue;
@@ -2045,8 +2099,15 @@ export function parseCwlModule(source, file) {
       ...(capabilities.length ? { capabilities } : {}),
       ...(worksWithoutClient ? { worksWithoutClient: true } : {}),
       ...(typeof routeDnaCertificate === "string" ? { dnaCertificate: routeDnaCertificate } : {}),
-      ...(typeof routeDnaFingerprint === "string" ? { dnaFingerprint: routeDnaFingerprint } : {}),
+      ...(routeDnaFingerprints.length
+        ? {
+            dnaFingerprints: [...routeDnaFingerprints],
+            dnaFingerprint: routeDnaFingerprints[0],
+          }
+        : {}),
       ...(routeMatchLive ? { matchLive: true } : {}),
+      ...(routeMatchBank ? { matchBank: true } : {}),
+      ...(typeof routeDnaExpect === "string" ? { dnaExpect: routeDnaExpect } : {}),
       ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
       ...(pageStyles.length ? { pageStyles } : {}),
       ...(icons.length ? { icons } : {}),
@@ -2058,6 +2119,27 @@ export function parseCwlModule(source, file) {
       dbOps,
       body,
     });
+  }
+  applyDnaProofCoherence({
+    certificate: dnaCertificate,
+    bank: dnaBank,
+    matchLive,
+    matchBank,
+    holes: dnaHoles,
+  });
+  for (const route of routes) {
+    const routeHoles = Array.isArray(route.attachmentHoles) ? route.attachmentHoles : [];
+    applyDnaProofCoherence({
+      certificate:
+        typeof route.dnaCertificate === "string"
+          ? route.dnaCertificate
+          : dnaCertificate,
+      bank: dnaBank,
+      matchLive: route.matchLive === true,
+      matchBank: route.matchBank === true,
+      holes: routeHoles,
+    });
+    if (routeHoles.length) route.attachmentHoles = routeHoles;
   }
   const parsedModule = {
     moduleName,
@@ -2071,9 +2153,13 @@ export function parseCwlModule(source, file) {
     engineHoles,
     ...(dnaHoles.length ? { dnaHoles } : {}),
     ...(typeof dnaCertificate === "string" ? { dnaCertificate } : {}),
-    ...(typeof dnaFingerprint === "string" ? { dnaFingerprint } : {}),
+    ...(dnaFingerprints.length
+      ? { dnaFingerprints: [...dnaFingerprints], dnaFingerprint: dnaFingerprints[0] }
+      : {}),
     ...(typeof dnaBank === "string" ? { dnaBank } : {}),
     ...(matchLive ? { matchLive: true } : {}),
+    ...(matchBank ? { matchBank: true } : {}),
+    ...(typeof dnaExpect === "string" ? { dnaExpect } : {}),
     layouts,
     moduleUses,
     moduleAuthUses,

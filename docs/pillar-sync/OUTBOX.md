@@ -8,6 +8,40 @@
 
 ---
 
+## 2026-10-09 - convert-tip-1.0.87
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **done**  
+**Ask:** tip-1.0.87-dna-proof  
+**CWL tip:** **1.0.87** · language land `537c0bc` · CWL PR [#128](https://github.com/AgenticOp-io/chrysalis-cwl/pull/128) (open candidate)  
+**Supersedes:** open convert tip pin **1.0.86** ([PR #98](https://github.com/AgenticOp-io/chrysalis/pull/98))
+
+```text
+CONVERT_TIP_1_0_87_OK
+CWL_TIP: 1.0.87
+CWL_SHA: 537c0bc
+CWL_PIN: file:1.0.87
+CWL_SIBLING_REF: candidate/cwl-1.0.87-dna-proof
+PEEL: golds 40–63 · golds 94–96 document facts
+BRANCH: candidate/convert-tip-1.0.87
+MAIN: c39088c4
+FEATURE: pending
+PR: pending
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Tip floor `hub:cwl-pin-smoke` is `cwl-1.0.87-tip-floor`. Junction `@chrysalis/cwl` VERSION **1.0.87**. Pin stays `file:../chrysalis-cwl/packages/cwl`
+- ALWAYS sync parser/print/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Golds `94`–`96` parse + catalog document facts only (multi-fingerprint · `match bank` · `dna expect promote|shadow|enforce`)
+- No Helix / digest invent. Refuse holes `cwl:match-without-certificate` / `cwl:match-bank-without-bank` / `cwl:dna-expect-unknown` stay catalogued
+- DESIGN **D6598**
+- CI sibling `ref` tracks `candidate/cwl-1.0.87-dna-proof` until CWL merge/tag `cwl-v1.0.87`
+- Stacks on tip **1.0.86** candidate; supersedes open [PR #98](https://github.com/AgenticOp-io/chrysalis/pull/98)
+
+---
+
 ## 2026-10-09 - convert-tip-1.0.86
 
 **To:** cwl  

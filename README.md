@@ -13,7 +13,7 @@ This repo is the **Universal Translator**: origin stacks → WebIR/CWL → emit.
 | **Convert** | [**chrysalis**](https://github.com/AgenticOp-io/chrysalis) | Universal Translator — origin → WebIR/CWL → emit |
 | **Secure** | [**chrysalis-security**](https://github.com/AgenticOp-io/chrysalis-security) | Helix DNA firewall — allow only what certified traffic proves |
 
-**Tip pin:** `@chrysalis/cwl` `file:` ≡ sibling **1.0.86** (`hub:cwl-pin-smoke`). Peel golds `40`–`63` / `79`; golds `94`–`95` RFC-0042/0043 DNA fingerprint (`dna certificate` / `dna fingerprint` sha384+ / `dna bank` / `match live`) are document facts (no Helix/hash invent).
+**Tip pin:** `@chrysalis/cwl` `file:` ≡ sibling **1.0.87** (`hub:cwl-pin-smoke`). Peel golds `40`–`63` / `79`; golds `94`–`96` RFC-0042/0043/0044 DNA proof (`dna fingerprint` multi sha384+/sha512 / `match bank` / `dna expect`) are document facts (no Helix/hash invent).
 
 Chrysalis turns legacy modernization from a **translation problem** into a
 **specification problem**: your running app becomes the spec, and translated

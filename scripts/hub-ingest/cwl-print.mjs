@@ -376,11 +376,17 @@ export function printCwlModule(mod, opts = {}) {
   if (typeof mod.dnaCertificate === "string") {
     lines.push(`dna certificate ${JSON.stringify(mod.dnaCertificate)};`);
   }
-  if (typeof mod.dnaFingerprint === "string") {
-    lines.push(`dna fingerprint ${JSON.stringify(mod.dnaFingerprint)};`);
-  }
+  const modFingerprints =
+    Array.isArray(mod.dnaFingerprints) && mod.dnaFingerprints.length
+      ? mod.dnaFingerprints
+      : typeof mod.dnaFingerprint === "string"
+        ? [mod.dnaFingerprint]
+        : [];
+  for (const fp of modFingerprints) lines.push(`dna fingerprint ${JSON.stringify(fp)};`);
   if (typeof mod.dnaBank === "string") lines.push(`dna bank ${JSON.stringify(mod.dnaBank)};`);
   if (mod.matchLive) lines.push("match live;");
+  if (mod.matchBank) lines.push("match bank;");
+  if (typeof mod.dnaExpect === "string") lines.push(`dna expect ${mod.dnaExpect};`);
   for (const hole of mod.dnaHoles ?? []) lines.push(`hole ${hole};`);
 
   for (const table of mod.tables ?? []) {
@@ -496,10 +502,16 @@ export function printCwlModule(mod, opts = {}) {
     if (typeof route.dnaCertificate === "string") {
       lines.push(`  dna certificate ${JSON.stringify(route.dnaCertificate)};`);
     }
-    if (typeof route.dnaFingerprint === "string") {
-      lines.push(`  dna fingerprint ${JSON.stringify(route.dnaFingerprint)};`);
-    }
+    const routeFingerprints =
+      Array.isArray(route.dnaFingerprints) && route.dnaFingerprints.length
+        ? route.dnaFingerprints
+        : typeof route.dnaFingerprint === "string"
+          ? [route.dnaFingerprint]
+          : [];
+    for (const fp of routeFingerprints) lines.push(`  dna fingerprint ${JSON.stringify(fp)};`);
     if (route.matchLive) lines.push(`  match live;`);
+    if (route.matchBank) lines.push(`  match bank;`);
+    if (typeof route.dnaExpect === "string") lines.push(`  dna expect ${route.dnaExpect};`);
     printMetaCard(route.metaCard, "  ", lines);
     for (const icon of route.icons ?? []) lines.push(`  icon ${icon.id}${icon.apple ? " apple" : ""};`);
     for (const link of route.preconnects ?? []) {

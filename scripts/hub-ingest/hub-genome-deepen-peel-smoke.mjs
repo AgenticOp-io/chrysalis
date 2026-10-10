@@ -789,6 +789,84 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
+  // Tip 1.0.87 / RFC-0044: gold 96 DNA proof (multi-fingerprint · match bank · dna expect) — document facts only.
+  // Do not invent Helix promote/shadow/enforce, digests, or Nest/LiveView/Flutter façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "96-dna-proof", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.87-parse:96-dna-proof", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const sha512 =
+        "sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const facts = [
+        'dna certificate "app.dna.json";',
+        `dna fingerprint "${sha384}";`,
+        `dna fingerprint "${sha512}";`,
+        'dna bank "dna/";',
+        "match live;",
+        "match bank;",
+        "dna expect enforce;",
+        "dna expect shadow;",
+      ];
+      const refuseHoles = [
+        "cwl:match-without-certificate",
+        "cwl:match-bank-without-bank",
+        "cwl:dna-expect-unknown",
+      ];
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const dnaOk =
+        mod.dnaCertificate === "app.dna.json" &&
+        mod.dnaFingerprint === sha384 &&
+        Array.isArray(mod.dnaFingerprints) &&
+        mod.dnaFingerprints[0] === sha384 &&
+        mod.dnaFingerprints[1] === sha512 &&
+        mod.dnaBank === "dna/" &&
+        mod.matchLive === true &&
+        mod.matchBank === true &&
+        mod.dnaExpect === "enforce" &&
+        invoice?.dnaCertificate === "app.dna.json" &&
+        invoice?.dnaFingerprint === sha384 &&
+        invoice?.matchLive === true &&
+        invoice?.matchBank === true &&
+        invoice?.dnaExpect === "shadow";
+      checks.push({
+        id: "tip-1.0.87-parse:96-dna-proof",
+        ok: parseOk && dnaOk,
+        detail:
+          parseOk && dnaOk
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-proof-multi-fp-match-bank-expect`
+            : "parse/dna-proof facts failed",
+      });
+      const catalogOk = refuseHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.87-catalog:rfc-0044",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0044 DNA proof holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.87-dna-proof",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -897,7 +975,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.86",
+    cwlTip: "1.0.87",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
