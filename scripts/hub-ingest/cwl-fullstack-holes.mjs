@@ -379,6 +379,73 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     summary:
       "`dna expect` accepts only `promote`, `shadow`, or `enforce`. Helix owns the lifecycle; CWL names the expected mode.",
   },
+  "cwl:dna-proof-unknown": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary:
+      "`use dna proof <name>` requires a module `dna proof <name> { … }` unit. Unknown names are refused.",
+  },
+  "cwl:dna-proof-duplicate": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "Two `dna proof` units cannot share a name in one module.",
+  },
+  "cwl:dna-proof-empty": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "A `dna proof` unit needs a certificate and/or at least one strong fingerprint.",
+  },
+  "cwl:dna-quorum-bad": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "`dna quorum` / `quorum` must be an integer ≥ 1.",
+  },
+  "cwl:dna-quorum-too-high": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "Quorum cannot exceed the number of declared strong DNA fingerprints.",
+  },
+  "cwl:bad-dna-lineage": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "`dna lineage` must be a same-site path, relative artifact path, or absolute http(s) URL.",
+  },
+  "cwl:bad-dna-supersedes": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "`dna supersedes` must be a strong SRI fingerprint (`sha384` / `sha512`).",
+  },
+  "cwl:bad-dna-witness": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "`dna witness` must be an absolute http(s) attestation URL. CWL does not invent the witness.",
+  },
+  "cwl:dna-scope-unknown": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "`dna scope` accepts only `path`, `host`, `method`, or `surface`.",
+  },
+  "cwl:dna-proof-unknown-stmt": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "Statement inside `dna proof { … }` is not a DNA proof gene.",
+  },
+  "cwl:dna-proof-unclosed": {
+    rfc: "0045",
+    origin: "cwl",
+    surface: "api",
+    summary: "`dna proof` block must close with `}`.",
+  },
   "cwl:dna-bank-not-path": {
     rfc: "0042",
     origin: "cwl",

@@ -28,6 +28,36 @@ function printMetaCard(card, indent, lines) {
 }
 
 /**
+ * RFC-0045 named DNA proof unit.
+ * @param {object} proof
+ * @returns {string[]}
+ */
+function printDnaProofUnit(proof) {
+  /** @type {string[]} */
+  const lines = [`dna proof ${proof.name} {`];
+  if (typeof proof.certificate === "string") {
+    lines.push(`  certificate ${JSON.stringify(proof.certificate)};`);
+  }
+  for (const fp of proof.fingerprints ?? []) {
+    lines.push(`  fingerprint ${JSON.stringify(fp)};`);
+  }
+  if (typeof proof.quorum === "number") lines.push(`  quorum ${proof.quorum};`);
+  if (typeof proof.bank === "string") lines.push(`  bank ${JSON.stringify(proof.bank)};`);
+  if (proof.matchLive) lines.push("  match live;");
+  if (proof.matchBank) lines.push("  match bank;");
+  if (typeof proof.expect === "string") lines.push(`  expect ${proof.expect};`);
+  if (typeof proof.lineage === "string") lines.push(`  lineage ${JSON.stringify(proof.lineage)};`);
+  if (typeof proof.supersedes === "string") {
+    lines.push(`  supersedes ${JSON.stringify(proof.supersedes)};`);
+  }
+  if (typeof proof.witness === "string") lines.push(`  witness ${JSON.stringify(proof.witness)};`);
+  if (typeof proof.scope === "string") lines.push(`  scope ${proof.scope};`);
+  for (const hole of proof.holes ?? []) lines.push(`  hole ${hole};`);
+  lines.push("}");
+  return lines;
+}
+
+/**
  * RFC-0040 style asset line (string or { href, integrity?, crossorigin? }).
  * @param {string | { href: string, integrity?: string, crossorigin?: boolean }} entry
  */
@@ -387,7 +417,18 @@ export function printCwlModule(mod, opts = {}) {
   if (mod.matchLive) lines.push("match live;");
   if (mod.matchBank) lines.push("match bank;");
   if (typeof mod.dnaExpect === "string") lines.push(`dna expect ${mod.dnaExpect};`);
+  if (typeof mod.dnaQuorum === "number") lines.push(`dna quorum ${mod.dnaQuorum};`);
+  if (typeof mod.dnaLineage === "string") lines.push(`dna lineage ${JSON.stringify(mod.dnaLineage)};`);
+  if (typeof mod.dnaSupersedes === "string") {
+    lines.push(`dna supersedes ${JSON.stringify(mod.dnaSupersedes)};`);
+  }
+  if (typeof mod.dnaWitness === "string") lines.push(`dna witness ${JSON.stringify(mod.dnaWitness)};`);
+  if (typeof mod.dnaScope === "string") lines.push(`dna scope ${mod.dnaScope};`);
   for (const hole of mod.dnaHoles ?? []) lines.push(`hole ${hole};`);
+  for (const proof of mod.dnaProofs ?? []) {
+    lines.push("");
+    lines.push(...printDnaProofUnit(proof));
+  }
 
   for (const table of mod.tables ?? []) {
     lines.push("");
@@ -499,19 +540,34 @@ export function printCwlModule(mod, opts = {}) {
     }
     for (const cap of route.capabilities ?? []) lines.push(`  capability ${cap};`);
     if (route.worksWithoutClient) lines.push(`  works without client;`);
-    if (typeof route.dnaCertificate === "string") {
-      lines.push(`  dna certificate ${JSON.stringify(route.dnaCertificate)};`);
+    if (typeof route.dnaProof === "string") {
+      lines.push(`  use dna proof ${route.dnaProof};`);
+    } else {
+      if (typeof route.dnaCertificate === "string") {
+        lines.push(`  dna certificate ${JSON.stringify(route.dnaCertificate)};`);
+      }
+      const routeFingerprints =
+        Array.isArray(route.dnaFingerprints) && route.dnaFingerprints.length
+          ? route.dnaFingerprints
+          : typeof route.dnaFingerprint === "string"
+            ? [route.dnaFingerprint]
+            : [];
+      for (const fp of routeFingerprints) lines.push(`  dna fingerprint ${JSON.stringify(fp)};`);
+      if (route.matchLive) lines.push(`  match live;`);
+      if (route.matchBank) lines.push(`  match bank;`);
+      if (typeof route.dnaExpect === "string") lines.push(`  dna expect ${route.dnaExpect};`);
+      if (typeof route.dnaQuorum === "number") lines.push(`  dna quorum ${route.dnaQuorum};`);
+      if (typeof route.dnaLineage === "string") {
+        lines.push(`  dna lineage ${JSON.stringify(route.dnaLineage)};`);
+      }
+      if (typeof route.dnaSupersedes === "string") {
+        lines.push(`  dna supersedes ${JSON.stringify(route.dnaSupersedes)};`);
+      }
+      if (typeof route.dnaWitness === "string") {
+        lines.push(`  dna witness ${JSON.stringify(route.dnaWitness)};`);
+      }
+      if (typeof route.dnaScope === "string") lines.push(`  dna scope ${route.dnaScope};`);
     }
-    const routeFingerprints =
-      Array.isArray(route.dnaFingerprints) && route.dnaFingerprints.length
-        ? route.dnaFingerprints
-        : typeof route.dnaFingerprint === "string"
-          ? [route.dnaFingerprint]
-          : [];
-    for (const fp of routeFingerprints) lines.push(`  dna fingerprint ${JSON.stringify(fp)};`);
-    if (route.matchLive) lines.push(`  match live;`);
-    if (route.matchBank) lines.push(`  match bank;`);
-    if (typeof route.dnaExpect === "string") lines.push(`  dna expect ${route.dnaExpect};`);
     printMetaCard(route.metaCard, "  ", lines);
     for (const icon of route.icons ?? []) lines.push(`  icon ${icon.id}${icon.apple ? " apple" : ""};`);
     for (const link of route.preconnects ?? []) {

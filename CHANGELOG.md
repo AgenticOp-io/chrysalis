@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CWL tip 1.0.88 (D6599):** tip floor + sibling pin for RFC-0045 DNA proof units (gold `97`; `dna proof` / `use dna proof` / quorum / lineage / supersedes / witness / scope). ALWAYS sync parser/print/layout/holes. Peel golds `40`–`63`. Golds `94`–`97` document facts only — named proof cells + flat deepeners; refuse holes `cwl:dna-proof-unknown` / `cwl:dna-quorum-too-high` / `cwl:bad-dna-witness` / `cwl:bad-dna-lineage` / `cwl:bad-dna-supersedes`; no Helix/hash/witness invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.87 pin. No live Firebase `agenticops` deploy.
+
 - **CWL tip 1.0.87 (D6598):** tip floor + sibling pin for RFC-0044 DNA proof deepen (gold `96`; multi-fingerprint / `match bank` / `dna expect`). ALWAYS sync parser/print/holes. Peel golds `40`–`63`. Golds `94`–`96` document facts only — dual digests, bank match, expected Helix mode; refuse holes `cwl:match-without-certificate` / `cwl:match-bank-without-bank` / `cwl:dna-expect-unknown`; no Helix/hash invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.86 pin. No live Firebase `agenticops` deploy.
 
 - **CWL tip 1.0.86 (D6597):** tip floor + sibling pin for RFC-0043 DNA fingerprint strength sha384+ (gold `95`; gold `94` floor raised). ALWAYS sync parser/holes. Peel golds `40`–`63`. Golds `94`–`95` document facts only — `dna fingerprint` requires `sha384`/`sha512`; `sha256` → `cwl:dna-fingerprint-too-weak`; no Helix/hash invent. Pin stays `file:../chrysalis-cwl/packages/cwl`. Supersedes open 1.0.85 pin. No live Firebase `agenticops` deploy.
