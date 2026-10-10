@@ -74,11 +74,11 @@ jobs:
         working-directory: wptp-ir
         run: npm install && npm run build
 
-      - name: Install wptp-matrix (file: sibling @wptp/ir)
+      - name: Install wptp-matrix from sibling wptp-ir
         working-directory: wptp-matrix
         run: |
           # package-lock on main omits @wptp/ir@0.1.3 → npm ci EUSAGE. Prefer sibling checkout.
-          npm pkg set 'dependencies.@wptp/ir=file:../wptp-ir'
+          npm pkg set "dependencies.@wptp/ir=file:../wptp-ir"
           npm install --no-package-lock
           npm run build
           test -d node_modules/@wptp/ir
