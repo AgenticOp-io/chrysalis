@@ -1925,6 +1925,9 @@ export function tryEmitInlineLibHelperCall(
   return emitDbQueryExpr(ctx, q, subst);
 }
 
+/** PHP helpers owned by HttpEmitProfile / runtime — never emit as lib-helpers.ts bodies. */
+const RUNTIME_PROFILE_LIB_HELPER_EXPORTS = new Set(["current_user", "require_login"]);
+
 /** Lib helpers referenced at call sites that cannot be emit-inlined need lowered TS bodies. */
 export function libHelpersNeedingEmitModule(
   m: Module,
@@ -1938,6 +1941,7 @@ export function libHelpersNeedingEmitModule(
     if (entry === undefined) continue;
     if (tryExtractInlineQuery(m, entry.bodyId, entry.paramNames) !== undefined) continue;
     const exportName = libHelperTsExportName(callee);
+    if (RUNTIME_PROFILE_LIB_HELPER_EXPORTS.has(exportName)) continue;
     if (!out.includes(exportName)) out.push(exportName);
   }
   return out.sort();

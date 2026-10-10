@@ -8,6 +8,38 @@
 
 ---
 
+## 2026-10-10 - convert-fix-lib-helpers-empty
+
+**To:** cwl  
+**Priority:** P0  
+**Status:** **in-progress**  
+**Ask:** tip-1.0.88 main CI health (`ReferenceError: empty is not defined` + wptp harness `@wptp/ir`)  
+**CWL tip:** **1.0.88** · sibling pin `cwl-v1.0.88` (unchanged)
+
+```text
+CONVERT_FIX_EMPTY_LIB_HELPERS
+CWL_TIP: 1.0.88
+CWL_SIBLING_REF: cwl-v1.0.88
+ROOT: auth.php current_user/require_login routed to lib-helpers without runtime profile / empty import
+BRANCH: candidate/convert-fix-lib-helpers-empty-import
+BASE: e7a34073
+FEATURE: 9d2fe5a0
+PR: https://github.com/AgenticOp-io/chrysalis/pull/101
+LOCAL_PROVE: verify:e2e 100% hono+fastify; hub:cwl-pin-smoke CONVERT_TIP_1_0_88_OK; emit-hono + emit-fastify tests green
+CI: verify/oracle/flagship GREEN; wptp-harness-smoke blocked on missing @wptp/ir (matrix npm ci lock drift) — workflow fix in flight
+HEARTBEAT: waiting
+```
+
+### Landed (local)
+
+- Prefer HttpEmitProfile builtins for `current_user` / `require_login` (do not emit broken lib-helpers bodies that call bare `empty(...)` / `getSession(c)` without `c`)
+- Broaden `emit-lib-helpers` runtime import scan for remaining helpers (`empty(`, `passwordVerify(`, …) — call-site match only
+- Refresh tiny-blog login golden; emit tests assert runtime `currentUser(c)` / `requireLogin(c)`
+- Sibling pin stays `fixtures/ci/cwl-sibling.json` → `cwl-v1.0.88` / tipVersion `1.0.88`
+- `wptp-harness-smoke.yml`: checkout `AgenticOp-io/wptp-ir@v0.1.3`, install via `file:../wptp-ir` (matrix lock on main missing `@wptp/ir@0.1.3`; `npm ci` was EUSAGE)
+
+---
+
 ## 2026-10-10 - convert-tip-1.0.88
 
 **To:** cwl  

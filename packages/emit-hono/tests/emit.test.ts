@@ -164,9 +164,35 @@ describe("emit-hono: tiny-blog output", () => {
       expect(src).toContain("queryOne<User>(");
       expect(src).toContain('import type { User } from "../domain.js"');
       expect(src).toContain(`getSession(c).set("user_id"`);
-      expect(src).toContain("await passwordVerify(");
+      // password_verify lowers through lib-helpers.verify_password (imports runtime.passwordVerify).
+      expect(src).toContain('import { verify_password } from "../lib-helpers.js"');
+      expect(src).toMatch(/\bawait\s+verify_password\s*\(/);
       // Must not fall back to a call hole for the wrapper function.
       expect(src).not.toContain("call:verify_password");
+      const lib = readFileSync(resolve(out, "src/lib-helpers.ts"), "utf8");
+      expect(lib).toMatch(/import\s*\{[^}]*\bpasswordVerify\b[^}]*\}\s*from\s*["']\.\/runtime\.js["']/);
+      expect(lib).toContain("await passwordVerify(");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("auth helpers use runtime profile builtins (not broken lib-helpers)", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-lib-empty-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await writeDomainAndEmit(mod, out);
+      const postsView = readFileSync(resolve(out, "src/handlers/posts_view.ts"), "utf8");
+      expect(postsView).toContain("currentUser(c)");
+      expect(postsView).not.toContain("current_user(");
+      const postsCreate = readFileSync(resolve(out, "src/handlers/posts_create.ts"), "utf8");
+      expect(postsCreate).toContain("requireLogin(c)");
+      expect(postsCreate).not.toContain("require_login(");
+      const lib = readFileSync(resolve(out, "src/lib-helpers.ts"), "utf8");
+      expect(lib).not.toContain("export function current_user");
+      expect(lib).not.toContain("export function require_login");
+      expect(lib).toContain("export async function verify_password");
+      expect(lib).toMatch(/import\s*\{[^}]*\bpasswordVerify\b[^}]*\}\s*from\s*["']\.\/runtime\.js["']/);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

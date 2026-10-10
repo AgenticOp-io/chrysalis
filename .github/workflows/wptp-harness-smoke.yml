@@ -48,6 +48,12 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
+          repository: AgenticOp-io/wptp-ir
+          ref: v0.1.3
+          path: wptp-ir
+
+      - uses: actions/checkout@v4
+        with:
           repository: AgenticOp-io/wptp-matrix
           ref: main
           path: wptp-matrix
@@ -62,10 +68,25 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install matrix + wptp-emit-nextjs
+      # matrix package-lock on main is out of sync with @wptp/ir (npm ci EUSAGE).
+      # Install sibling @wptp/ir from checkout (same pattern as webir-bundle-to-wptp-ir).
+      - name: Install wptp-ir
+        working-directory: wptp-ir
+        run: npm install && npm run build
+
+      - name: Install wptp-matrix from sibling wptp-ir
+        working-directory: wptp-matrix
         run: |
-          cd wptp-matrix && npm ci && npm run build
-          cd ../wptp-emit-nextjs && npm ci && npm run build
+          # package-lock on main omits @wptp/ir@0.1.3 → npm ci EUSAGE. Prefer sibling checkout.
+          npm pkg set "dependencies.@wptp/ir=file:../wptp-ir"
+          npm install --no-package-lock
+          npm run build
+          test -d node_modules/@wptp/ir
+          node -e "import('@wptp/ir').then((m) => { if (typeof m.importWebIrBundleJson !== 'function') process.exit(1); console.log('ok @wptp/ir'); })"
+
+      - name: Install wptp-emit-nextjs
+        working-directory: wptp-emit-nextjs
+        run: npm ci && npm run build
 
       - name: Verify tiny-blog (populate reports/verify for harness gold)
         run: node scripts/verify-tiny-blog.mjs
@@ -74,6 +95,7 @@ jobs:
         working-directory: wptp-matrix
         env:
           CHRYSALIS_ROOT: ${{ github.workspace }}
+          WPTP_IR_ROOT: ${{ github.workspace }}/wptp-ir
           WPTP_EMIT_NEXTJS_ROOT: ${{ github.workspace }}/wptp-emit-nextjs
           WPTP_PHP_WEBIR_MIN_CORRECTNESS_PCT: "60"
         run: npm run verify:harness
