@@ -2,7 +2,8 @@
 
 **Status:** operator map for Convert after Rosetta Steps 1–4 and WPTP orbit cohesion  
 **Lane:** `engines/chrysalis-convert` only — CWL owns DNA; Secure owns Helix; `platforms/wptp-*` are Convert’s optional orbit  
-**Mission:** **Translate every honest web stack into WebIR/CWL** so the industry can share **web DNA** — not invent façades, not replace CWL.
+**Mission:** **Translate every honest web stack into WebIR/CWL** so the industry can share **web DNA** — not invent façades, not replace CWL.  
+**Doc index:** [`DOC-MAP.md`](./DOC-MAP.md) · tip pin **1.0.88** · exec ceilings [`CONVERT-EXEC-CEILINGS.md`](./CONVERT-EXEC-CEILINGS.md)
 
 This page is the picture of **how to use all the work** (PHP oracle, Hub, dialect peels, COBOL, WPTP platforms, CWL pin, Helix cutover) without treating any of it as a rival north star.
 
@@ -189,8 +190,10 @@ Skip orbit without shame: `CHRYSALIS_SKIP_WPTP=1`.
 
 | Doc | Role |
 | --- | --- |
+| [`DOC-MAP.md`](./DOC-MAP.md) | Convert documentation index |
 | [`WPTP-CONVERT-ORBIT.md`](./WPTP-CONVERT-ORBIT.md) | platforms/ resolver + Hub entrypoints |
 | [`CONVERT-GRAVITY.md`](./CONVERT-GRAVITY.md) | Step 2 closed proof |
+| [`CONVERT-EXEC-CEILINGS.md`](./CONVERT-EXEC-CEILINGS.md) | Post-1.0.88 named residuals |
 | [`CORE-VS-PEEL.md`](./CORE-VS-PEEL.md) | What may live outside typed core |
 | [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) | Historical WPTP charter (D1+siblings) |
 | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) | What is not default |

@@ -1,6 +1,10 @@
-# CWL RFC-0013 — Page load / SSR data (draft)
+# CWL RFC-0013 — Page load / SSR data (Convert mirror)
 
-**Status:** accepted (2026-06-01)  
+> **Non-SoR mirror.** Canonical text:  
+> [`chrysalis-cwl/docs/language/CWL-RFC-0013-page-load-functions.md`](../../chrysalis-cwl/docs/language/CWL-RFC-0013-page-load-functions.md)  
+> Do not treat Convert-local **TBD** lines below as an open language invent queue — deepen syntax in **chrysalis-cwl** only. Convert peels / holes consume the CWL gene.
+
+**Status:** accepted (2026-06-01) — Convert mirror retained for history  
 **Tracking:** G1159, DESIGN D1159 (queue)  
 **Depends on:** RFC-0010 (`@page`), RFC-0012 (hole catalog)
 
@@ -24,11 +28,11 @@ page blog_show {
 }
 ```
 
-Exact `load { … }` block syntax is **TBD** in G1159; must round-trip through `renderCwlRoutes` and `@chrysalis/runtime-cwl`.
+Exact `load { … }` block syntax was historically **TBD** in G1159 on this mirror. **Authoritative syntax and WebIR mapping live in the CWL pillar RFC** (link above). Convert must round-trip through `renderCwlRoutes` and `@chrysalis/runtime-cwl` without inventing a second load dialect here.
 
-## WebIR mapping (TBD)
+## WebIR mapping (see CWL SoR)
 
-- Attach load payload as structured data nodes on the handler body (not a second IR).
+- Attach load payload as structured data nodes on the handler body (not a second IR) — details in chrysalis-cwl RFC-0013.
 - Unsupported load shapes → **`hub-svelte:load-function`** hole (RFC-0012).
 
 ## Verify plan (G1159)

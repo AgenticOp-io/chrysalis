@@ -3,7 +3,8 @@
 **Status:** **Done** (2026-08-09)  
 **Path:** CWL [`ROSETTA-UT-PATH.md`](../../chrysalis-cwl/docs/language/ROSETTA-UT-PATH.md) Step 2 — *Translation — honest peel/emit through CWL*  
 **Ask:** CWL [`CONVERT-GRAVITY-REQUESTED.md`](../../chrysalis-cwl/docs/history/CONVERT-GRAVITY-REQUESTED.md)  
-**Tip:** `@chrysalis/cwl` `file:` ≡ **1.0.88** (registry `@agenticop-io/cwl@1.0.88` via [`.npmrc.example`](../.npmrc.example))
+**Tip:** `@chrysalis/cwl` `file:` ≡ **1.0.88** (registry `@agenticop-io/cwl@1.0.88` via [`.npmrc.example`](../.npmrc.example))  
+**Doc index:** [`DOC-MAP.md`](./DOC-MAP.md) · consume [`CONVERT-CWL-CONSUME.md`](./CONVERT-CWL-CONSUME.md)
 
 ## Acceptance (closed)
 

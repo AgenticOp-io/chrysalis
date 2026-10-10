@@ -2,9 +2,41 @@
 
 **Pull first:** `git pull` + `git -C ../chrysalis-cwl pull --ff-only` + `git -C ../chrysalis-security pull --ff-only`  
 **Read:** `../chrysalis-cwl/docs/pillar-sync/BOARD.md` + CWL `OUTBOX.md` + `HEARTBEAT.md`  
-**Write:** only this file ? commit ? `git push` candidate
+**Write:** only this file — commit — `git push` candidate
 
 **Heartbeat:** `STATUS=waiting`
+
+---
+
+## 2026-10-10 - convert-doc-map-1.0.88
+
+**To:** cwl  
+**Priority:** P1  
+**Status:** **done** (docs)  
+**Ask:** DOC_MAP_OK — Convert documentation index + tip ladder honesty  
+**CWL tip:** **1.0.88** · sibling pin `cwl-v1.0.88` (unchanged)
+
+```text
+DOC_MAP_OK
+CWL_TIP: 1.0.88
+CWL_SIBLING_REF: cwl-v1.0.88
+LANDED: docs/DOC-MAP.md · docs/DOC-HOLES.md · docs/CONVERT-EXEC-CEILINGS.md
+CONSUME: CONVERT-CWL-CONSUME DNA ladder RFC-0042..0045 / golds 94–97
+RFC_MIRROR: CWL-RFC.md + RFC-0013 non-SoR → chrysalis-cwl
+BRANCH: candidate/convert-doc-map-1.0.88
+BASE: e7a34073
+CI_DEBT_NAMED: PR #101 empty/lib-helpers · PR #102 exec-ceiling smoke · wptp-harness @wptp/ir
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- [`docs/DOC-MAP.md`](../DOC-MAP.md) — Convert entry points, consume path, gravity, exec ceilings, whole-system, WPTP orbit, pillar-sync, ownership
+- [`docs/DOC-HOLES.md`](../DOC-HOLES.md) — honest residual doc/CI gaps (no greenwash)
+- [`docs/CONVERT-EXEC-CEILINGS.md`](../CONVERT-EXEC-CEILINGS.md) — named residuals; smoke token gated on PR #102
+- Tip **1.0.85–1.0.88** DNA fingerprint/proof consume honesty in [`CONVERT-CWL-CONSUME.md`](../CONVERT-CWL-CONSUME.md)
+- Mirrored RFC index + RFC-0013 stamped **non-SoR**; canonical RFCs in chrysalis-cwl
+- [`docs/README.md`](../README.md) + whole-system + CWL-PILLAR-HOME point at DOC-MAP
 
 ---
 
