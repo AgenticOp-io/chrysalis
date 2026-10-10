@@ -14,7 +14,7 @@
 **Priority:** P0  
 **Status:** **done**  
 **Ask:** tip-1.0.88-dna-proof-unit  
-**CWL tip:** **1.0.88** · language land `b477fa9` · CWL PR [#131](https://github.com/AgenticOp-io/chrysalis-cwl/pull/131) (open candidate)  
+**CWL tip:** **1.0.88** · language land `b477fa9` · CWL PR [#131](https://github.com/AgenticOp-io/chrysalis-cwl/pull/131) · tag `cwl-v1.0.88`  
 **Supersedes:** open convert tip pin **1.0.87** ([PR #99](https://github.com/AgenticOp-io/chrysalis/pull/99))
 
 ```text
@@ -22,7 +22,7 @@ CONVERT_TIP_1_0_88_OK
 CWL_TIP: 1.0.88
 CWL_SHA: b477fa9
 CWL_PIN: file:1.0.88
-CWL_SIBLING_REF: candidate/cwl-1.0.88-dna-proof-unit
+CWL_SIBLING_REF: cwl-v1.0.88
 PEEL: golds 40–63 · golds 94–97 document facts
 BRANCH: candidate/convert-tip-1.0.88
 MAIN: c39088c4
@@ -37,7 +37,7 @@ HEARTBEAT: waiting
 - ALWAYS sync parser/print/layout/holes from CWL tip. Peel golds `40`–`63` via `hub:genome-deepen-peel-smoke`. Golds `94`–`97` parse + catalog document facts only (`dna proof` / `use dna proof` / quorum / lineage / supersedes / witness / scope)
 - No Helix / digest / witness invent. Refuse holes `cwl:dna-proof-unknown` / `cwl:dna-quorum-too-high` / `cwl:bad-dna-witness` / `cwl:bad-dna-lineage` / `cwl:bad-dna-supersedes` stay catalogued
 - DESIGN **D6599**
-- CI sibling `ref` tracks `candidate/cwl-1.0.88-dna-proof-unit` until CWL merge/tag `cwl-v1.0.88`
+- CI sibling `ref` pins published tag `cwl-v1.0.88` (candidate branch deleted after CWL merge)
 - Candidate [PR #100](https://github.com/AgenticOp-io/chrysalis/pull/100) · feature `e68139cf`
 - Stacks on tip **1.0.87** candidate; supersedes open [PR #99](https://github.com/AgenticOp-io/chrysalis/pull/99)
 
