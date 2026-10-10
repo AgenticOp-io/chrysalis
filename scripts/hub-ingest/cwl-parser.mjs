@@ -74,6 +74,9 @@ const HOST_FIREBASE_RE =
 const SCRIPT_HEAD_RE = /^script\s+"((?:\\.|[^"\\])*)"(.*);$/;
 const STYLE_HEAD_RE = /^style\s+"((?:\\.|[^"\\])*)"(.*);$/;
 const SRI_RE = /^sha(256|384|512)-[A-Za-z0-9+/=]+$/;
+/** RFC-0043: DNA bind digests — sha384/sha512 only (sha256 is too light for long-lived DNA). */
+const DNA_FINGERPRINT_SRI_RE = /^sha(384|512)-[A-Za-z0-9+/=]+$/;
+const DNA_FINGERPRINT_WEAK_RE = /^sha256-[A-Za-z0-9+/=]+$/;
 /** Same-site form. Off-site actions are refused. Optional `enctype multipart` (RFC-0041). */
 const FORM_RE =
   /^form\s+([A-Za-z_][A-Za-z0-9_]*)\s+method\s+(get|post)\s+action\s+"([^"]+)"(?:\s+enctype\s+(multipart))?\s*;$/;
@@ -96,6 +99,33 @@ const FROM_PEEL_RE = /^from\s+peel\s+"((?:\\.|[^"\\])*)"\s+at\s+"((?:\\.|[^"\\])
 const CAPABILITY_RE = /^capability\s+([a-zA-Z][a-zA-Z0-9_-]*)\s*;$/;
 /** RFC-0039: progressive certificate — page is complete without a client island. */
 const WORKS_WITHOUT_CLIENT_RE = /^works\s+without\s+client\s*;$/i;
+/** RFC-0042: bind a promoted traffic DNA certificate (document fact). */
+const DNA_CERTIFICATE_RE = /^dna\s+certificate\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0042: SRI digest of that certificate (host verifies; CWL does not invent hashes). */
+const DNA_FINGERPRINT_RE = /^dna\s+fingerprint\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0042: path to a bank of known DNA certificates for proof. */
+const DNA_BANK_RE = /^dna\s+bank\s+"((?:\\.|[^"\\])*)"\s*;$/;
+/** RFC-0042: this genome expects Secure live-match against the bound DNA. */
+const MATCH_LIVE_RE = /^match\s+live\s*;$/i;
+/** RFC-0044: expect Secure proof against the module DNA bank (not only live traffic). */
+const MATCH_BANK_RE = /^match\s+bank\s*;$/i;
+/** RFC-0044: expected Helix DNA lifecycle mode (document fact; Secure owns enforce). */
+const DNA_EXPECT_RE = /^dna\s+expect\s+(promote|shadow|enforce)\s*;$/i;
+const DNA_EXPECT_MODES = new Set(["promote", "shadow", "enforce"]);
+/** RFC-0045: named DNA proof unit (composes bind + lineage + quorum + witness). */
+const DNA_PROOF_DECL_RE = /^dna\s+proof\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
+const USE_DNA_PROOF_RE = /^use\s+dna\s+proof\s+([A-Za-z_][A-Za-z0-9_]*)\s*;$/;
+/** RFC-0045 inner / flat proof deepeners. */
+const DNA_QUORUM_RE = /^(?:dna\s+)?quorum\s+(\d+)\s*;$/i;
+const DNA_LINEAGE_RE = /^(?:dna\s+)?lineage\s+"((?:\\.|[^"\\])*)"\s*;$/i;
+const DNA_SUPERSEDES_RE = /^(?:dna\s+)?supersedes\s+"((?:\\.|[^"\\])*)"\s*;$/i;
+const DNA_WITNESS_RE = /^(?:dna\s+)?witness\s+"((?:\\.|[^"\\])*)"\s*;$/i;
+const DNA_SCOPE_RE = /^(?:dna\s+)?scope\s+(path|host|method|surface)\s*;$/i;
+const DNA_PROOF_INNER_CERT_RE = /^certificate\s+"((?:\\.|[^"\\])*)"\s*;$/;
+const DNA_PROOF_INNER_FP_RE = /^fingerprint\s+"((?:\\.|[^"\\])*)"\s*;$/;
+const DNA_PROOF_INNER_BANK_RE = /^bank\s+"((?:\\.|[^"\\])*)"\s*;$/;
+const DNA_PROOF_INNER_EXPECT_RE = /^expect\s+(promote|shadow|enforce)\s*;$/i;
+const DNA_SCOPES = new Set(["path", "host", "method", "surface"]);
 const CWL_CAPABILITIES = new Set([
   "cookies",
   "network-same-origin",
@@ -142,6 +172,290 @@ function assetHrefOk(href) {
   if (!href || typeof href !== "string") return false;
   if (href.startsWith("/") && !href.startsWith("//")) return true;
   return /^https?:\/\//i.test(href);
+}
+
+/**
+ * DNA certificate / bank path: same-site path, relative path, or absolute http(s).
+ * @param {string} href
+ */
+function dnaArtifactPathOk(href) {
+  if (!href || typeof href !== "string") return false;
+  if (href.startsWith("/") && !href.startsWith("//")) return true;
+  if (/^https?:\/\//i.test(href)) return true;
+  if (href.includes("://") || href.startsWith("//")) return false;
+  return /^[A-Za-z0-9_./@+-]+$/.test(href);
+}
+
+/**
+ * @param {string} line
+ * @returns {{ kind: "certificate"|"fingerprint"|"bank"|"matchLive"|"matchBank"|"expect", value?: string } | { hole: string } | null}
+ */
+function parseDnaBindingLine(line) {
+  const cert = DNA_CERTIFICATE_RE.exec(line);
+  if (cert) {
+    const href = cwlQuoted(cert[1]);
+    if (!dnaArtifactPathOk(href)) return { hole: "cwl:dna-certificate-not-url" };
+    return { kind: "certificate", value: href };
+  }
+  const fp = DNA_FINGERPRINT_RE.exec(line);
+  if (fp) {
+    const digest = cwlQuoted(fp[1]);
+    if (DNA_FINGERPRINT_SRI_RE.test(digest)) return { kind: "fingerprint", value: digest };
+    if (DNA_FINGERPRINT_WEAK_RE.test(digest)) return { hole: "cwl:dna-fingerprint-too-weak" };
+    return { hole: "cwl:bad-dna-fingerprint" };
+  }
+  const bank = DNA_BANK_RE.exec(line);
+  if (bank) {
+    const href = cwlQuoted(bank[1]);
+    if (!dnaArtifactPathOk(href)) return { hole: "cwl:dna-bank-not-path" };
+    return { kind: "bank", value: href };
+  }
+  if (MATCH_LIVE_RE.test(line)) return { kind: "matchLive" };
+  if (MATCH_BANK_RE.test(line)) return { kind: "matchBank" };
+  const expect = DNA_EXPECT_RE.exec(line);
+  if (expect) {
+    const mode = expect[1].toLowerCase();
+    if (!DNA_EXPECT_MODES.has(mode)) return { hole: "cwl:dna-expect-unknown" };
+    return { kind: "expect", value: mode };
+  }
+  return null;
+}
+
+/**
+ * Push a strong DNA fingerprint; keep singular primary for Secure tip ≤1.0.86 consume.
+ * @param {string[]} list
+ * @param {string} digest
+ * @returns {string} primary fingerprint
+ */
+function pushDnaFingerprint(list, digest) {
+  if (!list.includes(digest)) list.push(digest);
+  return list[0];
+}
+
+/**
+ * RFC-0044 coherence: match intents need a certificate; match bank needs a bank.
+ * @param {{ certificate: string | null, bank: string | null, matchLive: boolean, matchBank: boolean, holes: string[] }} state
+ */
+function applyDnaProofCoherence(state) {
+  if (state.matchBank && !state.bank) {
+    if (!state.holes.includes("cwl:match-bank-without-bank")) state.holes.push("cwl:match-bank-without-bank");
+  }
+  if ((state.matchLive || state.matchBank) && !state.certificate) {
+    if (!state.holes.includes("cwl:match-without-certificate")) {
+      state.holes.push("cwl:match-without-certificate");
+    }
+  }
+}
+
+/**
+ * Witness URL: absolute http(s) only (external attestation; not a same-site path invent).
+ * @param {string} href
+ */
+function dnaWitnessOk(href) {
+  return typeof href === "string" && /^https?:\/\//i.test(href);
+}
+
+/**
+ * RFC-0045: parse one line inside `dna proof name { … }` or flat module deepeners.
+ * @param {string} line
+ * @returns {{ kind: string, value?: string | number } | { hole: string } | null}
+ */
+function parseDnaProofDeepenLine(line) {
+  const quorum = DNA_QUORUM_RE.exec(line);
+  if (quorum) {
+    const n = Number(quorum[1]);
+    if (!Number.isInteger(n) || n < 1) return { hole: "cwl:dna-quorum-bad" };
+    return { kind: "quorum", value: n };
+  }
+  const lineage = DNA_LINEAGE_RE.exec(line);
+  if (lineage) {
+    const href = cwlQuoted(lineage[1]);
+    if (!dnaArtifactPathOk(href)) return { hole: "cwl:bad-dna-lineage" };
+    return { kind: "lineage", value: href };
+  }
+  const supersedes = DNA_SUPERSEDES_RE.exec(line);
+  if (supersedes) {
+    const digest = cwlQuoted(supersedes[1]);
+    if (DNA_FINGERPRINT_SRI_RE.test(digest)) return { kind: "supersedes", value: digest };
+    if (DNA_FINGERPRINT_WEAK_RE.test(digest)) return { hole: "cwl:dna-fingerprint-too-weak" };
+    return { hole: "cwl:bad-dna-supersedes" };
+  }
+  const witness = DNA_WITNESS_RE.exec(line);
+  if (witness) {
+    const href = cwlQuoted(witness[1]);
+    if (!dnaWitnessOk(href)) return { hole: "cwl:bad-dna-witness" };
+    return { kind: "witness", value: href };
+  }
+  const scope = DNA_SCOPE_RE.exec(line);
+  if (scope) {
+    const s = scope[1].toLowerCase();
+    if (!DNA_SCOPES.has(s)) return { hole: "cwl:dna-scope-unknown" };
+    return { kind: "scope", value: s };
+  }
+  return null;
+}
+
+/**
+ * Apply a parsed DNA bind / deepen kind onto a mutable proof-shaped object.
+ * @param {object} target
+ * @param {{ kind: string, value?: string | number } | { hole: string }} bind
+ */
+function applyDnaBindToTarget(target, bind) {
+  if ("hole" in bind) {
+    if (!target.holes.includes(bind.hole)) target.holes.push(bind.hole);
+    return;
+  }
+  if (bind.kind === "certificate") target.certificate = /** @type {string} */ (bind.value);
+  else if (bind.kind === "fingerprint" && typeof bind.value === "string") {
+    pushDnaFingerprint(target.fingerprints, bind.value);
+  } else if (bind.kind === "bank") target.bank = /** @type {string} */ (bind.value);
+  else if (bind.kind === "matchLive") target.matchLive = true;
+  else if (bind.kind === "matchBank") target.matchBank = true;
+  else if (bind.kind === "expect" && typeof bind.value === "string") target.expect = bind.value;
+  else if (bind.kind === "quorum" && typeof bind.value === "number") target.quorum = bind.value;
+  else if (bind.kind === "lineage" && typeof bind.value === "string") target.lineage = bind.value;
+  else if (bind.kind === "supersedes" && typeof bind.value === "string") target.supersedes = bind.value;
+  else if (bind.kind === "witness" && typeof bind.value === "string") target.witness = bind.value;
+  else if (bind.kind === "scope" && typeof bind.value === "string") target.scope = bind.value;
+}
+
+/**
+ * Finalize quorum / emptiness coherence on a proof unit.
+ * @param {object} proof
+ */
+function finalizeDnaProofUnit(proof) {
+  if (!proof.certificate && !proof.fingerprints.length) {
+    if (!proof.holes.includes("cwl:dna-proof-empty")) proof.holes.push("cwl:dna-proof-empty");
+  }
+  if (typeof proof.quorum === "number" && proof.quorum > proof.fingerprints.length) {
+    if (!proof.holes.includes("cwl:dna-quorum-too-high")) proof.holes.push("cwl:dna-quorum-too-high");
+  }
+  applyDnaProofCoherence({
+    certificate: proof.certificate,
+    bank: proof.bank,
+    matchLive: proof.matchLive === true,
+    matchBank: proof.matchBank === true,
+    holes: proof.holes,
+  });
+}
+
+/**
+ * @param {string[]} lines
+ * @param {number} startIdx
+ * @param {number} lineNo
+ */
+function parseDnaProofDeclBlock(lines, startIdx, lineNo) {
+  const open = lines[startIdx].trim();
+  const m = DNA_PROOF_DECL_RE.exec(open);
+  if (!m) return { ok: false, error: "not-dna-proof", consumed: startIdx + 1 };
+  const name = m[1];
+  /** @type {{ name: string, line: number, certificate: string | null, fingerprints: string[], bank: string | null, matchLive: boolean, matchBank: boolean, expect: string | null, quorum: number | null, lineage: string | null, supersedes: string | null, witness: string | null, scope: string | null, holes: string[] }} */
+  const proof = {
+    name,
+    line: lineNo,
+    certificate: null,
+    fingerprints: [],
+    bank: null,
+    matchLive: false,
+    matchBank: false,
+    expect: null,
+    quorum: null,
+    lineage: null,
+    supersedes: null,
+    witness: null,
+    scope: null,
+    holes: [],
+  };
+  let i = startIdx + 1;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    i += 1;
+    if (!line || line.startsWith("#") || line.startsWith("//")) continue;
+    if (line === "}") {
+      finalizeDnaProofUnit(proof);
+      return { ok: true, proof, consumed: i };
+    }
+    const full = parseDnaBindingLine(line);
+    if (full) {
+      applyDnaBindToTarget(proof, full);
+      continue;
+    }
+    const innerCert = DNA_PROOF_INNER_CERT_RE.exec(line);
+    if (innerCert) {
+      const href = cwlQuoted(innerCert[1]);
+      applyDnaBindToTarget(
+        proof,
+        dnaArtifactPathOk(href) ? { kind: "certificate", value: href } : { hole: "cwl:dna-certificate-not-url" },
+      );
+      continue;
+    }
+    const innerFp = DNA_PROOF_INNER_FP_RE.exec(line);
+    if (innerFp) {
+      const digest = cwlQuoted(innerFp[1]);
+      if (DNA_FINGERPRINT_SRI_RE.test(digest)) applyDnaBindToTarget(proof, { kind: "fingerprint", value: digest });
+      else if (DNA_FINGERPRINT_WEAK_RE.test(digest)) applyDnaBindToTarget(proof, { hole: "cwl:dna-fingerprint-too-weak" });
+      else applyDnaBindToTarget(proof, { hole: "cwl:bad-dna-fingerprint" });
+      continue;
+    }
+    const innerBank = DNA_PROOF_INNER_BANK_RE.exec(line);
+    if (innerBank) {
+      const href = cwlQuoted(innerBank[1]);
+      applyDnaBindToTarget(
+        proof,
+        dnaArtifactPathOk(href) ? { kind: "bank", value: href } : { hole: "cwl:dna-bank-not-path" },
+      );
+      continue;
+    }
+    const innerExpect = DNA_PROOF_INNER_EXPECT_RE.exec(line);
+    if (innerExpect) {
+      applyDnaBindToTarget(proof, { kind: "expect", value: innerExpect[1].toLowerCase() });
+      continue;
+    }
+    const deepen = parseDnaProofDeepenLine(line);
+    if (deepen) {
+      applyDnaBindToTarget(proof, deepen);
+      continue;
+    }
+    const hol = HOLE_RE.exec(line);
+    if (hol) {
+      if (!proof.holes.includes(hol[1])) proof.holes.push(hol[1]);
+      continue;
+    }
+    if (!proof.holes.includes("cwl:dna-proof-unknown-stmt")) proof.holes.push("cwl:dna-proof-unknown-stmt");
+  }
+  if (!proof.holes.includes("cwl:dna-proof-unclosed")) proof.holes.push("cwl:dna-proof-unclosed");
+  finalizeDnaProofUnit(proof);
+  return { ok: true, proof, consumed: lines.length };
+}
+
+/**
+ * Merge a named proof unit onto a route (route-local fields win when already set).
+ * @param {object} route
+ * @param {object} proof
+ */
+function applyDnaProofToRoute(route, proof) {
+  route.dnaProof = proof.name;
+  if (!route.dnaCertificate && proof.certificate) route.dnaCertificate = proof.certificate;
+  const fps = Array.isArray(route.dnaFingerprints) ? route.dnaFingerprints : [];
+  for (const fp of proof.fingerprints ?? []) pushDnaFingerprint(fps, fp);
+  if (fps.length) {
+    route.dnaFingerprints = fps;
+    route.dnaFingerprint = fps[0];
+  }
+  if (!route.matchLive && proof.matchLive) route.matchLive = true;
+  if (!route.matchBank && proof.matchBank) route.matchBank = true;
+  if (!route.dnaExpect && proof.expect) route.dnaExpect = proof.expect;
+  if (proof.bank) route.dnaBankFromProof = proof.bank;
+  if (typeof proof.quorum === "number") route.dnaQuorum = proof.quorum;
+  if (proof.lineage) route.dnaLineage = proof.lineage;
+  if (proof.supersedes) route.dnaSupersedes = proof.supersedes;
+  if (proof.witness) route.dnaWitness = proof.witness;
+  if (proof.scope) route.dnaScope = proof.scope;
+  const holes = Array.isArray(route.attachmentHoles) ? route.attachmentHoles : [];
+  for (const h of proof.holes ?? []) {
+    if (!holes.includes(h)) holes.push(h);
+  }
+  route.attachmentHoles = holes;
 }
 
 /**
@@ -1183,6 +1497,32 @@ export function parseCwlModule(source, file) {
   let engine = null;
   /** @type {string[]} */
   const engineHoles = [];
+  /** @type {string | null} RFC-0042 module DNA certificate path/URL. */
+  let dnaCertificate = null;
+  /** @type {string[]} RFC-0042/0044 module DNA fingerprints (sha384/sha512). */
+  const dnaFingerprints = [];
+  /** @type {string | null} RFC-0042 module DNA bank path. */
+  let dnaBank = null;
+  /** @type {boolean} RFC-0042 module expects live-match. */
+  let matchLive = false;
+  /** @type {boolean} RFC-0044 module expects bank proof. */
+  let matchBank = false;
+  /** @type {string | null} RFC-0044 expected Helix mode. */
+  let dnaExpect = null;
+  /** @type {number | null} RFC-0045 module fingerprint quorum. */
+  let dnaQuorum = null;
+  /** @type {string | null} RFC-0045 prior certificate path. */
+  let dnaLineage = null;
+  /** @type {string | null} RFC-0045 superseded fingerprint. */
+  let dnaSupersedes = null;
+  /** @type {string | null} RFC-0045 external witness URL. */
+  let dnaWitness = null;
+  /** @type {string | null} RFC-0045 bind scope. */
+  let dnaScope = null;
+  /** @type {object[]} RFC-0045 named DNA proof units. */
+  const dnaProofs = [];
+  /** @type {string[]} */
+  const dnaHoles = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, character?: number, endCharacter?: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -1198,6 +1538,42 @@ export function parseCwlModule(source, file) {
       moduleLine = lineNo;
       moduleCharacter = keywordStartCharacter0(rawLine);
       moduleEndCharacter = keywordEndCharacter0(rawLine, "module");
+      continue;
+    }
+    if (DNA_PROOF_DECL_RE.test(line)) {
+      const block = parseDnaProofDeclBlock(lines, i - 1, lineNo);
+      i = block.consumed;
+      if (block.ok && block.proof) {
+        if (dnaProofs.some((p) => p.name === block.proof.name)) {
+          if (!dnaHoles.includes("cwl:dna-proof-duplicate")) dnaHoles.push("cwl:dna-proof-duplicate");
+        } else {
+          dnaProofs.push(block.proof);
+        }
+      }
+      continue;
+    }
+    const dnaBind = parseDnaBindingLine(line);
+    if (dnaBind) {
+      if ("hole" in dnaBind) {
+        if (!dnaHoles.includes(dnaBind.hole)) dnaHoles.push(dnaBind.hole);
+      } else if (dnaBind.kind === "certificate") dnaCertificate = dnaBind.value ?? null;
+      else if (dnaBind.kind === "fingerprint" && typeof dnaBind.value === "string") {
+        pushDnaFingerprint(dnaFingerprints, dnaBind.value);
+      } else if (dnaBind.kind === "bank") dnaBank = dnaBind.value ?? null;
+      else if (dnaBind.kind === "matchLive") matchLive = true;
+      else if (dnaBind.kind === "matchBank") matchBank = true;
+      else if (dnaBind.kind === "expect" && typeof dnaBind.value === "string") dnaExpect = dnaBind.value;
+      continue;
+    }
+    const deepen = parseDnaProofDeepenLine(line);
+    if (deepen) {
+      if ("hole" in deepen) {
+        if (!dnaHoles.includes(deepen.hole)) dnaHoles.push(deepen.hole);
+      } else if (deepen.kind === "quorum" && typeof deepen.value === "number") dnaQuorum = deepen.value;
+      else if (deepen.kind === "lineage" && typeof deepen.value === "string") dnaLineage = deepen.value;
+      else if (deepen.kind === "supersedes" && typeof deepen.value === "string") dnaSupersedes = deepen.value;
+      else if (deepen.kind === "witness" && typeof deepen.value === "string") dnaWitness = deepen.value;
+      else if (deepen.kind === "scope" && typeof deepen.value === "string") dnaScope = deepen.value;
       continue;
     }
     const useM = USE_PRESET_RE.exec(line);
@@ -1364,6 +1740,28 @@ export function parseCwlModule(source, file) {
     const capabilities = [];
     /** @type {boolean} RFC-0039 progressive certificate. */
     let worksWithoutClient = false;
+    /** @type {string | null} RFC-0042 per-surface DNA certificate. */
+    let routeDnaCertificate = null;
+    /** @type {string[]} RFC-0042/0044 per-surface DNA fingerprints. */
+    const routeDnaFingerprints = [];
+    /** @type {boolean} RFC-0042 per-surface live-match intent. */
+    let routeMatchLive = false;
+    /** @type {boolean} RFC-0044 per-surface bank-proof intent. */
+    let routeMatchBank = false;
+    /** @type {string | null} RFC-0044 per-surface expected Helix mode. */
+    let routeDnaExpect = null;
+    /** @type {string | null} RFC-0045 named proof unit. */
+    let routeDnaProofName = null;
+    /** @type {number | null} */
+    let routeDnaQuorum = null;
+    /** @type {string | null} */
+    let routeDnaLineage = null;
+    /** @type {string | null} */
+    let routeDnaSupersedes = null;
+    /** @type {string | null} */
+    let routeDnaWitness = null;
+    /** @type {string | null} */
+    let routeDnaScope = null;
     const metaCard = emptyMetaCard();
     /** @type {Array<{ href: string, integrity?: string, crossorigin?: boolean }>} Page stylesheets, after the layout styles. */
     const pageStyles = [];
@@ -1453,6 +1851,46 @@ export function parseCwlModule(source, file) {
       }
       if (WORKS_WITHOUT_CLIENT_RE.test(inner)) {
         worksWithoutClient = true;
+        continue;
+      }
+      const useProof = USE_DNA_PROOF_RE.exec(inner);
+      if (useProof) {
+        routeDnaProofName = useProof[1];
+        continue;
+      }
+      const routeDeepen = parseDnaProofDeepenLine(inner);
+      if (routeDeepen) {
+        if ("hole" in routeDeepen) {
+          if (!attachmentHoles.includes(routeDeepen.hole)) attachmentHoles.push(routeDeepen.hole);
+        } else if (routeDeepen.kind === "quorum" && typeof routeDeepen.value === "number") {
+          routeDnaQuorum = routeDeepen.value;
+        } else if (routeDeepen.kind === "lineage" && typeof routeDeepen.value === "string") {
+          routeDnaLineage = routeDeepen.value;
+        } else if (routeDeepen.kind === "supersedes" && typeof routeDeepen.value === "string") {
+          routeDnaSupersedes = routeDeepen.value;
+        } else if (routeDeepen.kind === "witness" && typeof routeDeepen.value === "string") {
+          routeDnaWitness = routeDeepen.value;
+        } else if (routeDeepen.kind === "scope" && typeof routeDeepen.value === "string") {
+          routeDnaScope = routeDeepen.value;
+        }
+        continue;
+      }
+      const routeDna = parseDnaBindingLine(inner);
+      if (routeDna) {
+        if ("hole" in routeDna) {
+          if (!attachmentHoles.includes(routeDna.hole)) attachmentHoles.push(routeDna.hole);
+        } else if (routeDna.kind === "certificate") routeDnaCertificate = routeDna.value ?? null;
+        else if (routeDna.kind === "fingerprint" && typeof routeDna.value === "string") {
+          pushDnaFingerprint(routeDnaFingerprints, routeDna.value);
+        } else if (routeDna.kind === "bank") {
+          if (!attachmentHoles.includes("cwl:dna-bank-not-on-route")) {
+            attachmentHoles.push("cwl:dna-bank-not-on-route");
+          }
+        } else if (routeDna.kind === "matchLive") routeMatchLive = true;
+        else if (routeDna.kind === "matchBank") routeMatchBank = true;
+        else if (routeDna.kind === "expect" && typeof routeDna.value === "string") {
+          routeDnaExpect = routeDna.value;
+        }
         continue;
       }
       if (applyMetaLine(inner, metaCard, attachmentHoles)) continue;
@@ -1954,6 +2392,22 @@ export function parseCwlModule(source, file) {
       ...(peel ? { peel } : {}),
       ...(capabilities.length ? { capabilities } : {}),
       ...(worksWithoutClient ? { worksWithoutClient: true } : {}),
+      ...(typeof routeDnaCertificate === "string" ? { dnaCertificate: routeDnaCertificate } : {}),
+      ...(routeDnaFingerprints.length
+        ? {
+            dnaFingerprints: [...routeDnaFingerprints],
+            dnaFingerprint: routeDnaFingerprints[0],
+          }
+        : {}),
+      ...(routeMatchLive ? { matchLive: true } : {}),
+      ...(routeMatchBank ? { matchBank: true } : {}),
+      ...(typeof routeDnaExpect === "string" ? { dnaExpect: routeDnaExpect } : {}),
+      ...(typeof routeDnaProofName === "string" ? { dnaProof: routeDnaProofName } : {}),
+      ...(typeof routeDnaQuorum === "number" ? { dnaQuorum: routeDnaQuorum } : {}),
+      ...(typeof routeDnaLineage === "string" ? { dnaLineage: routeDnaLineage } : {}),
+      ...(typeof routeDnaSupersedes === "string" ? { dnaSupersedes: routeDnaSupersedes } : {}),
+      ...(typeof routeDnaWitness === "string" ? { dnaWitness: routeDnaWitness } : {}),
+      ...(typeof routeDnaScope === "string" ? { dnaScope: routeDnaScope } : {}),
       ...(metaCardHasFacts(metaCard) ? { metaCard } : {}),
       ...(pageStyles.length ? { pageStyles } : {}),
       ...(icons.length ? { icons } : {}),
@@ -1966,6 +2420,44 @@ export function parseCwlModule(source, file) {
       body,
     });
   }
+  applyDnaProofCoherence({
+    certificate: dnaCertificate,
+    bank: dnaBank,
+    matchLive,
+    matchBank,
+    holes: dnaHoles,
+  });
+  if (typeof dnaQuorum === "number" && dnaQuorum > dnaFingerprints.length) {
+    if (!dnaHoles.includes("cwl:dna-quorum-too-high")) dnaHoles.push("cwl:dna-quorum-too-high");
+  }
+  for (const route of routes) {
+    if (typeof route.dnaProof === "string") {
+      const proof = dnaProofs.find((p) => p.name === route.dnaProof);
+      if (!proof) {
+        const holes = Array.isArray(route.attachmentHoles) ? route.attachmentHoles : [];
+        if (!holes.includes("cwl:dna-proof-unknown")) holes.push("cwl:dna-proof-unknown");
+        route.attachmentHoles = holes;
+      } else {
+        applyDnaProofToRoute(route, proof);
+      }
+    }
+    const routeHoles = Array.isArray(route.attachmentHoles) ? route.attachmentHoles : [];
+    const routeFps = Array.isArray(route.dnaFingerprints) ? route.dnaFingerprints : [];
+    if (typeof route.dnaQuorum === "number" && route.dnaQuorum > routeFps.length) {
+      if (!routeHoles.includes("cwl:dna-quorum-too-high")) routeHoles.push("cwl:dna-quorum-too-high");
+    }
+    applyDnaProofCoherence({
+      certificate:
+        typeof route.dnaCertificate === "string"
+          ? route.dnaCertificate
+          : dnaCertificate,
+      bank: typeof route.dnaBankFromProof === "string" ? route.dnaBankFromProof : dnaBank,
+      matchLive: route.matchLive === true,
+      matchBank: route.matchBank === true,
+      holes: routeHoles,
+    });
+    if (routeHoles.length) route.attachmentHoles = routeHoles;
+  }
   const parsedModule = {
     moduleName,
     moduleLine,
@@ -1976,6 +2468,21 @@ export function parseCwlModule(source, file) {
     tables,
     engine,
     engineHoles,
+    ...(dnaHoles.length ? { dnaHoles } : {}),
+    ...(typeof dnaCertificate === "string" ? { dnaCertificate } : {}),
+    ...(dnaFingerprints.length
+      ? { dnaFingerprints: [...dnaFingerprints], dnaFingerprint: dnaFingerprints[0] }
+      : {}),
+    ...(typeof dnaBank === "string" ? { dnaBank } : {}),
+    ...(matchLive ? { matchLive: true } : {}),
+    ...(matchBank ? { matchBank: true } : {}),
+    ...(typeof dnaExpect === "string" ? { dnaExpect } : {}),
+    ...(typeof dnaQuorum === "number" ? { dnaQuorum } : {}),
+    ...(typeof dnaLineage === "string" ? { dnaLineage } : {}),
+    ...(typeof dnaSupersedes === "string" ? { dnaSupersedes } : {}),
+    ...(typeof dnaWitness === "string" ? { dnaWitness } : {}),
+    ...(typeof dnaScope === "string" ? { dnaScope } : {}),
+    ...(dnaProofs.length ? { dnaProofs } : {}),
     layouts,
     moduleUses,
     moduleAuthUses,

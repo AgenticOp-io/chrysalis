@@ -661,6 +661,329 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     });
   }
 
+  // Tip 1.0.85–1.0.86 / RFC-0042+0043: gold 94 DNA binds at sha384 floor — document facts only.
+  // Do not invent Helix, digests, or Nest/LiveView/Flutter façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "94-dna-fingerprint", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.86-parse:94-dna-fingerprint", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const facts = [
+        'dna certificate "app.dna.json";',
+        `dna fingerprint "${sha384}";`,
+        'dna bank "dna/";',
+        "match live;",
+      ];
+      const refuseHoles = [
+        "cwl:bad-dna-fingerprint",
+        "cwl:dna-fingerprint-too-weak",
+        "cwl:dna-certificate-not-url",
+        "cwl:dna-bank-not-on-route",
+      ];
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const dnaOk =
+        mod.dnaCertificate === "app.dna.json" &&
+        mod.dnaFingerprint === sha384 &&
+        mod.dnaBank === "dna/" &&
+        mod.matchLive === true &&
+        invoice?.dnaCertificate === "app.dna.json" &&
+        invoice?.dnaFingerprint === sha384 &&
+        invoice?.matchLive === true;
+      checks.push({
+        id: "tip-1.0.86-parse:94-dna-fingerprint",
+        ok: parseOk && dnaOk,
+        detail:
+          parseOk && dnaOk
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-fingerprint-sha384-facts`
+            : "parse/dna-fingerprint facts failed",
+      });
+      const catalogOk = refuseHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.86-catalog:rfc-0042",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0042/0043 DNA fingerprint holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.86-dna-fingerprint",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
+  // Tip 1.0.86 / RFC-0043: gold 95 DNA fingerprint strength sha384/sha512 — document facts only.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "95-dna-fingerprint-strong", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.86-parse:95-dna-fingerprint-strong", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const sha512 =
+        "sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const facts = [
+        'dna certificate "app.dna.json";',
+        `dna fingerprint "${sha384}";`,
+        'dna bank "dna/";',
+        "match live;",
+      ];
+      const refuseHoles = ["cwl:dna-fingerprint-too-weak", "cwl:bad-dna-fingerprint"];
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const dnaOk =
+        mod.dnaCertificate === "app.dna.json" &&
+        mod.dnaFingerprint === sha384 &&
+        mod.dnaBank === "dna/" &&
+        mod.matchLive === true &&
+        invoice?.dnaCertificate === "app.dna.json" &&
+        invoice?.dnaFingerprint === sha512 &&
+        invoice?.matchLive === true;
+      checks.push({
+        id: "tip-1.0.86-parse:95-dna-fingerprint-strong",
+        ok: parseOk && dnaOk,
+        detail:
+          parseOk && dnaOk
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-fingerprint-strong-facts`
+            : "parse/dna-fingerprint-strong facts failed",
+      });
+      const catalogOk =
+        CWL_FULLSTACK_HOLE_CATALOG["cwl:dna-fingerprint-too-weak"] != null &&
+        lookupFullstackHole("cwl:dna-fingerprint-too-weak") != null;
+      checks.push({
+        id: "tip-1.0.86-catalog:rfc-0043",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0043 dna-fingerprint-too-weak catalogued" : "missing catalog entry",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.86-dna-fingerprint-strong",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
+  // Tip 1.0.87 / RFC-0044: gold 96 DNA proof (multi-fingerprint · match bank · dna expect) — document facts only.
+  // Do not invent Helix promote/shadow/enforce, digests, or Nest/LiveView/Flutter façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "96-dna-proof", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.87-parse:96-dna-proof", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const sha512 =
+        "sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const facts = [
+        'dna certificate "app.dna.json";',
+        `dna fingerprint "${sha384}";`,
+        `dna fingerprint "${sha512}";`,
+        'dna bank "dna/";',
+        "match live;",
+        "match bank;",
+        "dna expect enforce;",
+        "dna expect shadow;",
+      ];
+      const refuseHoles = [
+        "cwl:match-without-certificate",
+        "cwl:match-bank-without-bank",
+        "cwl:dna-expect-unknown",
+      ];
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const dnaOk =
+        mod.dnaCertificate === "app.dna.json" &&
+        mod.dnaFingerprint === sha384 &&
+        Array.isArray(mod.dnaFingerprints) &&
+        mod.dnaFingerprints[0] === sha384 &&
+        mod.dnaFingerprints[1] === sha512 &&
+        mod.dnaBank === "dna/" &&
+        mod.matchLive === true &&
+        mod.matchBank === true &&
+        mod.dnaExpect === "enforce" &&
+        invoice?.dnaCertificate === "app.dna.json" &&
+        invoice?.dnaFingerprint === sha384 &&
+        invoice?.matchLive === true &&
+        invoice?.matchBank === true &&
+        invoice?.dnaExpect === "shadow";
+      checks.push({
+        id: "tip-1.0.87-parse:96-dna-proof",
+        ok: parseOk && dnaOk,
+        detail:
+          parseOk && dnaOk
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-proof-multi-fp-match-bank-expect`
+            : "parse/dna-proof facts failed",
+      });
+      const catalogOk = refuseHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.87-catalog:rfc-0044",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0044 DNA proof holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.87-dna-proof",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
+  // Tip 1.0.88 / RFC-0045: gold 97 DNA proof units (named proof · quorum · lineage · witness · scope) — document facts only.
+  // Do not invent Helix verify, witness fetch, digests, or Nest/LiveView/Flutter façades.
+  try {
+    const { parseCwlModule } = await import(pathToFileURL(join(root, "scripts/hub-ingest/cwl-parser.mjs")).href);
+    const { CWL_FULLSTACK_HOLE_CATALOG, lookupFullstackHole } = await import(
+      pathToFileURL(join(root, "scripts/hub-ingest/cwl-fullstack-holes.mjs")).href,
+    );
+    const path = join(cwlRoot, "fixtures/language-gold", "97-dna-proof-unit", "routes.cwl");
+    if (!existsSync(path)) {
+      checks.push({ id: "tip-1.0.88-parse:97-dna-proof-unit", ok: false, detail: "missing" });
+    } else {
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync(path, "utf8");
+      const mod = parseCwlModule(src, path);
+      const sha384 =
+        "sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const sha512 =
+        "sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      const supersedes =
+        "sha384-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+      const siteFp =
+        "sha384-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+      const facts = [
+        "dna proof invoice_v3 {",
+        "quorum 2;",
+        'lineage "dna/invoice_v2.dna.json";',
+        `supersedes "${supersedes}";`,
+        'witness "https://attest.example/invoice/v3";',
+        "scope path;",
+        "use dna proof invoice_v3;",
+        "dna quorum 1;",
+        'dna lineage "dna/site_v1.dna.json";',
+        'dna witness "https://attest.example/site";',
+        "dna scope host;",
+      ];
+      const refuseHoles = [
+        "cwl:dna-proof-unknown",
+        "cwl:dna-quorum-too-high",
+        "cwl:bad-dna-witness",
+        "cwl:bad-dna-lineage",
+        "cwl:bad-dna-supersedes",
+      ];
+      const catalogHoles = [
+        ...refuseHoles,
+        "cwl:dna-proof-duplicate",
+        "cwl:dna-proof-empty",
+        "cwl:dna-quorum-bad",
+        "cwl:dna-scope-unknown",
+      ];
+      const invoice = (mod.routes ?? []).find((r) => r.name === "invoice" || r.path === "/invoice");
+      const proof = Array.isArray(mod.dnaProofs) ? mod.dnaProofs.find((p) => p.name === "invoice_v3") : null;
+      const parseOk =
+        Boolean(mod.moduleName) &&
+        facts.every((f) => src.includes(f)) &&
+        refuseHoles.every((r) => src.includes(`hole ${r};`));
+      const unitOk =
+        proof?.certificate === "app.dna.json" &&
+        Array.isArray(proof?.fingerprints) &&
+        proof.fingerprints[0] === sha384 &&
+        proof.fingerprints[1] === sha512 &&
+        proof.quorum === 2 &&
+        proof.bank === "dna/" &&
+        proof.matchLive === true &&
+        proof.matchBank === true &&
+        proof.expect === "enforce" &&
+        proof.lineage === "dna/invoice_v2.dna.json" &&
+        proof.supersedes === supersedes &&
+        proof.witness === "https://attest.example/invoice/v3" &&
+        proof.scope === "path";
+      const flatOk =
+        mod.dnaCertificate === "site.dna.json" &&
+        mod.dnaFingerprint === siteFp &&
+        mod.dnaQuorum === 1 &&
+        mod.dnaLineage === "dna/site_v1.dna.json" &&
+        mod.dnaWitness === "https://attest.example/site" &&
+        mod.dnaScope === "host" &&
+        mod.matchLive === true &&
+        mod.dnaExpect === "shadow";
+      const routeOk =
+        invoice?.dnaProof === "invoice_v3" &&
+        invoice?.dnaCertificate === "app.dna.json" &&
+        invoice?.dnaFingerprints?.[0] === sha384 &&
+        invoice?.dnaFingerprints?.[1] === sha512 &&
+        invoice?.dnaQuorum === 2 &&
+        invoice?.dnaLineage === "dna/invoice_v2.dna.json" &&
+        invoice?.dnaSupersedes === supersedes &&
+        invoice?.dnaWitness === "https://attest.example/invoice/v3" &&
+        invoice?.dnaScope === "path" &&
+        invoice?.matchLive === true &&
+        invoice?.matchBank === true &&
+        invoice?.dnaExpect === "enforce" &&
+        invoice?.dnaBankFromProof === "dna/";
+      checks.push({
+        id: "tip-1.0.88-parse:97-dna-proof-unit",
+        ok: parseOk && unitOk && flatOk && routeOk,
+        detail:
+          parseOk && unitOk && flatOk && routeOk
+            ? `module=${mod.moduleName};routes=${mod.routes?.length};dna-proof-unit-quorum-lineage-witness-scope`
+            : "parse/dna-proof-unit facts failed",
+      });
+      const catalogOk = catalogHoles.every(
+        (r) => CWL_FULLSTACK_HOLE_CATALOG[r] != null && lookupFullstackHole(r) != null,
+      );
+      checks.push({
+        id: "tip-1.0.88-catalog:rfc-0045",
+        ok: catalogOk,
+        detail: catalogOk ? "RFC-0045 DNA proof unit holes catalogued" : "missing catalog entries",
+      });
+    }
+  } catch (e) {
+    checks.push({
+      id: "tip-1.0.88-dna-proof-unit",
+      ok: false,
+      detail: String(e?.message ?? e).slice(0, 300),
+    });
+  }
+
   // RFC-0033: the destination is returned verbatim — no rewritten host, no
   // invented content-type (the upstream decides what it sends back).
   await checkGold("proxy-upstream-target", "43-proxy-upstream", (text) =>
@@ -769,7 +1092,7 @@ export async function runGenomeDeepenPeelSmoke(opts = {}) {
     schemaVersion: HUB_GENOME_DEEPEN_PEEL_SMOKE_SCHEMA_VERSION,
     gate: "G10140",
     token: GENOME_DEEPEN_PEEL_OK,
-    cwlTip: "1.0.84",
+    cwlTip: "1.0.88",
     ok,
     checks,
     generatedAt: new Date().toISOString(),
