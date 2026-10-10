@@ -1,6 +1,9 @@
 # Chrysalis documentation
 
-**Start here:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — the operator stack (Site → CWL → LLM, VMF federation, Migration Evidence hub, Intelligence Shorthand, open web-LLM).
+**Documentation map (Convert index):** [`DOC-MAP.md`](./DOC-MAP.md) — entry points, CWL consume path (tip **1.0.88**), gravity, exec ceilings, whole-system, WPTP orbit, pillar-sync, Convert vs CWL vs Secure.  
+**Honest remaining gaps:** [`DOC-HOLES.md`](./DOC-HOLES.md).
+
+**Start here (operators):** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — the operator stack (Site → CWL → LLM, VMF federation, Migration Evidence hub, Intelligence Shorthand, open web-LLM).
 
 **Contributors / org home:** [`PROGRAM-HOME.md`](./PROGRAM-HOME.md) — one org (**AgenticOp-io**), one Project, many repos (**D6373**).  
 **CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) (**D6374**) — ideas in, repos apart; we do not push lockouts into their tree.
