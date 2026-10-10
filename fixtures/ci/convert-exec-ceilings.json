@@ -1,0 +1,69 @@
+{
+  "kind": "chrysalis.convert.exec-ceilings",
+  "schemaVersion": 1,
+  "cwlTipFloor": "1.0.88",
+  "policy": "D6442/D6447 — named residuals only; refuse invent evaluate / N-iter HTML / island JS execution until oracle + verify gold",
+  "ceilings": [
+    {
+      "id": "opaque-g-star-db-evaluate",
+      "title": "Opaque g_* / DB evaluate",
+      "owner": "convert",
+      "status": "named-residual",
+      "residual": "cwl:opaque-cond-residual",
+      "surface": [
+        "g_<callee>",
+        "g_empty_<name>",
+        "g_member_<path>",
+        "gN",
+        "DEFAULT_STUB_DB (param-insensitive; not origin DB authority)"
+      ],
+      "honestBehavior": "cwl-control-lower skips opaque g_* (no projectable cond). Hono/WebIR retain full behavior. Do not invent CWL/verify runtime that evaluates call/member/empty/DB conds.",
+      "proof": [
+        "docs/CWL-RFC-0021-early-exit-cond-expr.md",
+        "scripts/hub-ingest/cwl-control-lower.mjs",
+        "hub:cwl-early-exit-smoke"
+      ],
+      "blockedOn": "oracle-backed cond/DB evaluate authority (not StubDb façades)"
+    },
+    {
+      "id": "foreach-n-iteration-html",
+      "title": "Foreach N-iteration HTML emit/evaluate",
+      "owner": "convert",
+      "status": "named-residual",
+      "residual": "cwl:foreach-bind-doc-only",
+      "surface": [
+        "foreach <collection> as <item> { return html … }",
+        "foreachBindings after page return"
+      ],
+      "honestBehavior": "Stmt-level foreach binds the collection + one origin chrome sample. Simulate skips empty/non-array iterables. Never unroll N iterations into CWL/verify HTML.",
+      "proof": [
+        "docs/CWL-RFC-0021-early-exit-cond-expr.md",
+        "scripts/hub-ingest/cwl-control-lower.mjs",
+        "fixtures/tiny-blog/generated/cwl/routes.cwl",
+        "hub:cwl-early-exit-smoke"
+      ],
+      "blockedOn": "real corpus subject + oracle loop evaluate (nested foreach skipped — no invent fixture)"
+    },
+    {
+      "id": "browser-island-event-execution",
+      "title": "Browser island event execution",
+      "owner": "convert",
+      "status": "named-residual",
+      "residual": "cwl:island-event-contract-only",
+      "surface": [
+        "RFC-0019 data-cwl-island / data-cwl-on-*",
+        "bindClientIslandEvents / mountCwlClientIslands (declarative dispatch)",
+        "hub:layout-page-island-peel-smoke",
+        "hub:wisp-cwl-island-fidelity-smoke"
+      ],
+      "honestBehavior": "Contracts + declarative action dispatch only. No hydration / client JS execution / silent Svelte-React lowering until RFC-0019 v2 + verify gold.",
+      "proof": [
+        "packages/runtime-cwl-browser/README.md",
+        "docs/CWL-RUNTIME-DEPTH-PHASE-46.md",
+        "hub:cwl-runtime-scaffold-depth-smoke",
+        "hub:layout-page-island-peel-smoke"
+      ],
+      "blockedOn": "RFC-0019 v2 + origin island verify gold (oracle authority)"
+    }
+  ]
+}
