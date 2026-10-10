@@ -31,7 +31,7 @@
 
 ## Convert oracle wait (do not invent)
 
-Opaque `g_*` / DB evaluate, foreach N-iteration HTML, browser island **execution** — honest holes until oracle authority (**D6447**). See CWL `DNA-BUILD-NEXT.md` (queue CLOSED for language; sibling wait remains).
+Opaque `g_*` / DB evaluate, foreach N-iteration HTML, browser island **execution** — **named residuals** until oracle authority (**D6447**). Ledger: [`CONVERT-EXEC-CEILINGS.md`](./CONVERT-EXEC-CEILINGS.md) · `fixtures/ci/convert-exec-ceilings.json` · `pnpm run hub:convert-exec-ceiling-smoke` → `CONVERT_EXEC_CEILINGS_HONEST`. See CWL `DNA-BUILD-NEXT.md` (invent queue CLOSED; Convert fill still oracle-gated).
 
 ## Reply shapes
 

@@ -8,6 +8,42 @@
 
 ---
 
+## 2026-10-10 - convert-exec-ceilings-honesty
+
+**To:** cwl (FYI)  
+**Priority:** P1  
+**Status:** **landed** (named-residual ledger — not invent evaluate)  
+**Ask:** Convert execution ceilings after tip **1.0.88** invent queue CLOSED  
+**CWL tip:** **1.0.88** · sibling pin `cwl-v1.0.88`
+
+```text
+CONVERT_EXEC: named-residual
+CWL_PIN: file:1.0.88
+CWL_SIBLING_REF: cwl-v1.0.88
+BRANCH: candidate/convert-exec-ceilings-honesty
+BASE: e7a34073
+LANDED: fixtures/ci/convert-exec-ceilings.json · docs/CONVERT-EXEC-CEILINGS.md · hub:convert-exec-ceiling-smoke
+SMOKES: CONVERT_TIP_1_0_88_OK · CONVERT_EXEC_CEILINGS_HONEST
+OPEN: oracle fill for opaque g_*/DB evaluate · foreach N-iter HTML · island event execution (RFC-0019 v2)
+HEARTBEAT: waiting
+```
+
+### Landed
+
+- Named residual catalog for the three Convert-owned ceilings (D6442/D6447 — no façades)
+- Smoke proves control-lower skips opaque `g_*`, foreach stays bind/doc-only (no N-iter claim), island API stays contract/dispatch only
+- Does **not** invent cond/DB evaluate, N-iteration HTML, or client hydration execution
+
+### Requested honesty (still open)
+
+| Ceiling | Blocked on |
+| --- | --- |
+| Opaque `g_*` / DB evaluate | Oracle-backed cond/DB authority (not StubDb façades) |
+| Foreach N-iteration HTML | Real corpus loop subject + oracle; nested foreach still skipped |
+| Browser island event execution | RFC-0019 v2 + origin island verify gold |
+
+---
+
 ## 2026-10-10 - convert-tip-1.0.88
 
 **To:** cwl  

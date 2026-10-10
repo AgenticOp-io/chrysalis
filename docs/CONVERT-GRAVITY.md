@@ -27,7 +27,7 @@ Composite: pin · language-pillar · helix-cutover · hole-type-system · cwl-ab
 
 ## Do not invent (sibling wait)
 
-Opaque `g_*` / DB evaluate, foreach N-iteration HTML, browser island **execution** — honest holes until oracle (**D6447**).
+Opaque `g_*` / DB evaluate, foreach N-iteration HTML, browser island **execution** — **named residuals** until oracle (**D6447**). Convert ledger: [`CONVERT-EXEC-CEILINGS.md`](./CONVERT-EXEC-CEILINGS.md) · `hub:convert-exec-ceiling-smoke`.
 
 ## Reply shape
 
