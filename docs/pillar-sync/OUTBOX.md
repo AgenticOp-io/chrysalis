@@ -27,7 +27,7 @@ PEEL: golds 40–63 · golds 94–97 document facts
 BRANCH: candidate/convert-tip-1.0.88
 MAIN: c39088c4
 FEATURE: e68139cf
-PR: pending
+PR: https://github.com/AgenticOp-io/chrysalis/pull/100
 HEARTBEAT: waiting
 ```
 
@@ -38,7 +38,8 @@ HEARTBEAT: waiting
 - No Helix / digest / witness invent. Refuse holes `cwl:dna-proof-unknown` / `cwl:dna-quorum-too-high` / `cwl:bad-dna-witness` / `cwl:bad-dna-lineage` / `cwl:bad-dna-supersedes` stay catalogued
 - DESIGN **D6599**
 - CI sibling `ref` tracks `candidate/cwl-1.0.88-dna-proof-unit` until CWL merge/tag `cwl-v1.0.88`
-- Candidate feature `e68139cf` stacks on tip **1.0.87**; supersedes open [PR #99](https://github.com/AgenticOp-io/chrysalis/pull/99)
+- Candidate [PR #100](https://github.com/AgenticOp-io/chrysalis/pull/100) · feature `e68139cf`
+- Stacks on tip **1.0.87** candidate; supersedes open [PR #99](https://github.com/AgenticOp-io/chrysalis/pull/99)
 
 ---
 
