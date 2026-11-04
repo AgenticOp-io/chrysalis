@@ -47,7 +47,7 @@ async function exists(path) {
 }
 
 async function cloneRepo(url, dest, ref) {
-  if (await exists(join(dest, ".git"))) {
+  if ((await exists(join(dest, ".git"))) || (await exists(join(dest, "package.json")))) {
     process.stdout.write(`[install-wptp-hub-deps] reuse ${dest}\n`);
     return;
   }
