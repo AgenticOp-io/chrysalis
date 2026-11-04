@@ -16,7 +16,9 @@ import { countOperatorEvidenceDomains } from "./shorthand-analytics.js";
 import {
   loadIsUtilityStore,
   shouldDownRankByUtility,
+  utilityPriorView,
   utilityScoreMultiplier,
+  type IsUtilityPriorView,
   type IsUtilityStore,
 } from "./shorthand-utility.js";
 
@@ -60,6 +62,8 @@ export type ResolveShorthandWithTransferResult = {
   collaborationAttribution?: string;
   /** Salience ranker version used when near-miss (1 or 2). */
   salienceVersion?: 1 | 2;
+  /** Visible utility prior for the resolved domain (exact) or donor (near-miss) — D6600. */
+  utilityPrior?: IsUtilityPriorView;
 };
 
 function bestForDomain(
@@ -124,9 +128,12 @@ export function resolveShorthandWithTransfer(
       ? fingerprintFromOpenLegacyEntry(catalogEntry)
       : { domainId: input.domainId, origin: "unknown" });
 
+  const utilityStore = resolveUtilityStore(input);
+
   const exact = bestForDomain(input.domainId, input.shorthands);
   if (!needsNovel && exact) {
     const skipLlm = tierRank(exact.tier) <= tierRank("IS-T3-skill-capsule");
+    const prior = utilityPriorView(input.domainId, utilityStore?.domains[input.domainId]);
     return {
       domainId: input.domainId,
       tier: exact.tier,
@@ -138,13 +145,14 @@ export function resolveShorthandWithTransfer(
       nearMissShorthand: null,
       holeDeltaLlmOnly: false,
       taskFingerprint,
+      ...(prior ? { utilityPrior: prior } : {}),
     };
   }
 
   if (!needsNovel && input.domainCatalog?.length) {
-    const utilityStore = resolveUtilityStore(input);
     const ranked = rankNearMiss(input, taskFingerprint, utilityStore);
     if (ranked) {
+      const prior = utilityPriorView(ranked.domainId, utilityStore?.domains[ranked.domainId]);
       return {
         domainId: input.domainId,
         tier: ranked.shorthand.tier,
@@ -160,6 +168,7 @@ export function resolveShorthandWithTransfer(
         nearMissFeatures: ranked.features,
         collaborationAttribution: CYNOENGINE_ATTRIBUTION,
         salienceVersion: ranked.salienceVersion ?? 1,
+        ...(prior ? { utilityPrior: prior } : {}),
       };
     }
   }

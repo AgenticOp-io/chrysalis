@@ -24,6 +24,8 @@ propose; WebIR + oracle + verify dispose. See [`docs/AI-ASSIST.md`](./docs/AI-AS
 and the buyer-facing [`docs/CURSOR-PILOT-KIT.md`](./docs/CURSOR-PILOT-KIT.md)
 (`pnpm run pilot:laravel-min` · `pnpm run pilot:cobol-clbs`). LiteRT.js is **not** part of the convert path.
 
+**Intelligence Shorthand (IS)** is a first-class Convert surface (elevated in-repo, not a separate fork — **D6600**): verified capsules / policy / oracle refs instead of full weights. Import `@chrysalis/web-llm/shorthand`; docs [`INTELLIGENCE-SHORTHAND.md`](./docs/INTELLIGENCE-SHORTHAND.md) · CynoEngine-inspired substrate [`CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
+
 Convert’s engine legs (inside this pillar):
 
 1. **WebIR** — a multi-dialect, typed, effect-aware intermediate representation

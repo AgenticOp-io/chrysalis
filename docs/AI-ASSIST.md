@@ -19,6 +19,25 @@ Human + AI is intentional:
 | **Human** | New language POCs, confirm RED apply, product judgment |
 | **Chrysalis** | Ingest → WebIR → emit → oracle replay → verify dispose |
 
+## Intelligence Shorthand (first-class Convert surface)
+
+**IS** is how Convert stores migration competence without full weights: tier ladder IS-T5…T0, near-miss transfer, utility prior, demote-on-verify-fail. Elevated in-package as `@chrysalis/web-llm/shorthand` (**D6600**) — not a separate product fork.
+
+| Doc | Role |
+| --- | --- |
+| [`INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md) | Tier economics + product metrics |
+| [`INTELLIGENCE-SHORTHAND-PROTOCOL.md`](./INTELLIGENCE-SHORTHAND-PROTOCOL.md) | Runtime protocol |
+| [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) | CynoEngine-inspired laws (ideas only; repos stay apart) |
+
+```bash
+pnpm --filter @chrysalis/web-llm build
+pnpm run web-llm:export-shorthand
+pnpm run hub:intelligence-shorthand-close-smoke
+pnpm run hub:is-live-analytics-close-smoke
+```
+
+Resolve results may include `utilityPrior` (mean / samples / multiplier) so operators can see why a donor ranked — still never a verify substitute.
+
 ## Install the AI addon (MCP)
 
 **Buyer path (recommended):** [`CURSOR-PILOT-KIT.md`](./CURSOR-PILOT-KIT.md) — MCP + Cursor rule + `pnpm run pilot:laravel-min` on the laravel-min wedge.

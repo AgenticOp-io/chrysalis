@@ -1,11 +1,12 @@
 # CynoEngine × Chrysalis — incorporation plan
 
-> **Status:** **closed** (2026-07-09) — **G9520–G9550** shipped under **DESIGN D6375**  
-> **Authority:** DESIGN **D6374** (plan) · **D6375** (implementation)  
+> **Status:** **closed** (2026-07-09) — **G9520–G9550** shipped under **DESIGN D6375**; **IS elevated in Convert** (**D6600**, 2026-11-03)  
+> **Authority:** DESIGN **D6374** (plan) · **D6375** (implementation) · **D6600** (IS elevation + visible utility prior)  
 > **Locked path:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md)  
 > **Upstream ideas:** [nimbus7772017/CynoEngine](https://github.com/nimbus7772017/CynoEngine) (Theurgy / salience engine)  
 > **Collab issues:** [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1) · [chrysalis#54](https://github.com/AgenticOp-io/chrysalis/issues/54)  
-> **Org home:** [`PROGRAM-HOME.md`](./PROGRAM-HOME.md)
+> **Org home:** [`PROGRAM-HOME.md`](./PROGRAM-HOME.md)  
+> **IS home in Convert:** `@chrysalis/web-llm/shorthand` (not a separate AgenticOp product repo; FDE keeps its thin protocol port)
 
 ## 0. Stance (non-negotiable)
 

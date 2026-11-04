@@ -344,6 +344,22 @@ describe("@chrysalis/web-llm", () => {
     expect(utilityScoreMultiplier(store.domains.plainPhp)).toBeLessThan(1);
     expect(store.attribution).toBe(CYNOENGINE_ATTRIBUTION);
 
+    // D6600 — visible utility prior on near-miss resolve (inspectable substrate)
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "useful" });
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "useful" });
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "useful" });
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "useful" });
+    const withPrior = resolveShorthandForTask({
+      domainId: "laravelMin",
+      shorthands: [t5!],
+      domainCatalog: catalog,
+      utilityStore: store,
+    });
+    expect(withPrior.cacheOutcome).toBe("near-miss");
+    expect(withPrior.utilityPrior?.domainId).toBe("plainPhp");
+    expect(withPrior.utilityPrior?.sampleCount).toBeGreaterThanOrEqual(1);
+    expect(typeof withPrior.utilityPrior?.multiplier).toBe("number");
+
     expect(classifyConvertAction("hub_convert_is_routing").tier).toBe("GREEN");
     expect(classifyConvertAction("hub_convert_apply_holes").tier).toBe("RED");
     expect(

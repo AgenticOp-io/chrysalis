@@ -6,7 +6,7 @@ import type { IsCacheOutcome } from "./shorthand-analytics.js";
 import type { OpenLegacyDomainEntry, ShorthandTaskFingerprint } from "./shorthand-fingerprint.js";
 import type { NearMissSalienceFeatures } from "./shorthand-salience.js";
 import { resolveShorthandWithTransfer } from "./shorthand-transfer.js";
-import type { IsUtilityStore } from "./shorthand-utility.js";
+import type { IsUtilityPriorView, IsUtilityStore } from "./shorthand-utility.js";
 import { isHigherTier, tierRank, TIER_ORDER } from "./shorthand-tiers.js";
 
 export { isHigherTier, tierRank, TIER_ORDER } from "./shorthand-tiers.js";
@@ -70,6 +70,8 @@ export type ResolveShorthandResult = {
   nearMissFeatures?: NearMissSalienceFeatures;
   /** Transparent CynoEngine citation when near-miss path used. */
   collaborationAttribution?: string;
+  /** Visible utility prior for exact domain or near-miss donor (D6600). */
+  utilityPrior?: IsUtilityPriorView;
 };
 
 /** Pick lowest-storage tier with corpus binding for a chartered domain task. */
@@ -108,6 +110,7 @@ export function resolveShorthandForTask(input: ResolveShorthandInput): ResolveSh
       ...(transfer.collaborationAttribution
         ? { collaborationAttribution: transfer.collaborationAttribution }
         : {}),
+      ...(transfer.utilityPrior ? { utilityPrior: transfer.utilityPrior } : {}),
     };
   }
 

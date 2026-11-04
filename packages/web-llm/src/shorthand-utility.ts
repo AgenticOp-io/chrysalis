@@ -201,3 +201,31 @@ export function utilityScoreMultiplier(util: IsDomainUtility | undefined): numbe
   // Map mean 0→0.5, 0.5→1.0, 1→1.5
   return 0.5 + util.mean;
 }
+
+/**
+ * Operator-visible utility prior snapshot (D6600).
+ * Inspired by CynoEngine — substrate competence must be inspectable; adapted to verify dispose.
+ */
+export type IsUtilityPriorView = {
+  domainId: string;
+  mean: number;
+  sampleCount: number;
+  evidenceUsedCount: number;
+  multiplier: number;
+  downRanked: boolean;
+};
+
+export function utilityPriorView(
+  domainId: string,
+  util: IsDomainUtility | undefined,
+): IsUtilityPriorView | undefined {
+  if (!util || util.sampleCount < 1) return undefined;
+  return {
+    domainId,
+    mean: util.mean,
+    sampleCount: util.sampleCount,
+    evidenceUsedCount: util.evidenceUsedCount ?? 0,
+    multiplier: utilityScoreMultiplier(util),
+    downRanked: shouldDownRankByUtility(util),
+  };
+}
