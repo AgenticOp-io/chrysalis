@@ -11,7 +11,14 @@
  * sample are skipped, not guessed.
  *
  * Usage:
- *   node scripts/hub-ingest/go-binary-trace.mjs <binary> --routes routes.json [--samples dir] [--out file.json]
+ *   node scripts/hub-ingest/go-binary-trace.mjs <binary> --routes routes.json [--samples dir] [--out file.json] [-- args...]
+ *
+ * Any language works if the process serves HTTP on the PORT env var:
+ * `node ... python -- app.py`, `... java -- -jar app.jar`, `... node -- server.js`.
+ *
+ * Non-HTTP programs (COBOL batch/CGI, CLI filters): add `--exec`. Each route runs the
+ * program once: body on stdin, REQUEST_METHOD/REQUEST_PATH/QUERY_STRING in env, stdout
+ * is the response, exit 0 -> 200 else 500. Use `legacy:cobol-binary-handler-body` holes.
  *
  * Samples: `<dir>/<METHOD>_<path>.json` (non-alphanumerics -> `_`, e.g.
  * `GET_items_id.json`) with `{ "path"?, "query"?, "headers"?, "body"? }`.
@@ -28,6 +35,11 @@ import { readCorpus } from "../../packages/oracle/dist/index.js";
 
 export const GO_BINARY_HANDLER_BODY_HOLE = "legacy:go-binary-handler-body";
 const HOST = "127.0.0.1";
+
+/** Any `legacy:<lang>-binary-handler-body` hole (go, python, java, ...): the recorder is language-agnostic. */
+function evidenceHole(route) {
+  return JSON.stringify(route).match(/legacy:[a-z0-9]+-binary-handler-body/)?.[0] ?? null;
+}
 
 function freePort() {
   return new Promise((res, rej) => {
@@ -104,17 +116,35 @@ export async function traceGoBinary(opts) {
   const dayDir = join(tracesDir, "go-binary");
   await mkdir(dayDir, { recursive: true });
 
-  const port = await freePort();
-  const child = spawn(resolve(opts.binary), opts.args ?? [], {
-    env: { ...process.env, PORT: String(port) },
-    stdio: ["ignore", "ignore", "pipe"],
-  });
-  child.stderr.resume();
+  const port = opts.exec ? 0 : await freePort();
+  const cmd = /[\\/]/.test(opts.binary) ? resolve(opts.binary) : opts.binary;
+  const child = opts.exec
+    ? { exitCode: 0, kill() {}, once() {} }
+    : spawn(cmd, opts.args ?? [], { env: { ...process.env, PORT: String(port) }, stdio: ["ignore", "ignore", "pipe"] });
+  child.stderr?.resume();
   const base = `http://${HOST}:${port}`;
+  // Exec mode (COBOL batch/CGI, any non-HTTP program): one process per route, body on stdin,
+  // METHOD/REQUEST_PATH/QUERY_STRING in env, stdout is the response, exit 0 -> 200 else 500.
+  const execCall = (route, url, body) =>
+    new Promise((res, rej) => {
+      const p = spawn(cmd, opts.args ?? [], {
+        env: { ...process.env, REQUEST_METHOD: route.method, REQUEST_PATH: url.pathname, QUERY_STRING: url.search.slice(1) },
+        stdio: ["pipe", "pipe", "ignore"],
+        timeout: 15_000,
+      });
+      let out = "";
+      p.stdout.on("data", (d) => (out += d));
+      p.once("error", rej);
+      p.once("close", (code) =>
+        res({ status: code === 0 ? 200 : 500, headers: new Headers(), text: async () => out }),
+      );
+      p.stdin.on("error", () => {});
+      p.stdin.end(body ?? "");
+    });
   const recorded = new Map();
   const skipped = [];
   try {
-    await waitListening(child, port, opts.startTimeoutMs ?? 15_000);
+    if (!opts.exec) await waitListening(child, port, opts.startTimeoutMs ?? 15_000);
     for (const route of sorted) {
       const sample = await loadSample(opts.samplesDir, route);
       const reqPath = sample?.path ?? route.path;
@@ -138,7 +168,9 @@ export async function traceGoBinary(opts) {
       }
       let resp, text;
       try {
-        resp = await fetch(url, { method: route.method, headers, body, signal: AbortSignal.timeout(15_000) });
+        resp = opts.exec
+          ? await execCall(route, url, body)
+          : await fetch(url, { method: route.method, headers, body, signal: AbortSignal.timeout(15_000) });
         text = await resp.text();
       } catch (e) {
         skipped.push({ method: route.method, path: route.path, reason: `request-error: ${e?.message ?? e}` });
@@ -178,14 +210,13 @@ export async function traceGoBinary(opts) {
     } catch {
       /* non-JSON body stays "text" */
     }
+    const evidenceFor = evidenceHole(route);
     observedByRoute.set(route, {
       traceId: t.header.traceId,
       status: res.status,
       contentType: res.headers["content-type"] ?? null,
       bodyShape,
-      ...(JSON.stringify(route).includes(GO_BINARY_HANDLER_BODY_HOLE)
-        ? { evidenceFor: GO_BINARY_HANDLER_BODY_HOLE }
-        : {}),
+      ...(evidenceFor ? { evidenceFor } : {}),
     });
   }
 
@@ -197,11 +228,15 @@ export async function traceGoBinary(opts) {
 }
 
 function parseArgs(argv) {
-  const out = { binary: null, routes: null, samples: null, out: null, traces: null };
+  const out = { binary: null, routes: null, samples: null, out: null, traces: null, args: [] };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--routes") out.routes = argv[++i];
+    if (a === "--") {
+      out.args = argv.slice(i + 1);
+      break;
+    } else if (a === "--routes") out.routes = argv[++i];
     else if (a === "--samples") out.samples = argv[++i];
+    else if (a === "--exec") out.exec = true;
     else if (a === "--out") out.out = argv[++i];
     else if (a === "--traces") out.traces = argv[++i];
     else if (!out.binary) out.binary = a;
@@ -219,6 +254,8 @@ async function main() {
   }
   const result = await traceGoBinary({
     binary: a.binary,
+    args: a.args,
+    exec: a.exec,
     routes: JSON.parse(await readFile(resolve(a.routes), "utf8")),
     samplesDir: a.samples ? resolve(a.samples) : undefined,
     tracesDir: a.traces ? resolve(a.traces) : undefined,

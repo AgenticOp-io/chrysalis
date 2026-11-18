@@ -69,3 +69,52 @@ test.skipIf(!HAS_GO)(
   },
   120_000,
 );
+
+const PY = ["python", "python3"].find((c) => spawnSync(c, ["--version"]).status === 0);
+
+test.skipIf(!PY)("binary trace is language-agnostic: Python stdlib server via args", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "chrysalis-py-binary-"));
+  const app = join(dir, "app.py");
+  await writeFile(
+    app,
+    `import os, json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+class H(BaseHTTPRequestHandler):
+    def do_GET(self):
+        b = json.dumps({"ok": True}).encode()
+        self.send_response(200); self.send_header("content-type", "application/json"); self.end_headers(); self.wfile.write(b)
+    def log_message(self, *a): pass
+HTTPServer(("127.0.0.1", int(os.environ["PORT"])), H).serve_forever()
+`,
+  );
+  const { traceGoBinary } = await import(resolve(ROOT, "scripts/hub-ingest/go-binary-trace.mjs"));
+  const out = await traceGoBinary({
+    binary: PY,
+    args: [app],
+    routes: [{ method: "GET", path: "/health", holes: ["legacy:python-binary-handler-body"] }],
+  });
+  expect(out.routes[0].observed.bodyShape).toEqual({ object: { ok: "boolean" } });
+  expect(out.routes[0].observed.evidenceFor).toBe("legacy:python-binary-handler-body");
+}, 60_000);
+
+test("exec mode records non-HTTP programs (COBOL-style stdin/stdout)", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "chrysalis-exec-binary-"));
+  const prog = join(dir, "prog.mjs");
+  await writeFile(
+    prog,
+    `let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{console.log(JSON.stringify({m:process.env.REQUEST_METHOD,n:s.length}));process.exit(process.env.REQUEST_PATH==="/bad"?1:0)})`,
+  );
+  const { traceGoBinary } = await import(resolve(ROOT, "scripts/hub-ingest/go-binary-trace.mjs"));
+  const out = await traceGoBinary({
+    binary: process.execPath,
+    args: [prog],
+    exec: true,
+    routes: [
+      { method: "POST", path: "/pay", holes: ["legacy:cobol-binary-handler-body"] },
+      { method: "GET", path: "/bad", holes: ["legacy:cobol-binary-handler-body"] },
+    ],
+  });
+  const by = new Map(out.routes.map((r: any) => [r.path, r.observed]));
+  expect(by.get("/pay")).toMatchObject({ status: 200, bodyShape: { object: { m: "string", n: "number" } }, evidenceFor: "legacy:cobol-binary-handler-body" });
+  expect(by.get("/bad").status).toBe(500);
+}, 60_000);
