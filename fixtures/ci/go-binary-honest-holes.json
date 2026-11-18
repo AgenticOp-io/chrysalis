@@ -1,0 +1,23 @@
+{
+  "kind": "chrysalis.hub.go-binary-honest-holes",
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-17T00:00:00.000Z",
+  "note": "Catalog only (D6601 / D6447). Black-box Go binary origin: evidence is the binary's own tables (go version -m, go tool nm symbols, route-like string literals) plus recorded HTTP traces. Never disassemble/decompile into WebIR, never invent handler logic, never claim D6448-ST from strings alone.",
+  "origin": {
+    "fixture": "fixtures/hub-flagship-go",
+    "ingest": "scripts/hub-ingest/go-binary-ingest.mjs",
+    "trace": "scripts/hub-ingest/go-binary-trace.mjs",
+    "smoke": "pnpm run hub:go-binary-smoke",
+    "supported": [
+      "Route method+path surface lifted from binary string literals matching the source peel",
+      "Handler names from go tool nm symbols (e.g. pkg.(*Server).ChatHandler)",
+      "Build info from go version -m",
+      "Request/response shapes from recorded traces against the running binary"
+    ],
+    "honestHoles": [
+      { "shape": "Route-like string with no proven handler binding", "reason": "legacy:go-binary-unbound-route" },
+      { "shape": "Handler body (always, unless a recorded trace backs observed behaviour)", "reason": "legacy:go-binary-handler-body" },
+      { "shape": "Stripped binary (-ldflags=\"-s -w\"): no symbol table to bind handlers", "reason": "legacy:go-binary-stripped" }
+    ]
+  }
+}

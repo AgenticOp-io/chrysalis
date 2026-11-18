@@ -1472,6 +1472,7 @@
     "hub:ktor-smoke": "node scripts/hub-ingest/hub-ktor-smoke.mjs",
     "hub:http4k-smoke": "node scripts/hub-ingest/hub-http4k-smoke.mjs",
     "hub:chi-smoke": "node scripts/hub-ingest/hub-chi-smoke.mjs",
+    "hub:go-binary-smoke": "node scripts/hub-ingest/hub-go-binary-smoke.mjs",
     "hub:gin-group-smoke": "node scripts/hub-ingest/hub-gin-group-smoke.mjs",
     "hub:echo-smoke": "node scripts/hub-ingest/hub-echo-smoke.mjs",
     "hub:fiber-smoke": "node scripts/hub-ingest/hub-fiber-smoke.mjs",
